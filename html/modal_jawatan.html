@@ -1,0 +1,32 @@
+<div class="modal fade" id="modal_jawatan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog cascading-modal mt-5 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header info-color white-text">
+                <h4 class="mb-0" id="lblMjwTitle">Jawatan</h4>
+                <button type="button" class="close waves-effect waves-light mr-0" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-3">
+                <form id="formMjw">
+                    <div class="md-form">
+                        <input type="text" id="txtMjwDesc" class="form-control">
+                        <label for="txtMjwDesc" id="lblMjwDesc">Jawatan *</label>
+                        <p class="font-small text-danger" id="txtMjwDescErr"></p>
+                    </div>
+                    <div class="form-check pl-0 ml-0">
+                        <input type="checkbox" class="form-check-input" id="chkMjwStatus" name="chkMjwStatus" value="1">
+                        <label class="form-check-label" for="chkMjwStatus">Aktif</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Tutup</button>
+                <button id="btnMjwSubmit" class="btn btn-info waves-effect"><i class="fas fa-highlighter"></i> Hantar</button>
+            </div>
+        </div>
+    </div>
+</div>

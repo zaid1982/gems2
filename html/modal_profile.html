@@ -1,0 +1,48 @@
+<div class="modal fade" id="modal_profile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog cascading-modal mt-5 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header info-color white-text">
+                <h4 class="mb-0"><i class="fas fa-user-edit"></i> Kemaskini Profil Pengguna</h4>
+                <button type="button" class="close waves-effect waves-light mr-0" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMpf">  
+                    <div class="md-form">
+                        <input type="text" id="txtMpfEmail" class="form-control">
+                        <label for="txtMpfEmail" id="lblMpfEmail">Emel *</label>
+                        <p class="font-small text-danger" id="txtMpfEmailErr"></p>
+                    </div>  
+                    <div class="md-form">
+                        <input type="text" id="txtMpfFirstName" class="form-control">
+                        <label for="txtMpfFirstName" id="lblMpfFirstName">Nama (<i>first name</i>) *</label>
+                        <p class="font-small text-danger" id="txtMpfFirstNameErr"></p>
+                    </div>  
+                    <div class="md-form">
+                        <input type="text" id="txtMpfLastName" class="form-control">
+                        <label for="txtMpfLastName" id="lblMpfLastName">Nama (<i>last name</i>) *</label>
+                        <p class="font-small text-danger" id="txtMpfLastNameErr"></p>
+                    </div>  
+                    <div class="md-form">
+                        <input type="text" id="txtMpfIdno" class="form-control">
+                        <label for="txtMpfIdno" id="lblMpfIdno">No MyKad</label>
+                        <p class="font-small text-danger" id="txtMpfIdnoErr"></p>
+                    </div>  
+                    <div class="md-form">
+                        <input type="text" id="txtMpfPhone" class="form-control">
+                        <label for="txtMpfPhone" id="lblMpfPhone">No Telefon</label>
+                        <p class="font-small text-danger" id="txtMpfPhoneErr"></p>
+                    </div>  
+                </form>                
+            </div>            
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Keluar</button>
+                <button id="btnMpfSubmit" class="btn btn-info waves-effect"><i class="fas fa-highlighter"></i> Kemaskini</button>
+            </div>
+        </div>
+    </div>
+</div>

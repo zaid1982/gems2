@@ -1,0 +1,66 @@
+/* Your custom styles */
+.pl-4_1 {
+    padding-left: 2.1rem !important;
+}
+.pl-4_5 {
+    padding-left: 2.5rem !important;
+}
+.pb-1_2 {
+    padding-bottom: 1px !important;
+}
+.pb-1_3 {
+    padding-bottom: 8px !important;
+}
+.mb-4_5 {
+    margin-bottom: 27px !important;
+}
+.th-strong th {
+    font-weight: 900 !important; 
+}
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    //max-height: calc(100vh - 300px);
+    //overflow-y: auto;
+}
+
+.cascading-admin-card {
+    margin-top: 1.25rem; }
+.cascading-admin-card .admin-up {
+    margin-left: 4%;
+    margin-right: 4%;
+    margin-top: -1.25rem; }
+.cascading-admin-card .admin-up .fas,
+.cascading-admin-card .admin-up .far,
+.cascading-admin-card .admin-up .fab {
+    padding: 1.7rem;
+    font-size: 2rem;
+    color: #fff;
+    text-align: left;
+    -webkit-border-radius: 3px;
+    border-radius: 3px; }
+.cascading-admin-card .admin-up .data {
+    float: right;
+    margin-top: 2rem;
+    text-align: right; }
+.cascading-admin-card .admin-up .data p {
+    color: #999999;
+    font-size: 12px; }
+
+ul.striped li {
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15); }
+ul.striped li:last-child {
+    border-bottom: 0; }
+
+/* temp fix to alignment issue for select box labels  */
+.select-wrapper+label{
+    z-index: 0;
+    top: 0;
+    margin-left: 0px;
+}
+.select-wrapper+label.active{
+    font-size: 0.8rem;
+    top: 0.7rem;
+}

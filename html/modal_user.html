@@ -1,0 +1,89 @@
+<div class="modal fade" id="modal_user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog cascading-modal mt-5 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header info-color white-text">
+                <h4 class="mb-0" id="lblMusTitle">Pengguna Sistem</h4>
+                <button type="button" class="close waves-effect waves-light mr-0" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-3">
+                <form id="formMus">
+                    <div class="md-form mt-2">
+                        <input type="text" id="txtMusUserFirstName" class="form-control">
+                        <label for="txtMusUserFirstName" id="lblMusUserFirstName">Nama *</label>
+                        <p class="font-small text-danger" id="txtMusUserFirstNameErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <input type="text" id="txtMusUserName" class="form-control">
+                        <label for="txtMusUserName" id="lblMusUserName">Login ID *</label>
+                        <p class="font-small text-danger" id="txtMusUserNameErr"></p>
+                    </div>
+                    <div class="md-form divMusAddOnly">
+                        <input type="password" id="txtMusUserPassword" class="form-control">
+                        <label for="txtMusUserName" id="lblMusUserPassword">Kata Laluan *</label>
+                        <p class="font-small text-danger" id="txtMusUserPasswordErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <input type="text" id="txtMusUserBadanNo" class="form-control">
+                        <label for="txtMusUserBadanNo" id="lblMusUserBadanNo">No. Badan *</label>
+                        <p class="font-small text-danger" id="txtMusUserBadanNoErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <select id="optMusJabatanId" class="mdb-select md-form colorful-select dropdown-info">
+                            <option value="" selected disabled>Pilih Jabatan *</option>
+                        </select>
+                        <label for="optMusJabatanId" id="lblMusJabatanId"></label>
+                        <p class="font-small text-danger" id="optMusJabatanIdErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <select id="optMusPangkatId" class="mdb-select md-form colorful-select dropdown-info">
+                            <option value="" selected disabled>Pilih Pangkat *</option>
+                        </select>
+                        <label for="optMusPangkatId" id="lblMusPangkatId"></label>
+                        <p class="font-small text-danger" id="optMusPangkatIdErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <select id="optMusJawatanId" class="mdb-select md-form colorful-select dropdown-info">
+                            <option value="" selected disabled>Pilih Jawatan *</option>
+                        </select>
+                        <label for="optMusJawatanId" id="lblMusJawatanId"></label>
+                        <p class="font-small text-danger" id="optMusJawatanIdErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <input type="text" id="txtMusUserContactNo" class="form-control">
+                        <label for="txtMusUserContactNo" id="lblMusUserContactNo">No. Telefon *</label>
+                        <p class="font-small text-danger" id="txtMusUserContactNoErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <input type="text" id="txtMusUserEmail" class="form-control" autocomplete="off">
+                        <label for="txtMusUserEmail" id="lblMusUserEmail">Emel *</label>
+                        <p class="font-small text-danger" id="txtMusUserEmailErr"></p>
+                    </div>
+                    <div class="md-form">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole1" value="1">
+                            <label class="form-check-label" for="chkMusRole1">Super Administrator</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole2" value="2">
+                            <label class="form-check-label" for="chkMusRole2">Petugas</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole3" value="3">
+                            <label class="form-check-label" for="chkMusRole3">Peminjam</label>
+                        </div>
+                        <p class="font-small text-danger mt-3" id="chkMusRoleErr"></p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Tutup</button>
+                <button id="btnMusSubmit" class="btn btn-info waves-effect"><i class="fas fa-highlighter"></i> Hantar</button>
+            </div>
+        </div>
+    </div>
+</div>

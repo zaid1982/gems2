@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Sistem Permohonan Cuti</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        .intro-2 {
+            background: url("img/background/human-resources-1.jpg")no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+        .form-elegant .font-small {
+            font-size: 0.8rem;
+        }
+        .form-elegant .z-depth-1a {
+            -webkit-box-shadow: 0 2px 5px 0 rgba(55, 161, 255, 0.26), 0 4px 12px 0 rgba(121, 155, 254, 0.25);
+            box-shadow: 0 5px 8px 0 rgba(55, 161, 255, 0.26), 0 4px 12px 0 rgba(121, 155, 254, 0.25);
+        }
+        .form-elegant .z-depth-1-half,
+        .form-elegant .btn:hover {
+            -webkit-box-shadow: 0 5px 11px 0 rgba(85, 182, 255, 0.28), 0 4px 15px 0 rgba(36, 133, 255, 0.15);
+            box-shadow: 0 10px 19px 0 rgba(85, 182, 255, 0.28), 0 4px 15px 0 rgba(36, 133, 255, 0.15);
+        }
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="intro-2">
+<!-- Start your project here-->
+<div class="mx-3 mt-sm-3 mt-lg-4 mb-3">
+    <div class="flex-center flex-column float-lg-right mr-lg-5 pr-lg-5">
+        <h1 class="text-center wow fadeInLeft" data-wow-delay="0.3s"><img src="img/icon/jpdp.png" height="130"></h1>
+        <h1 class="mt-3 text-center wow fadeInLeft text-white" data-wow-delay="0.3s"><strong>Sistem Permohonan Cuti</strong></h1>
+        <section class="form-elegant">
+            <!--Form without header-->
+            <div class="card card-cascade narrower mx-3 mt-5 mb-3 wow fadeInLeft" data-wow-delay="0.6s">
+                <div class="view view-cascade gradient-card-header teal">
+                    <h2 class="card-header-title">Log Masuk</h2>
+                </div>
+                <div class="card-body card-body-cascade mx-4">
+                    <form id="formLgnLogin">
+                        <div class="md-form">
+                            <i class="fas fa-user prefix text-black-50"></i>
+                            <input type="email" id="txtLgnUsername" name="txtLgnUsername" class="form-control" >
+                            <label for="txtLgnUsername" >Pengguna ID</label>
+                            <p class="font-small text-danger pl-4_5" id="txtLgnUsernameErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-lock prefix text-black-50"></i>
+                            <input type="password" id="txtLgnPassword" name="txtLgnPassword" class="form-control" >
+                            <label for="txtLgnPassword">Kata Laluan</label>
+                            <p class="font-small text-danger pl-4_5" id="txtLgnPasswordErr"></p>
+                        </div>
+                        <div class="text-center pt-1">
+                            <button type="button" id="btnLgnSignIn" class="btn btn-outline-teal btn-rounded btn-block my-4 waves-effect z-depth-1a">Daftar Masuk</button>
+                        </div>
+                        <p class="font-small blue-text d-flex justify-content-end">
+                            <a href="#" class="teal-text ml-1" data-toggle="modal" data-target="#modalForgotPassword">Lupa Kata Laluan?</a>
+                        </p>
+                    </form>
+                </div>
+                <!--Footer-->
+                <div class="modal-footer mx-5 pt-2 mb-1">
+                    <p class="font-small grey-text d-flex justify-content-end">
+                        © 2019 Copyright: JPDP Leave System v1.0
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<input type="hidden" id="logoutReason" value="">
+<div class="includeHtml" id="h-modal_forgot_password"></div>
+
+<!--  SCRIPTS  -->
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+
+<script type="text/javascript">
+
+    new WOW().init();
+
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        $('.mdb-select').material_select();
+        new ModalForgotPassword();
+
+        // display notification
+        const getVar = mzGetUrlVars()['f'];
+        if (typeof getVar !== 'undefined') {
+            switch (getVar) {
+                case '0':
+                    toastr['success'](_ALERT_MSG_SUCCESS_LOGOUT, _ALERT_TITLE_SUCCESS_LOGOUT);
+                    break;
+                case '1':
+                    toastr['error'](_ALERT_MSG_ERROR_LOGOUT, _ALERT_TITLE_ERROR);
+                    break;
+                case '2':
+                    toastr['error'](_ALERT_MSG_ERROR_TIMEOUT, _ALERT_TITLE_ERROR_TIMEOUT);
+                    break;
+                case '3':
+                    toastr['success'](_ALERT_MSG_SUCCESS_REGISTER, _ALERT_TITLE_SUCCESS_REGISTER);
+                    break;
+            }
+        }
+
+        // activate account
+        const getVarKey = mzGetUrlVars()['key'];
+        if (typeof getVarKey !== 'undefined') {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const data = {
+                        action: 'activate',
+                        activationInput: getVarKey
+                    };
+                    mzAjaxRequest('register.php', 'POST', data);
+                    toastr['success'](_ALERT_MSG_SUCCESS_ACTIVATE, _ALERT_TITLE_SUCCESS_ACTIVATE);
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR_ACTIVATE);
+                }
+                HideLoader();
+            }, 300);
+        }
+
+        const vDataLgn = [
+            {
+                field_id: 'txtLgnUsername',
+                type: 'text',
+                name: 'User ID',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtLgnPassword',
+                type: 'text',
+                name: 'Password',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 20,
+                    minLength: 6
+                }
+            }
+        ];
+
+        let formLgnLoginValidate = new MzValidate('formLgnLogin');
+        formLgnLoginValidate.registerFields(vDataLgn);
+
+        $('#formLgnLogin').on('keyup', function () {
+            $('#btnLgnSignIn').attr('disabled', !formLgnLoginValidate.validateForm());
+        });
+
+        $('#btnLgnSignIn').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formLgnLoginValidate.validateForm()) {
+                        throw new Error(_ALERT_MSG_VALIDATION);
+                    }
+                    const data = {
+                        action: 'login_web',
+                        username: $('#txtLgnUsername').val(),
+                        password: $('#txtLgnPassword').val()
+                    };
+                    const respLogin = mzAjaxRequest('login.php', 'POST', data);
+                    sessionStorage.setItem('token', respLogin.token);
+
+                    let userInfo = {};
+                    $.each(respLogin, function (n, u) {
+                        if (n !== 'token') {
+                            userInfo[n] = u;
+                        }
+                    });
+                    sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+                    sessionStorage.setItem('navId', parseInt(userInfo.menu[0].navId));
+                    sessionStorage.setItem('navSecondId', 1);
+                    window.location.href = userInfo.menu[0]['navPage'];
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR_LOGIN);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_forgot_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>
