@@ -506,7 +506,7 @@ function initiatePages() {
     $('.collapsible').collapsible();
 
     $('#btnChangePassword').on('click', function () {
-        changePasswordClass.edit('Top', userInfo['userId']);
+        changePasswordClass_.edit('Top', userInfo['userId']);
     });
 }
 
