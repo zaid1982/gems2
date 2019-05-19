@@ -135,8 +135,20 @@ function MzValidate(name) {
 
     const validateFields = function (field_id, validator, name, type) {
         let msg = '';
-        const fieldSelector = type === 'check' ? $("input[name='"+field_id+"']:checkbox") : $('#' + field_id);
-        const fieldErrSelector = type === 'check' ? $('#' + field_id.substr(0, field_id.length-2) + 'Err') : $('#' +field_id + 'Err');
+        let fieldSelector;
+        let fieldErrSelector;
+        if (type === 'check') {
+            fieldSelector = $("input[name='"+field_id+"']:checkbox");
+            fieldErrSelector = $('#' + field_id.substr(0, field_id.length-2) + 'Err');
+        }
+        else if (type === 'radio') {
+            fieldSelector = $("input[name='"+field_id+"']:radio");
+            fieldErrSelector = $('#' + field_id.substr(0, field_id.length-2) + 'Err');
+        }
+        else {
+            fieldSelector = $('#' + field_id);
+            fieldErrSelector = $('#' +field_id + 'Err');
+        }
         fieldSelector.removeClass('invalid');
         fieldErrSelector.html('');
 
@@ -213,12 +225,26 @@ function MzValidate(name) {
     this.registerFields = function (data) {
         let arrFields = [];
         $.each(data, function (n, u) {
-            const fieldSelector = u.type === 'check' ? $("input[name='"+u.field_id+"']:checkbox") : $('#' + u.field_id);
-            const fieldErrSelector = u.type === 'check' ? $('#' + (u.field_id).substr(0, (u.field_id).length-2) + 'Err') : $('#' + u.field_id + 'Err');
+            let fieldSelector;
+            let fieldErrSelector;
+            if (u.type === 'check') {
+                fieldSelector = $("input[name='" + u.field_id + "']:checkbox");
+                fieldErrSelector = $('#' + (u.field_id).substr(0, (u.field_id).length - 2) + 'Err');
+            }
+            else if (u.type === 'radio') {
+                fieldSelector = $("input[name='"+u.field_id+"']:radio");
+                fieldErrSelector = $('#' + (u.field_id).substr(0, (u.field_id).length-2) + 'Err');
+            }
+            else {
+                fieldSelector = $('#' + u.field_id);
+                fieldErrSelector = $('#' + u.field_id + 'Err');
+            }
             fieldSelector.removeClass('invalid');
             fieldErrSelector.html('');
             fieldSelector.on('keyup change', function () {
-                validateFields(u.field_id, u.validator, u.name, u.type);
+                if (u.enabled) {
+                    validateFields(u.field_id, u.validator, u.name, u.type);
+                }
             });
             u.enabled = true;
             arrFields.push(u);
@@ -248,29 +274,47 @@ function MzValidate(name) {
 
     this.clearValidation = function () {
         $.each(this.fields, function (n, u) {
+            let fieldSelector;
+            let fieldErrSelector;
+            let fieldLblSelector = '';
             const fieldId = u.field_id;
-            const fieldSelector = u.type === 'check' ? $("input[name='"+fieldId+"']:checkbox") : $('#' + fieldId);
-            const fieldErrSelector = u.type === 'check' ? $('#' + fieldId.substr(0, fieldId.length-2) + 'Err') : $('#' +fieldId + 'Err');
-            const fieldLblSelector = u.type !== 'check' ? $('#lbl' + fieldId.substring(3)) : '';
+            if (u.type === 'check') {
+                fieldSelector = $("input[name='"+fieldId+"']:checkbox");
+                fieldErrSelector = $('#' + fieldId.substr(0, fieldId.length-2) + 'Err');
+            }
+            else if (u.type === 'radio') {
+                fieldSelector = $("input[name='"+fieldId+"']:radio");
+                fieldErrSelector = $('#' + fieldId.substr(0, fieldId.length-2) + 'Err');
+            }
+            else {
+                fieldSelector = $('#' + fieldId);
+                fieldErrSelector = $('#' + fieldId + 'Err');
+                fieldLblSelector = $('#lbl' + fieldId.substring(3));
+            }
             if (u.type === 'text' || u.type === 'textarea') {
                 fieldSelector.val('');
                 fieldLblSelector.removeClass('active');
-            } else if (u.type === 'select') {
+            }
+            else if (u.type === 'select') {
                 fieldSelector.val(null);
                 //$('.mdb-select').material_select('destroy');
                 //$('#' + fieldId).val(null).trigger( 'click');
                 //$('.mdb-select').material_select();
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
                 fieldLblSelector.html('').removeClass('active');
-            } else if (u.type === 'selectMultiple') {
+            }
+            else if (u.type === 'selectMultiple') {
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
                 fieldSelector.val(null).change();
                 fieldLblSelector.html('').removeClass('active');
-            } else if (u.type === 'checkSingle') {
+            }
+            else if (u.type === 'checkSingle') {
                 fieldSelector.prop('checked', false);
-            } else if (u.type === 'check') {
+            }
+            else if (u.type === 'check') {
                 fieldSelector.prop('checked',false);
-            } else if (u.type === 'file') {
+            }
+            else if (u.type === 'file') {
                 fieldSelector.val('');
                 fieldLblSelector.html('').removeClass('active');
             }
@@ -299,16 +343,6 @@ function MzValidate(name) {
             }
         });
         this.fields = arrFields;
-    };
-
-    this.validateForm = function () {
-        let result = true;
-        $.each(this.fields, function (n, u) {
-            if (u.enabled && !validateFieldsNoError(u.field_id, u.validator)) {
-                result = false;
-            }
-        });
-        return result;
     };
 
     this.validateField = function (fieldId) {
