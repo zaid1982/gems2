@@ -236,6 +236,9 @@ class Class_task
             $groupId = empty($task['group_id']) ? $groupId : $task['group_id'];
             $taskClaimedUser = $task['task_claimed_user'];
 
+            if ($task['task_current'] != '1') {
+                throw new Exception('(ErrCode:0423) [' . __LINE__ . '] - Parameter task_current not equal to 1');
+            }
             if (empty($roleId)) {
                 throw new Exception('(ErrCode:0404) [' . __LINE__ . '] - Parameter roleId empty');
             }
