@@ -309,9 +309,9 @@ function MzValidate(name) {
                 fieldLblSelector.html('').removeClass('active');
             }
             else if (u.type === 'checkSingle') {
-                fieldSelector.prop('checked', false);
+                fieldSelector.prop('checked',false);
             }
-            else if (u.type === 'check') {
+            else if (u.type === 'check' || u.type === 'radio') {
                 fieldSelector.prop('checked',false);
             }
             else if (u.type === 'file') {
