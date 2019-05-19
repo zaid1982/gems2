@@ -14,7 +14,7 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-/* Error code range - 2000 */ 
+/* Error code range - 8000 */
 try {   
     Class_db::getInstance()->db_connect();
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
@@ -30,9 +30,8 @@ try {
         if ($action === 'login') {
             $username = filter_input(INPUT_POST, 'username');
             $password = filter_input(INPUT_POST, 'password');
-            $roleId = filter_input(INPUT_POST, 'roleId');
 
-            $result = $fn_login->check_login_web($username, $password, $roleId);
+            $result = $fn_login->check_login($username, $password);
             $fn_general->save_audit('1', $result['userId']);
         }
         else if ($action === 'forgot_password') {      

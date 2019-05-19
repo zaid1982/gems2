@@ -180,7 +180,7 @@ class Class_login {
      * @return array
      * @throws Exception
      */
-    public function check_login ($username, $password, $roleId) {
+    public function check_login ($username, $password) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering check_login()');
@@ -189,9 +189,6 @@ class Class_login {
             } 
             if (is_null($password) || $password === '') { 
                 throw new Exception('(ErrCode:0109) [' . __LINE__ . '] - Parameter password empty');
-            }
-            if (is_null($roleId) || $roleId === '') {
-                throw new Exception('(ErrCode:0110) [' . __LINE__ . '] - Parameter  roleId empty');
             }
 
             $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
@@ -208,11 +205,7 @@ class Class_login {
             $userId = $profile['user_id'];
             $result = array();
 
-            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>$roleId)) == 0) {
-                throw new Exception('(ErrCode:0114) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
-            }
             $arr_roles = Class_db::getInstance()->db_select('vw_roles', array(), null, null, null, array('user_id'=>$userId));
-
             $token = $this->create_jwt($userId, $username);
 
             $result['token'] = $token;
@@ -230,20 +223,7 @@ class Class_login {
             $result['address']['addressCity'] = $this->fn_general->clear_null($profile['address_city']);          
             $result['address']['addressState'] = $this->fn_general->clear_null($profile['state_desc']);
             $result['roles'] = $arr_roles;
-
-            if ($roleId == '5' || $roleId == '6') {
-                $groupId = Class_db::getInstance()->db_select_col('sys_user_group', array('user_id'=>$userId), null, 1);
-                $sys_group = Class_db::getInstance()->db_select_single('sys_group', array('group_id'=>$groupId), null, 1);
-                $result['group']['groupId'] = $sys_group['group_id'];
-                $result['group']['groupName'] = $sys_group['group_name'];
-                $result['group']['groupType'] = $sys_group['group_type'];
-                $result['group']['groupRegNo'] = $this->fn_general->clear_null($sys_group['group_reg_no']);
-                $result['group']['groupStatus'] = $sys_group['group_status'];
-            } else {
-                $result['group'] = '';
-            }
-            //$result['menu'] = $fn_login->get_menu_list($arr_roles);        
-            
+            //$result['menu'] = $fn_login->get_menu_list($arr_roles);
             return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
