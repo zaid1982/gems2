@@ -253,7 +253,7 @@ class Class_reference {
             if (!array_key_exists('leaveTypeDesc', $params) || empty($params['leaveTypeDesc'])) {
                 throw new Exception('(ErrCode:0503) [' . __LINE__ . '] - Parameter leaveTypeDesc empty');
             }
-            if (!array_key_exists('leaveTypeAllowed', $params) || empty($params['leaveTypeAllowed'])) {
+            if (!array_key_exists('leaveTypeAllowed', $params) || $params['leaveTypeAllowed'] == '') {
                 throw new Exception('(ErrCode:0520) [' . __LINE__ . '] - Parameter leaveTypeAllowed empty');
             }
             if (!array_key_exists('leaveTypeStatus', $params) || empty($params['leaveTypeStatus'])) {

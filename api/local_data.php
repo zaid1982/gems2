@@ -37,29 +37,26 @@ try {
             
         $result = array();
         switch ($name) {
-            case 'jpdpl_status':
+            case 'gems_status':
                 $result = $fn_reference->get_status();
                 break;
-            case 'jpdpl_state':
+            case 'gems_state':
                 $result = $fn_reference->get_state();
                 break;
-            case 'jpdpl_city':
+            case 'gems_city':
                 $result = $fn_reference->get_city();
                 break;
-            case 'jpdpl_jabatan':
+            case 'gems_jabatan':
                 $result = $fn_reference->get_jabatan();
                 break;
-            case 'jpdpl_role':
+            case 'gems_role':
                 $result = $fn_reference->get_role();
                 break;
-            case 'jpdpl_user':
+            case 'gems_user':
                 $result = $fn_user->get_users();
                 break;
-            case 'jpdpl_jawatan':
+            case 'gems_jawatan':
                 $result = $fn_reference->get_jawatan();
-                break;
-            case 'jpdpl_leave_type':
-                $result = $fn_reference->get_leave_type();
                 break;
             default:
                 throw new Exception('(ErrCode:2303) [' . __LINE__ . '] - Parameter name invalid ('.$name.')');

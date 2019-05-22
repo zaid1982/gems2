@@ -198,7 +198,7 @@
                     });
                     sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
                     sessionStorage.setItem('navId', parseInt(userInfo.menu[0].navId));
-                    sessionStorage.setItem('navSecondId', 1);
+                    sessionStorage.setItem('navSecondId', 0);
                     window.location.href = userInfo.menu[0]['navPage'];
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR_LOGIN);
