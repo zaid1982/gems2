@@ -147,7 +147,10 @@ class Class_db{
                 continue;
             }
             $l1 = substr($value, 0, 1);
-            if ($value == 'Now()') {
+            if ($value === 0 || $value === '0') {
+                $set_str .= "$item='0', ";
+            }
+            else if ($value == 'Now()') {
                 $set_str .= "$item=Now(), ";
             } 
             else if ($value == 'Curdate()') {
