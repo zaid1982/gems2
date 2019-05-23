@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Sistem Permohonan Cuti</title>
+    <title>GEMS 2.0</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
     <!-- Bootstrap core CSS -->
@@ -102,8 +102,7 @@
                                     <tr class="th-strong">
                                         <th scope="row" style="width: 4%">#</th>
                                         <th>Nama Pegawai</th>
-                                        <th width="18%">Jabatan</th>
-                                        <th width="12%">Jawatan</th>
+                                        <th width="18%">Email</th>
                                         <th width="16%">Peranan</th>
                                         <th width="10%">No Telefon</th>
                                         <th width="8%">Status</th>
@@ -179,18 +178,18 @@
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                const refJabatan_ = mzGetLocalArray('gems_jabatan', versionLocal_, 'jabatanId');
-                const refJawatan_ = mzGetLocalArray('gems_jawatan', versionLocal_, 'jawatanId');
+                //const refJabatan_ = mzGetLocalArray('gems_jabatan', versionLocal_, 'jabatanId');
+                //const refJawatan_ = mzGetLocalArray('gems_jawatan', versionLocal_, 'jawatanId');
 
                 modalUserClass_.setClassFrom(userManagementClass_);
-                modalUserClass_.setRefJabatan(refJabatan_);
-                modalUserClass_.setRefJawatan(refJawatan_);
+                //modalUserClass_.setRefJabatan(refJabatan_);
+                //modalUserClass_.setRefJawatan(refJawatan_);
                 modalUserClass_.init();
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
                 userManagementClass_.setRefUser(refUser_);
-                userManagementClass_.setRefJabatan(refJabatan_);
-                userManagementClass_.setRefJawatan(refJawatan_);
+                //userManagementClass_.setRefJabatan(refJabatan_);
+                //userManagementClass_.setRefJawatan(refJawatan_);
                 userManagementClass_.setModalUserClass(modalUserClass_);
                 userManagementClass_.init();
             } catch (e) {

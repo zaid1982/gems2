@@ -11,9 +11,6 @@ function MainUserManagement() {
     let modalUserClass;
 
     this.init = function () {
-        mzOption('optUmnJabatanId', refJabatan, 'Semua Jabatan', 'jabatanId', 'jabatanDesc', {jabatanStatus: '1'});
-        mzOption('optUmnJawatanId', refJawatan, 'Semua Jawatan', 'jawatanId', 'jawatanDesc', {jawatanStatus: '1'});
-
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -58,12 +55,7 @@ function MainUserManagement() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'userFullName'},
-                    {mData: null, mRender: function (data, type, row){
-                            return row['jabatanId'] !== '' ? refJabatan[row['jabatanId']]['jabatanDesc'] : '';
-                        }},
-                    {mData: null, mRender: function (data, type, row){
-                            return row['jawatanId'] !== '' ? refJawatan[row['jawatanId']]['jawatanDesc'] : '';
-                        }},
+                    {mData: null},
                     {mData: null,
                         mRender: function (data, type, row) {
                             let label = '';
@@ -98,8 +90,6 @@ function MainUserManagement() {
                     },
                     {mData: 'userId', visible: false},
                     {mData: 'userStatus', visible: false},
-                    {mData: 'jabatanId', visible: false},
-                    {mData: 'jawatanId', visible: false},
                     {mData: 'roles', visible: false}
                 ]
         });
@@ -107,23 +97,17 @@ function MainUserManagement() {
         $('#txtUmnUserSearch').on('keyup change', function () {
             oTableUser.search($(this).val()).draw();
         });
-        $('#optUmnJabatanId').on('change', function () {
-            oTableUser.column(10).search($(this).val(), false, true, false).draw();
-        });
-        $('#optUmnJawatanId').on('change', function () {
-            oTableUser.column(11).search($(this).val(), false, true, false).draw();
-        });
         $('#linkUmn1').on('click', function () {
-            oTableUser.column(12).search('1').draw();
+            oTableUser.column(10).search('1').draw();
         });
         $('#linkUmn2').on('click', function () {
-            oTableUser.column(12).search('2', false, true, false).draw();
+            oTableUser.column(10).search('2', false, true, false).draw();
         });
         $('#linkUmn3').on('click', function () {
-            oTableUser.column(12).search('3', false, true, false).draw();
+            oTableUser.column(10).search('3', false, true, false).draw();
         });
         $('#linkUmn4').on('click', function () {
-            oTableUser.column(12).search('4', false, true, false).draw();
+            oTableUser.column(10).search('4', false, true, false).draw();
         });
 
         let cntUser;
@@ -156,21 +140,21 @@ function MainUserManagement() {
                 $.extend( true, {}, btnUserOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
-                    title:     'Sistem Permohonan Cuti - Senarai Pengguna Sistem',
+                    title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Print',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnUserOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'Sistem Permohonan Cuti - Senarai Pengguna Sistem',
+                    title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnUserOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'Sistem Permohonan Cuti - Senarai Pengguna Sistem',
+                    title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'

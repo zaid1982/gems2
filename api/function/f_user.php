@@ -237,12 +237,6 @@ class Class_user {
             if (!isset($put_vars['userContactNo']) || empty($put_vars['userContactNo'])) {
                 throw new Exception('(ErrCode:0223) [' . __LINE__ . '] - Parameter userContactNo empty');
             }
-            if (!isset($put_vars['jabatanId']) || empty($put_vars['jabatanId'])) {
-                throw new Exception('(ErrCode:0234) [' . __LINE__ . '] - Parameter jabatanId empty');
-            }
-            if (!isset($put_vars['jawatanId']) || empty($put_vars['jawatanId'])) {
-                throw new Exception('(ErrCode:0236) [' . __LINE__ . '] - Parameter jawatanId empty');
-            }
             if (!isset($put_vars['roles']) || empty($put_vars['roles'])) {
                 throw new Exception('(ErrCode:0237) [' . __LINE__ . '] - Parameter roles empty');
             }
@@ -250,8 +244,6 @@ class Class_user {
             $userEmail = $put_vars['userEmail'];
             $userFirstName = $put_vars['userFirstName'];
             $userContactNo = $put_vars['userContactNo'];
-            $jabatanId = $put_vars['jabatanId'];
-            $jawatanId = $put_vars['jawatanId'];
             $rolesStr = $put_vars['roles'];
 
             $roles = explode(',', $rolesStr);
@@ -278,8 +270,7 @@ class Class_user {
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName), array('user_id'=>$userId));
-            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'jabatan_id'=>$jabatanId,
-                'jawatan_id'=>$jawatanId), array('user_id'=>$userId, 'user_profile_status'=>'1'));
+            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
         }
         catch(Exception $ex) {   
@@ -353,12 +344,6 @@ class Class_user {
             if (!array_key_exists('roles', $userDetails) && empty($userDetails['roles'])) {
                 throw new Exception('(ErrCode:0229) [' . __LINE__ . '] - Parameter roles empty');
             }
-            if (!array_key_exists('jabatanId', $userDetails) && empty($userDetails['jabatanId'])) {
-                throw new Exception('(ErrCode:0230) [' . __LINE__ . '] - Parameter jabatanId empty');
-            }
-            if (!array_key_exists('jawatanId', $userDetails) && empty($userDetails['jawatanId'])) {
-                throw new Exception('(ErrCode:0232) [' . __LINE__ . '] - Parameter jawatanId empty');
-            }
 
             $userName = $userDetails['userName'];
             $userFirstName = $userDetails['userFirstName'];
@@ -366,8 +351,6 @@ class Class_user {
             $userContactNo = $userDetails['userContactNo'];
             $userPassword = $userDetails['userPassword'];
             $rolesStr = $userDetails['roles'];
-            $jabatanId = $userDetails['jabatanId'];
-            $jawatanId = $userDetails['jawatanId'];
 
             if (Class_db::getInstance()->db_count('sys_user', array('user_name'=>$userName)) > 0) {
                 throw new Exception('(ErrCode:0233) [' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
@@ -375,8 +358,7 @@ class Class_user {
 
             $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName,
                 'user_time_activate'=>'Now()', 'user_status'=>'1'));
-            Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo,
-                'jabatan_id'=>$jabatanId, 'jawatan_id'=>$jawatanId));
+            Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo));
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>'2'));
             $roles = explode(',', $rolesStr);
             foreach ($roles as $role) {
@@ -419,8 +401,6 @@ class Class_user {
                 $row_result['userMykadNo'] = $this->fn_general->clear_null($user['user_mykad_no']);
                 $row_result['userContactNo'] = $this->fn_general->clear_null($user['user_contact_no']);
                 $row_result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
-                $row_result['jawatanId'] = $this->fn_general->clear_null($user['jawatan_id']);
-                $row_result['jabatanId'] = $this->fn_general->clear_null($user['jabatan_id']);
                 $row_result['roles'] = $this->fn_general->clear_null($user['roles']);
                 $row_result['userStatus'] = $user['user_status'];
                 array_push($result, $row_result);
@@ -456,8 +436,6 @@ class Class_user {
             $result['userMykadNo'] = $this->fn_general->clear_null($user['user_mykad_no']);
             $result['userContactNo'] = $this->fn_general->clear_null($user['user_contact_no']);
             $result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
-            $result['jawatanId'] = $this->fn_general->clear_null($user['jawatan_id']);
-            $result['jabatanId'] = $this->fn_general->clear_null($user['jabatan_id']);
             $result['roles'] = $this->fn_general->clear_null($user['roles']);
             $result['userStatus'] = $user['user_status'];
 

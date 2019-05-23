@@ -78,8 +78,6 @@ class Class_sql
                     sys_user.*,
                     sys_user_profile.user_contact_no,
                     sys_user_profile.user_email,
-                    sys_user_profile.jawatan_id,
-                    sys_user_profile.jabatan_id,
                     user_group.roles
                 FROM sys_user
                 LEFT JOIN sys_user_profile ON sys_user_profile.user_id = sys_user.user_id AND sys_user_profile.user_profile_status = 1
