@@ -64,3 +64,13 @@ ul.striped li:last-child {
     font-size: 0.8rem;
     top: 0.7rem;
 }
+.md-outline.select-wrapper+label {
+    top: .5em !important;
+    z-index: 2 !important;
+}
+.select-wrapper.md-form.md-outline input.select-dropdown {
+    margin-bottom: 0px;
+}
+.md-form.md-outline .form-control {
+    margin-bottom: 0px;
+}
