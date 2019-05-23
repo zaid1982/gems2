@@ -55,8 +55,8 @@ try {
             case 'gems_user':
                 $result = $fn_user->get_users();
                 break;
-            case 'gems_jawatan':
-                $result = $fn_reference->get_jawatan();
+            case 'gems_designation':
+                $result = $fn_reference->get_designation();
                 break;
             default:
                 throw new Exception('(ErrCode:2303) [' . __LINE__ . '] - Parameter name invalid ('.$name.')');

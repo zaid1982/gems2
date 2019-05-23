@@ -585,28 +585,28 @@ class Class_reference {
     }
 
     /**
-     * @param null $jawatanId
+     * @param null $designationId
      * @return array
      * @throws Exception
      */
-    public function get_jawatan ($jawatanId=null) {
+    public function get_designation ($designationId=null) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_designation()');
 
             $result = array();
-            if (is_null($jawatanId)) {
-                $arr_dataLocal = Class_db::getInstance()->db_select('jpl_jawatan');
+            if (is_null($designationId)) {
+                $arr_dataLocal = Class_db::getInstance()->db_select('ref_designation');
                 foreach ($arr_dataLocal as $dataLocal) {
-                    $row_result['jawatanId'] = $dataLocal['jawatan_id'];
-                    $row_result['jawatanDesc'] = $dataLocal['jawatan_desc'];
-                    $row_result['jawatanStatus'] = $dataLocal['jawatan_status'];
+                    $row_result['designationId'] = $dataLocal['designation_id'];
+                    $row_result['designationDesc'] = $dataLocal['designation_desc'];
+                    $row_result['designationStatus'] = $dataLocal['designation_status'];
                     array_push($result, $row_result);
                 }
             } else {
-                $dataLocal = Class_db::getInstance()->db_select_single('jpl_jawatan', array('jawatan_id'=>$jawatanId), null, 1);
-                $result['jawatanId'] = $dataLocal['jawatan_id'];
-                $result['jawatanDesc'] = $dataLocal['jawatan_desc'];
-                $result['jawatanStatus'] = $dataLocal['jawatan_status'];
+                $dataLocal = Class_db::getInstance()->db_select_single('ref_designation', array('designation_id'=>$designationId), null, 1);
+                $result['designationId'] = $dataLocal['designation_id'];
+                $result['designationDesc'] = $dataLocal['designation_desc'];
+                $result['designationStatus'] = $dataLocal['designation_status'];
             }
 
             return $result;
@@ -621,29 +621,29 @@ class Class_reference {
      * @return mixed
      * @throws Exception
      */
-    public function add_jawatan ($params) {
+    public function add_designation ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering add_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering add_designation()');
 
             if (empty($params)) {
                 throw new Exception('(ErrCode:0502) [' . __LINE__ . '] - Array params empty');
             }
-            if (!array_key_exists('jawatanDesc', $params) || empty($params['jawatanDesc'])) {
-                throw new Exception('(ErrCode:0512) [' . __LINE__ . '] - Parameter jawatanDesc empty');
+            if (!array_key_exists('designationDesc', $params) || empty($params['designationDesc'])) {
+                throw new Exception('(ErrCode:0512) [' . __LINE__ . '] - Parameter designationDesc empty');
             }
-            if (!array_key_exists('jawatanStatus', $params) || empty($params['jawatanStatus'])) {
-                throw new Exception('(ErrCode:0513) [' . __LINE__ . '] - Parameter jawatanStatus empty');
-            }
-
-            $jawatanDesc = $params['jawatanDesc'];
-            $jawatanStatus = $params['jawatanStatus'];
-
-            if (Class_db::getInstance()->db_count('jpl_jawatan', array('jawatan_desc'=>$jawatanDesc)) > 0) {
-                throw new Exception('(ErrCode:0514) [' . __LINE__ . '] - '.$constant::ERR_JAWATAN_SIMILAR, 31);
+            if (!array_key_exists('designationStatus', $params) || empty($params['designationStatus'])) {
+                throw new Exception('(ErrCode:0513) [' . __LINE__ . '] - Parameter designationStatus empty');
             }
 
-            return Class_db::getInstance()->db_insert('jpl_jawatan', array('jawatan_desc'=>$jawatanDesc, 'jawatan_status'=>$jawatanStatus));
+            $designationDesc = $params['designationDesc'];
+            $designationStatus = $params['designationStatus'];
+
+            if (Class_db::getInstance()->db_count('ref_designation', array('designation_desc'=>$designationDesc)) > 0) {
+                throw new Exception('(ErrCode:0514) [' . __LINE__ . '] - '.$constant::ERR_DESIGNATION_SIMILAR, 31);
+            }
+
+            return Class_db::getInstance()->db_insert('ref_designation', array('designation_desc'=>$designationDesc, 'designation_status'=>$designationStatus));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -651,37 +651,37 @@ class Class_reference {
     }
 
     /**
-     * @param $jawatanId
+     * @param $designationId
      * @param $put_vars
      * @throws Exception
      */
-    public function update_jawatan ($jawatanId, $put_vars) {
+    public function update_designation ($designationId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering update_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering update_designation()');
 
-            if (empty($jawatanId)) {
-                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter jawatanId empty');
+            if (empty($designationId)) {
+                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter designationId empty');
             }
             if (empty($put_vars)) {
                 throw new Exception('(ErrCode:0507) [' . __LINE__ . '] - Array put_vars empty');
             }
 
-            if (!isset($put_vars['jawatanDesc']) || empty($put_vars['jawatanDesc'])) {
-                throw new Exception('(ErrCode:0512) [' . __LINE__ . '] - Parameter jawatanDesc empty');
+            if (!isset($put_vars['designationDesc']) || empty($put_vars['designationDesc'])) {
+                throw new Exception('(ErrCode:0512) [' . __LINE__ . '] - Parameter designationDesc empty');
             }
-            if (!isset($put_vars['jawatanStatus']) || empty($put_vars['jawatanStatus'])) {
-                throw new Exception('(ErrCode:0513) [' . __LINE__ . '] - Parameter jawatanStatus empty');
-            }
-
-            $jawatanDesc = $put_vars['jawatanDesc'];
-            $jawatanStatus = $put_vars['jawatanStatus'];
-
-            if (Class_db::getInstance()->db_count('jpl_jawatan', array('jawatan_desc'=>$jawatanDesc, 'jawatan_id'=>'<>'.$jawatanId)) > 0) {
-                throw new Exception('(ErrCode:0514) [' . __LINE__ . '] - '.$constant::ERR_JAWATAN_SIMILAR, 31);
+            if (!isset($put_vars['designationStatus']) || empty($put_vars['designationStatus'])) {
+                throw new Exception('(ErrCode:0513) [' . __LINE__ . '] - Parameter designationStatus empty');
             }
 
-            Class_db::getInstance()->db_update('jpl_jawatan', array('jawatan_desc'=>$jawatanDesc, 'jawatan_status'=>$jawatanStatus), array('jawatan_id'=>$jawatanId));
+            $designationDesc = $put_vars['designationDesc'];
+            $designationStatus = $put_vars['designationStatus'];
+
+            if (Class_db::getInstance()->db_count('ref_designation', array('designation_desc'=>$designationDesc, 'designation_id'=>'<>'.$designationId)) > 0) {
+                throw new Exception('(ErrCode:0514) [' . __LINE__ . '] - '.$constant::ERR_DESIGNATION_SIMILAR, 31);
+            }
+
+            Class_db::getInstance()->db_update('ref_designation', array('designation_desc'=>$designationDesc, 'designation_status'=>$designationStatus), array('designation_id'=>$designationId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -689,24 +689,24 @@ class Class_reference {
     }
 
     /**
-     * @param $jawatanId
+     * @param $designationId
      * @return mixed
      * @throws Exception
      */
-    public function deactivate_jawatan ($jawatanId) {
+    public function deactivate_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering deactivate_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering deactivate_designation()');
 
-            if (empty($jawatanId)) {
-                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter jawatanId empty');
+            if (empty($designationId)) {
+                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter designationId empty');
             }
-            if (Class_db::getInstance()->db_count('jpl_jawatan', array('jawatan_id'=>$jawatanId, 'jawatan_status'=>'2')) > 0) {
-                throw new Exception('(ErrCode:0516) [' . __LINE__ . '] - '.$constant::ERR_JAWATAN_DEACTIVATE, 31);
+            if (Class_db::getInstance()->db_count('ref_designation', array('designation_id'=>$designationId, 'designation_status'=>'2')) > 0) {
+                throw new Exception('(ErrCode:0516) [' . __LINE__ . '] - '.$constant::ERR_DESIGNATION_DEACTIVATE, 31);
             }
 
-            Class_db::getInstance()->db_update('jpl_jawatan', array('jawatan_status'=>'2'), array('jawatan_id'=>$jawatanId));
-            return Class_db::getInstance()->db_select_col('jpl_jawatan', array('jawatan_id'=>$jawatanId), 'jawatan_desc', null, 1);
+            Class_db::getInstance()->db_update('ref_designation', array('designation_status'=>'2'), array('designation_id'=>$designationId));
+            return Class_db::getInstance()->db_select_col('ref_designation', array('designation_id'=>$designationId), 'designation_desc', null, 1);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -714,24 +714,24 @@ class Class_reference {
     }
 
     /**
-     * @param $jawatanId
+     * @param $designationId
      * @return mixed
      * @throws Exception
      */
-    public function activate_jawatan ($jawatanId) {
+    public function activate_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering activate_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering activate_designation()');
 
-            if (empty($jawatanId)) {
-                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter jawatanId empty');
+            if (empty($designationId)) {
+                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter designationId empty');
             }
-            if (Class_db::getInstance()->db_count('jpl_jawatan', array('jawatan_id'=>$jawatanId, 'jawatan_status'=>'1')) > 0) {
-                throw new Exception('(ErrCode:0517) [' . __LINE__ . '] - '.$constant::ERR_JAWATAN_ACTIVATE, 31);
+            if (Class_db::getInstance()->db_count('ref_designation', array('designation_id'=>$designationId, 'designation_status'=>'1')) > 0) {
+                throw new Exception('(ErrCode:0517) [' . __LINE__ . '] - '.$constant::ERR_DESIGNATION_ACTIVATE, 31);
             }
 
-            Class_db::getInstance()->db_update('jpl_jawatan', array('jawatan_status'=>'1'), array('jawatan_id'=>$jawatanId));
-            return Class_db::getInstance()->db_select_col('jpl_jawatan', array('jawatan_id'=>$jawatanId), 'jawatan_desc', null, 1);
+            Class_db::getInstance()->db_update('ref_designation', array('designation_status'=>'1'), array('designation_id'=>$designationId));
+            return Class_db::getInstance()->db_select_col('ref_designation', array('designation_id'=>$designationId), 'designation_desc', null, 1);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -739,29 +739,29 @@ class Class_reference {
     }
 
     /**
-     * @param $jawatanId
+     * @param $designationId
      * @return mixed
      * @throws Exception
      */
-    public function delete_jawatan ($jawatanId) {
+    public function delete_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering delete_jawatan()');
+            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering delete_designation()');
 
-            if (empty($jawatanId)) {
-                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter jawatanId empty');
+            if (empty($designationId)) {
+                throw new Exception('(ErrCode:0515) [' . __LINE__ . '] - Parameter designationId empty');
             }
-            if (Class_db::getInstance()->db_count('jpl_jawatan', array('jawatan_id'=>$jawatanId)) == 0) {
-                throw new Exception('(ErrCode:0518) [' . __LINE__ . '] - Jawatan data not exist');
+            if (Class_db::getInstance()->db_count('ref_designation', array('designation_id'=>$designationId)) == 0) {
+                throw new Exception('(ErrCode:0518) [' . __LINE__ . '] - Designation data not exist');
             }
-            if (Class_db::getInstance()->db_count('sys_user_profile', array('jawatan_id'=>$jawatanId)) > 0) {
-                throw new Exception('(ErrCode:0519) [' . __LINE__ . '] - '.$constant::ERR_JAWATAN_DELETE, 31);
+            if (Class_db::getInstance()->db_count('sys_user_profile', array('designation_id'=>$designationId)) > 0) {
+                throw new Exception('(ErrCode:0519) [' . __LINE__ . '] - '.$constant::ERR_DESIGNATION_DELETE, 31);
             }
 
-            $jawatanDesc = Class_db::getInstance()->db_select_col('jpl_jawatan', array('jawatan_id'=>$jawatanId), 'jawatan_desc', null, 1);
-            Class_db::getInstance()->db_delete('jpl_jawatan', array('jawatan_id'=>$jawatanId));
+            $designationDesc = Class_db::getInstance()->db_select_col('ref_designation', array('designation_id'=>$designationId), 'designation_desc', null, 1);
+            Class_db::getInstance()->db_delete('ref_designation', array('designation_id'=>$designationId));
 
-            return $jawatanDesc;
+            return $designationDesc;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

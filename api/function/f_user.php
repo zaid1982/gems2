@@ -237,6 +237,9 @@ class Class_user {
             if (!isset($put_vars['userContactNo']) || empty($put_vars['userContactNo'])) {
                 throw new Exception('(ErrCode:0223) [' . __LINE__ . '] - Parameter userContactNo empty');
             }
+            if (!isset($put_vars['designationId']) || empty($put_vars['designationId'])) {
+                throw new Exception('(ErrCode:0236) [' . __LINE__ . '] - Parameter designationId empty');
+            }
             if (!isset($put_vars['roles']) || empty($put_vars['roles'])) {
                 throw new Exception('(ErrCode:0237) [' . __LINE__ . '] - Parameter roles empty');
             }
@@ -244,6 +247,7 @@ class Class_user {
             $userEmail = $put_vars['userEmail'];
             $userFirstName = $put_vars['userFirstName'];
             $userContactNo = $put_vars['userContactNo'];
+            $designationId = $put_vars['designationId'];
             $rolesStr = $put_vars['roles'];
 
             $roles = explode(',', $rolesStr);
@@ -270,7 +274,7 @@ class Class_user {
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName), array('user_id'=>$userId));
-            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
+            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
         }
         catch(Exception $ex) {   
@@ -344,12 +348,16 @@ class Class_user {
             if (!array_key_exists('roles', $userDetails) && empty($userDetails['roles'])) {
                 throw new Exception('(ErrCode:0229) [' . __LINE__ . '] - Parameter roles empty');
             }
+            if (!array_key_exists('designationId', $userDetails) && empty($userDetails['designationId'])) {
+                throw new Exception('(ErrCode:0232) [' . __LINE__ . '] - Parameter designationId empty');
+            }
 
             $userName = $userDetails['userName'];
             $userFirstName = $userDetails['userFirstName'];
             $userEmail = $userDetails['userEmail'];
             $userContactNo = $userDetails['userContactNo'];
             $userPassword = $userDetails['userPassword'];
+            $designationId = $userDetails['designationId'];
             $rolesStr = $userDetails['roles'];
 
             if (Class_db::getInstance()->db_count('sys_user', array('user_name'=>$userName)) > 0) {
@@ -358,7 +366,7 @@ class Class_user {
 
             $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName,
                 'user_time_activate'=>'Now()', 'user_status'=>'1'));
-            Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo));
+            Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId));
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>'2'));
             $roles = explode(',', $rolesStr);
             foreach ($roles as $role) {
@@ -401,6 +409,7 @@ class Class_user {
                 $row_result['userMykadNo'] = $this->fn_general->clear_null($user['user_mykad_no']);
                 $row_result['userContactNo'] = $this->fn_general->clear_null($user['user_contact_no']);
                 $row_result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
+                $row_result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
                 $row_result['roles'] = $this->fn_general->clear_null($user['roles']);
                 $row_result['userStatus'] = $user['user_status'];
                 array_push($result, $row_result);

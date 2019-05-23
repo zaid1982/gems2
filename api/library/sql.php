@@ -78,6 +78,7 @@ class Class_sql
                     sys_user.*,
                     sys_user_profile.user_contact_no,
                     sys_user_profile.user_email,
+                    sys_user_profile.designation_id,
                     user_group.roles
                 FROM sys_user
                 LEFT JOIN sys_user_profile ON sys_user_profile.user_id = sys_user.user_id AND sys_user_profile.user_profile_status = 1
@@ -108,22 +109,6 @@ class Class_sql
                     role_id, COUNT(*) AS total
                 FROM sys_user_role
                 GROUP BY role_id";
-            } else if ($title === 'vg_schedule_who_next') {
-                $sql = "SELECT 
-                    sys_user_role.user_id AS user_id,
-	                IFNULL(activity_user.total_day / DATEDIFF((SELECT IF(MAX(activity_user_date) > CURDATE(), MAX(activity_user_date), CURDATE())+INTERVAL 1 DAY FROM ast_activity_user),DATE(user_role_time_created)), 0) AS index_work 
-                FROM sys_user_role 
-                LEFT JOIN 
-                    (SELECT 
-                        ast_activity_user.user_id AS user_id, 
-                        COUNT(*) AS total_day, 
-                        SUM(IF(activity_user_date = '[date_checked]', 1, 0)) AS total_today,
-                        MAX(activity_user_date) as max_date 
-                    FROM ast_activity_user 
-                    LEFT JOIN sys_user_role ON sys_user_role.user_id = ast_activity_user.user_id AND sys_user_role.role_id = 2
-                    GROUP BY user_id) activity_user ON activity_user.user_id = sys_user_role.user_id
-                WHERE role_id = 2 AND IFNULL(activity_user.total_today, 0) < 1
-                ORDER BY index_work LIMIT 1";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

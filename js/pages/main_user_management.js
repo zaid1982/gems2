@@ -5,16 +5,17 @@ function MainUserManagement() {
     let refStatus;
     let refUser;
     let refRole;
-    let refJabatan;
-    let refJawatan;
+    let refDesignation;
     let oTableUser;
     let modalUserClass;
 
     this.init = function () {
+        mzOption('optUmnDesignationId', refDesignation, 'All Designation', 'designationId', 'designationDesc', {designationStatus: '1'});
+
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [2, 'desc'],
+            aaSorting: [1, 'asc'],
             autoWidth: false,
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableUser.page.info();
@@ -55,7 +56,9 @@ function MainUserManagement() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'userFullName'},
-                    {mData: null},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['designationId'] !== '' ? refDesignation[row['designationId']]['designationDesc'] : '';
+                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             let label = '';
@@ -72,6 +75,9 @@ function MainUserManagement() {
                         }
                     },
                     {mData: 'userContactNo'},
+                    {mData: 'userEmail', mRender: function (data){
+                            return mzEmailShort(data, 18);
+                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['userStatus']]['statusColor']+' z-depth-2">'+refStatus[row['userStatus']]['statusDesc']+'</span></h6>';
@@ -195,6 +201,7 @@ function MainUserManagement() {
         let total2 = 0;
         let total3 = 0;
         let total4 = 0;
+        let total5 = 0;
 
         $.each(result, function (n, u) {
             chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
@@ -206,20 +213,23 @@ function MainUserManagement() {
                 total3 = parseInt(u['total']);
             } else if (u['roleId'] === '4') {
                 total4 = parseInt(u['total']);
+            } else if (u['roleId'] === '5') {
+                total5 = parseInt(u['total']);
             }
         });
 
-        $('#linkUmn1').html('<span class="bullet yellow"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">0</span>');
-        $('#linkUmn2').html('<span class="bullet light-green"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">0</span>');
-        $('#linkUmn3').html('<span class="bullet red accent-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">0</span>');
-        $('#linkUmn4').html('<span class="bullet purple"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">0</span>');
+        $('#linkUmn1').html('<span class="bullet yellow"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+total1+'</span>');
+        $('#linkUmn2').html('<span class="bullet light-green"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+total2+'</span>');
+        $('#linkUmn3').html('<span class="bullet red accent-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+total3+'</span>');
+        $('#linkUmn4').html('<span class="bullet purple"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+total4+'</span>');
+        $('#linkUmn5').html('<span class="bullet blue-grey accent-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+total5+'</span>');
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
                 type: 'pie'
             },
             title: {
-                text: 'Jumlah Pengguna Sistem Mengikut Peranan'
+                text: 'Total Users by Role'
             },
             tooltip: {
                 pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
@@ -260,11 +270,8 @@ function MainUserManagement() {
         if (typeof _dataEdit['userContactNo'] !== 'undefined') {
             currentRow['userContactNo'] = _dataEdit['userContactNo'];
         }
-        if (typeof _dataEdit['jabatanId'] !== 'undefined') {
-            currentRow['jabatanId'] = _dataEdit['jabatanId'];
-        }
-        if (typeof _dataEdit['jawatanId'] !== 'undefined') {
-            currentRow['jawatanId'] = _dataEdit['jawatanId'];
+        if (typeof _dataEdit['designationId'] !== 'undefined') {
+            currentRow['designationId'] = _dataEdit['designationId'];
         }
         if (typeof _dataEdit['roles'] !== 'undefined') {
             currentRow['roles'] = _dataEdit['roles'];
@@ -291,12 +298,8 @@ function MainUserManagement() {
         refRole = _refRole;
     };
 
-    this.setRefJabatan = function (_refJabatan) {
-        refJabatan = _refJabatan;
-    };
-
-    this.setRefJawatan = function (_refJawatan) {
-        refJawatan = _refJawatan;
+    this.setRefDesignation = function (_refDesignation) {
+        refDesignation = _refDesignation;
     };
 
     this.setModalUserClass = function (_modalUserClass) {
