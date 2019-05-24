@@ -55,24 +55,18 @@ try {
             $userName = filter_input(INPUT_POST, 'userName');
             $userPassword = filter_input(INPUT_POST, 'userPassword');
             $userFullName = filter_input(INPUT_POST, 'userFirstName');
-            $userBadanNo = filter_input(INPUT_POST, 'userBadanNo');
             $userContactNo = filter_input(INPUT_POST, 'userContactNo');
             $userEmail = filter_input(INPUT_POST, 'userEmail');
-            $jabatanId = filter_input(INPUT_POST, 'jabatanId');
-            $pangkatId = filter_input(INPUT_POST, 'pangkatId');
-            $jawatanId = filter_input(INPUT_POST, 'jawatanId');
+            $designationId = filter_input(INPUT_POST, 'designationId');
             $roles = filter_input(INPUT_POST, 'roles');
 
             $params = array(
                 'userName'=>$userName,
                 'userPassword'=>$userPassword,
                 'userFirstName'=>$userFullName,
-                'userBadanNo'=>$userBadanNo,
                 'userContactNo'=>$userContactNo,
                 'userEmail'=>$userEmail,
-                'jabatanId'=>$jabatanId,
-                'pangkatId'=>$pangkatId,
-                'jawatanId'=>$jawatanId,
+                'designationId'=>$designationId,
                 'roles'=>$roles
             );
             $result = $fn_user->add_user($params);

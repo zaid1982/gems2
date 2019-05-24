@@ -5,8 +5,7 @@ function ModalUser() {
     let rowRefresh = '';
     let classFrom;
     let userId = '';
-    let refJabatan;
-    let refJawatan;
+    let refDesignation;
     let formValidate;
 
     this.init = function () {
@@ -14,7 +13,7 @@ function ModalUser() {
             {
                 field_id: 'txtMusUserFirstName',
                 type: 'text',
-                name: 'Nama',
+                name: 'Name',
                 validator: {
                     notEmpty: true,
                     maxLength: 200
@@ -32,24 +31,16 @@ function ModalUser() {
             {
                 field_id: 'txtMusUserPassword',
                 type: 'text',
-                name: 'Kata Laluan',
+                name: 'Password',
                 validator: {
                     notEmpty: true,
                     maxLength: 30
                 }
             },
             {
-                field_id: 'optMusJabatanId',
+                field_id: 'optMusDesignationId',
                 type: 'select',
-                name: 'Jabatan',
-                validator: {
-                    notEmpty: true
-                }
-            },
-            {
-                field_id: 'optMusJawatanId',
-                type: 'select',
-                name: 'Jawatan',
+                name: 'Designation',
                 validator: {
                     notEmpty: true
                 }
@@ -57,7 +48,7 @@ function ModalUser() {
             {
                 field_id: 'txtMusUserContactNo',
                 type: 'text',
-                name: 'No. Telefon',
+                name: 'Contact No.',
                 validator: {
                     notEmpty: true,
                     digit: true,
@@ -68,7 +59,7 @@ function ModalUser() {
             {
                 field_id: 'txtMusUserEmail',
                 type: 'text',
-                name: 'Emel',
+                name: 'Email',
                 validator: {
                     notEmpty: true,
                     email: true,
@@ -78,7 +69,7 @@ function ModalUser() {
             {
                 field_id: 'chkMusRole[]',
                 type: 'check',
-                name: 'Peranan',
+                name: 'Roles',
                 validator: {
                     notEmptyCheck: true
                 }
@@ -96,12 +87,8 @@ function ModalUser() {
             formValidate.clearValidation();
         });
 
-        $('#optMusJabatanId').on('change', function () {
-            $('#lblMusJabatanId').html('Jabatan *').addClass('active');
-        });
-
-        $('#optMusJawatanId').on('change', function () {
-            $('#lblMusJawatanId').html('Jawatan *').addClass('active');
+        $('#optMusDesignationId').on('change', function () {
+            $('#lblMusDesignationId').html('Designation *').addClass('active');
         });
 
         $('#btnMusSubmit').on('click', function () {
@@ -125,16 +112,15 @@ function ModalUser() {
                         userFirstName: $('#txtMusUserFirstName').val(),
                         userContactNo: $('#txtMusUserContactNo').val(),
                         userEmail: $('#txtMusUserEmail').val(),
-                        jabatanId: $('#optMusJabatanId').val(),
-                        jawatanId: $('#optMusJawatanId').val(),
+                        designationId: $('#optMusDesignationId').val(),
                         roles: rolesStr
                     };
 
                     tempRow['userName'] = $('#txtMusUserName').val();
                     tempRow['userFullName'] = $('#txtMusUserFirstName').val();
+                    tempRow['designationId'] = $('#optMusDesignationId').val();
                     tempRow['userContactNo'] = $('#txtMusUserContactNo').val();
-                    tempRow['jabatanId'] = $('#optMusJabatanId').val();
-                    tempRow['jawatanId'] = $('#optMusJawatanId').val();
+                    tempRow['userEmail'] = $('#txtMusUserEmail').val();
                     tempRow['roles'] = rolesStr;
                     tempRow['userStatus'] = '1';
 
@@ -168,8 +154,7 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMusJabatanId', refJabatan, 'Pilih Jabatan *', 'jabatanId', 'jabatanDesc', {jabatanStatus: '1'}, 'required');
-                mzOption('optMusJawatanId', refJawatan, 'Pilih Jawatan *', 'jawatanId', 'jawatanDesc', {jawatanStatus: '1'}, 'required');
+                mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
@@ -201,8 +186,7 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMusJabatanId', refJabatan, 'Pilih Jabatan *', 'jabatanId', 'jabatanDesc');
-                mzOption('optMusJawatanId', refJawatan, 'Pilih Jawatan *', 'jawatanId', 'jawatanDesc');
+                mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc');
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
@@ -212,8 +196,7 @@ function ModalUser() {
                 mzSetFieldValue('MusUserFirstName', dataUser['userFirstName'], 'text');
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
-                mzSetFieldValue('MusJabatanId', dataUser['jabatanId'], 'select', 'Jabatan *');
-                mzSetFieldValue('MusJawatanId', dataUser['jawatanId'], 'select', 'Jawatan *');
+                mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
                 formValidate.validateForm();
 
@@ -239,8 +222,7 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMusJabatanId', refJabatan, 'Pilih Jabatan *', 'jabatanId', 'jabatanDesc');
-                mzOption('optMusJawatanId', refJawatan, 'Pilih Jawatan *', 'jawatanId', 'jawatanDesc');
+                mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc');
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
@@ -249,23 +231,21 @@ function ModalUser() {
                 formValidate.disableField('txtMusUserFirstName');
                 formValidate.disableField('txtMusUserContactNo');
                 formValidate.disableField('txtMusUserEmail');
-                formValidate.disableField('optMusJabatanId');
-                formValidate.disableField('optMusJawatanId');
+                formValidate.disableField('optMusDesignationId');
                 formValidate.disableField('chkMusRole[]');
                 mzSetFieldValue('MusUserName', dataUser['userName'], 'text');
                 mzSetFieldValue('MusUserFirstName', dataUser['userFirstName'], 'text');
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
-                mzSetFieldValue('MusJabatanId', dataUser['jabatanId'], 'select', 'Jabatan *');
-                mzSetFieldValue('MusJawatanId', dataUser['jawatanId'], 'select', 'Jawatan *');
+                mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
                 formValidate.validateForm();
 
                 $('.divMusAddOnly, #btnMusSubmit').hide();
                 $('#lblMusTitle').html('<i class="fas fa-user"></i> &nbsp;Maklumat Pengguna Sistem');
-                $('#optMusJabatanId, #optMusJawatanId').material_select('destroy');
-                $('#txtMusUserName, #txtMusUserFirstName, #txtMusUserContactNo, #txtMusUserEmail, #optMusJabatanId, #optMusJawatanId').prop('disabled', true);
-                $('#optMusJabatanId, #optMusJawatanId').material_select();
+                $('#optMusDesignationId').material_select('destroy');
+                $('#txtMusUserName, #txtMusUserFirstName, #txtMusUserContactNo, #txtMusUserEmail, #optMusDesignationId').prop('disabled', true);
+                $('#optMusDesignationId').material_select();
                 $('input[name="chkMusRole[]"]').prop("disabled", true);
                 $('#modal_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
@@ -327,12 +307,8 @@ function ModalUser() {
         return className;
     };
 
-    this.setRefJabatan = function (_refJabatan) {
-        refJabatan = _refJabatan;
-    };
-
-    this.setRefJawatan = function (_refJawatan) {
-        refJawatan = _refJawatan;
+    this.setRefDesignation = function (_refDesignation) {
+        refDesignation = _refDesignation;
     };
 
     this.setClassFrom = function (_classFrom) {

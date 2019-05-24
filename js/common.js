@@ -5,7 +5,7 @@ const _ALERT_MSG_ERROR_DEFAULT = "Error on system. Please contact Administrator!
 const _ALERT_TITLE_SUCCESS = "SUCCESS";
 
 const _ALERT_TITLE_SUCCESS_LOGOUT = "SUCCESS SIGN OUT";
-const _ALERT_MSG_SUCCESS_LOGOUT = "Anda berjaya daftar keluar";
+const _ALERT_MSG_SUCCESS_LOGOUT = "You have successfully signed out";
 const _ALERT_MSG_ERROR_LOGOUT = "Error on system. Please try sign in again.";
 const _ALERT_TITLE_ERROR_TIMEOUT = "SESSION TIMEOUT";
 const _ALERT_MSG_ERROR_TIMEOUT = "Session expired. Please try sign in again.";
@@ -19,13 +19,8 @@ const _ALERT_MSG_SUCCESS_ACTIVATE = "Your account has successfully activated. Pl
 const _ALERT_MSG_SUCCESS_UPDATE_USER = "Your information successfully updated";
 const _ALERT_MSG_ERROR_SITE_NOCITY = "Please select city first";
 
-const _ALERT_MSG_ERROR_CONTRACTOR_NOSITE = "Please make sure at least 1 site selected";
-const _ALERT_MSG_ERROR_CONTRACTOR_NOEMPLOYEE = "Please register at least 1 employee";
-
-const _ALERT_MSG_ERROR_ACTIVITY_NOASSET = "Sila pastikan peralatan yang dipinjam didaftarkan";
-
 const _DATATABLE_LANGUAGE =  {
-    info: "Papar muka _START_ hingga _END_ dari _TOTAL_ rekod",
+    /*info: "Papar muka _START_ hingga _END_ dari _TOTAL_ rekod",
     emptyTable: "Tiada data diperolehi",
     infoEmpty: "Tiada data diperolehi",
     zeroRecords: "Tiada data dijumpai - maaf",
@@ -34,7 +29,7 @@ const _DATATABLE_LANGUAGE =  {
     paginate: {
         previous: "Sebelumnya",
         next: "Seterusnya"
-    }
+    }*/
 };
 
 function ShowLoader() {
@@ -162,43 +157,43 @@ function MzValidate(name) {
             if (!checkField(field_id, n2, u2)) {
                 switch (n2) {
                     case 'notEmpty':
-                        msg += '<br>Sila masukkan '+name;
+                        msg += '<br>Please fill in '+name;
                         return false;
                     case 'eqLength':
-                        msg += '<br>Panjang perkataan mesti ' + u2 + ' huruf';
+                        msg += '<br>Length must equal to ' + u2 + ' letters';
                         break;
                     case 'maxLength':
-                        msg += '<br>Panjang maksimum ialah '+u2+' huruf';
+                        msg += '<br>Maximum length is '+u2+' letters';
                         break;
                     case 'minLength':
-                        msg += '<br>Panjang minimum ialah '+u2+' huruf';
+                        msg += '<br>Minimum length is '+u2+' letters';
                         break;
                     case 'numeric':
-                        msg += '<br>' + name + ' mestilah dalam format nombor';
+                        msg += '<br>' + name + ' must be numeric';
                         break;
                     case 'email':
-                        msg += '<br>' + name + ' mestilah dalam format alamat emel';
+                        msg += '<br>' + name + ' wrong email format';
                         break;
                     case 'digit':
-                        msg += '<br>' + name + ' mesti mengandungi digit sahaja';
+                        msg += '<br>' + name + ' must contain digit only';
                         break;
                     case 'similar':
-                        msg += '<br>' + name + ' mesti sama dengan ' + u2.label;
+                        msg += '<br>' + name + ' must equal to ' + u2.label;
                         break;
                     case 'max':
-                        msg += '<br>' + name + ' mesti tidak melebihi ' + u2;
+                        msg += '<br>' + name + ' must not higher than ' + u2;
                         break;
                     case 'min':
-                        msg += '<br>' + name + ' mesti tidak kurang dari ' + u2;
+                        msg += '<br>' + name + ' must not lower than ' + u2;
                         break;                        
                     case 'notEmptyArr':
-                        msg += '<br>Sila pilih ' + name;
+                        msg += '<br>Please choose ' + name;
                         return false;                      
                     case 'notEmptyFile':
-                        msg += '<br>Sila muatnaik ' + name + ' fail';
+                        msg += '<br>Please upload ' + name + ' file';
                         return false;
                     case 'notEmptyCheck':
-                        msg += '<br>Sila pilih sekurangnya 1 ' + name;
+                        msg += '<br>Please check at least 1 ' + name;
                         return false;
                 }
             }
@@ -476,15 +471,15 @@ function initiatePages() {
 
     // Data Picker Initialization
     $('.datepicker').pickadate({
-        monthsFull: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'July', 'Ogos', 'September', 'Oktober',
-            'November', 'Disember'],
-        monthsShort: ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt',
-            'Nov', 'Dis'],
+        /*monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+            'November', 'December'],
+        monthsShort: ['Jan', 'Feb', 'Mac', 'Apr', 'May', 'Jun', 'Jul', 'Ogo', 'Sep', 'Oct',
+            'Nov', 'Dec'],
         weekdaysShort: ['Ahd', 'Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab'],
         weekdaysFull: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'],
         today: 'Hari ini',
         clear: 'Padam',
-        close: 'Batal'
+        close: 'Batal'*/
     });
 
     const token = sessionStorage.getItem('token');

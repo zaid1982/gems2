@@ -15,7 +15,7 @@ function MainUserManagement() {
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [1, 'asc'],
+            aaSorting: [8, 'desc'],
             autoWidth: false,
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableUser.page.info();
@@ -76,7 +76,7 @@ function MainUserManagement() {
                     },
                     {mData: 'userContactNo'},
                     {mData: 'userEmail', mRender: function (data){
-                            return mzEmailShort(data, 18);
+                            return mzEmailShort(data, 15);
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -125,7 +125,7 @@ function MainUserManagement() {
                         if (row === 0 && column === 0) {
                             cntUser = 1;
                         }
-                        if (column === 4) {
+                        if (column === 3) {
                             const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
                             const p = m.replace('</li></ul>', '');
                             const q = p.replace('</li><li>', '\n');
@@ -267,11 +267,14 @@ function MainUserManagement() {
         if (typeof _dataEdit['userFullName'] !== 'undefined') {
             currentRow['userFullName'] = _dataEdit['userFullName'];
         }
+        if (typeof _dataEdit['designationId'] !== 'undefined') {
+            currentRow['designationId'] = _dataEdit['designationId'];
+        }
         if (typeof _dataEdit['userContactNo'] !== 'undefined') {
             currentRow['userContactNo'] = _dataEdit['userContactNo'];
         }
-        if (typeof _dataEdit['designationId'] !== 'undefined') {
-            currentRow['designationId'] = _dataEdit['designationId'];
+        if (typeof _dataEdit['userEmail'] !== 'undefined') {
+            currentRow['userEmail'] = _dataEdit['userEmail'];
         }
         if (typeof _dataEdit['roles'] !== 'undefined') {
             currentRow['roles'] = _dataEdit['roles'];

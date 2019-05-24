@@ -445,6 +445,7 @@ class Class_user {
             $result['userMykadNo'] = $this->fn_general->clear_null($user['user_mykad_no']);
             $result['userContactNo'] = $this->fn_general->clear_null($user['user_contact_no']);
             $result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
+            $result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
             $result['roles'] = $this->fn_general->clear_null($user['roles']);
             $result['userStatus'] = $user['user_status'];
 

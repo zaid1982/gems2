@@ -71,6 +71,26 @@ ul.striped li:last-child {
 .select-wrapper.md-form.md-outline input.select-dropdown {
     margin-bottom: 0px;
 }
+.select-wrapper.md-form.md-outline+label {
+    top: -1.7em!important;
+    font-size: 13px;
+}
 .md-form.md-outline .form-control {
     margin-bottom: 0px;
 }
+
+@-webkit-keyframes autofill {
+    to {
+        color: #666;
+        background: transparent; } }
+
+@keyframes autofill {
+    to {
+        color: #666;
+        background: transparent; } }
+
+input:-webkit-autofill {
+    -webkit-animation-name: autofill;
+    animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both; }
