@@ -14,16 +14,15 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-/* Error code range - 2100 */ 
 try {   
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
-    $fn_general->log_debug($api_name, __LINE__, 'Request method = '.$request_method);
+    $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();
     if (!isset($headers['Authorization'])) {
-        throw new Exception('(ErrCode:2101) [' . __LINE__ . '] - Parameter Authorization empty');
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
@@ -35,7 +34,7 @@ try {
             if ($reportId === '1') {
                 $result = $fn_user->get_user_by_role();
             } else {
-                throw new Exception('(ErrCode:2104) [' . __LINE__ . '] - Parameter Reportid ('.$reportId.') invalid');
+                throw new Exception('[' . __LINE__ . '] - Parameter Reportid ('.$reportId.') invalid');
             }
         } else if (!is_null($userId)) {
             $result = $fn_user->get_user($userId);
@@ -73,7 +72,7 @@ try {
             $fn_general->updateVersion(3);
             $form_data['errmsg'] = $constant::SUC_USER_ADD;
         } else {
-            throw new Exception('(ErrCode:2105) [' . __LINE__ . '] - Parameter action (' . $action . ') invalid');
+            throw new Exception('[' . __LINE__ . '] - Parameter action (' . $action . ') invalid');
         }
 
         Class_db::getInstance()->db_commit();
@@ -87,10 +86,10 @@ try {
         $action = $put_vars['action'];
         
         if (empty($userId)) {
-            throw new Exception('(ErrCode:2102) [' . __LINE__ . '] - Parameter userId empty');
+            throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
         }        
         if (empty($action)) {
-            throw new Exception('(ErrCode:2103) [' . __LINE__ . '] - Parameter action empty');
+            throw new Exception('[' . __LINE__ . '] - Parameter action empty');
         } 
         
         Class_db::getInstance()->db_beginTransaction();
@@ -126,7 +125,7 @@ try {
         $form_data['result'] = $result;
         $form_data['success'] = true;      
     } else {
-        throw new Exception('(ErrCode:2100) [' . __LINE__ . '] - Wrong Request Method');   
+        throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }    
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
@@ -140,7 +139,7 @@ try {
     } else {
         $form_data['errmsg'] = $constant::ERR_DEFAULT;
     }
-    $fn_general->log_error($api_name, __LINE__, $ex->getMessage());
+    $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
 }
 
 echo json_encode($form_data);

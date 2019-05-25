@@ -2,13 +2,11 @@
 require_once 'library/constant.php';
 require_once 'function/f_general.php';
 
-/* Error code range - 0300 */ 
 class Class_email {
      
     private $fn_general;
     
-    function __construct()
-    {
+    function __construct() {
         $this->fn_general = new Class_general();
     }
     
@@ -23,7 +21,12 @@ class Class_email {
             return "(ErrCode:".$codes.") [".__CLASS__.":".$function.":".$line."]";
         }
     }
-    
+
+    /**
+     * @param $property
+     * @return mixed
+     * @throws Exception
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;
@@ -32,42 +35,63 @@ class Class_email {
         }
     }
 
-    public function __set( $property, $value ) {
+    /**
+     * @param $property
+     * @param $value
+     * @throws Exception
+     */
+    public function __set($property, $value ) {
         if (property_exists($this, $property)) {
             $this->$property = $value;        
         } else {
             throw new Exception($this->get_exception('0002', __FUNCTION__, __LINE__, 'Get Property not exist ['.$property.']'));
         }
     }
-    
-    public function __isset( $property ) {
+
+    /**
+     * @param $property
+     * @return bool
+     * @throws Exception
+     */
+    public function __isset($property ) {
         if (property_exists($this, $property)) {
             return isset($this->$property);
         } else {
             throw new Exception($this->get_exception('0003', __FUNCTION__, __LINE__, 'Get Property not exist ['.$property.']'));
         }
     }
-    
-    public function __unset( $property ) {
+
+    /**
+     * @param $property
+     * @throws Exception
+     */
+    public function __unset($property ) {
         if (property_exists($this, $property)) {
             unset($this->$property);
         } else {
             throw new Exception($this->get_exception('0004', __FUNCTION__, __LINE__, 'Get Property not exist ['.$property.']'));
         } 
     }
-               
+
+    /**
+     * @param string $userId
+     * @param int $emailTemplateId
+     * @param array $emailParam
+     * @return bool
+     * @throws Exception
+     */
     public function setup_email ($userId='', $emailTemplateId=0, $emailParam=array()) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering register_user()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0302) [' . __LINE__ . '] - Parameter userId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }   
             if (empty($emailTemplateId)) {
-                throw new Exception('(ErrCode:0303) [' . __LINE__ . '] - Parameter emailTemplateId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter emailTemplateId empty');
             }   
             if (empty($emailParam)) {
-                throw new Exception('(ErrCode:0304) [' . __LINE__ . '] - Array emailParam empty');   
+                throw new Exception('[' . __LINE__ . '] - Array emailParam empty');
             } 
             
             $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), NULL, 1);
@@ -80,7 +104,7 @@ class Class_email {
             foreach ($arr_parameter as $parameter) {
                 $paramCode = $parameter['email_param_code'];
                 if (!array_key_exists($paramCode, $emailParam)) {
-                    throw new Exception('(ErrCode:0306) [' . __LINE__ . '] - Index '.$parameter['email_param_code'].' in array emailParam empty');  
+                    throw new Exception('[' . __LINE__ . '] - Index '.$parameter['email_param_code'].' in array emailParam empty');
                 } 
                 if (strpos($emailTitle,"[".$paramCode."]") !== false) {
                     $emailTitle = str_replace ("[".$paramCode."]", $emailParam[$paramCode], $emailTitle);
@@ -94,24 +118,31 @@ class Class_email {
             Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$sys_profile['user_email'], 'email_title'=>$emailTitle,
                 'email_html'=>$emailHtml, 'user_id'=>$userId));
             return true;
-        } catch(Exception $ex) {  
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage()); 
-            throw new Exception($this->get_exception('0301', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
-    
+
+    /**
+     * @param int $emailTemplateId
+     * @param array $emailParam
+     * @return bool
+     * @throws Exception
+     */
     public function setup_email_public ($emailTemplateId=0, $emailParam=array()) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering setup_email_public()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             if (empty($emailTemplateId)) {
-                throw new Exception('(ErrCode:0303) [' . __LINE__ . '] - Parameter emailTemplateId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter emailTemplateId empty');
             }   
             if (empty($emailParam)) {
-                throw new Exception('(ErrCode:0304) [' . __LINE__ . '] - Array emailParam empty');   
+                throw new Exception('[' . __LINE__ . '] - Array emailParam empty');
             } 
             if (!array_key_exists('emailAddress', $emailParam) || empty($emailParam['emailAddress'])) {
-                throw new Exception('(ErrCode:0306) [' . __LINE__ . '] - Parameter emailAddress empty');  
+                throw new Exception('[' . __LINE__ . '] - Parameter emailAddress empty');
             } 
             
             $emailAddress = $emailParam['emailAddress'];
@@ -132,7 +163,7 @@ class Class_email {
             foreach ($arr_parameter as $parameter) {
                 $paramCode = $parameter['email_param_code'];
                 if (!array_key_exists($paramCode, $emailParam)) {
-                    throw new Exception('(ErrCode:0306) [' . __LINE__ . '] - Index '.$parameter['email_param_code'].' in array emailParam empty');  
+                    throw new Exception('[' . __LINE__ . '] - Index '.$parameter['email_param_code'].' in array emailParam empty');
                 } 
                 if (strpos($emailTitle,"[".$paramCode."]") !== false) {
                     $emailTitle = str_replace ("[".$paramCode."]", $emailParam[$paramCode], $emailTitle);
@@ -145,15 +176,20 @@ class Class_email {
             Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$emailAddress, 'email_title'=>$emailTitle,
                 'email_html'=>$emailHtml, 'email_attachment'=>$emailAttachment, 'email_filename'=>$emailFilename));
             return true;
-        } catch(Exception $ex) {  
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage()); 
-            throw new Exception($this->get_exception('0301', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
-    
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function send_email () {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering send_email()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             $arr_emailSend = Class_db::getInstance()->db_select('email_send', array(), 'email_id', '20');
             foreach ($arr_emailSend as $emailSend) { 
@@ -197,9 +233,10 @@ class Class_email {
             }
             
             return true;
-        } catch(Exception $ex) {  
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage()); 
-            throw new Exception($this->get_exception('0301', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
     

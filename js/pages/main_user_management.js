@@ -59,6 +59,10 @@ function MainUserManagement() {
                     {mData: null, mRender: function (data, type, row){
                             return row['designationId'] !== '' ? refDesignation[row['designationId']]['designationDesc'] : '';
                         }},
+                    {mData: 'userContactNo'},
+                    {mData: 'userEmail', mRender: function (data){
+                            return mzEmailShort(data, 15);
+                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             let label = '';
@@ -74,10 +78,6 @@ function MainUserManagement() {
                             return label;
                         }
                     },
-                    {mData: 'userContactNo'},
-                    {mData: 'userEmail', mRender: function (data){
-                            return mzEmailShort(data, 15);
-                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['userStatus']]['statusColor']+' z-depth-2">'+refStatus[row['userStatus']]['statusDesc']+'</span></h6>';
@@ -114,6 +114,9 @@ function MainUserManagement() {
         });
         $('#linkUmn4').on('click', function () {
             oTableUser.column(10).search('4', false, true, false).draw();
+        });
+        $('#linkUmn5').on('click', function () {
+            oTableUser.column(10).search('5', false, true, false).draw();
         });
 
         let cntUser;

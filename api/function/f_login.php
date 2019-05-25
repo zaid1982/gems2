@@ -8,7 +8,6 @@ require_once 'src/JWT.php';
 
 use \Firebase\JWT\JWT;
 
-/* Error code range - 0100 */ 
 class Class_login {
      
     private $fn_general;
@@ -89,21 +88,22 @@ class Class_login {
      */
     public function create_jwt ($userId='', $username='') {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering create_jwt()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if ($userId === '') {
-                throw new Exception('(ErrCode:0102) [' . __LINE__ . '] - Parameter userId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if ($username === '') {
-                throw new Exception('(ErrCode:0103) [' . __LINE__ . '] - Parameter username empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
             
             $key = "inventory_sample1";
             $token = array('iss'=>'inventory_sample1/jwt', 'userId'=>$userId, 'username'=>$username, 'iat'=>time(), 'exp'=>time()+10);
             $jwt = JWT::encode($token, $key);              
             return $jwt;
-        } catch(Exception $ex) {  
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage()); 
-            throw new Exception($this->get_exception('0101', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -114,9 +114,9 @@ class Class_login {
      */
     public function check_jwt ($jwt='') {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering check_jwt()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if ($jwt === '') {
-                throw new Exception('(ErrCode:0104) [' . __LINE__ . '] - Parameter jwt empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter jwt empty');
             }
             
             $key = "inventory_sample1";
@@ -124,12 +124,13 @@ class Class_login {
             $data = JWT::decode(substr($jwt, 7), $key, array('HS256'));
             
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId)) == 0) {
-                throw new Exception('(ErrCode:0105) [' . __LINE__ . '] - Token not valid');   
+                throw new Exception('[' . __LINE__ . '] - Token not valid');
             }
             return $data;
-        } catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0101', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -140,9 +141,9 @@ class Class_login {
      */
     public function get_menu_list ($arr_roles=array()) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_menu_list()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($arr_roles)) {
-                throw new Exception('(ErrCode:0107) [' . __LINE__ . '] - Array arr_roles empty');  
+                throw new Exception('[' . __LINE__ . '] - Array arr_roles empty');
             }
             
             $role_list = array();
@@ -167,9 +168,10 @@ class Class_login {
                 }
             }
             return $menu_return;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0101', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -183,23 +185,23 @@ class Class_login {
     public function check_login ($username, $password) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering check_login()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (is_null($username) || $username === '') { 
-                throw new Exception('(ErrCode:0108) [' . __LINE__ . '] - Parameter username empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             } 
             if (is_null($password) || $password === '') { 
-                throw new Exception('(ErrCode:0109) [' . __LINE__ . '] - Parameter password empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter password empty');
             }
 
             $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
             if (empty($profile)) {
-                throw new Exception('(ErrCode:0111) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
             } 
             if ($profile['user_password'] !== md5($password)) {
-                throw new Exception('(ErrCode:0112) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 31);
             } 
             if ($profile['user_status'] !== '1') {
-                throw new Exception('(ErrCode:0113) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
             }
 
             $userId = $profile['user_id'];
@@ -225,32 +227,33 @@ class Class_login {
             $result['roles'] = $arr_roles;
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0101', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
     public function check_login_web ($username, $password) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering check_login()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (is_null($username) || $username === '') {
-                throw new Exception('(ErrCode:0108) [' . __LINE__ . '] - Parameter username empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
             if (is_null($password) || $password === '') {
-                throw new Exception('(ErrCode:0109) [' . __LINE__ . '] - Parameter password empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter password empty');
             }
 
             $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
             if (empty($profile)) {
-                throw new Exception('(ErrCode:0111) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
             }
             if ($profile['user_password'] !== md5($password)) {
-                throw new Exception('(ErrCode:0112) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 31);
             }
             if ($profile['user_status'] !== '1') {
-                throw new Exception('(ErrCode:0113) [' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
             }
 
             $userId = $profile['user_id'];
@@ -279,9 +282,10 @@ class Class_login {
             $result['menu'] = $this->get_menu_list($arr_roles);
 
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0101', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
     

@@ -3,14 +3,12 @@ require_once 'library/constant.php';
 require_once 'function/f_general.php';
 require_once 'function/f_email.php';
 
-/* Error code range - 0200 */ 
 class Class_user {
      
     private $fn_general;
     private $fn_email;
     
-    function __construct()
-    {
+    function __construct() {
         $this->fn_general = new Class_general();
         $this->fn_email = new Class_email();
     }
@@ -86,30 +84,30 @@ class Class_user {
      */
     public function register_user ($userDetails=array(), $type=0) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering register_user()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($userDetails)) {
-                throw new Exception('(ErrCode:0202) [' . __LINE__ . '] - Array userDetails empty');   
+                throw new Exception('['.__LINE__.'] - Array userDetails empty');
             }     
             if (empty($type)) {
-                throw new Exception('(ErrCode:0203) [' . __LINE__ . '] - Parameter type empty');   
+                throw new Exception('['.__LINE__.'] - Parameter type empty');
             }     
             if (!array_key_exists('userFirstName', $userDetails)) {
-                throw new Exception('(ErrCode:0204) [' . __LINE__ . '] - Index userFirstName in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userFirstName in array userDetails empty');
             }  
             if (!array_key_exists('userLastName', $userDetails)) {
-                throw new Exception('(ErrCode:0205) [' . __LINE__ . '] - Index userLastName in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userLastName in array userDetails empty');
             } 
             if (!array_key_exists('userEmail', $userDetails)) {
-                throw new Exception('(ErrCode:0206) [' . __LINE__ . '] - Index userEmail in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userEmail in array userDetails empty');
             } 
             if (!array_key_exists('userMykadNo', $userDetails)) {
-                throw new Exception('(ErrCode:0207) [' . __LINE__ . '] - Index userMykadNo in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userMykadNo in array userDetails empty');
             } 
             if (!array_key_exists('userProfileContactNo', $userDetails)) {
-                throw new Exception('(ErrCode:0208) [' . __LINE__ . '] - Index userProfileContactNo in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userProfileContactNo in array userDetails empty');
             } 
             if (!array_key_exists('userPassword', $userDetails)) {
-                throw new Exception('(ErrCode:0209) [' . __LINE__ . '] - Index userPassword in array userDetails empty');  
+                throw new Exception('['.__LINE__.'] - Index userPassword in array userDetails empty');
             }            
             
             $userFirstName = $userDetails['userFirstName'];
@@ -120,7 +118,7 @@ class Class_user {
             $userPassword = $userDetails['userPassword'];
             
             if (Class_db::getInstance()->db_count('sys_user', array('user_email'=>$userEmail)) > 0) {
-                throw new Exception('(ErrCode:0210) [' . __LINE__ . '] - Email already exist. Please use different email.', 31);                     
+                throw new Exception('['.__LINE__.'] - Email already exist. Please use different email.', 31);
             }
             
             if ($type === 2) {
@@ -139,14 +137,14 @@ class Class_user {
                     }
                 }
             } else {
-                throw new Exception('(ErrCode:0211) [' . __LINE__ . '] - Parameter type invalid ('.$type.')');  
+                throw new Exception('['.__LINE__.'] - Parameter type invalid ('.$type.')');
             }
             
             return array('userId'=>$userId, 'activationKey'=>$userActivationKey);
         }
         catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -157,29 +155,29 @@ class Class_user {
      */
     public function activate_user ($activationInput='') {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering activate_user()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($activationInput)) {
-                throw new Exception('(ErrCode:0212) [' . __LINE__ . '] - Parameter activationInput empty');   
+                throw new Exception('['.__LINE__.'] - Parameter activationInput empty');
             }    
             if (strlen($activationInput) < 21) { 
-                throw new Exception('(ErrCode:0213) [' . __LINE__ . '] - Wrong activation key. Please click the activation link given from your email.', 31);    
+                throw new Exception('['.__LINE__.'] - Wrong activation key. Please click the activation link given from your email.', 31);
             }
             
             $userId = substr($activationInput, 20);
             
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'user_activation_key'=>$activationInput)) == 0) {
-                throw new Exception('(ErrCode:0214) [' . __LINE__ . '] - Wrong activation key. Please click the activation link given from your email.', 31);                     
+                throw new Exception('['.__LINE__.'] - Wrong activation key. Please click the activation link given from your email.', 31);
             }
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'user_activation_key'=>$activationInput, 'user_status'=>'1')) == 1) {
-                throw new Exception('(ErrCode:0215) [' . __LINE__ . '] - Your account already activated. Please login with email as user ID and your registered password.', 31);                     
+                throw new Exception('['.__LINE__.'] - Your account already activated. Please login with email as user ID and your registered password.', 31);
             }
                         
             Class_db::getInstance()->db_update('sys_user', array('user_status'=>'1', 'user_time_activate'=>'Now()'), array('user_id'=>$userId));
             return $userId;
         }
         catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -191,14 +189,14 @@ class Class_user {
     public function forgot_password ($userName='') {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering forgot_password()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($userName)) {
-                throw new Exception('(ErrCode:0216) [' . __LINE__ . '] - Parameter userName empty');   
+                throw new Exception('['.__LINE__.'] - Parameter userName empty');
             } 
             
             $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_name'=>$userName));
             if (empty($sys_user)) {
-                throw new Exception('(ErrCode:0217) [' . __LINE__ . '] - '.$constant::ERR_FORGOT_PASSWORD_NOT_EXIST, 31);
+                throw new Exception('['.__LINE__.'] - '.$constant::ERR_FORGOT_PASSWORD_NOT_EXIST, 31);
             }
             
             $userId = $sys_user['user_id'];
@@ -210,9 +208,9 @@ class Class_user {
             
             return $userId;
         }
-        catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -223,25 +221,25 @@ class Class_user {
      */
     public function update_profile ($userId, $put_vars) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering update_profile()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0218) [' . __LINE__ . '] - Parameter userId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if (!isset($put_vars['userEmail']) || empty($put_vars['userEmail'])) {
-                throw new Exception('(ErrCode:0219) [' . __LINE__ . '] - Parameter userEmail empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userEmail empty');
             }
             if (!isset($put_vars['userFirstName']) || empty($put_vars['userFirstName'])) {
-                throw new Exception('(ErrCode:0220) [' . __LINE__ . '] - Parameter userFirstName empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userFirstName empty');
             }
             if (!isset($put_vars['userContactNo']) || empty($put_vars['userContactNo'])) {
-                throw new Exception('(ErrCode:0223) [' . __LINE__ . '] - Parameter userContactNo empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userContactNo empty');
             }
             if (!isset($put_vars['designationId']) || empty($put_vars['designationId'])) {
-                throw new Exception('(ErrCode:0236) [' . __LINE__ . '] - Parameter designationId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter designationId empty');
             }
             if (!isset($put_vars['roles']) || empty($put_vars['roles'])) {
-                throw new Exception('(ErrCode:0237) [' . __LINE__ . '] - Parameter roles empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter roles empty');
             }
             
             $userEmail = $put_vars['userEmail'];
@@ -277,9 +275,9 @@ class Class_user {
             Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
         }
-        catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -291,30 +289,30 @@ class Class_user {
     public function change_password ($userId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering change_password()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0218) [' . __LINE__ . '] - Parameter userId empty');   
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             } 
             if (!isset($put_vars['oldPassword']) || empty($put_vars['oldPassword'])) {
-                throw new Exception('(ErrCode:0225) [' . __LINE__ . '] - Parameter oldPassword empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter oldPassword empty');
             }
             if (!isset($put_vars['newPassword']) || empty($put_vars['newPassword'])) {
-                throw new Exception('(ErrCode:0226) [' . __LINE__ . '] - Parameter newPassword empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter newPassword empty');
             }
             
             $oldPassword = $put_vars['oldPassword'];
             $newPassword = $put_vars['newPassword'];
             
             if (Class_db::getInstance()->db_count('sys_user', array('user_password'=>md5($oldPassword), 'user_id'=>$userId)) == 0) {
-                throw new Exception('(ErrCode:0227) [' . __LINE__ . '] - '.$constant::ERR_CHANGE_PASSWORD_WRONG_CURRENT, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHANGE_PASSWORD_WRONG_CURRENT, 31);
             }
                         
             Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($newPassword)), array('user_id'=>$userId));
         }
-        catch(Exception $ex) {   
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -326,30 +324,30 @@ class Class_user {
     public function add_user ($userDetails=array()) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering register_user()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($userDetails)) {
-                throw new Exception('(ErrCode:0202) [' . __LINE__ . '] - Array userDetails empty');
+                throw new Exception('['.__LINE__.'] - Array userDetails empty');
             }
             if (!array_key_exists('userName', $userDetails) && empty($userDetails['userName'])) {
-                throw new Exception('(ErrCode:0228) [' . __LINE__ . '] - Parameter userName empty');
+                throw new Exception('['.__LINE__.'] - Parameter userName empty');
             }
             if (!array_key_exists('userFirstName', $userDetails) && empty($userDetails['userFirstName'])) {
-                throw new Exception('(ErrCode:0204) [' . __LINE__ . '] - Parameter userFirstName empty');
+                throw new Exception('['.__LINE__.'] - Parameter userFirstName empty');
             }
             if (!array_key_exists('userEmail', $userDetails) && empty($userDetails['userEmail'])) {
-                throw new Exception('(ErrCode:0206) [' . __LINE__ . '] - Parameter userEmail empty');
+                throw new Exception('['.__LINE__.'] - Parameter userEmail empty');
             }
             if (!array_key_exists('userContactNo', $userDetails) && empty($userDetails['userContactNo'])) {
-                throw new Exception('(ErrCode:0208) [' . __LINE__ . '] - Parameter userProfileContactNo empty');
+                throw new Exception('['.__LINE__.'] - Parameter userProfileContactNo empty');
             }
             if (!array_key_exists('userPassword', $userDetails) && empty($userDetails['userPassword'])) {
-                throw new Exception('(ErrCode:0209) [' . __LINE__ . '] - Parameter userPassword empty');
+                throw new Exception('['.__LINE__.'] - Parameter userPassword empty');
             }
             if (!array_key_exists('roles', $userDetails) && empty($userDetails['roles'])) {
-                throw new Exception('(ErrCode:0229) [' . __LINE__ . '] - Parameter roles empty');
+                throw new Exception('['.__LINE__.'] - Parameter roles empty');
             }
             if (!array_key_exists('designationId', $userDetails) && empty($userDetails['designationId'])) {
-                throw new Exception('(ErrCode:0232) [' . __LINE__ . '] - Parameter designationId empty');
+                throw new Exception('['.__LINE__.'] - Parameter designationId empty');
             }
 
             $userName = $userDetails['userName'];
@@ -361,7 +359,7 @@ class Class_user {
             $rolesStr = $userDetails['roles'];
 
             if (Class_db::getInstance()->db_count('sys_user', array('user_name'=>$userName)) > 0) {
-                throw new Exception('(ErrCode:0233) [' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
             }
 
             $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName,
@@ -384,8 +382,8 @@ class Class_user {
             return $userId;
         }
         catch(Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -393,10 +391,9 @@ class Class_user {
      * @return array
      * @throws Exception
      */
-    public function get_users()
-    {
+    public function get_users() {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_users()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
             $users = Class_db::getInstance()->db_select('vw_user_list');
@@ -415,9 +412,10 @@ class Class_user {
                 array_push($result, $row_result);
             }
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -426,13 +424,12 @@ class Class_user {
      * @return array
      * @throws Exception
      */
-    public function get_user($userId)
-    {
+    public function get_user($userId) {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_user()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0218) [' . __LINE__ . '] - Parameter userId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
 
             $result = array();
@@ -450,9 +447,10 @@ class Class_user {
             $result['userStatus'] = $user['user_status'];
 
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -460,10 +458,9 @@ class Class_user {
      * @return array
      * @throws Exception
      */
-    public function get_user_by_role()
-    {
+    public function get_user_by_role() {
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering get_user_by_role()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
             $userData = Class_db::getInstance()->db_select('vw_user_by_role');
@@ -474,9 +471,10 @@ class Class_user {
             }
 
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0201', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -484,23 +482,23 @@ class Class_user {
      * @param $userId
      * @throws Exception
      */
-    public function deactivate_profile ($userId)
-    {
+    public function deactivate_profile ($userId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering deactivate_problem_type()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0218) [' . __LINE__ . '] - Parameter userId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'user_status'=>'2')) > 0) {
-                throw new Exception('(ErrCode:0238) [' . __LINE__ . '] - '.$constant::ERR_USER_DEACTIVATE, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_DEACTIVATE, 31);
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_status'=>'2'), array('user_id'=>$userId));
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
@@ -508,23 +506,23 @@ class Class_user {
      * @param $userId
      * @throws Exception
      */
-    public function activate_profile ($userId)
-    {
+    public function activate_profile ($userId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Entering activate_profile()');
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($userId)) {
-                throw new Exception('(ErrCode:0218) [' . __LINE__ . '] - Parameter userId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'user_status'=>'1')) > 0) {
-                throw new Exception('(ErrCode:0239) [' . __LINE__ . '] - '.$constant::ERR_USER_ACTIVATE, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ACTIVATE, 31);
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_status'=>'1'), array('user_id'=>$userId));
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0501', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 }

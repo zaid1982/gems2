@@ -30,6 +30,10 @@ class Class_constant {
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';
     const ERR_DESIGNATION_ACTIVATE = 'Designation already active';
     const ERR_DESIGNATION_DELETE = 'Designation cannot be deleted because currently registered under user profile';
+    const ERR_CLIENT_SIMILAR = 'Client already exist';
+    const ERR_CLIENT_DEACTIVATE = 'Client already inactive';
+    const ERR_CLIENT_ACTIVATE = 'Client already active';
+    const ERR_CLIENT_DELETE_SITE = 'Client cannot be deleted because currently registered under site';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';

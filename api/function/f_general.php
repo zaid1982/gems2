@@ -76,23 +76,26 @@ class Class_general {
     }
 
     /**
+     * @param $class
      * @param $function
      * @param $line
      * @param $msg
      */
-    public function log_debug ($function, $line, $msg) {
-        $debugMsg = date("Y/m/d h:i:sa")." [".__CLASS__.":".$function.":".$line."] - ".$msg."\r\n";
+    public function log_debug ($class, $function, $line, $msg) {
+        $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
     }
 
     /**
+     * @param $class
      * @param $function
      * @param $line
      * @param $msg
      */
-    public function log_error ($function, $line, $msg) {
-        $debugMsg = date("Y/m/d h:i:sa")." [".__CLASS__.":".$function.":".$line."] - ".$msg."\r\n";
+    public function log_error ($class, $function, $line, $msg) {
+        $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - (ERROR) ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/error/error_'.date("Ymd").'.log');
     }
 

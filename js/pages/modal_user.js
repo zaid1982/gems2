@@ -34,6 +34,7 @@ function ModalUser() {
                 name: 'Password',
                 validator: {
                     notEmpty: true,
+                    minLength: 6,
                     maxLength: 30
                 }
             },
@@ -67,6 +68,30 @@ function ModalUser() {
                 }
             },
             {
+                field_id: 'chkMusUserType',
+                type: 'radio',
+                name: 'User Type',
+                validator: {
+                    notEmptyCheck: true
+                }
+            },
+            {
+                field_id: 'optMusClientId',
+                type: 'select',
+                name: 'Client',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMusSiteId',
+                type: 'select',
+                name: 'Site',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
                 field_id: 'chkMusRole[]',
                 type: 'check',
                 name: 'Roles',
@@ -83,12 +108,31 @@ function ModalUser() {
             $('#btnMusSubmit').attr('disabled', !formValidate.validateForm());
         });
 
+        self.defaultPageSetup();
+
         $('#modal_user').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
+            self.defaultPageSetup();
         });
 
-        $('#optMusDesignationId').on('change', function () {
-            $('#lblMusDesignationId').html('Designation *').addClass('active');
+        $("input[name='chkMusUserType']:radio").on('click', function () {
+            $('#optMusClientId').val(null);
+            $('#optMusSiteId').val(null);
+            $("input[name='chkMusRole[]']:checkbox").prop('checked',false);
+            formValidate.validateForm();
+            if ($(this).val() === '1') {
+                $('.divMusRoles, #divMusClient').show();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').show();
+                $('#divMusRole6').hide();
+                formValidate.enableField('optMusClientId');
+                formValidate.enableField('optMusSiteId');
+            } else if ($(this).val() === '2') {
+                $('.divMusRoles').show();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').hide();
+                $('#divMusRole6').show();
+                formValidate.disableField('optMusClientId');
+                formValidate.disableField('optMusSiteId');
+            }
         });
 
         $('#btnMusSubmit').on('click', function () {
@@ -147,6 +191,12 @@ function ModalUser() {
         });
     };
 
+    this.defaultPageSetup = function () {
+        $('.divMusAddOnly, #divMusClient, #divMusSite, .divMusRoles').hide();
+        $('#btnMusSubmit').show();
+        $('#btnMusSubmit').prop('disabled', true);
+    };
+
     this.add = function () {
         userId = '';
         rowRefresh = '';
@@ -160,9 +210,8 @@ function ModalUser() {
                 formValidate.enableField('txtMusUserPassword');
 
                 $('.divMusAddOnly').show();
-                $('#lblMusTitle').html('<i class="fas fa-user-plus"></i> &nbsp;Daftar Pengguna Sistem');
+                $('#lblMusTitle').html('<i class="fas fa-user-plus text-white"></i> &nbsp;Register New User');
                 $('#txtMusUserName').prop('disabled', false);
-                $('#btnMusSubmit').prop('disabled', true);
                 $('#modal_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -200,9 +249,8 @@ function ModalUser() {
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
                 formValidate.validateForm();
 
-                $('.divMusAddOnly').hide();
-                $('#lblMusTitle').html('<i class="fas fa-user"></i> &nbsp;Kemaskini Pengguna Sistem');
-                $('#btnMusSubmit, #txtMusUserName').prop('disabled', true);
+                $('#lblMusTitle').html('<i class="fas fa-user"></i> &nbsp;Edit User Profile');
+                $('#txtMusUserName').prop('disabled', true);
                 $('#modal_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -241,8 +289,8 @@ function ModalUser() {
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
                 formValidate.validateForm();
 
-                $('.divMusAddOnly, #btnMusSubmit').hide();
-                $('#lblMusTitle').html('<i class="fas fa-user"></i> &nbsp;Maklumat Pengguna Sistem');
+                $('#btnMusSubmit').hide();
+                $('#lblMusTitle').html('<i class="fas fa-user"></i> &nbsp;User Profile Information');
                 $('#optMusDesignationId').material_select('destroy');
                 $('#txtMusUserName, #txtMusUserFirstName, #txtMusUserContactNo, #txtMusUserEmail, #optMusDesignationId').prop('disabled', true);
                 $('#optMusDesignationId').material_select();

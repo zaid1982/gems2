@@ -286,6 +286,7 @@ function MzValidate(name) {
                 fieldErrSelector = $('#' + fieldId + 'Err');
                 fieldLblSelector = $('#lbl' + fieldId.substring(3));
             }
+
             if (u.type === 'text' || u.type === 'textarea') {
                 fieldSelector.val('');
                 fieldLblSelector.removeClass('active');
@@ -296,12 +297,12 @@ function MzValidate(name) {
                 //$('#' + fieldId).val(null).trigger( 'click');
                 //$('.mdb-select').material_select();
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
-                fieldLblSelector.html('').removeClass('active');
+                //fieldLblSelector.html('').removeClass('active');
             }
             else if (u.type === 'selectMultiple') {
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
                 fieldSelector.val(null).change();
-                fieldLblSelector.html('').removeClass('active');
+                //fieldLblSelector.html('').removeClass('active');
             }
             else if (u.type === 'checkSingle') {
                 fieldSelector.prop('checked',false);

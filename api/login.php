@@ -14,12 +14,11 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-/* Error code range - 2000 */ 
 try {   
     Class_db::getInstance()->db_connect();
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $request_method = $_SERVER['REQUEST_METHOD'];
-    $fn_general->log_debug($api_name, __LINE__, 'Request method = '.$request_method);
+    $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
     
     if ('POST' === $request_method) {
         $action = filter_input(INPUT_POST, 'action');
@@ -42,15 +41,15 @@ try {
             $fn_general->save_audit('4', $userId);
             $form_data['errmsg'] = $constant::SUC_FORGOT_PASSWORD;
         } else {
-            throw new Exception('(ErrCode:2001) [' . __LINE__ . '] - Parameter action ('.$action.') invalid'); 
+            throw new Exception('[' . __LINE__ . '] - Parameter action ('.$action.') invalid');
         }
         
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
-        //$fn_general->log_debug($api_name, __LINE__, 'Result = '.print_r($result, true));
+        //$fn_general->log_debug('API', $api_name, __LINE__, 'Result = '.print_r($result, true));
     } else {
-        throw new Exception('(ErrCode:2000) [' . __LINE__ . '] - Wrong Request Method');   
+        throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }       
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
@@ -64,7 +63,7 @@ try {
     } else {
         $form_data['errmsg'] = $constant::ERR_DEFAULT;
     }
-    $fn_general->log_error($api_name, __LINE__, $ex->getMessage());
+    $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
 }
 
 echo json_encode($form_data);
