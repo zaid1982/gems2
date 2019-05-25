@@ -112,7 +112,7 @@ class Class_general {
             }
             return $param;
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -126,7 +126,7 @@ class Class_general {
      */
     public function save_audit ($audit_action_id='', $user_id='', $remark='') {
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering save_audit()');
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if ($audit_action_id === '') {
                 throw new Exception('(ErrCode:0052) [' . __LINE__ . '] - Parameter audit_action_id empty');   
             }
@@ -157,7 +157,7 @@ class Class_general {
             }
             return Class_db::getInstance()->db_insert('sys_audit', array('audit_action_id'=>$audit_action_id, 'user_id'=>$user_id, 'audit_ip'=>$ipaddress, 'audit_place'=>$place, 'audit_remark'=>$remark));
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -169,7 +169,7 @@ class Class_general {
      */
     public function generateRandomString ($length = 20) {
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering generateRandomString()');
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $charactersLength = strlen($characters);
             $randomString = '';
@@ -178,7 +178,7 @@ class Class_general {
             }
             return $randomString;
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -189,13 +189,13 @@ class Class_general {
      */
     public function updateVersion ($versionId='') {
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering updateVersion()');
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if ($versionId === '') {
                 throw new Exception('(ErrCode:0053) [' . __LINE__ . '] - Parameter versionId empty');   
             }            
             Class_db::getInstance()->db_update('sys_version', array('version_no'=>'++'), array('version_id'=>$versionId));
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -218,7 +218,7 @@ class Class_general {
      */
     public function uploadDocument ($uploadDetails, $documentId, $userId) {
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering uploadDocument()');
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
             if (empty($uploadDetails)) {
                 throw new Exception('(ErrCode:0054) [' . __LINE__ . '] - Array uploadDetails empty');   
@@ -266,7 +266,7 @@ class Class_general {
                         
             return $uploadId;            
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -279,7 +279,7 @@ class Class_general {
     public function getDocument ($uploadId='') {
         $constant = new Class_constant();
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering getDocument()');            
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($uploadId)) {
                 throw new Exception('(ErrCode:0061) [' . __LINE__ . '] - Parameter uploadId empty');   
             }
@@ -294,7 +294,7 @@ class Class_general {
                     'documentSrc'=>$constant::URL.$sysUpload['upload_folder'].'/'.$sysUpload['upload_filename'].'.'.$sysUpload['upload_extension']
                 );            
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
@@ -306,7 +306,7 @@ class Class_general {
      */
     public function convertMysqlDate ($date='') {
         try {
-            $this->log_debug(__FUNCTION__, __LINE__, 'Entering convertMysqlDate()');            
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($date)) {
                 throw new Exception('(ErrCode:0062) [' . __LINE__ . '] - Parameter date empty');   
             }
@@ -319,7 +319,7 @@ class Class_general {
             }
             return $newDate;
         } catch(Exception $ex) {
-            $this->log_error(__FUNCTION__, __LINE__, $ex->getMessage());            
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }

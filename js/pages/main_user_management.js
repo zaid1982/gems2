@@ -6,11 +6,13 @@ function MainUserManagement() {
     let refUser;
     let refRole;
     let refDesignation;
+    let refGroup;
     let oTableUser;
     let modalUserClass;
 
     this.init = function () {
-        mzOption('optUmnDesignationId', refDesignation, 'All Designation', 'designationId', 'designationDesc', {designationStatus: '1'});
+        mzOption('optUmnDesignationId', refDesignation, 'All Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, '', false);
+        mzOption('optUmnGroupId', refGroup, 'All Sites', 'groupId', 'groupName', {groupStatus: '1'}, '', false);
 
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
@@ -57,6 +59,9 @@ function MainUserManagement() {
                     {mData: null, bSortable: false},
                     {mData: 'userFullName'},
                     {mData: null, mRender: function (data, type, row){
+                            return row['groupId'] !== '' ? refGroup[row['groupId']]['groupName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
                             return row['designationId'] !== '' ? refDesignation[row['designationId']]['designationDesc'] : '';
                         }},
                     {mData: 'userContactNo'},
@@ -96,44 +101,52 @@ function MainUserManagement() {
                     },
                     {mData: 'userId', visible: false},
                     {mData: 'userStatus', visible: false},
-                    {mData: 'roles', visible: false}
+                    {mData: 'roles', visible: false},
+                    {mData: 'groupId', visible: false},
+                    {mData: 'designationId', visible: false}
                 ]
         });
         $("#dtUmnUser_filter").hide();
         $('#txtUmnUserSearch').on('keyup change', function () {
             oTableUser.search($(this).val()).draw();
         });
+        $('#optUmnDesignationId').on('change', function () {
+            oTableUser.column(13).search($(this).val(), false, true, false).draw();
+        });
+        $('#optUmnGroupId').on('change', function () {
+            oTableUser.column(12).search($(this).val(), false, true, false).draw();
+        });
         $('#linkUmn1').on('click', function () {
-            oTableUser.column(10).search('1').draw();
+            oTableUser.column(11).search('1').draw();
         });
         $('#linkUmn2').on('click', function () {
-            oTableUser.column(10).search('2', false, true, false).draw();
+            oTableUser.column(11).search('2', false, true, false).draw();
         });
         $('#linkUmn3').on('click', function () {
-            oTableUser.column(10).search('3', false, true, false).draw();
+            oTableUser.column(11).search('3', false, true, false).draw();
         });
         $('#linkUmn4').on('click', function () {
-            oTableUser.column(10).search('4', false, true, false).draw();
+            oTableUser.column(11).search('4', false, true, false).draw();
         });
         $('#linkUmn5').on('click', function () {
-            oTableUser.column(10).search('5', false, true, false).draw();
+            oTableUser.column(11).search('5', false, true, false).draw();
         });
 
         let cntUser;
         let btnUserOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntUser = 1;
                         }
-                        if (column === 3) {
+                        if (column === 6) {
                             const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
                             const p = m.replace('</li></ul>', '');
                             const q = p.replace('</li><li>', '\n');
                             return q;
-                        } else if (column === 6) {
+                        } else if (column === 7) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -306,6 +319,10 @@ function MainUserManagement() {
 
     this.setRefDesignation = function (_refDesignation) {
         refDesignation = _refDesignation;
+    };
+
+    this.setRefGroup = function (_refGroup) {
+        refGroup = _refGroup;
     };
 
     this.setModalUserClass = function (_modalUserClass) {

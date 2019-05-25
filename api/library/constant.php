@@ -44,4 +44,9 @@ class Class_constant {
     const SUC_DESIGNATION_DEACTIVATE = 'Designation successfully deactivated';
     const SUC_DESIGNATION_ACTIVATE = 'Designation successfully activated';
     const SUC_DESIGNATION_DELETE = 'Designation successfully deleted';
+    const SUC_CLIENT_ADD = 'Client successfully added';
+    const SUC_CLIENT_EDIT = 'Client successfully updated';
+    const SUC_CLIENT_DEACTIVATE = 'Client successfully deactivated';
+    const SUC_CLIENT_ACTIVATE = 'Client successfully activated';
+    const SUC_CLIENT_DELETE = 'Client successfully deleted';
 }

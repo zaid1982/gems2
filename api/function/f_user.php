@@ -408,6 +408,7 @@ class Class_user {
                 $row_result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
                 $row_result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
                 $row_result['roles'] = $this->fn_general->clear_null($user['roles']);
+                $row_result['groupId'] = $this->fn_general->clear_null($user['group_id']);
                 $row_result['userStatus'] = $user['user_status'];
                 array_push($result, $row_result);
             }
@@ -444,6 +445,7 @@ class Class_user {
             $result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
             $result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
             $result['roles'] = $this->fn_general->clear_null($user['roles']);
+            $result['groupId'] = $this->fn_general->clear_null($user['group_id']);
             $result['userStatus'] = $user['user_status'];
 
             return $result;

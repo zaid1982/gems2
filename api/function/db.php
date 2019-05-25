@@ -327,7 +327,7 @@ class Class_db{
             }
             $limits = $limit != '' ? $limit = ' LIMIT '.$limit : ' ';
             $sql = $this->get_sql($tablename, $sqlParam).$where_str.$orderby.$limits;
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);                
             if (empty($result)){
@@ -368,7 +368,7 @@ class Class_db{
                 $orderby = ' ORDER BY '.$orderby;
             }
             $sql = $this->get_sql($tablename, $sqlParam).$where_str.$orderby." LIMIT 1";
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);                
             if (empty($result)){
@@ -410,7 +410,7 @@ class Class_db{
                 $orderby = ' ORDER BY '.$orderby;
             }
             $sql = $this->get_sql($tablename,$sqlParam).$where_str.$orderby." LIMIT 1";
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);                
             if (empty($result)){
@@ -461,7 +461,7 @@ class Class_db{
                 $orderby = ' ORDER BY '.$orderby;
             }
             $sql = $this->get_sql($tablename,$sqlParam).$where_str.$orderby;
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);                
             if (empty($result)){
@@ -512,7 +512,7 @@ class Class_db{
             }
             $limits = $limit != '' ? $limit = ' LIMIT '.$limit : ' ';
             $sql = $this->get_sql($tablename, $sqlParam).$where_str.$orderby.$limits;
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);                
             if (empty($result)){
@@ -558,7 +558,7 @@ class Class_db{
             }
             //$sql = "SELECT count(*) FROM ".$this->get_sql($tablename, $sqlParam).$where_str;
             $sql = "SELECT COUNT(*) FROM (".$this->get_sql($tablename, $sqlParam).$where_str.") aa";
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->query($sql);
             $result = $stmt->fetch();
             return $result[0];
@@ -585,7 +585,7 @@ class Class_db{
             } else {
                 $sql = "INSERT INTO ".$tablename.$this->get_comma_str($columns)." VALUES ".$this->get_commaVal_str($columns);
             }
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $this->DBH->exec($sql);
             return $this->DBH->lastInsertId();
         }
@@ -613,7 +613,7 @@ class Class_db{
             $whereStr = $this->get_whereAnd_str($whereArr);
             if ($whereStr != NULL) {
                 $sql = "UPDATE ".$tablename.$this->get_set_str($setArr).$whereStr;
-                $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
                 $stmt = $this->DBH->prepare($sql);
                 $stmt->execute();
                 return $stmt->rowCount();
@@ -652,7 +652,7 @@ class Class_db{
                 }
                 $sql = "DELETE FROM ".$tablename.$whereStr;
             }
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $sql);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
             $stmt = $this->DBH->prepare($sql);
             $stmt->execute();
             return $stmt->rowCount();

@@ -5,12 +5,14 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_reference.php';
 require_once 'function/f_user.php';
+require_once 'function/f_client.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_reference = new Class_reference();
 $fn_user = new Class_user();
+$fn_client = new Class_client();
 $api_name = 'api_local_data';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
@@ -53,6 +55,12 @@ try {
                 break;
             case 'gems_designation':
                 $result = $fn_reference->get_designation();
+                break;
+            case 'gems_client':
+                $result = $fn_client->get_client_list();
+                break;
+            case 'gems_group':
+                $result = $fn_reference->get_group_list();
                 break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');

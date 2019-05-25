@@ -64,6 +64,12 @@
                                             <label for="optUmnDesignationId">Designation</label>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-12 select-outline">
+                                            <select id="optUmnGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <label for="optUmnGroupId">Site</label>
+                                        </div>
+                                    </div>
                                     <div class="md-form md-outline mt-0">
                                         <input type="text" id="txtUmnUserSearch" class="form-control">
                                         <label for="txtUmnUserSearch" class="active">Keyword Search</label>
@@ -74,7 +80,7 @@
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12 mb-5">
                             <div class="view view-cascade z-depth-4">
-                                <div id="chartUmnLeaveByStatus" style="height: 540px; margin: 0"></div>
+                                <div id="chartUmnLeaveByStatus" style="height: 600px; margin: 0"></div>
                             </div>
                         </div>
                     </div>
@@ -102,10 +108,11 @@
                                     <tr class="th-strong">
                                         <th scope="row" style="width: 4%">#</th>
                                         <th>Name</th>
-                                        <th width="15%">Designation</th>
+                                        <th width="10%">Site</th>
+                                        <th width="13%">Designation</th>
                                         <th width="10%">Contact No.</th>
-                                        <th width="18%">Email</th>
-                                        <th width="16%">Roles</th>
+                                        <th width="15%">Email</th>
+                                        <th width="14%">Roles</th>
                                         <th width="8%">Status</th>
                                         <th width="55px"></th>
                                     </tr>
@@ -180,14 +187,18 @@
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
+                const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
 
                 modalUserClass_.setClassFrom(userManagementClass_);
                 modalUserClass_.setRefDesignation(refDesignation_);
+                modalUserClass_.setRefClient(refClient_);
                 modalUserClass_.init();
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
                 userManagementClass_.setRefUser(refUser_);
                 userManagementClass_.setRefDesignation(refDesignation_);
+                userManagementClass_.setRefGroup(refGroup_);
                 userManagementClass_.setModalUserClass(modalUserClass_);
                 userManagementClass_.init();
             } catch (e) {

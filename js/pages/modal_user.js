@@ -6,6 +6,7 @@ function ModalUser() {
     let classFrom;
     let userId = '';
     let refDesignation;
+    let refClient;
     let formValidate;
 
     this.init = function () {
@@ -121,16 +122,17 @@ function ModalUser() {
             $("input[name='chkMusRole[]']:checkbox").prop('checked',false);
             formValidate.validateForm();
             if ($(this).val() === '1') {
-                $('.divMusRoles, #divMusClient').show();
+                $('.divMusRoles').show();
+                $('#divMusClient, #divMusSite').hide();
                 $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').show();
                 $('#divMusRole6').hide();
                 formValidate.enableField('optMusClientId');
                 formValidate.enableField('optMusSiteId');
             } else if ($(this).val() === '2') {
-                $('.divMusRoles').show();
+                $('.divMusRoles, #divMusClient, #divMusSite').show();
                 $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').hide();
                 $('#divMusRole6').show();
-                formValidate.disableField('optMusClientId');
+                formValidate.enableField('optMusClientId');
                 formValidate.disableField('optMusSiteId');
             }
         });
@@ -204,7 +206,8 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
+                mzOption('optMusDesignationId', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
+                mzOption('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
@@ -357,6 +360,10 @@ function ModalUser() {
 
     this.setRefDesignation = function (_refDesignation) {
         refDesignation = _refDesignation;
+    };
+
+    this.setRefClient = function (_refClient) {
+        refClient = _refClient;
     };
 
     this.setClassFrom = function (_classFrom) {

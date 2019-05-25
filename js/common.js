@@ -904,12 +904,15 @@ function mzCmp(a, b) {
     return a[1].localeCompare(b[1]);
 }
 
-function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type) {
+function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     if (name === '' || typeof data === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (typeof isSort === 'undefined') {
+        isSort = true;
     }
     const dataFilterArr = typeof filters === 'undefined' ? [] : filters;
     let htmlStr = [];
@@ -926,10 +929,12 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type) {
             dataSort.push(u);       
         }
     }); 
-    
-    dataSort.sort(function(a, b){        
-        return a[valIndex].localeCompare(b[valIndex]);
-    });    
+
+    if (isSort) {
+        dataSort.sort(function(a, b){
+            return a[valIndex].localeCompare(b[valIndex]);
+        });
+    }
     
     $.each(dataSort, function (n, u) {
         if (typeof u !== 'undefined' && typeof u[keyIndex] !== 'undefined' && typeof u[valIndex] !== 'undefined') {

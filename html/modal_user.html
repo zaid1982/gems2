@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal_user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-5 pt-5 mb-5" role="document">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
         <!--Content-->
         <div class="modal-content">
             <!--Header-->
@@ -68,7 +68,9 @@
                     </div>
                     <div class="row" id="divMusSite">
                         <div class="col-md-12 select-outline">
-                            <select id="optMusSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                            <select id="optMusSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                <option value="" disabled selected>Choose Site</option>
+                            </select>
                             <label for="optMusSiteId" id="lblMusSiteId">Site *</label>
                             <p class="font-small text-danger" id="optMusSiteIdErr"></p>
                         </div>
