@@ -111,21 +111,21 @@ function MainDesignation() {
                 $.extend( true, {}, btnDesignationOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
-                    title:     'Sistem Permohonan Cuti - Designation',
+                    title:     'GEMS 2.0 - Designation List',
                     titleAttr: 'Print',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnDesignationOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'Sistem Permohonan Cuti - Designation',
+                    title:     'GEMS 2.0 - Designation List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnDesignationOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'SSistem Permohonan Cuti - Designation',
+                    title:     'GEMS 2.0 - Designation List',
                     titleAttr: 'Pdf',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 })

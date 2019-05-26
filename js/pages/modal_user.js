@@ -223,20 +223,13 @@ function ModalUser() {
     };
 
     this.edit = function (_userId, _rowRefresh) {
-        if (typeof _userId === 'undefined' || _userId === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
-        if (typeof _rowRefresh === 'undefined' || _rowRefresh === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
         userId = _userId;
         rowRefresh = _rowRefresh;
 
         ShowLoader();
         setTimeout(function () {
             try {
+                mzCheckFuncParam([_userId, _rowRefresh]);
                 $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', true);
                 mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
                 mzOption('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
@@ -288,17 +281,10 @@ function ModalUser() {
     };
 
     this.deactivate = function (_userId, _rowRefresh) {
-        if (typeof _userId === 'undefined' || _userId === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
-        if (typeof _rowRefresh === 'undefined' || _rowRefresh === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
         ShowLoader();
         setTimeout(function () {
             try {
+                mzCheckFuncParam([_userId, _rowRefresh]);
                 mzAjaxRequest('profile.php?userId='+_userId, 'PUT', {action: 'deactivate'});
                 const tempRow = {userStatus:'2'};
                 if (classFrom.getClassName() === 'MainUserManagement') {
@@ -312,17 +298,10 @@ function ModalUser() {
     };
 
     this.activate = function (_userId, _rowRefresh) {
-        if (typeof _userId === 'undefined' || _userId === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
-        if (typeof _rowRefresh === 'undefined' || _rowRefresh === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
         ShowLoader();
         setTimeout(function () {
             try {
+                mzCheckFuncParam([_userId, _rowRefresh]);
                 mzAjaxRequest('profile.php?userId='+_userId, 'PUT', {action: 'activate'});
                 const tempRow = {userStatus:'1'};
                 if (classFrom.getClassName() === 'MainUserManagement') {

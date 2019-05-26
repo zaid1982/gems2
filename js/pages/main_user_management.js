@@ -276,6 +276,14 @@ function MainUserManagement() {
         });
     };
 
+    this.updateTableUmn = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableUser.row(_rowEdit).data();
+        if (typeof _dataEdit['userStatus'] !== 'undefined') {
+            currentRow['userStatus'] = _dataEdit['userStatus'];
+        }
+        oTableUser.row(_rowEdit).data(currentRow).draw();
+    };
+
     this.getClassName = function () {
         return className;
     };

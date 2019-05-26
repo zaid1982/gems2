@@ -9,6 +9,7 @@ function ModalConfirmDelete() {
             switch (returnClass.getClassName()) {
                 case 'ModalDesignation':
                 case 'ModalClient':
+                case 'ModalSite':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id, rowRefresh);
                     }

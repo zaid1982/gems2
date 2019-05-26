@@ -165,7 +165,7 @@ class Class_site {
             }
 
             $groupId = Class_db::getInstance()->db_insert('sys_group', array('group_name'=>$siteName, 'group_type'=>'2', 'group_status'=>$siteStatus));
-            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'group_id'=>$groupId, 'site_status'=>$siteStatus));
+            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'client_id'=>$clientId, 'group_id'=>$groupId, 'site_status'=>$siteStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

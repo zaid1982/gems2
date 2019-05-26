@@ -1,0 +1,38 @@
+<div class="modal fade" id="modal_client" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMclTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMcl">
+                    <div class="md-form md-outline mt-4">
+                        <input type="text" id="txtMclName" class="form-control">
+                        <label for="txtMclName" id="lblMclName">Client *</label>
+                        <p class="font-small text-danger" id="txtMclNameErr"></p>
+                    </div>
+                    <div class="md-form md-outline">
+                        <textarea id="txaMclDesc" class="md-textarea form-control" rows="3"></textarea>
+                        <label for="txaMclDesc" id="lblMclDesc" class="text-muted">Description</label>
+                        <p class="font-small text-danger" id="txaMclDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMclStatus" name="chkMclStatus" value="1">
+                        <label class="form-check-label" for="chkMclStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMclSubmit" class="btn btn-info waves-effect"><i class="fas fa-highlighter"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
