@@ -3,7 +3,6 @@ function MainUserManagement() {
     const className = 'MainUserManagement';
     let self = this;
     let refStatus;
-    let refUser;
     let refRole;
     let refDesignation;
     let refGroup;
@@ -116,8 +115,11 @@ function MainUserManagement() {
         $('#optUmnGroupId').on('change', function () {
             oTableUser.column(12).search($(this).val(), false, true, false).draw();
         });
+        $('#linkUmn0').on('click', function () {
+            oTableUser.column(11).search('').draw();
+        });
         $('#linkUmn1').on('click', function () {
-            oTableUser.column(11).search('1').draw();
+            oTableUser.column(11).search('1', false, true, false).draw();
         });
         $('#linkUmn2').on('click', function () {
             oTableUser.column(11).search('2', false, true, false).draw();
@@ -144,7 +146,7 @@ function MainUserManagement() {
                         if (column === 6) {
                             const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
                             const p = m.replace('</li></ul>', '');
-                            const q = p.replace('</li><li>', '\n');
+                            const q = p.split('</li><li>').join(', ');
                             return q;
                         } else if (column === 7) {
                             const n = data.search('">');
@@ -213,6 +215,7 @@ function MainUserManagement() {
         result = JSON.parse(result);
 
         let chartData = [];
+        let total0 = 0;
         let total1 = 0;
         let total2 = 0;
         let total3 = 0;
@@ -232,13 +235,15 @@ function MainUserManagement() {
             } else if (u['roleId'] === '5') {
                 total5 = parseInt(u['total']);
             }
+            total0 += parseInt(u['total']);
         });
 
-        $('#linkUmn1').html('<span class="bullet yellow"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+total1+'</span>');
-        $('#linkUmn2').html('<span class="bullet light-green"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+total2+'</span>');
-        $('#linkUmn3').html('<span class="bullet red accent-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+total3+'</span>');
-        $('#linkUmn4').html('<span class="bullet purple"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+total4+'</span>');
-        $('#linkUmn5').html('<span class="bullet blue-grey accent-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+total5+'</span>');
+        $('#linkUmn0').html('<span class="bullet blue"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
+        $('#linkUmn1').html('<span class="bullet yellow"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
+        $('#linkUmn2').html('<span class="bullet light-green"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
+        $('#linkUmn3').html('<span class="bullet red accent-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
+        $('#linkUmn4').html('<span class="bullet purple"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total4)+'</span>');
+        $('#linkUmn5').html('<span class="bullet blue-grey accent-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
@@ -271,46 +276,12 @@ function MainUserManagement() {
         });
     };
 
-    this.addTableUmn = function (_dataAdd) {
-        oTableUser.row.add(_dataAdd).draw();
-    };
-
-    this.updateTableUmn = function (_dataEdit, _rowEdit) {
-        const currentRow = oTableUser.row(_rowEdit).data();
-        if (typeof _dataEdit['userName'] !== 'undefined') {
-            currentRow['userName'] = _dataEdit['userName'];
-        }
-        if (typeof _dataEdit['userFullName'] !== 'undefined') {
-            currentRow['userFullName'] = _dataEdit['userFullName'];
-        }
-        if (typeof _dataEdit['designationId'] !== 'undefined') {
-            currentRow['designationId'] = _dataEdit['designationId'];
-        }
-        if (typeof _dataEdit['userContactNo'] !== 'undefined') {
-            currentRow['userContactNo'] = _dataEdit['userContactNo'];
-        }
-        if (typeof _dataEdit['userEmail'] !== 'undefined') {
-            currentRow['userEmail'] = _dataEdit['userEmail'];
-        }
-        if (typeof _dataEdit['roles'] !== 'undefined') {
-            currentRow['roles'] = _dataEdit['roles'];
-        }
-        if (typeof _dataEdit['userStatus'] !== 'undefined') {
-            currentRow['userStatus'] = _dataEdit['userStatus'];
-        }
-        oTableUser.row(_rowEdit).data(currentRow).draw();
-    };
-
     this.getClassName = function () {
         return className;
     };
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
-    };
-
-    this.setRefUser = function (_refUser) {
-        refUser = _refUser;
     };
 
     this.setRefRole = function (_refRole) {

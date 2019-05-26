@@ -57,6 +57,8 @@ try {
             $userContactNo = filter_input(INPUT_POST, 'userContactNo');
             $userEmail = filter_input(INPUT_POST, 'userEmail');
             $designationId = filter_input(INPUT_POST, 'designationId');
+            $userType = filter_input(INPUT_POST, 'userType');
+            $siteId = filter_input(INPUT_POST, 'siteId');
             $roles = filter_input(INPUT_POST, 'roles');
 
             $params = array(
@@ -66,10 +68,13 @@ try {
                 'userContactNo'=>$userContactNo,
                 'userEmail'=>$userEmail,
                 'designationId'=>$designationId,
+                'userType'=>$userType,
+                'siteId'=>$siteId,
                 'roles'=>$roles
             );
             $result = $fn_user->add_user($params);
             $fn_general->updateVersion(3);
+            $fn_general->save_audit('17', $jwt_data->userId, 'User ID = ' . $result);
             $form_data['errmsg'] = $constant::SUC_USER_ADD;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action (' . $action . ') invalid');
@@ -107,16 +112,19 @@ try {
         else if ($action === 'update_user') {
             $fn_user->update_profile($userId, $put_vars);
             $fn_general->updateVersion(3);
+            $fn_general->save_audit('18', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_UPDATE;
         }
         else if ($action === 'deactivate') {
             $fn_user->deactivate_profile($userId);
             $fn_general->updateVersion(3);
+            $fn_general->save_audit('19', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $fn_user->activate_profile($userId);
             $fn_general->updateVersion(3);
+            $fn_general->save_audit('20', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_ACTIVATE;
         }
         

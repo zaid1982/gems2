@@ -7,9 +7,8 @@ function ModalConfirmDelete() {
     this.init = function () {
         $('#btnMcdSubmit').on('click', function () {
             switch (returnClass.getClassName()) {
-                case 'ModalJabatan':
-                case 'ModalJawatan':
-                case 'ModalLeaveType':
+                case 'ModalDesignation':
+                case 'ModalClient':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id, rowRefresh);
                     }

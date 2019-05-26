@@ -32,7 +32,7 @@ try {
                 
         $form_data['result'] = $result;
         $form_data['success'] = true; 
-        $fn_general->log_debug('API', $api_name, __LINE__, 'Result = '.print_r($result, true));
+        //$fn_general->log_debug('API', $api_name, __LINE__, 'Result = '.print_r($result, true));
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

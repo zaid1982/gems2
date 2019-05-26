@@ -343,6 +343,9 @@ class Class_user {
             if (!array_key_exists('userPassword', $userDetails) && empty($userDetails['userPassword'])) {
                 throw new Exception('['.__LINE__.'] - Parameter userPassword empty');
             }
+            if (!array_key_exists('userType', $userDetails) && empty($userDetails['userType'])) {
+                throw new Exception('['.__LINE__.'] - Parameter userType empty');
+            }
             if (!array_key_exists('roles', $userDetails) && empty($userDetails['roles'])) {
                 throw new Exception('['.__LINE__.'] - Parameter roles empty');
             }
@@ -356,25 +359,39 @@ class Class_user {
             $userContactNo = $userDetails['userContactNo'];
             $userPassword = $userDetails['userPassword'];
             $designationId = $userDetails['designationId'];
+            $userType = $userDetails['userType'];
             $rolesStr = $userDetails['roles'];
+            $groupId = '';
+
+            if ($userType == '1') {
+                $groupId = '1';
+            }
+            else if  ($userType == '2') {
+                if (!array_key_exists('siteId', $userDetails) && empty($userDetails['siteId'])) {
+                    throw new Exception('['.__LINE__.'] - Parameter siteId empty');
+                }
+                $siteId = $userDetails['siteId'];
+                $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+            } else {
+                throw new Exception('['.__LINE__.'] - Parameter userType invalid ('.$userType.')');
+            }
 
             if (Class_db::getInstance()->db_count('sys_user', array('user_name'=>$userName)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
             }
 
-            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName,
-                'user_time_activate'=>'Now()', 'user_status'=>'1'));
+            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_time_activate'=>'Now()', 'user_status'=>'1'));
             Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId));
-            Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>'2'));
+            Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>$groupId));
             $roles = explode(',', $rolesStr);
             foreach ($roles as $role) {
-                Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>'2'));
+                Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>$groupId));
                 $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                 foreach ($checkpoints as $checkpoint) {
                     $checkpointId = $checkpoint['checkpoint_id'];
-                    $groupId = $checkpoint['group_id'];
-                    if ($groupId === '2' || is_null($groupId)) {
-                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>'2'));
+                    $groupId_ = $checkpoint['group_id'];
+                    if ($groupId_ === $groupId || is_null($groupId_)) {
+                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }
                 }
             }
@@ -445,8 +462,12 @@ class Class_user {
             $result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
             $result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
             $result['roles'] = $this->fn_general->clear_null($user['roles']);
-            $result['groupId'] = $this->fn_general->clear_null($user['group_id']);
+            $result['groupId'] = $user['group_id'];
             $result['userStatus'] = $user['user_status'];
+
+            $site = Class_db::getInstance()->db_select_single('cli_site', array('group_id'=>$result['groupId']));
+            $result['clientId'] = !empty($site) ? $site['client_id'] : '';
+            $result['siteId'] = !empty($site) ? $site['site_id'] : '';
 
             return $result;
         }

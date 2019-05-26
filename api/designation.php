@@ -3,13 +3,13 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_site.php';
+require_once 'function/f_reference.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_site = new Class_site();
-$api_name = 'api_site';
+$fn_reference = new Class_reference();
+$api_name = 'api_designation';
 $is_transaction = false;
 $form_data = array('success' => false, 'result' => '', 'error' => '', 'errmsg' => '');
 $result = '';
@@ -27,39 +27,36 @@ try {
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
-        $siteId = filter_input(INPUT_GET, 'siteId');
-        if (!is_null($siteId)) {
-            $form_data['result'] = $fn_site->get_site($siteId);
+        $designationId = filter_input(INPUT_GET, 'designationId');
+        if (!is_null($designationId)) {
+            $form_data['result'] = $fn_reference->get_designation($designationId);
         } else {
-            $result = $fn_site->get_site_list();
+            $result = $fn_reference->get_designation();
         }
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
-        $siteName = filter_input(INPUT_POST, 'siteName');
-        $siteDesc = filter_input(INPUT_POST, 'siteDesc');
+        $designationDesc = filter_input(INPUT_POST, 'designationDesc');
         $clientId = filter_input(INPUT_POST, 'clientId');
-        $siteStatus = filter_input(INPUT_POST, 'siteStatus');
+        $designationStatus = filter_input(INPUT_POST, 'designationStatus');
 
         $params = array(
-            'siteName' => $siteName,
-            'siteDesc' => $siteDesc,
-            'clientId' => $clientId,
-            'siteStatus' => $siteStatus
+            'designationDesc' => $designationDesc,
+            'designationStatus' => $designationStatus
         );
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $result = $fn_site->add_site($params);
-        $fn_general->updateVersion(6);
-        $fn_general->save_audit('12', $jwt_data->userId, 'Site = ' . $siteName);
+        $result = $fn_reference->add_designation($params);
+        $fn_general->updateVersion(4);
+        $fn_general->save_audit('12', $jwt_data->userId, 'Designation = ' . $designationDesc);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_SITE_ADD;
+        $form_data['errmsg'] = $constant::SUC_DESIGNATION_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else if ('PUT' === $request_method) {
-        $siteId = filter_input(INPUT_GET, 'siteId');
+        $designationId = filter_input(INPUT_GET, 'designationId');
         $put_data = file_get_contents("php://input");
         parse_str($put_data, $put_vars);
         $action = $put_vars['action'];
@@ -68,20 +65,20 @@ try {
         $is_transaction = true;
 
         if ($action === 'update') {
-            $fn_site->update_site($siteId, $put_vars);
-            $fn_general->updateVersion(6);
-            $fn_general->save_audit('13', $jwt_data->userId, 'Site = ' . $put_vars['siteName']);
-            $form_data['errmsg'] = $constant::SUC_SITE_EDIT;
+            $fn_reference->update_designation($designationId, $put_vars);
+            $fn_general->updateVersion(4);
+            $fn_general->save_audit('13', $jwt_data->userId, 'Designation = ' . $put_vars['designationDesc']);
+            $form_data['errmsg'] = $constant::SUC_DESIGNATION_EDIT;
         } else if ($action === 'deactivate') {
-            $siteName = $fn_site->deactivate_site($siteId);
-            $fn_general->updateVersion(6);
-            $fn_general->save_audit('14', $jwt_data->userId, 'Site = ' . $siteName);
-            $form_data['errmsg'] = $constant::SUC_SITE_DEACTIVATE;
+            $designationDesc = $fn_reference->deactivate_designation($designationId);
+            $fn_general->updateVersion(4);
+            $fn_general->save_audit('14', $jwt_data->userId, 'Designation = ' . $designationDesc);
+            $form_data['errmsg'] = $constant::SUC_DESIGNATION_DEACTIVATE;
         } else if ($action === 'activate') {
-            $siteName = $fn_site->activate_site($siteId);
-            $fn_general->updateVersion(6);
-            $fn_general->save_audit('15', $jwt_data->userId, 'Site = ' . $siteName);
-            $form_data['errmsg'] = $constant::SUC_SITE_ACTIVATE;
+            $designationDesc = $fn_reference->activate_designation($designationId);
+            $fn_general->updateVersion(4);
+            $fn_general->save_audit('15', $jwt_data->userId, 'Designation = ' . $designationDesc);
+            $form_data['errmsg'] = $constant::SUC_DESIGNATION_ACTIVATE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid (' . $action . ')');
         }
@@ -89,17 +86,17 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['success'] = true;
     } else if ('DELETE' === $request_method) {
-        $siteId = filter_input(INPUT_GET, 'siteId');
+        $designationId = filter_input(INPUT_GET, 'designationId');
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $siteName = $fn_site->delete_site($siteId);
-        $fn_general->updateVersion(6);
-        $fn_general->save_audit('16', $jwt_data->userId, 'Site = ' . $siteName);
+        $designationName = $fn_reference->delete_designation($designationId);
+        $fn_general->updateVersion(4);
+        $fn_general->save_audit('16', $jwt_data->userId, 'Designation = ' . $designationName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_SITE_DELETE;
+        $form_data['errmsg'] = $constant::SUC_DESIGNATION_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

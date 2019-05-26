@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Sistem Permohonan Cuti</title>
+    <title>GEMS 2.0</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
     <!-- Bootstrap core CSS -->
@@ -35,35 +35,35 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionJwtMain">
+        <section class="mb-5 mt-lg-5 sectionDsgMain">
             <div class="card card-cascade narrower">
                 <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
-                        <button type="button" id="btnJwtJawatanAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Tambah Jawatan"><i class="fas fa-plus mt-0"></i></button>
+                        <button type="button" id="btnDsgDesignationAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Designation"><i class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Senarai Jawatan"
-                           data-content="Senarai data rujukan untuk jawatan."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtJwtJawatanRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                           data-toggle="popover" data-trigger="focus" title="Designation List"
+                           data-content="All designation list available."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtDsgDesignationRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Senarai Jawatan</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Designation List</a>
                     <div>
-                        <div id="btnDtJwtJawatanExport"></div>
+                        <div id="btnDtDsgDesignationExport"></div>
                     </div>
                 </div>
                 <div class="px-4 pb-4">
                     <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
                         <div class="">
                             <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtJwtJawatanSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtJwtJawatanSearch" class="ml-4">Carian</label>
+                            <input type="text" id="txtDsgDesignationSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                            <label for="txtDsgDesignationSearch" class="ml-4">Search</label>
                         </div>
                     </form>
                     <div class="table-responsive">
-                        <table id="dtJwtJawatan" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                        <table id="dtDsgDesignation" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                             <thead>
                             <tr class="th-strong">
-                                <th style="width: 8%">Bil</th>
-                                <th>Jawatan</th>
+                                <th style="width: 8%">#</th>
+                                <th>Designation</th>
                                 <th style="width: 15%">Status</th>
                                 <th style="width: 80px"></th>
                             </tr>
@@ -77,7 +77,7 @@
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_jawatan"></div>
+    <div class="includeHtml" id="h-modal_designation"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -111,9 +111,9 @@
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal_;
-    let jawatanClass_;
+    let designationClass_;
     let changePasswordClass_;
-    let modalJawatanClass_;
+    let modalDesignationClass_;
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -124,19 +124,19 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                jawatanClass_ = new MainJawatan();
-                modalJawatanClass_ = new ModalJawatan();
+                designationClass_ = new MainDesignation();
+                modalDesignationClass_ = new ModalDesignation();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
-                const refStatus_ = mzGetLocalArray('jpdpl_status', versionLocal_, 'statusId');
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
 
-                modalJawatanClass_.setClassFrom(jawatanClass_);
-                modalJawatanClass_.init();
-                jawatanClass_.setVersionLocal(versionLocal_);
-                jawatanClass_.setRefStatus(refStatus_);
-                jawatanClass_.setModalJawatanClass(modalJawatanClass_);
-                jawatanClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                jawatanClass_.init();
+                modalDesignationClass_.setClassFrom(designationClass_);
+                modalDesignationClass_.init();
+                designationClass_.setVersionLocal(versionLocal_);
+                designationClass_.setRefStatus(refStatus_);
+                designationClass_.setModalDesignationClass(modalDesignationClass_);
+                designationClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                designationClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -146,8 +146,8 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_jawatan.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_designation.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_jawatan.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_designation.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

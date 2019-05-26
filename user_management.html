@@ -50,6 +50,7 @@
                                     <div class="mt-1 pb-2">
                                         <h6>User Roles:</h6>
                                         <ul class="striped list-unstyled pl-2">
+                                            <li><a href="javascript:void(0);" id="linkUmn0"></a></li>
                                             <li><a href="javascript:void(0);" id="linkUmn1"></a></li>
                                             <li><a href="javascript:void(0);" id="linkUmn2"></a></li>
                                             <li><a href="javascript:void(0);" id="linkUmn3"></a></li>
@@ -182,7 +183,6 @@
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
                 const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
@@ -196,7 +196,6 @@
 
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
-                userManagementClass_.setRefUser(refUser_);
                 userManagementClass_.setRefDesignation(refDesignation_);
                 userManagementClass_.setRefGroup(refGroup_);
                 userManagementClass_.setModalUserClass(modalUserClass_);
