@@ -159,9 +159,6 @@
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/themes/dark-blue.js"></script>
-<!-- Stepper JavaScript - minified -->
-<script type="text/javascript" src="js/addons-pro/stepper.min.js"></script>
-
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -189,11 +186,14 @@
                 const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
                 const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId');
 
                 modalUserClass_.setClassFrom(userManagementClass_);
                 modalUserClass_.setRefDesignation(refDesignation_);
                 modalUserClass_.setRefClient(refClient_);
+                modalUserClass_.setRefSite(refSite_);
                 modalUserClass_.init();
+
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
                 userManagementClass_.setRefUser(refUser_);

@@ -150,9 +150,9 @@ class Class_login {
             foreach ($arr_roles as $roles) {
                 array_push($role_list, $roles['roleId']);
             }
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, 'Roles = '.$role_list[0]);
+            //$this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Roles = '.$role_list[0]);
             $role_str = implode(',', $role_list);            
-            $this->fn_general->log_debug(__FUNCTION__, __LINE__, $role_str);
+            //$this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $role_str);
             
             $menu_return = [];
             $nav_index = 0;

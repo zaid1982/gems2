@@ -33,7 +33,11 @@ class Class_constant {
     const ERR_CLIENT_SIMILAR = 'Client already exist';
     const ERR_CLIENT_DEACTIVATE = 'Client already inactive';
     const ERR_CLIENT_ACTIVATE = 'Client already active';
-    const ERR_CLIENT_DELETE_SITE = 'Client cannot be deleted because currently registered under site';
+    const ERR_CLIENT_DELETE_SITE = 'Client cannot be deleted because currently registered under Site';
+    const ERR_SITE_SIMILAR = 'Site already exist under similar Client';
+    const ERR_SITE_DEACTIVATE = 'Site already inactive';
+    const ERR_SITE_ACTIVATE = 'Site already active';
+    const ERR_SITE_DELETE_SITE = 'Site cannot be deleted because currently registered under Contract';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -49,4 +53,9 @@ class Class_constant {
     const SUC_CLIENT_DEACTIVATE = 'Client successfully deactivated';
     const SUC_CLIENT_ACTIVATE = 'Client successfully activated';
     const SUC_CLIENT_DELETE = 'Client successfully deleted';
+    const SUC_SITE_ADD = 'Site successfully added';
+    const SUC_SITE_EDIT = 'Site successfully updated';
+    const SUC_SITE_DEACTIVATE = 'Site successfully deactivated';
+    const SUC_SITE_ACTIVATE = 'Site successfully activated';
+    const SUC_SITE_DELETE = 'Site successfully deleted';
 }

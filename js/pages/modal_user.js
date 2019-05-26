@@ -7,6 +7,7 @@ function ModalUser() {
     let userId = '';
     let refDesignation;
     let refClient;
+    let refSite;
     let formValidate;
 
     this.init = function () {
@@ -126,15 +127,19 @@ function ModalUser() {
                 $('#divMusClient, #divMusSite').hide();
                 $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').show();
                 $('#divMusRole6').hide();
-                formValidate.enableField('optMusClientId');
-                formValidate.enableField('optMusSiteId');
+                formValidate.disableField('optMusClientId');
+                formValidate.disableField('optMusSiteId');
             } else if ($(this).val() === '2') {
                 $('.divMusRoles, #divMusClient, #divMusSite').show();
                 $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').hide();
                 $('#divMusRole6').show();
                 formValidate.enableField('optMusClientId');
-                formValidate.disableField('optMusSiteId');
+                formValidate.enableField('optMusSiteId');
             }
+        });
+
+        $('#optMusClientId').on('change', function () {
+            mzOption('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
         });
 
         $('#btnMusSubmit').on('click', function () {
@@ -358,6 +363,10 @@ function ModalUser() {
         return className;
     };
 
+    this.setClassFrom = function (_classFrom) {
+        classFrom = _classFrom;
+    };
+
     this.setRefDesignation = function (_refDesignation) {
         refDesignation = _refDesignation;
     };
@@ -366,7 +375,7 @@ function ModalUser() {
         refClient = _refClient;
     };
 
-    this.setClassFrom = function (_classFrom) {
-        classFrom = _classFrom;
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 }

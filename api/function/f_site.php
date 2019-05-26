@@ -2,7 +2,7 @@
 require_once 'library/constant.php';
 require_once 'function/f_general.php';
 
-class Class_client {
+class Class_site {
 
     private $fn_general;
 
@@ -77,18 +77,20 @@ class Class_client {
      * @return array
      * @throws Exception
      */
-    public function get_client_list () {
+    public function get_site_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_client');
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_site');
             foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['siteName'] = $dataLocal['site_name'];
+                $row_result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
                 $row_result['clientId'] = $dataLocal['client_id'];
-                $row_result['clientName'] = $dataLocal['client_name'];
-                $row_result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
-                $row_result['clientTimeCreated'] = $dataLocal['client_time_created'];
-                $row_result['clientStatus'] = $dataLocal['client_status'];
+                $row_result['groupId'] = $dataLocal['group_id'];
+                $row_result['siteTimeCreated'] = $dataLocal['site_time_created'];
+                $row_result['siteStatus'] = $dataLocal['site_status'];
                 array_push($result, $row_result);
             }
 
@@ -101,21 +103,23 @@ class Class_client {
     }
 
     /**
-     * @param $clientId
+     * @param $siteId
      * @return array
      * @throws Exception
      */
-    public function get_client ($clientId) {
+    public function get_site ($siteId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $dataLocal = Class_db::getInstance()->db_select_single('cli_client', array('client_id'=>$clientId), null, 1);
+            $dataLocal = Class_db::getInstance()->db_select_single('cli_site', array('site_id'=>$siteId), null, 1);
+            $result['siteId'] = $dataLocal['site_id'];
+            $result['siteName'] = $dataLocal['site_name'];
+            $result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
             $result['clientId'] = $dataLocal['client_id'];
-            $result['clientName'] = $dataLocal['client_name'];
-            $result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
-            $result['clientTimeCreated'] = $dataLocal['client_time_created'];
-            $result['clientStatus'] = $dataLocal['client_status'];
+            $result['groupId'] = $dataLocal['group_id'];
+            $result['siteTimeCreated'] = $dataLocal['site_time_created'];
+            $result['siteStatus'] = $dataLocal['site_status'];
 
             return $result;
         }
@@ -130,7 +134,7 @@ class Class_client {
      * @return mixed
      * @throws Exception
      */
-    public function add_client ($params) {
+    public function add_site ($params) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -138,25 +142,30 @@ class Class_client {
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
             }
-            if (!array_key_exists('clientName', $params) || empty($params['clientName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientName empty');
+            if (!array_key_exists('siteName', $params) || empty($params['siteName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteName empty');
             }
-            if (!array_key_exists('clientDesc', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientDesc not exist');
+            if (!array_key_exists('siteDesc', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteDesc not exist');
             }
-            if (!array_key_exists('clientStatus', $params) || empty($params['clientStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientStatus empty');
+            if (!array_key_exists('clientId', $params) || empty($params['clientId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-
-            $clientName = $params['clientName'];
-            $clientDesc = $params['clientDesc'];
-            $clientStatus = $params['clientStatus'];
-
-            if (Class_db::getInstance()->db_count('cli_client', array('client_name'=>$clientName)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
+            if (!array_key_exists('siteStatus', $params) || empty($params['siteStatus'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
             }
 
-            return Class_db::getInstance()->db_insert('cli_client', array('client_name'=>$clientName, 'client_desc'=>$clientDesc, 'client_status'=>$clientStatus));
+            $siteName = $params['siteName'];
+            $siteDesc = $params['siteDesc'];
+            $clientId = $params['clientId'];
+            $siteStatus = $params['siteStatus'];
+
+            if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'client_id'=>$clientId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_SITE_SIMILAR, 31);
+            }
+
+            $groupId = Class_db::getInstance()->db_insert('sys_group', array('group_name'=>$siteName, 'group_type'=>'2', 'group_status'=>$siteStatus));
+            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'group_id'=>$groupId, 'site_status'=>$siteStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -165,41 +174,43 @@ class Class_client {
     }
 
     /**
-     * @param $clientId
+     * @param $siteId
      * @param $put_vars
      * @throws Exception
      */
-    public function update_client ($clientId, $put_vars) {
+    public function update_site ($siteId, $put_vars) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($clientId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
             if (empty($put_vars)) {
                 throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
             }
 
-            if (!isset($put_vars['clientName']) || empty($put_vars['clientName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientName empty');
+            if (!isset($put_vars['siteName']) || empty($put_vars['siteName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteName empty');
             }
-            if (!isset($put_vars['clientDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientDesc not exist');
+            if (!isset($put_vars['siteDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteDesc not exist');
             }
-            if (!isset($put_vars['clientStatus']) || empty($put_vars['clientStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientStatus empty');
+            if (!isset($put_vars['siteStatus']) || empty($put_vars['siteStatus'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
             }
 
-            $clientName = $put_vars['clientName'];
-            $clientDesc = $put_vars['clientDesc'];
-            $clientStatus = $put_vars['clientStatus'];
+            $siteName = $put_vars['siteName'];
+            $siteDesc = $put_vars['siteDesc'];
+            $siteStatus = $put_vars['siteStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_client', array('client_name'=>$clientName, 'client_id'=>'<>'.$clientId)) > 0) {
+            if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'site_id'=>'<>'.$siteId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_client', array('client_name'=>$clientName, 'client_desc'=>$clientDesc, 'client_status'=>$clientStatus), array('client_id'=>$clientId));
+            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+            Class_db::getInstance()->db_update('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'site_status'=>$siteStatus), array('site_id'=>$siteId));
+            Class_db::getInstance()->db_update('sys_group', array('group_name'=>$siteName, 'group_status'=>'2'), array('group_id'=>$groupId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -208,24 +219,26 @@ class Class_client {
     }
 
     /**
-     * @param $clientId
+     * @param $siteId
      * @return mixed
      * @throws Exception
      */
-    public function deactivate_client ($clientId) {
+    public function deactivate_site ($siteId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($clientId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_client', array('client_id'=>$clientId, 'client_status'=>'2')) > 0) {
+            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId, 'site_status'=>'2')) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_DEACTIVATE, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_client', array('client_status'=>'2'), array('client_id'=>$clientId));
-            return Class_db::getInstance()->db_select_col('cli_client', array('client_id'=>$clientId), 'client_name', null, 1);
+            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+            Class_db::getInstance()->db_update('cli_site', array('site_status'=>'2'), array('site_id'=>$siteId));
+            Class_db::getInstance()->db_update('sys_group', array('group_status'=>'2'), array('group_id'=>$groupId));
+            return Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -234,24 +247,26 @@ class Class_client {
     }
 
     /**
-     * @param $clientId
+     * @param $siteId
      * @return mixed
      * @throws Exception
      */
-    public function activate_client ($clientId) {
+    public function activate_site ($siteId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($clientId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_client', array('client_id'=>$clientId, 'client_status'=>'1')) > 0) {
+            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId, 'site_status'=>'1')) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_ACTIVATE, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_client', array('client_status'=>'1'), array('client_id'=>$clientId));
-            return Class_db::getInstance()->db_select_col('cli_client', array('client_id'=>$clientId), 'client_name', null, 1);
+            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+            Class_db::getInstance()->db_update('cli_site', array('site_status'=>'1'), array('site_id'=>$siteId));
+            Class_db::getInstance()->db_update('sys_group', array('group_status'=>'1'), array('group_id'=>$groupId));
+            return Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -260,29 +275,29 @@ class Class_client {
     }
 
     /**
-     * @param $clientId
+     * @param $siteId
      * @return mixed
      * @throws Exception
      */
-    public function delete_client ($clientId) {
+    public function delete_site ($siteId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($clientId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_client', array('client_id'=>$clientId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Client data not exist');
+            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Site data not exist');
             }
-            if (Class_db::getInstance()->db_count('cli_site', array('client_id'=>$clientId)) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('site_id'=>$siteId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_DELETE_SITE, 31);
             }
 
-            $clientName = Class_db::getInstance()->db_select_col('cli_client', array('client_id'=>$clientId), 'client_name', null, 1);
-            Class_db::getInstance()->db_delete('cli_client', array('client_id'=>$clientId));
+            $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
+            Class_db::getInstance()->db_delete('cli_site', array('site_id'=>$siteId));
 
-            return $clientName;
+            return $siteName;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
