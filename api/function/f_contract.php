@@ -2,7 +2,7 @@
 require_once 'library/constant.php';
 require_once 'function/f_general.php';
 
-class Class_site {
+class Class_contract {
 
     private $fn_general;
 
@@ -77,20 +77,19 @@ class Class_site {
      * @return array
      * @throws Exception
      */
-    public function get_site_list () {
+    public function get_contract_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_site');
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_contract');
             foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['contractId'] = $dataLocal['contract_id'];
+                $row_result['contractName'] = $dataLocal['contract_name'];
+                $row_result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
                 $row_result['siteId'] = $dataLocal['site_id'];
-                $row_result['siteName'] = $dataLocal['site_name'];
-                $row_result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
-                $row_result['clientId'] = $dataLocal['client_id'];
-                $row_result['groupId'] = $dataLocal['group_id'];
-                $row_result['siteTimeCreated'] = $dataLocal['site_time_created'];
-                $row_result['siteStatus'] = $dataLocal['site_status'];
+                $row_result['contractTimeCreated'] = $dataLocal['contract_time_created'];
+                $row_result['contractStatus'] = $dataLocal['contract_status'];
                 array_push($result, $row_result);
             }
 
@@ -103,23 +102,22 @@ class Class_site {
     }
 
     /**
-     * @param $siteId
+     * @param $contractId
      * @return array
      * @throws Exception
      */
-    public function get_site ($siteId) {
+    public function get_contract ($contractId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $dataLocal = Class_db::getInstance()->db_select_single('cli_site', array('site_id'=>$siteId), null, 1);
+            $dataLocal = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
+            $result['contractId'] = $dataLocal['contract_id'];
+            $result['contractName'] = $dataLocal['contract_name'];
+            $result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
             $result['siteId'] = $dataLocal['site_id'];
-            $result['siteName'] = $dataLocal['site_name'];
-            $result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
-            $result['clientId'] = $dataLocal['client_id'];
-            $result['groupId'] = $dataLocal['group_id'];
-            $result['siteTimeCreated'] = $dataLocal['site_time_created'];
-            $result['siteStatus'] = $dataLocal['site_status'];
+            $result['contractTimeCreated'] = $dataLocal['contract_time_created'];
+            $result['contractStatus'] = $dataLocal['contract_status'];
 
             return $result;
         }
@@ -134,7 +132,7 @@ class Class_site {
      * @return mixed
      * @throws Exception
      */
-    public function add_site ($params) {
+    public function add_contract ($params) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -142,30 +140,29 @@ class Class_site {
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
             }
-            if (!array_key_exists('siteName', $params) || empty($params['siteName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteName empty');
+            if (!array_key_exists('contractName', $params) || empty($params['contractName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractName empty');
             }
-            if (!array_key_exists('siteDesc', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteDesc not exist');
+            if (!array_key_exists('contractDesc', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDesc not exist');
             }
-            if (!array_key_exists('clientId', $params) || empty($params['clientId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (!array_key_exists('siteId', $params) || empty($params['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
-            if (!array_key_exists('siteStatus', $params) || empty($params['siteStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
-            }
-
-            $siteName = $params['siteName'];
-            $siteDesc = $params['siteDesc'];
-            $clientId = $params['clientId'];
-            $siteStatus = $params['siteStatus'];
-
-            if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'client_id'=>$clientId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_SITE_SIMILAR, 31);
+            if (!array_key_exists('contractStatus', $params) || empty($params['contractStatus'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractStatus empty');
             }
 
-            $groupId = Class_db::getInstance()->db_insert('sys_group', array('group_name'=>$siteName, 'group_type'=>'2', 'group_status'=>$siteStatus));
-            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'client_id'=>$clientId, 'group_id'=>$groupId, 'site_status'=>$siteStatus));
+            $contractName = $params['contractName'];
+            $contractDesc = $params['contractDesc'];
+            $siteId = $params['siteId'];
+            $contractStatus = $params['contractStatus'];
+
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'siteId'=>$siteId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CONTRACT_SIMILAR, 31);
+            }
+
+            return Class_db::getInstance()->db_insert('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'site_id'=>$siteId, 'contract_status'=>$contractStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -174,47 +171,45 @@ class Class_site {
     }
 
     /**
-     * @param $siteId
+     * @param $contractId
      * @param $put_vars
      * @throws Exception
      */
-    public function update_site ($siteId, $put_vars) {
+    public function update_contract ($contractId, $put_vars) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($siteId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
             }
             if (empty($put_vars)) {
                 throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
             }
 
-            if (!isset($put_vars['siteName']) || empty($put_vars['siteName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteName empty');
+            if (!isset($put_vars['contractName']) || empty($put_vars['contractName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractName empty');
             }
-            if (!isset($put_vars['siteDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteDesc not exist');
+            if (!isset($put_vars['contractDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDesc not exist');
             }
-            if (!isset($put_vars['clientId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId not exist');
+            if (!isset($put_vars['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId not exist');
             }
-            if (!isset($put_vars['siteStatus']) || empty($put_vars['siteStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
+            if (!isset($put_vars['contractStatus']) || empty($put_vars['contractStatus'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractStatus empty');
             }
 
-            $siteName = $put_vars['siteName'];
-            $siteDesc = $put_vars['siteDesc'];
-            $clientId = $put_vars['clientId'];
-            $siteStatus = $put_vars['siteStatus'];
+            $contractName = $put_vars['contractName'];
+            $contractDesc = $put_vars['contractDesc'];
+            $siteId = $put_vars['siteId'];
+            $contractStatus = $put_vars['contractStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'client_id'=>$clientId, 'site_id'=>'<>'.$siteId)) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'siteId'=>$siteId, 'contract_id'=>'<>'.$contractId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
-            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
-            Class_db::getInstance()->db_update('cli_site', array('site_name'=>$siteName, 'site_desc'=>$siteDesc, 'site_status'=>$siteStatus), array('site_id'=>$siteId));
-            Class_db::getInstance()->db_update('sys_group', array('group_name'=>$siteName, 'group_status'=>'2'), array('group_id'=>$groupId));
+            Class_db::getInstance()->db_update('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'contract_status'=>$contractStatus), array('contract_id'=>$contractId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -223,26 +218,24 @@ class Class_site {
     }
 
     /**
-     * @param $siteId
+     * @param $contractId
      * @return mixed
      * @throws Exception
      */
-    public function deactivate_site ($siteId) {
+    public function deactivate_contract ($contractId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($siteId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId, 'site_status'=>'2')) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_id'=>$contractId, 'contract_status'=>'2')) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_DEACTIVATE, 31);
             }
 
-            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
-            Class_db::getInstance()->db_update('cli_site', array('site_status'=>'2'), array('site_id'=>$siteId));
-            Class_db::getInstance()->db_update('sys_group', array('group_status'=>'2'), array('group_id'=>$groupId));
-            return Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
+            Class_db::getInstance()->db_update('cli_contract', array('contract_status'=>'2'), array('contract_id'=>$contractId));
+            return Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'contract_name', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -251,26 +244,24 @@ class Class_site {
     }
 
     /**
-     * @param $siteId
+     * @param $contractId
      * @return mixed
      * @throws Exception
      */
-    public function activate_site ($siteId) {
+    public function activate_contract ($contractId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($siteId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId, 'site_status'=>'1')) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_id'=>$contractId, 'contract_status'=>'1')) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_ACTIVATE, 31);
             }
 
-            $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
-            Class_db::getInstance()->db_update('cli_site', array('site_status'=>'1'), array('site_id'=>$siteId));
-            Class_db::getInstance()->db_update('sys_group', array('group_status'=>'1'), array('group_id'=>$groupId));
-            return Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
+            Class_db::getInstance()->db_update('cli_contract', array('contract_status'=>'1'), array('contract_id'=>$contractId));
+            return Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'contract_name', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -279,29 +270,29 @@ class Class_site {
     }
 
     /**
-     * @param $siteId
+     * @param $contractId
      * @return mixed
      * @throws Exception
      */
-    public function delete_site ($siteId) {
+    public function delete_contract ($contractId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($siteId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
             }
-            if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Site data not exist');
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_id'=>$contractId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Contract data not exist');
             }
-            if (Class_db::getInstance()->db_count('cli_contract', array('site_id'=>$siteId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_SITE_DELETE_CONTRACT, 31);
+            if (Class_db::getInstance()->db_count('ast_asset', array('contract_id'=>$contractId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CONTRACT_DELETE_ASSET, 31);
             }
 
-            $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
-            Class_db::getInstance()->db_delete('cli_site', array('site_id'=>$siteId));
+            $contractName = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'contract_name', null, 1);
+            Class_db::getInstance()->db_delete('cli_contract', array('contract_id'=>$contractId));
 
-            return $siteName;
+            return $contractName;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
