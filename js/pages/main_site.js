@@ -13,7 +13,7 @@ function MainSite() {
         oTableSite =  $('#dtSteSite').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'asc'],
+            "aaSorting": [[1, 'asc'],[2, 'asc']],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableSite.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));

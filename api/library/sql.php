@@ -110,6 +110,12 @@ class Class_sql
                     role_id, COUNT(*) AS total
                 FROM sys_user_role
                 GROUP BY role_id";
+            } else if ($title === 'vw_contract') {
+                $sql = "SELECT
+                    cli_contract.*,
+                    cli_site.client_id
+                FROM cli_contract
+                LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

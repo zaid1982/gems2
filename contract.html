@@ -63,10 +63,11 @@
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 23%">Client</th>
-                                <th style="width: 23%">Contract</th>
+                                <th style="width: 15%">Client</th>
+                                <th style="width: 15%">Site</th>
+                                <th style="width: 20%">Contract</th>
                                 <th>Description</th>
-                                <th style="width: 12%">Status</th>
+                                <th style="width: 8%">Status</th>
                                 <th style="width: 80px"></th>
                             </tr>
                             </thead>
@@ -132,6 +133,7 @@
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId');
 
                 modalContractClass_.setRefClient(refClient_);
                 modalContractClass_.setClassFrom(contractClass_);
@@ -139,6 +141,7 @@
                 contractClass_.setVersionLocal(versionLocal_);
                 contractClass_.setRefStatus(refStatus_);
                 contractClass_.setRefClient(refClient_);
+                contractClass_.setRefSite(refSite_);
                 contractClass_.setModalContractClass(modalContractClass_);
                 contractClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 contractClass_.init();

@@ -82,12 +82,13 @@ class Class_contract {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_contract');
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_contract');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['contractId'] = $dataLocal['contract_id'];
                 $row_result['contractName'] = $dataLocal['contract_name'];
                 $row_result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
                 $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['clientId'] = $dataLocal['client_id'];
                 $row_result['contractTimeCreated'] = $dataLocal['contract_time_created'];
                 $row_result['contractStatus'] = $dataLocal['contract_status'];
                 array_push($result, $row_result);

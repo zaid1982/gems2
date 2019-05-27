@@ -6,6 +6,7 @@ function MainContract() {
     let modalConfirmDeleteClass;
     let refStatus;
     let refClient;
+    let refSite;
     let oTableContract;
     let modalContractClass;
 
@@ -13,7 +14,7 @@ function MainContract() {
         oTableContract =  $('#dtCcrContract').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'asc'],
+            "aaSorting": [[1, 'asc'],[2, 'asc'],[3, 'asc']],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableContract.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -62,7 +63,10 @@ function MainContract() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'clientId', mRender: function (data){
-                            return '';//refClient[data]['clientName'];
+                            return refClient[data]['clientName'];
+                        }},
+                    {mData: 'siteId', mRender: function (data){
+                            return refSite[data]['siteName'];
                         }},
                     {mData: 'contractName'},
                     {mData: 'contractDesc'},
@@ -199,6 +203,10 @@ function MainContract() {
 
     this.setRefClient = function (_refClient) {
         refClient = _refClient;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 
     this.setModalContractClass = function (_modalContractClass) {
