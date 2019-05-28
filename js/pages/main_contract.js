@@ -163,7 +163,7 @@ function MainContract() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refContract = mzGetLocalRaw('gems_contract', versionLocal);
+        const refContract = mzGetLocalRaw('gems_contract', versionLocal, [], 'contract');
         oTableContract.clear().rows.add(refContract).draw();
     };
 

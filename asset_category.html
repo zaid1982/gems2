@@ -35,36 +35,36 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionSteMain">
+        <section class="mb-5 mt-lg-5 sectionActMain">
             <div class="card card-cascade narrower">
                 <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
-                        <button type="button" id="btnSteSiteAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Site"><i class="fas fa-plus mt-0"></i></button>
+                        <button type="button" id="btnActAssetCategoryAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Category"><i class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Site List"
-                           data-content="All site list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtSteSiteRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                           data-toggle="popover" data-trigger="focus" title="Asset Category List"
+                           data-content="All Asset Category list available."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtActAssetCategoryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Site List</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Asset Category List</a>
                     <div>
-                        <div id="btnDtSteSiteExport"></div>
+                        <div id="btnDtActAssetCategoryExport"></div>
                     </div>
                 </div>
                 <div class="px-4 pb-4">
                     <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
                         <div class="">
                             <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtSteSiteSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtSteSiteSearch" class="ml-4">Search</label>
+                            <input type="text" id="txtActAssetCategorySearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                            <label for="txtActAssetCategorySearch" class="ml-4">Search</label>
                         </div>
                     </form>
                     <div class="table-responsive">
-                        <table id="dtSteSite" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                        <table id="dtActAssetCategory" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 23%">Client</th>
-                                <th style="width: 23%">Site</th>
+                                <th style="width: 23%">Asset Group</th>
+                                <th style="width: 23%">Asset Category</th>
                                 <th>Description</th>
                                 <th style="width: 12%">Status</th>
                                 <th style="width: 80px"></th>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_site"></div>
+    <div class="includeHtml" id="h-modal_asset_category"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -113,9 +113,9 @@
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal_;
-    let siteClass_;
+    let assetCategoryClass_;
     let changePasswordClass_;
-    let modalSiteClass_;
+    let modalAssetCategoryClass_;
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -126,22 +126,22 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                siteClass_ = new MainSite();
-                modalSiteClass_ = new ModalSite();
+                assetCategoryClass_ = new MainAssetCategory();
+                modalAssetCategoryClass_ = new ModalAssetCategory();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
 
-                modalSiteClass_.setRefClient(refClient_);
-                modalSiteClass_.setClassFrom(siteClass_);
-                modalSiteClass_.init();
-                siteClass_.setVersionLocal(versionLocal_);
-                siteClass_.setRefStatus(refStatus_);
-                siteClass_.setRefClient(refClient_);
-                siteClass_.setModalSiteClass(modalSiteClass_);
-                siteClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                siteClass_.init();
+                modalAssetCategoryClass_.setRefAssetGroup(refAssetGroup_);
+                modalAssetCategoryClass_.setClassFrom(assetCategoryClass_);
+                modalAssetCategoryClass_.init();
+                assetCategoryClass_.setVersionLocal(versionLocal_);
+                assetCategoryClass_.setRefStatus(refStatus_);
+                assetCategoryClass_.setRefAssetGroup(refAssetGroup_);
+                assetCategoryClass_.setModalAssetCategoryClass(modalAssetCategoryClass_);
+                assetCategoryClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                assetCategoryClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -151,8 +151,8 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_asset_category.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_asset_category.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

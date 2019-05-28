@@ -30,10 +30,11 @@ try {
     if ('GET' === $request_method) {
         $contractId = filter_input(INPUT_GET, 'contractId');
         if (!is_null($contractId)) {
-            $form_data['result'] = $fn_contract->get_contract($contractId);
+            $result = $fn_contract->get_contract($contractId);
         } else {
             $result = $fn_contract->get_contract_list();
         }
+        $form_data['result'] = $result;
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
         $contractName = filter_input(INPUT_POST, 'contractName');

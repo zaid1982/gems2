@@ -29,10 +29,11 @@ try {
     if ('GET' === $request_method) {
         $siteId = filter_input(INPUT_GET, 'siteId');
         if (!is_null($siteId)) {
-            $form_data['result'] = $fn_site->get_site($siteId);
+            $result = $fn_site->get_site($siteId);
         } else {
             $result = $fn_site->get_site_list();
         }
+        $form_data['result'] = $result;
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
         $siteName = filter_input(INPUT_POST, 'siteName');

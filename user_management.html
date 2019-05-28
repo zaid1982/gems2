@@ -183,10 +183,10 @@
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
                 const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId');
+                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
                 modalUserClass_.setClassFrom(userManagementClass_);
                 modalUserClass_.setRefDesignation(refDesignation_);

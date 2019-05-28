@@ -30,10 +30,11 @@ try {
     if ('GET' === $request_method) {
         $clientId = filter_input(INPUT_GET, 'clientId');
         if (!is_null($clientId)) {
-            $form_data['result'] = $fn_client->get_client($clientId);
+            $result = $fn_client->get_client($clientId);
         } else {
             $result = $fn_client->get_client_list();
         }
+        $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {

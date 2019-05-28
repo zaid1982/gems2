@@ -29,10 +29,11 @@ try {
     if ('GET' === $request_method) {
         $designationId = filter_input(INPUT_GET, 'designationId');
         if (!is_null($designationId)) {
-            $form_data['result'] = $fn_reference->get_designation($designationId);
+            $result = $fn_reference->get_designation($designationId);
         } else {
             $result = $fn_reference->get_designation();
         }
+        $form_data['result'] = $result;
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
         $designationDesc = filter_input(INPUT_POST, 'designationDesc');

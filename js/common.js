@@ -788,7 +788,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     return returnVal;
 }
 
-function mzGetLocalArray(name, version, id, filters) {
+function mzGetLocalArray(name, version, id, filters, api) {
     if (typeof name === 'undefined' || typeof version === 'undefined' || typeof id === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -817,7 +817,11 @@ function mzGetLocalArray(name, version, id, filters) {
     }
     
     if (getNew) {
-        rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name}); 
+        if (typeof api === 'undefined') {
+            rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name});
+        } else {
+            rawData = mzAjaxRequest(api+'.php', 'GET');
+        }
         localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
     }
     
@@ -849,7 +853,7 @@ function mzGetLocalArray(name, version, id, filters) {
     return returnVal;
 }
 
-function mzGetLocalRaw(name, version, filters) {
+function mzGetLocalRaw(name, version, filters, api) {
     if (typeof name === 'undefined' || typeof version === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -875,7 +879,11 @@ function mzGetLocalRaw(name, version, filters) {
     }
     
     if (getNew) {
-        rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name}); 
+        if (typeof api === 'undefined') {
+            rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name});
+        } else {
+            rawData = mzAjaxRequest(api+'.php', 'GET');
+        }
         localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
     }
     

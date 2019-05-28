@@ -155,7 +155,7 @@ function MainClient() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refClient = mzGetLocalRaw('gems_client', versionLocal);
+        const refClient = mzGetLocalRaw('gems_client', versionLocal, [], 'client');
         oTableClient.clear().rows.add(refClient).draw();
     };
 

@@ -155,7 +155,7 @@ function MainAssetGroup() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refAssetGroup = mzGetLocalRaw('gems_assetGroup', versionLocal);
+        const refAssetGroup = mzGetLocalRaw('gems_assetGroup', versionLocal, [], 'asset_group');
         oTableAssetGroup.clear().rows.add(refAssetGroup).draw();
     };
 

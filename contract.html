@@ -132,8 +132,8 @@
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
                 modalContractClass_.setRefClient(refClient_);
                 modalContractClass_.setRefSite(refSite_);

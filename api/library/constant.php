@@ -46,6 +46,10 @@ class Class_constant {
     const ERR_ASSET_GROUP_DEACTIVATE = 'Asset Group already inactive';
     const ERR_ASSET_GROUP_ACTIVATE = 'Asset Group already active';
     const ERR_ASSET_GROUP_DELETE_CATEGORY = 'Asset Group cannot be deleted because currently registered under Asset Category';
+    const ERR_ASSET_CATEGORY_SIMILAR = 'Asset Category already exist';
+    const ERR_ASSET_CATEGORY_DEACTIVATE = 'Asset Category already inactive';
+    const ERR_ASSET_CATEGORY_ACTIVATE = 'Asset Category already active';
+    const ERR_ASSET_CATEGORY_DELETE_TYPE = 'Asset Category cannot be deleted because currently registered under Asset Type';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -76,4 +80,9 @@ class Class_constant {
     const SUC_ASSET_GROUP_DEACTIVATE = 'Asset Group successfully deactivated';
     const SUC_ASSET_GROUP_ACTIVATE = 'Asset Group successfully activated';
     const SUC_ASSET_GROUP_DELETE = 'Asset Group successfully deleted';
+    const SUC_ASSET_CATEGORY_ADD = 'Asset Category successfully added';
+    const SUC_ASSET_CATEGORY_EDIT = 'Asset Category successfully updated';
+    const SUC_ASSET_CATEGORY_DEACTIVATE = 'Asset Category successfully deactivated';
+    const SUC_ASSET_CATEGORY_ACTIVATE = 'Asset Category successfully activated';
+    const SUC_ASSET_CATEGORY_DELETE = 'Asset Category successfully deleted';
 }

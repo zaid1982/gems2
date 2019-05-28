@@ -196,7 +196,7 @@ class Class_site {
             if (!isset($put_vars['siteDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteDesc not exist');
             }
-            if (!isset($put_vars['clientId'])) {
+            if (!isset($put_vars['clientId']) || empty($put_vars['clientId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId not exist');
             }
             if (!isset($put_vars['siteStatus']) || empty($put_vars['siteStatus'])) {

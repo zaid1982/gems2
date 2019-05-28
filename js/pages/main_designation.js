@@ -154,7 +154,7 @@ function MainDesignation() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refDesignation = mzGetLocalRaw('gems_designation', versionLocal);
+        const refDesignation = mzGetLocalRaw('gems_designation', versionLocal, [], 'designation');
         oTableDesignation.clear().rows.add(refDesignation).draw();
     };
 

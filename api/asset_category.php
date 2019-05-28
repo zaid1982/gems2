@@ -4,13 +4,13 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_asset_group.php';
+require_once 'function/f_asset_category.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_assetGroup = new Class_assetGroup();
-$api_name = 'api_asset_group';
+$fn_assetCategory = new Class_assetCategory();
+$api_name = 'api_asset_category';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -28,40 +28,42 @@ try {
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
-        $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
-        if (!is_null($assetGroupId)) {
-            $result = $fn_assetGroup->get_assetGroup($assetGroupId);
+        $assetCategoryId = filter_input(INPUT_GET, 'assetCategoryId');
+        if (!is_null($assetCategoryId)) {
+            $result = $fn_assetCategory->get_assetCategory($assetCategoryId);
         } else {
-            $result = $fn_assetGroup->get_assetGroup_list();
+            $result = $fn_assetCategory->get_assetCategory_list();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $assetGroupName = filter_input(INPUT_POST, 'assetGroupName');
-        $assetGroupDesc = filter_input(INPUT_POST, 'assetGroupDesc');
-        $assetGroupStatus = filter_input(INPUT_POST, 'assetGroupStatus');
+        $assetCategoryName = filter_input(INPUT_POST, 'assetCategoryName');
+        $assetCategoryDesc = filter_input(INPUT_POST, 'assetCategoryDesc');
+        $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
+        $assetCategoryStatus = filter_input(INPUT_POST, 'assetCategoryStatus');
 
         $params = array(
-            'assetGroupName'=>$assetGroupName,
-            'assetGroupDesc'=>$assetGroupDesc,
-            'assetGroupStatus'=>$assetGroupStatus
+            'assetCategoryName'=>$assetCategoryName,
+            'assetCategoryDesc'=>$assetCategoryDesc,
+            'assetGroupId'=>$assetGroupId,
+            'assetCategoryStatus'=>$assetCategoryStatus
         );
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $result = $fn_assetGroup->add_assetGroup($params);
-        $fn_general->updateVersion(9);
-        $fn_general->save_audit('31', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
+        $result = $fn_assetCategory->add_assetCategory($params);
+        $fn_general->updateVersion(10);
+        $fn_general->save_audit('36', $jwt_data->userId, 'Asset Category = ' . $assetCategoryName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_ADD;
+        $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('PUT' === $request_method) {
-        $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
+        $assetCategoryId = filter_input(INPUT_GET, 'assetCategoryId');
         $put_data = file_get_contents("php://input");
         parse_str($put_data, $put_vars);
         $action = $put_vars['action'];
@@ -70,22 +72,22 @@ try {
         $is_transaction = true;
 
         if ($action === 'update') {
-            $fn_assetGroup->update_assetGroup($assetGroupId, $put_vars);
-            $fn_general->updateVersion(9);
-            $fn_general->save_audit('32', $jwt_data->userId, 'Asset Group = ' . $put_vars['assetGroupName']);
-            $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_EDIT;
+            $fn_assetCategory->update_assetCategory($assetCategoryId, $put_vars);
+            $fn_general->updateVersion(10);
+            $fn_general->save_audit('37', $jwt_data->userId, 'Asset Category = ' . $put_vars['assetCategoryName']);
+            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_EDIT;
         }
         else if ($action === 'deactivate') {
-            $assetGroupName = $fn_assetGroup->deactivate_assetGroup($assetGroupId);
-            $fn_general->updateVersion(9);
-            $fn_general->save_audit('33', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
-            $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_DEACTIVATE;
+            $assetCategoryName = $fn_assetCategory->deactivate_assetCategory($assetCategoryId);
+            $fn_general->updateVersion(10);
+            $fn_general->save_audit('38', $jwt_data->userId, 'Asset Category = ' . $assetCategoryName);
+            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_DEACTIVATE;
         }
         else if ($action === 'activate') {
-            $assetGroupName = $fn_assetGroup->activate_assetGroup($assetGroupId);
-            $fn_general->updateVersion(9);
-            $fn_general->save_audit('34', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
-            $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_ACTIVATE;
+            $assetCategoryName = $fn_assetCategory->activate_assetCategory($assetCategoryId);
+            $fn_general->updateVersion(10);
+            $fn_general->save_audit('39', $jwt_data->userId, 'Asset Category = ' . $assetCategoryName);
+            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_ACTIVATE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
@@ -94,17 +96,17 @@ try {
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {
-        $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
+        $assetCategoryId = filter_input(INPUT_GET, 'assetCategoryId');
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $assetGroupName = $fn_assetGroup->delete_assetGroup($assetGroupId);
-        $fn_general->updateVersion(9);
-        $fn_general->save_audit('35', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
+        $assetCategoryName = $fn_assetCategory->delete_assetCategory($assetCategoryId);
+        $fn_general->updateVersion(10);
+        $fn_general->save_audit('40', $jwt_data->userId, 'Asset Category = ' . $assetCategoryName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_DELETE;
+        $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

@@ -159,7 +159,7 @@ function MainSite() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refSite = mzGetLocalRaw('gems_site', versionLocal);
+        const refSite = mzGetLocalRaw('gems_site', versionLocal, [], 'site');
         oTableSite.clear().rows.add(refSite).draw();
     };
 
