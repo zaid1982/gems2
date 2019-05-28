@@ -159,7 +159,7 @@ class Class_contract {
             $siteId = $params['siteId'];
             $contractStatus = $params['contractStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'siteId'=>$siteId)) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'site_id'=>$siteId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CONTRACT_SIMILAR, 31);
             }
 
@@ -206,7 +206,7 @@ class Class_contract {
             $siteId = $put_vars['siteId'];
             $contractStatus = $put_vars['contractStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'siteId'=>$siteId, 'contract_id'=>'<>'.$contractId)) > 0) {
+            if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'site_id'=>$siteId, 'contract_id'=>'<>'.$contractId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 

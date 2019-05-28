@@ -9,11 +9,23 @@ function ModalContract() {
     let refSite;
 
     this.init = function () {
+        $('#optMcrClientId').on('change', function () {
+            mzOption('optMcrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+        });
+
         const vData = [
             {
                 field_id: 'optMcrClientId',
                 type: 'select',
                 name: 'Client',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMcrSiteId',
+                type: 'select',
+                name: 'Site',
                 validator: {
                     notEmpty: true
                 }
@@ -56,6 +68,10 @@ function ModalContract() {
             $('#optMcrClientId').material_select('destroy');
             $('#optMcrClientId').prop('disabled', false);
             $('#optMcrClientId').material_select();
+
+            $('#optMcrSiteId').material_select('destroy');
+            $('#optMcrSiteId').prop('disabled', false);
+            $('#optMcrSiteId').material_select();
         });
 
         $('#btnMcrSubmit').on('click', function () {
@@ -67,7 +83,7 @@ function ModalContract() {
                     }
                     const statusVal = $("input[name='chkMcrStatus']").is(":checked") ? '1' : '2';
                     const data = {
-                        clientId :$('#optMcrClientId').val(),
+                        siteId :$('#optMcrSiteId').val(),
                         contractName: $('#txtMcrName').val(),
                         contractDesc: $('#txaMcrDesc').val(),
                         contractStatus: statusVal
@@ -79,6 +95,7 @@ function ModalContract() {
                         if (classFrom.getClassName() === 'MainContract') {
                             tempRow['contractId'] = contractId;
                             tempRow['clientId'] = $('#optMcrClientId').val();
+                            tempRow['siteId'] = $('#optMcrSiteId').val();
                             tempRow['contractName'] = $('#txtMcrName').val();
                             tempRow['contractDesc'] = $('#txaMcrDesc').val();
                             tempRow['contractStatus'] = statusVal;
@@ -129,12 +146,15 @@ function ModalContract() {
         setTimeout(function () {
             try {
                 mzOption('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName');
+                mzOption('optMcrSiteId', refSite, 'Choose Site', 'siteId', 'siteName');
                 mzCheckFuncParam([_contractId, _rowRefresh]);
                 contractId = _contractId;
                 rowRefresh = _rowRefresh;
 
                 const dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
-                mzSetFieldValue('McrClientId', dataMcr['clientId'], 'select', 'Client *');
+                const siteId = dataMcr['siteId'];
+                mzSetFieldValue('McrSiteId', siteId, 'select', 'Client *');
+                mzSetFieldValue('McrClientId', refSite[siteId]['clientId'], 'select', 'Client *');
                 mzSetFieldValue('McrName', dataMcr['contractName'], 'text');
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');
                 mzSetFieldValue('McrStatus', dataMcr['contractStatus'], 'checkSingle', '1');
@@ -142,6 +162,10 @@ function ModalContract() {
                 $('#optMcrClientId').material_select('destroy');
                 $('#optMcrClientId').prop('disabled', true);
                 $('#optMcrClientId').material_select();
+
+                $('#optMcrSiteId').material_select('destroy');
+                $('#optMcrSiteId').prop('disabled', true);
+                $('#optMcrSiteId').material_select();
 
                 $('#lblMcrTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Contract');
                 $('#btnMcrSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
