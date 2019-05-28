@@ -69,13 +69,22 @@ function MainAssetGroup() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkAgrAssetGroupEdit" id="lnkAgrAssetGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
-                            if (row['assetGroupStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkAgrAssetGroupDeactivate" id="lnkAgrAssetGroupDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
-                            } else {
-                                label += '<a><i class="fas fa-toggle-on lnkAgrAssetGroupActivate" id="lnkAgrAssetGroupActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
-                            }
-                            label += '<a><i class="fas fa-trash-alt lnkAgrAssetGroupDelete" id="lnkAgrAssetGroupDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            //let label = '<a><i class="fas fa-edit lnkAgrAssetGroupEdit" id="lnkAgrAssetGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
+                            //if (row['assetGroupStatus'] === '1') {
+                            //    label += '<a><i class="fas fa-toggle-off lnkAgrAssetGroupDeactivate" id="lnkAgrAssetGroupDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                            //} else {
+                            //    label += '<a><i class="fas fa-toggle-on lnkAgrAssetGroupActivate" id="lnkAgrAssetGroupActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                            //}
+                            //label += '<a><i class="fas fa-trash-alt lnkAgrAssetGroupDelete" id="lnkAgrAssetGroupDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            let label = '<div class="dropdown dropright">';
+                            label += '<a class="" type="" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="far fa-plus-square"></i></a>';
+                            label += '<div class="dropdown-menu dropdown-primary">';
+                            label += '<a class="dropdown-item p-1" href="#">Same Asset Group</a>';
+                            label += '<a class="dropdown-item p-1" href="#">Same Asset Category</a>';
+                            label += '<a class="dropdown-item p-1" href="#">Same Asset Type</a>';
+                            label += '<a class="dropdown-item p-1" href="#">Same Brand</a>';
+                            label += '<a class="dropdown-item p-1" href="#">Same Model</a>';
+                            label += '</div></div>';
                             return label;
                         }
                     },
