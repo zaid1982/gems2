@@ -6,6 +6,7 @@ function ModalContract() {
     let rowRefresh = '';
     let classFrom;
     let refClient;
+    let refSite;
 
     this.init = function () {
         const vData = [
@@ -213,5 +214,9 @@ function ModalContract() {
 
     this.setRefClient = function (_refClient) {
         refClient = _refClient;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 }
