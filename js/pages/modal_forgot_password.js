@@ -30,21 +30,23 @@ function ModalForgotPassword() {
             setTimeout(function () {
                 try {
                     if (!formMfpValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    const data = {
-                        action: 'forgot_password',
-                        username: $('#txtMfpUserId').val()
-                    };
-                    mzAjaxRequest('login.php', 'POST', data);
-                    $('#modalForgotPassword').modal('hide');
+                    else {
+                        const data = {
+                            action: 'forgot_password',
+                            username: $('#txtMfpUserId').val()
+                        };
+                        mzAjaxRequest('login.php', 'POST', data);
+                        $('#modalForgotPassword').modal('hide');
+                    }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
             }, 300);
         });
-    }
+    };
 
     this.init();
-};
+}

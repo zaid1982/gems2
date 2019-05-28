@@ -42,6 +42,10 @@ class Class_constant {
     const ERR_CONTRACT_DEACTIVATE = 'Contract already inactive';
     const ERR_CONTRACT_ACTIVATE = 'Contract already active';
     const ERR_CONTRACT_DELETE_ASSET = 'Contract cannot be deleted because currently registered under Asset';
+    const ERR_ASSET_GROUP_SIMILAR = 'Asset Group already exist';
+    const ERR_ASSET_GROUP_DEACTIVATE = 'Asset Group already inactive';
+    const ERR_ASSET_GROUP_ACTIVATE = 'Asset Group already active';
+    const ERR_ASSET_GROUP_DELETE_CATEGORY = 'Asset Group cannot be deleted because currently registered under Asset Category';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -67,4 +71,9 @@ class Class_constant {
     const SUC_CONTRACT_DEACTIVATE = 'Contract successfully deactivated';
     const SUC_CONTRACT_ACTIVATE = 'Contract successfully activated';
     const SUC_CONTRACT_DELETE = 'Contract successfully deleted';
+    const SUC_ASSET_GROUP_ADD = 'Asset Group successfully added';
+    const SUC_ASSET_GROUP_EDIT = 'Asset Group successfully updated';
+    const SUC_ASSET_GROUP_DEACTIVATE = 'Asset Group successfully deactivated';
+    const SUC_ASSET_GROUP_ACTIVATE = 'Asset Group successfully activated';
+    const SUC_ASSET_GROUP_DELETE = 'Asset Group successfully deleted';
 }

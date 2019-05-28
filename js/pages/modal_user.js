@@ -147,42 +147,43 @@ function ModalUser() {
             setTimeout(function () {
                 try {
                     if (!formValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
+                    else {
+                        let rolesStr = '';
+                        $("input[name='chkMusRole[]']:checked").map(function(){
+                            rolesStr += ','+$(this).val();
+                        });
+                        rolesStr = rolesStr.substr(1);
+                        const userType = $("input[name='chkMusUserType']:checked").val();
 
-                    let rolesStr = '';
-                    $("input[name='chkMusRole[]']:checked").map(function(){
-                        rolesStr += ','+$(this).val();
-                    });
-                    rolesStr = rolesStr.substr(1);
-                    const userType = $("input[name='chkMusUserType']:checked").val();
+                        const data = {
+                            userName: $('#txtMusUserName').val(),
+                            userPassword: $('#txtMusUserPassword').val(),
+                            userFirstName: $('#txtMusUserFirstName').val(),
+                            userContactNo: $('#txtMusUserContactNo').val(),
+                            userEmail: $('#txtMusUserEmail').val(),
+                            designationId: $('#optMusDesignationId').val(),
+                            userType: userType,
+                            siteId: $('#optMusSiteId').val(),
+                            roles: rolesStr
+                        };
 
-                    const data = {
-                        userName: $('#txtMusUserName').val(),
-                        userPassword: $('#txtMusUserPassword').val(),
-                        userFirstName: $('#txtMusUserFirstName').val(),
-                        userContactNo: $('#txtMusUserContactNo').val(),
-                        userEmail: $('#txtMusUserEmail').val(),
-                        designationId: $('#optMusDesignationId').val(),
-                        userType: userType,
-                        siteId: $('#optMusSiteId').val(),
-                        roles: rolesStr
-                    };
-
-                    if (userId === '') {
-                        data['action'] = 'add_user';
-                        mzAjaxRequest('profile.php?', 'POST', data);
-                        if (classFrom.getClassName() === 'MainUserManagement') {
-                            classFrom.genTableUser();
+                        if (userId === '') {
+                            data['action'] = 'add_user';
+                            mzAjaxRequest('profile.php?', 'POST', data);
+                            if (classFrom.getClassName() === 'MainUserManagement') {
+                                classFrom.genTableUser();
+                            }
+                        } else {
+                            data['action'] = 'update_user';
+                            mzAjaxRequest('profile.php?userId='+userId, 'PUT', data);
+                            if (classFrom.getClassName() === 'MainUserManagement') {
+                                classFrom.genTableUser();
+                            }
                         }
-                    } else {
-                        data['action'] = 'update_user';
-                        mzAjaxRequest('profile.php?userId='+userId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainUserManagement') {
-                            classFrom.genTableUser();
-                        }
+                        $('#modal_user').modal('hide');
                     }
-                    $('#modal_user').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -194,8 +195,6 @@ function ModalUser() {
     this.defaultPageSetup = function () {
         $('.divMusAddOnly, #divMusClient, #divMusSite, .divMusRoles').hide();
         $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', false);
-        $('#btnMusSubmit').show();
-        $('#btnMusSubmit').prop('disabled', true);
     };
 
     this.add = function () {
@@ -255,7 +254,7 @@ function ModalUser() {
                     formValidate.disableField('optMusSiteId');
                 }
                 else if (groupId === '2') {
-                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
                 }
                 else {
                     mzOption('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');

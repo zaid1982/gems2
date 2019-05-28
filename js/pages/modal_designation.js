@@ -35,6 +35,7 @@ function ModalDesignation() {
 
         $('#modal_designation').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
+            $('#btnMdgSubmit').attr('disabled', true);
         });
 
         $('#btnMdgSubmit').on('click', function () {
@@ -42,34 +43,37 @@ function ModalDesignation() {
             setTimeout(function () {
                 try {
                     if (!formValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    const statusVal = $("input[name='chkMdgStatus']").is(":checked") ? '1' : '2';
-                    const data = {
-                        designationDesc: $('#txtMdgDesc').val(),
-                        designationStatus: statusVal
-                    };
+                    else {
+                        const txtDesc = $('#txaMzgDesc').val();
+                        const statusVal = $("input[name='chkMdgStatus']").is(":checked") ? '1' : '2';
+                        const data = {
+                            designationDesc: txtDesc,
+                            designationStatus: statusVal
+                        };
 
-                    let tempRow = {};
-                    if (designationId === '') {
-                        designationId = mzAjaxRequest('designation.php', 'POST', data);
-                        if (classFrom.getClassName() === 'MainDesignation') {
-                            tempRow['designationId'] = designationId;
-                            tempRow['designationDesc'] = $('#txtMdgDesc').val();
-                            tempRow['designationStatus'] = statusVal;
-                            classFrom.addTableDsg(tempRow);
+                        let tempRow = {};
+                        if (designationId === '') {
+                            designationId = mzAjaxRequest('designation.php', 'POST', data);
+                            if (classFrom.getClassName() === 'MainDesignation') {
+                                tempRow['designationId'] = designationId;
+                                tempRow['designationDesc'] = txtDesc;
+                                tempRow['designationStatus'] = statusVal;
+                                classFrom.addTableDsg(tempRow);
+                            }
+                        } else {
+                            data['action'] = 'update';
+                            mzAjaxRequest('designation.php?designationId=' + designationId, 'PUT', data);
+                            if (classFrom.getClassName() === 'MainDesignation') {
+                                tempRow['designationId'] = designationId;
+                                tempRow['designationDesc'] = txtDesc;
+                                tempRow['designationStatus'] = statusVal;
+                                classFrom.updateTableDsg(tempRow, rowRefresh);
+                            }
                         }
-                    } else {
-                        data['action'] = 'update';
-                        mzAjaxRequest('designation.php?designationId='+designationId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainDesignation') {
-                            tempRow['designationId'] = designationId;
-                            tempRow['designationDesc'] = $('#txtMdgDesc').val();
-                            tempRow['designationStatus'] = statusVal;
-                            classFrom.updateTableDsg(tempRow, rowRefresh);
-                        }
+                        $('#modal_designation').modal('hide');
                     }
-                    $('#modal_designation').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -83,8 +87,6 @@ function ModalDesignation() {
         rowRefresh = '';
 
         $('#lblMdgTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Designation');
-        $('#btnMdgSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-        $('#btnMdgSubmit').attr('disabled', true);
         $('#modal_designation').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -101,8 +103,6 @@ function ModalDesignation() {
                 mzSetFieldValue('MdgStatus', dataMdg['designationStatus'], 'checkSingle', '1');
 
                 $('#lblMdgTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Designation');
-                $('#btnMdgSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMdgSubmit').attr('disabled', true);
                 $('#modal_designation').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

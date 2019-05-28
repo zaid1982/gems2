@@ -64,14 +64,18 @@ function ModalContract() {
         });
 
         $('#modal_contract').on('hidden.bs.modal', function(){
+            $('#btnMcrSubmit').attr('disabled', true);
             formValidate.clearValidation();
-            $('#optMcrClientId').material_select('destroy');
-            $('#optMcrClientId').prop('disabled', false);
-            $('#optMcrClientId').material_select();
 
-            $('#optMcrSiteId').material_select('destroy');
-            $('#optMcrSiteId').prop('disabled', false);
-            $('#optMcrSiteId').material_select();
+            const selectorClientId = $('#optMcrClientId');
+            selectorClientId.material_select('destroy');
+            selectorClientId.prop('disabled', false);
+            selectorClientId.material_select();
+
+            const selectorSiteId = $('#optMcrSiteId');
+            selectorSiteId.material_select('destroy');
+            selectorSiteId.prop('disabled', false);
+            selectorSiteId.material_select();
         });
 
         $('#btnMcrSubmit').on('click', function () {
@@ -79,40 +83,46 @@ function ModalContract() {
             setTimeout(function () {
                 try {
                     if (!formValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    const statusVal = $("input[name='chkMcrStatus']").is(":checked") ? '1' : '2';
-                    const data = {
-                        siteId :$('#optMcrSiteId').val(),
-                        contractName: $('#txtMcrName').val(),
-                        contractDesc: $('#txaMcrDesc').val(),
-                        contractStatus: statusVal
-                    };
+                    else {
+                        const clientId = $('#optMstClientId').val();
+                        const siteId = $('#optMcrSiteId').val();
+                        const txtName = $('#txtMcrName').val();
+                        const txtDesc = $('#txaMcrDesc').val();
+                        const statusVal = $("input[name='chkMcrStatus']").is(":checked") ? '1' : '2';
+                        const data = {
+                            siteId: siteId,
+                            contractName: txtName,
+                            contractDesc: txtDesc,
+                            contractStatus: statusVal
+                        };
 
-                    let tempRow = {};
-                    if (contractId === '') {
-                        contractId = mzAjaxRequest('contract.php', 'POST', data);
-                        if (classFrom.getClassName() === 'MainContract') {
-                            tempRow['contractId'] = contractId;
-                            tempRow['clientId'] = $('#optMcrClientId').val();
-                            tempRow['siteId'] = $('#optMcrSiteId').val();
-                            tempRow['contractName'] = $('#txtMcrName').val();
-                            tempRow['contractDesc'] = $('#txaMcrDesc').val();
-                            tempRow['contractStatus'] = statusVal;
-                            classFrom.addTableCcr(tempRow);
+                        let tempRow = {};
+                        if (contractId === '') {
+                            contractId = mzAjaxRequest('contract.php', 'POST', data);
+                            if (classFrom.getClassName() === 'MainContract') {
+                                tempRow['contractId'] = contractId;
+                                tempRow['clientId'] = clientId;
+                                tempRow['siteId'] = siteId;
+                                tempRow['contractName'] = txtName;
+                                tempRow['contractDesc'] = txtDesc;
+                                tempRow['contractStatus'] = statusVal;
+                                classFrom.addTableCcr(tempRow);
+                            }
+                        } else {
+                            data['action'] = 'update';
+                            mzAjaxRequest('contract.php?contractId=' + contractId, 'PUT', data);
+                            if (classFrom.getClassName() === 'MainContract') {
+                                tempRow['contractId'] = contractId;
+                                tempRow['contractName'] = txtName;
+                                tempRow['contractDesc'] = txtDesc;
+                                tempRow['contractStatus'] = statusVal;
+                                classFrom.updateTableCcr(tempRow, rowRefresh);
+                            }
                         }
-                    } else {
-                        data['action'] = 'update';
-                        mzAjaxRequest('contract.php?contractId='+contractId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainContract') {
-                            tempRow['contractId'] = contractId;
-                            tempRow['contractName'] = $('#txtMcrName').val();
-                            tempRow['contractDesc'] = $('#txaMcrDesc').val();
-                            tempRow['contractStatus'] = statusVal;
-                            classFrom.updateTableCcr(tempRow, rowRefresh);
-                        }
+                        $('#modal_contract').modal('hide');
                     }
-                    $('#modal_contract').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -131,8 +141,6 @@ function ModalContract() {
                 mzOption('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 $('#lblMcrTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Contract');
-                $('#btnMcrSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMcrSubmit').attr('disabled', true);
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -159,17 +167,17 @@ function ModalContract() {
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');
                 mzSetFieldValue('McrStatus', dataMcr['contractStatus'], 'checkSingle', '1');
 
-                $('#optMcrClientId').material_select('destroy');
-                $('#optMcrClientId').prop('disabled', true);
-                $('#optMcrClientId').material_select();
+                const selectorClientId = $('#optMcrClientId');
+                selectorClientId.material_select('destroy');
+                selectorClientId.prop('disabled', true);
+                selectorClientId.material_select();
 
-                $('#optMcrSiteId').material_select('destroy');
-                $('#optMcrSiteId').prop('disabled', true);
-                $('#optMcrSiteId').material_select();
+                const selectorSiteId = $('#optMcrSiteId');
+                selectorSiteId.material_select('destroy');
+                selectorSiteId.prop('disabled', true);
+                selectorSiteId.material_select();
 
                 $('#lblMcrTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Contract');
-                $('#btnMcrSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMcrSubmit').attr('disabled', true);
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

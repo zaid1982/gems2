@@ -11,6 +11,7 @@ function ModalConfirmDelete() {
                 case 'ModalClient':
                 case 'ModalSite':
                 case 'ModalContract':
+                case 'ModalAssetGroup':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id, rowRefresh);
                     }

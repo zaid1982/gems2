@@ -52,9 +52,12 @@ function ModalSite() {
 
         $('#modal_site').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
-            $('#optMstClientId').material_select('destroy');
-            $('#optMstClientId').prop('disabled', false);
-            $('#optMstClientId').material_select();
+            $('#btnMstSubmit').attr('disabled', true);
+
+            const selectorClientId = $('#optMstClientId');
+            selectorClientId.material_select('destroy');
+            selectorClientId.prop('disabled', false);
+            selectorClientId.material_select();
         });
 
         $('#btnMstSubmit').on('click', function () {
@@ -62,39 +65,44 @@ function ModalSite() {
             setTimeout(function () {
                 try {
                     if (!formValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
-                    const data = {
-                        clientId :$('#optMstClientId').val(),
-                        siteName: $('#txtMstName').val(),
-                        siteDesc: $('#txaMstDesc').val(),
-                        siteStatus: statusVal
-                    };
+                    else {
+                        const clientId = $('#optMstClientId').val();
+                        const txtName = $('#txtMzgName').val();
+                        const txtDesc = $('#txaMzgDesc').val();
+                        const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
+                        const data = {
+                            clientId :clientId,
+                            siteName: txtName,
+                            siteDesc: txtDesc,
+                            siteStatus: statusVal
+                        };
 
-                    let tempRow = {};
-                    if (siteId === '') {
-                        siteId = mzAjaxRequest('site.php', 'POST', data);
-                        if (classFrom.getClassName() === 'MainSite') {
-                            tempRow['siteId'] = siteId;
-                            tempRow['clientId'] = $('#optMstClientId').val();
-                            tempRow['siteName'] = $('#txtMstName').val();
-                            tempRow['siteDesc'] = $('#txaMstDesc').val();
-                            tempRow['siteStatus'] = statusVal;
-                            classFrom.addTableSte(tempRow);
+                        let tempRow = {};
+                        if (siteId === '') {
+                            siteId = mzAjaxRequest('site.php', 'POST', data);
+                            if (classFrom.getClassName() === 'MainSite') {
+                                tempRow['siteId'] = siteId;
+                                tempRow['clientId'] = clientId;
+                                tempRow['siteName'] = txtName;
+                                tempRow['siteDesc'] = txtDesc;
+                                tempRow['siteStatus'] = statusVal;
+                                classFrom.addTableSte(tempRow);
+                            }
+                        } else {
+                            data['action'] = 'update';
+                            mzAjaxRequest('site.php?siteId='+siteId, 'PUT', data);
+                            if (classFrom.getClassName() === 'MainSite') {
+                                tempRow['siteId'] = siteId;
+                                tempRow['siteName'] = txtName;
+                                tempRow['siteDesc'] = txtDesc;
+                                tempRow['siteStatus'] = statusVal;
+                                classFrom.updateTableSte(tempRow, rowRefresh);
+                            }
                         }
-                    } else {
-                        data['action'] = 'update';
-                        mzAjaxRequest('site.php?siteId='+siteId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainSite') {
-                            tempRow['siteId'] = siteId;
-                            tempRow['siteName'] = $('#txtMstName').val();
-                            tempRow['siteDesc'] = $('#txaMstDesc').val();
-                            tempRow['siteStatus'] = statusVal;
-                            classFrom.updateTableSte(tempRow, rowRefresh);
-                        }
+                        $('#modal_site').modal('hide');
                     }
-                    $('#modal_site').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -113,8 +121,6 @@ function ModalSite() {
                 mzOption('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 $('#lblMstTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Site');
-                $('#btnMstSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMstSubmit').attr('disabled', true);
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -138,13 +144,12 @@ function ModalSite() {
                 mzSetFieldValue('MstDesc', dataMst['siteDesc'], 'textarea');
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
-                $('#optMstClientId').material_select('destroy');
-                $('#optMstClientId').prop('disabled', true);
-                $('#optMstClientId').material_select();
+                const selectorClientId = $('#optMstClientId');
+                selectorClientId.material_select('destroy');
+                selectorClientId.prop('disabled', true);
+                selectorClientId.material_select();
 
                 $('#lblMstTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Site');
-                $('#btnMstSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMstSubmit').attr('disabled', true);
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

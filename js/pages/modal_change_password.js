@@ -48,37 +48,39 @@ function ModalChangePassword() {
             $('#btnMpwSubmit').attr('disabled', !formMpwValidate.validateForm());
         });
 
-        $('#modal_change_password').on('hidden.bs.modal', function(){
-            formMpwValidate.clearValidation();
-        });
-
-        $('#modal_change_password').on('shown.bs.modal', function(){
-            $('#btnMpfSubmit').attr('disabled', true);
-            if (mpwCallFrom === 'Top') {
-                let userInfo = sessionStorage.getItem('userInfo');
-                userInfo = JSON.parse(userInfo);
-                mpwUserId = userInfo['userId'];
-            }
-        });
+        $('#modal_change_password')
+            .on('hidden.bs.modal', function(){
+                formMpwValidate.clearValidation();
+            })
+            .on('shown.bs.modal', function(){
+                $('#btnMpfSubmit').attr('disabled', true);
+                if (mpwCallFrom === 'Top') {
+                    let userInfo = sessionStorage.getItem('userInfo');
+                    userInfo = JSON.parse(userInfo);
+                    mpwUserId = userInfo['userId'];
+                }
+            });
 
         $('#btnMpwSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
                     if (!formMpwValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    if (mpwCallFrom === 'Top') {
-                        const data = {
-                            action: 'password',
-                            oldPassword: $('#txtOldPassword').val(),
-                            newPassword: $('#txtConfirmPassword').val()
-                        };
-                        mzAjaxRequest('profile.php?userId='+mpwUserId, 'PUT', data);
-                    } else {
-                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    else {
+                        if (mpwCallFrom === 'Top') {
+                            const data = {
+                                action: 'password',
+                                oldPassword: $('#txtOldPassword').val(),
+                                newPassword: $('#txtConfirmPassword').val()
+                            };
+                            mzAjaxRequest('profile.php?userId=' + mpwUserId, 'PUT', data);
+                        } else {
+                            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+                        }
+                        $('#modal_change_password').modal('hide');
                     }
-                    $('#modal_change_password').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -88,18 +90,19 @@ function ModalChangePassword() {
     };
 
     this.edit = function (callFrom, userId) {
-        if (typeof callFrom === 'undefined' || callFrom == '') {
+        if (typeof callFrom === 'undefined' || callFrom === '') {
             toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
             return false;
         }
-        if (typeof userId === 'undefined' || userId == '') {
+        if (typeof userId === 'undefined' || userId === '') {
             toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
             return false;
         }
         mpwCallFrom = callFrom;
         mpwUserId = typeof userId === 'undefined' ? '' : userId;
-        $('#modal_change_password').modal({backdrop: 'static', keyboard: false});
-        $('#modal_change_password').scrollTop(0);
+        $('#modal_change_password')
+            .modal({backdrop: 'static', keyboard: false})
+            .scrollTop(0);
     };
 
     this.init();

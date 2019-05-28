@@ -43,6 +43,7 @@ function ModalClient() {
 
         $('#modal_client').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
+            $('#btnMclSubmit').attr('disabled', true);
         });
 
         $('#btnMclSubmit').on('click', function () {
@@ -50,37 +51,41 @@ function ModalClient() {
             setTimeout(function () {
                 try {
                     if (!formValidate.validateForm()) {
-                        throw new Error(_ALERT_MSG_VALIDATION);
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
-                    const statusVal = $("input[name='chkMclStatus']").is(":checked") ? '1' : '2';
-                    const data = {
-                        clientName: $('#txtMclName').val(),
-                        clientDesc: $('#txaMclDesc').val(),
-                        clientStatus: statusVal
-                    };
+                    else {
+                        const txtName = $('#txtMclName').val();
+                        const txtDesc = $('#txaMclDesc').val();
+                        const statusVal = $("input[name='chkMclStatus']").is(":checked") ? '1' : '2';
+                        const data = {
+                            clientName: txtName,
+                            clientDesc: txtDesc,
+                            clientStatus: statusVal
+                        };
 
-                    let tempRow = {};
-                    if (clientId === '') {
-                        clientId = mzAjaxRequest('client.php', 'POST', data);
-                        if (classFrom.getClassName() === 'MainClient') {
-                            tempRow['clientId'] = clientId;
-                            tempRow['clientName'] = $('#txtMclName').val();
-                            tempRow['clientDesc'] = $('#txaMclDesc').val();
-                            tempRow['clientStatus'] = statusVal;
-                            classFrom.addTableCln(tempRow);
+                        let tempRow = {};
+                        if (clientId === '') {
+                            clientId = mzAjaxRequest('client.php', 'POST', data);
+                            if (classFrom.getClassName() === 'MainClient') {
+                                tempRow['clientId'] = clientId;
+                                tempRow['clientName'] = txtName;
+                                tempRow['clientDesc'] = txtDesc;
+                                tempRow['clientStatus'] = statusVal;
+                                classFrom.addTableCln(tempRow);
+                            }
+                        } else {
+                            data['action'] = 'update';
+                            mzAjaxRequest('client.php?clientId=' + clientId, 'PUT', data);
+                            if (classFrom.getClassName() === 'MainClient') {
+                                tempRow['clientId'] = clientId;
+                                tempRow['clientName'] = txtName;
+                                tempRow['clientDesc'] = txtDesc;
+                                tempRow['clientStatus'] = statusVal;
+                                classFrom.updateTableCln(tempRow, rowRefresh);
+                            }
                         }
-                    } else {
-                        data['action'] = 'update';
-                        mzAjaxRequest('client.php?clientId='+clientId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainClient') {
-                            tempRow['clientId'] = clientId;
-                            tempRow['clientName'] = $('#txtMclName').val();
-                            tempRow['clientDesc'] = $('#txaMclDesc').val();
-                            tempRow['clientStatus'] = statusVal;
-                            classFrom.updateTableCln(tempRow, rowRefresh);
-                        }
+                        $('#modal_client').modal('hide');
                     }
-                    $('#modal_client').modal('hide');
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -94,8 +99,6 @@ function ModalClient() {
         rowRefresh = '';
 
         $('#lblMclTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Client');
-        $('#btnMclSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-        $('#btnMclSubmit').attr('disabled', true);
         $('#modal_client').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -113,8 +116,6 @@ function ModalClient() {
                 mzSetFieldValue('MclStatus', dataMcl['clientStatus'], 'checkSingle', '1');
 
                 $('#lblMclTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Client');
-                $('#btnMclSubmit').html('<i class="far fa-paper-plane ml-1"></i> Submit');
-                $('#btnMclSubmit').attr('disabled', true);
                 $('#modal_client').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

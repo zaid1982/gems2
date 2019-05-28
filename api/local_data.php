@@ -8,6 +8,7 @@ require_once 'function/f_user.php';
 require_once 'function/f_client.php';
 require_once 'function/f_site.php';
 require_once 'function/f_contract.php';
+require_once 'function/f_asset_group.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
@@ -17,6 +18,7 @@ $fn_user = new Class_user();
 $fn_client = new Class_client();
 $fn_site = new Class_site();
 $fn_contract = new Class_contract();
+$fn_assetGroup = new Class_assetGroup();
 $api_name = 'api_local_data';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
@@ -71,6 +73,9 @@ try {
                 break;
             case 'gems_contract':
                 $result = $fn_contract->get_contract_list();
+                break;
+            case 'gems_assetGroup':
+                $result = $fn_assetGroup->get_assetGroup_list();
                 break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');
