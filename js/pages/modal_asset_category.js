@@ -54,10 +54,10 @@ function ModalAssetCategory() {
             formValidate.clearValidation();
             $('#btnMzcSubmit').attr('disabled', true);
 
-            const selectorClientId = $('#optMzcAssetGroupId');
-            selectorClientId.material_select('destroy');
-            selectorClientId.prop('disabled', false);
-            selectorClientId.material_select();
+            const selectorAssetGroupId = $('#optMzcAssetGroupId');
+            selectorAssetGroupId.material_select('destroy');
+            selectorAssetGroupId.prop('disabled', false);
+            selectorAssetGroupId.material_select();
         });
 
         $('#btnMzcSubmit').on('click', function () {
@@ -145,10 +145,10 @@ function ModalAssetCategory() {
                 mzSetFieldValue('MzcDesc', dataMzc['assetCategoryDesc'], 'textarea');
                 mzSetFieldValue('MzcStatus', dataMzc['assetCategoryStatus'], 'checkSingle', '1');
 
-                const selectorClientId = $('#optMzcAssetGroupId');
-                selectorClientId.material_select('destroy');
-                selectorClientId.prop('disabled', true);
-                selectorClientId.material_select();
+                const selectorAssetGroupId = $('#optMzcAssetGroupId');
+                selectorAssetGroupId.material_select('destroy');
+                selectorAssetGroupId.prop('disabled', true);
+                selectorAssetGroupId.material_select();
 
                 $('#lblMzcTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Category');
                 $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
