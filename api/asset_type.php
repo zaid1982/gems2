@@ -40,13 +40,13 @@ try {
     else if ('POST' === $request_method) {
         $assetTypeName = filter_input(INPUT_POST, 'assetTypeName');
         $assetTypeDesc = filter_input(INPUT_POST, 'assetTypeDesc');
-        $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
+        $assetCategoryId = filter_input(INPUT_POST, 'assetCategoryId');
         $assetTypeStatus = filter_input(INPUT_POST, 'assetTypeStatus');
 
         $params = array(
             'assetTypeName'=>$assetTypeName,
             'assetTypeDesc'=>$assetTypeDesc,
-            'assetGroupId'=>$assetGroupId,
+            'assetCategoryId'=>$assetCategoryId,
             'assetTypeStatus'=>$assetTypeStatus
         );
 
@@ -58,7 +58,7 @@ try {
         $fn_general->save_audit('41', $jwt_data->userId, 'Asset Type = ' . $assetTypeName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_ADD;
+        $form_data['errmsg'] = $constant::SUC_ASSET_TYPE_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
@@ -75,19 +75,19 @@ try {
             $fn_assetType->update_assetType($assetTypeId, $put_vars);
             $fn_general->updateVersion(11);
             $fn_general->save_audit('42', $jwt_data->userId, 'Asset Type = ' . $put_vars['assetTypeName']);
-            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_EDIT;
+            $form_data['errmsg'] = $constant::SUC_ASSET_TYPE_EDIT;
         }
         else if ($action === 'deactivate') {
             $assetTypeName = $fn_assetType->deactivate_assetType($assetTypeId);
             $fn_general->updateVersion(11);
             $fn_general->save_audit('43', $jwt_data->userId, 'Asset Type = ' . $assetTypeName);
-            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_DEACTIVATE;
+            $form_data['errmsg'] = $constant::SUC_ASSET_TYPE_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $assetTypeName = $fn_assetType->activate_assetType($assetTypeId);
             $fn_general->updateVersion(11);
             $fn_general->save_audit('44', $jwt_data->userId, 'Asset Type = ' . $assetTypeName);
-            $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_ACTIVATE;
+            $form_data['errmsg'] = $constant::SUC_ASSET_TYPE_ACTIVATE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
@@ -106,7 +106,7 @@ try {
         $fn_general->save_audit('45', $jwt_data->userId, 'Asset Type = ' . $assetTypeName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_CATEGORY_DELETE;
+        $form_data['errmsg'] = $constant::SUC_ASSET_TYPE_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

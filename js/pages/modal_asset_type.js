@@ -63,18 +63,18 @@ function ModalAssetType() {
             $('#btnMztSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_asset_category').on('hidden.bs.modal', function(){
+        $('#modal_asset_type').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMztSubmit').attr('disabled', true);
 
             const selectorAssetGroupId = $('#optMztAssetGroupId');
             selectorAssetGroupId.material_select('destroy');
-            selectorAssetGroupId.prop('disabled', true);
+            selectorAssetGroupId.prop('disabled', false);
             selectorAssetGroupId.material_select();
 
             const selectorAssetCategoryId = $('#optMztAssetCategoryId');
             selectorAssetCategoryId.material_select('destroy');
-            selectorAssetCategoryId.prop('disabled', true);
+            selectorAssetCategoryId.prop('disabled', false);
             selectorAssetCategoryId.material_select();
         });
 
@@ -100,7 +100,7 @@ function ModalAssetType() {
 
                         let tempRow = {};
                         if (assetTypeId === '') {
-                            assetTypeId = mzAjaxRequest('asset_category.php', 'POST', data);
+                            assetTypeId = mzAjaxRequest('asset_type.php', 'POST', data);
                             if (classFrom.getClassName() === 'MainAssetType') {
                                 tempRow['assetGroupId'] = assetGroupId;
                                 tempRow['assetCategoryId'] = assetCategoryId;
@@ -112,7 +112,7 @@ function ModalAssetType() {
                             }
                         } else {
                             data['action'] = 'update';
-                            mzAjaxRequest('asset_category.php?assetTypeId='+assetTypeId, 'PUT', data);
+                            mzAjaxRequest('asset_type.php?assetTypeId='+assetTypeId, 'PUT', data);
                             if (classFrom.getClassName() === 'MainAssetType') {
                                 tempRow['assetTypeId'] = assetTypeId;
                                 tempRow['assetTypeName'] = txtName;
@@ -121,7 +121,7 @@ function ModalAssetType() {
                                 classFrom.updateTableAty(tempRow, rowRefresh);
                             }
                         }
-                        $('#modal_asset_category').modal('hide');
+                        $('#modal_asset_type').modal('hide');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -138,10 +138,10 @@ function ModalAssetType() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetCategoryStatus: '1'}, 'required');
+                mzOption('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
                 $('#lblMztTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Type');
-                $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
+                $('#modal_asset_type').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -159,25 +159,26 @@ function ModalAssetType() {
                 assetTypeId = _assetTypeId;
                 rowRefresh = _rowRefresh;
 
-                const dataMzt = mzAjaxRequest('asset_category.php?assetTypeId='+assetTypeId, 'GET');
-                mzSetFieldValue('MztAssetGroupId', dataMzt['assetGroupId'], 'select', 'Asset Group *');
-                mzSetFieldValue('MztAssetCategoryId', dataMzt['assetCategoryId'], 'select', 'Asset Category *');
+                const dataMzt = mzAjaxRequest('asset_type.php?assetTypeId='+assetTypeId, 'GET');
+                const assetCategoryId = dataMzt['assetCategoryId'];
+                mzSetFieldValue('MztAssetGroupId', refAssetCategory[assetCategoryId]['assetGroupId'], 'select', 'Asset Group *');
+                mzSetFieldValue('MztAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
                 mzSetFieldValue('MztName', dataMzt['assetTypeName'], 'text');
                 mzSetFieldValue('MztDesc', dataMzt['assetTypeDesc'], 'textarea');
                 mzSetFieldValue('MztStatus', dataMzt['assetTypeStatus'], 'checkSingle', '1');
 
                 const selectorAssetGroupId = $('#optMztAssetGroupId');
                 selectorAssetGroupId.material_select('destroy');
-                selectorAssetGroupId.prop('disabled', false);
+                selectorAssetGroupId.prop('disabled', true);
                 selectorAssetGroupId.material_select();
 
                 const selectorAssetCategoryId = $('#optMztAssetCategoryId');
                 selectorAssetCategoryId.material_select('destroy');
-                selectorAssetCategoryId.prop('disabled', false);
+                selectorAssetCategoryId.prop('disabled', true);
                 selectorAssetCategoryId.material_select();
 
                 $('#lblMztTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Type');
-                $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
+                $('#modal_asset_type').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -190,7 +191,7 @@ function ModalAssetType() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_assetTypeId, _rowRefresh]);
-                mzAjaxRequest('asset_category.php?assetTypeId='+_assetTypeId, 'PUT', {action: 'deactivate'});
+                mzAjaxRequest('asset_type.php?assetTypeId='+_assetTypeId, 'PUT', {action: 'deactivate'});
                 const tempRow = {assetTypeStatus:'2'};
                 if (classFrom.getClassName() === 'MainAssetType') {
                     classFrom.updateTableAty(tempRow, _rowRefresh);
@@ -207,7 +208,7 @@ function ModalAssetType() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_assetTypeId, _rowRefresh]);
-                mzAjaxRequest('asset_category.php?assetTypeId='+_assetTypeId, 'PUT', {action: 'activate'});
+                mzAjaxRequest('asset_type.php?assetTypeId='+_assetTypeId, 'PUT', {action: 'activate'});
                 const tempRow = {assetTypeStatus:'1'};
                 if (classFrom.getClassName() === 'MainAssetType') {
                     classFrom.updateTableAty(tempRow, _rowRefresh);
@@ -224,7 +225,7 @@ function ModalAssetType() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_assetTypeId, _rowRefresh]);
-                mzAjaxRequest('asset_category.php?assetTypeId='+_assetTypeId, 'DELETE');
+                mzAjaxRequest('asset_type.php?assetTypeId='+_assetTypeId, 'DELETE');
                 if (classFrom.getClassName() === 'MainAssetType') {
                     classFrom.deleteTableAty(_rowRefresh);
                 }

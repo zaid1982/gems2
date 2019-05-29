@@ -39,7 +39,7 @@ function MainAssetType() {
                         modalAssetTypeClass.deactivate(currentRow['assetTypeId'], rowId);
                     }
                 });
-                $('.lnkAtyAssetTypeAtyivate').off('click').on('click', function () {
+                $('.lnkAtyAssetTypeActivate').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
@@ -77,13 +77,13 @@ function MainAssetType() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
+                            let label = '<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['assetTypeStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkAtyAssetTypeAtyivate" id="lnkAtyAssetTypeAtyivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-on lnkAtyAssetTypeActivate" id="lnkAtyAssetTypeActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkAtyAssetTypeDelete" id="lnkAtyAssetTypeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            label += '<a><i class="fas fa-trash-alt lnkAtyAssetTypeDelete" id="lnkAtyAssetTypeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     },
