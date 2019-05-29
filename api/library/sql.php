@@ -116,6 +116,12 @@ class Class_sql
                     cli_site.client_id
                 FROM cli_contract
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id";
+            } else if ($title === 'vw_asset_type') {
+                $sql = "SELECT
+                    ast_asset_type.*,
+                    ast_asset_category.asset_group_id
+                FROM ast_asset_type
+                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset_type.asset_category_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

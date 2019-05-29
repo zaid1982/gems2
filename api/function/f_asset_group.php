@@ -273,7 +273,7 @@ class Class_assetGroup {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
             }
             if (Class_db::getInstance()->db_count('ast_asset_group', array('asset_group_id'=>$assetGroupId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Client data not exist');
+                throw new Exception('[' . __LINE__ . '] - Asset Group data not exist');
             }
             if (Class_db::getInstance()->db_count('ast_asset_category', array('asset_group_id'=>$assetGroupId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_GROUP_DELETE_CATEGORY, 31);

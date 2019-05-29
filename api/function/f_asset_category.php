@@ -283,7 +283,7 @@ class Class_assetCategory {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
             }
             if (Class_db::getInstance()->db_count('ast_asset_category', array('asset_category_id'=>$assetCategoryId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Client data not exist');
+                throw new Exception('[' . __LINE__ . '] - Asset Category data not exist');
             }
             if (Class_db::getInstance()->db_count('ast_asset_type', array('asset_category_id'=>$assetCategoryId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_CATEGORY_DELETE_TYPE, 31);
