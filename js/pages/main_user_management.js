@@ -238,12 +238,12 @@ function MainUserManagement() {
             total0 += parseInt(u['total']);
         });
 
-        $('#linkUmn0').html('<span class="bullet blue"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
-        $('#linkUmn1').html('<span class="bullet yellow"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
-        $('#linkUmn2').html('<span class="bullet light-green"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
-        $('#linkUmn3').html('<span class="bullet red accent-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
-        $('#linkUmn4').html('<span class="bullet purple"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total4)+'</span>');
-        $('#linkUmn5').html('<span class="bullet blue-grey accent-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
+        $('#linkUmn0').html('<span class="bullet blue z-depth-2"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
+        $('#linkUmn1').html('<span class="bullet yellow z-depth-2"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
+        $('#linkUmn2').html('<span class="bullet light-green z-depth-2"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
+        $('#linkUmn3').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
+        $('#linkUmn4').html('<span class="bullet purple z-depth-2"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total4)+'</span>');
+        $('#linkUmn5').html('<span class="bullet blue-grey accent-2 z-depth-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
