@@ -107,11 +107,11 @@
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 20%">Asset Brand</th>
-                                <th style="width: 20%">Asset Model</th>
+                                <th style="width: 22%">Asset Brand</th>
+                                <th style="width: 22%">Asset Model</th>
                                 <th>Description</th>
                                 <th style="width: 8%">Status</th>
-                                <th style="width: 80px"></th>
+                                <th style="width: 60px"></th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -124,6 +124,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_asset_type"></div>
+    <div class="includeHtml" id="h-modal_asset_model"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -160,6 +161,7 @@
     let assetTypeClass_;
     let changePasswordClass_;
     let modalAssetTypeClass_;
+    let modalAssetModelClass_;
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -172,21 +174,34 @@
                 changePasswordClass_ = new ModalChangePassword();
                 assetTypeClass_ = new MainAssetType();
                 modalAssetTypeClass_ = new ModalAssetType();
+                modalAssetModelClass_ = new ModalAssetModel();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+                const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
 
                 modalAssetTypeClass_.setRefAssetGroup(refAssetGroup_);
                 modalAssetTypeClass_.setRefAssetCategory(refAssetCategory_);
                 modalAssetTypeClass_.setClassFrom(assetTypeClass_);
                 modalAssetTypeClass_.init();
+
+                modalAssetModelClass_.setRefAssetGroup(refAssetGroup_);
+                modalAssetModelClass_.setRefAssetCategory(refAssetCategory_);
+                modalAssetModelClass_.setRefAssetBrand(refAssetBrand_);
+                modalAssetModelClass_.setRefAssetType(refAssetType_);
+                modalAssetModelClass_.setClassFrom(assetTypeClass_);
+                modalAssetModelClass_.init();
+
                 assetTypeClass_.setVersionLocal(versionLocal_);
                 assetTypeClass_.setRefStatus(refStatus_);
                 assetTypeClass_.setRefAssetCategory(refAssetCategory_);
                 assetTypeClass_.setRefAssetGroup(refAssetGroup_);
+                assetTypeClass_.setRefAssetBrand(refAssetBrand_);
                 assetTypeClass_.setModalAssetTypeClass(modalAssetTypeClass_);
+                assetTypeClass_.setModalAssetModelClass(modalAssetModelClass_);
                 assetTypeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 assetTypeClass_.init();
             } catch (e) {
@@ -199,6 +214,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_asset_model.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

@@ -87,7 +87,7 @@ class Class_assetBrand {
                 $row_result['assetBrandId'] = $dataLocal['asset_brand_id'];
                 $row_result['assetBrandName'] = $dataLocal['asset_brand_name'];
                 $row_result['assetBrandDesc'] = $this->fn_general->clear_null($dataLocal['asset_brand_desc']);
-                $row_result['assetBrandTimeCreated'] = $dataLocal['asset_brand_time_created'];
+                $row_result['assetBrandTimeCreated'] = str_replace('-', '/', $dataLocal['asset_brand_time_created']);
                 $row_result['assetBrandStatus'] = $dataLocal['asset_brand_status'];
                 array_push($result, $row_result);
             }
@@ -118,7 +118,7 @@ class Class_assetBrand {
             $result['assetBrandId'] = $dataLocal['asset_brand_id'];
             $result['assetBrandName'] = $dataLocal['asset_brand_name'];
             $result['assetBrandDesc'] = $this->fn_general->clear_null($dataLocal['asset_brand_desc']);
-            $result['assetBrandTimeCreated'] = $dataLocal['asset_brand_time_created'];
+            $result['assetBrandTimeCreated'] = str_replace('-', '/', $dataLocal['asset_brand_time_created']);
             $result['assetBrandStatus'] = $dataLocal['asset_brand_status'];
 
             return $result;

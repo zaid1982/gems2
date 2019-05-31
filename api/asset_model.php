@@ -29,14 +29,10 @@ try {
 
     if ('GET' === $request_method) {
         $assetModelId = filter_input(INPUT_GET, 'assetModelId');
-        $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
         if (!is_null($assetModelId)) {
             $result = $fn_assetModel->get_assetModel($assetModelId);
-        }
-        else if (!is_null($assetModelId)) {
-            $result = $fn_assetModel->get_assetModel_list($assetTypeId);
         } else {
-            throw new Exception('[' . __LINE__ . '] - API GET invalid');
+            $result = $fn_assetModel->get_assetModel_list();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

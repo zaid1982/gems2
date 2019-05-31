@@ -78,23 +78,19 @@ class Class_assetModel {
      * @return array
      * @throws Exception
      */
-    public function get_assetModel_list ($assetTypeId) {
+    public function get_assetModel_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($assetTypeId)) {
-                throw new Exception('[' . __LINE__ . '] - Array assetTypeId empty');
-            }
-
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset_model', array('asset_type_id'=>$assetTypeId));
+            $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset_model');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['assetModelId'] = $dataLocal['asset_model_id'];
                 $row_result['assetModelName'] = $dataLocal['asset_model_name'];
                 $row_result['assetModelDesc'] = $this->fn_general->clear_null($dataLocal['asset_model_desc']);
                 $row_result['assetBrandId'] = $dataLocal['asset_brand_id'];
                 $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
-                $row_result['assetModelTimeCreated'] = $dataLocal['asset_model_time_created'];
+                $row_result['assetModelTimeCreated'] = str_replace('-', '/', $dataLocal['asset_model_time_created']);
                 $row_result['assetModelStatus'] = $dataLocal['asset_model_status'];
                 array_push($result, $row_result);
             }
@@ -127,7 +123,7 @@ class Class_assetModel {
             $result['assetModelDesc'] = $this->fn_general->clear_null($dataLocal['asset_model_desc']);
             $result['assetBrandId'] = $dataLocal['asset_brand_id'];
             $result['assetTypeId'] = $dataLocal['asset_type_id'];
-            $result['assetModelTimeCreated'] = $dataLocal['asset_model_time_created'];
+            $result['assetModelTimeCreated'] = str_replace('-', '/', $dataLocal['asset_model_time_created']);
             $result['assetModelStatus'] = $dataLocal['asset_model_status'];
 
             return $result;

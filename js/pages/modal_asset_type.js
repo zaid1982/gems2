@@ -107,6 +107,7 @@ function ModalAssetType() {
                                 tempRow['assetTypeId'] = assetTypeId;
                                 tempRow['assetTypeName'] = txtName;
                                 tempRow['assetTypeDesc'] = txtDesc;
+                                tempRow['totalModel'] = 0;
                                 tempRow['assetTypeStatus'] = statusVal;
                                 classFrom.addTableAty(tempRow);
                             }

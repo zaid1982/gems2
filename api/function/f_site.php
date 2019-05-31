@@ -89,7 +89,7 @@ class Class_site {
                 $row_result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
                 $row_result['clientId'] = $dataLocal['client_id'];
                 $row_result['groupId'] = $dataLocal['group_id'];
-                $row_result['siteTimeCreated'] = $dataLocal['site_time_created'];
+                $row_result['siteTimeCreated'] = str_replace('-', '/', $dataLocal['site_time_created']);
                 $row_result['siteStatus'] = $dataLocal['site_status'];
                 array_push($result, $row_result);
             }
@@ -122,7 +122,7 @@ class Class_site {
             $result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
             $result['clientId'] = $dataLocal['client_id'];
             $result['groupId'] = $dataLocal['group_id'];
-            $result['siteTimeCreated'] = $dataLocal['site_time_created'];
+            $result['siteTimeCreated'] = str_replace('-', '/', $dataLocal['site_time_created']);
             $result['siteStatus'] = $dataLocal['site_status'];
 
             return $result;

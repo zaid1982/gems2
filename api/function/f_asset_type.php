@@ -90,7 +90,7 @@ class Class_assetType {
                 $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
                 $row_result['assetGroupId'] = $dataLocal['asset_group_id'];
                 $row_result['totalModel'] = $this->fn_general->clear_null($dataLocal['total_model'], 0);
-                $row_result['assetTypeTimeCreated'] = $dataLocal['asset_type_time_created'];
+                $row_result['assetTypeTimeCreated'] = str_replace('-', '/', $dataLocal['asset_type_time_created']);
                 $row_result['assetTypeStatus'] = $dataLocal['asset_type_status'];
                 array_push($result, $row_result);
             }
@@ -122,7 +122,7 @@ class Class_assetType {
             $result['assetTypeName'] = $dataLocal['asset_type_name'];
             $result['assetTypeDesc'] = $this->fn_general->clear_null($dataLocal['asset_type_desc']);
             $result['assetCategoryId'] = $dataLocal['asset_category_id'];
-            $result['assetTypeTimeCreated'] = $dataLocal['asset_type_time_created'];
+            $result['assetTypeTimeCreated'] = str_replace('-', '/', $dataLocal['asset_type_time_created']);
             $result['assetTypeStatus'] = $dataLocal['asset_type_status'];
 
             return $result;

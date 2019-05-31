@@ -89,7 +89,7 @@ class Class_contract {
                 $row_result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['clientId'] = $dataLocal['client_id'];
-                $row_result['contractTimeCreated'] = $dataLocal['contract_time_created'];
+                $row_result['contractTimeCreated'] = str_replace('-', '/', $dataLocal['contract_time_created']);
                 $row_result['contractStatus'] = $dataLocal['contract_status'];
                 array_push($result, $row_result);
             }
@@ -121,7 +121,7 @@ class Class_contract {
             $result['contractName'] = $dataLocal['contract_name'];
             $result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
             $result['siteId'] = $dataLocal['site_id'];
-            $result['contractTimeCreated'] = $dataLocal['contract_time_created'];
+            $result['contractTimeCreated'] = str_replace('-', '/', $dataLocal['contract_time_created']);
             $result['contractStatus'] = $dataLocal['contract_status'];
 
             return $result;

@@ -87,7 +87,7 @@ class Class_client {
                 $row_result['clientId'] = $dataLocal['client_id'];
                 $row_result['clientName'] = $dataLocal['client_name'];
                 $row_result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
-                $row_result['clientTimeCreated'] = $dataLocal['client_time_created'];
+                $row_result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
                 $row_result['clientStatus'] = $dataLocal['client_status'];
                 array_push($result, $row_result);
             }
@@ -118,7 +118,7 @@ class Class_client {
             $result['clientId'] = $dataLocal['client_id'];
             $result['clientName'] = $dataLocal['client_name'];
             $result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
-            $result['clientTimeCreated'] = $dataLocal['client_time_created'];
+            $result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
             $result['clientStatus'] = $dataLocal['client_status'];
 
             return $result;
