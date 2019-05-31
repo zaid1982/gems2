@@ -386,6 +386,7 @@ function MainAssetType() {
         }
         const refAssetModel = mzGetLocalRaw('gems_assetModel', versionLocal, {assetTypeId:assetTypeId}, 'asset_model');
         oTableAssetModel.clear().rows.add(refAssetModel).draw();
+        modalAssetModelClass.setAssetTypeId(assetTypeId);
         $('.sectionAtyModel').show();
     };
 
@@ -397,7 +398,7 @@ function MainAssetType() {
     };
 
     this.updateTableAtyModel = function (_dataEdit, _rowEdit) {
-        const currentRow = oTableAssetBrand.row(_rowEdit).data();
+        const currentRow = oTableAssetModel.row(_rowEdit).data();
         if (typeof _dataEdit['assetModelName'] !== 'undefined') {
             currentRow['assetModelName'] = _dataEdit['assetModelName'];
         }
@@ -407,11 +408,11 @@ function MainAssetType() {
         if (typeof _dataEdit['assetModelStatus'] !== 'undefined') {
             currentRow['assetModelStatus'] = _dataEdit['assetModelStatus'];
         }
-        oTableAssetType.row(_rowEdit).data(currentRow).draw();
+        oTableAssetModel.row(_rowEdit).data(currentRow).draw();
     };
 
     this.deleteTableAtyModel = function (_rowDelete) {
-        oTableAssetType.row(_rowDelete).remove().draw();
+        oTableAssetModel.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

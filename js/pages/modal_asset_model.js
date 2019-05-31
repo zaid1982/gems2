@@ -9,8 +9,13 @@ function ModalAssetModel() {
     let refAssetCategory;
     let refAssetType;
     let refAssetBrand;
+    let assetTypeId;
 
     this.init = function () {
+        mzOption('optMzmAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
+        mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
+        mzOption('optMzmAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName');
+
         $('#optMzmAssetGroupId').on('change', function () {
             mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetCategoryId: $(this).val(), assetCategoryStatus: '1'}, 'required');
         });
@@ -28,6 +33,22 @@ function ModalAssetModel() {
                 field_id: 'optMzmAssetCategoryId',
                 type: 'select',
                 name: 'Asset Category',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMzmAssetTypeId',
+                type: 'select',
+                name: 'Asset Type',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMzmAssetBrandId',
+                type: 'select',
+                name: 'Asset Brand',
                 validator: {
                     notEmpty: true
                 }
@@ -69,15 +90,10 @@ function ModalAssetModel() {
             formValidate.clearValidation();
             $('#btnMzmSubmit').attr('disabled', true);
 
-            const selectorAssetGroupId = $('#optMzmAssetGroupId');
-            selectorAssetGroupId.material_select('destroy');
-            selectorAssetGroupId.prop('disabled', false);
-            selectorAssetGroupId.material_select();
-
-            const selectorAssetCategoryId = $('#optMzmAssetCategoryId');
-            selectorAssetCategoryId.material_select('destroy');
-            selectorAssetCategoryId.prop('disabled', false);
-            selectorAssetCategoryId.material_select();
+            //const selectorAssetGroupId = $('#optMzmAssetGroupId');
+            //selectorAssetGroupId.material_select('destroy');
+            //selectorAssetGroupId.prop('disabled', false);
+            //selectorAssetGroupId.material_select();
         });
 
         $('#btnMzmSubmit').on('click', function () {
@@ -89,7 +105,6 @@ function ModalAssetModel() {
                     }
                     else {
                         const assetBrandId = $('#optMzmAssetBrandId').val();
-                        const assetTypeId = $('#optMzmAssetTypeId').val();
                         const txtName = $('#txtMzmName').val();
                         const txtDesc = $('#txaMzmDesc').val();
                         const statusVal = $("input[name='chkMzmStatus']").is(":checked") ? '1' : '2';
@@ -135,13 +150,17 @@ function ModalAssetModel() {
     };
 
     this.add = function () {
-        assetModelId = '';
-        rowRefresh = '';
-
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMzmAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                assetModelId = '';
+                rowRefresh = '';
+
+                const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
+                const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+                mzSetFieldValue('MzmAssetGroupId', assetGroupId, 'select', 'Asset Group *');
+                mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
+                mzSetFieldValue('MzmAssetTypeId', assetTypeId, 'select', 'Asset Type *');
 
                 $('#lblMzmTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Model');
                 $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
@@ -156,8 +175,6 @@ function ModalAssetModel() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMzmAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
-                mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
                 mzCheckFuncParam([_assetModelId, _rowRefresh]);
                 assetModelId = _assetModelId;
                 rowRefresh = _rowRefresh;
@@ -170,15 +187,10 @@ function ModalAssetModel() {
                 mzSetFieldValue('MzmDesc', dataMzm['assetModelDesc'], 'textarea');
                 mzSetFieldValue('MzmStatus', dataMzm['assetModelStatus'], 'checkSingle', '1');
 
-                const selectorAssetGroupId = $('#optMzmAssetGroupId');
-                selectorAssetGroupId.material_select('destroy');
-                selectorAssetGroupId.prop('disabled', true);
-                selectorAssetGroupId.material_select();
-
-                const selectorAssetCategoryId = $('#optMzmAssetCategoryId');
-                selectorAssetCategoryId.material_select('destroy');
-                selectorAssetCategoryId.prop('disabled', true);
-                selectorAssetCategoryId.material_select();
+                //const selectorAssetGroupId = $('#optMzmAssetGroupId');
+                //selectorAssetGroupId.material_select('destroy');
+                //selectorAssetGroupId.prop('disabled', true);
+                //selectorAssetGroupId.material_select();
 
                 $('#lblMzmTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Model');
                 $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
@@ -261,5 +273,9 @@ function ModalAssetModel() {
 
     this.setRefAssetBrand = function (_refAssetBrand) {
         refAssetBrand = _refAssetBrand;
+    };
+
+    this.setAssetTypeId = function (_assetTypeId) {
+        assetTypeId = _assetTypeId;
     };
 }
