@@ -1,0 +1,38 @@
+<div class="modal fade" id="modal_asset_brand" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMzbTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMzb">
+                    <div class="md-form md-outline mt-4">
+                        <input type="text" id="txtMzbName" class="form-control">
+                        <label for="txtMzbName" id="lblMzbName">Asset Brand *</label>
+                        <p class="font-small text-danger" id="txtMzbNameErr"></p>
+                    </div>
+                    <div class="md-form md-outline">
+                        <textarea id="txaMzbDesc" class="md-textarea form-control" rows="3"></textarea>
+                        <label for="txaMzbDesc" id="lblMzbDesc" class="text-muted">Description</label>
+                        <p class="font-small text-danger" id="txaMzbDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMzbStatus" name="chkMzbStatus" value="1">
+                        <label class="form-check-label" for="chkMzbStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMzbSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

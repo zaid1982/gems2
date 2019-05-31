@@ -63,9 +63,52 @@
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 15%">Asset Group</th>
-                                <th style="width: 15%">Asset Category</th>
-                                <th style="width: 20%">Asset Type</th>
+                                <th style="width: 14%">Asset Group</th>
+                                <th style="width: 14%">Asset Category</th>
+                                <th style="width: 18%">Asset Type</th>
+                                <th>Description</th>
+                                <th style="width: 8%">Total Brand</th>
+                                <th style="width: 8%">Status</th>
+                                <th style="width: 84px"></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5 mt-lg-5 sectionAtyModel">
+            <div class="card card-cascade narrower">
+                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <button type="button" id="btnAtyAssetModelAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Model"><i class="fas fa-plus mt-0"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title="Asset Model List"
+                           data-content="All Asset Model list available for selected Asset Type."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtAtyAssetModelRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">Asset Model List - <span id="lblTitle" class="font-italic">HVAC, Air-Conditioning, Air Handling Unit</span></a>
+                    <div>
+                        <div id="btnDtAtyAssetModelExport"></div>
+                    </div>
+                </div>
+                <div class="px-4 pb-4">
+                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+                        <div class="">
+                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                            <input type="text" id="txtAtyAssetModelSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                            <label for="txtAtyAssetModelSearch" class="ml-4">Search</label>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table id="dtAtyAssetModel" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th style="width: 4%">#</th>
+                                <th style="width: 20%">Asset Brand</th>
+                                <th style="width: 20%">Asset Model</th>
                                 <th>Description</th>
                                 <th style="width: 8%">Status</th>
                                 <th style="width: 80px"></th>

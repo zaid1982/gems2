@@ -71,6 +71,11 @@ function MainAssetType() {
                     {mData: 'assetTypeName'},
                     {mData: 'assetTypeDesc'},
                     {mData: null,
+                        mRender: function (data) {
+                            return '<a class="text-primary"><u>5</u></a>'
+                        }
+                    },
+                    {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['assetTypeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetTypeStatus']]['statusDesc']+'</span></h6>';
                         }
@@ -78,6 +83,7 @@ function MainAssetType() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-list-ul lnkAtyAssetTypeDelete" id="lnkAtyAssetTypeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Brand list"></i></a>&nbsp;&nbsp;';
                             if (row['assetTypeStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
