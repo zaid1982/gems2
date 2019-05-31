@@ -16,10 +16,6 @@ function ModalAssetModel() {
         mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
         mzOption('optMzmAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName');
 
-        $('#optMzmAssetGroupId').on('change', function () {
-            mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetCategoryId: $(this).val(), assetCategoryStatus: '1'}, 'required');
-        });
-
         const vData = [
             {
                 field_id: 'optMzmAssetGroupId',
@@ -90,10 +86,10 @@ function ModalAssetModel() {
             formValidate.clearValidation();
             $('#btnMzmSubmit').attr('disabled', true);
 
-            //const selectorAssetGroupId = $('#optMzmAssetGroupId');
-            //selectorAssetGroupId.material_select('destroy');
-            //selectorAssetGroupId.prop('disabled', false);
-            //selectorAssetGroupId.material_select();
+            const selectorAssetBrandId = $('#optMzmAssetBrandId');
+            selectorAssetBrandId.material_select('destroy');
+            selectorAssetBrandId.prop('disabled', false);
+            selectorAssetBrandId.material_select();
         });
 
         $('#btnMzmSubmit').on('click', function () {
@@ -153,6 +149,7 @@ function ModalAssetModel() {
         ShowLoader();
         setTimeout(function () {
             try {
+                mzOption('optMzmAssetBrandId', refAssetBrand, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'}, 'required');
                 assetModelId = '';
                 rowRefresh = '';
 
@@ -175,25 +172,34 @@ function ModalAssetModel() {
         ShowLoader();
         setTimeout(function () {
             try {
+                mzOption('optMzmAssetBrandId', refAssetBrand, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName');
                 mzCheckFuncParam([_assetModelId, _rowRefresh]);
                 assetModelId = _assetModelId;
                 rowRefresh = _rowRefresh;
 
                 const dataMzm = mzAjaxRequest('asset_model.php?assetModelId='+assetModelId, 'GET');
-                const assetCategoryId = dataMzm['assetCategoryId'];
-                mzSetFieldValue('MzmAssetGroupId', refAssetCategory[assetCategoryId]['assetGroupId'], 'select', 'Asset Group *');
-                mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
-                mzSetFieldValue('MzmName', dataMzm['assetModelName'], 'text');
-                mzSetFieldValue('MzmDesc', dataMzm['assetModelDesc'], 'textarea');
-                mzSetFieldValue('MzmStatus', dataMzm['assetModelStatus'], 'checkSingle', '1');
+                if (assetTypeId !== dataMzm['assetTypeId']) {
+                    toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+                }
+                else {
+                    const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
+                    const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+                    mzSetFieldValue('MzmAssetGroupId', assetGroupId, 'select', 'Asset Group *');
+                    mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
+                    mzSetFieldValue('MzmAssetTypeId', assetTypeId, 'select', 'Asset Type *');
+                    mzSetFieldValue('MzmAssetBrandId', dataMzm['assetBrandId'], 'select', 'Asset Brand *');
+                    mzSetFieldValue('MzmName', dataMzm['assetModelName'], 'text');
+                    mzSetFieldValue('MzmDesc', dataMzm['assetModelDesc'], 'textarea');
+                    mzSetFieldValue('MzmStatus', dataMzm['assetModelStatus'], 'checkSingle', '1');
 
-                //const selectorAssetGroupId = $('#optMzmAssetGroupId');
-                //selectorAssetGroupId.material_select('destroy');
-                //selectorAssetGroupId.prop('disabled', true);
-                //selectorAssetGroupId.material_select();
+                    const selectorAssetBrandId = $('#optMzmAssetBrandId');
+                    selectorAssetBrandId.material_select('destroy');
+                    selectorAssetBrandId.prop('disabled', true);
+                    selectorAssetBrandId.material_select();
 
-                $('#lblMzmTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Model');
-                $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
+                    $('#lblMzmTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Model');
+                    $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
+                }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }

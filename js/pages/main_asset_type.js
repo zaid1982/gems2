@@ -100,7 +100,7 @@ function MainAssetType() {
                             if (data === 0) {
                                 label = '<a class="trigger red lighten-1 text-white">'+data+'</a>';
                             } else {
-                                label = '<a class="trigger cyan accent-4 text-white lnkAtyAssetTypeModel" id="lnkAtyAssetTypeTotal_' + meta.row + '">'+data+'</a>';
+                                label = '<a class="trigger cyan accent-4 text-white lnkAtyAssetTypeModel" id="lnkAtyAssetTypeTotal_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Model list">'+data+'</a>';
                             }
                             return label;
                         }
@@ -114,7 +114,7 @@ function MainAssetType() {
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['totalModel'] !== 0) {
-                                label += '<a><i class="fas fa-list-ul lnkAtyAssetTypeModel" id="lnkAtyAssetTypeModel_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Brand list"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-list-ul lnkAtyAssetTypeModel" id="lnkAtyAssetTypeModel_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Model list"></i></a>&nbsp;&nbsp;';
                             }
                             if (row['assetTypeStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
@@ -259,7 +259,7 @@ function MainAssetType() {
                     {mData: 'assetModelDesc'},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="trigger badge badge-pill '+refStatus[row['assetModelStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetModelStatus']]['statusDesc']+'</span></h6>';
+                            return '<h6><span class="badge badge-pill '+refStatus[row['assetModelStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetModelStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
@@ -413,6 +413,9 @@ function MainAssetType() {
 
     this.deleteTableAtyModel = function (_rowDelete) {
         oTableAssetModel.row(_rowDelete).remove().draw();
+        const currentRow = oTableAssetType.row(rowIdModel).data();
+        currentRow['totalModel'] = parseInt(currentRow['totalModel']) - 1;
+        oTableAssetType.row(rowIdModel).data(currentRow).draw();
     };
 
     this.getClassName = function () {
