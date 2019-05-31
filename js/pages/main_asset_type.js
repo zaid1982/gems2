@@ -70,14 +70,14 @@ function MainAssetType() {
                         }},
                     {mData: 'assetTypeName'},
                     {mData: 'assetTypeDesc'},
-                    {mData: null,
+                    {mData: 'totalModel',
                         mRender: function (data) {
-                            return '<a class="text-primary"><u>5</u></a>'
+                            return data === 0 ? '<a class="trigger red lighten-1 text-white">'+data+'</a>' : '<a class="trigger cyan accent-4 text-white">'+data+'</a>';
                         }
                     },
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['assetTypeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetTypeStatus']]['statusDesc']+'</span></h6>';
+                            return '<h6><span class="trigger badge badge-pill '+refStatus[row['assetTypeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetTypeStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',

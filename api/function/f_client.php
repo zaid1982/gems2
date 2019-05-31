@@ -109,6 +109,10 @@ class Class_client {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Array clientId empty');
+            }
+
             $result = array();
             $dataLocal = Class_db::getInstance()->db_select_single('cli_client', array('client_id'=>$clientId), null, 1);
             $result['clientId'] = $dataLocal['client_id'];

@@ -119,9 +119,15 @@ class Class_sql
             } else if ($title === 'vw_asset_type') {
                 $sql = "SELECT
                     ast_asset_type.*,
-                    ast_asset_category.asset_group_id
+                    ast_asset_category.asset_group_id,
+                    group_model.total_model
                 FROM ast_asset_type
-                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset_type.asset_category_id";
+                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset_type.asset_category_id
+                LEFT JOIN (
+                    SELECT asset_type_id, COUNT(*) AS total_model
+                    FROM ast_asset_model 
+                    GROUP BY asset_type_id
+                ) group_model ON group_model.asset_type_id = ast_asset_type.asset_type_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

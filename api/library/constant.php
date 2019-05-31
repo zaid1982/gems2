@@ -54,10 +54,15 @@ class Class_constant {
     const ERR_ASSET_TYPE_DEACTIVATE = 'Asset Type already inactive';
     const ERR_ASSET_TYPE_ACTIVATE = 'Asset Type already active';
     const ERR_ASSET_TYPE_DELETE_ASSET = 'Asset Type cannot be deleted because currently registered under Asset';
+    const ERR_ASSET_TYPE_DELETE_MODEL = 'Asset Type cannot be deleted because currently registered under Asset Model';
     const ERR_ASSET_BRAND_SIMILAR = 'Asset Brand already exist';
     const ERR_ASSET_BRAND_DEACTIVATE = 'Asset Brand already inactive';
     const ERR_ASSET_BRAND_ACTIVATE = 'Asset Brand already active';
     const ERR_ASSET_BRAND_DELETE_MODEL = 'Asset Brand cannot be deleted because currently registered under Asset Model';
+    const ERR_ASSET_MODEL_SIMILAR = 'Asset Model already exist';
+    const ERR_ASSET_MODEL_DEACTIVATE = 'Asset Model already inactive';
+    const ERR_ASSET_MODEL_ACTIVATE = 'Asset Model already active';
+    const ERR_ASSET_MODEL_DELETE_ASSET = 'Asset Model cannot be deleted because currently registered under Asset';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -103,4 +108,10 @@ class Class_constant {
     const SUC_ASSET_BRAND_DEACTIVATE = 'Asset Brand successfully deactivated';
     const SUC_ASSET_BRAND_ACTIVATE = 'Asset Brand successfully activated';
     const SUC_ASSET_BRAND_DELETE = 'Asset Brand successfully deleted';
+    const SUC_ASSET_MODEL_ADD = 'Asset Model successfully added';
+    const SUC_ASSET_MODEL_EDIT = 'Asset Model successfully updated';
+    const SUC_ASSET_MODEL_DEACTIVATE = 'Asset Model successfully deactivated';
+    const SUC_ASSET_MODEL_ACTIVATE = 'Asset Model successfully activated';
+    const SUC_ASSET_MODEL_DELETE = 'Asset Model successfully deleted';
+
 }

@@ -89,6 +89,7 @@ class Class_assetType {
                 $row_result['assetTypeDesc'] = $this->fn_general->clear_null($dataLocal['asset_type_desc']);
                 $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
                 $row_result['assetGroupId'] = $dataLocal['asset_group_id'];
+                $row_result['totalModel'] = $this->fn_general->clear_null($dataLocal['total_model'], 0);
                 $row_result['assetTypeTimeCreated'] = $dataLocal['asset_type_time_created'];
                 $row_result['assetTypeStatus'] = $dataLocal['asset_type_status'];
                 array_push($result, $row_result);
@@ -110,6 +111,10 @@ class Class_assetType {
     public function get_assetType ($assetTypeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($assetTypeId)) {
+                throw new Exception('[' . __LINE__ . '] - Array assetTypeId empty');
+            }
 
             $result = array();
             $dataLocal = Class_db::getInstance()->db_select_single('ast_asset_type', array('asset_type_id'=>$assetTypeId), null, 1);
@@ -288,6 +293,9 @@ class Class_assetType {
             }
             if (Class_db::getInstance()->db_count('ast_asset', array('asset_type_id'=>$assetTypeId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_TYPE_DELETE_ASSET, 31);
+            }
+            if (Class_db::getInstance()->db_count('ast_asset_model', array('asset_type_id'=>$assetTypeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_TYPE_DELETE_MODEL, 31);
             }
 
             $assetTypeName = Class_db::getInstance()->db_select_col('ast_asset_type', array('asset_type_id'=>$assetTypeId), 'asset_type_name', null, 1);

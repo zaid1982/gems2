@@ -110,6 +110,10 @@ class Class_assetCategory {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
+            if (empty($assetCategoryId)) {
+                throw new Exception('[' . __LINE__ . '] - Array assetCategoryId empty');
+            }
+
             $result = array();
             $dataLocal = Class_db::getInstance()->db_select_single('ast_asset_category', array('asset_category_id'=>$assetCategoryId), null, 1);
             $result['assetCategoryId'] = $dataLocal['asset_category_id'];

@@ -15,6 +15,7 @@ function ModalConfirmDelete() {
                 case 'ModalAssetCategory':
                 case 'ModalAssetType':
                 case 'ModalAssetBrand':
+                case 'ModalAssetModel':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id, rowRefresh);
                     }

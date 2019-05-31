@@ -111,6 +111,10 @@ class Class_contract {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Array contractId empty');
+            }
+
             $result = array();
             $dataLocal = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
             $result['contractId'] = $dataLocal['contract_id'];
