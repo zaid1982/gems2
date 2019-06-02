@@ -63,6 +63,10 @@ class Class_constant {
     const ERR_ASSET_MODEL_DEACTIVATE = 'Asset Model already inactive';
     const ERR_ASSET_MODEL_ACTIVATE = 'Asset Model already active';
     const ERR_ASSET_MODEL_DELETE_ASSET = 'Asset Model cannot be deleted because currently registered under Asset';
+    const ERR_ASSET_SIMILAR = 'Asset Code already exist in similar contract';
+    const ERR_ASSET_DEACTIVATE = 'Asset already inactive';
+    const ERR_ASSET_ACTIVATE = 'Asset already active';
+    const ERR_ASSET_DELETE_PPM = 'Asset cannot be deleted because currently registered under Preventive Maintenance';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -113,5 +117,11 @@ class Class_constant {
     const SUC_ASSET_MODEL_DEACTIVATE = 'Asset Model successfully deactivated';
     const SUC_ASSET_MODEL_ACTIVATE = 'Asset Model successfully activated';
     const SUC_ASSET_MODEL_DELETE = 'Asset Model successfully deleted';
+    const SUC_ASSET_SAVE = 'Asset successfully saved';
+    const SUC_ASSET_REGISTER = 'Asset successfully registered';
+    const SUC_ASSET_EDIT = 'Asset successfully updated';
+    const SUC_ASSET_DEACTIVATE = 'Asset successfully deactivated';
+    const SUC_ASSET_ACTIVATE = 'Asset successfully activated';
+    const SUC_ASSET_DELETE = 'Asset successfully deleted';
 
 }
