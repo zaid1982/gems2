@@ -1,0 +1,167 @@
+<section class="section mb-5 sectionAssetDetails">
+    <div class="row mb-0 pb-0">
+        <div class="col-md-12">
+            <button type="button" class="btn peach-gradient btn-rounded float-right" id="btnSszBack">
+                <i class="fas fa-arrow-left"></i> Back to Main Page
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-xl-7">
+            <div class="card card-cascade cascading-admin-card user-card mt-4">
+                <div class="admin-up d-flex justify-content-start">
+                    <i class="fa fas fa-qrcode rgba-cyan-strong py-4"></i>
+                    <div class="data">
+                        <h3 class="font-weight-bold dark-grey-text ml-3">Asset Details</h3>
+                    </div>
+                </div>
+                <div class="card-body card-body-cascade">
+                    <form id="formSsz">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-4">
+                                    <input type="text" id="txtSszAssetCode" class="form-control">
+                                    <label for="txtSszAssetCode" id="lblSszAssetCode">Asset Code *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCodeErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-4">
+                                    <input type="text" id="txtSszAssetName" class="form-control">
+                                    <label for="txtSszAssetName" id="lblSszAssetName">Asset Name *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetNameErr"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetDesc" class="form-control">
+                                    <label for="txtSszAssetDesc" id="lblSszAssetDesc">Asset Description *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetDescErr"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 select-outline">
+                                <select id="optSszAssetGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                <label for="optSszAssetGroupId" id="lblAssetGroupId">Asset Group *</label>
+                                <p class="font-small text-danger" id="optSszAssetGroupIdErr"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 select-outline">
+                                <select id="optSszAssetCategoryId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                <label for="optSszAssetCategoryId" id="lblAssetCategoryId">Asset Category *</label>
+                                <p class="font-small text-danger" id="optSszAssetCategoryIdErr"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 select-outline">
+                                <select id="optSszAssetTypeId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                <label for="optSszAssetTypeId" id="lblAssetTypeId">Asset Type *</label>
+                                <p class="font-small text-danger" id="optSszAssetTypeIdErr"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 select-outline">
+                                <select id="optSszAssetBrandId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                <label for="optSszAssetBrandId" id="lblAssetBrandId">Asset Brand *</label>
+                                <p class="font-small text-danger" id="optSszAssetBrandIdErr"></p>
+                            </div>
+                            <div class="col-md-6 select-outline">
+                                <select id="optSszAssetModelId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                <label for="optSszAssetModelId" id="lblAssetModelId">Asset Model *</label>
+                                <p class="font-small text-danger" id="optSszAssetModelIdErr"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetLocationCode" class="form-control">
+                                    <label for="txtSszAssetLocationCode" id="lblSszAssetLocationCode">Location Code *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetLocationCodeErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCapacity" class="form-control">
+                                    <label for="txtSszAssetCapacity" id="lblSszAssetCapacity">Capacity *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCapacityErr"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
+                                    <label for="txtSszAssetRegisteredBy" id="lblSszAssetRegisteredBy">Registered By</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetTimeRegistered" class="form-control" disabled>
+                                    <label for="txtSszAssetTimeRegistered" id="lblSszAssetTimeRegistered">Time Registered</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetStatus" class="form-control" disabled>
+                                    <label for="txtSszAssetStatus" id="lblSszAssetStatus">Status</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <button type="button" id="butSszSubmit" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right">
+                        <i class="fas fa-paper-plane mr-1"></i> Submit Asset
+                    </button>
+                    <button type="button" id="butSszUpdate" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
+                        <i class="fas fa-edit mr-1"></i> Update Asset
+                    </button>
+                    <button type="button" id="butSszSave" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
+                        <i class="fas fa-save mr-1"></i> Save Draft
+                    </button>
+                    <button type="button" id="butSszQr" class="btn btn-outline-light-blue btn-rounded waves-effect btn-sm float-right">
+                        <i class="fas fa-qrcode mr-1"></i> Print QR Code
+                    </button>
+                    <button type="button" id="butSszPrint" class="btn btn-outline-red btn-rounded waves-effect btn-sm float-right">
+                        <i class="fas fa-file-pdf mr-1"></i> Print Asset Information
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 col-xl-5">
+            <div class="card profile-card mt-4">
+                <div class="card-header teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">Contract Information</h5>
+                </div>
+                <div class="card-body mt-3 pb-0">
+                    <dl class="row">
+                        <dt class="col-sm-4">Contract Name</dt>
+                        <dd class="col-sm-8">A description list is perfect for defining terms.</dd>
+                        <dt class="col-sm-4">Client</dt>
+                        <dd class="col-sm-8">Ves sem nec elit.</dd>
+                        <dt class="col-sm-4">Site</dt>
+                        <dd class="col-sm-8">Etiam porta sem malesuada magna mollis euismod.</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">QR Code</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <img src="img/icon/qr_code.png" width="60%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

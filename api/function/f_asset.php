@@ -127,6 +127,7 @@ class Class_asset {
             $result['assetId'] = $dataLocal['asset_id'];
             $result['assetCode'] = $this->fn_general->clear_null($dataLocal['asset_code']);
             $result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+            $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
             $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
             $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
             $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
@@ -136,8 +137,9 @@ class Class_asset {
             $result['assetBrandId'] = $this->fn_general->clear_null($dataLocal['asset_brand_id']);
             $result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
             $result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
+            $result['assetTimeRegistered'] = str_replace('-', '/', $dataLocal['asset_time_registered']);
             $result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
-            $result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
+            $result['assetRegisteredBy'] = $this->fn_general->clear_null($dataLocal['asset_registered_by']);
             $result['assetStatus'] = $dataLocal['asset_status'];
 
             return $result;

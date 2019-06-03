@@ -51,24 +51,30 @@
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
                                             <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                            <label for="optAszContractId">Contract</label>
+                                            <label for="optAszContractId">Contract *</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                                <option value="" disabled>All Asset Group</option>
+                                            </select>
                                             <label for="optAszGroupId">Asset Group</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                                <option value="" disabled>All Asset Category</option>
+                                            </select>
                                             <label for="optAszCategoryId">Asset Category</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                                <option value="" disabled>All Asset Type</option>
+                                            </select>
                                             <label for="optAszTypeId">Asset Type</label>
                                         </div>
                                     </div>
@@ -110,7 +116,7 @@
                                     <tr class="th-strong">
                                         <th scope="row" style="width: 4%">#</th>
                                         <th>Asset Name</th>
-                                        <th>Asset No.</th>
+                                        <th>Asset Code</th>
                                         <th>Asset Group</th>
                                         <th>Asset Category</th>
                                         <th>Asset Type</th>
@@ -119,7 +125,7 @@
                                         <th>Capacity</th>
                                         <th>Location Code</th>
                                         <th style="width: 8%">Status</th>
-                                        <th style="width: 55px"></th>
+                                        <th style="width: 60px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -131,6 +137,7 @@
                 </section>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_asset_details"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_user"></div>
@@ -173,7 +180,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let assetClass_;
-    let modalAssetClass_;
+    let sectionAssetDetails_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -184,26 +191,36 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 assetClass_ = new MainAsset();
-                //modalAssetClass_ = new ModalAsset();
+                sectionAssetDetails_ = new SectionAssetDetails();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
-                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+                const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
+                const refAssetBrandGroup_ = mzGetLocalArray('gems_assetBrandGroup', versionLocal_, 'assetBrandId');
+                const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
 
-                //modalAssetClass_.setClassFrom(assetClass_);
-                //modalAssetClass_.setRefDesignation(refDesignation_);
-                //modalAssetClass_.setRefClient(refClient_);
-                //modalAssetClass_.setRefSite(refSite_);
-                //modalAssetClass_.init();
+                sectionAssetDetails_.setClassFrom(assetClass_);
+                sectionAssetDetails_.setRefStatus(refStatus_);
+                sectionAssetDetails_.setRefContract(refContract_);
+                sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
+                sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
+                sectionAssetDetails_.setRefAssetType(refAssetType_);
+                sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
+                sectionAssetDetails_.setRefAssetBrandGroup(refAssetBrandGroup_);
+                sectionAssetDetails_.setRefAssetModel(refAssetModel_);
+                sectionAssetDetails_.init();
 
                 assetClass_.setRefStatus(refStatus_);
-                //assetClass_.setRefRole(refRole_);
-                //assetClass_.setRefDesignation(refDesignation_);
-                //assetClass_.setRefGroup(refGroup_);
-                //assetClass_.setModalAssetClass(modalAssetClass_);
+                assetClass_.setRefContract(refContract_);
+                assetClass_.setRefAssetGroup(refAssetGroup_);
+                assetClass_.setRefAssetCategory(refAssetCategory_);
+                assetClass_.setRefAssetType(refAssetType_);
+                assetClass_.setRefAssetBrand(refAssetBrand_);
+                assetClass_.setRefAssetModel(refAssetModel_);
+                assetClass_.setSectionAssetClass(sectionAssetDetails_);
                 assetClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -214,7 +231,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    //document.write('<scr' + 'ipt src="js/pages/modal_user.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

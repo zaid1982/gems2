@@ -57,6 +57,7 @@ try {
 
         $result = $fn_assetModel->add_assetModel($params);
         $fn_general->updateVersion(13);
+        $fn_general->updateVersion(14);
         $fn_general->save_audit('51', $jwt_data->userId, 'Asset Model = ' . $assetModelName);
 
         Class_db::getInstance()->db_commit();
@@ -76,18 +77,21 @@ try {
         if ($action === 'update') {
             $fn_assetModel->update_assetModel($assetModelId, $put_vars);
             $fn_general->updateVersion(13);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('52', $jwt_data->userId, 'Asset Model = ' . $put_vars['assetModelName']);
             $form_data['errmsg'] = $constant::SUC_ASSET_MODEL_EDIT;
         }
         else if ($action === 'deactivate') {
             $assetModelName = $fn_assetModel->deactivate_assetModel($assetModelId);
             $fn_general->updateVersion(13);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('53', $jwt_data->userId, 'Asset Model = ' . $assetModelName);
             $form_data['errmsg'] = $constant::SUC_ASSET_MODEL_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $assetModelName = $fn_assetModel->activate_assetModel($assetModelId);
             $fn_general->updateVersion(13);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('54', $jwt_data->userId, 'Asset Model = ' . $assetModelName);
             $form_data['errmsg'] = $constant::SUC_ASSET_MODEL_ACTIVATE;
         } else {

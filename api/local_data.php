@@ -5,20 +5,14 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_reference.php';
 require_once 'function/f_user.php';
-require_once 'function/f_client.php';
-require_once 'function/f_site.php';
-require_once 'function/f_contract.php';
-require_once 'function/f_asset_group.php';
+require_once 'function/f_asset_brand.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_reference = new Class_reference();
 $fn_user = new Class_user();
-$fn_client = new Class_client();
-$fn_site = new Class_site();
-$fn_contract = new Class_contract();
-$fn_assetGroup = new Class_assetGroup();
+$fn_assetBrand = new Class_assetBrand();
 $api_name = 'api_local_data';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
@@ -65,17 +59,9 @@ try {
             case 'gems_group':
                 $result = $fn_reference->get_group_list();
                 break;
-            case 'gems_client':
-                $result = $fn_client->get_client_list();
+            case 'gems_assetBrandGroup':
+                $result = $fn_assetBrand->get_assetBrand_groupList();
                 break;
-            case 'gems_site':
-                $result = $fn_site->get_site_list();
-                break;
-            case 'gems_contract':
-                $result = $fn_contract->get_contract_list();
-                break;
-            case 'gems_assetGroup':
-                $result = $fn_assetGroup->get_assetGroup_list();
                 break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');

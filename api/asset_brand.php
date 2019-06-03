@@ -29,7 +29,10 @@ try {
 
     if ('GET' === $request_method) {
         $assetBrandId = filter_input(INPUT_GET, 'assetBrandId');
-        if (!is_null($assetBrandId)) {
+        $type = filter_input(INPUT_GET, 'type');
+        if (!is_null($type)) {
+            $result = $fn_assetBrand->get_assetBrand_groupList();
+        } else if (!is_null($assetBrandId)) {
             $result = $fn_assetBrand->get_assetBrand($assetBrandId);
         } else {
             $result = $fn_assetBrand->get_assetBrand_list();
@@ -72,18 +75,21 @@ try {
         if ($action === 'update') {
             $fn_assetBrand->update_assetBrand($assetBrandId, $put_vars);
             $fn_general->updateVersion(12);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('47', $jwt_data->userId, 'Asset Brand = ' . $put_vars['assetBrandName']);
             $form_data['errmsg'] = $constant::SUC_ASSET_BRAND_EDIT;
         }
         else if ($action === 'deactivate') {
             $assetBrandName = $fn_assetBrand->deactivate_assetBrand($assetBrandId);
             $fn_general->updateVersion(12);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('48', $jwt_data->userId, 'Asset Brand = ' . $assetBrandName);
             $form_data['errmsg'] = $constant::SUC_ASSET_BRAND_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $assetBrandName = $fn_assetBrand->activate_assetBrand($assetBrandId);
             $fn_general->updateVersion(12);
+            $fn_general->updateVersion(14);
             $fn_general->save_audit('49', $jwt_data->userId, 'Asset Brand = ' . $assetBrandName);
             $form_data['errmsg'] = $constant::SUC_ASSET_BRAND_ACTIVATE;
         } else {
@@ -101,6 +107,7 @@ try {
 
         $assetBrandName = $fn_assetBrand->delete_assetBrand($assetBrandId);
         $fn_general->updateVersion(12);
+        $fn_general->updateVersion(14);
         $fn_general->save_audit('50', $jwt_data->userId, 'Asset Brand = ' . $assetBrandName);
 
         Class_db::getInstance()->db_commit();

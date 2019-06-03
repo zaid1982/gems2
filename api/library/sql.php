@@ -128,6 +128,17 @@ class Class_sql
                     FROM ast_asset_model 
                     GROUP BY asset_type_id
                 ) group_model ON group_model.asset_type_id = ast_asset_type.asset_type_id";
+            } else if ($title === 'vw_asset_brand_group') {
+                $sql = "SELECT
+                    ast_asset_brand.*,
+                    asset_model.asset_type_id
+                FROM (
+                        SELECT
+                            asset_brand_id, asset_type_id
+                        FROM ast_asset_model
+                        GROUP BY asset_type_id, asset_brand_id
+                    ) asset_model
+                LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = asset_model.asset_brand_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

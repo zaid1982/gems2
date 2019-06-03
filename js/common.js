@@ -1134,7 +1134,7 @@ function mzIsRoleExist(roleIds) {
 
 function mzDisableSelect(fieldId, disable) {
     $('#'+fieldId).material_select('destroy');
-    $('#'+fieldId).attr('disabled', disable);
+    $('#'+fieldId).prop('disabled', disable);
     $('#'+fieldId).material_select();
 }
 

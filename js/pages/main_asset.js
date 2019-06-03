@@ -4,14 +4,32 @@ function MainAsset() {
     let self = this;
     let modalConfirmDeleteClass;
     let refStatus;
+    let refContract;
+    let refAssetGroup;
+    let refAssetCategory;
+    let refAssetType;
+    let refAssetBrand;
+    let refAssetModel;
     let oTableAsset;
-    let modalAssetClass;
+    let sectionAssetClass;
+    let contractId;
 
     this.init = function () {
+        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
+        mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupDesc', {});
+
+        for(let contract of refContract) {
+            if (typeof contract !== 'undefined') {
+                contractId = contract['contractId'];
+                mzSetFieldValue('AszContractId', contractId, 'select', 'Contract');
+                break;
+            }
+        }
+
         oTableAsset =  $('#dtAszAsset').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'asc'],
+            "aaSorting": [2, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableAsset.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -24,7 +42,7 @@ function MainAsset() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalAssetClass.edit(currentRow['assetId'], rowId);
+                        sectionAssetClass.edit(currentRow['assetId'], rowId);
                     }
                 });
                 $('.lnkAszAssetDeactivate').off('click').on('click', function () {
@@ -33,7 +51,7 @@ function MainAsset() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalAssetClass.deactivate(currentRow['assetId'], rowId);
+                        sectionAssetClass.deactivate(currentRow['assetId'], rowId);
                     }
                 });
                 $('.lnkAszAssetActivate').off('click').on('click', function () {
@@ -42,7 +60,7 @@ function MainAsset() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalAssetClass.activate(currentRow['assetId'], rowId);
+                        sectionAssetClass.activate(currentRow['assetId'], rowId);
                     }
                 });
                 $('.lnkAszAssetDelete').off('click').on('click', function () {
@@ -51,7 +69,7 @@ function MainAsset() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetId'], rowId, modalAssetClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetId'], rowId, sectionAssetClass);
                     }
                 });
             },
@@ -61,12 +79,22 @@ function MainAsset() {
                     {mData: null, bSortable: false},
                     {mData: 'assetName'},
                     {mData: 'assetCode'},
-                    {mData: null},
-                    {mData: null},
-                    {mData: null},
-                    {mData: null},
-                    {mData: null},
-                    {mData: null},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetCategoryId'] !== '' ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetBrandId'] !== '' ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
+                        }},
+                    {mData: 'assetCapacity'},
                     {mData: 'assetLocationCode'},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -85,7 +113,10 @@ function MainAsset() {
                             return label;
                         }
                     },
-                    {mData: 'assetId', visible: false}
+                    {mData: 'assetId', visible: false},
+                    {mData: 'assetGroupId', visible: false},
+                    {mData: 'assetCategoryId', visible: false},
+                    {mData: 'assetTypeId', visible: false}
                 ]
         });
         $("#dtAszAsset_filter").hide();
@@ -93,16 +124,32 @@ function MainAsset() {
             oTableAsset.search($(this).val()).draw();
         });
 
+        $('#optAszGroupId').on('change', function () {
+            mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
+            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            oTableAsset.column(13).search($(this).val(), false, true, false).draw();
+        });
+
+        $('#optAszCategoryId').on('change', function () {
+            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+        });
+
+        $('#optAszTypeId').on('change', function () {
+            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+        });
+
         let cntAsset;
         let btnAssetOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntAsset = 1;
                         }
-                        if (column === 3) {
+                        if (column === 10) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -134,13 +181,23 @@ function MainAsset() {
                     text:      '<i class="fas fa-file-pdf"></i>',
                     title:     'GEMS 2.0 - Asset List',
                     titleAttr: 'Pdf',
+                    orientation: 'landscape',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 })
             ]
         }).container().appendTo($('#btnDtAszAssetExport'));
 
+        $('#optAszContractId').on('change', function () {
+            $('#optAszGroupId').val(null);
+            mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
+            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            oTableAsset.column(13).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+        });
+
         $('#btnAszAssetAdd').on('click', function () {
-            modalAssetClass.add();
+            sectionAssetClass.add();
         });
 
         $('#btnDtAszAssetRefresh').on('click', function () {
@@ -193,8 +250,32 @@ function MainAsset() {
         refStatus = _refStatus;
     };
 
-    this.setModalAssetClass = function (_modalAssetClass) {
-        modalAssetClass = _modalAssetClass;
+    this.setRefContract = function (_refContract) {
+        refContract = _refContract;
+    };
+
+    this.setRefAssetGroup = function (_refAssetGroup) {
+        refAssetGroup = _refAssetGroup;
+    };
+
+    this.setRefAssetCategory = function (_refAssetCategory) {
+        refAssetCategory = _refAssetCategory;
+    };
+
+    this.setRefAssetType = function (_refAssetType) {
+        refAssetType = _refAssetType;
+    };
+
+    this.setRefAssetBrand = function (_refAssetBrand) {
+        refAssetBrand = _refAssetBrand;
+    };
+
+    this.setRefAssetModel = function (_refAssetModel) {
+        refAssetModel = _refAssetModel;
+    };
+
+    this.setSectionAssetClass = function (_sectionAssetClass) {
+        sectionAssetClass = _sectionAssetClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {

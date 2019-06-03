@@ -99,6 +99,33 @@ class Class_assetBrand {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_assetBrand_groupList () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_asset_brand_group');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['assetBrandId'] = $dataLocal['asset_brand_id'];
+                $row_result['assetBrandName'] = $dataLocal['asset_brand_name'];
+                $row_result['assetBrandDesc'] = $this->fn_general->clear_null($dataLocal['asset_brand_desc']);
+                $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
+                $row_result['assetBrandTimeCreated'] = str_replace('-', '/', $dataLocal['asset_brand_time_created']);
+                $row_result['assetBrandStatus'] = $dataLocal['asset_brand_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 
     /**
      * @param $assetBrandId
