@@ -13,6 +13,8 @@ function SectionAssetDetails() {
     let refAssetBrand;
     let refAssetBrandGroup;
     let refAssetModel;
+    let refUser;
+    let formValidate;
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -66,7 +68,7 @@ function SectionAssetDetails() {
             }
         ];
 
-        let formValidate = new MzValidate('formAsz');
+        formValidate = new MzValidate('formAsz');
         formValidate.registerFields(vData);
 
         $('#formSsz').on('keyup change', function () {
@@ -96,13 +98,67 @@ function SectionAssetDetails() {
         });
     };
 
+    this.getDetails = function () {
+        const dataSsz = mzAjaxRequest('asset.php?assetId='+assetId, 'GET');
+        const registeredBy = dataSsz['assetRegisteredBy']!==''?refUser[dataSsz['assetRegisteredBy']]['userFullName']:'';
+        const assetGroupId = dataSsz['assetGroupId'];
+        const assetCategoryId = dataSsz['assetCategoryId'];
+        const assetTypeId = dataSsz['assetTypeId'];
+        const assetBrandId = dataSsz['assetBrandId'];
+        const assetModelId = dataSsz['assetModelId'];
+        const assetStatus = dataSsz['assetStatus'];
+
+        mzOption('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+        mzOption('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: assetGroupId, assetCategoryStatus: '1'}, 'required');
+        mzOption('optSszAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: assetCategoryId, assetTypeStatus: '1'}, 'required');
+        mzOption('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetTypeId: assetTypeId, assetBrandStatus: '1'}, 'required');
+        mzOption('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'}, 'required');
+
+        mzDisableSelect('optSszAssetGroupId', false);
+        mzDisableSelect('optSszAssetCategoryId', false);
+        mzDisableSelect('optSszAssetTypeId', false);
+        mzDisableSelect('optSszAssetBrandId', false);
+        mzDisableSelect('optSszAssetModelId', false);
+
+        mzSetFieldValue('SszAssetName', dataSsz['assetName'], 'text');
+        mzSetFieldValue('SszAssetCode', dataSsz['assetCode'], 'text');
+        mzSetFieldValue('SszAssetSerialNo', dataSsz['assetSerialNo'], 'text');
+        mzSetFieldValue('SszAssetDesc', dataSsz['assetDesc'], 'text');
+        mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
+        mzSetFieldValue('SszAssetCapacity', dataSsz['assetCapacity'], 'text');
+        mzSetFieldValue('SszAssetGroupId', assetGroupId, 'select', 'Asset Group *');
+        mzSetFieldValue('SszAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
+        mzSetFieldValue('SszAssetTypeId', assetTypeId, 'select', 'Asset Type *');
+        mzSetFieldValue('SszAssetBrandId', assetBrandId, 'select', 'Asset Brand *');
+        mzSetFieldValue('SszAssetModelId', assetModelId, 'select', 'Asset Model *');
+        mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
+        mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
+        mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
+
+        if (assetStatus === '5') {
+            $('#divSszQrCode').hide();
+            $('#txtSszAssetSerialNo').prop('disabled', false);
+            // enable txtSszAssetSerialNo
+        } else {
+            $('#divSszQrCode').show();
+            $('#txtSszAssetSerialNo').prop('disabled', true);
+            // disable txtSszAssetSerialNo
+        }
+    };
+
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         ShowLoader();
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractId]);
+                assetId = '2';
+                rowRefresh = '';
 
-                $('.sectionAszMain').hide();
+                self.getDetails();
+                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
+                // enable all
+
+                $('.sectionAszMain, #divSszRegisterInfo').hide();
                 $('.sectionAssetDetails').show();
                 $(window).scrollTop(0);
             } catch (e) {
@@ -120,28 +176,34 @@ function SectionAssetDetails() {
                 assetId = _assetId;
                 rowRefresh = _rowRefresh;
 
-                const dataSsz = mzAjaxRequest('asset.php?assetId='+assetId, 'GET');
-                console.log(dataSsz);
-                mzOption('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
-                mzOption('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: dataSsz['assetGroupId'], assetCategoryStatus: '1'}, 'required');
-                mzOption('optSszAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: dataSsz['assetCategoryId'], assetTypeStatus: '1'}, 'required');
-                mzOption('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetTypeId: dataSsz['assetTypeId'], assetBrandStatus: '1'}, 'required');
-                mzOption('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: dataSsz['assetBrandId'], assetTypeId: dataSsz['assetTypeId'], assetModelStatus: '1'}, 'required');
-
-                mzDisableSelect('optSszAssetGroupId', false);
-                mzDisableSelect('optSszAssetCategoryId', false);
-                mzDisableSelect('optSszAssetTypeId', false);
-                mzDisableSelect('optSszAssetBrandId', false);
-                mzDisableSelect('optSszAssetModelId', false);
-
-                mzSetFieldValue('SszAssetGroupId', dataSsz['assetGroupId'], 'select', 'Asset Group *');
-                mzSetFieldValue('SszAssetCategoryId', dataSsz['assetCategoryId'], 'select', 'Asset Category *');
-                mzSetFieldValue('SszAssetTypeId', dataSsz['assetTypeId'], 'select', 'Asset Type *');
-                mzSetFieldValue('SszAssetBrandId', dataSsz['assetBrandId'], 'select', 'Asset Brand *');
-                mzSetFieldValue('SszAssetModelId', dataSsz['assetModelId'], 'select', 'Asset Model *');
+                self.getDetails();
+                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
+                // enable all above
 
                 $('.sectionAszMain').hide();
-                $('.sectionAssetDetails').show();
+                $('.sectionAssetDetails, #divSszRegisterInfo').show();
+                $(window).scrollTop(0);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.view = function (_assetId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_assetId, _rowRefresh]);
+                assetId = _assetId;
+                rowRefresh = _rowRefresh;
+
+                self.getDetails();
+                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', true);
+                // disable all
+
+                $('.sectionAszMain').hide();
+                $('.sectionAssetDetails, #divSszRegisterInfo').show();
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -188,5 +250,9 @@ function SectionAssetDetails() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 }

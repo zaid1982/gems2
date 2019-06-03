@@ -201,6 +201,7 @@
                 const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
                 const refAssetBrandGroup_ = mzGetLocalArray('gems_assetBrandGroup', versionLocal_, 'assetBrandId');
                 const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
                 sectionAssetDetails_.setClassFrom(assetClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
@@ -211,6 +212,7 @@
                 sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
                 sectionAssetDetails_.setRefAssetBrandGroup(refAssetBrandGroup_);
                 sectionAssetDetails_.setRefAssetModel(refAssetModel_);
+                sectionAssetDetails_.setRefUser(refUser_);
                 sectionAssetDetails_.init();
 
                 assetClass_.setRefStatus(refStatus_);

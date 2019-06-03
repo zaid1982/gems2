@@ -197,7 +197,7 @@ function MainAsset() {
         });
 
         $('#btnAszAssetAdd').on('click', function () {
-            sectionAssetClass.add();
+            sectionAssetClass.add(contractId);
         });
 
         $('#btnDtAszAssetRefresh').on('click', function () {

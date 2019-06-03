@@ -18,14 +18,7 @@
                 <div class="card-body card-body-cascade">
                     <form id="formSsz">
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-4">
-                                    <input type="text" id="txtSszAssetCode" class="form-control">
-                                    <label for="txtSszAssetCode" id="lblSszAssetCode">Asset Code *</label>
-                                    <p class="font-small text-danger" id="txtSszAssetCodeErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="md-form md-outline mt-4">
                                     <input type="text" id="txtSszAssetName" class="form-control">
                                     <label for="txtSszAssetName" id="lblSszAssetName">Asset Name *</label>
@@ -34,10 +27,26 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCode" class="form-control">
+                                    <label for="txtSszAssetCode" id="lblSszAssetCode">Asset Code *</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCodeErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszSerialNo" class="form-control">
+                                    <label for="txtSszSerialNo" id="lblSszSerialNo">Asset Serial No. *</label>
+                                    <p class="font-small text-danger" id="txtSszSerialNoErr"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetDesc" class="form-control">
-                                    <label for="txtSszAssetDesc" id="lblSszAssetDesc">Asset Description *</label>
+                                    <label for="txtSszAssetDesc" id="lblSszAssetDesc">Asset Description</label>
                                     <p class="font-small text-danger" id="txtSszAssetDescErr"></p>
                                 </div>
                             </div>
@@ -91,7 +100,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" id="divSszRegisterInfo">
                             <div class="col-md-8">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
@@ -150,7 +159,7 @@
                     </dl>
                 </div>
             </div>
-            <div class="card profile-card mt-4">
+            <div class="card profile-card mt-4" id="divSszQrCode">
                 <div class="card-header teal lighten-4">
                     <h5 class="font-weight-bold text-center mt-2">QR Code</h5>
                 </div>
