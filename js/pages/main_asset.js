@@ -116,12 +116,25 @@ function MainAsset() {
                     {mData: 'assetId', visible: false},
                     {mData: 'assetGroupId', visible: false},
                     {mData: 'assetCategoryId', visible: false},
-                    {mData: 'assetTypeId', visible: false}
+                    {mData: 'assetTypeId', visible: false},
+                    {mData: 'assetStatus', visible: false}
                 ]
         });
         $("#dtAszAsset_filter").hide();
         $('#txtAszAssetSearch').on('keyup change', function () {
             oTableAsset.search($(this).val()).draw();
+        });
+        $('#linkAszAll').on('click', function () {
+            oTableAsset.column(16).search('').draw();
+        });
+        $('#linkAsz1').on('click', function () {
+            oTableAsset.column(16).search('1', false, true, false).draw();
+        });
+        $('#linkAsz2').on('click', function () {
+            oTableAsset.column(16).search('2', false, true, false).draw();
+        });
+        $('#linkAsz5').on('click', function () {
+            oTableAsset.column(16).search('5', false, true, false).draw();
         });
 
         $('#optAszGroupId').on('change', function () {
@@ -187,7 +200,7 @@ function MainAsset() {
             ]
         }).container().appendTo($('#btnDtAszAssetExport'));
 
-        oTableAsset.column(2).visible(false);
+        oTableAsset.column(1).visible(false);
         oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
 
@@ -232,6 +245,36 @@ function MainAsset() {
         //mzAjaxRequest('asset.php', 'GET', {Reportid: '1', 'Cache-Control': 'no-cache, no-transform'}, 'userManagementClass_.displayChart()');
         const dataAsset = mzAjaxRequest('asset.php', 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
+
+        let totalAll = 0;
+        let total1 = 0;
+        let total2 = 0;
+        let total5 = 0;
+
+        $.each(dataAsset, function (n, u) {
+            switch (u['assetStatus']) {
+                case '1':
+                    total1++;
+                    totalAll++;
+                    break;
+                case '2':
+                    total2++;
+                    totalAll++;
+                    break;
+                case '5':
+                    total5++;
+                    totalAll++;
+                    break;
+                default:
+                    totalAll++;
+            }
+        });
+
+        $('#linkAszAll').html('<span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
+        $('#linkAsz1').html('<span class="bullet yellow z-depth-2"></span> '+refStatus[1]['statusDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
+        $('#linkAsz2').html('<span class="bullet light-green z-depth-2"></span> '+refStatus[2]['statusDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
+        $('#linkAsz5').html('<span class="bullet blue-grey accent-2 z-depth-2"></span> '+refStatus[5]['statusDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
+
     };
 
     this.addTableAsz = function (_dataAdd) {
