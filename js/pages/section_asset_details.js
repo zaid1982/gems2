@@ -45,7 +45,7 @@ function SectionAssetDetails() {
                 }
             },
             {
-                field_id: 'txtSszSerialNo',
+                field_id: 'txtSszAssetSerialNo',
                 type: 'text',
                 name: 'Asset Serial No.',
                 validator: {
@@ -122,7 +122,7 @@ function SectionAssetDetails() {
         formValidate.registerFields(vData);
 
         $('#formSsz').on('keyup change', function () {
-            $('#butSszUpdate, #butSszSubmit').attr('disabled', !formValidate.validateForm());
+            $('#btnSszUpdate, #btnSszSubmit').attr('disabled', !formValidate.validateForm());
         });
 
         $('#optSszAssetGroupId').on('change', function () {
@@ -185,15 +185,7 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
 
-        if (assetStatus === '5') {
-            $('#divSszQrCode').hide();
-            $('#txtSszAssetSerialNo').prop('disabled', false);
-            // enable txtSszAssetSerialNo
-        } else {
-            $('#divSszQrCode').show();
-            $('#txtSszAssetSerialNo').prop('disabled', true);
-            // disable txtSszAssetSerialNo
-        }
+        return assetStatus;
     };
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
@@ -206,12 +198,14 @@ function SectionAssetDetails() {
 
                 formValidate.clearValidation();
                 self.getDetails();
+                $('#divSszQrCode').hide();
+                $('#txtSszAssetNo').prop('disabled', false);
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
-                // enable all
+                formValidate.enableField('txtSszAssetCode');
 
-                $('#butSszSubmit').prop('disabled', false);
-                $('.sectionAszMain, #divSszRegisterInfo').hide();
-                $('.sectionAssetDetails').show();
+                $('#btnSszSubmit').prop('disabled', false);
+                $('.sectionAszMain, #divSszRegisterInfo, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
+                $('.sectionAssetDetails, #btnSszSubmit, #btnSszSave').show();
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -229,11 +223,21 @@ function SectionAssetDetails() {
                 rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
-                self.getDetails();
+                const assetStatus = self.getDetails();
+                if (assetStatus === '5') {
+                    $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
+                    $('#btnSszSave, #btnSszSubmit').show();
+                    $('#txtSszAssetNo').prop('disabled', false);
+                    formValidate.enableField('txtSszAssetNo');
+                } else {
+                    $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint').show();
+                    $('#btnSszSave, #btnSszSubmit').hide();
+                    $('#txtSszAssetNo').prop('disabled', true);
+                    formValidate.disableField('txtSszAssetNo');
+                }
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
-                // enable all above
 
-                $('#butSszUpdate').prop('disabled', false);
+                $('#btnSszUpdate').prop('disabled', false);
                 $('.sectionAszMain').hide();
                 $('.sectionAssetDetails, #divSszRegisterInfo').show();
                 $(window).scrollTop(0);
@@ -254,11 +258,17 @@ function SectionAssetDetails() {
 
                 formValidate.clearValidation();
                 self.getDetails();
+                $('#divSszQrCode').show();
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', true);
-                // disable all
 
-                $('.sectionAszMain').hide();
-                $('.sectionAssetDetails, #divSszRegisterInfo').show();
+                mzDisableSelect('optSszAssetGroupId', true);
+                mzDisableSelect('optSszAssetCategoryId', true);
+                mzDisableSelect('optSszAssetTypeId', true);
+                mzDisableSelect('optSszAssetBrandId', true);
+                mzDisableSelect('optSszAssetModelId', true);
+
+                $('.sectionAszMain, #btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
+                $('.sectionAssetDetails, #divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

@@ -27,18 +27,18 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetNo" class="form-control">
                                     <label for="txtSszAssetNo" id="lblSszAssetNo">Asset No *</label>
                                     <p class="font-small text-danger" id="txtSszAssetNoErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSszSerialNo" class="form-control">
-                                    <label for="txtSszSerialNo" id="lblSszSerialNo">Asset Serial No.</label>
-                                    <p class="font-small text-danger" id="txtSszSerialNoErr"></p>
+                                    <input type="text" id="txtSszAssetSerialNo" class="form-control">
+                                    <label for="txtSszAssetSerialNo" id="lblSszAssetSerialNo">Asset Serial No.</label>
+                                    <p class="font-small text-danger" id="txtSszAssetSerialNoErr"></p>
                                 </div>
                             </div>
                         </div>
@@ -101,13 +101,13 @@
                             </div>
                         </div>
                         <div class="row" id="divSszRegisterInfo">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
                                     <label for="txtSszAssetRegisteredBy" id="lblSszAssetRegisteredBy">Registered By</label>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetTimeRegistered" class="form-control" disabled>
                                     <label for="txtSszAssetTimeRegistered" id="lblSszAssetTimeRegistered">Time Registered</label>
@@ -125,19 +125,19 @@
                     </form>
                 </div>
                 <div class="card-footer">
-                    <button type="button" id="butSszSubmit" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
+                    <button type="button" id="btnSszSubmit" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
                         <i class="fas fa-paper-plane mr-1"></i> Submit Asset
                     </button>
-                    <button type="button" id="butSszUpdate" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                    <button type="button" id="btnSszUpdate" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right" disabled>
                         <i class="fas fa-edit mr-1"></i> Update Asset
                     </button>
-                    <button type="button" id="butSszSave" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
+                    <button type="button" id="btnSszSave" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
                         <i class="fas fa-save mr-1"></i> Save Draft
                     </button>
-                    <button type="button" id="butSszQr" class="btn btn-outline-light-blue btn-rounded waves-effect btn-sm float-right">
+                    <button type="button" id="btnSszQr" class="btn btn-outline-light-blue btn-rounded waves-effect btn-sm float-right">
                         <i class="fas fa-qrcode mr-1"></i> Print QR Code
                     </button>
-                    <button type="button" id="butSszPrint" class="btn btn-outline-red btn-rounded waves-effect btn-sm float-right">
+                    <button type="button" id="btnSszPrint" class="btn btn-outline-red btn-rounded waves-effect btn-sm float-right">
                         <i class="fas fa-file-pdf mr-1"></i> Print Asset Information
                     </button>
                 </div>
