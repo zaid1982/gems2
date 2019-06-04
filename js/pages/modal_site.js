@@ -53,11 +53,7 @@ function ModalSite() {
         $('#modal_site').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMstSubmit').attr('disabled', true);
-
-            const selectorClientId = $('#optMstClientId');
-            selectorClientId.material_select('destroy');
-            selectorClientId.prop('disabled', false);
-            selectorClientId.material_select();
+            mzDisableSelect('optMstClientId', false);
         });
 
         $('#btnMstSubmit').on('click', function () {
@@ -144,10 +140,7 @@ function ModalSite() {
                 mzSetFieldValue('MstDesc', dataMst['siteDesc'], 'textarea');
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
-                const selectorClientId = $('#optMstClientId');
-                selectorClientId.material_select('destroy');
-                selectorClientId.prop('disabled', true);
-                selectorClientId.material_select();
+                mzDisableSelect('optMstClientId', true);
 
                 $('#lblMstTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Site');
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});

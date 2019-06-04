@@ -53,11 +53,7 @@ function ModalAssetCategory() {
         $('#modal_asset_category').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMzcSubmit').attr('disabled', true);
-
-            const selectorAssetGroupId = $('#optMzcAssetGroupId');
-            selectorAssetGroupId.material_select('destroy');
-            selectorAssetGroupId.prop('disabled', false);
-            selectorAssetGroupId.material_select();
+            mzDisableSelect('optMzcAssetGroupId', false);
         });
 
         $('#btnMzcSubmit').on('click', function () {
@@ -145,10 +141,7 @@ function ModalAssetCategory() {
                 mzSetFieldValue('MzcDesc', dataMzc['assetCategoryDesc'], 'textarea');
                 mzSetFieldValue('MzcStatus', dataMzc['assetCategoryStatus'], 'checkSingle', '1');
 
-                const selectorAssetGroupId = $('#optMzcAssetGroupId');
-                selectorAssetGroupId.material_select('destroy');
-                selectorAssetGroupId.prop('disabled', true);
-                selectorAssetGroupId.material_select();
+                mzDisableSelect('optMzcAssetGroupId', true);
 
                 $('#lblMzcTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Category');
                 $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});

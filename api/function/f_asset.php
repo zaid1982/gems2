@@ -85,7 +85,7 @@ class Class_asset {
             $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['assetId'] = $dataLocal['asset_id'];
-                $row_result['assetCode'] = $this->fn_general->clear_null($dataLocal['asset_code']);
+                $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
                 $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
@@ -125,7 +125,7 @@ class Class_asset {
             $result = array();
             $dataLocal = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
             $result['assetId'] = $dataLocal['asset_id'];
-            $result['assetCode'] = $this->fn_general->clear_null($dataLocal['asset_code']);
+            $result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
             $result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
             $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
             $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);

@@ -66,16 +66,8 @@ function ModalContract() {
         $('#modal_contract').on('hidden.bs.modal', function(){
             $('#btnMcrSubmit').attr('disabled', true);
             formValidate.clearValidation();
-
-            const selectorClientId = $('#optMcrClientId');
-            selectorClientId.material_select('destroy');
-            selectorClientId.prop('disabled', false);
-            selectorClientId.material_select();
-
-            const selectorSiteId = $('#optMcrSiteId');
-            selectorSiteId.material_select('destroy');
-            selectorSiteId.prop('disabled', false);
-            selectorSiteId.material_select();
+            mzDisableSelect('optMcrClientId', false);
+            mzDisableSelect('optMcrSiteId', false);
         });
 
         $('#btnMcrSubmit').on('click', function () {
@@ -167,15 +159,8 @@ function ModalContract() {
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');
                 mzSetFieldValue('McrStatus', dataMcr['contractStatus'], 'checkSingle', '1');
 
-                const selectorClientId = $('#optMcrClientId');
-                selectorClientId.material_select('destroy');
-                selectorClientId.prop('disabled', true);
-                selectorClientId.material_select();
-
-                const selectorSiteId = $('#optMcrSiteId');
-                selectorSiteId.material_select('destroy');
-                selectorSiteId.prop('disabled', true);
-                selectorSiteId.material_select();
+                mzDisableSelect('optMcrClientId', true);
+                mzDisableSelect('optMcrSiteId', true);
 
                 $('#lblMcrTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Contract');
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});

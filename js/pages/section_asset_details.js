@@ -27,6 +27,40 @@ function SectionAssetDetails() {
 
         const vData = [
             {
+                field_id: 'txtSszAssetName',
+                type: 'text',
+                name: 'Asset Name',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 150
+                }
+            },
+            {
+                field_id: 'txtSszAssetNo',
+                type: 'text',
+                name: 'Asset No',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszSerialNo',
+                type: 'text',
+                name: 'Asset Serial No.',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetDesc',
+                type: 'text',
+                name: 'Asset Description',
+                validator: {
+                    maxLength: 255
+                }
+            },
+            {
                 field_id: 'optSszAssetGroupId',
                 type: 'select',
                 name: 'Asset Group',
@@ -65,6 +99,22 @@ function SectionAssetDetails() {
                 validator: {
                     notEmpty: true
                 }
+            },
+            {
+                field_id: 'txtSszAssetLocationCode',
+                type: 'text',
+                name: 'Location Code',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetCapacity',
+                type: 'text',
+                name: 'Capacity',
+                validator: {
+                    maxLength: 30
+                }
             }
         ];
 
@@ -72,7 +122,7 @@ function SectionAssetDetails() {
         formValidate.registerFields(vData);
 
         $('#formSsz').on('keyup change', function () {
-            $('#butSszSubmit').attr('disabled', !formValidate.validateForm());
+            $('#butSszUpdate, #butSszSubmit').attr('disabled', !formValidate.validateForm());
         });
 
         $('#optSszAssetGroupId').on('change', function () {
@@ -121,7 +171,7 @@ function SectionAssetDetails() {
         mzDisableSelect('optSszAssetModelId', false);
 
         mzSetFieldValue('SszAssetName', dataSsz['assetName'], 'text');
-        mzSetFieldValue('SszAssetCode', dataSsz['assetCode'], 'text');
+        mzSetFieldValue('SszAssetNo', dataSsz['assetNo'], 'text');
         mzSetFieldValue('SszAssetSerialNo', dataSsz['assetSerialNo'], 'text');
         mzSetFieldValue('SszAssetDesc', dataSsz['assetDesc'], 'text');
         mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
@@ -154,10 +204,12 @@ function SectionAssetDetails() {
                 assetId = '2';
                 rowRefresh = '';
 
+                formValidate.clearValidation();
                 self.getDetails();
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
                 // enable all
 
+                $('#butSszSubmit').prop('disabled', false);
                 $('.sectionAszMain, #divSszRegisterInfo').hide();
                 $('.sectionAssetDetails').show();
                 $(window).scrollTop(0);
@@ -176,10 +228,12 @@ function SectionAssetDetails() {
                 assetId = _assetId;
                 rowRefresh = _rowRefresh;
 
+                formValidate.clearValidation();
                 self.getDetails();
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
                 // enable all above
 
+                $('#butSszUpdate').prop('disabled', false);
                 $('.sectionAszMain').hide();
                 $('.sectionAssetDetails, #divSszRegisterInfo').show();
                 $(window).scrollTop(0);
@@ -198,6 +252,7 @@ function SectionAssetDetails() {
                 assetId = _assetId;
                 rowRefresh = _rowRefresh;
 
+                formValidate.clearValidation();
                 self.getDetails();
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', true);
                 // disable all

@@ -85,11 +85,7 @@ function ModalAssetModel() {
         $('#modal_asset_model').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMzmSubmit').attr('disabled', true);
-
-            const selectorAssetBrandId = $('#optMzmAssetBrandId');
-            selectorAssetBrandId.material_select('destroy');
-            selectorAssetBrandId.prop('disabled', false);
-            selectorAssetBrandId.material_select();
+            mzDisableSelect('optMzmAssetBrandId', false);
         });
 
         $('#btnMzmSubmit').on('click', function () {
@@ -192,10 +188,7 @@ function ModalAssetModel() {
                     mzSetFieldValue('MzmDesc', dataMzm['assetModelDesc'], 'textarea');
                     mzSetFieldValue('MzmStatus', dataMzm['assetModelStatus'], 'checkSingle', '1');
 
-                    const selectorAssetBrandId = $('#optMzmAssetBrandId');
-                    selectorAssetBrandId.material_select('destroy');
-                    selectorAssetBrandId.prop('disabled', true);
-                    selectorAssetBrandId.material_select();
+                    mzDisableSelect('optMzmAssetBrandId', true);
 
                     $('#lblMzmTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Model');
                     $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});

@@ -78,7 +78,7 @@ function MainAsset() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'assetName'},
-                    {mData: 'assetCode'},
+                    {mData: 'assetNo'},
                     {mData: null, mRender: function (data, type, row){
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
@@ -106,7 +106,7 @@ function MainAsset() {
                             let label = '<a><i class="fas fa-edit lnkAszAssetEdit" id="lnkAszAssetEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
                             if (row['assetStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
-                            } else {
+                            } else if (row['assetStatus'] === '2') {
                                 label += '<a><i class="fas fa-toggle-on lnkAszAssetActivate" id="lnkAszAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
                             }
                             label += '<a><i class="fas fa-trash-alt lnkAszAssetDelete" id="lnkAszAssetDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
@@ -186,6 +186,20 @@ function MainAsset() {
                 })
             ]
         }).container().appendTo($('#btnDtAszAssetExport'));
+
+        oTableAsset.column(2).visible(false);
+        oTableAsset.column(8).visible(false);
+        oTableAsset.column(9).visible(false);
+
+        $('#optAszColumns').on('change', function () {
+            for (let i=1; i<=10; i++) {
+                oTableAsset.column(i).visible(false);
+            }
+            const selectedColumns = $(this).val();
+            $.each(selectedColumns, function (n, u) {
+                oTableAsset.column(parseInt(u)).visible(true);
+            });
+        });
 
         $('#optAszContractId').on('change', function () {
             $('#optAszGroupId').val(null);

@@ -46,17 +46,26 @@
                                 <h2 class="h2-responsive mb-0">Asset Management</h2>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <div class="card-body pt-3">
+                                <div class="px-3 pt-3">
+                                    <h6>Status:</h6>
+                                    <div class="mt-1 pb-2">
+                                        <ul class="striped list-unstyled pl-2">
+                                            <li><a href="javascript:void(0);"><span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">34</span></a></li>
+                                            <li><a href="javascript:void(0);"><span class="bullet light-green z-depth-2"></span> Active <span class="badge light-green float-right">32</span></a></li>
+                                            <li><a href="javascript:void(0);"><span class="bullet red accent-2 z-depth-2"></span> Inactive <span class="badge red accent-2 float-right">2</span></a></li>
+                                            <li><a href="javascript:void(0);"><span class="bullet cyan z-depth-2"></span> Draft <span class="badge cyan float-right">32</span></a></li>
+                                        </ul>
+                                    </div>
                                     <h6 class="pb-3">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
                                             <label for="optAszContractId">Contract *</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Group</option>
                                             </select>
                                             <label for="optAszGroupId">Asset Group</label>
@@ -64,7 +73,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Category</option>
                                             </select>
                                             <label for="optAszCategoryId">Asset Category</label>
@@ -72,23 +81,47 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Type</option>
                                             </select>
                                             <label for="optAszTypeId">Asset Type</label>
                                         </div>
                                     </div>
-                                    <div class="md-form md-outline mt-0">
-                                        <input type="text" id="txtAszAssetSearch" class="form-control">
-                                        <label for="txtAszAssetSearch" class="active">Keyword Search</label>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         <!--Chart-->
-                        <div class="col-xl-7 col-lg-12 mb-5">
-                            <div class="view view-cascade z-depth-4">
-                                <div id="chartAszLeaveByStatus" style="height: 450px; margin: 0"></div>
+                        <div class="col-xl-7 col-lg-12">
+                            <div class="view view-cascade z-depth-4 mb-3">
+                                <div id="chartAszLeaveByStatus" style="height: 517px; margin: 0"></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="px-3 pt-3">
+                                    <div class="row">
+                                        <div class="col-md-7 select-outline">
+                                            <select id="optAszColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                                <option value="" disabled>Choose Column Visibility</option>
+                                                <option value="1" selected>Asset Name</option>
+                                                <option value="2">Asset No</option>
+                                                <option value="3" selected>Asset Group</option>
+                                                <option value="4" selected>Asset Category</option>
+                                                <option value="5" selected>Asset Type</option>
+                                                <option value="6" selected>Brand</option>
+                                                <option value="7" selected>Model</option>
+                                                <option value="8">Capacity</option>
+                                                <option value="9">Location Code</option>
+                                                <option value="10" selected>Status</option>
+                                            </select>
+                                            <label for="optAszColumns">Columns Visibility</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtAszAssetSearch" class="form-control">
+                                                <label for="txtAszAssetSearch" class="active">Keyword Search</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -114,18 +147,18 @@
                                 <table id="dtAszAsset" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th scope="row" style="width: 4%">#</th>
-                                        <th>Asset Name</th>
-                                        <th>Asset Code</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset Category</th>
-                                        <th>Asset Type</th>
-                                        <th>Brand</th>
-                                        <th>Model</th>
-                                        <th>Capacity</th>
-                                        <th>Location Code</th>
-                                        <th style="width: 8%">Status</th>
-                                        <th style="width: 60px"></th>
+                                        <th scope="row" style="max-width: 30px">#</th>
+                                        <th style="min-width: 100px">Asset Name</th>
+                                        <th style="min-width: 130px">Asset No</th>
+                                        <th style="min-width: 80px">Asset Group</th>
+                                        <th style="min-width: 80px">Asset Category</th>
+                                        <th style="min-width: 80px">Asset Type</th>
+                                        <th style="min-width: 80px">Brand</th>
+                                        <th style="min-width: 80px">Model</th>
+                                        <th style="min-width: 80px">Capacity</th>
+                                        <th style="min-width: 100px">Location Code</th>
+                                        <th style="max-width: 70px">Status</th>
+                                        <th style="min-width: 60px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
