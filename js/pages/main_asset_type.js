@@ -97,11 +97,11 @@ function MainAssetType() {
                     {mData: 'totalModel',
                         mRender: function (data, type, row, meta) {
                             let label;
-                            if (data === 0) {
+                            //if (data === 0) {
                                 label = '<a class="trigger red lighten-1 text-white">'+data+'</a>';
-                            } else {
+                            //} else {
                                 label = '<a class="trigger cyan accent-4 text-white lnkAtyAssetTypeModel" id="lnkAtyAssetTypeTotal_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Model list">'+data+'</a>';
-                            }
+                            //}
                             return label;
                         }
                     },
@@ -113,9 +113,9 @@ function MainAssetType() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                            if (row['totalModel'] !== 0) {
+                            //if (row['totalModel'] !== 0) {
                                 label += '<a><i class="fas fa-list-ul lnkAtyAssetTypeModel" id="lnkAtyAssetTypeModel_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Model list"></i></a>&nbsp;&nbsp;';
-                            }
+                            //}
                             if (row['assetTypeStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {

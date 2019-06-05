@@ -275,6 +275,46 @@ function MainAsset() {
         $('#linkAsz2').html('<span class="bullet light-green z-depth-2"></span> '+refStatus[2]['statusDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
         $('#linkAsz5').html('<span class="bullet blue-grey accent-2 z-depth-2"></span> '+refStatus[5]['statusDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
 
+        self.displayChart(dataAsset);
+    };
+
+    this.displayChart = function (result) {
+        let chartData = [];
+        let chartDrill = [];
+        $.each(result, function (n, u) {
+            console.log(n+' - '+u);
+            console.log();
+        });
+
+        Highcharts.chart('chartAszAssetByType', {
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Total Asset by Category'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
+            },
+            credits:{
+                enabled:false
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y}',
+                        color: 'white'
+                    }
+                }
+            },
+            series: [{
+                name: 'Status',
+                data: chartData
+            }]
+        });
     };
 
     this.addTableAsz = function (_dataAdd) {
