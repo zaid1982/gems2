@@ -38,14 +38,16 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $assetName = filter_input(INPUT_POST, 'assetName');
-        $assetDesc = filter_input(INPUT_POST, 'assetDesc');
-        $assetStatus = filter_input(INPUT_POST, 'assetStatus');
+        $contractId = filter_input(INPUT_POST, 'contractId');
+        $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
+        $assetCategoryId = filter_input(INPUT_POST, 'assetCategoryId');
+        $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
 
         $params = array(
-            'assetName'=>$assetName,
-            'assetDesc'=>$assetDesc,
-            'assetStatus'=>$assetStatus
+            'contractId'=>$contractId,
+            'assetGroupId'=>$assetGroupId,
+            'assetCategoryId'=>$assetCategoryId,
+            'assetTypeId'=>$assetTypeId
         );
 
         Class_db::getInstance()->db_beginTransaction();

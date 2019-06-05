@@ -158,7 +158,7 @@
                                         <th style="min-width: 80px">Capacity</th>
                                         <th style="min-width: 100px">Location Code</th>
                                         <th style="max-width: 70px">Status</th>
-                                        <th style="min-width: 60px"></th>
+                                        <th style="min-width: 32px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -202,6 +202,8 @@
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <!-- Highchart -->
 <script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/themes/dark-blue.js"></script>
@@ -227,7 +229,6 @@
                 sectionAssetDetails_ = new SectionAssetDetails();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
@@ -235,10 +236,12 @@
                 const refAssetBrandGroup_ = mzGetLocalArray('gems_assetBrandGroup', versionLocal_, 'assetBrandId');
                 const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
 
                 sectionAssetDetails_.setClassFrom(assetClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
-                sectionAssetDetails_.setRefContract(refContract_);
                 sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
                 sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
                 sectionAssetDetails_.setRefAssetType(refAssetType_);
@@ -246,6 +249,9 @@
                 sectionAssetDetails_.setRefAssetBrandGroup(refAssetBrandGroup_);
                 sectionAssetDetails_.setRefAssetModel(refAssetModel_);
                 sectionAssetDetails_.setRefUser(refUser_);
+                sectionAssetDetails_.setRefContract(refContract_);
+                sectionAssetDetails_.setRefSite(refSite_);
+                sectionAssetDetails_.setRefClient(refClient_);
                 sectionAssetDetails_.init();
 
                 assetClass_.setRefStatus(refStatus_);

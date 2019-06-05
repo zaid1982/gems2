@@ -6,7 +6,6 @@ function SectionAssetDetails() {
     let rowRefresh = '';
     let classFrom;
     let refStatus;
-    let refContract;
     let refAssetGroup;
     let refAssetCategory;
     let refAssetType;
@@ -14,6 +13,9 @@ function SectionAssetDetails() {
     let refAssetBrandGroup;
     let refAssetModel;
     let refUser;
+    let refContract;
+    let refSite;
+    let refClient;
     let formValidate;
 
     this.init = function () {
@@ -156,6 +158,7 @@ function SectionAssetDetails() {
         const assetTypeId = dataSsz['assetTypeId'];
         const assetBrandId = dataSsz['assetBrandId'];
         const assetModelId = dataSsz['assetModelId'];
+        const contractId = dataSsz['contractId'];
         const assetStatus = dataSsz['assetStatus'];
 
         mzOption('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
@@ -185,12 +188,17 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
 
+        const siteId = refContract[contractId]['siteId'];
+        const clientId = refSite[siteId]['clientId'];
+        $('#lblSszContactName').html(refContract[contractId]['contractName']);
+        $('#lblSszSiteName').html(refSite[siteId]['siteName']);
+        $('#lblSszClientName').html(refClient[clientId]['clientName']);
         return assetStatus;
     };
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         ShowLoader();
-        setTimeout(function () {
+        setTimeout(function () {    alert(_assetGroupId);
             try {
                 mzCheckFuncParam([_contractId]);
                 assetId = '2';
@@ -289,10 +297,6 @@ function SectionAssetDetails() {
         refStatus = _refStatus;
     };
 
-    this.setRefContract = function (_refContract) {
-        refContract = _refContract;
-    };
-
     this.setRefAssetGroup = function (_refAssetGroup) {
         refAssetGroup = _refAssetGroup;
     };
@@ -317,7 +321,19 @@ function SectionAssetDetails() {
         refAssetModel = _refAssetModel;
     };
 
+    this.setRefContract = function (_refContract) {
+        refContract = _refContract;
+    };
+
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
+    };
+
+    this.setRefClient = function (_refClient) {
+        refClient = _refClient;
     };
 }

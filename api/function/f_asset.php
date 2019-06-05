@@ -163,25 +163,26 @@ class Class_asset {
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
             }
-            if (!array_key_exists('assetName', $params) || empty($params['assetName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetName empty');
+            if (!array_key_exists('contractId', $params) || empty($params['contractId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
             }
-            if (!array_key_exists('assetDesc', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
+            if (!array_key_exists('assetGroupId', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId not exist');
             }
-            if (!array_key_exists('assetStatus', $params) || empty($params['assetStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetStatus empty');
+            if (!array_key_exists('assetCategoryId', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
             }
-
-            $assetName = $params['assetName'];
-            $assetDesc = $params['assetDesc'];
-            $assetStatus = $params['assetStatus'];
-
-            if (Class_db::getInstance()->db_count('ast_asset', array('asset_name'=>$assetName)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR, 31);
+            if (!array_key_exists('assetTypeId', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
             }
 
-            return Class_db::getInstance()->db_insert('ast_asset', array('asset_name'=>$assetName, 'asset_desc'=>$assetDesc, 'asset_status'=>$assetStatus));
+            $contractId = $params['contractId'];
+            $assetGroupId = $params['assetGroupId'];
+            $assetCategoryId = $params['assetCategoryId'];
+            $assetTypeId = $params['assetTypeId'];
+
+            return Class_db::getInstance()->db_insert('ast_asset', array('contract_id'=>$contractId, 'asset_group_id'=>$assetGroupId, 'asset_category_id'=>$assetCategoryId,
+                'asset_type_id'=>$assetTypeId, 'asset_status'=>'5'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

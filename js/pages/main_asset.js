@@ -105,11 +105,12 @@ function MainAsset() {
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkAszAssetEdit" id="lnkAszAssetEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
                             if (row['assetStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-off lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>';
                             } else if (row['assetStatus'] === '2') {
-                                label += '<a><i class="fas fa-toggle-on lnkAszAssetActivate" id="lnkAszAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-on lnkAszAssetActivate" id="lnkAszAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>';
+                            } else if (row['assetStatus'] === '5') {
+                                label += '<a><i class="fas fa-trash-alt lnkAszAssetDelete" id="lnkAszAssetDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkAszAssetDelete" id="lnkAszAssetDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
                             return label;
                         }
                     },
@@ -224,7 +225,7 @@ function MainAsset() {
         });
 
         $('#btnAszAssetAdd').on('click', function () {
-            sectionAssetClass.add(contractId);
+            sectionAssetClass.add(contractId, $('#optAszGroupId').val(), $('#optAszCategoryId').val(), $('#optAszTypeId').val());
         });
 
         $('#btnDtAszAssetRefresh').on('click', function () {
@@ -238,11 +239,12 @@ function MainAsset() {
                 HideLoader();
             }, 300);
         });
+
         self.genTableAsz();
+        self.displayChart();
     };
 
     this.genTableAsz = function () {
-        //mzAjaxRequest('asset.php', 'GET', {Reportid: '1', 'Cache-Control': 'no-cache, no-transform'}, 'userManagementClass_.displayChart()');
         const dataAsset = mzAjaxRequest('asset.php', 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
 
@@ -274,16 +276,76 @@ function MainAsset() {
         $('#linkAsz1').html('<span class="bullet yellow z-depth-2"></span> '+refStatus[1]['statusDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
         $('#linkAsz2').html('<span class="bullet light-green z-depth-2"></span> '+refStatus[2]['statusDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
         $('#linkAsz5').html('<span class="bullet blue-grey accent-2 z-depth-2"></span> '+refStatus[5]['statusDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
-
-        self.displayChart(dataAsset);
     };
 
-    this.displayChart = function (result) {
+    this.displayChart = function () {
         let chartData = [];
-        let chartDrill = [];
-        $.each(result, function (n, u) {
-            console.log(n+' - '+u);
-            console.log();
+        let chartDrilldown = [];
+        let drilldowns = {};
+        let assetGroups = {};
+
+        const tableData = oTableAsset.data();
+        $.each(tableData, function (n, u) {
+            if (u['assetStatus'] === '1' && u['assetGroupId'] !== '' && u['assetCategoryId'] !== '' && u['assetTypeId'] !== '') {
+                const assetGroupId = u['assetGroupId'];
+                const assetCategoryId = u['assetCategoryId'];
+                const assetTypeId = u['assetTypeId'];
+                const assetGroupName = refAssetGroup[assetGroupId]['assetGroupName'];
+                const assetCategoryName = refAssetCategory[assetCategoryId]['assetCategoryName'];
+                const assetTypeName = refAssetType[assetTypeId]['assetTypeName'];
+
+                if (typeof assetGroups['group'+assetGroupId] !== 'undefined') {
+                    assetGroups['group'+assetGroupId]['y'] ++;
+                } else {
+                    assetGroups['group'+assetGroupId] = {name: assetGroupName, y: 1, drilldown: 'group'+assetGroupId};
+                }
+
+                if (typeof drilldowns['group'+assetGroupId] !== 'undefined') {
+                    if (typeof drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] !== 'undefined') {
+                        drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId]['y'] ++;
+                    } else {
+                        drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] = {name: assetCategoryName, y: 1, drilldown: 'category'+assetCategoryId};
+                    }
+                } else {
+                    drilldowns['group'+assetGroupId] = {
+                        name: 'Asset Category',
+                        data: [],
+                        datas: {},
+                        id: 'group'+assetGroupId
+                    };
+                    drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] = {name: assetCategoryName, y: 1, drilldown: 'category'+assetCategoryId};
+                }
+
+                if (typeof drilldowns['category'+assetCategoryId] !== 'undefined') {
+                    if (typeof drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] !== 'undefined') {
+                        drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId]['y'] ++;
+                    } else {
+                        drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] = {name: assetTypeName, y: 1};
+                    }
+                } else {
+                    drilldowns['category'+assetCategoryId] = {
+                        name: 'Asset Type',
+                        data: [],
+                        datas: {},
+                        id: 'category'+assetCategoryId
+                    };
+                    drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] = {name: assetTypeName, y: 1};
+                }
+            }
+        });
+
+        $.each(assetGroups, function (n, u) {
+            chartData.push(u);
+        });
+
+        $.each(drilldowns, function (n, u) {
+            let temp = [];
+            $.each(u['datas'], function (n2, u2) {
+                temp.push(u2);
+            });
+            u['data'] = temp;
+            delete u['datas'];
+            chartDrilldown.push(u);
         });
 
         Highcharts.chart('chartAszAssetByType', {
@@ -311,9 +373,12 @@ function MainAsset() {
                 }
             },
             series: [{
-                name: 'Status',
+                name: 'Asset Group',
                 data: chartData
-            }]
+            }],
+            drilldown: {
+                series: chartDrilldown
+            }
         });
     };
 
