@@ -157,7 +157,22 @@ function SectionAssetDetails() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
+                        const data = {
+                            action: 'save',
+                            assetName: $('#txtSszAssetName').val(),
+                            assetNo: $('#txtSszAssetNo').val(),
+                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
+                            assetDesc: $('#txtSszAssetDesc').val()
+                        };
 
+                        mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
+                        if (classFrom.getClassName() === 'MainAsset') {
+                            classFrom.updateTableAsz(data, rowRefresh);
+
+                            $('.sectionAssetDetails').hide();
+                            $('.sectionAszMain').show();
+                            $(window).scrollTop(0);
+                        }
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -234,7 +249,7 @@ function SectionAssetDetails() {
                     assetStatus: '5'
                 };
                 rowRefresh = classFrom.addTableAsz(tempRow);
-               
+
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').hide();

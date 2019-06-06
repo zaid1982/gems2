@@ -63,7 +63,9 @@ class Class_constant {
     const ERR_ASSET_MODEL_DEACTIVATE = 'Asset Model already inactive';
     const ERR_ASSET_MODEL_ACTIVATE = 'Asset Model already active';
     const ERR_ASSET_MODEL_DELETE_ASSET = 'Asset Model cannot be deleted because currently registered under Asset';
-    const ERR_ASSET_SIMILAR = 'Asset Code already exist in similar contract';
+    const ERR_ASSET_SUBMITTED = 'Asset already submitted';
+    const ERR_ASSET_SIMILAR = 'Asset No already exist in similar contract';
+    const ERR_ASSET_SIMILAR_SERIAL_NO = 'Asset Serial No already exist in similar contract';
     const ERR_ASSET_DEACTIVATE = 'Asset already inactive';
     const ERR_ASSET_ACTIVATE = 'Asset already active';
     const ERR_ASSET_DELETE_PPM = 'Asset cannot be deleted because currently registered under Preventive Maintenance';

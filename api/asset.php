@@ -70,28 +70,28 @@ try {
         $is_transaction = true;
 
         if ($action === 'save') {
-            //$fn_asset->update_asset($assetId, $put_vars);
-            $fn_general->save_audit('57', $jwt_data->userId, 'Asset = ' . $put_vars['assetName']);
+            $fn_asset->save_asset($assetId, $put_vars);
+            $fn_general->save_audit('57', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_SAVE;
         }
         else if ($action === 'submit') {
-            //$fn_asset->update_asset($assetId, $put_vars);
-            $fn_general->save_audit('58', $jwt_data->userId, 'Asset = ' . $put_vars['assetName']);
+            $fn_asset->submit_asset($assetId, $put_vars, $jwt_data->userId);
+            $fn_general->save_audit('58', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_REGISTER;
         }
         else if ($action === 'update') {
             $fn_asset->update_asset($assetId, $put_vars);
-            $fn_general->save_audit('59', $jwt_data->userId, 'Asset = ' . $put_vars['assetName']);
+            $fn_general->save_audit('59', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_EDIT;
         }
         else if ($action === 'deactivate') {
-            $assetName = $fn_asset->deactivate_asset($assetId);
-            $fn_general->save_audit('60', $jwt_data->userId, 'Asset = ' . $assetName);
+            $fn_asset->deactivate_asset($assetId);
+            $fn_general->save_audit('60', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_DEACTIVATE;
         }
         else if ($action === 'activate') {
-            $assetName = $fn_asset->activate_asset($assetId);
-            $fn_general->save_audit('61', $jwt_data->userId, 'Asset = ' . $assetName);
+            $fn_asset->activate_asset($assetId);
+            $fn_general->save_audit('61', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_ACTIVATE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
