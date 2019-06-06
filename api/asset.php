@@ -54,7 +54,7 @@ try {
         $is_transaction = true;
 
         $result = $fn_asset->create_asset($params);
-        $fn_general->save_audit('56', $jwt_data->userId, 'Asset = ' . $assetName);
+        $fn_general->save_audit('56', $jwt_data->userId, 'Asset Id = ' . $result);
 
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;

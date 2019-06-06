@@ -77,8 +77,12 @@ function MainAsset() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'assetName'},
-                    {mData: 'assetNo'},
+                    {mData: null, mRender: function (data, type, row){
+                            return typeof row['assetName'] !== 'undefined' ? row['assetName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return typeof row['assetNo'] !== 'undefined' ? row['assetNo'] : '';
+                        }},
                     {mData: null, mRender: function (data, type, row){
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
@@ -89,13 +93,17 @@ function MainAsset() {
                             return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['assetBrandId'] !== '' ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : '';
+                            return typeof row['assetBrandId'] !== 'undefined' &&  row['assetBrandId'] !== '' ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
+                            return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
                         }},
-                    {mData: 'assetCapacity'},
-                    {mData: 'assetLocationCode'},
+                    {mData: null, mRender: function (data, type, row){
+                            return typeof row['assetCapacity'] !== 'undefined' ? row['assetCapacity'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return typeof row['assetLocationCode'] !== 'undefined' ? row['assetLocationCode'] : '';
+                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['assetStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetStatus']]['statusDesc']+'</span></h6>';
@@ -233,6 +241,8 @@ function MainAsset() {
             setTimeout(function () {
                 try {
                     self.genTableAsz();
+                    self.displayStats();
+                    self.displayChart();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -241,19 +251,23 @@ function MainAsset() {
         });
 
         self.genTableAsz();
+        self.displayStats();
         self.displayChart();
     };
 
     this.genTableAsz = function () {
         const dataAsset = mzAjaxRequest('asset.php', 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
+    };
 
+    this.displayStats = function () {
         let totalAll = 0;
         let total1 = 0;
         let total2 = 0;
         let total5 = 0;
 
-        $.each(dataAsset, function (n, u) {
+        const tableData = oTableAsset.data();
+        $.each(tableData, function (n, u) {
             switch (u['assetStatus']) {
                 case '1':
                     total1++;
@@ -383,7 +397,10 @@ function MainAsset() {
     };
 
     this.addTableAsz = function (_dataAdd) {
-        oTableAsset.row.add(_dataAdd).draw();
+        const newRow = oTableAsset.row.add(_dataAdd).draw();
+        const newRowIndex = newRow.index();
+        alert (newRowIndex);
+        self.displayStats();
     };
 
     this.updateTableAsz = function (_dataEdit, _rowEdit) {

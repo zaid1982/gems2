@@ -148,6 +148,23 @@ function SectionAssetDetails() {
         $('#optSszAssetBrandId').on('change', function () {
             mzOption('optSszAssetModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: $(this).val(), assetTypeId: $('#optSszAssetTypeId').val(), assetModelStatus: '1'}, 'required');
         });
+
+        $('#btnSszSave').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidate.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    }
+                    else {
+
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
     };
 
     this.getDetails = function () {
@@ -198,12 +215,26 @@ function SectionAssetDetails() {
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         ShowLoader();
-        setTimeout(function () {    alert(_assetGroupId);
+        setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractId]);
-                assetId = '2';
-                rowRefresh = '';
 
+                const data = {
+                    contractId: _contractId,
+                    assetGroupId: _assetGroupId,
+                    assetCategoryId: _assetCategoryId,
+                    assetTypeId: _assetTypeId
+                };
+                assetId = mzAjaxRequest('asset.php', 'POST', data);
+                const tempRow = {
+                    assetId: assetId,
+                    assetGroupId: '',
+                    assetCategoryId: '',
+                    assetTypeId: '',
+                    assetStatus: '5'
+                };
+                rowRefresh = classFrom.addTableAsz(tempRow);
+               
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').hide();
