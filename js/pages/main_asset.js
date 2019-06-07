@@ -70,7 +70,7 @@ function MainAsset() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetId'], rowId, sectionAssetClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetId'], sectionAssetClass);
                     }
                 });
             },
@@ -434,17 +434,27 @@ function MainAsset() {
                 currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
                 currentRow['assetStatus'] = '1';
+                self.displayStats();
+            }
+            else if (_dataEdit['action'] === 'update') {
+                currentRow['assetName'] = _dataEdit['assetName'];
+                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
         }
         if (typeof _dataEdit['assetStatus'] !== 'undefined') {
             currentRow['assetStatus'] = _dataEdit['assetStatus'];
+            self.displayStats();
         }
         oTableAsset.row(_rowEdit).data(currentRow).draw();
         self.displayChart();
     };
 
-    this.deleteTableAsz = function (_rowDelete) {
-        oTableAsset.row(_rowDelete).remove().draw();
+    this.deleteTableAsz = function () {
+        //oTableAsset.row(_rowDelete).remove().draw();
+        self.genTableAsz();
+        self.displayStats();
     };
 
     this.getClassName = function () {

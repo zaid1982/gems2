@@ -205,14 +205,14 @@ function ModalContract() {
         }, 300);
     };
 
-    this.delete = function (_contractId, _rowRefresh) {
+    this.delete = function (_contractId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_contractId, _rowRefresh]);
+                mzCheckFuncParam([_contractId]);
                 mzAjaxRequest('contract.php?contractId='+_contractId, 'DELETE');
                 if (classFrom.getClassName() === 'MainContract') {
-                    classFrom.deleteTableCcr(_rowRefresh);
+                    classFrom.genTableCcr(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

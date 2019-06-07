@@ -185,14 +185,14 @@ function ModalSite() {
         }, 300);
     };
 
-    this.delete = function (_siteId, _rowRefresh) {
+    this.delete = function (_siteId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_siteId, _rowRefresh]);
+                mzCheckFuncParam([_siteId]);
                 mzAjaxRequest('site.php?siteId='+_siteId, 'DELETE');
                 if (classFrom.getClassName() === 'MainSite') {
-                    classFrom.deleteTableSte(_rowRefresh);
+                    classFrom.genTableSte(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

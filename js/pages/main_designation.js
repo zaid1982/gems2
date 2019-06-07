@@ -52,7 +52,7 @@ function MainDesignation() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableDesignation.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['designationId'], rowId, modalDesignationClass);
+                        modalConfirmDeleteClass.delete(currentRow['designationId'], modalDesignationClass);
                     }
                 });
             },
@@ -171,10 +171,6 @@ function MainDesignation() {
             currentRow['designationStatus'] = _dataEdit['designationStatus'];
         }
         oTableDesignation.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableDsg = function (_rowDelete) {
-        oTableDesignation.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

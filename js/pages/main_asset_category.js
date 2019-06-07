@@ -53,7 +53,7 @@ function MainAssetCategory() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAssetCategory.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetCategoryId'], rowId, modalAssetCategoryClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetCategoryId'], modalAssetCategoryClass);
                     }
                 });
             },
@@ -179,10 +179,6 @@ function MainAssetCategory() {
             currentRow['assetCategoryStatus'] = _dataEdit['assetCategoryStatus'];
         }
         oTableAssetCategory.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableAct = function (_rowDelete) {
-        oTableAssetCategory.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

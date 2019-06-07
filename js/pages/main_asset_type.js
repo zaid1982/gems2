@@ -61,7 +61,7 @@ function MainAssetType() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAssetType.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetTypeId'], rowId, modalAssetTypeClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetTypeId'], modalAssetTypeClass);
                     }
                 });
                 $('.lnkAtyAssetTypeModel').off('click').on('click', function () {
@@ -244,7 +244,7 @@ function MainAssetType() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAssetModel.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetModelId'], rowId, modalAssetModelClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetModelId'], modalAssetModelClass);
                     }
                 });
             },
@@ -374,10 +374,6 @@ function MainAssetType() {
         oTableAssetType.row(_rowEdit).data(currentRow).draw();
     };
 
-    this.deleteTableAty = function (_rowDelete) {
-        oTableAssetType.row(_rowDelete).remove().draw();
-    };
-
     this.genTableAtyModel = function (_type, _assetTypeId, _rowIdModel) {
         assetTypeId = _assetTypeId;
         rowIdModel = _rowIdModel;
@@ -411,8 +407,8 @@ function MainAssetType() {
         oTableAssetModel.row(_rowEdit).data(currentRow).draw();
     };
 
-    this.deleteTableAtyModel = function (_rowDelete) {
-        oTableAssetModel.row(_rowDelete).remove().draw();
+    this.deleteTableAtyModel = function () {
+        self.genTableAtyModel(1, assetTypeId, rowIdModel);
         const currentRow = oTableAssetType.row(rowIdModel).data();
         currentRow['totalModel'] = parseInt(currentRow['totalModel']) - 1;
         oTableAssetType.row(rowIdModel).data(currentRow).draw();

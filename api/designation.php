@@ -37,7 +37,7 @@ try {
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
         $designationDesc = filter_input(INPUT_POST, 'designationDesc');
-        $clientId = filter_input(INPUT_POST, 'clientId');
+        //$clientId = filter_input(INPUT_POST, 'clientId');
         $designationStatus = filter_input(INPUT_POST, 'designationStatus');
 
         $params = array(

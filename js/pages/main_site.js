@@ -53,7 +53,7 @@ function MainSite() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSite.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['siteId'], rowId, modalSiteClass);
+                        modalConfirmDeleteClass.delete(currentRow['siteId'], modalSiteClass);
                     }
                 });
             },
@@ -179,10 +179,6 @@ function MainSite() {
             currentRow['siteStatus'] = _dataEdit['siteStatus'];
         }
         oTableSite.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableSte = function (_rowDelete) {
-        oTableSite.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

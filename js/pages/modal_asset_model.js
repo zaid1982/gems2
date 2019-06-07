@@ -234,14 +234,14 @@ function ModalAssetModel() {
         }, 300);
     };
 
-    this.delete = function (_assetModelId, _rowRefresh) {
+    this.delete = function (_assetModelId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_assetModelId, _rowRefresh]);
+                mzCheckFuncParam([_assetModelId]);
                 mzAjaxRequest('asset_model.php?assetModelId='+_assetModelId, 'DELETE');
                 if (classFrom.getClassName() === 'MainAssetType') {
-                    classFrom.deleteTableAtyModel(_rowRefresh);
+                    classFrom.deleteTableAtyModel();
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

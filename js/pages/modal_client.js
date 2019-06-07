@@ -158,14 +158,14 @@ function ModalClient() {
         }, 300);
     };
 
-    this.delete = function (_clientId, _rowRefresh) {
+    this.delete = function (_clientId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_clientId, _rowRefresh]);
+                mzCheckFuncParam([_clientId]);
                 mzAjaxRequest('client.php?clientId='+_clientId, 'DELETE');
                 if (classFrom.getClassName() === 'MainClient') {
-                    classFrom.deleteTableCln(_rowRefresh);
+                    classFrom.genTableCln(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

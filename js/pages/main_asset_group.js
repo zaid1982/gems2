@@ -52,7 +52,7 @@ function MainAssetGroup() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAssetGroup.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetGroupId'], rowId, modalAssetGroupClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetGroupId'], modalAssetGroupClass);
                     }
                 });
             },
@@ -184,10 +184,6 @@ function MainAssetGroup() {
             currentRow['assetGroupStatus'] = _dataEdit['assetGroupStatus'];
         }
         oTableAssetGroup.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableAgr = function (_rowDelete) {
-        oTableAssetGroup.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

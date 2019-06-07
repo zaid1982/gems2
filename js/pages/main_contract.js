@@ -54,7 +54,7 @@ function MainContract() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableContract.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['contractId'], rowId, modalContractClass);
+                        modalConfirmDeleteClass.delete(currentRow['contractId'], modalContractClass);
                     }
                 });
             },
@@ -183,10 +183,6 @@ function MainContract() {
             currentRow['contractStatus'] = _dataEdit['contractStatus'];
         }
         oTableContract.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableCcr = function (_rowDelete) {
-        oTableContract.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

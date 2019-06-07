@@ -174,7 +174,7 @@
         <div class="includeHtml" id="h-section_asset_details"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_user"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
 
@@ -217,6 +217,7 @@
     let changePasswordClass_;
     let assetClass_;
     let sectionAssetDetails_;
+    let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -228,6 +229,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 assetClass_ = new MainAsset();
                 sectionAssetDetails_ = new SectionAssetDetails();
+                modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
@@ -262,6 +264,7 @@
                 assetClass_.setRefAssetBrand(refAssetBrand_);
                 assetClass_.setRefAssetModel(refAssetModel_);
                 assetClass_.setSectionAssetClass(sectionAssetDetails_);
+                assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 assetClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -273,6 +276,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

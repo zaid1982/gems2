@@ -52,7 +52,7 @@ function MainAssetBrand() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAssetBrand.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetBrandId'], rowId, modalAssetBrandClass);
+                        modalConfirmDeleteClass.delete(currentRow['assetBrandId'], modalAssetBrandClass);
                     }
                 });
             },
@@ -175,10 +175,6 @@ function MainAssetBrand() {
             currentRow['assetBrandStatus'] = _dataEdit['assetBrandStatus'];
         }
         oTableAssetBrand.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableAbr = function (_rowDelete) {
-        oTableAssetBrand.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {

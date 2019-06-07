@@ -418,7 +418,6 @@ class Class_asset {
             $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
             $contractId = $asset['contract_id'];
 
-
             if (!empty($put_vars['assetSerialNo']) && Class_db::getInstance()->db_count('ast_asset', array('asset_serial_no'=>$assetSerialNo, 'contract_id'=>$contractId, 'asset_id'=>'<>'.$assetId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR_SERIAL_NO, 31);
             }
@@ -491,7 +490,7 @@ class Class_asset {
             if (empty($assetId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
             }
-            if (Class_db::getInstance()->db_count('ast_asset', array('asset_id'=>$assetId)) == 0) {
+            if (Class_db::getInstance()->db_count('ast_asset', array('asset_id'=>$assetId, 'asset_status'=>'5')) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Asset data not exist');
             }
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {

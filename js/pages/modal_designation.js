@@ -46,7 +46,7 @@ function ModalDesignation() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const txtDesc = $('#txaMzgDesc').val();
+                        const txtDesc = $('#txtMdgDesc').val();
                         const statusVal = $("input[name='chkMdgStatus']").is(":checked") ? '1' : '2';
                         const data = {
                             designationDesc: txtDesc,
@@ -145,14 +145,14 @@ function ModalDesignation() {
         }, 300);
     };
 
-    this.delete = function (_designationId, _rowRefresh) {
+    this.delete = function (_designationId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_designationId, _rowRefresh]);
+                mzCheckFuncParam([_designationId]);
                 mzAjaxRequest('designation.php?designationId='+_designationId, 'DELETE');
                 if (classFrom.getClassName() === 'MainDesignation') {
-                    classFrom.deleteTableDsg(_rowRefresh);
+                    classFrom.genTableDsg(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

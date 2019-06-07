@@ -124,7 +124,7 @@ function SectionAssetDetails() {
         formValidate.registerFields(vData);
 
         $('#formSsz').on('keyup change', function () {
-            $('#btnSszUpdate, #btnSszSubmit').attr('disabled', !formValidate.validateForm());
+            $('#btnSszUpdate, #btnSszSubmit, #btnSszUpdate').attr('disabled', !formValidate.validateForm());
         });
 
         $('#optSszAssetGroupId').on('change', function () {
@@ -226,6 +226,39 @@ function SectionAssetDetails() {
                 HideLoader();
             }, 300);
         });
+
+        $('#btnSszUpdate').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidate.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    }
+                    else {
+                        const data = {
+                            action: 'update',
+                            assetName: $('#txtSszAssetName').val(),
+                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
+                            assetDesc: $('#txtSszAssetDesc').val(),
+                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                            assetCapacity: $('#txtSszAssetCapacity').val()
+                        };
+
+                        mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
+                        if (classFrom.getClassName() === 'MainAsset') {
+                            classFrom.updateTableAsz(data, rowRefresh);
+
+                            $('.sectionAssetDetails').hide();
+                            $('.sectionAszMain').show();
+                            $(window).scrollTop(0);
+                        }
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
     };
 
     this.getDetails = function () {
@@ -251,6 +284,12 @@ function SectionAssetDetails() {
         mzDisableSelect('optSszAssetTypeId', false);
         mzDisableSelect('optSszAssetBrandId', false);
         mzDisableSelect('optSszAssetModelId', false);
+
+        formValidate.enableField('optSszAssetGroupId');
+        formValidate.enableField('optSszAssetCategoryId');
+        formValidate.enableField('optSszAssetTypeId');
+        formValidate.enableField('optSszAssetBrandId');
+        formValidate.enableField('optSszAssetModelId');
 
         mzSetFieldValue('SszAssetName', dataSsz['assetName'], 'text');
         mzSetFieldValue('SszAssetNo', dataSsz['assetNo'], 'text');
@@ -304,7 +343,7 @@ function SectionAssetDetails() {
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
                 formValidate.enableField('txtSszAssetCode');
 
-                $('#btnSszSubmit').prop('disabled', false);
+                $('#btnSszSubmit').prop('disabled', true);
                 $('.sectionAszMain, #divSszRegisterInfo, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
                 $('.sectionAssetDetails, #btnSszSubmit, #btnSszSave').show();
                 $(window).scrollTop(0);
@@ -335,10 +374,22 @@ function SectionAssetDetails() {
                     $('#btnSszSave, #btnSszSubmit').hide();
                     $('#txtSszAssetNo').prop('disabled', true);
                     formValidate.disableField('txtSszAssetNo');
+
+                    mzDisableSelect('optSszAssetGroupId', true);
+                    mzDisableSelect('optSszAssetCategoryId', true);
+                    mzDisableSelect('optSszAssetTypeId', true);
+                    mzDisableSelect('optSszAssetBrandId', true);
+                    mzDisableSelect('optSszAssetModelId', true);
+
+                    formValidate.disableField('optSszAssetGroupId');
+                    formValidate.disableField('optSszAssetCategoryId');
+                    formValidate.disableField('optSszAssetTypeId');
+                    formValidate.disableField('optSszAssetBrandId');
+                    formValidate.disableField('optSszAssetModelId');
                 }
                 $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
 
-                $('#btnSszUpdate').prop('disabled', false);
+                $('#btnSszUpdate').prop('disabled', true);
                 $('.sectionAszMain').hide();
                 $('.sectionAssetDetails').show();
                 $(window).scrollTop(0);
@@ -371,6 +422,56 @@ function SectionAssetDetails() {
                 $('.sectionAszMain, #btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
                 $('.sectionAssetDetails, #divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
                 $(window).scrollTop(0);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.deactivate = function (_assetId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_assetId, _rowRefresh]);
+                mzAjaxRequest('asset.php?assetId='+_assetId, 'PUT', {action: 'deactivate'});
+                const tempRow = {assetStatus:'2'};
+                if (classFrom.getClassName() === 'MainAsset') {
+                    classFrom.updateTableAsz(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.activate = function (_assetId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_assetId, _rowRefresh]);
+                mzAjaxRequest('asset.php?assetId='+_assetId, 'PUT', {action: 'activate'});
+                const tempRow = {assetStatus:'1'};
+                if (classFrom.getClassName() === 'MainAsset') {
+                    classFrom.updateTableAsz(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.delete = function (_assetId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_assetId]);
+                mzAjaxRequest('asset.php?assetId='+_assetId, 'DELETE');
+                if (classFrom.getClassName() === 'MainAsset') {
+                    classFrom.deleteTableAsz();
+                }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }

@@ -186,14 +186,14 @@ function ModalAssetCategory() {
         }, 300);
     };
 
-    this.delete = function (_assetCategoryId, _rowRefresh) {
+    this.delete = function (_assetCategoryId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_assetCategoryId, _rowRefresh]);
+                mzCheckFuncParam([_assetCategoryId]);
                 mzAjaxRequest('asset_category.php?assetCategoryId='+_assetCategoryId, 'DELETE');
                 if (classFrom.getClassName() === 'MainAssetCategory') {
-                    classFrom.deleteTableAct(_rowRefresh);
+                    classFrom.genTableAct(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

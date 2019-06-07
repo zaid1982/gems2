@@ -1,7 +1,6 @@
 function ModalConfirmDelete() {
 
     let id;
-    let rowRefresh;
     let returnClass;
 
     this.init = function () {
@@ -16,8 +15,9 @@ function ModalConfirmDelete() {
                 case 'ModalAssetType':
                 case 'ModalAssetBrand':
                 case 'ModalAssetModel':
+                case 'SectionAssetDetails':
                     if (typeof returnClass !== 'undefined') {
-                        returnClass.delete(id, rowRefresh);
+                        returnClass.delete(id);
                     }
                     break;
                 //default:
@@ -27,17 +27,12 @@ function ModalConfirmDelete() {
         });
     };
 
-    this.delete = function (_id, _rowRefresh, _returnClass) {
+    this.delete = function (_id, _returnClass) {
         if (typeof _id === 'undefined' || _id === '') {
             toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
             return false;
         }
-        if (typeof _rowRefresh === 'undefined' || _rowRefresh === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
         id = _id;
-        rowRefresh = _rowRefresh;
         returnClass = typeof _returnClass !== 'undefined' ? _returnClass : '';
         $('#modal_confirm_delete').modal({backdrop: 'static', keyboard: false});
     };

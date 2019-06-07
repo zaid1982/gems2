@@ -158,14 +158,14 @@ function ModalAssetGroup() {
         }, 300);
     };
 
-    this.delete = function (_assetGroupId, _rowRefresh) {
+    this.delete = function (_assetGroupId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_assetGroupId, _rowRefresh]);
+                mzCheckFuncParam([_assetGroupId]);
                 mzAjaxRequest('asset_group.php?assetGroupId='+_assetGroupId, 'DELETE');
                 if (classFrom.getClassName() === 'MainAssetGroup') {
-                    classFrom.deleteTableAgr(_rowRefresh);
+                    classFrom.genTableAgr(1);
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

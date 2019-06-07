@@ -52,7 +52,7 @@ function MainClient() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableClient.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['clientId'], rowId, modalClientClass);
+                        modalConfirmDeleteClass.delete(currentRow['clientId'], modalClientClass);
                     }
                 });
             },
@@ -175,10 +175,6 @@ function MainClient() {
             currentRow['clientStatus'] = _dataEdit['clientStatus'];
         }
         oTableClient.row(_rowEdit).data(currentRow).draw();
-    };
-
-    this.deleteTableCln = function (_rowDelete) {
-        oTableClient.row(_rowDelete).remove().draw();
     };
 
     this.getClassName = function () {
