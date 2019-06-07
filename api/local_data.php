@@ -62,7 +62,6 @@ try {
             case 'gems_assetBrandGroup':
                 $result = $fn_assetBrand->get_assetBrand_groupList();
                 break;
-                break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');
         }

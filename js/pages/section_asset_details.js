@@ -10,13 +10,13 @@ function SectionAssetDetails() {
     let refAssetCategory;
     let refAssetType;
     let refAssetBrand;
-    let refAssetBrandGroup;
     let refAssetModel;
     let refUser;
     let refContract;
     let refSite;
     let refClient;
     let formValidate;
+    let versionLocal;
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -130,18 +130,19 @@ function SectionAssetDetails() {
         $('#optSszAssetGroupId').on('change', function () {
             mzOption('optSszAssetCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val(), assetCategoryStatus: '1'}, 'required');
             mzOption('optSszAssetTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetTypeId: '0'}, 'required');
-            mzOption('optSszAssetBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandId: '0'}, 'required');
+            mzOption('optSszAssetBrandId', refAssetType, 'All Asset Brand', 'assetTypeId', 'assetTypeName', {assetTypeId: '0'}, 'required');
             mzOption('optSszAssetModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetModelId: '0'}, 'required');
         });
 
         $('#optSszAssetCategoryId').on('change', function () {
             mzOption('optSszAssetTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val(), assetTypeStatus: '1'}, 'required');
-            mzOption('optSszAssetBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandId: '0'}, 'required');
+            mzOption('optSszAssetBrandId', refAssetType, 'All Asset Brand', 'assetBrandId', 'assetTypeName', {assetTypeId: '0'}, 'required');
             mzOption('optSszAssetModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetModelId: '0'}, 'required');
         });
 
         $('#optSszAssetTypeId').on('change', function () {
-            mzOption('optSszAssetBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName', {assetTypeId: $(this).val(), assetBrandStatus: '1'}, 'required');
+            const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: $(this).val()});
+            mzOption('optSszAssetBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'}, 'required');
             mzOption('optSszAssetModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetModelId: '0'}, 'required');
         });
 
@@ -153,32 +154,69 @@ function SectionAssetDetails() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
-                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
-                    }
-                    else {
-                        const data = {
-                            action: 'save',
-                            assetName: $('#txtSszAssetName').val(),
-                            assetNo: $('#txtSszAssetNo').val(),
-                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val(),
-                            assetGroupId: $('#optSszAssetGroupId').val(),
-                            assetCategoryId: $('#optSszAssetCategoryId').val(),
-                            assetTypeId: $('#optSszAssetTypeId').val(),
-                            assetBrandId: $('#optSszAssetBrandId').val(),
-                            assetModelId: $('#optSszAssetModelId').val()
-                        };
+                    const data = {
+                        action: 'save',
+                        assetName: $('#txtSszAssetName').val(),
+                        assetNo: $('#txtSszAssetNo').val(),
+                        assetSerialNo: $('#txtSszAssetSerialNo').val(),
+                        assetDesc: $('#txtSszAssetDesc').val(),
+                        assetGroupId: $('#optSszAssetGroupId').val(),
+                        assetCategoryId: $('#optSszAssetCategoryId').val() !== null ? $('#optSszAssetCategoryId').val() : '',
+                        assetTypeId: $('#optSszAssetTypeId').val() !== null ? $('#optSszAssetTypeId').val() : '',
+                        assetBrandId: $('#optSszAssetBrandId').val() !== null ? $('#optSszAssetBrandId').val() : '',
+                        assetModelId: $('#optSszAssetModelId').val() !== null ? $('#optSszAssetModelId').val() : '',
+                        assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                        assetCapacity: $('#txtSszAssetCapacity').val()
+                    };
 
-                        mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
-                        if (classFrom.getClassName() === 'MainAsset') {
-                            classFrom.updateTableAsz(data, rowRefresh);
+                    mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
+                    if (classFrom.getClassName() === 'MainAsset') {
+                        classFrom.updateTableAsz(data, rowRefresh);
 
-                            $('.sectionAssetDetails').hide();
-                            $('.sectionAszMain').show();
-                            $(window).scrollTop(0);
-                        }
+                        $('.sectionAssetDetails').hide();
+                        $('.sectionAszMain').show();
+                        $(window).scrollTop(0);
                     }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('#btnSszSubmit').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    //if (!formValidate.validateForm()) {
+                    //    toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    //}
+                    //else {
+                    alert($('#optSszAssetTypeId').val());
+                    const data = {
+                        action: 'save',
+                        assetName: $('#txtSszAssetName').val(),
+                        assetNo: $('#txtSszAssetNo').val(),
+                        assetSerialNo: $('#txtSszAssetSerialNo').val(),
+                        assetDesc: $('#txtSszAssetDesc').val(),
+                        assetGroupId: $('#optSszAssetGroupId').val(),
+                        assetCategoryId: $('#optSszAssetCategoryId').val(),
+                        assetTypeId: $('#optSszAssetTypeId').val(),
+                        assetBrandId: $('#optSszAssetBrandId').val(),
+                        assetModelId: $('#optSszAssetModelId').val(),
+                        assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                        assetCapacity: $('#txtSszAssetCapacity').val()
+                    };
+
+                    mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
+                    if (classFrom.getClassName() === 'MainAsset') {
+                        classFrom.updateTableAsz(data, rowRefresh);
+
+                        $('.sectionAssetDetails').hide();
+                        $('.sectionAszMain').show();
+                        $(window).scrollTop(0);
+                    }
+                    //}
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -201,7 +239,8 @@ function SectionAssetDetails() {
         mzOption('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
         mzOption('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: assetGroupId, assetCategoryStatus: '1'}, 'required');
         mzOption('optSszAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: assetCategoryId, assetTypeStatus: '1'}, 'required');
-        mzOption('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetTypeId: assetTypeId, assetBrandStatus: '1'}, 'required');
+        const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: assetTypeId});
+        mzOption('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'}, 'required');
         mzOption('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'}, 'required');
 
         mzDisableSelect('optSszAssetGroupId', false);
@@ -364,10 +403,6 @@ function SectionAssetDetails() {
         refAssetBrand = _refAssetBrand;
     };
 
-    this.setRefAssetBrandGroup = function (_refAssetBrandGroup) {
-        refAssetBrandGroup = _refAssetBrandGroup;
-    };
-
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
     };
@@ -386,5 +421,9 @@ function SectionAssetDetails() {
 
     this.setRefClient = function (_refClient) {
         refClient = _refClient;
+    };
+
+    this.setVersionLocal = function (_versionLocal) {
+        versionLocal = _versionLocal;
     };
 }

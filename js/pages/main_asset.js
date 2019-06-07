@@ -84,6 +84,9 @@ function MainAsset() {
                             return typeof row['assetNo'] !== 'undefined' ? row['assetNo'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
+                            return typeof row['assetSerialNo'] !== 'undefined' ? row['assetSerialNo'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
@@ -134,44 +137,46 @@ function MainAsset() {
             oTableAsset.search($(this).val()).draw();
         });
         $('#linkAszAll').on('click', function () {
-            oTableAsset.column(16).search('').draw();
+            oTableAsset.column(17).search('').draw();
         });
         $('#linkAsz1').on('click', function () {
-            oTableAsset.column(16).search('1', false, true, false).draw();
+            oTableAsset.column(17).search('1', false, true, false).draw();
         });
         $('#linkAsz2').on('click', function () {
-            oTableAsset.column(16).search('2', false, true, false).draw();
+            oTableAsset.column(17).search('2', false, true, false).draw();
         });
         $('#linkAsz5').on('click', function () {
-            oTableAsset.column(16).search('5', false, true, false).draw();
+            oTableAsset.column(17).search('5', false, true, false).draw();
         });
 
         $('#optAszGroupId').on('change', function () {
             mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
-            oTableAsset.column(13).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
         });
 
         $('#optAszCategoryId').on('change', function () {
+            $('#optAszTypeId').material_select('destroy');
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+            $('#optAszTypeId').material_select();
+            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
         });
 
         $('#optAszTypeId').on('change', function () {
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(16).search($(this).val(), false, true, false).draw();
         });
 
         let cntAsset;
         let btnAssetOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntAsset = 1;
                         }
-                        if (column === 10) {
+                        if (column === 11) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -210,6 +215,7 @@ function MainAsset() {
         }).container().appendTo($('#btnDtAszAssetExport'));
 
         oTableAsset.column(1).visible(false);
+        oTableAsset.column(3).visible(false);
         oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
 
@@ -227,9 +233,9 @@ function MainAsset() {
             $('#optAszGroupId').val(null);
             mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
-            oTableAsset.column(13).search($(this).val(), false, true, false).draw();
             oTableAsset.column(14).search($(this).val(), false, true, false).draw();
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(16).search($(this).val(), false, true, false).draw();
         });
 
         $('#btnAszAssetAdd').on('click', function () {
@@ -399,22 +405,30 @@ function MainAsset() {
     this.addTableAsz = function (_dataAdd) {
         const newRow = oTableAsset.row.add(_dataAdd).draw();
         const newRowIndex = newRow.index();
-        alert (newRowIndex);
         self.displayStats();
     };
 
     this.updateTableAsz = function (_dataEdit, _rowEdit) {
         const currentRow = oTableAsset.row(_rowEdit).data();
-        if (typeof _dataEdit['assetName'] !== 'undefined') {
-            currentRow['assetName'] = _dataEdit['assetName'];
-        }
-        if (typeof _dataEdit['assetDesc'] !== 'undefined') {
-            currentRow['assetDesc'] = _dataEdit['assetDesc'];
+        if (typeof _dataEdit['action'] !== 'undefined') {
+            if (_dataEdit['action'] === 'save') {
+                currentRow['assetName'] = _dataEdit['assetName'];
+                currentRow['assetNo'] = _dataEdit['assetNo'];
+                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
+                currentRow['assetGroupId'] = _dataEdit['assetGroupId'];
+                currentRow['assetCategoryId'] = _dataEdit['assetCategoryId'];
+                currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
+                currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
+                currentRow['assetModelId'] = _dataEdit['assetModelId'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
+            }
         }
         if (typeof _dataEdit['assetStatus'] !== 'undefined') {
             currentRow['assetStatus'] = _dataEdit['assetStatus'];
         }
         oTableAsset.row(_rowEdit).data(currentRow).draw();
+        self.displayChart();
     };
 
     this.deleteTableAsz = function (_rowDelete) {

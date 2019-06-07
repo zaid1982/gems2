@@ -975,8 +975,17 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
             }            
         }
     });
+    //let box = document.getElementById(name);
+    //while (box.firstChild) {
+    //    box.removeChild(box.firstChild);
+    //}
+
+    //console.log(htmlStr);
+    //console.log(htmlStr.join(''));
     //$('#' + name).material_select('destroy');
+    //$('#' + name).prop('disabled', true);
     document.getElementById(name).innerHTML = htmlStr.join('');
+    //$('#' + name).html(htmlStr.join(''));
     $('#' + name).val(null);
     //$('#' + name).material_select();
     //$('#'+name).prevAll('.select-dropdown').children('li:eq()').trigger('click');

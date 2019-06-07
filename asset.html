@@ -150,6 +150,7 @@
                                         <th scope="row" style="max-width: 30px">#</th>
                                         <th style="min-width: 100px">Asset Name</th>
                                         <th style="min-width: 130px">Asset No</th>
+                                        <th style="min-width: 130px">Asset Serial No</th>
                                         <th style="min-width: 80px">Asset Group</th>
                                         <th style="min-width: 80px">Asset Category</th>
                                         <th style="min-width: 80px">Asset Type</th>
@@ -158,7 +159,7 @@
                                         <th style="min-width: 80px">Capacity</th>
                                         <th style="min-width: 100px">Location Code</th>
                                         <th style="max-width: 70px">Status</th>
-                                        <th style="min-width: 32px"></th>
+                                        <th style="min-width: 42px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -233,7 +234,6 @@
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
-                const refAssetBrandGroup_ = mzGetLocalArray('gems_assetBrandGroup', versionLocal_, 'assetBrandId');
                 const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
@@ -246,12 +246,12 @@
                 sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
                 sectionAssetDetails_.setRefAssetType(refAssetType_);
                 sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
-                sectionAssetDetails_.setRefAssetBrandGroup(refAssetBrandGroup_);
                 sectionAssetDetails_.setRefAssetModel(refAssetModel_);
                 sectionAssetDetails_.setRefUser(refUser_);
                 sectionAssetDetails_.setRefContract(refContract_);
                 sectionAssetDetails_.setRefSite(refSite_);
                 sectionAssetDetails_.setRefClient(refClient_);
+                sectionAssetDetails_.setVersionLocal(versionLocal_)
                 sectionAssetDetails_.init();
 
                 assetClass_.setRefStatus(refStatus_);
