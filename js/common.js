@@ -912,6 +912,13 @@ function mzCmp(a, b) {
     return a[1].localeCompare(b[1]);
 }
 
+
+function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
+    $('#'+name).material_select('destroy');
+    mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort);
+    $('#'+name).material_select();
+}
+
 function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -922,13 +929,17 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     if (typeof isSort === 'undefined') {
         isSort = true;
     }
+
     const dataFilterArr = typeof filters === 'undefined' ? [] : filters;
-    let htmlStr = [];
-    
+    //let htmlStr = [];
+    let optionIndex = 0;
+    //document.getElementById(name).setAttribute('data-stop-refresh', 'false');
+    removeOptions(document.getElementById(name));
+    document.getElementById(name).options[optionIndex++] = new Option(defaultText, "", true, true);
+
     if (typeof type !== 'undefined' && type === 'required') {
-        htmlStr.push('<option value="" disabled selected>'+defaultText+'</option>');
-    } else {
-        htmlStr.push('<option value="" selected>'+defaultText+'</option>');
+        //htmlStr.push('<option value="" disabled selected>'+defaultText+'</option>');
+        document.getElementById(name).options[0].disabled = true;
     }
     
     let dataSort = [];
@@ -943,7 +954,7 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
             return a[valIndex].localeCompare(b[valIndex]);
         });
     }
-    
+
     $.each(dataSort, function (n, u) {
         if (typeof u !== 'undefined' && typeof u[keyIndex] !== 'undefined' && typeof u[valIndex] !== 'undefined') {
             if (dataFilterArr !== '') {
@@ -968,27 +979,30 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
                     }
                 }
                 if (filterCnt === keysFilter.length) {
-                    htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
+                    document.getElementById(name).options[optionIndex++] = new Option(u[valIndex], u[keyIndex]);
+                    //htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
                 }
             } else {
-                htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
+                document.getElementById(name).options[optionIndex++] = new Option(u[valIndex], u[keyIndex]);
+                //htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
             }            
         }
     });
-    //let box = document.getElementById(name);
-    //while (box.firstChild) {
-    //    box.removeChild(box.firstChild);
-    //}
 
-    //console.log(htmlStr);
-    //console.log(htmlStr.join(''));
-    //$('#' + name).material_select('destroy');
     //$('#' + name).prop('disabled', true);
-    document.getElementById(name).innerHTML = htmlStr.join('');
+    //document.getElementById(name).innerHTML = htmlStr.join('');
     //$('#' + name).html(htmlStr.join(''));
     $('#' + name).val(null);
-    //$('#' + name).material_select();
+    //document.getElementById(name).setAttribute('data-stop-refresh', 'true');
     //$('#'+name).prevAll('.select-dropdown').children('li:eq()').trigger('click');
+}
+
+function removeOptions(selectbox) {
+    let i;
+    for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
+    {
+        selectbox.remove(i);
+    }
 }
 
 function mzOptionArr(name, data, defaultText, valIndex, type) {

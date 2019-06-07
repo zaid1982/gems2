@@ -16,7 +16,7 @@ function MainAsset() {
 
     this.init = function () {
         mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
-        mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupDesc', {});
+        mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {
             if (typeof contract !== 'undefined') {
@@ -150,18 +150,19 @@ function MainAsset() {
         });
 
         $('#optAszGroupId').on('change', function () {
-            mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
-            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
+            mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
             oTableAsset.column(14).search($(this).val(), false, true, false).draw();
         });
 
         $('#optAszCategoryId').on('change', function () {
-            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            //$('#optAszTypeId').material_select('destroy');
+            mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            //$('#optAszTypeId').material_select();
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
         });
 
         $('#optAszTypeId').on('change', function () {
-            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
             oTableAsset.column(16).search($(this).val(), false, true, false).draw();
         });
 
