@@ -162,7 +162,12 @@ function SectionAssetDetails() {
                             assetName: $('#txtSszAssetName').val(),
                             assetNo: $('#txtSszAssetNo').val(),
                             assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val()
+                            assetDesc: $('#txtSszAssetDesc').val(),
+                            assetGroupId: $('#optSszAssetGroupId').val(),
+                            assetCategoryId: $('#optSszAssetCategoryId').val(),
+                            assetTypeId: $('#optSszAssetTypeId').val(),
+                            assetBrandId: $('#optSszAssetBrandId').val(),
+                            assetModelId: $('#optSszAssetModelId').val()
                         };
 
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
