@@ -348,6 +348,7 @@ class Class_asset {
                 'asset_location_code'=>$put_vars['assetLocationCode'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'asset_registered_by'=>$userId,
+                'asset_time_registered'=>'Now()',
                 'asset_status'=>'1'
             );
 

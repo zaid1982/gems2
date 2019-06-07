@@ -912,6 +912,19 @@ function mzCmp(a, b) {
     return a[1].localeCompare(b[1]);
 }
 
+function mzOptionStopClear(name, defaultText, type) {
+    $('#'+name).material_select('destroy');
+    if (name === '' || typeof name === 'undefined') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    removeOptions(document.getElementById(name));
+    document.getElementById(name).options[0] = new Option(defaultText, "", true, true);
+    if (typeof type !== 'undefined' && type === 'required') {
+        document.getElementById(name).options[0].disabled = true;
+    }
+    $('#'+name).val(null);
+    $('#'+name).material_select();
+}
 
 function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
     $('#'+name).material_select('destroy');
@@ -923,7 +936,7 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
-    if (name === '' || typeof data === 'undefined') {
+    if (name === '') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     if (typeof isSort === 'undefined') {
@@ -1053,12 +1066,14 @@ function mzSetFieldValue(name, value, type, label) {
             $('#lbl'+name).addClass('active');
         }
         else if (type === 'select') {
-            $('#opt' + name).val(value);
+            $('#opt'+name).material_select('destroy');
+            $('#opt'+name).val(value);
             //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
             $('#lbl'+name).html(label).addClass('active');
+            $('#opt'+name).material_select();
         }
         else if (type === 'textarea') {
-            $('#txa' + name).val(value);
+            $('#txa'+name).val(value);
             $('#lbl'+name).addClass('active');
         }
         else if (type === 'checkSingle') {
@@ -1066,7 +1081,7 @@ function mzSetFieldValue(name, value, type, label) {
         }
         else if (type === 'check') {
             for (let i = 0; i < value.length; i++) {
-                $('#chk' + name + value[i]).prop('checked', true);
+                $('#chk'+name+value[i]).prop('checked', true);
             }
         }
         else if (type === 'date') {
@@ -1085,7 +1100,7 @@ function mzSetFieldValue(name, value, type, label) {
             $('#lbl'+name).removeClass('active');
         }
         else if (type === 'textarea') {
-            $('#txa' + name).val('');
+            $('#txa'+name).val('');
             $('#lbl'+name).removeClass('active');
         }
     }

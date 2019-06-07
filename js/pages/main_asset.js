@@ -21,7 +21,8 @@ function MainAsset() {
         for(let contract of refContract) {
             if (typeof contract !== 'undefined') {
                 contractId = contract['contractId'];
-                mzSetFieldValue('AszContractId', contractId, 'select', 'Contract');
+                $('#optAszContractId').val(contractId);
+                $('#lblAszContractId').html('Contract').addClass('active');
                 break;
             }
         }
@@ -151,14 +152,13 @@ function MainAsset() {
 
         $('#optAszGroupId').on('change', function () {
             mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
-            mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            mzOptionStopClear('optAszTypeId', 'All Asset Type');
+            //mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
             oTableAsset.column(14).search($(this).val(), false, true, false).draw();
         });
 
         $('#optAszCategoryId').on('change', function () {
-            //$('#optAszTypeId').material_select('destroy');
             mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            //$('#optAszTypeId').material_select();
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
         });
 
@@ -421,6 +421,19 @@ function MainAsset() {
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
                 currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
+            }
+            else if (_dataEdit['action'] === 'submit') {
+                currentRow['assetName'] = _dataEdit['assetName'];
+                currentRow['assetNo'] = _dataEdit['assetNo'];
+                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
+                currentRow['assetGroupId'] = _dataEdit['assetGroupId'];
+                currentRow['assetCategoryId'] = _dataEdit['assetCategoryId'];
+                currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
+                currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
+                currentRow['assetModelId'] = _dataEdit['assetModelId'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
+                currentRow['assetStatus'] = '1';
             }
         }
         if (typeof _dataEdit['assetStatus'] !== 'undefined') {
