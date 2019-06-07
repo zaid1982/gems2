@@ -156,9 +156,7 @@ function MainAsset() {
         });
 
         $('#optAszCategoryId').on('change', function () {
-            $('#optAszTypeId').material_select('destroy');
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            $('#optAszTypeId').material_select();
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
         });
 
