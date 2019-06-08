@@ -139,6 +139,19 @@ class Class_sql
                         GROUP BY asset_type_id, asset_brand_id
                     ) asset_model
                 LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = asset_model.asset_brand_id";
+            } else if ($title === 'vw_checklist_by_type') {
+                $sql = "SELECT
+                    ast_asset_type.asset_type_id,
+                    ast_asset_category.asset_category_id,
+                    ast_asset_category.asset_group_id,
+                    group_checklist.total_checklist
+                FROM ast_asset_type
+                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset_type.asset_category_id
+                LEFT JOIN (
+                    SELECT asset_type_id, COUNT(*) AS total_checklist
+                    FROM ppm_checklist 
+                    GROUP BY asset_type_id
+                ) group_checklist ON group_checklist.asset_type_id = ast_asset_type.asset_type_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
