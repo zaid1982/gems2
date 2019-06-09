@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- WYSIWYG Editor -->
+    <link rel="stylesheet" href="css/addons-pro/wysiwyg.min.css">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
@@ -164,6 +166,7 @@
                 </section>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_checklist"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
@@ -193,6 +196,8 @@
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- WYSIWYG Editor -->
+<script type="text/javascript" src="js/addons-pro/wysiwyg.min.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -226,6 +231,10 @@
                 checklistClass_.setRefAssetCategory(refAssetCategory_);
                 checklistClass_.setRefAssetType(refAssetType_);
                 checklistClass_.init();
+
+                $("#txaSckPrecaution").mdbWYSIWYG({});
+
+                console.log($("#txaSckPrecaution").val());
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
