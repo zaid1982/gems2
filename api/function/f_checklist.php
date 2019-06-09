@@ -73,6 +73,10 @@ class Class_checklist {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_checklist_by_type () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
@@ -84,6 +88,36 @@ class Class_checklist {
                 $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
                 $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
                 $row_result['totalChecklist'] = $this->fn_general->clear_null($dataLocal['total_checklist'], '0');
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $assetTypeId
+     * @return array
+     * @throws Exception
+     */
+    public function get_checklist_list ($assetTypeId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_checklist', array('asset_type_id'=>$assetTypeId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['checklistId'] = $dataLocal['checklist_id'];
+                $row_result['checklistName'] = $this->fn_general->clear_null($dataLocal['checklist_name']);
+                $row_result['checklistVersion'] = $this->fn_general->clear_null($dataLocal['checklist_version']);
+                $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+                $row_result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
+                $row_result['checklistTimeRegistered'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_registered']));
+                $row_result['checklistTimeCreated'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_created']));
+                $row_result['checklistStatus'] = $dataLocal['checklist_status'];
                 array_push($result, $row_result);
             }
 

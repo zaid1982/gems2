@@ -81,8 +81,8 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtPcmAssetSearch" class="form-control">
-                                                <label for="txtPcmAssetSearch" class="active">Keyword Search</label>
+                                                <input type="text" id="txtPcmChecklistGroupSearch" class="form-control">
+                                                <label for="txtPcmChecklistGroupSearch" class="active">Keyword Search</label>
                                             </div>
                                         </div>
                                     </div>
@@ -137,7 +137,7 @@
                                    data-content="Checklist list by selected Asset Type."><i class="fas fa-info mt-0 mx-1"></i></a>
                                 <button type="button" id="btnDtPcmChecklistRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Checklist List - <span id=""></span></a>
+                            <a href="javascript:void(0);" class="text-white mx-3">Checklist List - <span id="lblPcmChecklistTitle" class="font-italic"></span></a>
                             <div>
                                 <div id="btnDtPcmChecklistExport"></div>
                             </div>
@@ -214,6 +214,17 @@
                 modalConfirmDelete_ = new ModalConfirmDelete();
                 checklistClass_ = new MainChecklist();
 
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+
+                checklistClass_.setRefStatus(refStatus_);
+                checklistClass_.setRefContract(refContract_);
+                checklistClass_.setRefAssetGroup(refAssetGroup_);
+                checklistClass_.setRefAssetCategory(refAssetCategory_);
+                checklistClass_.setRefAssetType(refAssetType_);
                 checklistClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

@@ -30,12 +30,14 @@ try {
     if ('GET' === $request_method) {
         $checklistId = filter_input(INPUT_GET, 'checklistId');
         $type = filter_input(INPUT_GET, 'type');
-        if (!is_null($checklistId)) {
-            //$result = $fn_checklist->get_checklist($checklistId);
-        } else if (!is_null($checklistId)) {
+        $assetTypeId = filter_input(INPUT_GET, 'assetTypeId');
+        if (!is_null($type)) {
+            if ($type === 'checklist_by_type')
             $result = $fn_checklist->get_checklist_by_type();
+        } else if (!is_null($checklistId)) {
+            //$result = $fn_checklist->get_checklist($checklistId);
         } else {
-            //$result = $fn_checklist->get_checklist_list();
+            $result = $fn_checklist->get_checklist_list($assetTypeId);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

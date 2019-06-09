@@ -73,7 +73,7 @@ function MainAssetType() {
                         ShowLoader();
                         setTimeout(function () {
                             try {
-                                self.genTableAtyModel(0, currentRow['assetTypeId'], rowId);
+                                self.genTableAtyModel(0, currentRow['assetTypeId'], rowId, currentRow['assetTypeName']);
                             } catch (e) {
                                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
                             }
@@ -374,15 +374,19 @@ function MainAssetType() {
         oTableAssetType.row(_rowEdit).data(currentRow).draw();
     };
 
-    this.genTableAtyModel = function (_type, _assetTypeId, _rowIdModel) {
+    this.genTableAtyModel = function (_type, _assetTypeId, _rowIdModel, _assetTypeName) {
         assetTypeId = _assetTypeId;
         rowIdModel = _rowIdModel;
+
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
+
         const refAssetModel = mzGetLocalRaw('gems_assetModel', versionLocal, {assetTypeId:assetTypeId}, 'asset_model');
         oTableAssetModel.clear().rows.add(refAssetModel).draw();
         modalAssetModelClass.setAssetTypeId(assetTypeId);
+
+        $('#lblAtyAssetModelTitle').html(_assetTypeName);
         $('.sectionAtyModel').show();
     };
 
