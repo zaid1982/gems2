@@ -14,7 +14,7 @@
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- WYSIWYG Editor -->
-    <link rel="stylesheet" href="css/addons-pro/wysiwyg.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
@@ -50,30 +50,24 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-10">
+                        <div class="col-md-8">
                             <div class="card-body card-body-cascade">
                                 <div class="px-3 pt-3">
                                     <h6 class="pb-3">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optPcmContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                            <label for="optPcmContractId">Contract *</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4 select-outline">
                                             <select id="optPcmGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Group</option>
                                             </select>
                                             <label for="optPcmGroupId">Asset Group</label>
                                         </div>
-                                        <div class="col-md-4 select-outline">
+                                        <div class="col-md-12 select-outline">
                                             <select id="optPcmCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Category</option>
                                             </select>
                                             <label for="optPcmCategoryId">Asset Category</label>
                                         </div>
-                                        <div class="col-md-4 select-outline">
+                                        <div class="col-md-12 select-outline">
                                             <select id="optPcmTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Type</option>
                                             </select>
@@ -81,7 +75,7 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-8">
+                                        <div class="col-md-12">
                                             <div class="md-form md-outline mt-0">
                                                 <input type="text" id="txtPcmChecklistGroupSearch" class="form-control">
                                                 <label for="txtPcmChecklistGroupSearch" class="active">Keyword Search</label>
@@ -197,7 +191,7 @@
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <!-- WYSIWYG Editor -->
-<script type="text/javascript" src="js/addons-pro/wysiwyg.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -207,6 +201,7 @@
     let changePasswordClass_;
     let modalConfirmDelete_;
     let checklistClass_;
+    let sectionChecklistClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -218,23 +213,29 @@
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
                 checklistClass_ = new MainChecklist();
+                sectionChecklistClass_ = new SectionChecklist();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+
+                sectionChecklistClass_.setClassFrom(checklistClass_);
+                sectionChecklistClass_.setRefStatus(refStatus_);
+                sectionChecklistClass_.setRefAssetGroup(refAssetGroup_);
+                sectionChecklistClass_.setRefAssetCategory(refAssetCategory_);
+                sectionChecklistClass_.setRefAssetType(refAssetType_);
+                sectionChecklistClass_.setRefUser(refUser_);
+                sectionChecklistClass_.init();
 
                 checklistClass_.setRefStatus(refStatus_);
-                checklistClass_.setRefContract(refContract_);
                 checklistClass_.setRefAssetGroup(refAssetGroup_);
                 checklistClass_.setRefAssetCategory(refAssetCategory_);
                 checklistClass_.setRefAssetType(refAssetType_);
+                checklistClass_.setSectionChecklistClass(sectionChecklistClass_);
+                checklistClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 checklistClass_.init();
-
-                $("#txaSckPrecaution").mdbWYSIWYG({});
-
-                console.log($("#txaSckPrecaution").val());
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -244,6 +245,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

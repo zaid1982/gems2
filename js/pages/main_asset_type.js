@@ -74,6 +74,8 @@ function MainAssetType() {
                         setTimeout(function () {
                             try {
                                 self.genTableAtyModel(0, currentRow['assetTypeId'], rowId, currentRow['assetTypeName']);
+                                const elmnt = document.getElementById("sectionAtyModel");
+                                elmnt.scrollIntoView();
                             } catch (e) {
                                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
                             }

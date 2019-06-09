@@ -124,6 +124,10 @@ function MzValidate(name) {
                 if (val === true && fieldSelector.length === 0)
                     return false;
                 break;
+            case 'notEmptySummernote':
+                if (val === true && fieldSelector.summernote('isEmpty'))
+                    return false;
+                break;
         }
         return true;
     };
@@ -194,6 +198,9 @@ function MzValidate(name) {
                         return false;
                     case 'notEmptyCheck':
                         msg += '<br>Please check at least 1 ' + name;
+                        return false;
+                    case 'notEmptySummernote':
+                        msg += '<br>Please fill in '+name;
                         return false;
                 }
             }
@@ -267,6 +274,16 @@ function MzValidate(name) {
         return result;
     };
 
+    this.validateSummernote = function () {
+        let result = true;
+        $.each(this.fields, function (n, u) {
+            if (u.enabled && u.type === 'summernote' && !validateFields(u.field_id, u.validator, u.name, u.type)) {
+                result = false;
+            }
+        });
+        return result;
+    };
+
     this.clearValidation = function () {
         $.each(this.fields, function (n, u) {
             let fieldSelector;
@@ -313,6 +330,9 @@ function MzValidate(name) {
             else if (u.type === 'file') {
                 fieldSelector.val('');
                 fieldLblSelector.html('').removeClass('active');
+            }
+            else if (u.type === 'summernote') {
+                fieldSelector.summernote('code', '');
             }
             fieldSelector.removeClass('invalid');
             fieldErrSelector.html('');

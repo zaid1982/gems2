@@ -4,29 +4,18 @@ function MainChecklist() {
     let self = this;
     let modalConfirmDeleteClass;
     let refStatus;
-    let refContract;
     let refAssetGroup;
     let refAssetCategory;
     let refAssetType;
     let oTableChecklistGroup;
     let oTableChecklist;
-    let contractId;
     let assetTypeIdSelected;
     let rowIdChecklistGroup;
+    let sectionChecklistClass;
 
     this.init = function () {
         $('#divPcmChecklistSelected').hide();
-        mzOption('optPcmContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
         mzOption('optPcmGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
-
-        for(let contract of refContract) {
-            if (typeof contract !== 'undefined') {
-                contractId = contract['contractId'];
-                $('#optPcmContractId').val(contractId);
-                $('#lblPcmContractId').html('Contract').addClass('active');
-                break;
-            }
-        }
 
         oTableChecklistGroup =  $('#dtPcmChecklistGroup').DataTable({
             bLengthChange: false,
@@ -48,6 +37,8 @@ function MainChecklist() {
                         setTimeout(function () {
                             try {
                                 self.genTablePcmChecklist(currentRow['assetTypeId'], rowId);
+                                const elmnt = document.getElementById("divPcmChecklistSelected");
+                                elmnt.scrollIntoView();
                             } catch (e) {
                                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
                             }
@@ -251,6 +242,11 @@ function MainChecklist() {
             ]
         }).container().appendTo($('#btnDtPcmChecklistExport'));
 
+        $('#btnPcmChecklistAdd').on('click', function () {
+            sectionChecklistClass.add(assetTypeIdSelected);
+        });
+
+
         $('#btnDtPcmChecklistRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -295,10 +291,6 @@ function MainChecklist() {
         refStatus = _refStatus;
     };
 
-    this.setRefContract = function (_refContract) {
-        refContract = _refContract;
-    };
-
     this.setRefAssetGroup = function (_refAssetGroup) {
         refAssetGroup = _refAssetGroup;
     };
@@ -309,6 +301,10 @@ function MainChecklist() {
 
     this.setRefAssetType = function (_refAssetType) {
         refAssetType = _refAssetType;
+    };
+
+    this.setSectionChecklistClass = function (_sectionChecklistClass) {
+        sectionChecklistClass = _sectionChecklistClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {

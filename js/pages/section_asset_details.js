@@ -19,7 +19,9 @@ function SectionAssetDetails() {
     let versionLocal;
 
     this.init = function () {
-        $('.sectionAssetDetails').hide();
+        if (classFrom.getClassName() === 'MainAsset') {
+            $('.sectionAssetDetails').hide();
+        }
 
         $('#btnSszBack').on('click', function () {
             $('.sectionAssetDetails').hide();
@@ -124,7 +126,7 @@ function SectionAssetDetails() {
         formValidate.registerFields(vData);
 
         $('#formSsz').on('keyup change', function () {
-            $('#btnSszUpdate, #btnSszSubmit, #btnSszUpdate').attr('disabled', !formValidate.validateForm());
+            $('#btnSszSubmit, #btnSszUpdate').attr('disabled', !formValidate.validateForm());
         });
 
         $('#optSszAssetGroupId').on('change', function () {
