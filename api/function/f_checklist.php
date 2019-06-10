@@ -177,4 +177,61 @@ class Class_checklist {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $checklistId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function save_checklist ($checklistId, $put_vars) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['checklistName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
+            }
+            if (!isset($put_vars['checklistVersion'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+            }
+            if (!isset($put_vars['checklistDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc empty');
+            }
+            if (!isset($put_vars['checklistGuideline'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
+            }
+
+            $checklistName = $put_vars['checklistName'];
+            $checklistVersion = $put_vars['checklistVersion'];
+            $updateArr = array(
+                'checklist_name'=>$checklistName,
+                'checklist_version'=>$checklistVersion,
+                'checklist_desc'=>$put_vars['checklistDesc'],
+                'checklist_guideline'=>$put_vars['checklistGuideline']
+            );
+
+            $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            $assetTypeId = $checklist['asset_type_id'];
+
+            if ($checklist['checklist_status'] != '5') {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SUBMITTED, 31);
+            }
+            if (!empty($put_vars['checklistNo']) && Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

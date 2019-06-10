@@ -54,6 +54,46 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $checklistId = filter_input(INPUT_GET, 'checklistId');
+        $put_data = file_get_contents("php://input");
+        parse_str($put_data, $put_vars);
+        $action = $put_vars['action'];
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'save') {
+            $fn_checklist->save_checklist($checklistId, $put_vars);
+            $fn_general->save_audit('64', $jwt_data->userId, 'Checklist Id = ' . $result);
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_SAVE;
+        }
+        else if ($action === 'submit') {
+
+            $fn_general->save_audit('65', $jwt_data->userId, 'Checklist Id = ' . $result);
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_REGISTER;
+        }
+        else if ($action === 'update') {
+
+            $fn_general->save_audit('66', $jwt_data->userId, 'Checklist Id = ' . $result);
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_EDIT;
+        }
+        else if ($action === 'deactivate') {
+
+            $fn_general->save_audit('67', $jwt_data->userId, 'Checklist Id = ' . $result);
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_DEACTIVATE;
+        }
+        else if ($action === 'activate') {
+
+            $fn_general->save_audit('68', $jwt_data->userId, 'Checklist Id = ' . $result);
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_ACTIVATE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

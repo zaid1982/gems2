@@ -13,9 +13,7 @@ function SectionChecklist() {
     let formValidate;
 
     this.init = function () {
-        if (classFrom.getClassName() === 'MainChecklist') {
-            $('.sectionChecklist').hide();
-        }
+        $('.sectionChecklist').hide();
 
         $('#btnSckBack').on('click', function () {
             $('.sectionChecklist').hide();
@@ -106,7 +104,21 @@ function SectionChecklist() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    formValidate.clearValidation();
+                    const data = {
+                        action: 'save',
+                        checklistName: $('#txtSckChecklistName').val(),
+                        checklistVersion: $('#txtSckChecklistVersion').val(),
+                        checklistDesc: $('#txaSckChecklistDesc').val(),
+                        checklistGuideline: $('#txaSckChecklistGuideline').summernote('code'),
+                    };
+
+                    mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
+                    if (classFrom.getClassName() === 'MainChecklist') {
+                        classFrom.updateTablePcmChecklist(data, rowRefresh);
+                        $('.sectionPcmMain').show();
+                    }
+                    $('.sectionChecklist').hide();
+                    $(window).scrollTop(0);
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -143,8 +155,8 @@ function SectionChecklist() {
 
         mzSetFieldValue('SckChecklistName', dataSck['checklistName'], 'text');
         mzSetFieldValue('SckChecklistVersion', dataSck['checklistVersion'], 'text');
-        mzSetFieldValue('SckChecklistDesc', dataSck['checklistDesc'], 'text');
-        mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'text');
+        mzSetFieldValue('SckChecklistDesc', dataSck['checklistDesc'], 'textarea');
+        mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'summernote');
         mzSetFieldValue('SckAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
         mzSetFieldValue('SckAssetCategoryName', refAssetCategory[assetCategoryId]['assetCategoryName'], 'text');
         mzSetFieldValue('SckAssetGroupName', refAssetGroup[assetGroupId]['assetGroupName'], 'text');
@@ -176,10 +188,15 @@ function SectionChecklist() {
                 self.getDetails();
                 $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
                 $('#txaSckChecklistGuideline').summernote('enable');
+                $('#divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
 
-                $('#btnSckSubmit').prop('disabled', true);
-                $('.sectionPcmMain, #btnSckUpdate').hide();
+                $('#btnSckUpdate').hide();
                 $('.sectionChecklist, #btnSckSubmit, #btnSckSave').show();
+                $('#btnSckSubmit').prop('disabled', true);
+
+                if (classFrom.getClassName() === 'MainChecklist') {
+                    $('.sectionPcmMain').hide();
+                }
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -188,6 +205,41 @@ function SectionChecklist() {
         }, 300);
     };
 
+    this.edit = function (_checklistId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_checklistId, _rowRefresh]);
+                checklistId = _checklistId;
+                rowRefresh = _rowRefresh;
+
+                formValidate.clearValidation();
+                const checklistStatus = self.getDetails();
+                if (checklistStatus === '5') {
+                    $('#btnSckUpdate, #divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
+                    $('#btnSckSubmit, #btnSckSave').show();
+                    $('#btnSckSubmit').prop('disabled', true);
+                } else {
+                    $('#btnSckSubmit, #btnSckSave').hide();
+                    $('#btnSckUpdate, #divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').show();
+                    $('#btnSckSubmit').prop('disabled', true);
+                }
+
+                $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
+                $('#txaSckChecklistGuideline').summernote('enable');
+                $('#btnSckUpdate').prop('disabled', true);
+                $('.sectionChecklist').show();
+
+                if (classFrom.getClassName() === 'MainChecklist') {
+                    $('.sectionPcmMain').hide();
+                }
+                $(window).scrollTop(0);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
     this.getClassName = function () {
         return className;
     };

@@ -63,12 +63,17 @@ class Class_constant {
     const ERR_ASSET_MODEL_DEACTIVATE = 'Asset Model already inactive';
     const ERR_ASSET_MODEL_ACTIVATE = 'Asset Model already active';
     const ERR_ASSET_MODEL_DELETE_ASSET = 'Asset Model cannot be deleted because currently registered under Asset';
-    const ERR_ASSET_SUBMITTED = 'Asset already submitted';
+    const ERR_ASSET_SUBMITTED = 'Asset already registered';
     const ERR_ASSET_SIMILAR = 'Asset No already exist in similar contract';
     const ERR_ASSET_SIMILAR_SERIAL_NO = 'Asset Serial No already exist in similar contract';
     const ERR_ASSET_DEACTIVATE = 'Asset already inactive';
     const ERR_ASSET_ACTIVATE = 'Asset already active';
     const ERR_ASSET_DELETE_PPM = 'Asset cannot be deleted because currently registered under Preventive Maintenance';
+    const ERR_CHECKLIST_SUBMITTED = 'Checklist already registered';
+    const ERR_CHECKLIST_SIMILAR = 'Checklist Name and Version already exist in similar Asset Type';
+    const ERR_CHECKLIST_DEACTIVATE = 'Checklist already inactive';
+    const ERR_CHECKLIST_ACTIVATE = 'Checklist already active';
+    const ERR_CHECKLIST_DELETE_PPM = 'Checklist cannot be deleted because currently registered under Preventive Maintenance';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -125,5 +130,11 @@ class Class_constant {
     const SUC_ASSET_DEACTIVATE = 'Asset successfully deactivated';
     const SUC_ASSET_ACTIVATE = 'Asset successfully activated';
     const SUC_ASSET_DELETE = 'Asset successfully deleted';
+    const SUC_CHECKLIST_SAVE = 'Checklist successfully saved';
+    const SUC_CHECKLIST_REGISTER = 'Checklist successfully registered';
+    const SUC_CHECKLIST_EDIT = 'Checklist successfully updated';
+    const SUC_CHECKLIST_DEACTIVATE = 'Checklist successfully deactivated';
+    const SUC_CHECKLIST_ACTIVATE = 'Checklist successfully activated';
+    const SUC_CHECKLIST_DELETE = 'Checklist successfully deleted';
 
 }

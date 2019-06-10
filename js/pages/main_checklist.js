@@ -166,6 +166,42 @@ function MainChecklist() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkPcmChecklistEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                        sectionChecklistClass.edit(currentRow['checklistId'], rowId);
+                    }
+                });
+                $('.lnkPcmChecklistDeactivate').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                        sectionChecklistClass.deactivate(currentRow['checklistId'], rowId);
+                    }
+                });
+                $('.lnkPcmChecklistActivate').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                        sectionChecklistClass.activate(currentRow['checklistId'], rowId);
+                    }
+                });
+                $('.lnkPcmChecklistDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['checklistId'], sectionChecklistClass);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -285,6 +321,23 @@ function MainChecklist() {
 
     this.addTablePcmChecklist = function (_dataAdd) {
         oTableChecklist.row.add(_dataAdd).draw();
+    };
+
+    this.updateTablePcmChecklist = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableChecklist.row(_rowEdit).data();
+        if (typeof _dataEdit['action'] !== 'undefined') {
+            currentRow['checklistName'] = _dataEdit['checklistName'];
+            currentRow['checklistVersion'] = _dataEdit['checklistVersion'];
+            currentRow['checklistDesc'] = _dataEdit['checklistDesc'];
+            if (_dataEdit['action'] === 'submit') {
+                currentRow['checklistStatus'] = '1';
+            }
+        }
+        if (typeof _dataEdit['checklistStatus'] !== 'undefined') {
+            currentRow['checklistStatus'] = _dataEdit['checklistStatus'];
+            self.displayStats();
+        }
+        oTableChecklist.row(_rowEdit).data(currentRow).draw();
     };
 
     this.getClassName = function () {
