@@ -403,7 +403,7 @@ function MainAsset() {
 
     this.addTableAsz = function (_dataAdd) {
         const newRow = oTableAsset.row.add(_dataAdd).draw();
-        const newRowIndex = newRow.index();
+        //const newRowIndex = newRow.index();
         self.displayStats();
     };
 

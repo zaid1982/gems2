@@ -1114,6 +1114,9 @@ function mzSetFieldValue(name, value, type, label) {
             const year = parseInt(dateSplit[0]);
             $('#txt'+name).pickadate('set').set('select', new Date(year, month, day));
         }
+        else if (type === 'summernote') {
+            $('#txa'+name).summernote('code', value);
+        }
     } else {
         if (type === 'text') {
             $('#txt'+name).val('');
@@ -1122,6 +1125,9 @@ function mzSetFieldValue(name, value, type, label) {
         else if (type === 'textarea') {
             $('#txa'+name).val('');
             $('#lbl'+name).removeClass('active');
+        }
+        else if (type === 'summernote') {
+            $('#txa'+name).summernote('code', '');
         }
     }
 }

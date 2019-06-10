@@ -287,6 +287,7 @@ function SectionAssetDetails() {
         mzDisableSelect('optSszAssetBrandId', false);
         mzDisableSelect('optSszAssetModelId', false);
 
+        formValidate.enableField('txtSszAssetNo');
         formValidate.enableField('optSszAssetGroupId');
         formValidate.enableField('optSszAssetCategoryId');
         formValidate.enableField('optSszAssetTypeId');

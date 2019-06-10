@@ -127,4 +127,54 @@ class Class_checklist {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    public function get_checklist ($checklistId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Array checklistId empty');
+            }
+
+            $result = array();
+            $dataLocal = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            $result['checklistId'] = $dataLocal['checklist_id'];
+            $result['checklistName'] = $this->fn_general->clear_null($dataLocal['checklist_name']);
+            $result['checklistVersion'] = $this->fn_general->clear_null($dataLocal['checklist_version']);
+            $result['checklistDesc'] = $this->fn_general->clear_null($dataLocal['checklist_desc']);
+            $result['checklistGuideline'] = $this->fn_general->clear_null($dataLocal['checklist_guideline']);
+            $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+            $result['checklistTimeRegistered'] = str_replace('-', '/', $dataLocal['checklist_time_registered']);
+            $result['checklistTimeCreated'] = str_replace('-', '/', $dataLocal['checklist_time_created']);
+            $result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
+            $result['checklistStatus'] = $dataLocal['checklist_status'];
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $assetTypeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function create_checklist ($assetTypeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($assetTypeId)) {
+                throw new Exception('[' . __LINE__ . '] - Array assetTypeId empty');
+            }
+
+            return Class_db::getInstance()->db_insert('ppm_checklist', array('asset_type_id'=>$assetTypeId, 'checklist_status'=>'5'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

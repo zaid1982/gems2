@@ -35,10 +35,23 @@ try {
             if ($type === 'checklist_by_type')
             $result = $fn_checklist->get_checklist_by_type();
         } else if (!is_null($checklistId)) {
-            //$result = $fn_checklist->get_checklist($checklistId);
+            $result = $fn_checklist->get_checklist($checklistId);
         } else {
             $result = $fn_checklist->get_checklist_list($assetTypeId);
         }
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $result = $fn_checklist->create_checklist($assetTypeId);
+        $fn_general->save_audit('63', $jwt_data->userId, 'Checklist Id = ' . $result);
+
+        Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {

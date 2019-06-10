@@ -283,6 +283,10 @@ function MainChecklist() {
         $('#divPcmChecklistSelected').show();
     };
 
+    this.addTablePcmChecklist = function (_dataAdd) {
+        oTableChecklist.row.add(_dataAdd).draw();
+    };
+
     this.getClassName = function () {
         return className;
     };

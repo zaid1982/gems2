@@ -57,6 +57,24 @@ function SectionChecklist() {
                 validator: {
                     notEmptySummernote: true
                 }
+            },
+            {
+                field_id: 'txtSckAssetGroupName',
+                type: 'text',
+                name: 'Asset Group',
+                validator: {}
+            },
+            {
+                field_id: 'txtSckAssetCategoryName',
+                type: 'text',
+                name: 'Asset Category',
+                validator: {}
+            },
+            {
+                field_id: 'txtSckAssetTypeName',
+                type: 'text',
+                name: 'Asset Type',
+                validator: {}
             }
         ];
 
@@ -116,16 +134,52 @@ function SectionChecklist() {
     };
 
     this.getDetails = function () {
+        const dataSck = mzAjaxRequest('checklist.php?checklistId='+checklistId, 'GET');
+        const registeredBy = dataSck['checklistRegisteredBy']!==''?refUser[dataSck['checklistRegisteredBy']]['userFullName']:'';
+        const assetTypeId = dataSck['assetTypeId'];
+        const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
+        const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+        const checklistStatus = dataSck['checklistStatus'];
 
+        mzSetFieldValue('SckChecklistName', dataSck['checklistName'], 'text');
+        mzSetFieldValue('SckChecklistVersion', dataSck['checklistVersion'], 'text');
+        mzSetFieldValue('SckChecklistDesc', dataSck['checklistDesc'], 'text');
+        mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'text');
+        mzSetFieldValue('SckAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
+        mzSetFieldValue('SckAssetCategoryName', refAssetCategory[assetCategoryId]['assetCategoryName'], 'text');
+        mzSetFieldValue('SckAssetGroupName', refAssetGroup[assetGroupId]['assetGroupName'], 'text');
+        mzSetFieldValue('SckChecklistRegisteredBy', registeredBy, 'text');
+        mzSetFieldValue('SckChecklistTimeRegistered', mzConvertDateDisplay(dataSck['checklistTimeRegistered']), 'text');
+        mzSetFieldValue('SckChecklistStatus', refStatus[checklistStatus]['statusDesc'], 'text');
+
+        return checklistStatus;
     };
 
     this.add = function (_assetTypeId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                $('#txaSckChecklistGuideline').summernote('code', '');
-                $('.sectionPcmMain').hide();
-                $('.sectionChecklist').show();
+                mzCheckFuncParam([_assetTypeId]);
+
+                checklistId = mzAjaxRequest('checklist.php', 'POST', {assetTypeId: _assetTypeId});
+                const tempRow = {
+                    checklistId: checklistId,
+                    checklistName: '',
+                    checklistVersion: '',
+                    checklistTimeRegistered: '',
+                    assetTypeId: _assetTypeId,
+                    checklistStatus: '5'
+                };
+                rowRefresh = classFrom.addTablePcmChecklist(tempRow);
+
+                formValidate.clearValidation();
+                self.getDetails();
+                $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
+                $('#txaSckChecklistGuideline').summernote('enable');
+
+                $('#btnSckSubmit').prop('disabled', true);
+                $('.sectionPcmMain, #btnSckUpdate').hide();
+                $('.sectionChecklist, #btnSckSubmit, #btnSckSave').show();
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
