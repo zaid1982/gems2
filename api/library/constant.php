@@ -74,6 +74,16 @@ class Class_constant {
     const ERR_CHECKLIST_DEACTIVATE = 'Checklist already inactive';
     const ERR_CHECKLIST_ACTIVATE = 'Checklist already active';
     const ERR_CHECKLIST_DELETE_PPM = 'Checklist cannot be deleted because currently registered under Preventive Maintenance';
+    const ERR_CHECKLIST_QUAL_SUBMITTED = 'Qualitative Task already registered';
+    const ERR_CHECKLIST_QUAL_SIMILAR = 'Qualitative Task Description and Numbering already exist in this checklist';
+    const ERR_CHECKLIST_QUAL_DEACTIVATE = 'Qualitative Task already inactive';
+    const ERR_CHECKLIST_QUAL_ACTIVATE = 'Qualitative Task already active';
+    const ERR_CHECKLIST_QUAL_DELETE_PPM = 'Qualitative Task cannot be deleted because currently registered under Preventive Maintenance';
+    const ERR_CHECKLIST_QUAN_SUBMITTED = 'Quantitative Task already registered';
+    const ERR_CHECKLIST_QUAN_SIMILAR = 'Quantitative Task Description and Numbering already exist in this checklist';
+    const ERR_CHECKLIST_QUAN_DEACTIVATE = 'Quantitative Task already inactive';
+    const ERR_CHECKLIST_QUAN_ACTIVATE = 'Quantitative Task already active';
+    const ERR_CHECKLIST_QUAN_DELETE_PPM = 'Quantitative Task cannot be deleted because currently registered under Preventive Maintenance';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
@@ -136,5 +146,15 @@ class Class_constant {
     const SUC_CHECKLIST_DEACTIVATE = 'Checklist successfully deactivated';
     const SUC_CHECKLIST_ACTIVATE = 'Checklist successfully activated';
     const SUC_CHECKLIST_DELETE = 'Checklist successfully deleted';
+    const SUC_CHECKLIST_QUAL_ADD = 'Qualitative Task successfully added';
+    const SUC_CHECKLIST_QUAL_EDIT = 'Qualitative Task successfully updated';
+    const SUC_CHECKLIST_QUAL_DEACTIVATE = 'Qualitative Task successfully deactivated';
+    const SUC_CHECKLIST_QUAL_ACTIVATE = 'Qualitative Task successfully activated';
+    const SUC_CHECKLIST_QUAL_DELETE = 'Qualitative Task successfully deleted';
+    const SUC_CHECKLIST_QUAN_ADD = 'Quantitative Task successfully added';
+    const SUC_CHECKLIST_QUAN_EDIT = 'Quantitative Task successfully updated';
+    const SUC_CHECKLIST_QUAN_DEACTIVATE = 'Quantitative Task successfully deactivated';
+    const SUC_CHECKLIST_QUAN_ACTIVATE = 'Quantitative Task successfully activated';
+    const SUC_CHECKLIST_QUAN_DELETE = 'Quantitative Task successfully deleted';
 
 }

@@ -133,6 +133,7 @@ function ModalAssetType() {
             try {
                 mzOption('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
+                mzSetFieldValue('MztStatus', '1', 'checkSingle', '1');
                 $('#lblMztTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Type');
                 $('#modal_asset_type').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

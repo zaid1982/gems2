@@ -154,6 +154,7 @@ function ModalAssetModel() {
                 mzSetFieldValue('MzmAssetGroupId', assetGroupId, 'select', 'Asset Group *');
                 mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
                 mzSetFieldValue('MzmAssetTypeId', assetTypeId, 'select', 'Asset Type *');
+                mzSetFieldValue('MzmStatus', '1', 'checkSingle', '1');
 
                 $('#lblMzmTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Model');
                 $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});

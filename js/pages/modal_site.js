@@ -116,6 +116,7 @@ function ModalSite() {
             try {
                 mzOption('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
+                mzSetFieldValue('MstStatus', '1', 'checkSingle', '1');
                 $('#lblMstTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Site');
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

@@ -15,10 +15,10 @@
                         <h3 class="font-weight-bold dark-grey-text ml-3">PPM Checklist</h3>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade">
+                <div class="card-body card-body-cascade px-4">
                     <form id="formSck">
                         <h5 class="mt-3 font-weight-500">Main Information :</h5>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-8">
                                 <div class="md-form md-outline mt-3">
                                     <input type="text" id="txtSckChecklistName" class="form-control">
@@ -34,7 +34,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <textarea id="txaSckChecklistDesc" class="md-textarea form-control" rows="3"></textarea>
@@ -43,7 +43,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-5" id="divSckChecklistRegisteredBy">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSckChecklistRegisteredBy" class="form-control" disabled>
@@ -64,7 +64,7 @@
                             </div>
                         </div>
                         <h5 class="mt-3 font-weight-500">A. Asset Details :</h5>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-3">
                                     <input type="text" id="txtSckAssetGroupName" class="form-control" disabled>
@@ -72,7 +72,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSckAssetCategoryName" class="form-control" disabled>
@@ -80,7 +80,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row px-2">
+                        <div class="row px-3">
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSckAssetTypeName" class="form-control" disabled>
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                         <h5 class="mt-3 font-weight-500">B. Safety Precaution / General Guidelines prior to maintenance activity :</h5>
-                        <div class="row px-2 mt-4">
+                        <div class="row px-3 mt-4 pb-3">
                             <div class="col-md-12">
                                 <div id="txaSckChecklistGuideline"></div>
                                 <p class="font-small text-danger mt-1" id="txaSckChecklistGuidelineErr">sac</p>
@@ -97,28 +97,29 @@
                         </div>
                         <h5 class="mt-3 font-weight-500">C. Qualitative Task :</h5>
                         <div class="card card-cascade narrower z-depth-0 mt-5">
-                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-2 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                                 <div>
                                     <button type="button" id="btnSckChecklistQualAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Qualitative Item"><i class="fas fa-plus mt-0"></i></button>
                                     <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                       data-toggle="popover" data-trigger="focus" title="Qualitative Item List"
+                                       data-toggle="popover" data-trigger="focus" title="Qualitative Task List"
                                        data-content="Checklist Item list for Qualitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
                                     <button type="button" id="btnDtSckChecklistQualRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                                 </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Qualitative Item List</a>
+                                <a href="javascript:void(0);" class="text-white mx-3">Qualitative Task List</a>
                                 <div>
-                                    <div id="btnDtPcmChecklistQualExport"></div>
+                                    <div id="btnDtSckChecklistQualExport"></div>
                                 </div>
                             </div>
-                            <div class="px-2 pb-4">
+                            <div class="px-3 pb-3">
                                 <div class="table-responsive">
                                     <table id="dtSckChecklistQual" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                                         <thead>
                                         <tr class="th-strong">
-                                            <th style="width: 20%">Numbering</th>
+                                            <th style="width: 10%">Numbering</th>
                                             <th>Description</th>
                                             <th style="width: 20%">Frequency</th>
-                                            <th style="min-width: 42px"></th>
+                                            <th style="width: 12%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -129,30 +130,31 @@
                         </div>
                         <h5 class="mt-3 font-weight-500">D. Quantitative Task :</h5>
                         <div class="card card-cascade narrower z-depth-0 mt-5">
-                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-2 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                                 <div>
                                     <button type="button" id="btnSckChecklistQuanAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Quantitative Item"><i class="fas fa-plus mt-0"></i></button>
                                     <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                       data-toggle="popover" data-trigger="focus" title="Quantitative Item List"
+                                       data-toggle="popover" data-trigger="focus" title="Quantitative Task List"
                                        data-content="Checklist Item list for Quantitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
                                     <button type="button" id="btnDtSckChecklistQuanRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                                 </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Quantitative Item List</a>
+                                <a href="javascript:void(0);" class="text-white mx-3">Quantitative Task List</a>
                                 <div>
-                                    <div id="btnDtPcmChecklistQuanExport"></div>
+                                    <div id="btnDtSckChecklistQuanExport"></div>
                                 </div>
                             </div>
-                            <div class="px-2 pb-4">
+                            <div class="px-3 pb-3">
                                 <div class="table-responsive">
                                     <table id="dtSckChecklistQuan" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                                         <thead>
                                         <tr class="th-strong">
-                                            <th style="width: 20%">Numbering</th>
+                                            <th style="width: 10%">Numbering</th>
                                             <th>Description</th>
-                                            <th style="width: 10%">Set Values</th>
-                                            <th style="width: 10%">Unit</th>
+                                            <th style="width: 15%">Unit</th>
+                                            <th style="width: 15%">Set Values</th>
                                             <th style="width: 10%">Frequency</th>
-                                            <th style="min-width: 42px"></th>
+                                            <th style="width: 10%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
                                         </tr>
                                         </thead>
                                         <tbody>

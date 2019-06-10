@@ -98,6 +98,7 @@ function ModalClient() {
         clientId = '';
         rowRefresh = '';
 
+        mzSetFieldValue('MclStatus', '1', 'checkSingle', '1');
         $('#lblMclTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Client');
         $('#modal_client').modal({backdrop: 'static', keyboard: false});
     };

@@ -86,6 +86,7 @@ function ModalDesignation() {
         designationId = '';
         rowRefresh = '';
 
+        mzSetFieldValue('MdgStatus', '1', 'checkSingle', '1');
         $('#lblMdgTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Designation');
         $('#modal_designation').modal({backdrop: 'static', keyboard: false});
     };

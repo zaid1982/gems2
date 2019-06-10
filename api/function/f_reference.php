@@ -390,6 +390,10 @@ class Class_reference {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_group_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -402,6 +406,28 @@ class Class_reference {
                 $row_result['groupType'] = $dataLocal['group_type'];
                 $row_result['groupRegNo'] = $this->fn_general->clear_null($dataLocal['group_reg_no']);
                 $row_result['groupStatus'] = $dataLocal['group_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    public function get_frequency_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['frequencyId'] = $dataLocal['frequency_id'];
+                $row_result['frequencyName'] = $dataLocal['frequency_name'];
+                $row_result['frequencyDesc'] = $this->fn_general->clear_null($dataLocal['frequency_desc']);
+                $row_result['frequencyStatus'] = $dataLocal['frequency_status'];
                 array_push($result, $row_result);
             }
 

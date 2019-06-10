@@ -98,6 +98,7 @@ function ModalAssetGroup() {
         assetGroupId = '';
         rowRefresh = '';
 
+        mzSetFieldValue('MzgStatus', '1', 'checkSingle', '1');
         $('#lblMzgTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Group');
         $('#modal_asset_group').modal({backdrop: 'static', keyboard: false});
     };

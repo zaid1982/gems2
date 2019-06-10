@@ -148,7 +148,7 @@
                                         <th>Version</th>
                                         <th>Registered Time</th>
                                         <th style="max-width: 70px">Status</th>
-                                        <th style="min-width: 42px"></th>
+                                        <th style="width: 64px; min-width: 64px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -220,6 +220,7 @@
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refFrequency_ = mzGetLocalArray('gems_frequency', versionLocal_, 'frequencyId');
 
                 sectionChecklistClass_.setClassFrom(checklistClass_);
                 sectionChecklistClass_.setRefStatus(refStatus_);
@@ -227,6 +228,9 @@
                 sectionChecklistClass_.setRefAssetCategory(refAssetCategory_);
                 sectionChecklistClass_.setRefAssetType(refAssetType_);
                 sectionChecklistClass_.setRefUser(refUser_);
+                sectionChecklistClass_.setRefFrequency(refFrequency_);
+                //sectionChecklistClass_.setModalChecklistQualClass(...);
+                sectionChecklistClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 sectionChecklistClass_.init();
 
                 checklistClass_.setRefStatus(refStatus_);

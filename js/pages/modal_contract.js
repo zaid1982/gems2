@@ -132,6 +132,7 @@ function ModalContract() {
             try {
                 mzOption('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
+                mzSetFieldValue('McrStatus', '1', 'checkSingle', '1');
                 $('#lblMcrTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Contract');
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

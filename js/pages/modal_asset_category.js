@@ -117,6 +117,7 @@ function ModalAssetCategory() {
             try {
                 mzOption('optMzcAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
+                mzSetFieldValue('MzcStatus', '1', 'checkSingle', '1');
                 $('#lblMzcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Category');
                 $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

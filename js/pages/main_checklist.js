@@ -159,6 +159,7 @@ function MainChecklist() {
         oTableChecklist =  $('#dtPcmChecklist').DataTable({
             bLengthChange: false,
             bFilter: true,
+            autoWidth: false,
             "aaSorting": [[1, 'asc'], [2, 'asc'], [3, 'asc']],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableChecklist.page.info();
@@ -281,7 +282,6 @@ function MainChecklist() {
         $('#btnPcmChecklistAdd').on('click', function () {
             sectionChecklistClass.add(assetTypeIdSelected);
         });
-
 
         $('#btnDtPcmChecklistRefresh').on('click', function () {
             ShowLoader();

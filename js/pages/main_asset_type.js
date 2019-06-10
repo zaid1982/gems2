@@ -16,7 +16,7 @@ function MainAssetType() {
     let rowIdModel;
 
     this.init = function () {
-        $('.sectionAtyModel').hide();
+        $('#sectionAtyModel').hide();
 
         oTableAssetType =  $('#dtAtyAssetType').DataTable({
             bLengthChange: false,
@@ -350,7 +350,7 @@ function MainAssetType() {
     };
 
     this.genTableAty = function (_type) {
-        $('.sectionAtyModel').hide();
+        $('#sectionAtyModel').hide();
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
@@ -389,7 +389,7 @@ function MainAssetType() {
         modalAssetModelClass.setAssetTypeId(assetTypeId);
 
         $('#lblAtyAssetModelTitle').html(_assetTypeName);
-        $('.sectionAtyModel').show();
+        $('#sectionAtyModel').show();
     };
 
     this.addTableAtyModel = function (_dataAdd) {

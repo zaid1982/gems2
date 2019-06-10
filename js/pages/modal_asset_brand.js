@@ -98,6 +98,7 @@ function ModalAssetBrand() {
         assetBrandId = '';
         rowRefresh = '';
 
+        mzSetFieldValue('MzbStatus', '1', 'checkSingle', '1');
         $('#lblMzbTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Brand');
         $('#modal_asset_brand').modal({backdrop: 'static', keyboard: false});
     };
