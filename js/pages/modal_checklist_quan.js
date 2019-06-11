@@ -150,7 +150,7 @@ function ModalChecklistQuan() {
             }
             HideLoader();
         }, 300);
-    };;
+    };
 
     this.deactivate = function (_checklistQuanId, _rowRefresh) {
         ShowLoader();

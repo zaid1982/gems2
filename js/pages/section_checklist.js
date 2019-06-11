@@ -382,7 +382,7 @@ function SectionChecklist() {
                         checklistName: $('#txtSckChecklistName').val(),
                         checklistVersion: $('#txtSckChecklistVersion').val(),
                         checklistDesc: $('#txaSckChecklistDesc').val(),
-                        checklistGuideline: $('#txaSckChecklistGuideline').summernote('code'),
+                        checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
                     };
 
                     mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -405,10 +405,58 @@ function SectionChecklist() {
                 try {
                     if (!formValidate.validateForm()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    } else if (oTableChecklistQual.data().length === 0) {
+                        toastr['error']('Please make sure Qualitative Task not empty', _ALERT_TITLE_ERROR);
                     }
                     else {
-                        console.log($('#txaSckChecklistGuideline').summernote('code'));
-                        console.log($('#txaSckChecklistGuideline').summernote('isEmpty'));
+                        const data = {
+                            action: 'submit',
+                            checklistName: $('#txtSckChecklistName').val(),
+                            checklistVersion: $('#txtSckChecklistVersion').val(),
+                            checklistDesc: $('#txaSckChecklistDesc').val(),
+                            checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
+                        };
+
+                        mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
+                        if (classFrom.getClassName() === 'MainChecklist') {
+                            classFrom.updateTablePcmChecklist(data, rowRefresh);
+                            $('.sectionPcmMain').show();
+                        }
+                        $('.sectionChecklist').hide();
+                        $(window).scrollTop(0);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('#btnSckUpdate').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidate.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    } else if (oTableChecklistQual.data().length === 0) {
+                        toastr['error']('Please make sure Qualitative Task not empty', _ALERT_TITLE_ERROR);
+                    }
+                    else {
+                        const data = {
+                            action: 'update',
+                            checklistName: $('#txtSckChecklistName').val(),
+                            checklistVersion: $('#txtSckChecklistVersion').val(),
+                            checklistDesc: $('#txaSckChecklistDesc').val(),
+                            checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
+                        };
+
+                        mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
+                        if (classFrom.getClassName() === 'MainChecklist') {
+                            classFrom.updateTablePcmChecklist(data, rowRefresh);
+                            $('.sectionPcmMain').show();
+                        }
+                        $('.sectionChecklist').hide();
+                        $(window).scrollTop(0);
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -504,11 +552,11 @@ function SectionChecklist() {
                 if (checklistStatus === '5') {
                     $('#btnSckUpdate, #divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
                     $('#btnSckSubmit, #btnSckSave').show();
-                    $('#btnSckSubmit').prop('disabled', true);
+                    $('#btnSckSubmit').prop('disabled', !formValidate.validateForm());
                 } else {
                     $('#btnSckSubmit, #btnSckSave').hide();
                     $('#btnSckUpdate, #divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').show();
-                    $('#btnSckSubmit').prop('disabled', true);
+                    $('#btnSckUpdate').prop('disabled', true);
                 }
 
                 $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
@@ -520,6 +568,56 @@ function SectionChecklist() {
                     $('.sectionPcmMain').hide();
                 }
                 $(window).scrollTop(0);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.deactivate = function (_checklistId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_checklistId, _rowRefresh]);
+                mzAjaxRequest('checklist.php?checklistId='+_checklistId, 'PUT', {action: 'deactivate'});
+                const tempRow = {checklistStatus:'2'};
+                if (classFrom.getClassName() === 'MainChecklist') {
+                    classFrom.updateTablePcmChecklist(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.activate = function (_checklistId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_checklistId, _rowRefresh]);
+                mzAjaxRequest('checklist.php?checklistId='+_checklistId, 'PUT', {action: 'activate'});
+                const tempRow = {checklistStatus:'1'};
+                if (classFrom.getClassName() === 'MainChecklist') {
+                    classFrom.updateTablePcmChecklist(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.delete = function (_checklistId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_checklistId]);
+                mzAjaxRequest('checklist.php?checklistId='+_checklistId, 'DELETE');
+                if (classFrom.getClassName() === 'MainChecklist') {
+                    classFrom.deleteTablePcmChecklist();
+                }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }

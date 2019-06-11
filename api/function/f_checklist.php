@@ -196,16 +196,16 @@ class Class_checklist {
             }
 
             if (!isset($put_vars['checklistName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistName not exist');
             }
             if (!isset($put_vars['checklistVersion'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion not exist');
             }
             if (!isset($put_vars['checklistDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
             }
             if (!isset($put_vars['checklistGuideline'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline not exist');
             }
 
             $checklistName = $put_vars['checklistName'];
@@ -223,11 +223,212 @@ class Class_checklist {
             if ($checklist['checklist_status'] != '5') {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SUBMITTED, 31);
             }
-            if (!empty($put_vars['checklistNo']) && Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+            if (!empty($checklistName) && !empty($checklistVersion) && Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
             }
 
             Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @param $put_vars
+     * @param $userId
+     * @throws Exception
+     */
+    public function submit_checklist ($checklistId, $put_vars, $userId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            if (!isset($put_vars['checklistName']) || empty($put_vars['checklistName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
+            }
+            if (!isset($put_vars['checklistVersion']) || empty($put_vars['checklistVersion'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+            }
+            if (!isset($put_vars['checklistDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
+            }
+            if (!isset($put_vars['checklistGuideline']) || empty($put_vars['checklistGuideline'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
+            }
+
+            $checklistName = $put_vars['checklistName'];
+            $checklistVersion = $put_vars['checklistVersion'];
+            $updateArr = array(
+                'checklist_name'=>$checklistName,
+                'checklist_version'=>$checklistVersion,
+                'checklist_desc'=>$put_vars['checklistDesc'],
+                'checklist_guideline'=>$put_vars['checklistGuideline'],
+                'checklist_registered_by'=>$userId,
+                'checklist_time_registered'=>'Now()',
+                'checklist_status'=>'1'
+            );
+
+            $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            $assetTypeId = $checklist['asset_type_id'];
+
+            if ($checklist['checklist_status'] != '5') {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SUBMITTED, 31);
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1')) == 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_EMPTY_QUAL, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function update_checklist ($checklistId, $put_vars) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['checklistName']) || empty($put_vars['checklistName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
+            }
+            if (!isset($put_vars['checklistVersion']) || empty($put_vars['checklistVersion'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+            }
+            if (!isset($put_vars['checklistDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
+            }
+            if (!isset($put_vars['checklistGuideline']) || empty($put_vars['checklistGuideline'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
+            }
+
+            $checklistName = $put_vars['checklistName'];
+            $checklistVersion = $put_vars['checklistVersion'];
+            $updateArr = array(
+                'checklist_name'=>$checklistName,
+                'checklist_version'=>$checklistVersion,
+                'checklist_desc'=>$put_vars['checklistDesc'],
+                'checklist_guideline'=>$put_vars['checklistGuideline']
+            );
+
+            $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            $assetTypeId = $checklist['asset_type_id'];
+
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1')) == 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_EMPTY_QUAL, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @throws Exception
+     */
+    public function deactivate_checklist ($checklistId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_id'=>$checklistId, 'checklist_status'=>'2')) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_DEACTIVATE, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_checklist', array('checklist_status'=>'2'), array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @throws Exception
+     */
+    public function activate_checklist ($checklistId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_id'=>$checklistId, 'checklist_status'=>'1')) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_ACTIVATE, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_checklist', array('checklist_status'=>'1'), array('checklist_id'=>$checklistId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @throws Exception
+     */
+    public function delete_checklist ($checklistId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_id'=>$checklistId, 'checklist_status'=>'5')) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Checklist data not exist');
+            }
+            if (Class_db::getInstance()->db_count('ppm', array('checklist_id'=>$checklistId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_DELETE_PPM, 31);
+            }
+
+            Class_db::getInstance()->db_delete('ppm_checklist_qual', array('checklist_id'=>$checklistId));
+            Class_db::getInstance()->db_delete('ppm_checklist_quan', array('checklist_id'=>$checklistId));
+            Class_db::getInstance()->db_delete('ppm_checklist', array('checklist_id'=>$checklistId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

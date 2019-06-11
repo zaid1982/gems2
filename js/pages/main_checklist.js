@@ -68,8 +68,7 @@ function MainChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-list-ul lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list"></i></a>&nbsp;&nbsp;';
-                            return label;
+                            return '<a><i class="fas fa-list-ul lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list"></i></a>&nbsp;&nbsp;';
                         }
                     },
                     {mData: 'assetGroupId', visible: false},
@@ -218,13 +217,14 @@ function MainChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPcmChecklistEdit" id="lnkPcmChecklistEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '<a><i class="fas fa-edit lnkPcmChecklistEdit" id="lnkPcmChecklistEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
                             if (row['checklistStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkPcmChecklistDeactivate" id="lnkPcmChecklistDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
-                            } else {
-                                label += '<a><i class="fas fa-toggle-on lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                                label += '&nbsp;&nbsp;<a><i class="fas fa-toggle-off lnkPcmChecklistDeactivate" id="lnkPcmChecklistDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>';
+                            } else if (row['checklistStatus'] === '2') {
+                                label += '&nbsp;&nbsp;<a><i class="fas fa-toggle-on lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>';
+                            } else if (row['checklistStatus'] === '5') {
+                                label += '&nbsp;&nbsp;<a><i class="fas fa-trash-alt lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     }
@@ -287,7 +287,7 @@ function MainChecklist() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    self.genTablePcmChecklist();
+                    self.genTablePcmChecklist(assetTypeIdSelected, rowIdChecklistGroup);
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -321,6 +321,7 @@ function MainChecklist() {
 
     this.addTablePcmChecklist = function (_dataAdd) {
         oTableChecklist.row.add(_dataAdd).draw();
+        self.genTablePcmChecklistGroup();
     };
 
     this.updateTablePcmChecklist = function (_dataEdit, _rowEdit) {
@@ -335,9 +336,13 @@ function MainChecklist() {
         }
         if (typeof _dataEdit['checklistStatus'] !== 'undefined') {
             currentRow['checklistStatus'] = _dataEdit['checklistStatus'];
-            self.displayStats();
         }
         oTableChecklist.row(_rowEdit).data(currentRow).draw();
+    };
+
+    this.deleteTablePcmChecklist = function () {
+        self.genTablePcmChecklist(assetTypeIdSelected, rowIdChecklistGroup);
+        self.genTablePcmChecklistGroup();
     };
 
     this.getClassName = function () {

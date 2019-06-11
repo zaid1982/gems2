@@ -372,6 +372,7 @@ function SectionAssetDetails() {
                     $('#btnSszSave, #btnSszSubmit').show();
                     $('#txtSszAssetNo').prop('disabled', false);
                     formValidate.enableField('txtSszAssetNo');
+                    $('#btnSszSubmit').prop('disabled', !formValidate.validateForm());
                 } else {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, #divSszRegisterInfo').show();
                     $('#btnSszSave, #btnSszSubmit').hide();

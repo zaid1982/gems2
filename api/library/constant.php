@@ -71,6 +71,7 @@ class Class_constant {
     const ERR_ASSET_DELETE_PPM = 'Asset cannot be deleted because currently registered under Preventive Maintenance';
     const ERR_CHECKLIST_SUBMITTED = 'Checklist already registered';
     const ERR_CHECKLIST_SIMILAR = 'Checklist Name and Version already exist in similar Asset Type';
+    const ERR_CHECKLIST_EMPTY_QUAL = 'Qualitative Task empty';
     const ERR_CHECKLIST_DEACTIVATE = 'Checklist already inactive';
     const ERR_CHECKLIST_ACTIVATE = 'Checklist already active';
     const ERR_CHECKLIST_DELETE_PPM = 'Checklist cannot be deleted because currently registered under Preventive Maintenance';
