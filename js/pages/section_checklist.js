@@ -544,6 +544,24 @@ function SectionChecklist() {
         oTableChecklistQual.row(_rowEdit).data(currentRow).draw();
     };
 
+    this.addTableSckChecklistQuan = function (_dataAdd) {
+        oTableChecklistQuan.row.add(_dataAdd).draw();
+    };
+
+    this.updateTableSckChecklistQuan = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableChecklistQuan.row(_rowEdit).data();
+        if (typeof _dataEdit['action'] !== 'undefined') {
+            currentRow['checklistQuanNumb'] = _dataEdit['checklistQuanNumb'];
+            currentRow['checklistQuanDesc'] = _dataEdit['checklistQuanDesc'];
+            currentRow['checklistQuanUnit'] = _dataEdit['checklistQuanUnit'];
+            currentRow['frequencyId'] = _dataEdit['frequencyId'];
+        }
+        if (typeof _dataEdit['checklistQuanStatus'] !== 'undefined') {
+            currentRow['checklistQuanStatus'] = _dataEdit['checklistQuanStatus'];
+        }
+        oTableChecklistQuan.row(_rowEdit).data(currentRow).draw();
+    };
+
     this.getClassName = function () {
         return className;
     };

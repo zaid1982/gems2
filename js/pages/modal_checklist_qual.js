@@ -78,6 +78,7 @@ function ModalChecklistQual() {
 
                         if (checklistQualId === '') {
                             checklistQualId = mzAjaxRequest('checklist_qual.php', 'POST', data);
+                            data['checklistQualId'] = checklistQualId;
                             if (classFrom.getClassName() === 'SectionChecklist') {
                                 classFrom.addTableSckChecklistQual(data);
                             }

@@ -164,6 +164,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_checklist_qual"></div>
+    <div class="includeHtml" id="h-modal_checklist_quan"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -204,6 +205,7 @@
     let checklistClass_;
     let sectionChecklistClass_;
     let modalChecklistQualClass_;
+    let modalChecklistQuanClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -217,6 +219,7 @@
                 checklistClass_ = new MainChecklist();
                 sectionChecklistClass_ = new SectionChecklist();
                 modalChecklistQualClass_ = new ModalChecklistQual();
+                modalChecklistQuanClass_ = new ModalChecklistQuan();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
@@ -229,6 +232,10 @@
                 modalChecklistQualClass_.setClassFrom(sectionChecklistClass_);
                 modalChecklistQualClass_.init();
 
+                modalChecklistQuanClass_.setRefFrequency(refFrequency_);
+                modalChecklistQuanClass_.setClassFrom(sectionChecklistClass_);
+                modalChecklistQuanClass_.init();
+
                 sectionChecklistClass_.setClassFrom(checklistClass_);
                 sectionChecklistClass_.setRefStatus(refStatus_);
                 sectionChecklistClass_.setRefAssetGroup(refAssetGroup_);
@@ -237,6 +244,7 @@
                 sectionChecklistClass_.setRefUser(refUser_);
                 sectionChecklistClass_.setRefFrequency(refFrequency_);
                 sectionChecklistClass_.setModalChecklistQualClass(modalChecklistQualClass_);
+                sectionChecklistClass_.setModalChecklistQuanClass(modalChecklistQuanClass_);
                 sectionChecklistClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 sectionChecklistClass_.init();
 
@@ -257,6 +265,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_checklist_qual.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_checklist_quan.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
