@@ -43,6 +43,7 @@ try {
     else if ('POST' === $request_method) {
         $checklistQuanDesc = filter_input(INPUT_POST, 'checklistQuanDesc');
         $checklistQuanNumb = filter_input(INPUT_POST, 'checklistQuanNumb');
+        $checklistQuanUnit = filter_input(INPUT_POST, 'checklistQuanUnit');
         $frequencyId = filter_input(INPUT_POST, 'frequencyId');
         $checklistId = filter_input(INPUT_POST, 'checklistId');
         $checklistQuanStatus = filter_input(INPUT_POST, 'checklistQuanStatus');
@@ -50,6 +51,7 @@ try {
         $params = array(
             'checklistQuanDesc'=>$checklistQuanDesc,
             'checklistQuanNumb'=>$checklistQuanNumb,
+            'checklistQuanUnit'=>$checklistQuanUnit,
             'frequencyId'=>$frequencyId,
             'checklistId'=>$checklistId,
             'checklistQuanStatus'=>$checklistQuanStatus

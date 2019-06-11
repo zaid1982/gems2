@@ -1,6 +1,6 @@
 function SectionChecklist() {
 
-    const className = 'SectionAssetDetails';
+    const className = 'SectionChecklist';
     let self = this;
     let modalConfirmDeleteClass;
     let checklistId = '';
@@ -291,7 +291,6 @@ function SectionChecklist() {
                     {mData: 'checklistQuanNumb', bSortable: false},
                     {mData: 'checklistQuanDesc', bSortable: false},
                     {mData: 'checklistQuanUnit', bSortable: false},
-                    {mData: 'checklistQuanSetValues', bSortable: false},
                     {mData: 'frequencyId', bSortable: false, mRender: function (data){
                             return data !== '' ? refFrequency[data]['frequencyName'] : '';
                         }},
@@ -318,10 +317,10 @@ function SectionChecklist() {
 
         let btnChecklistQuanOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5],
+                columns: [ 0, 1, 2, 3, 4],
                 format: {
                     body: function ( data, row, column ) {
-                        if (column === 5) {
+                        if (column === 4) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -526,6 +525,23 @@ function SectionChecklist() {
             }
             HideLoader();
         }, 300);
+    };
+
+    this.addTableSckChecklistQual = function (_dataAdd) {
+        oTableChecklistQual.row.add(_dataAdd).draw();
+    };
+
+    this.updateTableSckChecklistQual = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableChecklistQual.row(_rowEdit).data();
+        if (typeof _dataEdit['action'] !== 'undefined') {
+            currentRow['checklistQualNumb'] = _dataEdit['checklistQualNumb'];
+            currentRow['checklistQualDesc'] = _dataEdit['checklistQualDesc'];
+            currentRow['frequencyId'] = _dataEdit['frequencyId'];
+        }
+        if (typeof _dataEdit['checklistQualStatus'] !== 'undefined') {
+            currentRow['checklistQualStatus'] = _dataEdit['checklistQualStatus'];
+        }
+        oTableChecklistQual.row(_rowEdit).data(currentRow).draw();
     };
 
     this.getClassName = function () {
