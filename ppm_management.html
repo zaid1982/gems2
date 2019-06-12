@@ -35,7 +35,7 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionAszMain">
+        <section class="mb-5 mt-lg-5 sectionPmgMain">
             <div class="card card-cascade narrower">
                 <!--Section: Search Function & Chart-->
                 <section>
@@ -43,48 +43,48 @@
                         <!--Search Function-->
                         <div class="col-xl-5 col-lg-12 mr-0">
                             <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Asset Management</h2>
+                                <h2 class="h2-responsive mb-0">PPM Management</h2>
                             </div>
                             <div class="card-body card-body-cascade">
                                 <div class="px-3 pt-3">
-                                    <h6>Status:</h6>
+                                    <h6>PPM Status by Asset:</h6>
                                     <div class="mt-1 pb-2">
                                         <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" id="linkAszAll"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz1"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz2"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz5"></a></li>
+                                            <li><a href="javascript:void(0);" id="linkPmgAll"></a></li>
+                                            <li><a href="javascript:void(0);" id="linkPmg1"></a></li>
+                                            <li><a href="javascript:void(0);" id="linkPmg2"></a></li>
+                                            <li><a href="javascript:void(0);" id="linkPmg5"></a></li>
                                         </ul>
                                     </div>
                                     <h6 class="pb-3">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                            <label for="optAszContractId">Contract *</label>
+                                            <select id="optPmgContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                            <label for="optPmgContractId">Contract *</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                            <select id="optPmgGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Group</option>
                                             </select>
-                                            <label for="optAszGroupId">Asset Group</label>
+                                            <label for="optPmgGroupId">Asset Group</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                            <select id="optPmgCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Category</option>
                                             </select>
-                                            <label for="optAszCategoryId">Asset Category</label>
+                                            <label for="optPmgCategoryId">Asset Category</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
-                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                            <select id="optPmgTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Type</option>
                                             </select>
-                                            <label for="optAszTypeId">Asset Type</label>
+                                            <label for="optPmgTypeId">Asset Type</label>
                                         </div>
                                     </div>
                                 </div>
@@ -93,13 +93,13 @@
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12">
                             <div class="view view-cascade z-depth-4 mb-3">
-                                <div id="chartAszAssetByType" style="height: 517px; margin: 0"></div>
+                                <div id="chartPmgAssetByType" style="height: 517px; margin: 0"></div>
                             </div>
                             <div class="card-body">
                                 <div class="px-3 pt-3">
                                     <div class="row">
                                         <div class="col-md-7 select-outline">
-                                            <select id="optAszColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                            <select id="optPmgColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
                                                 <option value="" disabled>Choose Column Visibility</option>
                                                 <option value="1">Asset Name</option>
                                                 <option value="2" selected>Asset No</option>
@@ -112,12 +112,12 @@
                                                 <option value="9">Location Code</option>
                                                 <option value="10" selected>Status</option>
                                             </select>
-                                            <label for="optAszColumns">Columns Visibility</label>
+                                            <label for="optPmgColumns">Columns Visibility</label>
                                         </div>
                                         <div class="col-md-5">
                                             <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtAszAssetSearch" class="form-control">
-                                                <label for="txtAszAssetSearch" class="active">Keyword Search</label>
+                                                <input type="text" id="txtPmgAssetSearch" class="form-control">
+                                                <label for="txtPmgAssetSearch" class="active">Keyword Search</label>
                                             </div>
                                         </div>
                                     </div>
@@ -131,20 +131,20 @@
                     <div class="card card-cascade narrower z-depth-0">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                                <button type="button" id="btnAszAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
+                                <button type="button" id="btnPmgAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Asset List"
                                    data-content="Asset List for all users that use the system."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtAszAssetRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
                             <div>
-                                <div id="btnDtAszAssetExport"></div>
+                                <div id="btnDtPmgAssetExport"></div>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
                             <div class="table-responsive">
-                                <table id="dtAszAsset" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtPmgAsset" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="max-width: 30px">#</th>
@@ -215,7 +215,7 @@
 
     let versionLocal_;
     let changePasswordClass_;
-    let assetClass_;
+    let ppmManagementClass_;
     let sectionAssetDetails_;
     let modalConfirmDelete_;
 
@@ -227,7 +227,7 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                assetClass_ = new MainAsset();
+                ppmManagementClass_ = new MainPpmManagement();
                 sectionAssetDetails_ = new SectionAssetDetails();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
@@ -242,7 +242,7 @@
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
 
-                sectionAssetDetails_.setClassFrom(assetClass_);
+                sectionAssetDetails_.setClassFrom(ppmManagementClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
                 sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
                 sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
@@ -256,16 +256,16 @@
                 sectionAssetDetails_.setVersionLocal(versionLocal_);
                 sectionAssetDetails_.init();
 
-                assetClass_.setRefStatus(refStatus_);
-                assetClass_.setRefContract(refContract_);
-                assetClass_.setRefAssetGroup(refAssetGroup_);
-                assetClass_.setRefAssetCategory(refAssetCategory_);
-                assetClass_.setRefAssetType(refAssetType_);
-                assetClass_.setRefAssetBrand(refAssetBrand_);
-                assetClass_.setRefAssetModel(refAssetModel_);
-                assetClass_.setSectionAssetClass(sectionAssetDetails_);
-                assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                assetClass_.init();
+                ppmManagementClass_.setRefStatus(refStatus_);
+                ppmManagementClass_.setRefContract(refContract_);
+                ppmManagementClass_.setRefAssetGroup(refAssetGroup_);
+                ppmManagementClass_.setRefAssetCategory(refAssetCategory_);
+                ppmManagementClass_.setRefAssetType(refAssetType_);
+                ppmManagementClass_.setRefAssetBrand(refAssetBrand_);
+                ppmManagementClass_.setRefAssetModel(refAssetModel_);
+                ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
+                ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                ppmManagementClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -277,6 +277,6 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

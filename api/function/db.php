@@ -89,7 +89,7 @@ class Class_db{
     private function get_whereAnd_str($columnsArr) {
         $where_str = NULL;
         foreach ($columnsArr as $item => $value) {
-            if (empty($value) || $value === '%%') {
+            if ($value == '' || $value === '%%') {
                 continue;
             }
             $l1 = substr($value, 0, 1);
