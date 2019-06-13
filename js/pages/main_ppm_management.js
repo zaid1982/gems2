@@ -13,6 +13,7 @@ function MainPpmManagement() {
     let oTableAsset;
     let sectionAssetClass;
     let contractId;
+    let versionLocal;
 
     this.init = function () {
         mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
@@ -130,6 +131,8 @@ function MainPpmManagement() {
                     {mData: 'assetGroupId', visible: false},
                     {mData: 'assetCategoryId', visible: false},
                     {mData: 'assetTypeId', visible: false},
+                    {mData: 'assetBrandId', visible: false},
+                    {mData: 'assetModelId', visible: false},
                     {mData: 'assetStatus', visible: false}
                 ]
         });
@@ -138,32 +141,48 @@ function MainPpmManagement() {
             oTableAsset.search($(this).val()).draw();
         });
         $('#linkPmgAll').on('click', function () {
-            oTableAsset.column(17).search('').draw();
+            oTableAsset.column(19).search('').draw();
         });
         $('#linkPmg1').on('click', function () {
-            oTableAsset.column(17).search('1', false, true, false).draw();
+            oTableAsset.column(19).search('1', false, true, false).draw();
         });
         $('#linkPmg2').on('click', function () {
-            oTableAsset.column(17).search('2', false, true, false).draw();
+            oTableAsset.column(19).search('2', false, true, false).draw();
         });
         $('#linkPmg5').on('click', function () {
-            oTableAsset.column(17).search('5', false, true, false).draw();
+            oTableAsset.column(19).search('5', false, true, false).draw();
         });
 
         $('#optPmgGroupId').on('change', function () {
             mzOptionStop('optPmgCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optPmgTypeId', 'All Asset Type');
+            mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
+            mzOptionStopClear('optPmgModelId', 'All Asset Model');
             //mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
             oTableAsset.column(14).search($(this).val(), false, true, false).draw();
         });
 
         $('#optPmgCategoryId').on('change', function () {
             mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
+            mzOptionStopClear('optPmgModelId', 'All Asset Model');
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
         });
 
         $('#optPmgTypeId').on('change', function () {
+            const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: $(this).val()});
+            mzOptionStop('optPmgBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName');
+            mzOptionStopClear('optPmgModelId', 'All Asset Model');
             oTableAsset.column(16).search($(this).val(), false, true, false).draw();
+        });
+
+        $('#optPmgBrandId').on('change', function () {
+            mzOptionStop('optPmgModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: $(this).val(), assetTypeId: $('#optPmgTypeId').val()});
+            oTableAsset.column(17).search($(this).val(), false, true, false).draw();
+        });
+
+        $('#optPmgModelId').on('change', function () {
+            oTableAsset.column(18).search($(this).val(), false, true, false).draw();
         });
 
         let cntAsset;
@@ -494,5 +513,9 @@ function MainPpmManagement() {
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+
+    this.setVersionLocal = function (_versionLocal) {
+        versionLocal = _versionLocal;
     };
 }

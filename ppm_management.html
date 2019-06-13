@@ -87,13 +87,29 @@
                                             <label for="optPmgTypeId">Asset Type</label>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-12 select-outline">
+                                            <select id="optPmgBrandId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                                <option value="" disabled>All Asset Brand</option>
+                                            </select>
+                                            <label for="optPmgBrandId">Asset Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 select-outline">
+                                            <select id="optPmgModelId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                                <option value="" disabled>All Asset Model</option>
+                                            </select>
+                                            <label for="optPmgModelId">Asset Type</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12">
                             <div class="view view-cascade z-depth-4 mb-3">
-                                <div id="chartPmgAssetByType" style="height: 517px; margin: 0"></div>
+                                <div id="chartPmgAssetByType" style="height: 616px; margin: 0"></div>
                             </div>
                             <div class="card-body">
                                 <div class="px-3 pt-3">
@@ -256,6 +272,7 @@
                 sectionAssetDetails_.setVersionLocal(versionLocal_);
                 sectionAssetDetails_.init();
 
+                ppmManagementClass_.setVersionLocal(versionLocal_);
                 ppmManagementClass_.setRefStatus(refStatus_);
                 ppmManagementClass_.setRefContract(refContract_);
                 ppmManagementClass_.setRefAssetGroup(refAssetGroup_);
