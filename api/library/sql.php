@@ -19,6 +19,11 @@ class Class_sql
             return "(ErrCode:" . $codes . ") [" . __CLASS__ . ":" . $function . ":" . $line . "]";
     }
 
+    /**
+     * @param $title
+     * @return string
+     * @throws Exception
+     */
     public function get_sql($title)
     {
         try {
@@ -152,6 +157,18 @@ class Class_sql
                     FROM ppm_checklist 
                     GROUP BY asset_type_id
                 ) group_checklist ON group_checklist.asset_type_id = ast_asset_type.asset_type_id";
+            } else if ($title === 'vw_ppm_asset') {
+                $sql = "SELECT 
+                    ast_asset.*,
+                    ppm.ppm_id,
+                    ppm.ppm_task_no,
+                    ppm.ppm_date_cycle,
+                    ppm.checklist_id,
+                    ppm.ppm_created_by,
+                    ppm.ppm_time_created,
+                    ppm.ppm_status
+                FROM ast_asset 
+                LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
