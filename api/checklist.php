@@ -32,8 +32,9 @@ try {
         $type = filter_input(INPUT_GET, 'type');
         $assetTypeId = filter_input(INPUT_GET, 'assetTypeId');
         if (!is_null($type)) {
-            if ($type === 'checklist_by_type')
-            $result = $fn_checklist->get_checklist_by_type();
+            if ($type === 'checklist_by_type') {
+                $result = $fn_checklist->get_checklist_by_type();
+            }
         } else if (!is_null($checklistId)) {
             $result = $fn_checklist->get_checklist($checklistId);
         } else {

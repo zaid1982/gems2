@@ -135,6 +135,31 @@ class Class_login {
     }
 
     /**
+     * @param $userId
+     * @param $deviceId
+     * @throws Exception
+     */
+    public function check_device_id ($userId, $deviceId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            if (empty($deviceId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$deviceId, 'user_device_id'=>$deviceId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Device ID invalid with this login');
+            }
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $arr_roles
      * @return array
      * @throws Exception
@@ -182,7 +207,7 @@ class Class_login {
      * @return array
      * @throws Exception
      */
-    public function check_login ($username, $password) {
+    public function check_login ($username, $password, $deviceId='') {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -226,6 +251,12 @@ class Class_login {
             $result['address']['addressState'] = $this->fn_general->clear_null($profile['state_desc']);
             $result['roles'] = $arr_roles;
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
+
+            $arrUpdate = array('user_time_login'=>'Now()');
+            if ($deviceId !== '') {
+                $arrUpdate['user_device_id'] = $deviceId;
+            }
+            Class_db::getInstance()->db_update('sys_user', $arrUpdate, array('user_id'=>$userId));
             return $result;
         }
         catch (Exception $ex) {

@@ -29,8 +29,12 @@ try {
         if ($action === 'login') {
             $username = filter_input(INPUT_POST, 'username');
             $password = filter_input(INPUT_POST, 'password');
+            $deviceId = filter_input(INPUT_POST, 'deviceId');
+            if (empty($deviceId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
+            }
 
-            $result = $fn_login->check_login($username, $password);
+            $result = $fn_login->check_login($username, $password, $deviceId);
             $fn_general->save_audit('1', $result['userId']);
         }
         else if ($action === 'forgot_password') {      
