@@ -109,7 +109,7 @@
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12">
                             <div class="view view-cascade z-depth-4 mb-3">
-                                <div id="chartPmgAssetByType" style="height: 616px; margin: 0"></div>
+                                <div id="chartPmgAssetByStatus" style="height: 616px; margin: 0"></div>
                             </div>
                             <div class="card-body">
                                 <div class="px-3 pt-3">
@@ -119,14 +119,16 @@
                                                 <option value="" disabled>Choose Column Visibility</option>
                                                 <option value="1">Asset Name</option>
                                                 <option value="2" selected>Asset No</option>
-                                                <option value="3" selected>Asset Group</option>
-                                                <option value="4" selected>Asset Category</option>
-                                                <option value="5" selected>Asset Type</option>
-                                                <option value="6" selected>Brand</option>
-                                                <option value="7" selected>Model</option>
-                                                <option value="8">Capacity</option>
-                                                <option value="9">Location Code</option>
-                                                <option value="10" selected>Status</option>
+                                                <option value="3" selected>PPM Task No</option>
+                                                <option value="4">Asset Serial No</option>
+                                                <option value="5" selected>Asset Group</option>
+                                                <option value="6" selected>Asset Category</option>
+                                                <option value="7" selected>Asset Type</option>
+                                                <option value="8">Brand</option>
+                                                <option value="9">Model</option>
+                                                <option value="10">Capacity</option>
+                                                <option value="11">Location Code</option>
+                                                <option value="12" selected>Status</option>
                                             </select>
                                             <label for="optPmgColumns">Columns Visibility</label>
                                         </div>
@@ -150,7 +152,7 @@
                                 <button type="button" id="btnPmgAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Asset List"
-                                   data-content="Asset List for all users that use the system."><i class="fas fa-info mt-0 mx-1"></i></a>
+                                   data-content="Asset List for assigned and unassigned checklist."><i class="fas fa-info mt-0 mx-1"></i></a>
                                 <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
@@ -166,6 +168,7 @@
                                         <th scope="row" style="max-width: 30px">#</th>
                                         <th style="min-width: 100px">Asset Name</th>
                                         <th style="min-width: 130px">Asset No</th>
+                                        <th style="min-width: 130px">PPM Task No</th>
                                         <th style="min-width: 130px">Asset Serial No</th>
                                         <th style="min-width: 80px">Asset Group</th>
                                         <th style="min-width: 80px">Asset Category</th>

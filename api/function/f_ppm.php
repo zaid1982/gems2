@@ -83,6 +83,7 @@ class Class_ppm {
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
                 $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                $row_result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
                 $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
@@ -101,7 +102,7 @@ class Class_ppm {
                 $row_result['ppmCreatedBy'] = $this->fn_general->clear_null($dataLocal['ppm_created_by']);
                 $row_result['ppmTimeCreated'] = $this->fn_general->clear_null($dataLocal['ppm_time_created']);
                 $row_result['ppmStatus'] = $this->fn_general->clear_null($dataLocal['ppm_status']);
-                $row_result['assignedStatus'] = is_null($dataLocal['ppm_status']) ? '10' : '11';
+                $row_result['assignedStatus'] = is_null($dataLocal['ppm_id']) ? '11' : '10';
                 array_push($result, $row_result);
             }
 

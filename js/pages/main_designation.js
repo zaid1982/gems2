@@ -68,13 +68,13 @@ function MainDesignation() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkDsgDesignationEdit" id="lnkDsgDesignationEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
+                            let label = '<a><i class="fas fa-edit lnkDsgDesignationEdit" id="lnkDsgDesignationEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['designationStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkDsgDesignationDeactivate" id="lnkDsgDesignationDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-off lnkDsgDesignationDeactivate" id="lnkDsgDesignationDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkDsgDesignationActivate" id="lnkDsgDesignationActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-on lnkDsgDesignationActivate" id="lnkDsgDesignationActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkDsgDesignationDelete" id="lnkDsgDesignationDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            label += '<a><i class="fas fa-trash-alt lnkDsgDesignationDelete" id="lnkDsgDesignationDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     },

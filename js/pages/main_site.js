@@ -73,13 +73,13 @@ function MainSite() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSteSiteEdit" id="lnkSteSiteEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
+                            let label = '<a><i class="fas fa-edit lnkSteSiteEdit" id="lnkSteSiteEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['siteStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-off lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkSteSiteActivate" id="lnkSteSiteActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-on lnkSteSiteActivate" id="lnkSteSiteActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkSteSiteDelete" id="lnkSteSiteDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            label += '<a><i class="fas fa-trash-alt lnkSteSiteDelete" id="lnkSteSiteDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     },

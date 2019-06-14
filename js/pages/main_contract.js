@@ -77,13 +77,13 @@ function MainContract() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkCcrContractEdit" id="lnkCcrContractEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
+                            let label = '<a><i class="fas fa-edit lnkCcrContractEdit" id="lnkCcrContractEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['contractStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkCcrContractDeactivate" id="lnkCcrContractDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-off lnkCcrContractDeactivate" id="lnkCcrContractDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkCcrContractActivate" id="lnkCcrContractActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>&nbsp;&nbsp;';
+                                label += '<a><i class="fas fa-toggle-on lnkCcrContractActivate" id="lnkCcrContractActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkCcrContractDelete" id="lnkCcrContractDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            label += '<a><i class="fas fa-trash-alt lnkCcrContractDelete" id="lnkCcrContractDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     },

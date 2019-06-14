@@ -87,6 +87,7 @@ class Class_asset {
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
                 $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                $row_result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
                 $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);

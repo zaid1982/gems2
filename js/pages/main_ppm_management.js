@@ -86,6 +86,9 @@ function MainPpmManagement() {
                             return typeof row['assetNo'] !== 'undefined' ? row['assetNo'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
+                            return typeof row['ppmTaskNo'] !== 'undefined' ? row['ppmTaskNo'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
                             return typeof row['assetSerialNo'] !== 'undefined' ? row['assetSerialNo'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
@@ -111,18 +114,16 @@ function MainPpmManagement() {
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['assetStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetStatus']]['statusDesc']+'</span></h6>';
+                            return '<h6><span class="badge badge-pill '+refStatus[row['assignedStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assignedStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPmgAssetEdit" id="lnkPmgAssetEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Kemaskini"></i></a>&nbsp;&nbsp;';
-                            if (row['assetStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Nyahaktifkan"></i></a>';
-                            } else if (row['assetStatus'] === '2') {
-                                label += '<a><i class="fas fa-toggle-on lnkPmgAssetActivate" id="lnkPmgAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Aktifkan"></i></a>';
-                            } else if (row['assetStatus'] === '5') {
-                                label += '<a><i class="fas fa-trash-alt lnkPmgAssetDelete" id="lnkPmgAssetDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Hapus"></i></a>';
+                            let label = '<a><i class="fas fa-edit lnkPmgAssetEdit" id="lnkPmgAssetEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            if (row['assignedStatus'] === '10') {
+                                label += '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>';
+                            } else if (row['assignedStatus'] === '11') {
+                                label += '<a><i class="fas fa-toggle-on lnkPmgAssetActivate" id="lnkPmgAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>';
                             }
                             return label;
                         }
@@ -133,7 +134,7 @@ function MainPpmManagement() {
                     {mData: 'assetTypeId', visible: false},
                     {mData: 'assetBrandId', visible: false},
                     {mData: 'assetModelId', visible: false},
-                    {mData: 'assetStatus', visible: false}
+                    {mData: 'assignedStatus', visible: false}
                 ]
         });
         $("#dtPmgAsset_filter").hide();
@@ -188,13 +189,13 @@ function MainPpmManagement() {
         let cntAsset;
         let btnAssetOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntAsset = 1;
                         }
-                        if (column === 11) {
+                        if (column === 12) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -233,9 +234,11 @@ function MainPpmManagement() {
         }).container().appendTo($('#btnDtPmgAssetExport'));
 
         oTableAsset.column(1).visible(false);
-        oTableAsset.column(3).visible(false);
+        oTableAsset.column(4).visible(false);
         oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
+        oTableAsset.column(10).visible(false);
+        oTableAsset.column(11).visible(false);
 
         $('#optPmgColumns').on('change', function () {
             for (let i=1; i<=10; i++) {
@@ -265,8 +268,7 @@ function MainPpmManagement() {
             setTimeout(function () {
                 try {
                     self.genTablePmg();
-                    self.displayStats();
-                    self.displayChart();
+                    self.displayStatsChart();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -275,34 +277,28 @@ function MainPpmManagement() {
         });
 
         self.genTablePmg();
-        self.displayStats();
-        self.displayChart();
+        self.displayStatsChart();
     };
 
     this.genTablePmg = function () {
-        const dataAsset = mzAjaxRequest('asset.php', 'GET');
+        const dataAsset = mzAjaxRequest('ppm.php?type=checklist_by_type', 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
     };
 
-    this.displayStats = function () {
+    this.displayStatsChart = function () {
         let totalAll = 0;
         let total1 = 0;
         let total2 = 0;
-        let total5 = 0;
 
         const tableData = oTableAsset.data();
         $.each(tableData, function (n, u) {
-            switch (u['assetStatus']) {
-                case '1':
+            switch (u['assignedStatus']) {
+                case '10':
                     total1++;
                     totalAll++;
                     break;
-                case '2':
+                case '11':
                     total2++;
-                    totalAll++;
-                    break;
-                case '5':
-                    total5++;
                     totalAll++;
                     break;
                 default:
@@ -310,82 +306,16 @@ function MainPpmManagement() {
             }
         });
 
-        $('#linkPmgAll').html('<span class="bullet blue z-depth-2"></span> All Asset <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
-        $('#linkPmg1').html('<span class="bullet green z-depth-2"></span> Assigned <span class="badge green float-right">'+mzFormatNumber(total1)+'</span>');
-        $('#linkPmg2').html('<span class="bullet red z-depth-2"></span> Not Assigned <span class="badge red float-right">'+mzFormatNumber(total2)+'</span>');
-    };
+        $('#linkPmgAll').html('<span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
+        $('#linkPmg1').html('<span class="bullet '+refStatus[10]['statusColor']+' z-depth-2"></span> '+refStatus[10]['statusDesc']+' <span class="badge '+refStatus[10]['statusColor']+' float-right">'+mzFormatNumber(total1)+'</span>');
+        $('#linkPmg2').html('<span class="bullet '+refStatus[11]['statusColor']+' z-depth-2"></span> '+refStatus[11]['statusDesc']+' <span class="badge '+refStatus[11]['statusColor']+' float-right">'+mzFormatNumber(total2)+'</span>');
 
-    this.displayChart = function () {
-        let chartData = [];
-        let chartDrilldown = [];
-        let drilldowns = {};
-        let assetGroups = {};
+        const chartData = [
+            {name:refStatus[10]['statusDesc'], y:total1},
+            {name:refStatus[11]['statusDesc'], y:total2}
+        ];
 
-        const tableData = oTableAsset.data();
-        $.each(tableData, function (n, u) {
-            if (u['assetStatus'] === '1' && u['assetGroupId'] !== '' && u['assetCategoryId'] !== '' && u['assetTypeId'] !== '') {
-                const assetGroupId = u['assetGroupId'];
-                const assetCategoryId = u['assetCategoryId'];
-                const assetTypeId = u['assetTypeId'];
-                const assetGroupName = refAssetGroup[assetGroupId]['assetGroupName'];
-                const assetCategoryName = refAssetCategory[assetCategoryId]['assetCategoryName'];
-                const assetTypeName = refAssetType[assetTypeId]['assetTypeName'];
-
-                if (typeof assetGroups['group'+assetGroupId] !== 'undefined') {
-                    assetGroups['group'+assetGroupId]['y'] ++;
-                } else {
-                    assetGroups['group'+assetGroupId] = {name: assetGroupName, y: 1, drilldown: 'group'+assetGroupId};
-                }
-
-                if (typeof drilldowns['group'+assetGroupId] !== 'undefined') {
-                    if (typeof drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] !== 'undefined') {
-                        drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId]['y'] ++;
-                    } else {
-                        drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] = {name: assetCategoryName, y: 1, drilldown: 'category'+assetCategoryId};
-                    }
-                } else {
-                    drilldowns['group'+assetGroupId] = {
-                        name: 'Asset Category',
-                        data: [],
-                        datas: {},
-                        id: 'group'+assetGroupId
-                    };
-                    drilldowns['group'+assetGroupId]['datas']['category'+assetCategoryId] = {name: assetCategoryName, y: 1, drilldown: 'category'+assetCategoryId};
-                }
-
-                if (typeof drilldowns['category'+assetCategoryId] !== 'undefined') {
-                    if (typeof drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] !== 'undefined') {
-                        drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId]['y'] ++;
-                    } else {
-                        drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] = {name: assetTypeName, y: 1};
-                    }
-                } else {
-                    drilldowns['category'+assetCategoryId] = {
-                        name: 'Asset Type',
-                        data: [],
-                        datas: {},
-                        id: 'category'+assetCategoryId
-                    };
-                    drilldowns['category'+assetCategoryId]['datas']['type'+assetTypeId] = {name: assetTypeName, y: 1};
-                }
-            }
-        });
-
-        $.each(assetGroups, function (n, u) {
-            chartData.push(u);
-        });
-
-        $.each(drilldowns, function (n, u) {
-            let temp = [];
-            $.each(u['datas'], function (n2, u2) {
-                temp.push(u2);
-            });
-            u['data'] = temp;
-            delete u['datas'];
-            chartDrilldown.push(u);
-        });
-
-        Highcharts.chart('chartPmgAssetByType', {
+        Highcharts.chart('chartPmgAssetByStatus', {
             chart: {
                 type: 'pie'
             },
@@ -410,69 +340,10 @@ function MainPpmManagement() {
                 }
             },
             series: [{
-                name: 'Asset Group',
+                name: 'Status',
                 data: chartData
-            }],
-            drilldown: {
-                series: chartDrilldown
-            }
+            }]
         });
-    };
-
-    this.addTablePmg = function (_dataAdd) {
-        const newRow = oTableAsset.row.add(_dataAdd).draw();
-        //const newRowIndex = newRow.index();
-        self.displayStats();
-    };
-
-    this.updateTablePmg = function (_dataEdit, _rowEdit) {
-        const currentRow = oTableAsset.row(_rowEdit).data();
-        if (typeof _dataEdit['action'] !== 'undefined') {
-            if (_dataEdit['action'] === 'save') {
-                currentRow['assetName'] = _dataEdit['assetName'];
-                currentRow['assetNo'] = _dataEdit['assetNo'];
-                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetGroupId'] = _dataEdit['assetGroupId'];
-                currentRow['assetCategoryId'] = _dataEdit['assetCategoryId'];
-                currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
-                currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
-                currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
-                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
-            }
-            else if (_dataEdit['action'] === 'submit') {
-                currentRow['assetName'] = _dataEdit['assetName'];
-                currentRow['assetNo'] = _dataEdit['assetNo'];
-                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetGroupId'] = _dataEdit['assetGroupId'];
-                currentRow['assetCategoryId'] = _dataEdit['assetCategoryId'];
-                currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
-                currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
-                currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
-                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
-                currentRow['assetStatus'] = '1';
-                self.displayStats();
-            }
-            else if (_dataEdit['action'] === 'update') {
-                currentRow['assetName'] = _dataEdit['assetName'];
-                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
-                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
-            }
-        }
-        if (typeof _dataEdit['assetStatus'] !== 'undefined') {
-            currentRow['assetStatus'] = _dataEdit['assetStatus'];
-            self.displayStats();
-        }
-        oTableAsset.row(_rowEdit).data(currentRow).draw();
-        self.displayChart();
-    };
-
-    this.deleteTablePmg = function () {
-        //oTableAsset.row(_rowDelete).remove().draw();
-        self.genTablePmg();
-        self.displayStats();
     };
 
     this.getClassName = function () {
