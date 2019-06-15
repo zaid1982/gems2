@@ -628,7 +628,7 @@ function mzConvertDate(dateInput) {
         if (day.length === 1) {
             day = '0' + day;
         }
-        dateNew = year + '/' + mzConvertMonth(month.slice(0, -1)) + '/' + day;
+        dateNew = year + '-' + mzConvertMonth(month.slice(0, -1)) + '-' + day;
     }
     return dateNew;
 }
@@ -1038,7 +1038,7 @@ function removeOptions(selectbox) {
     }
 }
 
-function mzOptionArr(name, data, defaultText, valIndex, type) {
+function mzOptionArr(name, data, defaultText, keyIndex, valIndex, type) {
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -1047,14 +1047,18 @@ function mzOptionArr(name, data, defaultText, valIndex, type) {
     }
 
     const fieldSelector = $('#' + name);
+    let optionIndex = 0;
+
+    removeOptions(document.getElementById(name));
+    document.getElementById(name).options[optionIndex++] = new Option(defaultText, "", true, true);
+
     if (typeof type !== 'undefined' && type === 'required') {
-        fieldSelector.html('<option value="" disabled selected>'+defaultText+'</option>');
-    } else {
-        fieldSelector.html('<option value="" selected>'+defaultText+'</option>');
+        document.getElementById(name).options[0].disabled = true;
     }
-    
+
     $.each(data, function (n, u) {
         if (typeof u !== 'undefined' && typeof u[valIndex] !== 'undefined') {
+            document.getElementById(name).options[optionIndex++] = new Option(u[valIndex], u[keyIndex]);
             fieldSelector.append('<option value="'+n+'">'+u[valIndex]+'</option>');
         }
     });

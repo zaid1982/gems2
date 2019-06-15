@@ -56,10 +56,10 @@ function SectionChecklist() {
             },
             {
                 field_id: 'txaSckChecklistGuideline',
-                type: 'summernote',
+                type: 'text',
                 name: 'General Guidelines',
                 validator: {
-                    notEmptySummernote: true
+                    notEmpty: true
                 }
             },
             {
@@ -87,23 +87,6 @@ function SectionChecklist() {
 
         $('#formSck').on('keyup change', function () {
             $('#btnSckSubmit, #btnSckUpdate').attr('disabled', !formValidate.validateForm());
-        });
-
-        $('#txaSckChecklistGuideline').summernote({
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['fontname', ['fontname']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']]
-            ],
-            height: 240,
-            disableDragAndDrop: true,
-            callbacks: {
-                onKeyup: function(e) {
-                    formValidate.validateSummernote();
-                }
-            }
         });
 
         oTableChecklistQual =  $('#dtSckChecklistQual').DataTable({
@@ -382,7 +365,7 @@ function SectionChecklist() {
                         checklistName: $('#txtSckChecklistName').val(),
                         checklistVersion: $('#txtSckChecklistVersion').val(),
                         checklistDesc: $('#txaSckChecklistDesc').val(),
-                        checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
+                        checklistGuideline: $('#txaSckChecklistGuideline').val()
                     };
 
                     mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -414,7 +397,7 @@ function SectionChecklist() {
                             checklistName: $('#txtSckChecklistName').val(),
                             checklistVersion: $('#txtSckChecklistVersion').val(),
                             checklistDesc: $('#txaSckChecklistDesc').val(),
-                            checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
+                            checklistGuideline: $('#txaSckChecklistGuideline').val()
                         };
 
                         mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -447,7 +430,7 @@ function SectionChecklist() {
                             checklistName: $('#txtSckChecklistName').val(),
                             checklistVersion: $('#txtSckChecklistVersion').val(),
                             checklistDesc: $('#txaSckChecklistDesc').val(),
-                            checklistGuideline: $('#txaSckChecklistGuideline').summernote('code')
+                            checklistGuideline: $('#txaSckChecklistGuideline').val()
                         };
 
                         mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -487,7 +470,7 @@ function SectionChecklist() {
         mzSetFieldValue('SckChecklistName', dataSck['checklistName'], 'text');
         mzSetFieldValue('SckChecklistVersion', dataSck['checklistVersion'], 'text');
         mzSetFieldValue('SckChecklistDesc', dataSck['checklistDesc'], 'textarea');
-        mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'summernote');
+        mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'textarea');
         mzSetFieldValue('SckAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
         mzSetFieldValue('SckAssetCategoryName', refAssetCategory[assetCategoryId]['assetCategoryName'], 'text');
         mzSetFieldValue('SckAssetGroupName', refAssetGroup[assetGroupId]['assetGroupName'], 'text');
@@ -521,7 +504,6 @@ function SectionChecklist() {
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
-                $('#txaSckChecklistGuideline').summernote('enable');
                 $('#divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
 
                 $('#btnSckUpdate').hide();
@@ -560,7 +542,6 @@ function SectionChecklist() {
                 }
 
                 $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
-                $('#txaSckChecklistGuideline').summernote('enable');
                 $('#btnSckUpdate').prop('disabled', true);
                 $('.sectionChecklist').show();
 

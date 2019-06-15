@@ -92,7 +92,7 @@
                                             <select id="optPmgBrandId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Brand</option>
                                             </select>
-                                            <label for="optPmgBrandId">Asset Type</label>
+                                            <label for="optPmgBrandId">Brand</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -100,7 +100,7 @@
                                             <select id="optPmgModelId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Model</option>
                                             </select>
-                                            <label for="optPmgModelId">Asset Type</label>
+                                            <label for="optPmgModelId">Model</label>
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@
                     <div class="card card-cascade narrower z-depth-0">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                                <button type="button" id="btnPmgAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
+                                <button type="button" id="btnPmgAssetSet" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Set Group PPM"><i class="fas fa-calendar-alt mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Asset List"
                                    data-content="Asset List for assigned and unassigned checklist."><i class="fas fa-info mt-0 mx-1"></i></a>
@@ -194,6 +194,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_ppm"></div>
 
 </main>
 
@@ -237,6 +238,7 @@
     let ppmManagementClass_;
     let sectionAssetDetails_;
     let modalConfirmDelete_;
+    let modalPpmClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -249,6 +251,7 @@
                 ppmManagementClass_ = new MainPpmManagement();
                 sectionAssetDetails_ = new SectionAssetDetails();
                 modalConfirmDelete_ = new ModalConfirmDelete();
+                modalPpmClass_ = new ModalPpm();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
@@ -260,6 +263,15 @@
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+
+                modalPpmClass_.setClassFrom(ppmManagementClass_);
+                modalPpmClass_.setRefContract(refContract_);
+                modalPpmClass_.setRefAssetGroup(refAssetGroup_);
+                modalPpmClass_.setRefAssetCategory(refAssetCategory_);
+                modalPpmClass_.setRefAssetType(refAssetType_);
+                modalPpmClass_.setRefAssetBrand(refAssetBrand_);
+                modalPpmClass_.setRefAssetModel(refAssetModel_);
+                modalPpmClass_.init();
 
                 sectionAssetDetails_.setClassFrom(ppmManagementClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
@@ -283,6 +295,7 @@
                 ppmManagementClass_.setRefAssetType(refAssetType_);
                 ppmManagementClass_.setRefAssetBrand(refAssetBrand_);
                 ppmManagementClass_.setRefAssetModel(refAssetModel_);
+                ppmManagementClass_.setModalPpmClass(modalPpmClass_);
                 ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
                 ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 ppmManagementClass_.init();
@@ -297,6 +310,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

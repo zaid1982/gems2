@@ -14,14 +14,14 @@
                 <form id="formMcr">
                     <div class="row">
                         <div class="col-md-12 select-outline mt-4">
-                            <select id="optMcrClientId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <select id="optMcrClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                             <label for="optMcrClientId" id="lblMcrClientId">Client *</label>
                             <p class="font-small text-danger" id="optMcrClientIdErr"></p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12 select-outline mt-0">
-                            <select id="optMcrSiteId" class="mdb-select md-form md-outline colorful-select mt-0">
+                            <select id="optMcrSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                 <option value="" disabled selected>Choose Site</option>
                             </select>
                             <label for="optMcrSiteId" id="lblMcrSiteId">Site *</label>
@@ -37,6 +37,22 @@
                         <textarea id="txaMcrDesc" class="md-textarea form-control" rows="3"></textarea>
                         <label for="txaMcrDesc" id="lblMcrDesc" class="text-muted">Description</label>
                         <p class="font-small text-danger" id="txaMcrDescErr"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMcrContractDateStart" class="form-control datepicker" readonly>
+                                <label for="txtMcrContractDateStart" id="lblMcrContractDateStart">Contract Date Start *</label>
+                                <p class="font-small text-danger" id="txtMcrContractDateStartErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMcrContractDateEnd" class="form-control datepicker" readonly>
+                                <label for="txtMcrContractDateEnd" id="lblMcrContractDateEnd">Contract Date End *</label>
+                                <p class="font-small text-danger" id="txtMcrContractDateEndErr"></p>
+                            </div>
+                        </div>
                     </div>
                     <h6 class="font-small">Status:</h6>
                     <div class="form-check pl-0 ml-3">

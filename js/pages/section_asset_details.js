@@ -23,7 +23,11 @@ function SectionAssetDetails() {
 
         $('#btnSszBack').on('click', function () {
             $('.sectionAssetDetails').hide();
-            $('.sectionAszMain').show();
+            if (classFrom.getClassName() === 'MainAsset') {
+                $('.sectionAszMain').show();
+            } else if (classFrom.getClassName() === 'MainPpmManagement') {
+                $('.sectionPmgMain').show();
+            }
             $(window).scrollTop(0);
         });
 
@@ -338,9 +342,7 @@ function SectionAssetDetails() {
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').hide();
-                $('#txtSszAssetNo').prop('disabled', false);
-                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
-                formValidate.enableField('txtSszAssetCode');
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
 
                 $('#btnSszSubmit').prop('disabled', true);
                 $('#divSszRegisterInfo, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
@@ -391,7 +393,7 @@ function SectionAssetDetails() {
                     formValidate.disableField('optSszAssetBrandId');
                     formValidate.disableField('optSszAssetModelId');
                 }
-                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', false);
 
                 $('#btnSszUpdate').prop('disabled', true);
                 $('.sectionAssetDetails').show();
@@ -407,18 +409,17 @@ function SectionAssetDetails() {
         }, 300);
     };
 
-    this.view = function (_assetId, _rowRefresh) {
+    this.view = function (_assetId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_assetId, _rowRefresh]);
+                mzCheckFuncParam([_assetId]);
                 assetId = _assetId;
-                rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').show();
-                $('#txtSszAssetName, #txtSszAssetCode, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', true);
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetLocationCode, #txtSszAssetCapacity').prop('disabled', true);
 
                 mzDisableSelect('optSszAssetGroupId', true);
                 mzDisableSelect('optSszAssetCategoryId', true);
@@ -431,6 +432,8 @@ function SectionAssetDetails() {
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
+                } else if (classFrom.getClassName() === 'MainPpmManagement') {
+                    $('.sectionPmgMain').hide();
                 }
                 $(window).scrollTop(0);
             } catch (e) {

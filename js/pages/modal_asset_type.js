@@ -131,7 +131,7 @@ function ModalAssetType() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                mzOptionStop('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
                 mzSetFieldValue('MztStatus', '1', 'checkSingle', '1');
                 $('#lblMztTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Type');
@@ -147,8 +147,8 @@ function ModalAssetType() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
-                mzOption('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
+                mzOptionStop('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
+                mzOptionStop('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
                 mzCheckFuncParam([_assetTypeId, _rowRefresh]);
                 assetTypeId = _assetTypeId;
                 rowRefresh = _rowRefresh;

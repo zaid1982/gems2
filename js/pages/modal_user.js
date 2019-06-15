@@ -139,7 +139,7 @@ function ModalUser() {
         });
 
         $('#optMusClientId').on('change', function () {
-            mzOption('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+            mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
         });
 
         $('#btnMusSubmit').on('click', function () {
@@ -204,8 +204,8 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMusDesignationId', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
-                mzOption('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
+                mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
@@ -230,8 +230,8 @@ function ModalUser() {
             try {
                 mzCheckFuncParam([_userId, _rowRefresh]);
                 $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', true);
-                mzOption('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
-                mzOption('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
+                mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
@@ -257,7 +257,7 @@ function ModalUser() {
                     toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
                 }
                 else {
-                    mzOption('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
+                    mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
                     mzSetFieldValue('MusUserType', '2', 'check');
                     mzSetFieldValue('MusClientId', dataUser['clientId'], 'select', 'Client *');
                     mzSetFieldValue('MusSiteId', dataUser['siteId'], 'select', 'Site *');

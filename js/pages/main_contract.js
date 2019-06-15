@@ -70,6 +70,8 @@ function MainContract() {
                         }},
                     {mData: 'contractName'},
                     {mData: 'contractDesc'},
+                    {mData: 'contractDateStart'},
+                    {mData: 'contractDateEnd'},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['contractStatus']]['statusColor']+' z-depth-2">'+refStatus[row['contractStatus']]['statusDesc']+'</span></h6>';
@@ -98,13 +100,13 @@ function MainContract() {
         let cntContract;
         let btnContractOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntContract = 1;
                         }
-                        if (column === 5) {
+                        if (column === 7) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -178,6 +180,12 @@ function MainContract() {
         }
         if (typeof _dataEdit['contractDesc'] !== 'undefined') {
             currentRow['contractDesc'] = _dataEdit['contractDesc'];
+        }
+        if (typeof _dataEdit['contractDateStart'] !== 'undefined') {
+            currentRow['contractDateStart'] = _dataEdit['contractDateStart'];
+        }
+        if (typeof _dataEdit['contractDateEnd'] !== 'undefined') {
+            currentRow['contractDateEnd'] = _dataEdit['contractDateEnd'];
         }
         if (typeof _dataEdit['contractStatus'] !== 'undefined') {
             currentRow['contractStatus'] = _dataEdit['contractStatus'];

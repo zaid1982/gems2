@@ -78,7 +78,7 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_asset');
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_asset', array('asset_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);

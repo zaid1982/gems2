@@ -87,6 +87,8 @@ class Class_contract {
                 $row_result['contractId'] = $dataLocal['contract_id'];
                 $row_result['contractName'] = $dataLocal['contract_name'];
                 $row_result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
+                $row_result['contractDateStart'] = str_replace('-', '/', $dataLocal['contract_date_start']);
+                $row_result['contractDateEnd'] = str_replace('-', '/', $dataLocal['contract_date_end']);
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['clientId'] = $dataLocal['client_id'];
                 $row_result['contractTimeCreated'] = str_replace('-', '/', $dataLocal['contract_time_created']);
@@ -120,6 +122,8 @@ class Class_contract {
             $result['contractId'] = $dataLocal['contract_id'];
             $result['contractName'] = $dataLocal['contract_name'];
             $result['contractDesc'] = $this->fn_general->clear_null($dataLocal['contract_desc']);
+            $result['contractDateStart'] = str_replace('-', '/', $dataLocal['contract_date_start']);
+            $result['contractDateEnd'] = str_replace('-', '/', $dataLocal['contract_date_end']);
             $result['siteId'] = $dataLocal['site_id'];
             $result['contractTimeCreated'] = str_replace('-', '/', $dataLocal['contract_time_created']);
             $result['contractStatus'] = $dataLocal['contract_status'];
@@ -151,6 +155,12 @@ class Class_contract {
             if (!array_key_exists('contractDesc', $params)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractDesc not exist');
             }
+            if (!array_key_exists('contractDateStart', $params) || empty($params['contractDateStart'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDateStart empty');
+            }
+            if (!array_key_exists('contractDateEnd', $params) || empty($params['contractDateEnd'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDateEnd empty');
+            }
             if (!array_key_exists('siteId', $params) || empty($params['siteId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
@@ -160,6 +170,8 @@ class Class_contract {
 
             $contractName = $params['contractName'];
             $contractDesc = $params['contractDesc'];
+            $contractDateStart = $params['contractDateStart'];
+            $contractDateEnd = $params['contractDateEnd'];
             $siteId = $params['siteId'];
             $contractStatus = $params['contractStatus'];
 
@@ -167,7 +179,8 @@ class Class_contract {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CONTRACT_SIMILAR, 31);
             }
 
-            return Class_db::getInstance()->db_insert('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'site_id'=>$siteId, 'contract_status'=>$contractStatus));
+            return Class_db::getInstance()->db_insert('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'contract_date_start'=>$contractDateStart, 'contract_date_end'=>$contractDateEnd,
+                'site_id'=>$siteId, 'contract_status'=>$contractStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -198,6 +211,12 @@ class Class_contract {
             if (!isset($put_vars['contractDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractDesc not exist');
             }
+            if (!isset($put_vars['contractDateStart']) || empty($put_vars['contractDateStart'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDateStart empty');
+            }
+            if (!isset($put_vars['contractDateEnd']) || empty($put_vars['contractDateEnd'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractDateEnd empty');
+            }
             if (!isset($put_vars['siteId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId not exist');
             }
@@ -207,6 +226,8 @@ class Class_contract {
 
             $contractName = $put_vars['contractName'];
             $contractDesc = $put_vars['contractDesc'];
+            $contractDateStart = $put_vars['contractDateStart'];
+            $contractDateEnd = $put_vars['contractDateEnd'];
             $siteId = $put_vars['siteId'];
             $contractStatus = $put_vars['contractStatus'];
 
@@ -214,7 +235,7 @@ class Class_contract {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'contract_status'=>$contractStatus), array('contract_id'=>$contractId));
+            Class_db::getInstance()->db_update('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'contract_date_start'=>$contractDateStart, 'contract_date_end'=>$contractDateEnd, 'contract_status'=>$contractStatus), array('contract_id'=>$contractId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

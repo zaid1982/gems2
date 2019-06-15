@@ -1,0 +1,115 @@
+<div class="modal fade" id="modal_ppm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMpmTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-1">
+                <form id="formMpm">
+                    <h6 class="font-small">Asset Information :</h6>
+                    <div class="row pl-2 mt-3">
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmContractName" class="form-control" disabled>
+                                <label for="txtMpmContractName" id="lblMpmContractName">Contract Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmContractDateStart" class="form-control" disabled>
+                                <label for="txtMpmContractDateStart" id="lblMpmContractDateStart">Contract Start</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmContractDateEnd" class="form-control" disabled>
+                                <label for="txtMpmContractDateEnd" id="lblMpmContractDateEnd">Contract End</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pl-2">
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetNo" class="form-control" disabled>
+                                <label for="txtMpmAssetNo" id="lblMpmAssetNo">Asset No</label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetName" class="form-control" disabled>
+                                <label for="txtMpmAssetName" id="lblMpmAssetName">Asset Name</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pl-2">
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetGroupName" class="form-control" disabled>
+                                <label for="txtMpmAssetGroupName" id="lblMpmAssetGroupName">Asset Group</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetCategoryName" class="form-control" disabled>
+                                <label for="txtMpmAssetCategoryName" id="lblMpmAssetCategoryName">Asset Category</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetTypeName" class="form-control" disabled>
+                                <label for="txtMpmAssetTypeName" id="lblMpmAssetTypeName">Asset Type</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pl-2">
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetBrandName" class="form-control" disabled>
+                                <label for="txtMpmAssetBrandName" id="lblMpmAssetBrandName">Brand</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetModelName" class="form-control" disabled>
+                                <label for="txtMpmAssetModelName" id="lblMpmAssetModelName">Model</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmAssetCapacity" class="form-control" disabled>
+                                <label for="txtMpmAssetCapacity" id="lblMpmAssetCapacity">Capacity</label>
+                            </div>
+                        </div>
+                    </div>
+                    <h6 class="font-small">PPM Form :</h6>
+                    <div class="row pl-2 mt-3">
+                        <div class="col-md-9 select-outline">
+                            <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                <option value="" disabled selected>Choose PPM Checklist</option>
+                            </select>
+                            <label for="optMpmChecklistId" id="lblMpmChecklistId">PPM Checklist *</label>
+                            <p class="font-small text-danger" id="optMpmChecklistIdErr"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpmPpmDateCycle" class="form-control datepicker">
+                                <label for="txtMpmPpmDateCycle" id="lblMpmPpmDateCycle">Start Cycle Date *</label>
+                                <p class="font-small text-danger" id="txtMpmPpmDateCycleErr"></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMpmSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

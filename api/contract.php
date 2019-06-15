@@ -39,12 +39,16 @@ try {
     } else if ('POST' === $request_method) {
         $contractName = filter_input(INPUT_POST, 'contractName');
         $contractDesc = filter_input(INPUT_POST, 'contractDesc');
+        $contractDateStart = filter_input(INPUT_POST, 'contractDateStart');
+        $contractDateEnd = filter_input(INPUT_POST, 'contractDateEnd');
         $siteId = filter_input(INPUT_POST, 'siteId');
         $contractStatus = filter_input(INPUT_POST, 'contractStatus');
 
         $params = array(
             'contractName' => $contractName,
             'contractDesc' => $contractDesc,
+            'contractDateStart' => $contractDateStart,
+            'contractDateEnd' => $contractDateEnd,
             'siteId' => $siteId,
             'contractStatus' => $contractStatus
         );

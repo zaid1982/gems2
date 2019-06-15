@@ -14,6 +14,7 @@ function MainPpmManagement() {
     let sectionAssetClass;
     let contractId;
     let versionLocal;
+    let modalPpmClass;
 
     this.init = function () {
         mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
@@ -38,13 +39,22 @@ function MainPpmManagement() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPmgAssetEdit').off('click').on('click', function () {
+                $('.lnkPmgAssetView').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        sectionAssetClass.edit(currentRow['assetId'], rowId);
+                        sectionAssetClass.view(currentRow['assetId']);
+                    }
+                });
+                $('.lnkPmgAssetPpmAssign').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                        modalPpmClass.setSingle(currentRow['assetId'], rowId);
                     }
                 });
                 $('.lnkPmgAssetDeactivate').off('click').on('click', function () {
@@ -54,24 +64,6 @@ function MainPpmManagement() {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableAsset.row(parseInt(rowId)).data();
                         sectionAssetClass.deactivate(currentRow['assetId'], rowId);
-                    }
-                });
-                $('.lnkPmgAssetActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        sectionAssetClass.activate(currentRow['assetId'], rowId);
-                    }
-                });
-                $('.lnkPmgAssetDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetId'], sectionAssetClass);
                     }
                 });
             },
@@ -119,12 +111,13 @@ function MainPpmManagement() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPmgAssetEdit" id="lnkPmgAssetEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label;
                             if (row['assignedStatus'] === '10') {
-                                label += '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>';
+                                label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else if (row['assignedStatus'] === '11') {
-                                label += '<a><i class="fas fa-toggle-on lnkPmgAssetActivate" id="lnkPmgAssetActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>';
+                                label = '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
                             }
+                            label += '<a><i class="fas fa-qrcode lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"></i></a>';
                             return label;
                         }
                     },
@@ -259,7 +252,7 @@ function MainPpmManagement() {
             oTableAsset.column(16).search($(this).val(), false, true, false).draw();
         });
 
-        $('#btnPmgAssetAdd').on('click', function () {
+        $('#btnPmgAssetSet').on('click', function () {
             sectionAssetClass.add(contractId, $('#optPmgGroupId').val(), $('#optPmgCategoryId').val(), $('#optPmgTypeId').val());
         });
 
@@ -283,6 +276,10 @@ function MainPpmManagement() {
     this.genTablePmg = function () {
         const dataAsset = mzAjaxRequest('ppm.php?type=checklist_by_type', 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
+    };
+
+    this.getTablePmgRow = function (_rowId) {
+        return oTableAsset.row(parseInt(_rowId)).data();
     };
 
     this.displayStatsChart = function () {
@@ -380,6 +377,10 @@ function MainPpmManagement() {
 
     this.setSectionAssetClass = function (_sectionAssetClass) {
         sectionAssetClass = _sectionAssetClass;
+    };
+
+    this.setModalPpmClass = function (_modalPpmClass) {
+        modalPpmClass = _modalPpmClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
