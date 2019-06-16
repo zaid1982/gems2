@@ -73,6 +73,10 @@ class Class_ppm {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_ppm_from_asset_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -109,6 +113,36 @@ class Class_ppm {
             return $result;
         }
         catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $assetId
+     * @param $checklistId
+     * @param $ppmDateCycle
+     * @throws Exception
+     */
+    public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($assetId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
+            }
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            if (empty($ppmDateCycle)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmDateCycle empty');
+            }
+
+            // check ppm if asset already exist
+            // generate ppm_task_no
+            // get items frequency
+            // get technicians
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

@@ -1213,3 +1213,31 @@ function mzCheckFuncParam (arrParam) {
         }
     }
 }
+
+function mzDateSetMin(fieldId, dateStr) {
+    const dateInput = $('#'+fieldId).pickadate();
+    const datePicker = dateInput.pickadate('picker');
+
+    const dateSplit = dateStr.split("/");
+    if (dateSplit.length !== 3) {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    const day = parseInt(dateSplit[2]);
+    const month = parseInt(dateSplit[1]);
+    const year = parseInt(dateSplit[0]);
+    datePicker.set('min', new Date(year,month-1, day));
+}
+
+function mzDateSetMax(fieldId, dateStr) {
+    const dateInput = $('#'+fieldId).pickadate();
+    const datePicker = dateInput.pickadate('picker');
+
+    const dateSplit = dateStr.split("/");
+    if (dateSplit.length !== 3) {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    const day = parseInt(dateSplit[2]);
+    const month = parseInt(dateSplit[1]);
+    const year = parseInt(dateSplit[0]);
+    datePicker.set('max', new Date(year,month-1, day));
+}

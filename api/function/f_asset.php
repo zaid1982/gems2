@@ -120,7 +120,7 @@ class Class_asset {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($assetId)) {
-                throw new Exception('[' . __LINE__ . '] - Array assetId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
             }
 
             $result = array();

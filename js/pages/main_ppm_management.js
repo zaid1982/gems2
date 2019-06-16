@@ -282,6 +282,22 @@ function MainPpmManagement() {
         return oTableAsset.row(parseInt(_rowId)).data();
     };
 
+    this.updateTablePmg = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableAsset.row(_rowEdit).data();
+        if (typeof _dataEdit['action'] !== 'undefined') {
+            if (_dataEdit['action'] === 'assign_ppm_single') {
+                currentRow['checklistId'] = _dataEdit['checklistId'];
+                currentRow['ppmDateCycle'] = _dataEdit['ppmDateCycle'];
+                currentRow['ppmId'] = _dataEdit['ppmId'];
+                currentRow['ppmTaskNo'] = _dataEdit['ppmTaskNo'];
+                currentRow['ppmStatus'] = _dataEdit['ppmStatus'];
+                currentRow['assignedStatus'] = _dataEdit['assignedStatus'];
+            }
+        }
+        oTableAsset.row(_rowEdit).data(currentRow).draw();
+        self.displayStatsChart();
+    };
+
     this.displayStatsChart = function () {
         let totalAll = 0;
         let total1 = 0;

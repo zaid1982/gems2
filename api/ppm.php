@@ -41,6 +41,26 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $action = filter_input(INPUT_POST, 'action');
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'assign_ppm_single') {
+            $assetId = filter_input(INPUT_POST, 'assetId');
+            $checklistId = filter_input(INPUT_POST, 'checklistId');
+            $ppmDateCycle = filter_input(INPUT_POST, 'ppmDateCycle');
+
+            $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle);
+            // save audit
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

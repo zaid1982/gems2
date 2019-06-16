@@ -49,6 +49,40 @@ function ModalPpm() {
             formValidate.clearValidation();
             $('#btnMpmSubmit').attr('disabled', true);
         });
+
+        $('#btnMpmSubmit').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidate.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    }
+                    else {
+                        const checklistId = $('#optMpmChecklistId').val();
+                        const ppmDateCycle = mzConvertDate($('#txtMpmPpmDateCycle').val());
+                        let data = {
+                            action: 'assign_ppm_single',
+                            assetId: assetId,
+                            checklistId: checklistId,
+                            ppmDateCycle: ppmDateCycle
+                        };
+
+                        //const ppmReturn = mzAjaxRequest('ppm.php', 'POST', data);
+                        if (classFrom.getClassName() === 'MainPpmManagement') {
+                            data['ppmId'] = '2';//ppmReturn['ppmId'];
+                            data['ppmTaskNo'] = 'FEA21312312';//ppmReturn['ppmTaskNo'];
+                            data['ppmStatus'] = '10';
+                            data['assignedStatus'] = '10';
+                            classFrom.updateTablePmg(data, rowRefresh);
+                        }
+                        $('#modal_ppm').modal('hide');
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
     };
 
     this.setSingle = function (_assetId, _rowRefresh) {
@@ -66,10 +100,12 @@ function ModalPpm() {
                 const assetTypeId = rowData['assetTypeId'];
                 const assetBrandId = rowData['assetBrandId'];
                 const assetModelId = rowData['assetModelId'];
+                const contractDateStart = refContract[contractId]['contractDateStart'];
+                const contractDateEnd = refContract[contractId]['contractDateEnd'];
 
                 mzSetFieldValue('MpmContractName', refContract[contractId]['contractName'], 'text');
-                mzSetFieldValue('MpmContractDateStart', mzConvertDateDisplay(refContract[contractId]['contractDateStart']), 'text');
-                mzSetFieldValue('MpmContractDateEnd', mzConvertDateDisplay(refContract[contractId]['contractDateEnd']), 'text');
+                mzSetFieldValue('MpmContractDateStart', mzConvertDateDisplay(contractDateStart), 'text');
+                mzSetFieldValue('MpmContractDateEnd', mzConvertDateDisplay(contractDateEnd), 'text');
                 mzSetFieldValue('MpmAssetNo', rowData['assetNo'], 'text');
                 mzSetFieldValue('MpmAssetName', rowData['assetName'], 'text');
                 mzSetFieldValue('MpmAssetGroupName', refAssetGroup[assetGroupId]['assetGroupName'], 'text');
@@ -78,6 +114,8 @@ function ModalPpm() {
                 mzSetFieldValue('MpmAssetBrandName', refAssetBrand[assetBrandId]['assetBrandName'], 'text');
                 mzSetFieldValue('MpmAssetModelName', refAssetModel[assetModelId]['assetModelName'], 'text');
                 mzSetFieldValue('MpmAssetCapacity', rowData['assetCapacity'], 'text');
+                mzDateSetMin('txtMpmPpmDateCycle', contractDateStart);
+                mzDateSetMax('txtMpmPpmDateCycle', contractDateEnd);
 
                 const refChecklist = mzAjaxRequest('checklist.php?assetTypeId='+assetTypeId, 'GET');
                 mzOptionStop('optMpmChecklistId', refChecklist, 'Choose PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true);
