@@ -138,17 +138,189 @@ class Class_ppm {
             if (empty($ppmDateCycle)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmDateCycle empty');
             }
-
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
             }
 
-            // get technicians
-            // generate ppm_task_no
+            $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
+            $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            $contractId = $asset['contract_id'];
+            $contract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
+            $contractDateEnd = $contract['contractDateEnd'];
+            if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
+                throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
+            }
+
+            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('cli_contract_user.contract_id'=>$contractId, 'cli_contract_user.role_id'=>'5'), 'user_id');
+            if (empty($technicians)) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
+            }
+
             // get items frequency
+            $isYearly = false;
+            $isQuarterly = false;
+            $isMonthly = false;
+            $isWeekly = false;
+            $isDaily = false;
+
+            $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId), 'checklist_qual_numb');
+            foreach ($checklistQuals as $checklistQual) {
+                switch ($checklistQual['frequency_id']) {
+                    case '1';
+                        $isYearly = true;
+                        break;
+                    case '2';
+                        $isQuarterly = true;
+                        break;
+                    case '3';
+                        $isMonthly = true;
+                        break;
+                    case '4';
+                        $isWeekly = true;
+                        break;
+                    case '5';
+                        $isDaily = true;
+                        break;
+                }
+            }
+
+            $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId), 'checklist_quan_numb');
+            foreach ($checklistQuans as $checklistQuan) {
+                switch ($checklistQuan['frequency_id']) {
+                    case '1';
+                        $isYearly = true;
+                        break;
+                    case '2';
+                        $isQuarterly = true;
+                        break;
+                    case '3';
+                        $isMonthly = true;
+                        break;
+                    case '4';
+                        $isWeekly = true;
+                        break;
+                    case '5';
+                        $isDaily = true;
+                        break;
+                }
+            }
+
+            $dailyDates = $this->get_dates_day($ppmDateCycle, $contractDateEnd);
+            $weeklyDates = $this->get_dates_week($ppmDateCycle, $contractDateEnd);
+            $monthlyDates = $this->get_dates_month($ppmDateCycle, $contractDateEnd);
+            $quarterlyDates = $this->get_dates_quarter($ppmDateCycle, $contractDateEnd);
+            $yearlyDates = $this->get_dates_year($ppmDateCycle, $contractDateEnd);
+
+            $tempDays = array();
+            foreach($dailyDates as $dateStr){
+                if ($isDaily) {
+                    array_push($tempDays, $dateStr);
+                }
+                if ($isWeekly && in_array($dateStr, $weeklyDates) && !in_array($dateStr, $tempDays)) {
+                    array_push($tempDays, $dateStr);
+                }
+                if ($isMonthly && in_array($dateStr, $monthlyDates) && !in_array($dateStr, $tempDays)) {
+                    array_push($tempDays, $dateStr);
+                }
+                if ($isQuarterly && in_array($dateStr, $quarterlyDates) && !in_array($dateStr, $tempDays)) {
+                    array_push($tempDays, $dateStr);
+                }
+                if ($isYearly && in_array($dateStr, $yearlyDates) && !in_array($dateStr, $tempDays)) {
+                    array_push($tempDays, $dateStr);
+                }
+            }
+
+            if (count($tempDays) == 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_DATES, 31);
+            }
+
+            // insert ppm
+            foreach($tempDays as $dateStr){
+                // generate ppm_task_no
+                // insert ppm_task_no && wfl_transaction && first task
+                // loop qual & quan
+                // insert other sections table
+                // notification
+            }
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
+    }
+
+    private function get_dates_day ($startDate, $endDate) {
+        $newDates = array();
+        $begin = new DateTime( $startDate );
+        $end = new DateTime( $endDate );
+        $end = $end->modify( '+1 day' );
+        $interval = new DateInterval('P1D');
+        $dateRange = new DatePeriod($begin, $interval ,$end);
+        foreach($dateRange as $date){
+            array_push($newDates, $date->format("Y-m-d"));
+        }
+        return $newDates;
+    }
+
+    private function get_dates_week ($startDate, $endDate) {
+        $newDates = array();
+        $begin = new DateTime( $startDate );
+        $begin = $begin->modify( '+1 week' );
+        $begin = $begin->modify( '-1 day' );
+        $end = new DateTime( $endDate );
+        $end = $end->modify( '+1 day' );
+        $interval = new DateInterval('P1W');
+        $dateRange = new DatePeriod($begin, $interval ,$end);
+        foreach($dateRange as $date){
+            array_push($newDates, $date->format("Y-m-d"));
+        }
+        return $newDates;
+    }
+
+    private function get_dates_month ($startDate, $endDate) {
+        $newDates = array();
+        $begin = new DateTime( $startDate );
+        $begin = $begin->modify( '+1 month' );
+        //$begin = $begin->modify( '-1 day' );
+        $end = new DateTime( $endDate );
+        $end = $end->modify( '+2 day' );
+        $interval = new DateInterval('P1M');
+        $dateRange = new DatePeriod($begin, $interval ,$end);
+        foreach($dateRange as $date){
+            $xx = $date->modify( '-1 day' );
+            array_push($newDates, $xx->format("Y-m-d"));
+        }
+        return $newDates;
+    }
+
+    private function get_dates_quarter ($startDate, $endDate) {
+        $newDates = array();
+        $begin = new DateTime( $startDate );
+        $begin = $begin->modify( '+3 month' );
+        //$begin = $begin->modify( '-1 day' );
+        $end = new DateTime( $endDate );
+        $end = $end->modify( '+2 day' );
+        $interval = new DateInterval('P3M');
+        $dateRange = new DatePeriod($begin, $interval ,$end);
+        foreach($dateRange as $date){
+            $xx = $date->modify( '-1 day' );
+            array_push($newDates, $xx->format("Y-m-d"));
+        }
+        return $newDates;
+    }
+
+    private function get_dates_year ($startDate, $endDate) {
+        $newDates = array();
+        $begin = new DateTime( $startDate );
+        $begin = $begin->modify( '+1 year' );
+        //$begin = $begin->modify( '-1 day' );
+        $end = new DateTime( $endDate );
+        $end = $end->modify( '+2 day' );
+        $interval = new DateInterval('P1Y');
+        $dateRange = new DatePeriod($begin, $interval ,$end);
+        foreach($dateRange as $date){
+            $xx = $date->modify( '-1 day' );
+            array_push($newDates, $xx->format("Y-m-d"));
+        }
+        return $newDates;
     }
 }

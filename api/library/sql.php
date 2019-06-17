@@ -169,6 +169,13 @@ class Class_sql
                     ppm.ppm_status
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id";
+            } else if ($title === 'vw_technicians') {
+                $sql = "SELECT
+                    cli_contract_user.user_id
+                FROM cli_contract_user
+                INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND cli_contract_user.role_id = wfl_checkpoint_user.role_id
+                    AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
+                INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

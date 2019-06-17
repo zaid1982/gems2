@@ -123,7 +123,6 @@ function ModalChecklistQual() {
             try {
                 checklistQualId = _checklistQualId;
                 rowRefresh = _rowRefresh;
-                mzOption('optMqlFrequencyId', refFrequency, 'Choose Frequency', 'frequencyId', 'frequencyName', [], '', false);
                 mzCheckFuncParam([_checklistQualId, _rowRefresh]);
 
                 const dataMql = mzAjaxRequest('checklist_qual.php?checklistQualId='+checklistQualId, 'GET');
