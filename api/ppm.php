@@ -52,7 +52,7 @@ try {
             $checklistId = filter_input(INPUT_POST, 'checklistId');
             $ppmDateCycle = filter_input(INPUT_POST, 'ppmDateCycle');
 
-            $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle);
+            $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle, $jwt_data->userId);
             // save audit
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');

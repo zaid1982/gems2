@@ -1,13 +1,16 @@
 <?php
 require_once 'library/constant.php';
 require_once 'function/f_general.php';
+require_once 'function/f_task.php';
 
 class Class_ppm {
 
     private $fn_general;
+    private $fn_task;
 
     function __construct() {
         $this->fn_general = new Class_general();
+        $this->fn_task = new Class_task();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -122,9 +125,10 @@ class Class_ppm {
      * @param $assetId
      * @param $checklistId
      * @param $ppmDateCycle
+     * @param $userId
      * @throws Exception
      */
-    public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle) {
+    public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle, $userId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
@@ -137,6 +141,9 @@ class Class_ppm {
             }
             if (empty($ppmDateCycle)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmDateCycle empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
@@ -234,10 +241,27 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_DATES, 31);
             }
 
-            // insert ppm
-            foreach($tempDays as $dateStr){
-                // generate ppm_task_no
-                // insert ppm_task_no && wfl_transaction && first task
+            $runningNo = Class_db::getInstance()->db_select_col('ppm', array(), 'ppm_running_no', 'ppm_running_no DESC');
+            if (empty($runningNo)) {
+                $runningNo = 1;
+            } else {
+                $runningNo = intval($runningNo);
+            }
+            $runningNoTemp = 10000 + $runningNo;
+            $runningNoStr = substr(strval($runningNoTemp), 1);
+            $ppmTaskNo = 'P'.date('ymd').$runningNoStr;
+            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$ppmTaskNo, 'ppm_date_cycle'=>$ppmDateCycle, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
+                'contract_id'=>$contractId, 'ppm_running_no'=>strval($runningNo), 'ppm_created_by'=>$userId));
+
+            foreach($tempDays as $key => $dateStr){
+                $ppmTaskIssueNo = $key + 1;
+                $taskId = $this->fn_task->create_new_task('1', '', '5', '1', $ppmTaskNo.'/'.strval($ppmTaskIssueNo));
+                $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
+                $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_issue_no'=>strval($ppmTaskIssueNo), 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId,
+                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId));
+
+                // insert wfTaskAssignWhere manually
+                // modify table ppm_task, qual, quan to insert from checklist
                 // loop qual & quan
                 // insert other sections table
                 // notification
@@ -248,79 +272,134 @@ class Class_ppm {
         }
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_day ($startDate, $endDate) {
-        $newDates = array();
-        $begin = new DateTime( $startDate );
-        $end = new DateTime( $endDate );
-        $end = $end->modify( '+1 day' );
-        $interval = new DateInterval('P1D');
-        $dateRange = new DatePeriod($begin, $interval ,$end);
-        foreach($dateRange as $date){
-            array_push($newDates, $date->format("Y-m-d"));
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+1 day' );
+            $interval = new DateInterval('P1D');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                array_push($newDates, $date->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
-        return $newDates;
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_week ($startDate, $endDate) {
-        $newDates = array();
-        $begin = new DateTime( $startDate );
-        $begin = $begin->modify( '+1 week' );
-        $begin = $begin->modify( '-1 day' );
-        $end = new DateTime( $endDate );
-        $end = $end->modify( '+1 day' );
-        $interval = new DateInterval('P1W');
-        $dateRange = new DatePeriod($begin, $interval ,$end);
-        foreach($dateRange as $date){
-            array_push($newDates, $date->format("Y-m-d"));
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $begin = $begin->modify( '+1 week' );
+            $begin = $begin->modify( '-1 day' );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+1 day' );
+            $interval = new DateInterval('P1W');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                array_push($newDates, $date->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
-        return $newDates;
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_month ($startDate, $endDate) {
-        $newDates = array();
-        $begin = new DateTime( $startDate );
-        $begin = $begin->modify( '+1 month' );
-        //$begin = $begin->modify( '-1 day' );
-        $end = new DateTime( $endDate );
-        $end = $end->modify( '+2 day' );
-        $interval = new DateInterval('P1M');
-        $dateRange = new DatePeriod($begin, $interval ,$end);
-        foreach($dateRange as $date){
-            $xx = $date->modify( '-1 day' );
-            array_push($newDates, $xx->format("Y-m-d"));
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $begin = $begin->modify( '+1 month' );
+            //$begin = $begin->modify( '-1 day' );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+2 day' );
+            $interval = new DateInterval('P1M');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                $xx = $date->modify( '-1 day' );
+                array_push($newDates, $xx->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
-        return $newDates;
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_quarter ($startDate, $endDate) {
-        $newDates = array();
-        $begin = new DateTime( $startDate );
-        $begin = $begin->modify( '+3 month' );
-        //$begin = $begin->modify( '-1 day' );
-        $end = new DateTime( $endDate );
-        $end = $end->modify( '+2 day' );
-        $interval = new DateInterval('P3M');
-        $dateRange = new DatePeriod($begin, $interval ,$end);
-        foreach($dateRange as $date){
-            $xx = $date->modify( '-1 day' );
-            array_push($newDates, $xx->format("Y-m-d"));
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $begin = $begin->modify( '+3 month' );
+            //$begin = $begin->modify( '-1 day' );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+2 day' );
+            $interval = new DateInterval('P3M');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                $xx = $date->modify( '-1 day' );
+                array_push($newDates, $xx->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
-        return $newDates;
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_year ($startDate, $endDate) {
-        $newDates = array();
-        $begin = new DateTime( $startDate );
-        $begin = $begin->modify( '+1 year' );
-        //$begin = $begin->modify( '-1 day' );
-        $end = new DateTime( $endDate );
-        $end = $end->modify( '+2 day' );
-        $interval = new DateInterval('P1Y');
-        $dateRange = new DatePeriod($begin, $interval ,$end);
-        foreach($dateRange as $date){
-            $xx = $date->modify( '-1 day' );
-            array_push($newDates, $xx->format("Y-m-d"));
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $begin = $begin->modify( '+1 year' );
+            //$begin = $begin->modify( '-1 day' );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+2 day' );
+            $interval = new DateInterval('P1Y');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                $xx = $date->modify( '-1 day' );
+                array_push($newDates, $xx->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
-        return $newDates;
     }
 }
