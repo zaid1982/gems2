@@ -26,6 +26,7 @@ class Class_constant {
 
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';
+    const ERR_USER_EXIST_CONTRACT = 'User already assign to contract. Please remove user from any contract first.';
     const ERR_DESIGNATION_SIMILAR = 'Designation already exist';
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';
     const ERR_DESIGNATION_ACTIVATE = 'Designation already active';
@@ -85,6 +86,7 @@ class Class_constant {
     const ERR_CHECKLIST_QUAN_DEACTIVATE = 'Quantitative Task already inactive';
     const ERR_CHECKLIST_QUAN_ACTIVATE = 'Quantitative Task already active';
     const ERR_CHECKLIST_QUAN_DELETE_PPM = 'Quantitative Task cannot be deleted because currently registered under Preventive Maintenance';
+    const ERR_PPM_SIMILAR_ASSET = 'Asset already assign to PPM';
 
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';

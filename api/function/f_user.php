@@ -123,7 +123,7 @@ class Class_user {
             
             if ($type === 2) {
                 $userId = Class_db::getInstance()->db_insert('sys_user', array('user_email'=>$userEmail, 'user_type'=>strval($type), 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 
-                    'user_last_name'=>$userLastName, 'user_mykad_no'=>$userMykadNo, 'group_id'=>'2', 'user_status'=>'3'));
+                    'user_last_name'=>$userLastName, 'user_mykad_no'=>$userMykadNo, 'group_id'=>'1', 'user_status'=>'3'));
                 $userActivationKey = $this->fn_general->generateRandomString().$userId;
                 Class_db::getInstance()->db_update('sys_user', array('user_activation_key'=>$userActivationKey), array('user_id'=>$userId));
                 Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_profile_contact_no'=>$userProfileContactNo));
@@ -132,9 +132,9 @@ class Class_user {
                 foreach ($arr_checkpoint as $checkpoint) {
                     $checkpointId = $checkpoint['checkpoint_id'];
                     $groupId = $checkpoint['group_id'];
-                    if ($groupId === '2' || is_null($groupId)) {
-                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId));
-                    }
+                    //if ($groupId === '1' || is_null($groupId)) {
+                    //    Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId));
+                    //}
                 }
             } else {
                 throw new Exception('['.__LINE__.'] - Parameter type invalid ('.$type.')');
@@ -220,6 +220,7 @@ class Class_user {
      * @throws Exception
      */
     public function update_profile ($userId, $put_vars) {
+        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             
@@ -241,32 +242,41 @@ class Class_user {
             if (!isset($put_vars['roles']) || empty($put_vars['roles'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter roles empty');
             }
-            
+            if (!isset($put_vars['userType']) || empty($put_vars['userType'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userType empty');
+            }
+
             $userEmail = $put_vars['userEmail'];
             $userFirstName = $put_vars['userFirstName'];
             $userContactNo = $put_vars['userContactNo'];
             $designationId = $put_vars['designationId'];
             $rolesStr = $put_vars['roles'];
+            $userType = $put_vars['userType'];
 
-            $roles = explode(',', $rolesStr);
-            $dbRoles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
-            foreach ($dbRoles as $dbRole) {
-                $key = array_search($dbRole, $roles);
-                if ($key !== false) {
-                    array_splice($roles, $key, 1);
-                } else {
-                    Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'2'));
-                    Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'2'));
+            if ($userType == '1') {
+                $roles = explode(',', $rolesStr);
+                $dbRoles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
+                foreach ($dbRoles as $dbRole) {
+                    $key = array_search($dbRole, $roles);
+                    if ($key !== false) {
+                        array_splice($roles, $key, 1);
+                    } else {
+                        if (Class_db::getInstance()->db_count('cli_contract_user', array('user_id'=>$userId, 'role_id'=>$dbRole)) > 0) {
+                            throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_CONTRACT, 31);
+                        }
+                        Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
+                        Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
+                    }
                 }
-            }
-            foreach ($roles as $role) {
-                Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>'2'));
-                $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
-                foreach ($checkpoints as $checkpoint) {
-                    $checkpointId = $checkpoint['checkpoint_id'];
-                    $groupId = $checkpoint['group_id'];
-                    if ($groupId === '2' || is_null($groupId)) {
-                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>'2'));
+                foreach ($roles as $role) {
+                    Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>'1'));
+                    $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
+                    foreach ($checkpoints as $checkpoint) {
+                        $checkpointId = $checkpoint['checkpoint_id'];
+                        $groupId = $checkpoint['group_id'];
+                        if ($groupId === '1' || is_null($groupId)) {
+                            Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>'1'));
+                        }
                     }
                 }
             }

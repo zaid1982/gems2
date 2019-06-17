@@ -125,6 +125,7 @@ class Class_ppm {
      * @throws Exception
      */
     public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle) {
+        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -138,10 +139,13 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmDateCycle empty');
             }
 
-            // check ppm if asset already exist
+            if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
+            }
+
+            // get technicians
             // generate ppm_task_no
             // get items frequency
-            // get technicians
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
