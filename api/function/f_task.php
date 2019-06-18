@@ -201,6 +201,8 @@ class Class_task {
             $taskId = Class_db::getInstance()->db_insert('wfl_task', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointId, 'role_id' => $roleId, 'group_id' => $groupId,
                 'task_created_user' => $userId, 'task_created_group' => $groupId, 'task_date_due' => $checkDueDay, 'task_status' => '5'));
 
+            $this->check_assign($checkpoint, $transactionId, '', '', $userId);
+
             return $taskId;
         }
         catch(Exception $ex) {
