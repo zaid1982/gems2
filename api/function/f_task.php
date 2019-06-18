@@ -115,9 +115,10 @@ class Class_task {
      * @param $transactionId
      * @param string $assignedGroup
      * @param string $assignedUser
+     * @param string $userId
      * @throws Exception
      */
-    private function check_assign ($checkpoint, $transactionId, $assignedGroup = '', $assignedUser = '') {
+    private function check_assign ($checkpoint, $transactionId, $assignedGroup = '', $assignedUser = '', $userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -131,7 +132,10 @@ class Class_task {
                 $roleId = $checkpointData['role_id'];
                 $groupId = $checkpointData['group_id'];
                 if ($assignType == '1') {   // Assign to himself
-                    Class_db::getInstance()->db_insert('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId, 'group_id' => $groupId));
+                    if (empty($userId)) {
+                        throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+                    }
+                    Class_db::getInstance()->db_insert('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId, 'group_id' => $groupId, 'user_id' => $userId));
                 } else if ($assignType == '2') {    // Assign to User
                     if (empty($assignedGroup)) {
                         throw new Exception('[' . __LINE__ . '] - Parameter assignedGroup empty');
@@ -291,7 +295,7 @@ class Class_task {
                 return '';
             }
 
-            $this->check_assign($checkpoint, $transactionId, $toGroup, $toUser);
+            $this->check_assign($checkpoint, $transactionId, $toGroup, $toUser, $userId);
 
             $nextpointDueDay = !empty($nextpointDueDay) ? '|Curdate() + INTERVAL ' . $nextpointDueDay . ' DAY' : '';
             $arrInsertTask = array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId, 'task_created_user' => $userId, 'task_created_group' => $groupId,

@@ -53,7 +53,7 @@ try {
             $ppmDateCycle = filter_input(INPUT_POST, 'ppmDateCycle');
 
             $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle, $jwt_data->userId);
-            // save audit
+            $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }

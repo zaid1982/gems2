@@ -67,10 +67,10 @@ function ModalPpm() {
                             ppmDateCycle: ppmDateCycle
                         };
 
-                        //const ppmReturn = mzAjaxRequest('ppm.php', 'POST', data);
+                        const ppmReturn = mzAjaxRequest('ppm.php', 'POST', data);
                         if (classFrom.getClassName() === 'MainPpmManagement') {
-                            data['ppmId'] = '2';//ppmReturn['ppmId'];
-                            data['ppmTaskNo'] = 'FEA21312312';//ppmReturn['ppmTaskNo'];
+                            data['ppmId'] = ppmReturn['ppmId'];
+                            data['ppmTaskNo'] = ppmReturn['ppmTaskNo'];
                             data['ppmStatus'] = '10';
                             data['assignedStatus'] = '10';
                             classFrom.updateTablePmg(data, rowRefresh);

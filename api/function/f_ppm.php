@@ -126,6 +126,7 @@ class Class_ppm {
      * @param $checklistId
      * @param $ppmDateCycle
      * @param $userId
+     * @return array
      * @throws Exception
      */
     public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle, $userId) {
@@ -153,7 +154,7 @@ class Class_ppm {
             $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
             $contractId = $asset['contract_id'];
             $contract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
-            $contractDateEnd = $contract['contractDateEnd'];
+            $contractDateEnd = $contract['contract_date_end'];
             if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
                 throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
@@ -163,14 +164,13 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
             }
 
-            // get items frequency
             $isYearly = false;
             $isQuarterly = false;
             $isMonthly = false;
             $isWeekly = false;
             $isDaily = false;
 
-            $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId), 'checklist_qual_numb');
+            $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1'), 'checklist_qual_numb');
             foreach ($checklistQuals as $checklistQual) {
                 switch ($checklistQual['frequency_id']) {
                     case '1';
@@ -191,7 +191,7 @@ class Class_ppm {
                 }
             }
 
-            $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId), 'checklist_quan_numb');
+            $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId, 'checklist_quan_status'=>'1'), 'checklist_quan_numb');
             foreach ($checklistQuans as $checklistQuan) {
                 switch ($checklistQuan['frequency_id']) {
                     case '1';
@@ -255,17 +255,69 @@ class Class_ppm {
 
             foreach($tempDays as $key => $dateStr){
                 $ppmTaskIssueNo = $key + 1;
-                $taskId = $this->fn_task->create_new_task('1', '', '5', '1', $ppmTaskNo.'/'.strval($ppmTaskIssueNo));
+                $technicianKey = $key%count($technicians);
+                $technician = $technicians[$technicianKey];
+                $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo.'/'.strval($ppmTaskIssueNo));
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
-                $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_issue_no'=>strval($ppmTaskIssueNo), 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId,
-                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId));
+                $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_issue_no'=>strval($ppmTaskIssueNo), 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklist['checklist_guideline'],
+                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId, 'ppm_task_assigned_to'=>$technician));
 
-                // insert wfTaskAssignWhere manually
-                // modify table ppm_task, qual, quan to insert from checklist
-                // loop qual & quan
-                // insert other sections table
+                foreach ($checklistQuals as $checklistQual) {
+                    $qualResult = '';
+                    $qualFrequency = $checklistQual['frequency_id'];
+                    if ($qualFrequency === '1' && in_array($dateStr, $yearlyDates)) {
+                        $qualResult = '2';
+                    } else if ($qualFrequency === '2' && in_array($dateStr, $quarterlyDates)) {
+                        $qualResult = '2';
+                    } else if ($qualFrequency === '3' && in_array($dateStr, $monthlyDates)) {
+                        $qualResult = '2';
+                    } else if ($qualFrequency === '4' && in_array($dateStr, $weeklyDates)) {
+                        $qualResult = '2';
+                    } else if ($qualFrequency === '5' && in_array($dateStr, $dailyDates)) {
+                        $qualResult = '2';
+                    }
+                    Class_db::getInstance()->db_insert('ppm_task_qual', array('ppm_task_qual_numb'=>$checklistQual['checklist_qual_numb'], 'ppm_task_qual_desc'=>$checklistQual['checklist_qual_desc'], 'frequency_id'=>$qualFrequency,
+                        'ppm_task_qual_result'=>$qualResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_qual_id'=>$checklistQual['checklist_qual_id']));
+                }
+
+                foreach ($checklistQuans as $checklistQuan) {
+                    $quanResult = '';
+                    $quanFrequency = $this->fn_general->clear_null($checklistQuan['frequency_id']);
+                    if ($quanFrequency === '1' && in_array($dateStr, $yearlyDates)) {
+                        $quanResult = '2';
+                    } else if ($quanFrequency === '2' && in_array($dateStr, $quarterlyDates)) {
+                        $quanResult = '2';
+                    } else if ($quanFrequency === '3' && in_array($dateStr, $monthlyDates)) {
+                        $quanResult = '2';
+                    } else if ($quanFrequency === '4' && in_array($dateStr, $weeklyDates)) {
+                        $quanResult = '2';
+                    } else if ($quanFrequency === '5' && in_array($dateStr, $dailyDates)) {
+                        $quanResult = '2';
+                    }
+                    Class_db::getInstance()->db_insert('ppm_task_quan', array('ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'], 'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'frequency_id'=>$quanFrequency,
+                        'ppm_task_quan_unit'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_unit']), 'ppm_task_quan_result'=>$quanResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_quan_id'=>$checklistQuan['checklist_quan_id']));
+                }
+                if ($isYearly && in_array($dateStr, $yearlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'1'));
+                }
+                if ($isQuarterly && in_array($dateStr, $quarterlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'2'));
+                }
+                if ($isMonthly && in_array($dateStr, $monthlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'3'));
+                }
+                if ($isWeekly && in_array($dateStr, $weeklyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'4'));
+                }
+                if ($isDaily && in_array($dateStr, $dailyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
+                }
+
+                Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr), array('transaction_id'=>$transactionId));
                 // notification
             }
+
+            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$ppmTaskNo);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

@@ -1,5 +1,11 @@
 <?php
 
+$technicians = array('1', '3', '5', '6', '7');
+for ($i=0; $i<43; $i++) {
+    $index = $i%count($technicians);
+    echo $technicians[$index] . '<br/>';
+}
+
 function get_dates_day ($startDate, $endDate) {
     $newDates = array();
     $begin = new DateTime( $startDate );
