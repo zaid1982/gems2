@@ -323,4 +323,28 @@ class Class_general {
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $date
+     * @return string
+     * @throws Exception
+     */
+    public function convertDateToDisplay ($date='') {
+        try {
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            if (empty($date)) {
+                throw new Exception('(ErrCode:0062) [' . __LINE__ . '] - Parameter date empty');
+            }
+
+            $newDate = '';
+            $dateSplit = explode('-', $date);
+            if (sizeof($dateSplit) === 3) {
+                $newDate = intval($dateSplit[2]).'/'.intval($dateSplit[1]).'/'.$dateSplit[0];
+            }
+            return $newDate;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

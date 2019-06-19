@@ -4,13 +4,13 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_task.php';
+//require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_task = new Class_task();
+//$fn_task = new Class_task();
 $fn_ppm = new Class_ppm();
 $api_name = 'api_m_ppm';
 $is_transaction = false;
@@ -37,8 +37,7 @@ try {
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
         if ($type === 'pending_task') {
-            $groupIds = $fn_task->get_checkpoint_groups($jwt_data->userId, '3', '2');
-            $result = $groupIds;
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type empty');
         }

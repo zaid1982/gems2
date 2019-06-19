@@ -454,4 +454,38 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function get_pending_task_m ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_pending', array(), 'task_date_due', null, null, array('user_id'=>$userId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['taskId'] = $dataLocal['task_id'];
+                $row_result['taskId'] = $dataLocal['ppm_task_id'];
+                $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['siteName'] = $dataLocal['site_name'];
+                $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
+                $row_result['statusDesc'] = $dataLocal['status_desc'];
+                $row_result['frequency'] = explode(',', $dataLocal['frequency']);
+                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['task_date_due']);
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
