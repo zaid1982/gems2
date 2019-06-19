@@ -96,7 +96,7 @@ class Class_login {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
             
-            $key = "inventory_sample1";
+            $key = "gems2";
             $token = array('iss'=>'inventory_sample1/jwt', 'userId'=>$userId, 'username'=>$username, 'iat'=>time(), 'exp'=>time()+10);
             $jwt = JWT::encode($token, $key);              
             return $jwt;
@@ -119,7 +119,7 @@ class Class_login {
                 throw new Exception('[' . __LINE__ . '] - Parameter jwt empty');
             }
             
-            $key = "inventory_sample1";
+            $key = "gems2";
             JWT::$leeway = 86400; // $leeway in seconds
             $data = JWT::decode(substr($jwt, 7), $key, array('HS256'));
             
@@ -149,7 +149,7 @@ class Class_login {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
 
-            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$deviceId, 'user_device_id'=>$deviceId)) == 0) {
+            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'user_device_id'=>$deviceId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Device ID invalid with this login');
             }
         }

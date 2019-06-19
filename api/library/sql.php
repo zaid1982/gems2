@@ -176,6 +176,15 @@ class Class_sql
                 INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND cli_contract_user.role_id = wfl_checkpoint_user.role_id
                     AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
                 INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
+            } else if ($title === 'mg_task_pending') {
+                $sql = "SELECT
+                    wfl_task.*,
+                    wfl_transaction.transaction_no
+                FROM wfl_task
+                INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
+                    AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = [user_id]
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                WHERE wfl_task.task_claimed_user = [user_id] OR wfl_task.task_claimed_user IS NULL";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

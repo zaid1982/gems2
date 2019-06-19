@@ -257,10 +257,10 @@ class Class_db{
      * @throws Exception
      */
     public function get_sql ($tablename, $param=array()) {
-        if (substr($tablename, 0, 2) == 'vw' || substr($tablename, 0, 2) == 'dt' || substr($tablename, 0, 2) == 'vg') {
+        if (substr($tablename, 0, 2) == 'vw' || substr($tablename, 0, 2) == 'mw' || substr($tablename, 0, 2) == 'dt' || substr($tablename, 0, 2) == 'vg' || substr($tablename, 0, 2) == 'mg') {
             $fn_sql = new Class_sql();
             $s = $fn_sql->get_sql($tablename);
-            if (substr($tablename, 0, 2) == 'vg') {
+            if (substr($tablename, 0, 2) == 'vg' || substr($tablename, 0, 2) == 'mg') {
                 $s = "SELECT * FROM (".$s.") as mainTable ";
             }          
             if (!empty($param)){

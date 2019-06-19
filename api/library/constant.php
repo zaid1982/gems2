@@ -161,5 +161,5 @@ class Class_constant {
     const SUC_CHECKLIST_QUAN_DEACTIVATE = 'Quantitative Task successfully deactivated';
     const SUC_CHECKLIST_QUAN_ACTIVATE = 'Quantitative Task successfully activated';
     const SUC_CHECKLIST_QUAN_DELETE = 'Quantitative Task successfully deleted';
-
+    const SUC_PPM_SAVE = 'PM tasks successfully scheduled and assigned to technician';
 }
