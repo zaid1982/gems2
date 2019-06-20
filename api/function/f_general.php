@@ -331,7 +331,7 @@ class Class_general {
      */
     public function convertDateToDisplay ($date='') {
         try {
-            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($date)) {
                 throw new Exception('(ErrCode:0062) [' . __LINE__ . '] - Parameter date empty');
             }

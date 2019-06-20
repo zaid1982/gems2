@@ -176,7 +176,7 @@ class Class_sql
                 INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND cli_contract_user.role_id = wfl_checkpoint_user.role_id
                     AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
                 INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
-            } else if ($title === 'mw_task_pending') {
+            } else if ($title === 'mw_task_ppm_pending') {
                 $sql = "SELECT
                     wfl_task.*,
                     ppm_task.ppm_task_id,
@@ -200,7 +200,44 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE wfl_task.task_claimed_user = [user_id] OR wfl_task.task_claimed_user IS NULL";
+                WHERE [claim_filter] [date_filter]";
+            } else if ($title === 'mw_task_ppm_all') {
+                $sql = "SELECT
+                    wfl_task.*,
+                    ppm_task.ppm_task_id,
+                    wfl_transaction.transaction_no,
+                    ast_asset_type.asset_type_name,
+                    cli_site.site_name,
+                    ref_status.status_desc,
+                    task_frequency.frequency
+                FROM wfl_task
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name) AS frequency
+                    FROM ppm_task_frequency
+                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
+                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
+                LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
+                LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
+                WHERE [date_filter]";
+            } else if ($title === 'mw_task_calendar_count') {
+                $sql = "SELECT
+                    task_date_due, COUNT(*) AS total
+                FROM wfl_task
+                INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
+                        AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = 1
+                WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
+                [claim_filter] GROUP BY task_date_due";
+            } else if ($title === 'mw_task_calendar_count_all') {
+                $sql = "SELECT
+                    task_date_due, COUNT(*) AS total
+                FROM wfl_task
+                WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
+                GROUP BY task_date_due";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

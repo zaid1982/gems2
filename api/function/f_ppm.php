@@ -457,10 +457,11 @@ class Class_ppm {
 
     /**
      * @param $userId
+     * @param $date
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId) {
+    public function get_pending_task_m ($userId, $date='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -469,7 +470,24 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_pending', array(), 'task_date_due', null, null, array('user_id'=>$userId));
+            $query = 'mw_task_ppm_pending';
+            $claimFilter = '(wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
+            if (!empty($date) && Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,5,6)')) > 0) {
+                $claimFilter = '';
+                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,6)')) > 0) {
+                    $query = 'mw_task_ppm_all';
+                } else if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
+                    $claimFilter = '(wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
+                }
+            }
+
+            $dateFilter = '';
+            if (!empty($date)) {
+                $dateFilter = 'task_date_due = \''.$date.'\'';
+                $dateFilter = !empty($claimFilter) ? 'AND '.$dateFilter : $dateFilter;
+            }
+
+            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'date_filter'=>$dateFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['taskId'] = $dataLocal['ppm_task_id'];
@@ -479,6 +497,54 @@ class Class_ppm {
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['task_date_due']);
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $month
+     * @param $year
+     * @return array
+     * @throws Exception
+     */
+    public function get_calendar_task_dot ($userId, $month, $year) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+
+            $result = array();
+            $query = 'mw_task_calendar_count';
+            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,5,6)')) > 0) {
+                $claimFilter = '';
+                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,6)')) > 0) {
+                    $query = 'mw_task_calendar_count_all';
+                } else if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
+                    $claimFilter = 'AND wfl_task.task_claimed_user = \''.$userId.'\'';
+                }
+            } else {
+                return array();
+            }
+
+            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'month'=>$month, 'year'=>$year, 'claim_filter'=>$claimFilter));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['date'] = $dataLocal['task_date_due'];
+                $row_result['total'] = $dataLocal['total'];
                 array_push($result, $row_result);
             }
 
