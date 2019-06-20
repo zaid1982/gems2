@@ -240,6 +240,30 @@ class Class_sql
                 LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
                 WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
                 GROUP BY task_date_due";
+            } else if ($title === 'mw_ppm_section_a') {
+                $sql = "SELECT
+                    ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_schedule_date,
+                    ppm.asset_id,
+                    ast_asset_group.asset_group_name,
+                    ast_asset_category.asset_category_name,
+                    ast_asset_type.asset_type_name,
+                    ast_asset_brand.asset_brand_name,
+                    ast_asset_model.asset_model_name,
+                    ast_asset.asset_no,
+                    ast_asset.asset_name,
+                    ast_asset.asset_location_code,
+                    ast_asset.asset_capacity,
+                    ppm_task.ppm_task_time_start,
+                    ppm_task.ppm_task_time_serviced
+                FROM ppm_task
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN ast_asset_group ON ast_asset_group.asset_group_id = ast_asset.asset_group_id
+                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset.asset_category_id
+                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = ast_asset.asset_brand_id
+                LEFT JOIN ast_asset_model ON ast_asset_model.asset_model_id = ast_asset.asset_model_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

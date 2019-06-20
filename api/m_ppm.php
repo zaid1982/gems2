@@ -45,6 +45,15 @@ try {
             $month = filter_input(INPUT_GET, 'month');
             $year = filter_input(INPUT_GET, 'year');
             $result = $fn_ppm->get_calendar_task_dot_m($jwt_data->userId, $month, $year);
+        } else if ($type === 'ppm_section_a') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            $result = $fn_ppm->get_ppm_section_a($ppmTaskId);
+        } else if ($type === 'ppm_section_b') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            $result = $fn_ppm->get_ppm_section_b($ppmTaskId);
+        } else if ($type === 'ppm_section_c') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            $result = $fn_ppm->get_ppm_section_c($ppmTaskId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type empty');
         }

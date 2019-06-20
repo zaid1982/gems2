@@ -557,33 +557,102 @@ class Class_ppm {
         }
     }
 
-    public function get_ppm_section_a ($ppmId) {
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_a ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($assetId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
 
             $result = array();
-            $dataLocal = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
-            $result['assetId'] = $dataLocal['asset_id'];
+            $dataLocal = Class_db::getInstance()->db_select_single('mw_ppm_section_a', array('ppm_task.ppm_task_id'=>$ppmTaskId), null, 1);
+            $result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+            $result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
+            $result['assetId'] = $this->fn_general->clear_null($dataLocal['asset_id']);
+            $result['assetGroupName'] = $this->fn_general->clear_null($dataLocal['asset_group_name']);
+            $result['assetCategoryName'] = $this->fn_general->clear_null($dataLocal['asset_category_name']);
+            $result['assetTypeName'] = $this->fn_general->clear_null($dataLocal['asset_type_name']);
+            $result['assetBrandName'] = $this->fn_general->clear_null($dataLocal['asset_brand_name']);
+            $result['assetModelName'] = $this->fn_general->clear_null($dataLocal['asset_model_name']);
             $result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
             $result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
-            $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
-            $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
-            $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
             $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
-            $result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
-            $result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
-            $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
-            $result['assetBrandId'] = $this->fn_general->clear_null($dataLocal['asset_brand_id']);
-            $result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
-            $result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
-            $result['assetTimeRegistered'] = str_replace('-', '/', $dataLocal['asset_time_registered']);
-            $result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
-            $result['assetRegisteredBy'] = $this->fn_general->clear_null($dataLocal['asset_registered_by']);
-            $result['assetStatus'] = $dataLocal['asset_status'];
+            $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
+            $result['ppmTaskTimeStart'] = str_replace('-', '/', $dataLocal['ppm_task_time_start']);
+            $result['ppmTaskTimeServiced'] = str_replace('-', '/', $dataLocal['ppm_task_time_serviced']);
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_b ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $result = array();
+            $dataLocal = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+            $result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+            $result['ppmTaskGuideline'] = $this->fn_general->clear_null($dataLocal['ppm_task_guideline']);
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_c ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $frequencies = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $frequencies[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_qual_numb');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmTaskQualId'] = $dataLocal['ppm_task_qual_id'];
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskQualNumb'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_numb']);
+                $row_result['ppmTaskQualDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_desc']);
+                $row_result['frequencyId'] = $this->fn_general->clear_null($dataLocal['frequency_id']);
+                $row_result['frequencyName'] = $frequencies[intval($dataLocal['frequency_id'])];
+                $row_result['ppmTaskQualResult'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_result']);
+                $row_result['ppmTaskQualRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_remark']);
+                array_push($result, $row_result);
+            }
 
             return $result;
         }
