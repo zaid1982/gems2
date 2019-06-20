@@ -30,11 +30,11 @@ try {
             $username = filter_input(INPUT_POST, 'username');
             $password = filter_input(INPUT_POST, 'password');
             $deviceId = filter_input(INPUT_POST, 'deviceId');
-            if (empty($deviceId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
-            }
+            //if (empty($deviceId)) {
+            //    throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
+            //}
 
-            $result = $fn_login->check_login($username, $password, $deviceId);
+            $result = $fn_login->check_login($username, $password, '');
             $fn_general->save_audit('1', $result['userId']);
         }
         else if ($action === 'forgot_password') {      
