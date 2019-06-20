@@ -313,7 +313,8 @@ class Class_ppm {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
                 }
 
-                Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr), array('transaction_id'=>$transactionId));
+                Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8'), array('transaction_id'=>$transactionId));
+                Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12'), array('transaction_id'=>$transactionId));
                 // notification
             }
 
@@ -490,7 +491,7 @@ class Class_ppm {
             $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'date_filter'=>$dateFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
-                $row_result['taskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
                 $row_result['siteName'] = $dataLocal['site_name'];
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
@@ -514,7 +515,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_calendar_task_dot ($userId, $month, $year) {
+    public function get_calendar_task_dot_m ($userId, $month, $year) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -545,11 +546,48 @@ class Class_ppm {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['date'] = $dataLocal['task_date_due'];
                 $row_result['total'] = $dataLocal['total'];
+                $row_result['status'] = explode(',', $dataLocal['status']);
                 array_push($result, $row_result);
             }
 
             return $result;
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    public function get_ppm_section_a ($ppmId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($assetId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
+            }
+
+            $result = array();
+            $dataLocal = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
+            $result['assetId'] = $dataLocal['asset_id'];
+            $result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
+            $result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+            $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
+            $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
+            $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
+            $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+            $result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
+            $result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
+            $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+            $result['assetBrandId'] = $this->fn_general->clear_null($dataLocal['asset_brand_id']);
+            $result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
+            $result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
+            $result['assetTimeRegistered'] = str_replace('-', '/', $dataLocal['asset_time_registered']);
+            $result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
+            $result['assetRegisteredBy'] = $this->fn_general->clear_null($dataLocal['asset_registered_by']);
+            $result['assetStatus'] = $dataLocal['asset_status'];
+
+            return $result;
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

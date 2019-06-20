@@ -234,8 +234,10 @@ class Class_sql
                 [claim_filter] GROUP BY task_date_due";
             } else if ($title === 'mw_task_calendar_count_all') {
                 $sql = "SELECT
-                    task_date_due, COUNT(*) AS total
+                    task_date_due, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total
                 FROM wfl_task
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
                 WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
                 GROUP BY task_date_due";
             } else {

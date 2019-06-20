@@ -44,7 +44,7 @@ try {
         } else if ($type === 'calendar_dot') {
             $month = filter_input(INPUT_GET, 'month');
             $year = filter_input(INPUT_GET, 'year');
-            $result = $fn_ppm->get_calendar_task_dot($jwt_data->userId, $month, $year);
+            $result = $fn_ppm->get_calendar_task_dot_m($jwt_data->userId, $month, $year);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type empty');
         }
