@@ -649,7 +649,7 @@ class Class_ppm {
                 $row_result['ppmTaskQualDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_desc']);
                 $row_result['frequencyId'] = $this->fn_general->clear_null($dataLocal['frequency_id']);
                 $row_result['frequencyName'] = $frequencies[intval($dataLocal['frequency_id'])];
-                $row_result['ppmTaskQualResult'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_result']);
+                $row_result['ppmTaskQualResult'] = $this->get_q_task_result($dataLocal['ppm_task_qual_result']);
                 $row_result['ppmTaskQualRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_qual_remark']);
                 array_push($result, $row_result);
             }
@@ -661,4 +661,64 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_d ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $frequencies = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $frequencies[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_quan_numb');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmTaskQuanId'] = $dataLocal['ppm_task_quan_id'];
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskQuanNumb'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_numb']);
+                $row_result['ppmTaskQuanDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_desc']);
+                $row_result['frequencyId'] = $this->fn_general->clear_null($dataLocal['frequency_id']);
+                $row_result['frequencyName'] = $frequencies[intval($dataLocal['frequency_id'])];
+                $row_result['ppmTaskQuanUnit'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_unit']);
+                $row_result['ppmTaskQuanSetValues'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_set_values']);
+                $row_result['ppmTaskQuanMeasuredValues'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_measured_values']);
+                $row_result['ppmTaskQuanLimit'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_limit']);
+                $row_result['ppmTaskQuanResult'] = $this->get_q_task_result($dataLocal['ppm_task_quan_result']);
+                $row_result['ppmTaskQuanRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_quan_remark']);
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    private function get_q_task_result ($resultInput) {
+        if (empty($resultInput)) {
+            return '';
+        }
+        if ($resultInput == '0') {
+            return 'Fail';
+        } else if ($resultInput == '1') {
+            return 'Pass';
+        } else if ($resultInput == '2') {
+            return 'N/A';
+        }
+        return '';
+    }
+
 }
