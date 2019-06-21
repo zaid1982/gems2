@@ -315,7 +315,7 @@ class Class_ppm {
             $isWeekly = false;
             $isDaily = false;
 
-            $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1'), 'checklist_qual_numb');
+            $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1'), 'ABS(checklist_qual_numb)');
             foreach ($checklistQuals as $checklistQual) {
                 switch ($checklistQual['frequency_id']) {
                     case '1';
@@ -336,7 +336,7 @@ class Class_ppm {
                 }
             }
 
-            $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId, 'checklist_quan_status'=>'1'), 'checklist_quan_numb');
+            $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId, 'checklist_quan_status'=>'1'), 'ABS(checklist_quan_numb)');
             foreach ($checklistQuans as $checklistQuan) {
                 switch ($checklistQuan['frequency_id']) {
                     case '1';
@@ -580,7 +580,12 @@ class Class_ppm {
         }
     }
 
-    public function get_ppm_section_status ($ppmTaskId) {
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_status_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -589,12 +594,13 @@ class Class_ppm {
             }
 
             $result = array();
+            $arr_status = $this->fn_general->getRefStatus();
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_section', array('ppm_task_id'=>$ppmTaskId));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmTaskSectionId'] = $dataLocal['ppm_task_section_id'];
                 $row_result['ppmTaskSectionName'] = $this->fn_general->clear_null($dataLocal['ppm_task_section_name']);
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
-                $row_result['ppmTaskSectionStatus'] = $this->fn_general->clear_null($dataLocal['ppm_task_section_status']);
+                $row_result['ppmTaskSectionStatus'] = $arr_status[intval($dataLocal['ppm_task_section_status'])];
                 array_push($result, $row_result);
             }
 
@@ -611,7 +617,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_a ($ppmTaskId) {
+    public function get_ppm_section_a_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -649,7 +655,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_b ($ppmTaskId) {
+    public function get_ppm_section_b_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -675,7 +681,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_c ($ppmTaskId) {
+    public function get_ppm_section_c_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -683,14 +689,9 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
 
-            $frequencies = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
-            foreach ($arr_dataLocal as $dataLocal) {
-                $frequencies[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
-            }
-
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_qual_numb');
+            $frequencies = $this->fn_general->getPpmFrequency();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId), 'ABS(ppm_task_qual_numb)');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmTaskQualId'] = $dataLocal['ppm_task_qual_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -716,7 +717,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_d ($ppmTaskId) {
+    public function get_ppm_section_d_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -724,14 +725,9 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
 
-            $frequencies = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
-            foreach ($arr_dataLocal as $dataLocal) {
-                $frequencies[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
-            }
-
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_quan_numb');
+            $frequencies = $this->fn_general->getPpmFrequency();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId), 'ABS(ppm_task_quan_numb)');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmTaskQuanId'] = $dataLocal['ppm_task_quan_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -756,13 +752,12 @@ class Class_ppm {
         }
     }
 
-
     /**
      * @param $ppmTaskId
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_e ($ppmTaskId) {
+    public function get_ppm_section_e_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -792,7 +787,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_g ($ppmTaskId) {
+    public function get_ppm_section_g_m ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -815,10 +810,11 @@ class Class_ppm {
 
     /**
      * @param $ppmTaskId
+     * @param $uploadType
      * @return array
      * @throws Exception
      */
-    public function get_ppm_section_h ($ppmTaskId) {
+    public function get_ppm_section_upload_m ($ppmTaskId, $uploadType) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -826,10 +822,13 @@ class Class_ppm {
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
+            if (empty($uploadType)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType empty');
+            }
 
-            $imageType = ['Before', 'During', 'After'];
+            $imageType = ['Before', 'During', 'After', 'Additional Report'];
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_ppm_section_h', array('ppm_task_id'=>$ppmTaskId, 'sys_upload.upload_status'=>'1'));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_ppm_section_h', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'sys_upload.upload_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmTaskUploadId'] = $dataLocal['ppm_task_upload_id'];
                 $row_result['ppmTaskUploadType'] = $imageType[intval($dataLocal['ppm_task_upload_type'])];
@@ -851,4 +850,71 @@ class Class_ppm {
         }
     }
 
+    /**
+     * @param $ppmTaskId
+     * @param string $ppmTaskRemark
+     * @throws Exception
+     */
+    public function save_ppm_remark_m ($ppmTaskId, $ppmTaskRemark='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $sectionStatus = $ppmTaskRemark === '' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_remark'=>$ppmTaskRemark), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'G'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $ppmTaskQuals
+     * @throws Exception
+     */
+    public function save_qualitative_tasks_m ($ppmTaskId, $ppmTaskQuals) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (!is_array($ppmTaskQuals)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals is not array');
+            }
+            if (empty($ppmTaskQuals)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals empty');
+            }
+
+            foreach ($ppmTaskQuals as $ppmTaskQual) {
+                if (!array_key_exists('id', $ppmTaskQual) || empty($ppmTaskQual['id'])) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[id] empty');
+                }
+                if (!array_key_exists('result', $ppmTaskQual)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[result] not exist');
+                }
+                if (!array_key_exists('remark', $ppmTaskQual)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[remark] not exist');
+                }
+                if (Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_qual_id'=>$ppmTaskQual['id'], 'ppm_task_qual_result'=>'2')) > 0) {
+                    throw new Exception('[' . __LINE__ . '] - Item ppm_task_qual_id = '.$ppmTaskQual['id'].' currently set as N/A');
+                }
+                Class_db::getInstance()->db_update('ppm_task_qual', array('ppm_task_qual_result'=>$ppmTaskQual['result'], 'ppm_task_qual_remark'=>$ppmTaskQual['remark']), array('ppm_task_qual_id'=>$ppmTaskQual['id']));
+            }
+
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

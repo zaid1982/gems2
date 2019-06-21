@@ -90,6 +90,7 @@ class Class_constant {
     const ERR_PPM_NO_TECHNICIAN = 'No technician assign to this contract. Please make sure at least 1 technician assign under this contract.';
     const ERR_PPM_NO_DATES = 'No dates available between the start cycle date and contract end date';
 
+    const SUC_SAVE = 'Successfully saved!';
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
     const SUC_USER_DEACTIVATE = 'User successfully deactivated';

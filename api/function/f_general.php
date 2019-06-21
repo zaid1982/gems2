@@ -347,4 +347,40 @@ class Class_general {
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getPpmFrequency () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getRefStatus () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ref_status', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['status_id'])] = $dataLocal['status_desc'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
