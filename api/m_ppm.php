@@ -66,6 +66,9 @@ try {
         } else if ($type === 'ppm_section_g') {
             $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
             $result = $fn_ppm->get_ppm_section_g($ppmTaskId);
+        } else if ($type === 'ppm_section_h') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            $result = $fn_ppm->get_ppm_section_h($ppmTaskId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type empty');
         }

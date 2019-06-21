@@ -264,6 +264,17 @@ class Class_sql
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = ast_asset.asset_brand_id
                 LEFT JOIN ast_asset_model ON ast_asset_model.asset_model_id = ast_asset.asset_model_id";
+            } else if ($title === 'mw_ppm_section_h') {
+                $sql = "SELECT 
+                    ppm_task_upload_id,
+                    ppm_task_upload_type,
+                    ppm_task_id,
+                    ref_document.document_desc,
+                    ref_document.document_type,
+                    sys_upload.*
+                FROM ppm_task_upload
+                LEFT JOIN sys_upload ON sys_upload.upload_id = ppm_task_upload.upload_id
+                LEFT JOIN ref_document ON ref_document.document_id = sys_upload.document_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

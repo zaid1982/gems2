@@ -414,7 +414,7 @@ class Class_ppm {
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'E', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'F', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'G', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
-
+                Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'H', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
 
                 foreach ($checklistQuals as $checklistQual) {
                     $qualResult = '';
@@ -804,6 +804,44 @@ class Class_ppm {
             $dataLocal = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
             $result['ppmTaskId'] = $dataLocal['ppm_task_id'];
             $result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_section_h ($ppmTaskId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $imageType = ['Before', 'During', 'After'];
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_ppm_section_h', array('ppm_task_id'=>$ppmTaskId, 'sys_upload.upload_status'=>'1'));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmTaskUploadId'] = $dataLocal['ppm_task_upload_id'];
+                $row_result['ppmTaskUploadType'] = $imageType[intval($dataLocal['ppm_task_upload_type'])];
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['uploadId'] = $dataLocal['upload_id'];
+                $row_result['uploadName'] = $this->fn_general->clear_null($dataLocal['upload_name']);
+                $row_result['documentDesc'] = $this->fn_general->clear_null($dataLocal['document_desc']);
+                $row_result['documentFilename'] = $this->fn_general->clear_null($dataLocal['upload_uplname']);
+                $docUrl = $constant::URL.$dataLocal['upload_folder'].'/'.$dataLocal['upload_filename'].'.'.$dataLocal['upload_extension'];
+                $row_result['documentSrc'] = $docUrl;
+                array_push($result, $row_result);
+            }
 
             return $result;
         }
