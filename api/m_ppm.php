@@ -73,7 +73,7 @@ try {
             $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
             $result = $fn_ppm->get_ppm_section_upload_m($ppmTaskId, '(0,1,2)');
         } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter type empty');
+            throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
 
         $form_data['result'] = $result;
@@ -85,14 +85,7 @@ try {
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        if ($action === 'save_ppm_remark') {
-            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
-            $ppmTaskRemark = filter_input(INPUT_POST, 'ppmTaskRemark');
-            $fn_ppm->save_ppm_remark_m($ppmTaskId, $ppmTaskRemark);
-            $fn_general->save_audit('81', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Comment = ' . $ppmTaskRemark);
-            $form_data['errmsg'] = $constant::SUC_SAVE;
-        }
-        else if ($action === 'save_qualitative_tasks') {
+        if ($action === 'save_qualitative_tasks') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskQuals = filter_input(INPUT_POST, 'ppmTaskQual', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $fn_ppm->save_qualitative_tasks_m($ppmTaskId, $ppmTaskQuals);
@@ -116,7 +109,7 @@ try {
         else if ($action === 'check_additional_report') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checked = filter_input(INPUT_POST, 'checked');
-            $result = $fn_ppm->save_ppm_check_additional_report_m($ppmTaskId, $checked);
+            $fn_ppm->save_ppm_check_additional_report_m($ppmTaskId, $checked);
             $fn_general->save_audit('86', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -124,11 +117,30 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $uploadId = $fn_general->uploadDocument($fileUpload, 1, $jwt_data->userId);
-            $result = $fn_ppm->save_ppm_additional_report_m($ppmTaskId, $uploadId);
+            $fn_ppm->save_ppm_additional_report_m($ppmTaskId, $uploadId);
             $fn_general->save_audit('87', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'save_ppm_remark') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $ppmTaskRemark = filter_input(INPUT_POST, 'ppmTaskRemark');
+            $fn_ppm->save_ppm_remark_m($ppmTaskId, $ppmTaskRemark);
+            $fn_general->save_audit('81', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Comment = ' . $ppmTaskRemark);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'upload_maintenance_image') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $uploadType = filter_input(INPUT_POST, 'uploadType');
+            $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
+            }
+            $uploadId = $fn_general->uploadDocument($fileUpload, intval($uploadType)+2, $jwt_data->userId);
+            $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType);
+            $fn_general->save_audit('89', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
         } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter action empty');
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
 
         Class_db::getInstance()->db_commit();
@@ -143,8 +155,20 @@ try {
 
         if ($action === 'delete_ppm_parts') {
             $ppmTaskPartsId = filter_input(INPUT_GET, 'ppmTaskPartsId');
-            $fn_ppm->delete_ppm_parts_m($ppmTaskPartsId);
-            $fn_general->save_audit('85', $jwt_data->userId);
+            $ppmTaskId = $fn_ppm->delete_ppm_parts_m($ppmTaskPartsId);
+            $fn_general->save_audit('85', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $form_data['errmsg'] = $constant::SUC_DELETE;
+        }
+        else if ($action === 'delete_ppm_additional_report') {
+            $ppmTaskUploadId = filter_input(INPUT_GET, 'ppmTaskUploadId');
+            $ppmTaskId = $fn_ppm->delete_ppm_additional_report_m($ppmTaskUploadId);
+            $fn_general->save_audit('88', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $form_data['errmsg'] = $constant::SUC_DELETE;
+        }
+        else if ($action === 'delete_ppm_maintenance_image') {
+            $ppmTaskUploadId = filter_input(INPUT_GET, 'ppmTaskUploadId');
+            $ppmTaskId = $fn_ppm->delete_ppm_maintenance_image_m($ppmTaskUploadId);
+            $fn_general->save_audit('90', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_DELETE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action empty');

@@ -852,29 +852,6 @@ class Class_ppm {
 
     /**
      * @param $ppmTaskId
-     * @param string $ppmTaskRemark
-     * @throws Exception
-     */
-    public function save_ppm_remark_m ($ppmTaskId, $ppmTaskRemark='') {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-
-            if (empty($ppmTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
-            }
-
-            $sectionStatus = $ppmTaskRemark === '' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_remark'=>$ppmTaskRemark), array('ppm_task_id'=>$ppmTaskId));
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'G'));
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param $ppmTaskId
      * @param $ppmTaskQuals
      * @throws Exception
      */
@@ -1012,6 +989,7 @@ class Class_ppm {
 
     /**
      * @param $ppmTaskPartsId
+     * @return
      * @throws Exception
      */
     public function delete_ppm_parts_m ($ppmTaskPartsId) {
@@ -1030,6 +1008,8 @@ class Class_ppm {
             $totalNull = Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_id'=>$ppmTaskId));
             $sectionStatus = $totalNull == '0' ? '18' : '19';
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
+
+            return $ppmTaskId;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -1091,6 +1071,131 @@ class Class_ppm {
                 $sectionStatus = $totalFile == '0' ? '18' : '19';
             }
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'F'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskUploadId
+     * @return
+     * @throws Exception
+     */
+    public function delete_ppm_additional_report_m ($ppmTaskUploadId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskUploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploadId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Additional Report data not exist');
+            }
+
+            $ppmTaskUpload = Class_db::getInstance()->db_select_single('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId), null, 1);
+            $ppmTaskId = $ppmTaskUpload['ppm_task_id'];
+            $uploadId = $ppmTaskUpload['upload_id'];
+            $checked = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_is_additional_report', null, 1);
+            Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId));
+            Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$uploadId));
+
+            $sectionStatus = '19';
+            if ($checked === '1') {
+                $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'3'));
+                $sectionStatus = $totalFile == '0' ? '18' : '19';
+            }
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'F'));
+            return $ppmTaskId;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param string $ppmTaskRemark
+     * @throws Exception
+     */
+    public function save_ppm_remark_m ($ppmTaskId, $ppmTaskRemark='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+
+            $sectionStatus = $ppmTaskRemark === '' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_remark'=>$ppmTaskRemark), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'G'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $uploadId
+     * @param $uploadType
+     * @throws Exception
+     */
+    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($uploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+            }
+            if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
+            }
+
+            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId));
+            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
+            $sectionStatus = $totalFile == '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+
+    /**
+     * @param $ppmTaskUploadId
+     * @return mixed
+     * @throws Exception
+     */
+    public function delete_ppm_maintenance_image_m ($ppmTaskUploadId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskUploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploadId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Maintenance Image data not exist');
+            }
+
+            $ppmTaskUpload = Class_db::getInstance()->db_select_single('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId), null, 1);
+            $ppmTaskId = $ppmTaskUpload['ppm_task_id'];
+            $uploadId = $ppmTaskUpload['upload_id'];
+            Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId));
+            Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$uploadId));
+
+            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
+            $sectionStatus = $totalFile == '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
+            return $ppmTaskId;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
