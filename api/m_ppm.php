@@ -98,6 +98,20 @@ try {
             $fn_ppm->save_qualitative_tasks_m($ppmTaskId, $ppmTaskQuals);
             $fn_general->save_audit('82', $jwt_data->userId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'save_quantitative_tasks') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $ppmTaskQuans = filter_input(INPUT_POST, 'ppmTaskQuan', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $fn_ppm->save_quantitative_tasks_m($ppmTaskId, $ppmTaskQuans);
+            $fn_general->save_audit('83', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'add_ppm_parts') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $ppmTaskPartsDesc = filter_input(INPUT_POST, 'ppmTaskPartsDesc');
+            $result = $fn_ppm->add_ppm_parts($ppmTaskId, $ppmTaskPartsDesc);
+            $fn_general->save_audit('84', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action empty');
         }

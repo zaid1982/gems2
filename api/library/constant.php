@@ -89,6 +89,7 @@ class Class_constant {
     const ERR_PPM_SIMILAR_ASSET = 'Asset already assign to PPM';
     const ERR_PPM_NO_TECHNICIAN = 'No technician assign to this contract. Please make sure at least 1 technician assign under this contract.';
     const ERR_PPM_NO_DATES = 'No dates available between the start cycle date and contract end date';
+    const ERR_PPM_PARTS_EXIST = 'Spare Parts / Material Used already exist';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_USER_ADD = 'User successfully added';

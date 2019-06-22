@@ -917,4 +917,95 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $ppmTaskId
+     * @param $ppmTaskQuans
+     * @throws Exception
+     */
+    public function save_quantitative_tasks_m ($ppmTaskId, $ppmTaskQuans) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (!is_array($ppmTaskQuans)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans is not array');
+            }
+            if (empty($ppmTaskQuans)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans empty');
+            }
+
+            foreach ($ppmTaskQuans as $ppmTaskQuan) {
+                if (!array_key_exists('id', $ppmTaskQuan) || empty($ppmTaskQuan['id'])) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[id] empty');
+                }
+                if (!array_key_exists('setValues', $ppmTaskQuan)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[setValues] not exist');
+                }
+                if (!array_key_exists('measuredValues', $ppmTaskQuan)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[measuredValues] not exist');
+                }
+                if (!array_key_exists('limit', $ppmTaskQuan)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[limit] not exist');
+                }
+                if (!array_key_exists('result', $ppmTaskQuan)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[result] not exist');
+                }
+                if (!array_key_exists('remark', $ppmTaskQuan)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[remark] not exist');
+                }
+                if (Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_quan_id'=>$ppmTaskQuan['id'], 'ppm_task_quan_result'=>'2')) > 0) {
+                    throw new Exception('[' . __LINE__ . '] - Item ppm_task_quan_id = '.$ppmTaskQuan['id'].' currently set as N/A');
+                }
+                Class_db::getInstance()->db_update('ppm_task_quan', array('ppm_task_quan_set_values'=>$ppmTaskQuan['setValues'], 'ppm_task_quan_measured_values'=>$ppmTaskQuan['measuredValues'], 'ppm_task_quan_limit'=>$ppmTaskQuan['limit'],
+                    'ppm_task_quan_result'=>$ppmTaskQuan['result'], 'ppm_task_quan_remark'=>$ppmTaskQuan['remark']), array('ppm_task_quan_id'=>$ppmTaskQuan['id']));
+            }
+
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_quan_result'=>'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'D'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $ppmTaskPartsDesc
+     * @return mixed
+     * @throws Exception
+     */
+    public function add_ppm_parts ($ppmTaskId, $ppmTaskPartsDesc) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($ppmTaskPartsDesc)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskPartsDesc empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_parts_desc'=>$ppmTaskPartsDesc, 'ppm_task_id'=>$ppmTaskId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_PARTS_EXIST, 31);
+            }
+
+            $ppmTaskPartsId = Class_db::getInstance()->db_insert('ppm_task_parts', array('ppm_task_parts_desc'=>$ppmTaskPartsDesc, 'ppm_task_id'=>$ppmTaskId));
+
+            $dataLocal = Class_db::getInstance()->db_select_single('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId), null, 1);
+            $result['ppmTaskPartsId'] = $dataLocal['ppm_task_parts_id'];
+            $result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+            $result['ppmTaskPartsDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_parts_desc']);
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
