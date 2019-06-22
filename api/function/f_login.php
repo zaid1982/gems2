@@ -203,7 +203,7 @@ class Class_login {
     /**
      * @param $username
      * @param $password
-     * @param $roleId
+     * @param string $deviceId
      * @return array
      * @throws Exception
      */

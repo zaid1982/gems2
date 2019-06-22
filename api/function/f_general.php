@@ -216,7 +216,7 @@ class Class_general {
      * @return mixed
      * @throws Exception
      */
-    public function uploadDocument ($uploadDetails, $documentId, $userId) {
+    public function uploadDocument ($uploadDetails=array(), $documentId='', $userId='') {
         try {
             $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             

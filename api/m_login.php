@@ -34,7 +34,7 @@ try {
             //    throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
             //}
 
-            $result = $fn_login->check_login($username, $password, '');
+            $result = $fn_login->check_login($username, $password, $deviceId);
             $fn_general->save_audit('1', $result['userId']);
         }
         else if ($action === 'forgot_password') {      
