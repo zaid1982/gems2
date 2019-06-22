@@ -119,6 +119,24 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+        $action = filter_input(INPUT_GET, 'action');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'delete_ppm_parts') {
+            $ppmTaskPartsId = filter_input(INPUT_GET, 'ppmTaskPartsId');
+            $fn_ppm->delete_ppm_parts($ppmTaskPartsId);
+            $fn_general->save_audit('85', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_DELETE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action empty');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

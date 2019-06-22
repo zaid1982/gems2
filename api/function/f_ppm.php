@@ -995,6 +995,7 @@ class Class_ppm {
             }
 
             $ppmTaskPartsId = Class_db::getInstance()->db_insert('ppm_task_parts', array('ppm_task_parts_desc'=>$ppmTaskPartsDesc, 'ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>'19'), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
 
             $dataLocal = Class_db::getInstance()->db_select_single('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId), null, 1);
             $result['ppmTaskPartsId'] = $dataLocal['ppm_task_parts_id'];
@@ -1002,6 +1003,33 @@ class Class_ppm {
             $result['ppmTaskPartsDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_parts_desc']);
 
             return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskPartsId
+     * @throws Exception
+     */
+    public function delete_ppm_parts ($ppmTaskPartsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskPartsId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskPartsId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Parts data not exist');
+            }
+
+            $ppmTaskId = Class_db::getInstance()->db_select_col('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId), 'ppm_task_id', null, 1);
+            Class_db::getInstance()->db_delete('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId));
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_id'=>$ppmTaskId));
+            $sectionStatus = $totalNull == '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
