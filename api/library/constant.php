@@ -92,6 +92,7 @@ class Class_constant {
     const ERR_PPM_PARTS_EXIST = 'Spare Parts / Material Used already exist';
 
     const SUC_SAVE = 'Successfully saved!';
+    const SUC_SCAN_START_TIME = 'Start Time successfully set!';
     const SUC_DELETE = 'Successfully removed!';
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';

@@ -139,6 +139,12 @@ try {
             $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType);
             $fn_general->save_audit('89', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'save_scan_start_time') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId);
+            $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $form_data['errmsg'] = $constant::SUC_SCAN_START_TIME;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
