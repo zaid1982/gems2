@@ -1,16 +1,14 @@
 <?php
 
-require_once('tcpdf_include.php');
-require_once '../../function/f_general.php';
-require_once '../../library/constant.php';
+//require_once '../../function/f_general.php';
+//require_once '../../library/constant.php';
 
-$fn_general = new Class_general();
+//$fn_general = new Class_general();
 
-$fn_general->log_debug('API', 'ass', __LINE__, 'Request method = ');
-
+//$fn_general->log_debug('API', 'ass', __LINE__, 'Request method = ');
 
 // extend TCPF with custom functions
-class MYPDF extends TCPDF {
+class MYPDF_checklist extends TCPDF {
 
 	// Load table data from file
 	public function LoadData($file) {
@@ -24,7 +22,7 @@ class MYPDF extends TCPDF {
 	}
 
 	// Colored table
-	public function PpmTable() {
+	public function ChecklistTable() {
 		// Colors, line width and bold font
 		$this->SetFillColor(30, 0, 0, 0);
 		$this->SetTextColor(0);
@@ -630,78 +628,149 @@ Refer to …………………….";
 	}
 }
 
-// create new PDF document
-$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+class Class_pdf_checklist {
 
-// set document information
-$pdf->SetCreator(PDF_CREATOR);
-$pdf->SetAuthor('Nicola Asuni');
-$pdf->SetTitle('TCPDF Example 011');
-$pdf->SetSubject('TCPDF Tutorial');
-$pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+    private $fn_general;
+    private $checklistId;
 
-// set default header data
-//$pdf->SetHeaderData('', PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
+    function __construct() {
+        //$this->fn_general = new Class_general();
+    }
 
-// remove default header/footer
-$pdf->setPrintHeader(false);
-$pdf->setPrintFooter(false);
+    private function get_exception($codes, $function, $line, $msg) {
+        if ($msg != '') {
+            $pos = strpos($msg,'-');
+            if ($pos !== false) {
+                $msg = substr($msg, $pos+2);
+            }
+            return "(ErrCode:".$codes.") [".__CLASS__.":".$function.":".$line."] - ".$msg;
+        } else {
+            return "(ErrCode:".$codes.") [".__CLASS__.":".$function.":".$line."]";
+        }
+    }
 
-// set header and footer fonts
-$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+    /**
+     * @param $property
+     * @return mixed
+     * @throws Exception
+     */
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        } else {
+            throw new Exception($this->get_exception('0001', __FUNCTION__, __LINE__, 'Get Property not exist [' . $property . ']'));
+        }
+    }
 
-// set default monospaced font
-$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    /**
+     * @param $property
+     * @param $value
+     * @throws Exception
+     */
+    public function __set($property, $value) {
+        if (property_exists($this, $property)) {
+            $this->$property = $value;
+        } else {
+            throw new Exception($this->get_exception('0002', __FUNCTION__, __LINE__, 'Get Property not exist [' . $property . ']'));
+        }
+    }
 
-// set margins
-$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+    /**
+     * @param $property
+     * @return bool
+     * @throws Exception
+     */
+    public function __isset($property) {
+        if (property_exists($this, $property)) {
+            return isset($this->$property);
+        } else {
+            throw new Exception($this->get_exception('0003', __FUNCTION__, __LINE__, 'Get Property not exist [' . $property . ']'));
+        }
+    }
 
-// set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    /**
+     * @param $property
+     * @throws Exception
+     */
+    public function __unset($property) {
+        if (property_exists($this, $property)) {
+            unset($this->$property);
+        } else {
+            throw new Exception($this->get_exception('0004', __FUNCTION__, __LINE__, 'Get Property not exist [' . $property . ']'));
+        }
+    }
 
-// set image scale factor
-$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+    public function create_pdf () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $this->checklistId);
+                // create new PDF document
+            $pdf = new MYPDF_checklist(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-// set some language-dependent strings (optional)
-if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
-	require_once(dirname(__FILE__).'/lang/eng.php');
-	$pdf->setLanguageArray($l);
+            // set document information
+            $pdf->SetCreator(PDF_CREATOR);
+            $pdf->SetAuthor('Nicola Asuni');
+            $pdf->SetTitle('TCPDF Example 011');
+            $pdf->SetSubject('TCPDF Tutorial');
+            $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+
+            // set default header data
+            //$pdf->SetHeaderData('', PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
+
+            // remove default header/footer
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+
+            // set header and footer fonts
+            $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+            $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+            // set default monospaced font
+            $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+            // set margins
+            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+            $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+            // set auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+            // set image scale factor
+            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+            // ---------------------------------------------------------
+
+            // add a page
+            $pdf->AddPage();
+
+            // column titles
+            $header = array('Country', 'Capital', 'Area (sq km)', 'Pop. (thousands)');
+
+            // data loading
+            $data = $pdf->LoadData('pdf/data/table_data_demo.txt');
+
+            $pdf->Image('pdf/images/logo.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
+
+            // set font
+            $pdf->SetFont('helvetica', '', 11);
+
+            $pdf->MultiCell(60, 20, '', 0, 'L', 0, 0, '', '');
+            $pdf->MultiCell(120, 20, "\nPREVENTIVE MAINTENANCE CHECKLIST\nBANK NEGARA MALAYSIA HQ", 1, 'C', 0, 0, '', '');
+
+            $pdf->Ln();
+            // set font
+            $pdf->SetFont('helvetica', '', 8);
+
+            // print colored table
+            $pdf->ChecklistTable();
+
+            // close and output PDF document
+            $pdf->Output('example_011.pdf', 'I');
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
 
-// ---------------------------------------------------------
-
-// add a page
-$pdf->AddPage();
-
-// column titles
-$header = array('Country', 'Capital', 'Area (sq km)', 'Pop. (thousands)');
-
-// data loading
-$data = $pdf->LoadData('data/table_data_demo.txt');
-
-$pdf->Image('images/logo.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
-
-// set font
-$pdf->SetFont('helvetica', '', 11);
-
-$pdf->MultiCell(60, 20, '', 0, 'L', 0, 0, '', '');
-$pdf->MultiCell(120, 20, "\nPREVENTIVE MAINTENANCE CHECKLIST\nBANK NEGARA MALAYSIA HQ", 1, 'C', 0, 0, '', '');
-
-$pdf->Ln();
-// set font
-$pdf->SetFont('helvetica', '', 8);
-
-// print colored table
-$pdf->PpmTable();
-
-// ---------------------------------------------------------
-
-// close and output PDF document
-$pdf->Output('example_011.pdf', 'I');
-
-//============================================================+
-// END OF FILE
-//============================================================+
