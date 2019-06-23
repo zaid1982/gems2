@@ -65,8 +65,8 @@ function ModalSite() {
                     }
                     else {
                         const clientId = $('#optMstClientId').val();
-                        const txtName = $('#txtMzgName').val();
-                        const txtDesc = $('#txaMzgDesc').val();
+                        const txtName = $('#txtMstName').val();
+                        const txtDesc = $('#txaMstDesc').val();
                         const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
                         const data = {
                             clientId :clientId,
