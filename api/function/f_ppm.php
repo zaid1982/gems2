@@ -833,6 +833,9 @@ class Class_ppm {
                 $row_result['ppmTaskUploadId'] = $dataLocal['ppm_task_upload_id'];
                 $row_result['ppmTaskUploadType'] = $imageType[intval($dataLocal['ppm_task_upload_type'])];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskUploadLongitude'] = $this->fn_general->clear_null($dataLocal['ppm_task_upload_longitude']);
+                $row_result['ppmTaskUploadLatitude'] = $this->fn_general->clear_null($dataLocal['ppm_task_upload_latitude']);
+                $row_result['ppmTaskUploadTimestamp'] = str_replace('-', '/', $dataLocal['ppm_task_upload_timestamp']);
                 $row_result['uploadId'] = $dataLocal['upload_id'];
                 $row_result['uploadName'] = $this->fn_general->clear_null($dataLocal['upload_name']);
                 $row_result['documentDesc'] = $this->fn_general->clear_null($dataLocal['document_desc']);
@@ -1144,7 +1147,7 @@ class Class_ppm {
      * @param $uploadType
      * @throws Exception
      */
-    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType) {
+    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1157,8 +1160,15 @@ class Class_ppm {
             if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
             }
+            if (empty($longitude)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter longitude empty');
+            }
+            if (empty($latitude)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
+            }
 
-            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId));
+            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId,
+                'ppm_task_upload_longitude'=>$longitude, 'ppm_task_upload_latitude'=>$latitude));
             $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
             $sectionStatus = $totalFile == '0' ? '18' : '19';
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
@@ -1168,7 +1178,6 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
-
 
     /**
      * @param $ppmTaskUploadId

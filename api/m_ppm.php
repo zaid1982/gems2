@@ -131,12 +131,14 @@ try {
         else if ($action === 'upload_maintenance_image') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $uploadType = filter_input(INPUT_POST, 'uploadType');
+            $longitude = filter_input(INPUT_POST, 'longitude');
+            $latitude = filter_input(INPUT_POST, 'latitude');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
             }
             $uploadId = $fn_general->uploadDocument($fileUpload, intval($uploadType)+2, $jwt_data->userId);
-            $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType);
+            $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude);
             $fn_general->save_audit('89', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
