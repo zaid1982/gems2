@@ -91,7 +91,7 @@ function SectionChecklist() {
             $('#btnSckSubmit, #btnSckUpdate').attr('disabled', !formValidate.validateForm());
         });
 
-        oTableChecklistQual =  $('#dtSckChecklistQual').DataTable({
+        oTableChecklistQual = $('#dtSckChecklistQual').DataTable({
             bLengthChange: false,
             bFilter: true,
             autoWidth: false,

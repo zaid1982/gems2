@@ -7,30 +7,57 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-5">
             <div class="card card-cascade cascading-admin-card user-card mt-4">
                 <div class="admin-up d-flex justify-content-start">
-                    <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-4"></i>
+                    <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-3"></i>
                     <div class="data">
                         <h3 class="font-weight-bold dark-grey-text ml-3">Contract Information</h3>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade px-4">
+                <div class="card-body card-body-cascade px-3 pb-0">
                     <form id="formSct">
-                        <h5 class="mt-3 font-weight-500">Main Information :</h5>
-                        <div class="row px-3">
-                            <div class="col-md-8">
-                                <div class="md-form md-outline mt-3">
-                                    <input type="text" id="txtSctChecklistName" class="form-control">
-                                    <label for="txtSctChecklistName" id="lblSctChecklistName">Checklist Name *</label>
-                                    <p class="font-small text-danger" id="txtSctChecklistNameErr"></p>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-4">
+                                    <input type="text" id="txtSctClientName" class="form-control" disabled>
+                                    <label for="txtSctClientName" id="lblSctClientName">Client Name</label>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-3">
-                                    <input type="text" id="txtSctChecklistVersion" class="form-control">
-                                    <label for="txtSctChecklistVersion" id="lblSctChecklistVersion">Checklist Version *</label>
-                                    <p class="font-small text-danger" id="txtSctChecklistVersionErr"></p>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSctSiteName" class="form-control" disabled>
+                                    <label for="txtSctSiteName" id="lblSctSiteName">Site Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSctContractName" class="form-control" disabled>
+                                    <label for="txtSctContractName" id="lblSctContractName">Contract Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <textarea id="txaSctContractDesc" class="md-textarea form-control" rows="3" disabled></textarea>
+                                    <label for="txaSctContractDesc" id="lblSctContractDesc" class="text-muted">Description</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSctContractDateStart" class="form-control" disabled>
+                                    <label for="txtSctContractDateStart" id="lblSctContractDateStart">Contract Date Start</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSctContractDateEnd" class="form-control" disabled>
+                                    <label for="txtSctContractDateEnd" id="lblSctContractDateEnd">Contract Date End</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSctContractStatus" class="form-control" disabled>
+                                    <label for="txtSctContractStatus" id="lblSctContractStatus" class="text-muted">Status</label>
                                 </div>
                             </div>
                         </div>
@@ -38,20 +65,62 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-5">
-            <div class="card profile-card mt-4">
-                <div class="card-header teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Location Code</h5>
+        <div class="col-md-7">
+            <div class="card card-cascade narrower mb-5 mt-5">
+                <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <button type="button" id="btnSctLocationCodeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Contract"><i class="fas fa-plus mt-0"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title="Location Code List"
+                           data-content="All location code available in this contract."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtSctLocationCodeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">Location Code</a>
+                    <div>
+                        <div id="btnDtSctLocationCodeExport"></div>
+                    </div>
                 </div>
-                <div class="card-body mt-3 pb-0">
-                    <dl class="row">
-                        <dt class="col-sm-4">Contract Name</dt>
-                        <dd class="col-sm-8" id="lblSszContactName"></dd>
-                        <dt class="col-sm-4">Client</dt>
-                        <dd class="col-sm-8" id="lblSszClientName"></dd>
-                        <dt class="col-sm-4">Site</dt>
-                        <dd class="col-sm-8" id="lblSszSiteName"></dd>
-                    </dl>
+                <div class="table-responsive">
+                    <table id="dtSctLocationCode" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                        <thead>
+                        <tr class="th-strong">
+                            <th style="width: 5%">#</th>
+                            <th>Location Code</th>
+                            <th style="width: 20%">Status</th>
+                            <th style="width: 64px; min-width: 64px"></th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card card-cascade narrower">
+                <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <button type="button" id="btnSctLocationUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Contract"><i class="fas fa-plus mt-0"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title="Technician Assigned List"
+                           data-content="All technician assigned in this location with the asset group."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtSctLocationUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">Technician Assigned</a>
+                    <div>
+                        <div id="btnDtSctLocationUserExport"></div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="dtSctLocationUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                        <thead>
+                        <tr class="th-strong">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 20%">Location Code</th>
+                            <th>Name</th>
+                            <th style="width: 20%">Asset Group</th>
+                            <th style="width: 48px; min-width: 48px"></th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>

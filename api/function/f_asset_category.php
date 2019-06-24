@@ -111,7 +111,7 @@ class Class_assetCategory {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($assetCategoryId)) {
-                throw new Exception('[' . __LINE__ . '] - Array assetCategoryId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
             }
 
             $result = array();

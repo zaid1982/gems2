@@ -383,4 +383,21 @@ class Class_general {
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getLocationCode () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['location_code_id'])] = $dataLocal['location_code_name'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

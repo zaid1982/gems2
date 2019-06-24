@@ -37,7 +37,7 @@ function MainContract() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableContract.row(parseInt(rowId)).data();
-                        sectionContractClass.view(currentRow['contractId'], rowId);
+                        sectionContractClass.load(currentRow['contractId'], rowId);
                     }
                 });
                 $('.lnkCcrContractDeactivate').off('click').on('click', function () {

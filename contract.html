@@ -139,11 +139,18 @@
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
                 modalContractClass_.setRefClient(refClient_);
                 modalContractClass_.setRefSite(refSite_);
                 modalContractClass_.setClassFrom(contractClass_);
                 modalContractClass_.init();
+                sectionContractClass_.setRefStatus(refStatus_);
+                sectionContractClass_.setRefClient(refClient_);
+                sectionContractClass_.setRefSite(refSite_);
+                sectionContractClass_.setRefAssetGroup(refAssetGroup_);
+                sectionContractClass_.setRefUser(refUser_);
                 sectionContractClass_.setClassFrom(contractClass_);
                 sectionContractClass_.init();
                 contractClass_.setVersionLocal(versionLocal_);
