@@ -23,7 +23,9 @@ function SectionChecklist() {
 
         $('#btnSckBack').on('click', function () {
             $('.sectionChecklist').hide();
-            $('.sectionPcmMain').show();
+            if (classFrom.getClassName() === 'MainChecklist') {
+                $('.sectionPcmMain').show();
+            }
             $(window).scrollTop(0);
         });
 

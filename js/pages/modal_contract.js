@@ -181,7 +181,7 @@ function ModalContract() {
 
                 const dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
                 const siteId = dataMcr['siteId'];
-                mzSetFieldValue('McrSiteId', siteId, 'select', 'Client *');
+                mzSetFieldValue('McrSiteId', siteId, 'select', 'Site *');
                 mzSetFieldValue('McrClientId', refSite[siteId]['clientId'], 'select', 'Client *');
                 mzSetFieldValue('McrName', dataMcr['contractName'], 'text');
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');

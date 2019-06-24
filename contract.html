@@ -70,7 +70,7 @@
                                 <th style="width: 10%">Start Date</th>
                                 <th style="width: 10%">End Date</th>
                                 <th style="width: 8%">Status</th>
-                                <th style="width: 80px"></th>
+                                <th style="width: 85px"></th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -79,6 +79,7 @@
                 </div>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_contract"></div>
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
@@ -120,6 +121,7 @@
     let changePasswordClass_;
     let modalContractClass_;
     let modalConfirmDelete_;
+    let sectionContractClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -131,6 +133,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 contractClass_ = new MainContract();
                 modalContractClass_ = new ModalContract();
+                sectionContractClass_ = new SectionContract();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
@@ -141,11 +144,14 @@
                 modalContractClass_.setRefSite(refSite_);
                 modalContractClass_.setClassFrom(contractClass_);
                 modalContractClass_.init();
+                sectionContractClass_.setClassFrom(contractClass_);
+                sectionContractClass_.init();
                 contractClass_.setVersionLocal(versionLocal_);
                 contractClass_.setRefStatus(refStatus_);
                 contractClass_.setRefClient(refClient_);
                 contractClass_.setRefSite(refSite_);
                 contractClass_.setModalContractClass(modalContractClass_);
+                contractClass_.setSectionContractClass(sectionContractClass_);
                 contractClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 contractClass_.init();
             } catch (e) {
@@ -160,5 +166,6 @@
     document.write('<scr' + 'ipt src="js/pages/modal_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

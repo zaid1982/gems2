@@ -9,6 +9,7 @@ function MainContract() {
     let refSite;
     let oTableContract;
     let modalContractClass;
+    let sectionContractClass;
 
     this.init = function () {
         oTableContract =  $('#dtCcrContract').DataTable({
@@ -28,6 +29,15 @@ function MainContract() {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableContract.row(parseInt(rowId)).data();
                         modalContractClass.edit(currentRow['contractId'], rowId);
+                    }
+                });
+                $('.lnkCcrContractDetails').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableContract.row(parseInt(rowId)).data();
+                        sectionContractClass.view(currentRow['contractId'], rowId);
                     }
                 });
                 $('.lnkCcrContractDeactivate').off('click').on('click', function () {
@@ -80,6 +90,7 @@ function MainContract() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkCcrContractEdit" id="lnkCcrContractEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-search-plus lnkCcrContractDetails" id="lnkCcrContractDetails_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Details"></i></a>&nbsp;&nbsp;';
                             if (row['contractStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkCcrContractDeactivate" id="lnkCcrContractDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
@@ -215,6 +226,10 @@ function MainContract() {
 
     this.setModalContractClass = function (_modalContractClass) {
         modalContractClass = _modalContractClass;
+    };
+
+    this.setSectionContractClass = function (_sectionContractClass) {
+        sectionContractClass = _sectionContractClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
