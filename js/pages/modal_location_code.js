@@ -80,16 +80,16 @@ function ModalLocationCode() {
                         if (locationCodeId === '') {
                             data['locationCodeId'] = mzAjaxRequest('location_code.php', 'POST', data);
                             if (classFrom.getClassName() === 'SectionContract') {
-                                //classFrom.addTableAct(data);
+                                classFrom.addTableLocationCode(data);
                             }
                         } else {
                             data['action'] = 'update';
                             mzAjaxRequest('location_code.php?locationCodeId='+locationCodeId, 'PUT', data);
                             if (classFrom.getClassName() === 'SectionContract') {
-                                //classFrom.updateTableAct(data, rowRefresh);
+                                classFrom.updateTableLocationCode(data, rowRefresh);
                             }
                         }
-                        $('#modal_asset_category').modal('hide');
+                        $('#modal_location_code').modal('hide');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);

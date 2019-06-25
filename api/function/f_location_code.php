@@ -167,4 +167,47 @@ class Class_locationCode {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $locationCodeId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function update_locationCode ($locationCodeId, $put_vars) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($locationCodeId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['locationCodeName']) || empty($put_vars['locationCodeName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeName empty');
+            }
+            if (!isset($put_vars['contractId']) || empty($put_vars['contractId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId not exist');
+            }
+            if (!isset($put_vars['locationCodeStatus']) || empty($put_vars['locationCodeStatus'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeStatus empty');
+            }
+
+            $locationCodeName = $put_vars['locationCodeName'];
+            $contractId = $put_vars['contractId'];
+            $locationCodeStatus = $put_vars['locationCodeStatus'];
+
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId, 'location_code_id'=>'<>'.$locationCodeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_SIMILAR, 31);
+            }
+
+            Class_db::getInstance()->db_update('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId, 'location_code_status'=>$locationCodeStatus), array('location_code_id'=>$locationCodeId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

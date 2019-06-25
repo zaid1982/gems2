@@ -294,6 +294,21 @@ function SectionContract() {
         oTableLocationUser.clear().rows.add(dataLocationUser).draw();
     };
 
+    this.addTableLocationCode = function (_dataAdd) {
+        oTableLocationCode.row.add(_dataAdd).draw();
+    };
+
+    this.updateTableLocationCode = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableLocationCode.row(_rowEdit).data();
+        if (typeof _dataEdit['locationCodeName'] !== 'undefined') {
+            currentRow['locationCodeName'] = _dataEdit['locationCodeName'];
+        }
+        if (typeof _dataEdit['locationCodeStatus'] !== 'undefined') {
+            currentRow['locationCodeStatus'] = _dataEdit['locationCodeStatus'];
+        }
+        oTableLocationCode.row(_rowEdit).data(currentRow).draw();
+    };
+
     this.getClassName = function () {
         return className;
     };
