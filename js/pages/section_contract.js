@@ -13,6 +13,7 @@ function SectionContract() {
     let refUser;
     let oTableLocationCode;
     let oTableLocationUser;
+    let modalLocationCodeClass;
 
     this.init = function () {
         $('.sectionContract').hide();
@@ -38,6 +39,42 @@ function SectionContract() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkSctLocationCodeEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
+                        modalLocationCodeClass.edit(currentRow['locationCodeId'], currentRow['contractId'], rowId);
+                    }
+                });
+                $('.lnkSctLocationCodeDeactivate').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
+                        modalLocationCodeClass.deactivate(currentRow['locationCodeId'], rowId);
+                    }
+                });
+                $('.lnkSctLocationCodeActivate').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
+                        modalLocationCodeClass.activate(currentRow['locationCodeId'], rowId);
+                    }
+                });
+                $('.lnkSctLocationCodeDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalLocationCodeClass);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -108,7 +145,7 @@ function SectionContract() {
         }).container().appendTo($('#btnDtSctLocationCodeExport'));
 
         $('#btnSctLocationCodeAdd').on('click', function () {
-            //modalLocationCodeClass.add(checklistId);
+            modalLocationCodeClass.add(contractId);
         });
 
         $('#btnDtSctLocationCodeRefresh').on('click', function () {
@@ -283,5 +320,9 @@ function SectionContract() {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+    };
+
+    this.setModalLocationCodeClass = function (_modalLocationCodeClass) {
+        modalLocationCodeClass = _modalLocationCodeClass;
     };
 }

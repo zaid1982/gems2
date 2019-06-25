@@ -84,6 +84,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_contract"></div>
+    <div class="includeHtml" id="h-modal_location_code"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -120,6 +121,7 @@
     let contractClass_;
     let changePasswordClass_;
     let modalContractClass_;
+    let modalLocationCodeClass_;
     let modalConfirmDelete_;
     let sectionContractClass_;
 
@@ -133,6 +135,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 contractClass_ = new MainContract();
                 modalContractClass_ = new ModalContract();
+                modalLocationCodeClass_ = new ModalLocationCode();
                 sectionContractClass_ = new SectionContract();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
@@ -146,11 +149,17 @@
                 modalContractClass_.setRefSite(refSite_);
                 modalContractClass_.setClassFrom(contractClass_);
                 modalContractClass_.init();
+                modalLocationCodeClass_.setRefClient(refClient_);
+                modalLocationCodeClass_.setRefSite(refSite_);
+                modalLocationCodeClass_.setVersionLocal(versionLocal_);
+                modalLocationCodeClass_.setClassFrom(sectionContractClass_);
+                modalLocationCodeClass_.init();
                 sectionContractClass_.setRefStatus(refStatus_);
                 sectionContractClass_.setRefClient(refClient_);
                 sectionContractClass_.setRefSite(refSite_);
                 sectionContractClass_.setRefAssetGroup(refAssetGroup_);
                 sectionContractClass_.setRefUser(refUser_);
+                sectionContractClass_.setModalLocationCodeClass(modalLocationCodeClass_);
                 sectionContractClass_.setClassFrom(contractClass_);
                 sectionContractClass_.init();
                 contractClass_.setVersionLocal(versionLocal_);
@@ -171,6 +180,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_location_code.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_contract.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

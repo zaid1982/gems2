@@ -39,6 +39,29 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $locationCodeName = filter_input(INPUT_POST, 'locationCodeName');
+        $contractId = filter_input(INPUT_POST, 'contractId');
+        $locationCodeStatus = filter_input(INPUT_POST, 'locationCodeStatus');
+
+        $params = array(
+            'locationCodeName'=>$locationCodeName,
+            'contractId'=>$contractId,
+            'locationCodeStatus'=>$locationCodeStatus
+        );
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $result = $fn_locationCode->add_locationCode($params);
+        $fn_general->updateVersion(16);
+        $fn_general->save_audit('92', $jwt_data->userId, 'Location Code = ' . $locationCodeName);
+
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_ADD;
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

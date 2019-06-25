@@ -90,6 +90,7 @@ class Class_constant {
     const ERR_PPM_NO_TECHNICIAN = 'No technician assign to this contract. Please make sure at least 1 technician assign under this contract.';
     const ERR_PPM_NO_DATES = 'No dates available between the start cycle date and contract end date';
     const ERR_PPM_PARTS_EXIST = 'Spare Parts / Material Used already exist';
+    const ERR_LOCATION_CODE_SIMILAR = 'Location Code already exist under similar contract';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
@@ -166,4 +167,5 @@ class Class_constant {
     const SUC_CHECKLIST_QUAN_ACTIVATE = 'Quantitative Task successfully activated';
     const SUC_CHECKLIST_QUAN_DELETE = 'Quantitative Task successfully deleted';
     const SUC_PPM_SAVE = 'PM tasks successfully scheduled and assigned to technician';
+    const SUC_LOCATION_CODE_ADD = 'Location Code successfully added';
 }

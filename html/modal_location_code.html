@@ -1,0 +1,45 @@
+<div class="modal fade" id="modal_location_code" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMlcTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMlc">
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMlcClientName" class="form-control" disabled>
+                        <label for="txtMlcClientName" id="lblMlcClientName">Client Name</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMlcSiteName" class="form-control" disabled>
+                        <label for="txtMlcSiteName" id="lblMlcSiteName">Site Name</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMlcContractName" class="form-control" disabled>
+                        <label for="txtMlcContractName" id="lblMlcContractName">Contract Name</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMlcLocationCodeName" class="form-control">
+                        <label for="txtMlcLocationCodeName" id="lblMlcLocationCodeName">Location Code *</label>
+                        <p class="font-small text-danger" id="txtMlcLocationCodeNameErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMlcStatus" name="chkMlcStatus" value="1">
+                        <label class="form-check-label" for="chkMlcStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMlcSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
