@@ -91,6 +91,10 @@ class Class_constant {
     const ERR_PPM_NO_DATES = 'No dates available between the start cycle date and contract end date';
     const ERR_PPM_PARTS_EXIST = 'Spare Parts / Material Used already exist';
     const ERR_LOCATION_CODE_SIMILAR = 'Location Code already exist under similar contract';
+    const ERR_LOCATION_CODE_DEACTIVATE = 'Location Code already inactive';
+    const ERR_LOCATION_CODE_ACTIVATE = 'Location Code already active';
+    const ERR_LOCATION_CODE_DELETE_USER = 'Location Code cannot be deleted because currently registered under Technician';
+    const ERR_LOCATION_CODE_DELETE_ASSET = 'Location Code cannot be deleted because currently registered under Asset';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
@@ -168,4 +172,8 @@ class Class_constant {
     const SUC_CHECKLIST_QUAN_DELETE = 'Quantitative Task successfully deleted';
     const SUC_PPM_SAVE = 'PM tasks successfully scheduled and assigned to technician';
     const SUC_LOCATION_CODE_ADD = 'Location Code successfully added';
+    const SUC_LOCATION_CODE_EDIT = 'Location Code successfully updated';
+    const SUC_LOCATION_CODE_DEACTIVATE = 'Location Code successfully deactivated';
+    const SUC_LOCATION_CODE_ACTIVATE = 'Location Code successfully activated';
+    const SUC_LOCATION_CODE_DELETE = 'Location Code successfully deleted';
 }

@@ -102,17 +102,21 @@ function SectionContract() {
         });
         $("#dtSctLocationCode_filter").hide();
 
+        let cntLocationCode;
         let btnLocationCodeOpt = {
             exportOptions: {
                 columns: [ 0, 1, 2],
                 format: {
                     body: function ( data, row, column ) {
+                        if (row === 0 && column === 0) {
+                            cntLocationCode = 1;
+                        }
                         if (column === 2) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
                         }
-                        return data;
+                        return column === 0 ? cntLocationCode++ : data;
                     }
                 }
             }
@@ -187,8 +191,7 @@ function SectionContract() {
                         }},
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSctLocationUserEdit" id="lnkSctLocationUserEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                            label += '<a><i class="fas fa-trash-alt lnkSctLocationUserDelete" id="lnkSctLocationUserDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            let label = '<a><i class="fas fa-trash-alt lnkSctLocationUserDelete" id="lnkSctLocationUserDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     }
@@ -196,12 +199,16 @@ function SectionContract() {
         });
         $("#dtSctLocationUser_filter").hide();
 
+        let cntLocationUser;
         let btnLocationUserOpt = {
             exportOptions: {
                 columns: [ 0, 1, 2, 3],
                 format: {
                     body: function ( data, row, column ) {
-                        return data;
+                        if (row === 0 && column === 0) {
+                            cntLocationUser = 1;
+                        }
+                        return column === 0 ? cntLocationUser++ : data;
                     }
                 }
             }
@@ -339,5 +346,9 @@ function SectionContract() {
 
     this.setModalLocationCodeClass = function (_modalLocationCodeClass) {
         modalLocationCodeClass = _modalLocationCodeClass;
+    };
+
+    this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
+        modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
 }

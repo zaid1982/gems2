@@ -153,6 +153,56 @@ function ModalLocationCode() {
         }, 300);
     };
 
+    this.deactivate = function (_locationCodeId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_locationCodeId, _rowRefresh]);
+                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'PUT', {action: 'deactivate'});
+                const tempRow = {locationCodeStatus:'2'};
+                if (classFrom.getClassName() === 'SectionContract') {
+                    classFrom.updateTableLocationCode(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.activate = function (_locationCodeId, _rowRefresh) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_locationCodeId, _rowRefresh]);
+                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'PUT', {action: 'activate'});
+                const tempRow = {locationCodeStatus:'1'};
+                if (classFrom.getClassName() === 'SectionContract') {
+                    classFrom.updateTableLocationCode(tempRow, _rowRefresh);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.delete = function (_locationCodeId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_locationCodeId]);
+                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'DELETE');
+                if (classFrom.getClassName() === 'SectionContract') {
+                    classFrom.genTableLocationCode();
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
     this.getClassName = function () {
         return className;
     };

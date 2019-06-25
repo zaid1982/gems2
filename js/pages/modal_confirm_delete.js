@@ -19,6 +19,7 @@ function ModalConfirmDelete() {
                 case 'ModalChecklistQual':
                 case 'ModalChecklistQuan':
                 case 'SectionChecklist':
+                case 'ModalLocationCode':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id);
                     }

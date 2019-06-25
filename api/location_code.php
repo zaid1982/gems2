@@ -46,9 +46,9 @@ try {
         $locationCodeStatus = filter_input(INPUT_POST, 'locationCodeStatus');
 
         $params = array(
-            'locationCodeName'=>$locationCodeName,
-            'contractId'=>$contractId,
-            'locationCodeStatus'=>$locationCodeStatus
+            'locationCodeName' => $locationCodeName,
+            'contractId' => $contractId,
+            'locationCodeStatus' => $locationCodeStatus
         );
 
         Class_db::getInstance()->db_beginTransaction();
@@ -61,6 +61,53 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_ADD;
         $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $locationCodeId = filter_input(INPUT_GET, 'locationCodeId');
+        $put_data = file_get_contents("php://input");
+        parse_str($put_data, $put_vars);
+        $action = $put_vars['action'];
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'update') {
+            $fn_locationCode->update_locationCode($locationCodeId, $put_vars);
+            $fn_general->updateVersion(16);
+            $fn_general->save_audit('93', $jwt_data->userId, 'Location Code = ' . $put_vars['locationCodeName']);
+            $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_EDIT;
+        }
+        else if ($action === 'deactivate') {
+            $fn_locationCode->deactivate_locationCode($locationCodeId);
+            $fn_general->updateVersion(16);
+            $fn_general->save_audit('94', $jwt_data->userId, 'Location Code Id = ' . $locationCodeId);
+            $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_DEACTIVATE;
+        }
+        else if ($action === 'activate') {
+            $fn_locationCode->activate_locationCode($locationCodeId);
+            $fn_general->updateVersion(16);
+            $fn_general->save_audit('95', $jwt_data->userId, 'Location Code Id = ' . $locationCodeId);
+            $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_ACTIVATE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+        $locationCodeId = filter_input(INPUT_GET, 'locationCodeId');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $locationCodeName = $fn_locationCode->delete_locationCode($locationCodeId);
+        $fn_general->updateVersion(16);
+        $fn_general->save_audit('96', $jwt_data->userId, 'Location Cod Id = ' . $locationCodeId);
+
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

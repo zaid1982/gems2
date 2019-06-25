@@ -210,4 +210,83 @@ class Class_locationCode {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $locationCodeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function deactivate_locationCode ($locationCodeId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($locationCodeId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
+            }
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_id'=>$locationCodeId, 'location_code_status'=>'2')) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_DEACTIVATE, 31);
+            }
+
+            Class_db::getInstance()->db_update('cli_location_code', array('location_code_status'=>'2'), array('location_code_id'=>$locationCodeId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $locationCodeId
+     * @throws Exception
+     */
+    public function activate_locationCode ($locationCodeId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($locationCodeId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
+            }
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_id'=>$locationCodeId, 'location_code_status'=>'1')) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_DEACTIVATE, 31);
+            }
+
+            Class_db::getInstance()->db_update('cli_location_code', array('location_code_status'=>'1'), array('location_code_id'=>$locationCodeId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $locationCodeId
+     * @throws Exception
+     */
+    public function delete_locationCode ($locationCodeId) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($locationCodeId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
+            }
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_id'=>$locationCodeId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Asset Category data not exist');
+            }
+            if (Class_db::getInstance()->db_count('cli_contract_user', array('location_code_id'=>$locationCodeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_DELETE_USER, 31);
+            }
+            if (Class_db::getInstance()->db_count('ast_asset', array('location_code_id'=>$locationCodeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_DELETE_ASSET, 31);
+            }
+
+            Class_db::getInstance()->db_delete('cli_location_code', array('location_code_id'=>$locationCodeId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
