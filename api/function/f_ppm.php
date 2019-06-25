@@ -449,7 +449,7 @@ class Class_ppm {
                         $quanResult = '2';
                     }
                     Class_db::getInstance()->db_insert('ppm_task_quan', array('ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'], 'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'frequency_id'=>$quanFrequency,
-                        'ppm_task_quan_unit'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_unit']), 'ppm_task_quan_result'=>$quanResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_quan_id'=>$checklistQuan['checklist_quan_id']));
+                        'ppm_task_quan_unit'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_unit']), 'ppm_task_quan_set_values'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_set_values']), 'ppm_task_quan_result'=>$quanResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_quan_id'=>$checklistQuan['checklist_quan_id']));
                 }
                 if ($isYearly && in_array($dateStr, $yearlyDates)) {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'1'));
@@ -921,9 +921,6 @@ class Class_ppm {
                 if (!array_key_exists('id', $ppmTaskQuan) || empty($ppmTaskQuan['id'])) {
                     throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[id] empty');
                 }
-                if (!array_key_exists('setValues', $ppmTaskQuan)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[setValues] not exist');
-                }
                 if (!array_key_exists('measuredValues', $ppmTaskQuan)) {
                     throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[measuredValues] not exist');
                 }
@@ -939,7 +936,7 @@ class Class_ppm {
                 if (Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_quan_id'=>$ppmTaskQuan['id'], 'ppm_task_quan_result'=>'2')) > 0) {
                     throw new Exception('[' . __LINE__ . '] - Item ppm_task_quan_id = '.$ppmTaskQuan['id'].' currently set as N/A');
                 }
-                Class_db::getInstance()->db_update('ppm_task_quan', array('ppm_task_quan_set_values'=>$ppmTaskQuan['setValues'], 'ppm_task_quan_measured_values'=>$ppmTaskQuan['measuredValues'], 'ppm_task_quan_limit'=>$ppmTaskQuan['limit'],
+                Class_db::getInstance()->db_update('ppm_task_quan', array('ppm_task_quan_measured_values'=>$ppmTaskQuan['measuredValues'], 'ppm_task_quan_limit'=>$ppmTaskQuan['limit'],
                     'ppm_task_quan_result'=>$ppmTaskQuan['result'], 'ppm_task_quan_remark'=>$ppmTaskQuan['remark']), array('ppm_task_quan_id'=>$ppmTaskQuan['id']));
             }
 
