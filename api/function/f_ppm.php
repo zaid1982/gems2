@@ -836,6 +836,7 @@ class Class_ppm {
                 $row_result['ppmTaskUploadLongitude'] = $this->fn_general->clear_null($dataLocal['ppm_task_upload_longitude']);
                 $row_result['ppmTaskUploadLatitude'] = $this->fn_general->clear_null($dataLocal['ppm_task_upload_latitude']);
                 $row_result['ppmTaskUploadTimestamp'] = str_replace('-', '/', $dataLocal['ppm_task_upload_timestamp']);
+                $row_result['ppmTaskUploadDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_upload_desc']);
                 $row_result['uploadId'] = $dataLocal['upload_id'];
                 $row_result['uploadName'] = $this->fn_general->clear_null($dataLocal['upload_name']);
                 $row_result['documentDesc'] = $this->fn_general->clear_null($dataLocal['document_desc']);
@@ -1142,6 +1143,8 @@ class Class_ppm {
      * @param $ppmTaskId
      * @param $uploadId
      * @param $uploadType
+     * @param string $longitude
+     * @param string $latitude
      * @throws Exception
      */
     public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='') {
@@ -1222,6 +1225,41 @@ class Class_ppm {
             }
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $ppmTaskUploads
+     * @throws Exception
+     */
+    public function save_image_desc_m ($ppmTaskId, $ppmTaskUploads) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (!is_array($ppmTaskUploads)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploads is not array');
+            }
+            if (empty($ppmTaskUploads)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploads empty');
+            }
+
+            foreach ($ppmTaskUploads as $ppmTaskUpload) {
+                if (!array_key_exists('ppmTaskUploadId', $ppmTaskUpload) || empty($ppmTaskUpload['ppmTaskUploadId'])) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUpload[ppmTaskUploadId] empty');
+                }
+                if (!array_key_exists('ppmTaskUploadDesc', $ppmTaskUpload)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUpload[ppmTaskUploadDesc] not exist');
+                }
+                Class_db::getInstance()->db_update('ppm_task_upload', array('ppm_task_upload_desc'=>$ppmTaskUpload['ppmTaskUploadDesc']), array('ppm_task_upload_id'=>$ppmTaskUpload['ppmTaskUploadId']));
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

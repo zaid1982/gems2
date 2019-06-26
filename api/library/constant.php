@@ -95,6 +95,7 @@ class Class_constant {
     const ERR_LOCATION_CODE_ACTIVATE = 'Location Code already active';
     const ERR_LOCATION_CODE_DELETE_USER = 'Location Code cannot be deleted because currently registered under Technician';
     const ERR_LOCATION_CODE_DELETE_ASSET = 'Location Code cannot be deleted because currently registered under Asset';
+    const ERR_CONTRACT_USER_SIMILAR = 'This technician already exist in this Location Code and Asset Group';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
@@ -176,4 +177,5 @@ class Class_constant {
     const SUC_LOCATION_CODE_DEACTIVATE = 'Location Code successfully deactivated';
     const SUC_LOCATION_CODE_ACTIVATE = 'Location Code successfully activated';
     const SUC_LOCATION_CODE_DELETE = 'Location Code successfully deleted';
+    const SUC_CONTRACT_USER_ADD = 'Technician successfully added';
 }

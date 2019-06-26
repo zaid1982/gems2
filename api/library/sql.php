@@ -272,6 +272,7 @@ class Class_sql
                     ppm_task_upload_longitude,
                     ppm_task_upload_latitude,
                     ppm_task_upload_timestamp,
+                    ppm_task_upload_desc,
                     ref_document.document_desc,
                     ref_document.document_type,
                     sys_upload.*

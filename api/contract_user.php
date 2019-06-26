@@ -39,6 +39,23 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $contractId = filter_input(INPUT_POST, 'contractId');
+        $locationCodeId = filter_input(INPUT_POST, 'locationCodeId');
+        $userId = filter_input(INPUT_POST, 'userId');
+        $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $result = $fn_contractUser->add_contractUser($contractId, $locationCodeId, $userId, $assetGroupId);
+        $fn_general->save_audit('97', $jwt_data->userId, 'Contract User Id = ' . $result);
+
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_CONTRACT_USER_ADD;
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
