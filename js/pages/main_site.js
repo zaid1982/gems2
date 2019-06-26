@@ -65,6 +65,7 @@ function MainSite() {
                             return refClient[data]['clientName'];
                         }},
                     {mData: 'siteName'},
+                    {mData: 'siteCode'},
                     {mData: 'siteDesc'},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -94,13 +95,13 @@ function MainSite() {
         let cntSite;
         let btnSiteOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
+                columns: [ 0, 1, 2, 3, 4, 5],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntSite = 1;
                         }
-                        if (column === 4) {
+                        if (column === 5) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -171,6 +172,9 @@ function MainSite() {
         const currentRow = oTableSite.row(_rowEdit).data();
         if (typeof _dataEdit['siteName'] !== 'undefined') {
             currentRow['siteName'] = _dataEdit['siteName'];
+        }
+        if (typeof _dataEdit['siteCode'] !== 'undefined') {
+            currentRow['siteCode'] = _dataEdit['siteCode'];
         }
         if (typeof _dataEdit['siteDesc'] !== 'undefined') {
             currentRow['siteDesc'] = _dataEdit['siteDesc'];

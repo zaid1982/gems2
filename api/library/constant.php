@@ -35,7 +35,8 @@ class Class_constant {
     const ERR_CLIENT_DEACTIVATE = 'Client already inactive';
     const ERR_CLIENT_ACTIVATE = 'Client already active';
     const ERR_CLIENT_DELETE_SITE = 'Client cannot be deleted because currently registered under Site';
-    const ERR_SITE_SIMILAR = 'Site already exist under similar Client';
+    const ERR_SITE_SIMILAR = 'Site Name already exist under similar Client';
+    const ERR_SITE_SIMILAR_CODE = 'Site Code already exist';
     const ERR_SITE_DEACTIVATE = 'Site already inactive';
     const ERR_SITE_ACTIVATE = 'Site already active';
     const ERR_SITE_DELETE_CONTRACT = 'Site cannot be deleted because currently registered under Contract';

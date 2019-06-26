@@ -37,12 +37,14 @@ try {
         $form_data['success'] = true;
     } else if ('POST' === $request_method) {
         $siteName = filter_input(INPUT_POST, 'siteName');
+        $siteCode = filter_input(INPUT_POST, 'siteCode');
         $siteDesc = filter_input(INPUT_POST, 'siteDesc');
         $clientId = filter_input(INPUT_POST, 'clientId');
         $siteStatus = filter_input(INPUT_POST, 'siteStatus');
 
         $params = array(
             'siteName' => $siteName,
+            'siteCode' => $siteCode,
             'siteDesc' => $siteDesc,
             'clientId' => $clientId,
             'siteStatus' => $siteStatus

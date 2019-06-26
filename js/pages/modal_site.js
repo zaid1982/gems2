@@ -20,10 +20,19 @@ function ModalSite() {
             {
                 field_id: 'txtMstName',
                 type: 'text',
-                name: 'Site',
+                name: 'Site Name',
                 validator: {
                     notEmpty: true,
                     maxLength: 150
+                }
+            },
+            {
+                field_id: 'txtMstCode',
+                type: 'text',
+                name: 'Site Code',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 5
                 }
             },
             {
@@ -66,11 +75,13 @@ function ModalSite() {
                     else {
                         const clientId = $('#optMstClientId').val();
                         const txtName = $('#txtMstName').val();
+                        const txtCode = $('#txtMstCode').val();
                         const txtDesc = $('#txaMstDesc').val();
                         const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
                         const data = {
                             clientId :clientId,
                             siteName: txtName,
+                            siteCode: txtCode,
                             siteDesc: txtDesc,
                             siteStatus: statusVal
                         };
@@ -82,6 +93,7 @@ function ModalSite() {
                                 tempRow['siteId'] = siteId;
                                 tempRow['clientId'] = clientId;
                                 tempRow['siteName'] = txtName;
+                                tempRow['siteCode'] = txtCode;
                                 tempRow['siteDesc'] = txtDesc;
                                 tempRow['siteStatus'] = statusVal;
                                 classFrom.addTableSte(tempRow);
@@ -92,6 +104,7 @@ function ModalSite() {
                             if (classFrom.getClassName() === 'MainSite') {
                                 tempRow['siteId'] = siteId;
                                 tempRow['siteName'] = txtName;
+                                tempRow['siteCode'] = txtCode;
                                 tempRow['siteDesc'] = txtDesc;
                                 tempRow['siteStatus'] = statusVal;
                                 classFrom.updateTableSte(tempRow, rowRefresh);
@@ -138,6 +151,7 @@ function ModalSite() {
                 const dataMst = mzAjaxRequest('site.php?siteId='+siteId, 'GET');
                 mzSetFieldValue('MstClientId', dataMst['clientId'], 'select', 'Client *');
                 mzSetFieldValue('MstName', dataMst['siteName'], 'text');
+                mzSetFieldValue('MstCode', dataMst['siteCode'], 'text');
                 mzSetFieldValue('MstDesc', dataMst['siteDesc'], 'textarea');
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
