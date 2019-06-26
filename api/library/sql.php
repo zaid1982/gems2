@@ -254,7 +254,7 @@ class Class_sql
                     ast_asset_model.asset_model_name,
                     ast_asset.asset_no,
                     ast_asset.asset_name,
-                    ast_asset.asset_location_code,
+                    ast_asset.location_code_id,
                     ast_asset.asset_capacity,
                     ppm_task.ppm_task_time_start,
                     ppm_task.ppm_task_time_serviced

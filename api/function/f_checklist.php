@@ -112,7 +112,8 @@ class Class_checklist {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['checklistId'] = $dataLocal['checklist_id'];
                 $row_result['checklistName'] = $this->fn_general->clear_null($dataLocal['checklist_name']);
-                $row_result['checklistVersion'] = $this->fn_general->clear_null($dataLocal['checklist_version']);
+                $row_result['checklistDocumentNo'] = $this->fn_general->clear_null($dataLocal['checklist_document_no']);
+                $row_result['checklistIssueNo'] = $this->fn_general->clear_null($dataLocal['checklist_issue_no']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
                 $row_result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
                 $row_result['checklistTimeRegistered'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_registered']));
@@ -140,7 +141,8 @@ class Class_checklist {
             $dataLocal = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
             $result['checklistId'] = $dataLocal['checklist_id'];
             $result['checklistName'] = $this->fn_general->clear_null($dataLocal['checklist_name']);
-            $result['checklistVersion'] = $this->fn_general->clear_null($dataLocal['checklist_version']);
+            $result['checklistDocumentNo'] = $this->fn_general->clear_null($dataLocal['checklist_document_no']);
+            $result['checklistIssueNo'] = $this->fn_general->clear_null($dataLocal['checklist_issue_no']);
             $result['checklistDesc'] = $this->fn_general->clear_null($dataLocal['checklist_desc']);
             $result['checklistGuideline'] = $this->fn_general->clear_null($dataLocal['checklist_guideline']);
             $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
@@ -198,8 +200,11 @@ class Class_checklist {
             if (!isset($put_vars['checklistName'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistName not exist');
             }
-            if (!isset($put_vars['checklistVersion'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion not exist');
+            if (!isset($put_vars['checklistDocumentNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDocumentNo not exist');
+            }
+            if (!isset($put_vars['checklistIssueNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistIssueNo not exist');
             }
             if (!isset($put_vars['checklistDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
@@ -209,10 +214,12 @@ class Class_checklist {
             }
 
             $checklistName = $put_vars['checklistName'];
-            $checklistVersion = $put_vars['checklistVersion'];
+            $checklistDocumentNo = $put_vars['checklistDocumentNo'];
+            $checklistIssueNo = $put_vars['checklistIssueNo'];
             $updateArr = array(
                 'checklist_name'=>$checklistName,
-                'checklist_version'=>$checklistVersion,
+                'checklist_document_no'=>$checklistDocumentNo,
+                'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline']
             );
@@ -223,7 +230,7 @@ class Class_checklist {
             if ($checklist['checklist_status'] != '5') {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SUBMITTED, 31);
             }
-            if (!empty($checklistName) && !empty($checklistVersion) && Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+            if (!empty($checklistName) && !empty($checklistVersion) && Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
             }
 
@@ -259,8 +266,11 @@ class Class_checklist {
             if (!isset($put_vars['checklistName']) || empty($put_vars['checklistName'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
             }
-            if (!isset($put_vars['checklistVersion']) || empty($put_vars['checklistVersion'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+            if (!isset($put_vars['checklistDocumentNo']) || empty($put_vars['checklistDocumentNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDocumentNo empty');
+            }
+            if (!isset($put_vars['checklistIssueNo']) || empty($put_vars['checklistIssueNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistIssueNo empty');
             }
             if (!isset($put_vars['checklistDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
@@ -270,10 +280,12 @@ class Class_checklist {
             }
 
             $checklistName = $put_vars['checklistName'];
-            $checklistVersion = $put_vars['checklistVersion'];
+            $checklistDocumentNo = $put_vars['checklistDocumentNo'];
+            $checklistIssueNo = $put_vars['checklistIssueNo'];
             $updateArr = array(
                 'checklist_name'=>$checklistName,
-                'checklist_version'=>$checklistVersion,
+                'checklist_document_no'=>$checklistDocumentNo,
+                'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline'],
                 'checklist_registered_by'=>$userId,
@@ -287,7 +299,7 @@ class Class_checklist {
             if ($checklist['checklist_status'] != '5') {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SUBMITTED, 31);
             }
-            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
             }
             if (Class_db::getInstance()->db_count('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1')) == 0) {
@@ -322,8 +334,11 @@ class Class_checklist {
             if (!isset($put_vars['checklistName']) || empty($put_vars['checklistName'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistName empty');
             }
-            if (!isset($put_vars['checklistVersion']) || empty($put_vars['checklistVersion'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checklistVersion empty');
+            if (!isset($put_vars['checklistDocumentNo']) || empty($put_vars['checklistDocumentNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistDocumentNo empty');
+            }
+            if (!isset($put_vars['checklistIssueNo']) || empty($put_vars['checklistIssueNo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistIssueNo empty');
             }
             if (!isset($put_vars['checklistDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistDesc not exist');
@@ -333,10 +348,12 @@ class Class_checklist {
             }
 
             $checklistName = $put_vars['checklistName'];
-            $checklistVersion = $put_vars['checklistVersion'];
+            $checklistDocumentNo = $put_vars['checklistDocumentNo'];
+            $checklistIssueNo = $put_vars['checklistIssueNo'];
             $updateArr = array(
                 'checklist_name'=>$checklistName,
-                'checklist_version'=>$checklistVersion,
+                'checklist_document_no'=>$checklistDocumentNo,
+                'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline']
             );
@@ -344,7 +361,7 @@ class Class_checklist {
             $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
             $assetTypeId = $checklist['asset_type_id'];
 
-            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'checklist_version'=>$checklistVersion, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'asset_type_id'=>$assetTypeId, 'checklist_id'=>'<>'.$checklistId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
             }
             if (Class_db::getInstance()->db_count('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1')) == 0) {

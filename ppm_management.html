@@ -263,6 +263,7 @@
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refLocationCode_ = mzGetLocalArray('gems_locationCode', versionLocal_, 'locationCodeId', [], 'location_code');
 
                 modalPpmClass_.setClassFrom(ppmManagementClass_);
                 modalPpmClass_.setRefContract(refContract_);
@@ -284,6 +285,7 @@
                 sectionAssetDetails_.setRefContract(refContract_);
                 sectionAssetDetails_.setRefSite(refSite_);
                 sectionAssetDetails_.setRefClient(refClient_);
+                sectionAssetDetails_.setRefLocationCode(refLocationCode_);
                 sectionAssetDetails_.setVersionLocal(versionLocal_);
                 sectionAssetDetails_.init();
 
@@ -295,6 +297,7 @@
                 ppmManagementClass_.setRefAssetType(refAssetType_);
                 ppmManagementClass_.setRefAssetBrand(refAssetBrand_);
                 ppmManagementClass_.setRefAssetModel(refAssetModel_);
+                ppmManagementClass_.setRefLocationCode(refLocationCode_);
                 ppmManagementClass_.setModalPpmClass(modalPpmClass_);
                 ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
                 ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);

@@ -238,7 +238,7 @@ class Class_ppm {
                 $row_result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
-                $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+                $row_result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
                 $row_result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
                 $row_result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
@@ -387,25 +387,24 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_DATES, 31);
             }
 
-            $runningNo = Class_db::getInstance()->db_select_col('ppm', array(), 'ppm_running_no', 'ppm_running_no DESC');
-            if (empty($runningNo)) {
-                $runningNo = 1;
-            } else {
-                $runningNo = intval($runningNo);
-            }
-            $runningNoTemp = 10000 + $runningNo;
-            $runningNoStr = substr(strval($runningNoTemp), 1);
-            $ppmTaskNo = 'P'.date('ymd').$runningNoStr;
-            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$ppmTaskNo, 'ppm_date_cycle'=>$ppmDateCycle, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
-                'contract_id'=>$contractId, 'ppm_running_no'=>strval($runningNo), 'ppm_created_by'=>$userId));
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+            $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
+            $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
+            $runningNo = intval($runningNo);
+            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_cycle'=>$ppmDateCycle, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
+                'contract_id'=>$contractId, 'ppm_created_by'=>$userId));
 
             foreach($tempDays as $key => $dateStr){
+                $runningNoTemp = 100000 + $runningNo;
+                $runningNoStr = substr(strval($runningNoTemp), 1);
+                $ppmTaskNo = 'P'.$siteCode.date('ymd').$runningNoStr;
+                $runningNo++;
                 $ppmTaskIssueNo = $key + 1;
                 $technicianKey = $key%count($technicians);
                 $technician = $technicians[$technicianKey];
                 $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo.'/'.strval($ppmTaskIssueNo), $dateStr);
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
-                $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_issue_no'=>strval($ppmTaskIssueNo), 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklist['checklist_guideline'],
+                $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklist['checklist_guideline'],
                     'ppm_task_status'=>'12', 'transaction_id'=>$transactionId, 'ppm_task_assigned_to'=>$technician));
 
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'A', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17'));
@@ -472,8 +471,9 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12'), array('transaction_id'=>$transactionId));
                 // notification
             }
+            Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
 
-            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$ppmTaskNo);
+            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklist_document_no']);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -645,7 +645,7 @@ class Class_ppm {
             $result['assetModelName'] = $this->fn_general->clear_null($dataLocal['asset_model_name']);
             $result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
             $result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
-            $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+            $result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
             $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
             $result['ppmTaskTimeStart'] = str_replace('-', '/', $dataLocal['ppm_task_time_start']);
             $result['ppmTaskTimeServiced'] = str_replace('-', '/', $dataLocal['ppm_task_time_serviced']);

@@ -18,10 +18,10 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fn_pdf_checklist->__set('fn_general', $fn_general);
-$fn_pdf_checklist->__set('checklistId', '1');
-$fn_pdf_checklist->create_pdf();
-/*try {
+//$fn_pdf_checklist->__set('fn_general', $fn_general);
+//$fn_pdf_checklist->__set('checklistId', '1');
+//$fn_pdf_checklist->create_pdf();
+try {
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
@@ -86,4 +86,4 @@ $fn_pdf_checklist->create_pdf();
     $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
 }
 
-echo json_encode($form_data);*/
+echo json_encode($form_data);

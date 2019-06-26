@@ -10,6 +10,7 @@ function MainPpmManagement() {
     let refAssetType;
     let refAssetBrand;
     let refAssetModel;
+    let refLocationCode;
     let oTableAsset;
     let sectionAssetClass;
     let contractId;
@@ -102,7 +103,7 @@ function MainPpmManagement() {
                             return typeof row['assetCapacity'] !== 'undefined' ? row['assetCapacity'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetLocationCode'] !== 'undefined' ? row['assetLocationCode'] : '';
+                            return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -389,6 +390,10 @@ function MainPpmManagement() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
+    };
+
+    this.setRefLocationCode = function (_refLocationCode) {
+        refLocationCode = _refLocationCode;
     };
 
     this.setSectionAssetClass = function (_sectionAssetClass) {

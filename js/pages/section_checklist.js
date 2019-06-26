@@ -40,12 +40,21 @@ function SectionChecklist() {
                 }
             },
             {
-                field_id: 'txtSckChecklistVersion',
+                field_id: 'txtSckChecklistDocumentNo',
                 type: 'text',
-                name: 'Checklist Version',
+                name: 'Document No',
                 validator: {
                     notEmpty: true,
                     maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSckChecklistIssueNo',
+                type: 'text',
+                name: 'Issue No',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 10
                 }
             },
             {
@@ -365,7 +374,8 @@ function SectionChecklist() {
                     const data = {
                         action: 'save',
                         checklistName: $('#txtSckChecklistName').val(),
-                        checklistVersion: $('#txtSckChecklistVersion').val(),
+                        checklistDocumentNo: $('#txtSckChecklistDocumentNo').val(),
+                        checklistIssueNo: $('#txtSckChecklistIssueNo').val(),
                         checklistDesc: $('#txaSckChecklistDesc').val(),
                         checklistGuideline: $('#txaSckChecklistGuideline').val()
                     };
@@ -397,7 +407,8 @@ function SectionChecklist() {
                         const data = {
                             action: 'submit',
                             checklistName: $('#txtSckChecklistName').val(),
-                            checklistVersion: $('#txtSckChecklistVersion').val(),
+                            checklistDocumentNo: $('#txtSckChecklistDocumentNo').val(),
+                            checklistIssueNo: $('#txtSckChecklistIssueNo').val(),
                             checklistDesc: $('#txaSckChecklistDesc').val(),
                             checklistGuideline: $('#txaSckChecklistGuideline').val()
                         };
@@ -430,7 +441,8 @@ function SectionChecklist() {
                         const data = {
                             action: 'update',
                             checklistName: $('#txtSckChecklistName').val(),
-                            checklistVersion: $('#txtSckChecklistVersion').val(),
+                            checklistDocumentNo: $('#txtSckChecklistDocumentNo').val(),
+                            checklistIssueNo: $('#txtSckChecklistIssueNo').val(),
                             checklistDesc: $('#txaSckChecklistDesc').val(),
                             checklistGuideline: $('#txaSckChecklistGuideline').val()
                         };
@@ -470,7 +482,8 @@ function SectionChecklist() {
         const checklistStatus = dataSck['checklistStatus'];
 
         mzSetFieldValue('SckChecklistName', dataSck['checklistName'], 'text');
-        mzSetFieldValue('SckChecklistVersion', dataSck['checklistVersion'], 'text');
+        mzSetFieldValue('SckChecklistDocumentNo', dataSck['checklistDocumentNo'], 'text');
+        mzSetFieldValue('SckChecklistIssueNo', dataSck['checklistIssueNo'], 'text');
         mzSetFieldValue('SckChecklistDesc', dataSck['checklistDesc'], 'textarea');
         mzSetFieldValue('SckChecklistGuideline', dataSck['checklistGuideline'], 'textarea');
         mzSetFieldValue('SckAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
@@ -496,7 +509,8 @@ function SectionChecklist() {
                 const tempRow = {
                     checklistId: checklistId,
                     checklistName: '',
-                    checklistVersion: '',
+                    checklistDocumentNo: '',
+                    checklistIssueNo: '',
                     checklistTimeRegistered: '',
                     assetTypeId: _assetTypeId,
                     checklistStatus: '5'
@@ -505,7 +519,7 @@ function SectionChecklist() {
 
                 formValidate.clearValidation();
                 self.getDetails();
-                $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
+                $('#txtSckChecklistName, #txtSckChecklistDocumentNo, #txtSckChecklistIssueNo, #txaSckChecklistDesc').prop('disabled', false);
                 $('#divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
 
                 $('#btnSckUpdate').hide();
@@ -543,7 +557,7 @@ function SectionChecklist() {
                     $('#btnSckUpdate').prop('disabled', true);
                 }
 
-                $('#txtSckChecklistName, #txtSckChecklistVersion, #txaSckChecklistDesc').prop('disabled', false);
+                $('#txtSckChecklistName, #txtSckChecklistDocumentNo, #txtSckChecklistIssueNo, #txaSckChecklistDesc').prop('disabled', false);
                 $('#btnSckUpdate').prop('disabled', true);
                 $('.sectionChecklist').show();
 

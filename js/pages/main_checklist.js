@@ -208,7 +208,8 @@ function MainChecklist() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'checklistName'},
-                    {mData: 'checklistVersion'},
+                    {mData: 'checklistDocumentNo'},
+                    {mData: 'checklistIssueNo'},
                     {mData: 'checklistTimeRegistered'},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -235,13 +236,13 @@ function MainChecklist() {
         let cntChecklist;
         let btnChecklistOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
+                columns: [ 0, 1, 2, 3, 4, 5],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntChecklist = 1;
                         }
-                        if (column === 4) {
+                        if (column === 5) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -328,7 +329,8 @@ function MainChecklist() {
         const currentRow = oTableChecklist.row(_rowEdit).data();
         if (typeof _dataEdit['action'] !== 'undefined') {
             currentRow['checklistName'] = _dataEdit['checklistName'];
-            currentRow['checklistVersion'] = _dataEdit['checklistVersion'];
+            currentRow['checklistDocumentNo'] = _dataEdit['checklistDocumentNo'];
+            currentRow['checklistIssueNo'] = _dataEdit['checklistIssueNo'];
             currentRow['checklistDesc'] = _dataEdit['checklistDesc'];
             if (_dataEdit['action'] === 'submit') {
                 currentRow['checklistStatus'] = '1';

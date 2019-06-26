@@ -193,6 +193,8 @@ class Class_task {
             if (empty($dueDate)) {
                 $checkDueDay = $checkpoint['checkpoint_due_day'];
                 $checkDueDay = !empty($checkDueDay) ? '|Curdate() + INTERVAL ' . $checkDueDay . ' DAY' : '';
+            } else {
+                $checkDueDay = $dueDate;
             }
 
             $this->check_next_task($checkpoint, $userId, $roleId, $groupId);
