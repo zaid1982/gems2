@@ -10,6 +10,7 @@ function MainAsset() {
     let refAssetType;
     let refAssetBrand;
     let refAssetModel;
+    let refLocationCode;
     let oTableAsset;
     let sectionAssetClass;
     let contractId;
@@ -106,7 +107,7 @@ function MainAsset() {
                             return typeof row['assetCapacity'] !== 'undefined' ? row['assetCapacity'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetLocationCode'] !== 'undefined' ? row['assetLocationCode'] : '';
+                            return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -419,7 +420,7 @@ function MainAsset() {
                 currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
             else if (_dataEdit['action'] === 'submit') {
@@ -431,7 +432,7 @@ function MainAsset() {
                 currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
                 currentRow['assetStatus'] = '1';
                 self.displayStats();
@@ -439,7 +440,7 @@ function MainAsset() {
             else if (_dataEdit['action'] === 'update') {
                 currentRow['assetName'] = _dataEdit['assetName'];
                 currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
         }
@@ -487,6 +488,10 @@ function MainAsset() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
+    };
+
+    this.setRefLocationCode = function (_refLocationCode) {
+        refLocationCode = _refLocationCode;
     };
 
     this.setSectionAssetClass = function (_sectionAssetClass) {

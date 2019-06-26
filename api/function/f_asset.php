@@ -90,7 +90,7 @@ class Class_asset {
                 $row_result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
-                $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+                $row_result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
                 $row_result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
                 $row_result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
@@ -131,7 +131,7 @@ class Class_asset {
             $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
             $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
             $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
-            $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+            $result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
             $result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
             $result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
             $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
@@ -208,13 +208,13 @@ class Class_asset {
             }
 
             if (!isset($put_vars['assetName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetName empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetName not exist');
             }
             if (!isset($put_vars['assetNo'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetNo empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetNo not exist');
             }
             if (!isset($put_vars['assetSerialNo'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetSerialNo empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetSerialNo not exist');
             }
             if (!isset($put_vars['assetDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
@@ -234,8 +234,8 @@ class Class_asset {
             if (!isset($put_vars['assetModelId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
             }
-            if (!isset($put_vars['assetLocationCode'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
+            if (!isset($put_vars['locationCodeId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId not exist');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
@@ -253,7 +253,7 @@ class Class_asset {
                 'asset_type_id'=>$put_vars['assetTypeId'],
                 'asset_brand_id'=>$put_vars['assetBrandId'],
                 'asset_model_id'=>$put_vars['assetModelId'],
-                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'location_code_id'=>$put_vars['locationCodeId'],
                 'asset_capacity'=>$put_vars['assetCapacity']
             );
 
@@ -313,22 +313,22 @@ class Class_asset {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
             }
             if (!isset($put_vars['assetGroupId']) && empty($put_vars['assetGroupId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId not exist');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
             }
             if (!isset($put_vars['assetCategoryId']) && empty($put_vars['assetCategoryId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId not exist');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
             }
             if (!isset($put_vars['assetTypeId']) && empty($put_vars['assetTypeId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId not exist');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
             }
             if (!isset($put_vars['assetBrandId']) && empty($put_vars['assetBrandId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId not exist');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');
             }
             if (!isset($put_vars['assetModelId']) && empty($put_vars['assetModelId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
+                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
             }
-            if (!isset($put_vars['assetLocationCode'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
+            if (!isset($put_vars['locationCodeId']) && empty($put_vars['locationCodeId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
@@ -346,7 +346,7 @@ class Class_asset {
                 'asset_type_id'=>$put_vars['assetTypeId'],
                 'asset_brand_id'=>$put_vars['assetBrandId'],
                 'asset_model_id'=>$put_vars['assetModelId'],
-                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'location_code_id'=>$put_vars['locationCodeId'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'asset_registered_by'=>$userId,
                 'asset_time_registered'=>'Now()',
@@ -400,8 +400,8 @@ class Class_asset {
             if (!isset($put_vars['assetDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
             }
-            if (!isset($put_vars['assetLocationCode'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
+            if (!isset($put_vars['locationCodeId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId not exist');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
@@ -412,7 +412,7 @@ class Class_asset {
                 'asset_name'=>$put_vars['assetName'],
                 'asset_serial_no'=>$assetSerialNo,
                 'asset_desc'=>$put_vars['assetDesc'],
-                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'location_code_id'=>$put_vars['locationCodeId'],
                 'asset_capacity'=>$put_vars['assetCapacity']
             );
 
