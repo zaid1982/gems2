@@ -80,7 +80,7 @@ class Class_locationCode {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($contractId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
+                $contractId = '';
             }
 
             $result = array();

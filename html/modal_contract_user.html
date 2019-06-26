@@ -1,0 +1,56 @@
+<div class="modal fade" id="modal_contract_user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMcuTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMcu">
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMcuClientName" class="form-control" disabled>
+                        <label for="txtMcuClientName" id="lblMcuClientName">Client Name</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMcuSiteName" class="form-control" disabled>
+                        <label for="txtMcuSiteName" id="lblMcuSiteName">Site Name</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMcuContractName" class="form-control" disabled>
+                        <label for="txtMcuContractName" id="lblMcuContractName">Contract Name</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMcuLocationCodeId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optMcuLocationCodeId" id="lblMcuLocationCodeId">Location Code *</label>
+                            <p class="font-small text-danger" id="optMcuLocationCodeIdErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMcuUserId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optMcuUserId" id="lblMcuUserId">Technician Assigned *</label>
+                            <p class="font-small text-danger" id="optMcuUserIdErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMcuAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
+                            <label for="optMcuAssetGroupId" id="lblMcuAssetGroupId">Asset Group *</label>
+                            <p class="font-small text-danger" id="optMcuAssetGroupIdErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-center">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMcuSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

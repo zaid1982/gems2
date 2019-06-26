@@ -9,7 +9,6 @@ function ModalLocationCode() {
     let refClient;
     let refSite;
     let refContract;
-    let versionLocal;
 
     this.init = function () {
         const vData = [
@@ -103,11 +102,11 @@ function ModalLocationCode() {
         ShowLoader();
         setTimeout(function () {
             try {
+                mzCheckFuncParam([_contractId]);
                 locationCodeId = '';
                 rowRefresh = '';
                 contractId = _contractId;
 
-                refContract = mzGetLocalArray('gems_contract', versionLocal, 'contractId', [], 'contract');
                 const siteId = refContract[contractId]['siteId'];
                 const clientId = refSite[siteId]['clientId'];
 
@@ -129,11 +128,11 @@ function ModalLocationCode() {
         ShowLoader();
         setTimeout(function () {
             try {
+                mzCheckFuncParam([_locationCodeId, _contractId, _rowRefresh]);
                 locationCodeId = _locationCodeId;
                 rowRefresh = _rowRefresh;
                 contractId = _contractId;
 
-                refContract = mzGetLocalArray('gems_contract', versionLocal, 'contractId', [], 'contract');
                 const siteId = refContract[contractId]['siteId'];
                 const clientId = refSite[siteId]['clientId'];
 
@@ -219,7 +218,7 @@ function ModalLocationCode() {
         refSite = _refSite;
     };
 
-    this.setVersionLocal = function (_versionLocal) {
-        versionLocal = _versionLocal;
+    this.setRefContract = function (_refContract) {
+        refContract = _refContract;
     };
 }

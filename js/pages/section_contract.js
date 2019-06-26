@@ -14,6 +14,7 @@ function SectionContract() {
     let oTableLocationCode;
     let oTableLocationUser;
     let modalLocationCodeClass;
+    let modalContractUserClass;
 
     this.init = function () {
         $('.sectionContract').hide();
@@ -241,7 +242,7 @@ function SectionContract() {
         }).container().appendTo($('#btnDtSctLocationUserExport'));
 
         $('#btnSctLocationUserAdd').on('click', function () {
-            //modalLocationUserClass.add(checklistId);
+            modalContractUserClass.add(contractId);
         });
 
         $('#btnDtSctLocationUserRefresh').on('click', function () {
@@ -278,6 +279,11 @@ function SectionContract() {
 
                 self.genTableLocationCode();
                 self.genTableLocationUser();
+
+                const versionLocal = mzGetDataVersion();
+                const refContract = mzGetLocalArray('gems_contract', versionLocal, 'contractId', [], 'contract');
+                modalLocationCodeClass.setRefContract(refContract);
+                modalContractUserClass.setRefContract(refContract);
 
                 $('.sectionContract').show();
                 if (classFrom.getClassName() === 'MainContract') {
@@ -346,6 +352,10 @@ function SectionContract() {
 
     this.setModalLocationCodeClass = function (_modalLocationCodeClass) {
         modalLocationCodeClass = _modalLocationCodeClass;
+    };
+
+    this.setModalContractUserClass = function (_modalContractUserClass) {
+        modalContractUserClass = _modalContractUserClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
