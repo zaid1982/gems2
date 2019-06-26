@@ -173,14 +173,15 @@ class Class_sql
                 $sql = "SELECT
                     cli_contract_user.user_id
                 FROM cli_contract_user
-                INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND cli_contract_user.role_id = wfl_checkpoint_user.role_id
-                    AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
+                INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND wfl_checkpoint_user.role_id = 5
+		            AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
                 INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
             } else if ($title === 'mw_task_ppm_pending') {
                 $sql = "SELECT
                     wfl_task.*,
                     ppm_task.ppm_task_id,
                     wfl_transaction.transaction_no,
+                    ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
@@ -200,12 +201,13 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE [claim_filter] [date_filter]";
+                WHERE [claim_filter] [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
                     wfl_task.*,
                     ppm_task.ppm_task_id,
                     wfl_transaction.transaction_no,
+                    ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
@@ -223,7 +225,7 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE [date_filter]";
+                WHERE [rest_filter]";
             } else if ($title === 'mw_task_calendar_count') {
                 $sql = "SELECT
                     task_date_due, COUNT(*) AS total

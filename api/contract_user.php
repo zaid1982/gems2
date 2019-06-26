@@ -56,6 +56,19 @@ try {
         $form_data['errmsg'] = $constant::SUC_CONTRACT_USER_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+        $contractUserId = filter_input(INPUT_GET, 'contractUserId');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $fn_contractUser->delete_contractUser($contractUserId);
+        $fn_general->save_audit('99', $jwt_data->userId, 'Contract User Id = ' . $contractUserId);
+
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_CONTRACT_USER_DELETE;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

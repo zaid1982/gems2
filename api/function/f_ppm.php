@@ -304,7 +304,8 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
-            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('cli_contract_user.contract_id'=>$contractId, 'cli_contract_user.role_id'=>'5'), 'user_id');
+            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('cli_contract_user.contract_id'=>$contractId, 'cli_contract_user.location_code_id'=>$asset['location_code_id'],
+                'cli_contract_user.asset_group_id'=>$asset['asset_group_id']), 'user_id');
             if (empty($technicians)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
             }
@@ -481,11 +482,12 @@ class Class_ppm {
 
     /**
      * @param $userId
-     * @param $date
+     * @param string $date
+     * @param string $assetNo
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId, $date='') {
+    public function get_pending_task_m ($userId, $date='', $assetNo='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -505,17 +507,23 @@ class Class_ppm {
                 }
             }
 
-            $dateFilter = '';
+            $restFilter = '';
             if (!empty($date)) {
-                $dateFilter = 'task_date_due = \''.$date.'\'';
-                $dateFilter = !empty($claimFilter) ? 'AND '.$dateFilter : $dateFilter;
+                $restFilter = 'AND task_date_due = \''.$date.'\'';
+            }
+            if (!empty($assetNo)) {
+                $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
+            }
+            if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
+                $restFilter = substr($restFilter, 4);
             }
 
-            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'date_filter'=>$dateFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
                 $row_result['siteName'] = $dataLocal['site_name'];
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];

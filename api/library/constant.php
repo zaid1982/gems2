@@ -178,4 +178,5 @@ class Class_constant {
     const SUC_LOCATION_CODE_ACTIVATE = 'Location Code successfully activated';
     const SUC_LOCATION_CODE_DELETE = 'Location Code successfully deleted';
     const SUC_CONTRACT_USER_ADD = 'Technician successfully added';
+    const SUC_CONTRACT_USER_DELETE = 'Technician successfully removed';
 }

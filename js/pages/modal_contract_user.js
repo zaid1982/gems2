@@ -90,7 +90,7 @@ function ModalContractUser() {
                             assetGroupId: $('#optMcuAssetGroupId').val()
                         };
 
-                        mzAjaxRequest('location_code.php', 'POST', data);
+                        mzAjaxRequest('contract_user.php', 'POST', data);
                         if (classFrom.getClassName() === 'SectionContract') {
                             classFrom.genTableLocationUser();
                         }
@@ -127,6 +127,22 @@ function ModalContractUser() {
 
                 $('#lblMcuTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Technician Assigned');
                 $('#modal_contract_user').modal({backdrop: 'static', keyboard: false});
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
+    this.delete = function (_contractUserId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_contractUserId]);
+                mzAjaxRequest('contract_user.php?contractUserId='+_contractUserId, 'DELETE');
+                if (classFrom.getClassName() === 'SectionContract') {
+                    classFrom.genTableLocationUser();
+                }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }

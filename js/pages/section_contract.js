@@ -178,6 +178,15 @@ function SectionContract() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkSctLocationUserDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableLocationUser.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['contractUserId'], modalContractUserClass);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:

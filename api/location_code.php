@@ -102,9 +102,9 @@ try {
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $locationCodeName = $fn_locationCode->delete_locationCode($locationCodeId);
+        $fn_locationCode->delete_locationCode($locationCodeId);
         $fn_general->updateVersion(16);
-        $fn_general->save_audit('96', $jwt_data->userId, 'Location Cod Id = ' . $locationCodeId);
+        $fn_general->save_audit('96', $jwt_data->userId, 'Location Code Id = ' . $locationCodeId);
 
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_LOCATION_CODE_DELETE;

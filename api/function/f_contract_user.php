@@ -140,4 +140,27 @@ class Class_contractUser {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $contractUserId
+     * @throws Exception
+     */
+    public function delete_contractUser ($contractUserId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($contractUserId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractUserId empty');
+            }
+            if (Class_db::getInstance()->db_count('cli_contract_user', array('contract_user_id'=>$contractUserId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Contract User data not exist');
+            }
+
+            Class_db::getInstance()->db_delete('cli_contract_user', array('contract_user_id'=>$contractUserId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

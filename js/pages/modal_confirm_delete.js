@@ -20,6 +20,7 @@ function ModalConfirmDelete() {
                 case 'ModalChecklistQuan':
                 case 'SectionChecklist':
                 case 'ModalLocationCode':
+                case 'ModalContractUser':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id);
                     }
