@@ -93,6 +93,7 @@ class Class_checklistQuan {
                 $row_result['checklistQuanDesc'] = $this->fn_general->clear_null($dataLocal['checklist_quan_desc']);
                 $row_result['checklistQuanNumb'] = $this->fn_general->clear_null($dataLocal['checklist_quan_numb']);
                 $row_result['checklistQuanUnit'] = $this->fn_general->clear_null($dataLocal['checklist_quan_unit']);
+                $row_result['checklistQuanSetValues'] = $this->fn_general->clear_null($dataLocal['checklist_quan_set_values']);
                 $row_result['frequencyId'] = $this->fn_general->clear_null($dataLocal['frequency_id']);
                 $row_result['checklistId'] = $dataLocal['checklist_id'];
                 $row_result['checklistQuanStatus'] = $dataLocal['checklist_quan_status'];
@@ -126,6 +127,7 @@ class Class_checklistQuan {
             $result['checklistQuanDesc'] = $this->fn_general->clear_null($dataLocal['checklist_quan_desc']);
             $result['checklistQuanNumb'] = $this->fn_general->clear_null($dataLocal['checklist_quan_numb']);
             $result['checklistQuanUnit'] = $this->fn_general->clear_null($dataLocal['checklist_quan_unit']);
+            $result['checklistQuanSetValues'] = $this->fn_general->clear_null($dataLocal['checklist_quan_set_values']);
             $result['frequencyId'] = $this->fn_general->clear_null($dataLocal['frequency_id']);
             $result['checklistId'] = $dataLocal['checklist_id'];
             $result['checklistQuanStatus'] = $dataLocal['checklist_quan_status'];
@@ -160,6 +162,9 @@ class Class_checklistQuan {
             if (!array_key_exists('checklistQuanUnit', $params)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQuanUnit not exist');
             }
+            if (!array_key_exists('checklistQuanSetValues', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistQuanSetValues not exist');
+            }
             if (!array_key_exists('frequencyId', $params)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequencyId not exist');
             }
@@ -173,6 +178,7 @@ class Class_checklistQuan {
             $checklistQuanDesc = $params['checklistQuanDesc'];
             $checklistQuanNumb = $params['checklistQuanNumb'];
             $checklistQuanUnit = $params['checklistQuanUnit'];
+            $checklistQuanSetValues = $params['checklistQuanSetValues'];
             $frequencyId = $params['frequencyId'];
             $checklistId = $params['checklistId'];
             $checklistQuanStatus = $params['checklistQuanStatus'];
@@ -182,7 +188,7 @@ class Class_checklistQuan {
             }
 
             return Class_db::getInstance()->db_insert('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'frequency_id'=>$frequencyId,
-                'checklist_quan_unit'=>$checklistQuanUnit, 'checklist_id'=>$checklistId, 'checklist_quan_status'=>$checklistQuanStatus));
+                'checklist_quan_unit'=>$checklistQuanUnit, 'checklist_quan_set_values'=>$checklistQuanSetValues, 'checklist_id'=>$checklistId, 'checklist_quan_status'=>$checklistQuanStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -216,6 +222,9 @@ class Class_checklistQuan {
             if (!isset($put_vars['checklistQuanUnit'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQuanUnit not exist');
             }
+            if (!isset($put_vars['checklistQuanSetValues'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistQuanSetValues not exist');
+            }
             if (!isset($put_vars['frequencyId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequencyId not exist');
             }
@@ -229,6 +238,7 @@ class Class_checklistQuan {
             $checklistQuanDesc = $put_vars['checklistQuanDesc'];
             $checklistQuanNumb = $put_vars['checklistQuanNumb'];
             $checklistQuanUnit = $put_vars['checklistQuanUnit'];
+            $checklistQuanSetValues = $put_vars['checklistQuanSetValues'];
             $frequencyId = $put_vars['frequencyId'];
             $checklistId = $put_vars['checklistId'];
             $checklistQuanStatus = $put_vars['checklistQuanStatus'];
@@ -237,7 +247,7 @@ class Class_checklistQuan {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_QUAN_SIMILAR, 31);
             }
 
-            Class_db::getInstance()->db_update('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'checklist_quan_unit'=>$checklistQuanUnit,
+            Class_db::getInstance()->db_update('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'checklist_quan_unit'=>$checklistQuanUnit, 'checklist_quan_set_values'=>$checklistQuanSetValues,
                 'frequency_id'=>$frequencyId, 'checklist_quan_status'=>$checklistQuanStatus), array('checklist_quan_id'=>$checklistQuanId));
         }
         catch(Exception $ex) {

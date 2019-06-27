@@ -39,6 +39,14 @@ function ModalChecklistQuan() {
                 }
             },
             {
+                field_id: 'txtMqnChecklistQuanSetValues',
+                type: 'text',
+                name: 'Set Values',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
                 field_id: 'optMqnFrequencyId',
                 type: 'select',
                 name: 'Frequency',
@@ -80,6 +88,7 @@ function ModalChecklistQuan() {
                             checklistQuanNumb: $('#txtMqnChecklistQuanNumb').val(),
                             checklistQuanDesc: $('#txaMqnChecklistQuanDesc').val(),
                             checklistQuanUnit: $('#txtMqnChecklistQuanUnit').val(),
+                            checklistQuanSetValues: $('#txtMqnChecklistQuanSetValues').val(),
                             frequencyId: $('#optMqnFrequencyId').val(),
                             checklistId: checklistId,
                             checklistQuanStatus: statusVal
@@ -139,6 +148,7 @@ function ModalChecklistQuan() {
                 mzSetFieldValue('MqnChecklistQuanNumb', dataMqn['checklistQuanNumb'], 'text');
                 mzSetFieldValue('MqnChecklistQuanDesc', dataMqn['checklistQuanDesc'], 'textarea');
                 mzSetFieldValue('MqnChecklistQuanUnit', dataMqn['checklistQuanUnit'], 'text');
+                mzSetFieldValue('MqnChecklistQuanSetValues', dataMqn['checklistQuanSetValues'], 'text');
                 mzSetFieldValue('MqnFrequencyId', dataMqn['frequencyId'], 'select', 'Frequency *');
                 mzSetFieldValue('MqnChecklistQuanStatus', dataMqn['checklistQuanStatus'], 'checkSingle', '1');
 

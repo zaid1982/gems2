@@ -285,6 +285,7 @@ function SectionChecklist() {
                     {mData: 'checklistQuanNumb', bSortable: false},
                     {mData: 'checklistQuanDesc', bSortable: false},
                     {mData: 'checklistQuanUnit', bSortable: false},
+                    {mData: 'checklistQuanSetValues', bSortable: false},
                     {mData: 'frequencyId', bSortable: false, mRender: function (data){
                             return data !== '' ? refFrequency[data]['frequencyName'] : '';
                         }},
@@ -311,10 +312,10 @@ function SectionChecklist() {
 
         let btnChecklistQuanOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
+                columns: [ 0, 1, 2, 3, 4, 5],
                 format: {
                     body: function ( data, row, column ) {
-                        if (column === 4) {
+                        if (column === 5) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -649,6 +650,7 @@ function SectionChecklist() {
             currentRow['checklistQuanNumb'] = _dataEdit['checklistQuanNumb'];
             currentRow['checklistQuanDesc'] = _dataEdit['checklistQuanDesc'];
             currentRow['checklistQuanUnit'] = _dataEdit['checklistQuanUnit'];
+            currentRow['checklistQuanSetValues'] = _dataEdit['checklistQuanSetValues'];
             currentRow['frequencyId'] = _dataEdit['frequencyId'];
         }
         if (typeof _dataEdit['checklistQuanStatus'] !== 'undefined') {

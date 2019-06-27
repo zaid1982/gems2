@@ -44,6 +44,7 @@ try {
         $checklistQuanDesc = filter_input(INPUT_POST, 'checklistQuanDesc');
         $checklistQuanNumb = filter_input(INPUT_POST, 'checklistQuanNumb');
         $checklistQuanUnit = filter_input(INPUT_POST, 'checklistQuanUnit');
+        $checklistQuanSetValues = filter_input(INPUT_POST, 'checklistQuanSetValues');
         $frequencyId = filter_input(INPUT_POST, 'frequencyId');
         $checklistId = filter_input(INPUT_POST, 'checklistId');
         $checklistQuanStatus = filter_input(INPUT_POST, 'checklistQuanStatus');
@@ -52,6 +53,7 @@ try {
             'checklistQuanDesc'=>$checklistQuanDesc,
             'checklistQuanNumb'=>$checklistQuanNumb,
             'checklistQuanUnit'=>$checklistQuanUnit,
+            'checklistQuanSetValues'=>$checklistQuanSetValues,
             'frequencyId'=>$frequencyId,
             'checklistId'=>$checklistId,
             'checklistQuanStatus'=>$checklistQuanStatus
