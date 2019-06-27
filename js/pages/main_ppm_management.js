@@ -11,13 +11,18 @@ function MainPpmManagement() {
     let refAssetBrand;
     let refAssetModel;
     let refLocationCode;
+    let refUser;
     let oTableAsset;
+    let oTableScheduled;
     let sectionAssetClass;
     let contractId;
     let versionLocal;
     let modalPpmClass;
+    let ppmIdSelected;
 
     this.init = function () {
+        $('#divPmgScheduled').hide();
+
         mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
         mzOption('optPmgGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
@@ -67,6 +72,25 @@ function MainPpmManagement() {
                         sectionAssetClass.deactivate(currentRow['assetId'], rowId);
                     }
                 });
+                $('.lnkPmgPpmListExpand').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                self.genTablePmgScheduled(currentRow['ppmId'], currentRow['assetNo']);
+                                const elmnt = document.getElementById("divPmgScheduled");
+                                elmnt.scrollIntoView();
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 300);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -114,7 +138,8 @@ function MainPpmManagement() {
                         mRender: function (data, type, row, meta) {
                             let label;
                             if (row['assignedStatus'] === '10') {
-                                label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                                label = '<a><i class="fas fa-list-ul lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"></i></a>&nbsp;&nbsp;';
+                                // label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else if (row['assignedStatus'] === '11') {
                                 label = '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
                             }
@@ -270,6 +295,103 @@ function MainPpmManagement() {
             }, 300);
         });
 
+        oTableScheduled =  $('#dtPmgScheduled').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            autoWidth: false,
+            "aaSorting": [[1, 'asc'], [2, 'asc'], [3, 'asc']],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableScheduled.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'ppmTaskNo'},
+                    {mData: 'ppmTaskScheduleDate'},
+                    {mData: 'frequency'},
+                    {mData: 'ppmTaskAssignedTo',
+                        mRender: function (data) {
+                            return refUser[data]['userFullName'];
+                        }
+                    },
+                    {mData: null,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            return '<a><i class="fas fa-info-circle lnkPmgScheduledInfo" id="lnkPmgScheduledInfo_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Info"></i></a>';
+                        }
+                    }
+                ]
+        });
+        $("#dtPmgScheduled_filter").hide();
+
+        let cntScheduled;
+        let btnScheduledOpt = {
+            exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5],
+                format: {
+                    body: function ( data, row, column ) {
+                        if (row === 0 && column === 0) {
+                            cntScheduled = 1;
+                        }
+                        if (column === 5) {
+                            const n = data.search('">');
+                            const k = data.substr(n+2);
+                            return k.replace('</span></h6>','');
+                        }
+                        return column === 0 ? cntScheduled++ : data;
+                    }
+                }
+            }
+        };
+
+        new $.fn.dataTable.Buttons(oTableScheduled, {
+            buttons: [
+                $.extend( true, {}, btnScheduledOpt, {
+                    extend:    'print',
+                    text:      '<i class="fas fa-print"></i>',
+                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    titleAttr: 'Print',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnScheduledOpt, {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fas fa-file-excel"></i>',
+                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnScheduledOpt, {
+                    extend:    'pdfHtml5',
+                    text:      '<i class="fas fa-file-pdf"></i>',
+                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    titleAttr: 'Pdf',
+                    orientation: 'landscape',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                })
+            ]
+        }).container().appendTo($('#btnDtPmgScheduledExport'));
+
+        $('#btnDtPmgScheduledRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTablePmgScheduled(ppmIdSelected);
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
         self.genTablePmg();
         self.displayStatsChart();
     };
@@ -297,6 +419,18 @@ function MainPpmManagement() {
         }
         oTableAsset.row(_rowEdit).data(currentRow).draw();
         self.displayStatsChart();
+    };
+
+    this.genTablePmgScheduled = function (_ppmId, _assetNo) {
+        ppmIdSelected = _ppmId;
+        const dataScheduled = mzAjaxRequest('ppm.php?type=scheduled_ppm&ppmId='+_ppmId, 'GET');
+        console.log(dataScheduled);
+        oTableScheduled.clear().rows.add(dataScheduled).draw();
+
+        if (typeof _assetNo !== 'undefined') {
+            $('#lblPmgScheduledTitle').html(_assetNo);
+        }
+        $('#divPmgScheduled').show();
     };
 
     this.displayStatsChart = function () {
@@ -394,6 +528,10 @@ function MainPpmManagement() {
 
     this.setRefLocationCode = function (_refLocationCode) {
         refLocationCode = _refLocationCode;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 
     this.setSectionAssetClass = function (_sectionAssetClass) {

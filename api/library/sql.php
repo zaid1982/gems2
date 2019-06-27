@@ -283,6 +283,15 @@ class Class_sql
                 FROM ppm_task_upload
                 LEFT JOIN sys_upload ON sys_upload.upload_id = ppm_task_upload.upload_id
                 LEFT JOIN ref_document ON ref_document.document_id = sys_upload.document_id";
+            } else if ($title === 'vw_ppm_scheduled') {
+                $sql = "SELECT
+                    ppm_task.*,
+                    task_frequency.frequency
+                FROM ppm_task
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
+                    FROM ppm_task_frequency
+                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
+                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

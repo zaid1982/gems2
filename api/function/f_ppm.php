@@ -268,6 +268,39 @@ class Class_ppm {
     }
 
     /**
+     * @param $ppmId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_scheduled_list ($ppmId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmId empty');
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_scheduled', array('ppm_id'=>$ppmId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
+                $row_result['ppmTaskScheduleDate'] = $dataLocal['ppm_task_schedule_date'];
+                $row_result['ppmTaskAssignedTo'] = $dataLocal['ppm_task_assigned_to'];
+                $row_result['frequency'] = $this->fn_general->clear_null($dataLocal['frequency']);
+                $row_result['ppmTaskStatus'] = $this->fn_general->clear_null($dataLocal['ppm_task_status']);
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $assetId
      * @param $checklistId
      * @param $ppmDateCycle

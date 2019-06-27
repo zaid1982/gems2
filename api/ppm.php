@@ -39,6 +39,8 @@ try {
         if (!is_null($type)) {
             if ($type === 'checklist_by_type') {
                 $result = $fn_ppm->get_ppm_from_asset_list();
+            } else if ($type === 'scheduled_ppm') {
+                $result = $fn_ppm->get_ppm_scheduled_list($ppmId);
             }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);
