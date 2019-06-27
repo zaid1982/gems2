@@ -239,6 +239,7 @@ class Class_ppm {
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
                 $row_result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
+                $row_result['locationCodeName'] = $this->fn_general->clear_null($dataLocal['location_code_name']);
                 $row_result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
                 $row_result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);

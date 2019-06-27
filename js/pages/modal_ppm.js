@@ -114,6 +114,7 @@ function ModalPpm() {
                 mzSetFieldValue('MpmAssetBrandName', refAssetBrand[assetBrandId]['assetBrandName'], 'text');
                 mzSetFieldValue('MpmAssetModelName', refAssetModel[assetModelId]['assetModelName'], 'text');
                 mzSetFieldValue('MpmAssetCapacity', rowData['assetCapacity'], 'text');
+                mzSetFieldValue('MpmLocationCodeName', rowData['locationCodeName'], 'text');
                 mzDateSetMin('txtMpmPpmDateCycle', contractDateStart);
                 mzDateSetMax('txtMpmPpmDateCycle', contractDateEnd);
 

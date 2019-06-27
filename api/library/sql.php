@@ -166,9 +166,11 @@ class Class_sql
                     ppm.checklist_id,
                     ppm.ppm_created_by,
                     ppm.ppm_time_created,
-                    ppm.ppm_status
+                    ppm.ppm_status,
+                    cli_location_code.location_code_name
                 FROM ast_asset 
-                LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id";
+                LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
+                LEFT JOIN cli_location_code ON cli_location_code.location_code_id = ast_asset.location_code_id";
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
                     cli_contract_user.user_id
