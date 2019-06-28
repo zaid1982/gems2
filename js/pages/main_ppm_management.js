@@ -332,6 +332,9 @@ function MainPpmManagement() {
                 ]
         });
         $("#dtPmgScheduled_filter").hide();
+        $('#txtPmgScheduledSearch').on('keyup change', function () {
+            oTableScheduled.search($(this).val()).draw();
+        });
 
         let cntScheduled;
         let btnScheduledOpt = {
@@ -358,21 +361,21 @@ function MainPpmManagement() {
                 $.extend( true, {}, btnScheduledOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    title:     'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Print',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnScheduledOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    title:     'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnScheduledOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Total Scheduled by Type',
+                    title:     'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
