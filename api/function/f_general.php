@@ -308,7 +308,7 @@ class Class_general {
         try {
             $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($date)) {
-                throw new Exception('(ErrCode:0062) [' . __LINE__ . '] - Parameter date empty');   
+                return '';
             }
             
             $newDate = '';
@@ -333,7 +333,7 @@ class Class_general {
         try {
             //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             if (empty($date)) {
-                throw new Exception('(ErrCode:0062) [' . __LINE__ . '] - Parameter date empty');
+                return '';
             }
 
             $newDate = '';

@@ -261,9 +261,9 @@ class Class_user {
                     if ($key !== false) {
                         array_splice($roles, $key, 1);
                     } else {
-                        if (Class_db::getInstance()->db_count('cli_contract_user', array('user_id'=>$userId, 'role_id'=>$dbRole)) > 0) {
-                            throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_CONTRACT, 31);
-                        }
+                        //if (Class_db::getInstance()->db_count('cli_contract_user', array('user_id'=>$userId, 'role_id'=>$dbRole)) > 0) {
+                        //    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_CONTRACT, 31);
+                        //}
                         Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
                         Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
                     }

@@ -4,13 +4,13 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-//require_once 'function/f_task.php';
+require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-//$fn_task = new Class_task();
+$fn_task = new Class_task();
 $fn_ppm = new Class_ppm();
 $api_name = 'api_m_ppm';
 $is_transaction = false;
@@ -158,12 +158,22 @@ try {
             $fn_general->save_audit('98', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
-        else if ($action === 'save_image_desc') {
+        else if ($action === 'submit_ppm') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
+            $remark = filter_input(INPUT_POST, 'remark');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            //$fn_general->save_audit('98', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint)+4, $jwt_data->userId);
+            $taskId = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId);
+            if ($result == '1') {
+                $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark);
+            } else if ($result == '2') {
+                $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1');
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
+            }
+            $fn_general->save_audit('100', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', $checkpoint = ' . $checkpoint . ', result = ' . $result);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');

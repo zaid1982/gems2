@@ -531,13 +531,13 @@ class Class_ppm {
 
             $result = array();
             $query = 'mw_task_ppm_pending';
-            $claimFilter = '(wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
+            $claimFilter = 'AND (wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
             if (!empty($date) && Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,5,6)')) > 0) {
                 $claimFilter = '';
                 if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,6)')) > 0) {
                     $query = 'mw_task_ppm_all';
                 } else if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                    $claimFilter = '(wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
+                    $claimFilter = 'AND (wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
                 }
             }
 
@@ -548,9 +548,9 @@ class Class_ppm {
             if (!empty($assetNo)) {
                 $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
-            if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
-                $restFilter = substr($restFilter, 4);
-            }
+            //if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
+            //    $restFilter = substr($restFilter, 4);
+            //}
 
             $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
@@ -1267,6 +1267,8 @@ class Class_ppm {
             }
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+            $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status' => '13'), array('transaction_id' => $transactionId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -1302,6 +1304,69 @@ class Class_ppm {
                 }
                 Class_db::getInstance()->db_update('ppm_task_upload', array('ppm_task_upload_desc'=>$ppmTaskUpload['ppmTaskUploadDesc']), array('ppm_task_upload_id'=>$ppmTaskUpload['ppmTaskUploadId']));
             }
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $checkpoint
+     * @param $result
+     * @param $uploadId
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($checkpoint)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checkpoint empty');
+            }
+            if (empty($result)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter result empty');
+            }
+            if (empty($uploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
+            $task = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
+
+            if ($task['checkpoint_id'] !== $checkpoint) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checkpoint invalid');
+            }
+
+            $statusUpdate = '';
+            if ($checkpoint === '1') {
+                $statusUpdate = '14';
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>$userId, 'ppm_task_time_serviced'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+            } else if ($checkpoint === '2' && $result === '1') {
+                $statusUpdate = '15';
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by'=>$userId, 'ppm_task_time_checked'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+            } else if ($checkpoint === '2' && $result === '2') {
+                $statusUpdate = '21';
+            } else if ($checkpoint === '3' && $result === '1') {
+                $statusUpdate = '16';
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by'=>$userId, 'ppm_task_time_verified'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+            } else if ($checkpoint === '3' && $result === '2') {
+                $statusUpdate = '14';
+            }
+
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>$statusUpdate), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>intval($checkpoint)+3, 'upload_id'=>$uploadId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusUpdate), array('transaction_id'=>$transactionId));
+            return $task['task_id'];
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

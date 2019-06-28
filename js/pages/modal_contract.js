@@ -97,7 +97,7 @@ function ModalContract() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const clientId = $('#optMstClientId').val();
+                        const clientId = $('#optMcrClientId').val();
                         const siteId = $('#optMcrSiteId').val();
                         const txtName = $('#txtMcrName').val();
                         const txtDesc = $('#txaMcrDesc').val();

@@ -203,7 +203,7 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE [claim_filter] [rest_filter]";
+                WHERE wfl_task.task_current = 1 [claim_filter] [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
                     wfl_task.*,
@@ -227,7 +227,7 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE [rest_filter]";
+                WHERE wfl_task.checkpoint_id = 1 [rest_filter]";
             } else if ($title === 'mw_task_calendar_count') {
                 $sql = "SELECT
                     task_date_due, COUNT(*) AS total
