@@ -87,7 +87,7 @@ class Class_checklistQuan {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId));
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId), 'ABS(checklist_quan_numb)');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['checklistQuanId'] = $dataLocal['checklist_quan_id'];
                 $row_result['checklistQuanDesc'] = $this->fn_general->clear_null($dataLocal['checklist_quan_desc']);

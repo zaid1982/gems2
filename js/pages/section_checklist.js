@@ -17,6 +17,7 @@ function SectionChecklist() {
     let modalChecklistQualClass;
     let oTableChecklistQuan;
     let modalChecklistQuanClass;
+    let checklistStatus;
 
     this.init = function () {
         $('.sectionChecklist').hide();
@@ -462,6 +463,31 @@ function SectionChecklist() {
                 HideLoader();
             }, 300);
         });
+
+        $('#btnSckPdf').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const data = {
+                        action: 'pdf',
+                        checklistName: $('#txtSckChecklistName').val(),
+                        checklistDocumentNo: $('#txtSckChecklistDocumentNo').val(),
+                        checklistIssueNo: $('#txtSckChecklistIssueNo').val(),
+                        checklistDesc: $('#txaSckChecklistDesc').val(),
+                        checklistGuideline: $('#txaSckChecklistGuideline').val(),
+                        checklistStatus: checklistStatus
+                    };
+                    const pdfId = mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
+                    const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                    $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Checklist: '+$('#txtSckChecklistName').val(),);
+                    $('#mpdf_iframe').attr('src', pdfSrc);
+                    $('#modal_pdf').modal('show');
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
     };
 
     this.genTableSckChecklistQual = function () {
@@ -519,7 +545,7 @@ function SectionChecklist() {
                 rowRefresh = classFrom.addTablePcmChecklist(tempRow);
 
                 formValidate.clearValidation();
-                self.getDetails();
+                checklistStatus = self.getDetails();
                 $('#txtSckChecklistName, #txtSckChecklistDocumentNo, #txtSckChecklistIssueNo, #txaSckChecklistDesc').prop('disabled', false);
                 $('#divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
 
@@ -547,7 +573,7 @@ function SectionChecklist() {
                 rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
-                const checklistStatus = self.getDetails();
+                checklistStatus = self.getDetails();
                 if (checklistStatus === '5') {
                     $('#btnSckUpdate, #divSckChecklistRegisteredBy, #divSckChecklistTimeRegistered').hide();
                     $('#btnSckSubmit, #btnSckSave').show();

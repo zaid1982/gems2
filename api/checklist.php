@@ -5,15 +5,20 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_checklist.php';
+require_once 'pdf/tcpdf_include.php';
+require_once 'pdf/checklist.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_checklist = new Class_checklist();
+$fn_pdf_checklist = new Class_pdf_checklist();
 $api_name = 'api_checklist';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+
+$fn_pdf_checklist->__set('fn_general', $fn_general);
 
 try {
     Class_db::getInstance()->db_connect();
@@ -77,6 +82,8 @@ try {
         }
         else if ($action === 'update') {
             $fn_checklist->update_checklist($checklistId, $put_vars);
+            $fn_pdf_checklist->__set('checklistId', $checklistId);
+            $fn_pdf_checklist->create_pdf();
             $fn_general->save_audit('66', $jwt_data->userId, 'Checklist Id = ' . $checklistId);
             $form_data['errmsg'] = $constant::SUC_CHECKLIST_EDIT;
         }
@@ -89,6 +96,16 @@ try {
             $fn_checklist->activate_checklist($checklistId);
             $fn_general->save_audit('68', $jwt_data->userId, 'Checklist Id = ' . $checklistId);
             $form_data['errmsg'] = $constant::SUC_CHECKLIST_ACTIVATE;
+        }
+        else if ($action === 'pdf') {
+            $checklistStatus = $put_vars['checklistStatus'];
+            if ($put_vars['checklistStatus'] == '5') {
+                $fn_checklist->save_checklist($checklistId, $put_vars);
+            } else {
+                $fn_checklist->update_checklist($checklistId, $put_vars);
+            }
+            $fn_pdf_checklist->__set('checklistId', $checklistId);
+            $form_data['result'] = $fn_pdf_checklist->create_pdf();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }

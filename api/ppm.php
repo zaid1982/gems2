@@ -18,11 +18,13 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-//$fn_pdf_checklist->__set('fn_general', $fn_general);
-//$fn_pdf_checklist->__set('checklistId', '1');
-//$fn_pdf_checklist->create_pdf();
 try {
     Class_db::getInstance()->db_connect();
+
+    //$fn_pdf_checklist->__set('fn_general', $fn_general);
+    //$fn_pdf_checklist->__set('checklistId', '1');
+    //$fn_pdf_checklist->create_pdf();
+
     $request_method = $_SERVER['REQUEST_METHOD'];
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);

@@ -210,7 +210,7 @@ class Class_general {
     }
 
     /**
-     * @param string $uploadDetails
+     * @param array $uploadDetails
      * @param string $documentId
      * @param string $userId
      * @return mixed
@@ -300,6 +300,27 @@ class Class_general {
     }
 
     /**
+     * @param string $pdfId
+     * @return string
+     * @throws Exception
+     */
+    public function getPdf ($pdfId='') {
+        $constant = new Class_constant();
+        try {
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            if (empty($pdfId)) {
+                throw new Exception('(ErrCode:0061) [' . __LINE__ . '] - Parameter pdfId empty');
+            }
+
+            $pdf = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$pdfId), null, 1);
+            return $constant::URL.$pdf['pdf_folder'].'/'.$pdf['pdf_filename'];
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $date
      * @return string
      * @throws Exception
@@ -358,6 +379,24 @@ class Class_general {
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getPpmFrequencyCode () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_code'];
             }
             return $refArray;
         } catch(Exception $ex) {

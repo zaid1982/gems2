@@ -139,7 +139,7 @@ define ('PDF_MARGIN_TOP', 15);
 /**
  * Bottom margin.
  */
-define ('PDF_MARGIN_BOTTOM', 25);
+define ('PDF_MARGIN_BOTTOM', 20);
 
 /**
  * Left margin.

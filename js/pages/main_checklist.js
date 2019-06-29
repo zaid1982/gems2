@@ -202,6 +202,26 @@ function MainChecklist() {
                         modalConfirmDeleteClass.delete(currentRow['checklistId'], sectionChecklistClass);
                     }
                 });
+                $('.lnkPcmChecklistPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+currentRow['pdfId'], 'GET');
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Checklist: '+currentRow['checklistName']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -225,6 +245,9 @@ function MainChecklist() {
                                 label += '&nbsp;&nbsp;<a><i class="fas fa-toggle-on lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>';
                             } else if (row['checklistStatus'] === '5') {
                                 label += '&nbsp;&nbsp;<a><i class="fas fa-trash-alt lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            }
+                            if (row['pdfId'] != '') {
+                                label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkPcmChecklistPdf" id="lnkPcmChecklistPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist PDF"></i></a>';
                             }
                             return label;
                         }

@@ -115,6 +115,7 @@ class Class_checklist {
                 $row_result['checklistDocumentNo'] = $this->fn_general->clear_null($dataLocal['checklist_document_no']);
                 $row_result['checklistIssueNo'] = $this->fn_general->clear_null($dataLocal['checklist_issue_no']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
                 $row_result['checklistTimeRegistered'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_registered']));
                 $row_result['checklistTimeCreated'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_created']));
@@ -146,6 +147,7 @@ class Class_checklist {
             $result['checklistDesc'] = $this->fn_general->clear_null($dataLocal['checklist_desc']);
             $result['checklistGuideline'] = $this->fn_general->clear_null($dataLocal['checklist_guideline']);
             $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+            $result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
             $result['checklistTimeRegistered'] = str_replace('-', '/', $dataLocal['checklist_time_registered']);
             $result['checklistTimeCreated'] = str_replace('-', '/', $dataLocal['checklist_time_created']);
             $result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);

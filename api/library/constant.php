@@ -8,7 +8,8 @@
 
 class Class_constant {
 
-    const URL = '//addeen-legacy.com.my/gems2/api/';
+    //const URL = '//addeen-legacy.com.my/gems2/api/';
+    const URL = '//localhost:8081/gems2/api/';
 
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
     const ERR_LOGIN_NOT_EXIST = 'User ID not exist';
