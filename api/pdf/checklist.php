@@ -1,15 +1,6 @@
 <?php
 
-//require_once '../../function/f_general.php';
-//require_once '../../library/constant.php';
-
-//$fn_general = new Class_general();
-
-//$fn_general->log_debug('API', 'ass', __LINE__, 'Request method = ');
-
-// extend TCPF with custom functions
 class MYPDF_checklist extends TCPDF {
-
     private $fn_general;
     private $checklistId;
     private $checklistDocumentNo;
@@ -414,12 +405,10 @@ class MYPDF_checklist extends TCPDF {
 }
 
 class Class_pdf_checklist {
-
     private $fn_general;
     private $checklistId;
 
     function __construct() {
-        //$this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -498,7 +487,7 @@ class Class_pdf_checklist {
 
             // set document information
             $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('Nicola Asuni');
+            $pdf->SetAuthor('Muhammad Zaid');
             $pdf->SetTitle('GEMS 2.0 Checklist');
             $pdf->SetSubject('GEMS 2.0 Checklist');
 

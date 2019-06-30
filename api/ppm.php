@@ -6,13 +6,13 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_ppm.php';
 require_once 'pdf/tcpdf_include.php';
-require_once 'pdf/checklist.php';
+require_once 'pdf/ppm.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_ppm = new Class_ppm();
-$fn_pdf_checklist = new Class_pdf_checklist();
+$fn_pdf_ppm = new Class_pdf_ppm();
 $api_name = 'api_ppm';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
@@ -21,10 +21,10 @@ $result = '';
 try {
     Class_db::getInstance()->db_connect();
 
-    //$fn_pdf_checklist->__set('fn_general', $fn_general);
-    //$fn_pdf_checklist->__set('checklistId', '1');
-    //$fn_pdf_checklist->create_pdf();
-
+    $fn_pdf_ppm->__set('fn_general', $fn_general);
+    $fn_pdf_ppm->__set('ppmTaskId', '1');
+    $fn_pdf_ppm->create_pdf();
+/*
     $request_method = $_SERVER['REQUEST_METHOD'];
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
@@ -74,7 +74,7 @@ try {
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-    }
+    }*/
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
     if ($is_transaction) {
