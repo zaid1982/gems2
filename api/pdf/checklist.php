@@ -136,7 +136,7 @@ class MYPDF_checklist extends TCPDF {
             $this->Cell(60, 5, '', 1, 0, 'L');
             $this->Ln();
             $this->Cell(30, 5, 'Task No : ', 1, 0, 'R');
-            $this->Cell(60, 5, $checklist['checklist_document_no'], 1, 0, 'L');
+            $this->Cell(60, 5, $this->checklistDocumentNo, 1, 0, 'L');
             $this->Cell(30, 5, 'PM Start Date : ', 1, 0, 'R');
             $this->Cell(60, 5, '', 1, 0, 'L');
             $this->Ln();

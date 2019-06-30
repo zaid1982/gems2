@@ -6,16 +6,21 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
+require_once 'pdf/tcpdf_include.php';
+require_once 'pdf/ppm.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_ppm = new Class_ppm();
+$fn_pdf_ppm = new Class_pdf_ppm();
 $api_name = 'api_m_ppm';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+
+$fn_pdf_ppm->__set('fn_general', $fn_general);
 
 try {
     Class_db::getInstance()->db_connect();
@@ -75,6 +80,13 @@ try {
         } else if ($type === 'ppm_section_h') {
             $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
             $result = $fn_ppm->get_ppm_section_upload_m($ppmTaskId, '(0,1,2)');
+        }
+        else if ($type === 'preview_pdf') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
+            $pdfId = $fn_pdf_ppm->create_pdf();
+            $result = $fn_general->getPdf($pdfId);
+            $fn_general->save_audit('82', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

@@ -258,6 +258,7 @@ class Class_sql
                     ast_asset.asset_name,
                     ast_asset.location_code_id,
                     ast_asset.asset_capacity,
+                    cli_site.site_name,
                     ppm_task.ppm_task_time_start,
                     ppm_task.ppm_task_time_serviced
                 FROM ppm_task
@@ -267,7 +268,9 @@ class Class_sql
                 LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset.asset_category_id
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = ast_asset.asset_brand_id
-                LEFT JOIN ast_asset_model ON ast_asset_model.asset_model_id = ast_asset.asset_model_id";
+                LEFT JOIN ast_asset_model ON ast_asset_model.asset_model_id = ast_asset.asset_model_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
+                LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id";
             } else if ($title === 'mw_ppm_section_h') {
                 $sql = "SELECT 
                     ppm_task_upload_id,

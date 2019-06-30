@@ -18,13 +18,10 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
+$fn_pdf_ppm->__set('fn_general', $fn_general);
+
 try {
     Class_db::getInstance()->db_connect();
-
-    $fn_pdf_ppm->__set('fn_general', $fn_general);
-    $fn_pdf_ppm->__set('ppmTaskId', '1');
-    $fn_pdf_ppm->create_pdf();
-/*
     $request_method = $_SERVER['REQUEST_METHOD'];
     //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
@@ -65,6 +62,11 @@ try {
             $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle, $jwt_data->userId);
             $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
             $form_data['errmsg'] = $constant::SUC_PPM_SAVE;
+        }
+        else if ($action === 'generate_pdf') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
+            $result = $fn_pdf_ppm->create_pdf();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
@@ -74,7 +76,7 @@ try {
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-    }*/
+    }
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
     if ($is_transaction) {

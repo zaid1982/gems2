@@ -287,6 +287,7 @@ class Class_ppm {
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
                 $row_result['ppmTaskScheduleDate'] = $dataLocal['ppm_task_schedule_date'];
                 $row_result['ppmTaskAssignedTo'] = $dataLocal['ppm_task_assigned_to'];
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['frequency'] = $this->fn_general->clear_null($dataLocal['frequency']);
                 $row_result['ppmTaskStatus'] = $this->fn_general->clear_null($dataLocal['ppm_task_status']);
                 array_push($result, $row_result);
