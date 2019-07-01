@@ -341,7 +341,8 @@ function SectionAssetDetails() {
                     assetGroupId: '',
                     assetCategoryId: '',
                     assetTypeId: '',
-                    assetStatus: '5'
+                    assetStatus: '5',
+                    locationCodeId: ''
                 };
                 rowRefresh = classFrom.addTableAsz(tempRow);
 
