@@ -182,8 +182,11 @@ try {
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
-            $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint)+4, $jwt_data->userId);
+            $uploadId = '';
+            if ($result == '1') {
+                $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+                $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
+            }
             $taskId = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId);
             if ($result == '1') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark);

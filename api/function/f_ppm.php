@@ -1366,9 +1366,9 @@ class Class_ppm {
             if (empty($result)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter result empty');
             }
-            if (empty($uploadId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
-            }
+            //if (empty($uploadId)) {
+            //    throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+            //}
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
@@ -1397,7 +1397,9 @@ class Class_ppm {
             }
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>$statusUpdate), array('ppm_task_id'=>$ppmTaskId));
-            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>intval($checkpoint)+3, 'upload_id'=>$uploadId));
+            if (!empty($uploadId)) {
+                Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>intval($checkpoint)+3, 'upload_id'=>$uploadId));
+            }
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusUpdate), array('transaction_id'=>$transactionId));
             return $task['task_id'];
         }
