@@ -333,9 +333,9 @@ class MYPDF_checklist extends TCPDF {
             $this->SetFont('helvetica', '', 9);
             $this->Cell(8, 10, '', 1, 0, 'C', 0);
             $this->SetFont('helvetica', 'B', 9);
-            $this->MultiCell(32, 10, " Yes", 'B', 'L', 0, 0, '','','','','','','','C');
+            $this->MultiCell(32, 10, " Yes", 'B', 'L', 0, 0, '','','');
             $this->SetFont('helvetica', '', 9);
-            $this->MultiCell(40, 10, "No", 'B', 'L', 0, 0, '','','','','','','','C');
+            $this->MultiCell(40, 10, "No", 'B', 'L', 0, 0, '','','');
             $this->Cell(100, 10, ' Refer to ...............................................', 1, 0, 'L', 0);
             $this->Ln();
 
@@ -373,7 +373,15 @@ class MYPDF_checklist extends TCPDF {
             }
             $filename = 'checklist_'.substr((10000+intval($this->checklistId)),1).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
-            $filename_src = '\checklist\\'.$folder_code.'\\'.$filename;
+            $config = parse_ini_file('library/config.ini');
+            $environment = $config['environment'];
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'File : '.__FILE__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Environment : '.$environment);
+            if ($environment == 'windows') {
+                $filename_src = '\checklist\\' . $folder_code . '\\' . $filename;
+            } else {
+                $filename_src = '/checklist/' . $folder_code . '/' . $filename;
+            }
             $this->Output(dirname(__FILE__). $filename_src, 'F');
 
             $pdfId = $checklist['pdf_id'];
@@ -524,7 +532,7 @@ class Class_pdf_checklist {
             $pdf->__set('fn_general', $this->fn_general);
             $pdf->__set('checklistId', $this->checklistId);
             return $pdf->ChecklistTable();
-
+            //return '9';
             //$pdf->Output('example_011.pdf', 'I');
         } catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

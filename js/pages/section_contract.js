@@ -31,8 +31,6 @@ function SectionContract() {
             bLengthChange: false,
             bFilter: true,
             autoWidth: false,
-            bPaginate: false,
-            bInfo : false,
             aaSorting: [1, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableLocationCode.page.info();
@@ -102,6 +100,9 @@ function SectionContract() {
                 ]
         });
         $("#dtSctLocationCode_filter").hide();
+        $('#txtSctLocationCodeSearch').on('keyup change', function () {
+            oTableLocationCode.search($(this).val()).draw();
+        });
 
         let cntLocationCode;
         let btnLocationCodeOpt = {

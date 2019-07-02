@@ -556,7 +556,17 @@ class Class_pdf_ppm {
             }
             $filename = 'ppm_'.substr((10000+intval($this->ppmTaskId)),1).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
-            $filename_src = '\ppm\\'.$folder_code.'\\'.$filename;
+
+            $config = parse_ini_file('library/config.ini');
+            $environment = $config['environment'];
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'File : '.__FILE__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Environment : '.$environment);
+            if ($environment == 'windows') {
+                $filename_src = '\ppm\\' . $folder_code . '\\' . $filename;
+            } else {
+                $filename_src = '/ppm/' . $folder_code . '/' . $filename;
+            }
+            //$filename_src = '\ppm\\'.$folder_code.'\\'.$filename;
             $pdf->Output(dirname(__FILE__). $filename_src, 'F');
 
             $pdfId = $ppmTask['pdf_id'];
