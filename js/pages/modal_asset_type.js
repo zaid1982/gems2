@@ -10,7 +10,7 @@ function ModalAssetType() {
 
     this.init = function () {
         $('#optMztAssetGroupId').on('change', function () {
-            mzOption('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetCategoryId: $(this).val(), assetCategoryStatus: '1'}, 'required');
+            mzOptionStop('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val(), assetCategoryStatus: '1'}, 'required');
         });
 
         const vData = [

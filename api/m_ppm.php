@@ -114,6 +114,13 @@ try {
             $fn_general->save_audit('83', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
+        else if ($action === 'check_ppm_parts') {
+            $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $checked = filter_input(INPUT_POST, 'checked');
+            $fn_ppm->save_ppm_check_parts_m($ppmTaskId, $checked);
+            $fn_general->save_audit('102', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
         else if ($action === 'add_ppm_parts') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskPartsDesc = filter_input(INPUT_POST, 'ppmTaskPartsDesc');

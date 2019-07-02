@@ -994,6 +994,38 @@ class Class_ppm {
         }
     }
 
+
+    /**
+     * @param $ppmTaskId
+     * @param string $checked
+     * @throws Exception
+     */
+    public function save_ppm_check_parts_m ($ppmTaskId, $checked='0') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if ($checked == '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter checked empty');
+            }
+
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_parts'=>$checked), array('ppm_task_id'=>$ppmTaskId));
+
+            $sectionStatus = '19';
+            if ($checked === '1') {
+                $totalFile = Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_id'=>$ppmTaskId));
+                $sectionStatus = $totalFile == '0' ? '18' : '19';
+            }
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
     /**
      * @param $ppmTaskId
      * @param $ppmTaskPartsDesc
