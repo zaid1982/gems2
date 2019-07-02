@@ -279,7 +279,7 @@ function MainPpmManagement() {
         });
 
         $('#btnPmgAssetSet').on('click', function () {
-            sectionAssetClass.add(contractId, $('#optPmgGroupId').val(), $('#optPmgCategoryId').val(), $('#optPmgTypeId').val());
+            //sectionAssetClass.add(contractId, $('#optPmgGroupId').val(), $('#optPmgCategoryId').val(), $('#optPmgTypeId').val());
         });
 
         $('#btnDtPmgAssetRefresh').on('click', function () {
