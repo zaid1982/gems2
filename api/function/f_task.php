@@ -450,4 +450,32 @@ class Class_task {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_track_monitoring_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', array());
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['transactionId'] = $dataLocal['transaction_id'];
+                $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['taskId'] = $dataLocal['task_id'];
+                $row_result['taskTimeCreated'] = str_replace('-', '/', ['task_time_created']);
+                $row_result['taskDateDue'] = str_replace('-', '/', ['task_date_due']);
+                $row_result['taskStatus'] = $dataLocal['task_status'];
+                $row_result['transactionStatus'] = $dataLocal['transaction_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
 }

@@ -297,6 +297,14 @@ class Class_sql
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id";
+            } else if ($title === 'vw_track_monitoring') {
+                $sql = "SELECT
+                    wfl_task.*,
+                    wfl_checkpoint.checkpoint_desc,
+                    wfl_transaction.transaction_status
+                FROM wfl_transaction
+                LEFT JOIN wfl_task ON wfl_task.transaction_id = wfl_transaction.transaction_id
+                LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
