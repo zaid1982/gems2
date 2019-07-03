@@ -77,9 +77,6 @@ class Class_ppm {
     }
 
     private function get_q_task_result ($resultInput) {
-        if (empty($resultInput)) {
-            return '';
-        }
         if ($resultInput == '0') {
             return 'Fail';
         } else if ($resultInput == '1') {
@@ -636,6 +633,8 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
 
+            $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+
             $result = array();
             $arr_status = $this->fn_general->getRefStatus();
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_task_section', array('ppm_task_id'=>$ppmTaskId));
@@ -644,6 +643,13 @@ class Class_ppm {
                 $row_result['ppmTaskSectionName'] = $this->fn_general->clear_null($dataLocal['ppm_task_section_name']);
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['ppmTaskSectionStatus'] = $arr_status[intval($dataLocal['ppm_task_section_status'])];
+                $row_result['checkParts'] = 'N/A';
+                $row_result['checkAdditionalReport'] = 'N/A';
+                if ($row_result['ppmTaskSectionName'] === 'E') {
+                    $row_result['checkParts'] = $this->fn_general->clear_null($ppmTask['ppm_task_is_parts']);
+                } else if ($row_result['ppmTaskSectionName'] === 'G') {
+                    $row_result['checkAdditionalReport'] = $this->fn_general->clear_null($ppmTask['ppm_task_is_additional_report']);
+                }
                 array_push($result, $row_result);
             }
 
