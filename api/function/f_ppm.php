@@ -547,7 +547,7 @@ class Class_ppm {
                 $restFilter = 'AND task_date_due = \''.$date.'\'';
             }
             if (!empty($assetNo)) {
-                $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
+                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$assetNo.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$assetNo.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$assetNo.'%\' OR cli_site.site_name LIKE \'%'.$assetNo.'%\')';
             }
             //if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
             //    $restFilter = substr($restFilter, 4);
@@ -563,7 +563,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
-                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['task_date_due']);
+                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
 
@@ -1393,7 +1393,7 @@ class Class_ppm {
                 $statusUpdate = '16';
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by'=>$userId, 'ppm_task_time_verified'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '3' && $result === '2') {
-                $statusUpdate = '14';
+                $statusUpdate = '21';
             }
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>$statusUpdate), array('ppm_task_id'=>$ppmTaskId));

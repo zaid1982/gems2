@@ -302,13 +302,13 @@ class Class_task {
             if ($nextFlowId !== $checkFlowId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter nextFlowId invalid (' . $nextFlowId . ')');
             }
-            if (empty($nextRoleId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter nextRoleId empty');
-            }
 
             if ($nextpointType == '3') {    // Last checkpoint
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_time_complete' => 'Now()'), array('transaction_id' => $transactionId)); // , 'transaction_status' => '7'
                 return '';
+            }
+            if (empty($nextRoleId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter nextRoleId empty');
             }
 
             $nextpointDueDay = !empty($nextpointDueDay) ? '|Curdate() + INTERVAL ' . $nextpointDueDay . ' DAY' : '';

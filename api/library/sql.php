@@ -182,6 +182,7 @@ class Class_sql
                 $sql = "SELECT
                     wfl_task.*,
                     ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_schedule_date,
                     wfl_transaction.transaction_no,
                     ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
@@ -208,6 +209,7 @@ class Class_sql
                 $sql = "SELECT
                     wfl_task.*,
                     ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_schedule_date,
                     wfl_transaction.transaction_no,
                     ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
