@@ -572,6 +572,36 @@ class Class_ppm {
     }
 
     /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_all_task () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['taskId'] = $dataLocal['task_id'];
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['siteName'] = $dataLocal['site_name'];
+                $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
+                $row_result['statusDesc'] = $dataLocal['status_desc'];
+                $row_result['frequency'] = explode(',', $dataLocal['frequency']);
+                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $userId
      * @param $month
      * @param $year
@@ -647,7 +677,7 @@ class Class_ppm {
                 $row_result['checkAdditionalReport'] = 'N/A';
                 if ($row_result['ppmTaskSectionName'] === 'E') {
                     $row_result['checkParts'] = $this->fn_general->clear_null($ppmTask['ppm_task_is_parts']);
-                } else if ($row_result['ppmTaskSectionName'] === 'G') {
+                } else if ($row_result['ppmTaskSectionName'] === 'F') {
                     $row_result['checkAdditionalReport'] = $this->fn_general->clear_null($ppmTask['ppm_task_is_additional_report']);
                 }
                 array_push($result, $row_result);
