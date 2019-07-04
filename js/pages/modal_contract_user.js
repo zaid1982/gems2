@@ -17,7 +17,6 @@ function ModalContractUser() {
         mzOption('optMcuAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', [], 'required');
         mzOption('optMcuUserId', refUser, 'Choose Technician', 'userId', 'userFullName', {roles: '#5'}, 'required');
 
-
         const vData = [
             {
                 field_id: 'txtMcuClientName',
@@ -116,7 +115,7 @@ function ModalContractUser() {
 
                 const versionLocal = mzGetDataVersion();
                 const refLocationCode = mzGetLocalArray('gems_locationCode', versionLocal, 'locationCodeId', {contractId: contractId}, 'location_code');
-                mzOption('optMcuLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', [], 'required');
+                mzOptionStop('optMcuLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', [], 'required');
 
                 const siteId = refContract[contractId]['siteId'];
                 const clientId = refSite[siteId]['clientId'];
