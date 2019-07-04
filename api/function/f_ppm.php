@@ -580,7 +580,7 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
+           /* $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -592,7 +592,7 @@ class Class_ppm {
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
-            }
+            }*/
 
             return $result;
         } catch (Exception $ex) {
@@ -1338,6 +1338,14 @@ class Class_ppm {
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status' => '13'), array('transaction_id' => $transactionId));
+
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
+
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_quan_result'=>'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19';
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'D'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
