@@ -1280,8 +1280,21 @@ class Class_ppm {
 
             Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId,
                 'ppm_task_upload_longitude'=>$longitude, 'ppm_task_upload_latitude'=>$latitude));
-            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
-            $sectionStatus = $totalFile == '0' ? '18' : '19';
+
+            $taskUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
+            $totalFile0 = 0;
+            $totalFile1 = 0;
+            $totalFile2 = 0;
+            foreach ($taskUploads as $taskUpload) {
+                if ($taskUpload['ppm_task_upload_type'] == '0') {
+                    $totalFile0++;
+                } else if ($taskUpload['ppm_task_upload_type'] == '1') {
+                    $totalFile1++;
+                } else if ($taskUpload['ppm_task_upload_type'] == '2') {
+                    $totalFile2++;
+                }
+            }
+            $sectionStatus = ($totalFile0 > 0 && $totalFile1 > 0 && $totalFile2 > 0) ? '19' : '18';
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
         }
         catch(Exception $ex) {
@@ -1312,8 +1325,20 @@ class Class_ppm {
             Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_upload_id'=>$ppmTaskUploadId));
             Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$uploadId));
 
-            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
-            $sectionStatus = $totalFile == '0' ? '18' : '19';
+            $taskUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
+            $totalFile0 = 0;
+            $totalFile1 = 0;
+            $totalFile2 = 0;
+            foreach ($taskUploads as $taskUpload) {
+                if ($taskUpload['ppm_task_upload_type'] == '0') {
+                    $totalFile0++;
+                } else if ($taskUpload['ppm_task_upload_type'] == '1') {
+                    $totalFile1++;
+                } else if ($taskUpload['ppm_task_upload_type'] == '2') {
+                    $totalFile2++;
+                }
+            }
+            $sectionStatus = ($totalFile0 > 0 && $totalFile1 > 0 && $totalFile2 > 0) ? '19' : '18';
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
             return $ppmTaskId;
         }
