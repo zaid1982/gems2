@@ -580,7 +580,7 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $result = array();
-           /* $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('rest_filter'=>''));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -592,7 +592,7 @@ class Class_ppm {
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
-            }*/
+            }
 
             return $result;
         } catch (Exception $ex) {
