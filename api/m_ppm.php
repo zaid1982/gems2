@@ -45,6 +45,9 @@ try {
             $result = $fn_ppm->get_pending_task_m($jwt_data->userId);
         } else if ($type === 'all_task') {
             $result = $fn_ppm->get_ppm_all_task();
+        } else if ($type === 'pending_task_search') {
+            $assetNo = filter_input(INPUT_GET, 'assetNo');
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', '', $assetNo);
         } else if ($type === 'pending_task_scan_asset') {
             $assetNo = filter_input(INPUT_GET, 'assetNo');
             $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $assetNo);

@@ -434,7 +434,7 @@ class Class_ppm {
                 $ppmTaskIssueNo = $key + 1;
                 $technicianKey = $key%count($technicians);
                 $technician = $technicians[$technicianKey];
-                $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo.'/'.strval($ppmTaskIssueNo), $dateStr);
+                $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo, $dateStr);
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
                 $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklist['checklist_guideline'],
                     'ppm_task_status'=>'12', 'transaction_id'=>$transactionId, 'ppm_task_assigned_to'=>$technician));
@@ -516,10 +516,11 @@ class Class_ppm {
      * @param $userId
      * @param string $date
      * @param string $assetNo
+     * @param string $searchTxt
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId, $date='', $assetNo='') {
+    public function get_pending_task_m ($userId, $date='', $assetNo='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -544,6 +545,9 @@ class Class_ppm {
                 $restFilter = 'AND task_date_due = \''.$date.'\'';
             }
             if (!empty($assetNo)) {
+                $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
+            }
+            if (!empty($searchTxt)) {
                 $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$assetNo.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$assetNo.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$assetNo.'%\' OR cli_site.site_name LIKE \'%'.$assetNo.'%\')';
             }
             //if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
