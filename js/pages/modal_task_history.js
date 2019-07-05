@@ -2,7 +2,7 @@ function ModalTaskHistory() {
 
     const className = 'ModalTaskHistory';
     let self = this;
-    let assetBrandId = '';
+    let transactionId = '';
     let rowRefresh = '';
     let classFrom;
 
@@ -10,12 +10,12 @@ function ModalTaskHistory() {
 
     };
 
-    this.view = function (_assetBrandId, _rowRefresh) {
+    this.view = function (_transactionId, _rowRefresh) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_assetBrandId, _rowRefresh]);
-                assetBrandId = _assetBrandId;
+                mzCheckFuncParam([_transactionId, _rowRefresh]);
+                transactionId = _transactionId;
                 rowRefresh = _rowRefresh;
 
                 //const dataMth = mzAjaxRequest('asset_brand.php?assetBrandId='+assetBrandId, 'GET');

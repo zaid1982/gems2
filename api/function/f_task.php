@@ -304,8 +304,12 @@ class Class_task {
             }
 
             if ($nextpointType == '3') {    // Last checkpoint
+                $transaction = Class_db::getInstance()->db_select_single('wfl_transaction', array('transaction_id' => $transactionId), null, 1);
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_time_complete' => 'Now()'), array('transaction_id' => $transactionId)); // , 'transaction_status' => '7'
-                return '';
+                $arrInsertTask = array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'task_created_user' => $userId, 'task_created_group' => $groupId, 'task_status_previous' => $status, 'task_status' => '7',
+                    'role_id'=>$nextRoleId, 'group_id'=>$transaction['group_id'], 'task_claimed_user'=>$transaction['user_id']);
+                $newTaskId = Class_db::getInstance()->db_insert('wfl_task', $arrInsertTask);
+                return $newTaskId;
             }
             if (empty($nextRoleId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter nextRoleId empty');
@@ -463,9 +467,18 @@ class Class_task {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['transGroup'] = $dataLocal['trans_group'];
+                $row_result['transUser'] = $dataLocal['trans_user'];
+                $row_result['transactionTimeCreated'] = str_replace('-', '/', $dataLocal['transaction_time_created']);
+                $row_result['transactionTimeComplete'] = str_replace('-', '/', $dataLocal['transaction_time_complete']);
+                $row_result['transactionDateDue'] = str_replace('-', '/', $dataLocal['transaction_date_due']);
                 $row_result['taskId'] = $dataLocal['task_id'];
-                $row_result['taskTimeCreated'] = str_replace('-', '/', ['task_time_created']);
-                $row_result['taskDateDue'] = str_replace('-', '/', ['task_date_due']);
+                $row_result['flowId'] = $dataLocal['flow_id'];
+                $row_result['roleId'] = $this->fn_general->clear_null($dataLocal['role_id']);
+                $row_result['checkpointId'] = $dataLocal['checkpoint_id'];
+                $row_result['userId'] = $this->fn_general->clear_null($dataLocal['task_claimed_user']);
+                $row_result['taskTimeCreated'] = str_replace('-', '/', $dataLocal['task_time_created']);
+                $row_result['taskDateDue'] = str_replace('-', '/', $dataLocal['task_date_due']);
                 $row_result['taskStatus'] = $dataLocal['task_status'];
                 $row_result['transactionStatus'] = $dataLocal['transaction_status'];
                 array_push($result, $row_result);

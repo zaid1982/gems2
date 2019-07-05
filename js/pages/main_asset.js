@@ -156,11 +156,14 @@ function MainAsset() {
             mzOptionStopClear('optAszTypeId', 'All Asset Type');
             //mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
             oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(15).search('', false, true, false).draw();
+            oTableAsset.column(16).search('', false, true, false).draw();
         });
 
         $('#optAszCategoryId').on('change', function () {
             mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
             oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(16).search('', false, true, false).draw();
         });
 
         $('#optAszTypeId').on('change', function () {
@@ -233,9 +236,9 @@ function MainAsset() {
             $('#optAszGroupId').val(null);
             mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
             mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
-            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(16).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(14).search('', false, true, false).draw();
+            oTableAsset.column(15).search('', false, true, false).draw();
+            oTableAsset.column(16).search('', false, true, false).draw();
         });
 
         $('#btnAszAssetAdd').on('click', function () {

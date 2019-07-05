@@ -38,27 +38,101 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionTnmMain">
+            <div class="card card-cascade narrower">
+                <!--Section: Search Function & Chart-->
+                <section>
+                    <div class="row">
+                        <!--Search Function-->
+                        <div class="col-xl-5 col-lg-12 mr-0">
+                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                                <h2 class="h2-responsive mb-0">Track and Monitoring</h2>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <div class="card-body pt-3">
+                                    <h6 class="pb-3">Search:</h6>
+                                    <div class="row">
+                                        <div class="col-md-12 select-outline">
+                                            <select id="optTnmFlowId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <label for="optTnmFlowId">Flow</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 select-outline">
+                                            <select id="optTnmCheckpointId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true">
+                                                <option value="" disabled>All Checkpoint</option>
+                                            </select>
+                                            <label for="optTnmCheckpointId">Checkpoint</label>
+                                        </div>
+                                    </div>
+                                    <div class="md-form md-outline mt-0 mb-0">
+                                        <input type="text" id="txtTnmListSearch" class="form-control">
+                                        <label for="txtTnmListSearch" class="active">Keyword Search</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Chart-->
+                        <div class="col-xl-7 col-lg-12 mb-5">
+                           <!-- <div class="view view-cascade z-depth-4">
+                                <div id="chartTnmLeaveByStatus" style="height: 440px; margin: 0"></div>
+                            </div>-->
+                        </div>
+                    </div>
+                </section>
+                <!--Section: Table-->
+                <section>
+                    <div class="card card-cascade narrower z-depth-0">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                                   data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
+                                   data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
+                                <button type="button" id="btnDtTnmListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Transaction List</a>
+                            <div>
+                                <div id="btnDtTnmListExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <div class="table-responsive">
+                                <table id="dtTnmList" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th scope="row" style="width: 4%">#</th>
+                                        <th width="18%">Task No</th>
+                                        <th>Flow</th>
+                                        <th width="10%">Checkpoint</th>
+                                        <th width="15%">User</th>
+                                        <th width="10%">Role</th>
+                                        <th width="12%">Time Created</th>
+                                        <th width="10%">Status</th>
+                                        <th width="24px"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Horizontal Steppers -->
+            <!--
             <div class="row">
                 <div class="col-md-12">
-                    <!-- Stepers Wrapper -->
                     <ul class="stepper stepper-horizontal">
-                        <!-- First Step -->
                         <li class="warning">
                             <a href="#!">
                                 <span class="circle">1</span>
                                 <span class="label">First step</span>
                             </a>
                         </li>
-                        <!-- Second Step -->
                         <li class="active">
                             <a href="#!">
                                 <span class="circle"><i class="fas fa-check"></i></span>
                                 <span class="label">Second step</span>
                             </a>
                         </li>
-                        <!-- Third Step -->
                         <li class="warning">
                             <a href="#!">
                                 <span class="circle"><i class="fas fa-exclamation"></i></span>
@@ -66,13 +140,16 @@
                             </a>
                         </li>
                     </ul>
-                    <!-- /.Stepers Wrapper -->
                 </div>
             </div>
-            <!-- /.Horizontal Steppers -->
+            -->
 
+            </div>
         </section>
     </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_task_history"></div>
+
 </main>
 
 
@@ -116,6 +193,8 @@
 
     let versionLocal_;
     let changePasswordClass_;
+    let trackMonitoringClass_;
+    let modalTaskHistoryClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -125,7 +204,25 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
+                trackMonitoringClass_ = new MainTrackMonitoring();
+                modalTaskHistoryClass_ = new ModalTaskHistory();
 
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
+                const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
+                const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
+
+                modalTaskHistoryClass_.init();
+
+                trackMonitoringClass_.setRefStatus(refStatus_);
+                trackMonitoringClass_.setRefRole(refRole_);
+                trackMonitoringClass_.setRefUser(refUser_);
+                trackMonitoringClass_.setRefFlow(refFlow_);
+                trackMonitoringClass_.setRefCheckpoint(refCheckpoint_);
+                trackMonitoringClass_.setModalTaskHistoryClass(modalTaskHistoryClass_);
+                trackMonitoringClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -135,5 +232,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_track_monitoring.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

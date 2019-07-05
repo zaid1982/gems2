@@ -53,6 +53,12 @@ try {
             case 'gems_user':
                 $result = $fn_user->get_users();
                 break;
+            case 'gems_flow':
+                $result = $fn_reference->get_flow_list();
+                break;
+            case 'gems_checkpoint':
+                $result = $fn_reference->get_checkpoint_list();
+                break;
             case 'gems_designation':
                 $result = $fn_reference->get_designation();
                 break;

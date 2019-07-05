@@ -417,6 +417,10 @@ class Class_reference {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_frequency_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -428,6 +432,62 @@ class Class_reference {
                 $row_result['frequencyName'] = $dataLocal['frequency_name'];
                 $row_result['frequencyDesc'] = $this->fn_general->clear_null($dataLocal['frequency_desc']);
                 $row_result['frequencyStatus'] = $dataLocal['frequency_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_flow_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wfl_flow');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['flowId'] = $dataLocal['flow_id'];
+                $row_result['flowDesc'] = $dataLocal['flow_desc'];
+                $row_result['flowDueDay'] = $dataLocal['flow_due_day'];
+                $row_result['flowStatus'] = $dataLocal['flow_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_checkpoint_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wfl_checkpoint');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['checkpointId'] = $dataLocal['checkpoint_id'];
+                $row_result['flowId'] = $dataLocal['flow_id'];
+                $row_result['checkpointDesc'] = $dataLocal['checkpoint_desc'];
+                $row_result['checkpointType'] = $dataLocal['checkpoint_type'];
+                $row_result['checkpointClaimType'] = $dataLocal['checkpoint_claim_type'];
+                $row_result['checkpointDueDay'] = $dataLocal['checkpoint_due_day'];
+                $row_result['roleId'] = $dataLocal['role_id'];
+                $row_result['groupId'] = $dataLocal['group_id'];
                 array_push($result, $row_result);
             }
 

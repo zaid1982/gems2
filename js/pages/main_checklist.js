@@ -85,11 +85,14 @@ function MainChecklist() {
             mzOptionStop('optPcmCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optPcmTypeId', 'All Asset Type');
             oTableChecklistGroup.column(6).search($(this).val(), false, true, false).draw();
+            oTableChecklistGroup.column(7).search('', false, true, false).draw();
+            oTableChecklistGroup.column(8).search('', false, true, false).draw();
         });
 
         $('#optPcmCategoryId').on('change', function () {
             mzOptionStop('optPcmTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
             oTableChecklistGroup.column(7).search($(this).val(), false, true, false).draw();
+            oTableChecklistGroup.column(8).search('', false, true, false).draw();
         });
 
         $('#optPcmTypeId').on('change', function () {
