@@ -75,16 +75,17 @@ class Class_locationCode {
      * @return array
      * @throws Exception
      */
-    public function get_locationCode_list ($contractId) {
+    public function get_locationCode_list ($contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($contractId)) {
-                $contractId = '';
+                $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array());
+            } else {
+                $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array('contract_id'=>$contractId));
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array('contract_id'=>$contractId));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['locationCodeId'] = $dataLocal['location_code_id'];
                 $row_result['locationCodeName'] = $dataLocal['location_code_name'];

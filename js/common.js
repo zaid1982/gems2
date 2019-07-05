@@ -835,7 +835,7 @@ function mzGetLocalArray(name, version, id, filters, api) {
             rawData = objData.data;
         }
     }
-    
+
     if (getNew) {
         if (typeof api === 'undefined') {
             rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name});
@@ -844,7 +844,7 @@ function mzGetLocalArray(name, version, id, filters, api) {
         }
         localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
     }
-    
+
     $.each(rawData, function (n, u) {
         if (typeof u[id] === 'undefined') {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);

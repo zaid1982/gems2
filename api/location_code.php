@@ -31,11 +31,13 @@ try {
 
     if ('GET' === $request_method) {
         $locationCodeId = filter_input(INPUT_GET, 'locationCodeId');
+        $contractId = filter_input(INPUT_GET, 'contractId');
         if (!is_null($locationCodeId)) {
             $result = $fn_locationCode->get_locationCode($locationCodeId);
+        } else if (!is_null($contractId)) {
+                $result = $fn_locationCode->get_locationCode_list($contractId);
         } else {
-            $contractId = filter_input(INPUT_GET, 'contractId');
-            $result = $fn_locationCode->get_locationCode_list($contractId);
+            $result = $fn_locationCode->get_locationCode_list();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

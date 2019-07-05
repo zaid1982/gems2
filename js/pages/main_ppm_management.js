@@ -453,7 +453,6 @@ function MainPpmManagement() {
     this.genTablePmgScheduled = function (_ppmId, _assetNo) {
         ppmIdSelected = _ppmId;
         const dataScheduled = mzAjaxRequest('ppm.php?type=scheduled_ppm&ppmId='+_ppmId, 'GET');
-        console.log(dataScheduled);
         oTableScheduled.clear().rows.add(dataScheduled).draw();
 
         if (typeof _assetNo !== 'undefined') {

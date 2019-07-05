@@ -541,10 +541,22 @@ class Class_pdf_ppm {
             $pdf->MultiCell(60, 18, "Verified By\n\n\n........................................................\nName : ".$verifyBy."\nDate : ".$this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_verified']), 1, 'L', 0, 0);
             $pdf->Ln();
 
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $pdf->GetY());
-            //$pdf->Image('pdf/images/logo.png', 20, $pdf->GetY()-22, 40, 20, 'PNG', '', '', false, 300);
-            //$pdf->Image('upload/6/0/f_10018.jpg', 80, $pdf->GetY()-20, 30, 10, 'JPG', '', '', true, 150, '', false, false, 0);
-            //$pdf->Image('upload/6/0/f_10018.jpg', 140, $pdf->GetY()-20, 30, 10, 'JPG', '', '', true, 150, '', false, false, 0);
+            $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$this->ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
+            foreach ($ppmUploads as $ppmUpload) {
+                $uploadType = $ppmUpload['ppm_task_upload_type'];
+                $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$ppmUpload['upload_id']));
+                if (!empty($upload) && $upload['upload_extension'] === 'png') {
+                    $fileDir = $upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sign : '.$fileDir);
+                    if ($uploadType === '4') {
+                        $pdf->Image($fileDir, 20, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
+                    } else if ($uploadType === '5') {
+                        $pdf->Image($fileDir, 80, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
+                    } else if ($uploadType === '6') {
+                        $pdf->Image($fileDir, 140, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
+                    }
+                }
+            }
 
             // close and output PDF document
             $folder_code = floor(intval($this->ppmTaskId)/1000);
@@ -571,11 +583,14 @@ class Class_pdf_ppm {
 
             $pdfId = $ppmTask['pdf_id'];
             if (empty($pdfId)) {
+                $pdfId = Class_db::getInstance()->db_select_col('sys_pdf', array('pdf_filename'=>$filename, 'pdf_status'=>'1'), 'pdf_id');
+            }
+            if (empty($pdfId)) {
                 $pdfId = Class_db::getInstance()->db_insert('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'ppm', 'pdf_folder'=>$folder));
-                Class_db::getInstance()->db_update('ppm_task', array('pdf_id'=>$pdfId), array('ppm_task_id'=>$this->ppmTaskId));
             } else {
                 Class_db::getInstance()->db_update('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'ppm', 'pdf_folder'=>$folder, 'pdf_timeCreated'=>'Now()'), array('pdf_id'=>$pdfId));
             }
+            Class_db::getInstance()->db_update('ppm_task', array('pdf_id'=>$pdfId), array('ppm_task_id'=>$this->ppmTaskId));
 
             return $pdfId;
         } catch(Exception $ex) {

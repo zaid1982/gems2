@@ -284,7 +284,7 @@ class Class_general {
                 throw new Exception('(ErrCode:0061) [' . __LINE__ . '] - Parameter uploadId empty');   
             }
             
-            $sysUpload = Class_db::getInstance()->db_select_single('sys_upload', array('upload_id'=>$uploadId), null, 1);
+            $sysUpload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$uploadId), null, 1);
             $document = Class_db::getInstance()->db_select_single('ref_document', array('document_id'=>$sysUpload['document_id']), null, 1);
             
             return 
@@ -313,7 +313,7 @@ class Class_general {
             }
 
             $pdf = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$pdfId), null, 1);
-            return $constant::URL.$pdf['pdf_folder'].'/'.$pdf['pdf_filename'];
+            return $constant::URL.$pdf['pdf_folder'].'/'.$pdf['pdf_filename'].'?t='.time();
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

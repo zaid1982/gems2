@@ -284,10 +284,23 @@ class Class_sql
                     ppm_task_upload_desc,
                     ref_document.document_desc,
                     ref_document.document_type,
-                    sys_upload.*
+                    sys_upload.upload_folder,
+                    sys_upload.upload_filename,
+                    sys_upload.upload_extension,
+                    sys_upload.upload_name,
+                    sys_upload.upload_uplname
                 FROM ppm_task_upload
                 LEFT JOIN sys_upload ON sys_upload.upload_id = ppm_task_upload.upload_id
                 LEFT JOIN ref_document ON ref_document.document_id = sys_upload.document_id";
+            } else if ($title === 'vw_sys_upload') {
+                $sql = "SELECT 
+                    sys_upload.upload_id,
+                    sys_upload.upload_folder,
+                    sys_upload.upload_filename,
+                    sys_upload.upload_extension,
+                    sys_upload.upload_name,
+                    sys_upload.upload_uplname
+                FROM sys_upload";
             } else if ($title === 'vw_ppm_scheduled') {
                 $sql = "SELECT
                     ppm_task.*,
