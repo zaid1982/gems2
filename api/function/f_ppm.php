@@ -429,7 +429,7 @@ class Class_ppm {
             foreach($tempDays as $key => $dateStr){
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
-                $ppmTaskNo = 'P'.$siteCode.date('ymd').$runningNoStr;
+                $ppmTaskNo = 'P'.$siteCode.substr($dateStr, 2, 2).substr($dateStr, 5, 2).substr($dateStr, 8, 2).$runningNoStr;
                 $runningNo++;
                 $ppmTaskIssueNo = $key + 1;
                 $technicianKey = $key%count($technicians);

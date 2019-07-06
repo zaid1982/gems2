@@ -245,7 +245,8 @@ function SectionAssetDetails() {
                             assetName: $('#txtSszAssetName').val(),
                             assetSerialNo: $('#txtSszAssetSerialNo').val(),
                             assetDesc: $('#txtSszAssetDesc').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val()
+                            assetCapacity: $('#txtSszAssetCapacity').val(),
+                            locationCodeId: $('#optSszLocationCodeId').val()
                         };
 
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
