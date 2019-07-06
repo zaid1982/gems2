@@ -182,26 +182,26 @@ class Class_user {
     }
 
     /**
-     * @param string $userName
+     * @param string $email
      * @return mixed
      * @throws Exception
      */
-    public function forgot_password ($userName='') {
+    public function forgot_password ($email='') {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            if (empty($userName)) {
-                throw new Exception('['.__LINE__.'] - Parameter userName empty');
-            } 
-            
-            $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_name'=>$userName));
-            if (empty($sys_user)) {
+            if (empty($email)) {
+                throw new Exception('['.__LINE__.'] - Parameter email empty');
+            }
+
+            $sys_user_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_email'=>$email, 'user_profile_status'=>'1'));
+            if (empty($sys_user_profile)) {
                 throw new Exception('['.__LINE__.'] - '.$constant::ERR_FORGOT_PASSWORD_NOT_EXIST, 31);
             }
-            
-            $userId = $sys_user['user_id'];
+            $userId = $sys_user_profile['user_id'];
+
             $temporaryPassword = $this->fn_general->generateRandomString(15);
-            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword, 'user_time_activate'=>''), array('user_id'=>$userId));
             
             $emailParam = array('userName'=>$userName, 'tempPassword'=>$temporaryPassword); 
             //$this->fn_email->setup_email($userId, 1, $emailParam);
@@ -284,6 +284,39 @@ class Class_user {
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName), array('user_id'=>$userId));
             Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $name
+     * @param $phoneNo
+     * @param $email
+     * @throws Exception
+     */
+    public function update_profile_m ($userId, $name, $phoneNo, $email) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($name)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter name empty');
+            }
+            if (empty($phoneNo)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter phoneNo empty');
+            }
+            if (empty($email)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter email empty');
+            }
+
+            Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$email, 'user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -389,8 +422,11 @@ class Class_user {
             if (Class_db::getInstance()->db_count('sys_user', array('user_name'=>$userName)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
             }
+            if (Class_db::getInstance()->db_count('sys_user_profile', array('user_email'=>$userEmail)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_USERNAME, 31);
+            }
 
-            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_time_activate'=>'Now()', 'user_status'=>'1'));
+            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_status'=>'1'));
             Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId));
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>$groupId));
             $roles = explode(',', $rolesStr);

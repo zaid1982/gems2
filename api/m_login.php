@@ -43,11 +43,11 @@ try {
             $fn_general->save_audit('103', $userId);
         }
         else if ($action === 'forgot_password') {      
-            $username = filter_input(INPUT_POST, 'username');
+            $email = filter_input(INPUT_POST, 'email');
 
-            $result = $fn_user->forgot_password($username);
+            $result = $fn_user->forgot_password($email);
             $fn_general->save_audit('4', $result['userId']);
-            $result = '';
+            $result = $result['tempPassword'];
             $form_data['errmsg'] = $constant::SUC_FORGOT_PASSWORD;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action ('.$action.') invalid');

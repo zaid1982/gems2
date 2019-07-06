@@ -118,6 +118,14 @@ try {
             $fn_general->save_audit('6', $jwt_data->userId);
             $form_data['errmsg'] = $constant::SUC_CHANGE_PASSWORD;
         }
+        else if ($action === 'edit_profile') {
+            $name = filter_input(INPUT_POST, 'name');
+            $phoneNo = filter_input(INPUT_POST, 'phoneNo');
+            $email = filter_input(INPUT_POST, 'email');
+            $fn_user->update_profile_m($jwt_data->userId, $name, $phoneNo, $email);
+            $fn_general->save_audit('5', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_UPDATE_PROFILE;
+        }
         else if ($action === 'save_qualitative_tasks') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskQuals = filter_input(INPUT_POST, 'ppmTaskQual', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);

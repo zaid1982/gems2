@@ -63,7 +63,7 @@ function SectionChecklist() {
                 type: 'text',
                 name: 'Description',
                 validator: {
-                    maxLength: 255
+                    maxLength: 1000
                 }
             },
             {
@@ -107,7 +107,8 @@ function SectionChecklist() {
             autoWidth: false,
             bPaginate: false,
             bInfo : false,
-            aaSorting: [0, 'asc'],
+            ordering: false,
+            //aaSorting: [0, 'asc'],
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkSckChecklistQualEdit').off('click').on('click', function () {
@@ -116,7 +117,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQual.row(parseInt(rowId)).data();
-                        modalChecklistQualClass.edit(currentRow['checklistId'], rowId);
+                        modalChecklistQualClass.edit(currentRow['checklistQualId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQualDeactivate').off('click').on('click', function () {
@@ -125,7 +126,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQual.row(parseInt(rowId)).data();
-                        modalChecklistQualClass.deactivate(currentRow['checklistId'], rowId);
+                        modalChecklistQualClass.deactivate(currentRow['checklistQualId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQualActivate').off('click').on('click', function () {
@@ -134,7 +135,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQual.row(parseInt(rowId)).data();
-                        modalChecklistQualClass.activate(currentRow['checklistId'], rowId);
+                        modalChecklistQualClass.activate(currentRow['checklistQualId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQualDelete').off('click').on('click', function () {
@@ -240,7 +241,7 @@ function SectionChecklist() {
             autoWidth: false,
             bPaginate: false,
             bInfo : false,
-            aaSorting: [0, 'asc'],
+            //aaSorting: [0, 'asc'],
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkSckChecklistQuanEdit').off('click').on('click', function () {
@@ -249,7 +250,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQuan.row(parseInt(rowId)).data();
-                        modalChecklistQuanClass.edit(currentRow['checklistId'], rowId);
+                        modalChecklistQuanClass.edit(currentRow['checklistQuanId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQuanDeactivate').off('click').on('click', function () {
@@ -258,7 +259,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQuan.row(parseInt(rowId)).data();
-                        modalChecklistQuanClass.deactivate(currentRow['checklistId'], rowId);
+                        modalChecklistQuanClass.deactivate(currentRow['checklistQuanId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQuanActivate').off('click').on('click', function () {
@@ -267,7 +268,7 @@ function SectionChecklist() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableChecklistQuan.row(parseInt(rowId)).data();
-                        modalChecklistQuanClass.activate(currentRow['checklistId'], rowId);
+                        modalChecklistQuanClass.activate(currentRow['checklistQuanId'], rowId);
                     }
                 });
                 $('.lnkSckChecklistQuanDelete').off('click').on('click', function () {

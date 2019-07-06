@@ -14,9 +14,10 @@ class Class_constant {
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
     const ERR_LOGIN_NOT_EXIST = 'User ID not exist';
     const ERR_LOGIN_WRONG_PASSWORD = 'Password is incorrect';
+    const ERR_RESET_SAME_PASSWORD = 'Password cannot be similar to previous';
     const ERR_LOGIN_NOT_ACTIVE = 'User ID is not active. Please contact Administrator to activate.';
     const ERR_USER_ALREADY_ACTIVATED = 'Your ID already activated.';
-    const ERR_FORGOT_PASSWORD_NOT_EXIST = 'User ID not exist';
+    const ERR_FORGOT_PASSWORD_NOT_EXIST = 'Email not exist';
     const ERR_CHANGE_PASSWORD_WRONG_CURRENT = 'Current Password is incorrect';
     const ERR_ROLE_DELETE_HAVE_TASK = 'This user cannot be removed from this roles since there are still task assigned. Please delegate the task first.';
     const ERR_ROLE_DELETE_ALONE = 'There is no other user are assigned to this role. Please assign this role to new user before remove this user form this role.';
@@ -25,6 +26,7 @@ class Class_constant {
 
     const SUC_FORGOT_PASSWORD = 'Your password successfully reset. Please login with temporary password sent to your email.';
     const SUC_CHANGE_PASSWORD = 'Your password successfully changed';
+    const SUC_UPDATE_PROFILE = 'Your profile successfully updated';
 
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';
