@@ -15,6 +15,7 @@ class Class_constant {
     const ERR_LOGIN_NOT_EXIST = 'User ID not exist';
     const ERR_LOGIN_WRONG_PASSWORD = 'Password is incorrect';
     const ERR_LOGIN_NOT_ACTIVE = 'User ID is not active. Please contact Administrator to activate.';
+    const ERR_USER_ALREADY_ACTIVATED = 'Your ID already activated.';
     const ERR_FORGOT_PASSWORD_NOT_EXIST = 'User ID not exist';
     const ERR_CHANGE_PASSWORD_WRONG_CURRENT = 'Current Password is incorrect';
     const ERR_ROLE_DELETE_HAVE_TASK = 'This user cannot be removed from this roles since there are still task assigned. Please delegate the task first.';

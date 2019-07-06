@@ -8,7 +8,7 @@ function MainTrackMonitoring() {
     let refFlow;
     let refCheckpoint;
     let oTableTrack;
-    let modalTaskHistoryClass;
+    let sectionTaskHistoryClass;
 
     this.init = function () {
         mzOption('optTnmFlowId', refFlow, 'All Flow', 'flowId', 'flowDesc', {}, 'required');
@@ -23,13 +23,14 @@ function MainTrackMonitoring() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkTnmListEdit').off('click').on('click', function () {
+                $('.lnkTnmListView').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableTrack.row(parseInt(rowId)).data();
-                        modalTaskHistoryClass.edit(currentRow['assetId'], rowId);
+                        sectionTaskHistoryClass.setTaskDetails(currentRow);
+                        sectionTaskHistoryClass.view(currentRow['transactionId']);
                     }
                 });
             },
@@ -58,7 +59,7 @@ function MainTrackMonitoring() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            return '<a><i class="fas fa-edit lnkTnmListEdit" id="lnkTnmListEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            return '<a><i class="fas fa-edit lnkTnmListView" id="lnkTnmListView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                         }
                     },
                     {mData: 'flowId', visible: false},
@@ -171,8 +172,8 @@ function MainTrackMonitoring() {
         refCheckpoint = _refCheckpoint;
     };
 
-    this.setModalTaskHistoryClass = function (_modalTaskHistoryClass) {
-        modalTaskHistoryClass = _modalTaskHistoryClass;
+    this.setSectionTaskHistoryClass = function (_sectionTaskHistoryClass) {
+        sectionTaskHistoryClass = _sectionTaskHistoryClass;
     };
 
     this.setRefStatus = function (_refStatus) {

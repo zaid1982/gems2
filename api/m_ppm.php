@@ -6,6 +6,7 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
+require_once 'function/f_user.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ppm.php';
 
@@ -14,6 +15,7 @@ $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_ppm = new Class_ppm();
+$fn_user = new Class_user();
 $fn_pdf_ppm = new Class_pdf_ppm();
 $api_name = 'api_m_ppm';
 $is_transaction = false;
@@ -105,7 +107,18 @@ try {
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        if ($action === 'save_qualitative_tasks') {
+        if ($action === 'change_password') {
+            $oldPassword = filter_input(INPUT_POST, 'oldPassword');
+            $newPassword = filter_input(INPUT_POST, 'newPassword');
+            $put_vars = array(
+                'oldPassword'=>$oldPassword,
+                'newPassword'=>$newPassword
+            );
+            $fn_user->change_password($jwt_data->userId, $put_vars);
+            $fn_general->save_audit('6', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_CHANGE_PASSWORD;
+        }
+        else if ($action === 'save_qualitative_tasks') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskQuals = filter_input(INPUT_POST, 'ppmTaskQual', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $fn_ppm->save_qualitative_tasks_m($ppmTaskId, $ppmTaskQuals);

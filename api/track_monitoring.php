@@ -31,6 +31,9 @@ try {
         $type = filter_input(INPUT_GET, 'type');
         if ($type === 'track_monitoring_list') {
             $result = $fn_task->get_track_monitoring_list();
+        } else if ($type === 'transaction_history') {
+            $transactionId = filter_input(INPUT_GET, 'transactionId');
+            $result = $fn_task->get_track_monitoring_list($transactionId);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

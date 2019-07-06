@@ -201,12 +201,12 @@ class Class_user {
             
             $userId = $sys_user['user_id'];
             $temporaryPassword = $this->fn_general->generateRandomString(15);
-            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword)), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword), array('user_id'=>$userId));
             
             $emailParam = array('userName'=>$userName, 'tempPassword'=>$temporaryPassword); 
-            $this->fn_email->setup_email($userId, 1, $emailParam);
+            //$this->fn_email->setup_email($userId, 1, $emailParam);
             
-            return $userId;
+            return array('userId'=>$userId, 'tempPassword'=>$temporaryPassword);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

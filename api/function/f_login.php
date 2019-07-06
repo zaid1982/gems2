@@ -319,5 +319,43 @@ class Class_login {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $username
+     * @param $password
+     * @return
+     * @throws Exception
+     */
+    public function reset_password ($username, $password) {
+        $constant = new Class_constant();
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            if (is_null($username) || $username === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter username empty');
+            }
+            if (is_null($password) || $password === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter password empty');
+            }
+
+            $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
+            if (empty($profile)) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
+            }
+            if ($profile['user_status'] !== '1') {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
+            }
+            if (!empty($profile['user_time_activate'])) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ALREADY_ACTIVATED, 31);
+            }
+
+            $userId = $profile['user_id'];
+            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($password), 'user_time_activate'=>'Now()'), array('user_id'=>$userId));
+            return $userId;
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
     
 }

@@ -1,0 +1,182 @@
+<section class="section mb-5 sectionTaskHistory">
+    <div class="row mb-0 pb-0">
+        <div class="col-md-12">
+            <button type="button" class="btn morpheus-den-gradient btn-rounded float-right text-white" id="btnSthBack">
+                <i class="fas fa-arrow-left"></i> Back to Main Page
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-cascade cascading-admin-card user-card mt-4">
+                <div class="admin-up d-flex justify-content-start">
+                    <i class="fas fa-clipboard-list rgba-cyan-strong py-4 z-depth-4"></i>
+                    <div class="data">
+                        <h3 class="font-weight-bold dark-grey-text ml-3">Task History</h3>
+                    </div>
+                </div>
+                <div class="card-body card-body-cascade px-4">
+                    <form id="formSth">
+                        <h5 class="mt-3 font-weight-500">Task Information :</h5>
+                        <div class="row pl-2 mt-4">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthFlowName" class="form-control" disabled>
+                                    <label for="txtSthFlowName" id="lblSthFlowName" class="active">Flow Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pl-2">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransactionNo" class="form-control" disabled>
+                                    <label for="txtSthTransactionNo" id="lblSthTransactionNo" class="active">Task No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthCheckpointDesc" class="form-control" disabled>
+                                    <label for="txtSthCheckpointDesc" id="lblSthCheckpointDesc" class="active">Current Checkpoint</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pl-2">
+                            <div class="col-md-5">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransUser" class="form-control" disabled>
+                                    <label for="txtSthTransUser" id="lblSthTransUser" class="active">Initiated By</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransGroup" class="form-control" disabled>
+                                    <label for="txtSthTransGroup" id="lblSthTransGroup" class="active">Initiated By Group</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransactionTimeCreated" class="form-control" disabled>
+                                    <label for="txtSthTransactionTimeCreated" id="lblSthTransactionTimeCreated" class="active">Initiated Time</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pl-2">
+                            <div class="col-md-3">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTaskStatus" class="form-control" disabled>
+                                    <label for="txtSthTaskStatus" id="lblSthTaskStatus" class="active">Task Status</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthUserFullName" class="form-control" disabled>
+                                    <label for="txtSthUserFullName" id=lblSthUserFullName" class="active">Current User</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTaskTimeCreated" class="form-control" disabled>
+                                    <label for="txtSthTaskTimeCreated" id="lblSthTaskTimeCreated" class="active">Received Time</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pl-2">
+                            <div class="col-md-3">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransactionStatus" class="form-control" disabled>
+                                    <label for="txtSthTransactionStatus" id="lblSthTransactionStatus" class="active">Flow Status</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSthTransactionDateDue" class="form-control" disabled>
+                                    <label for="txtSthTransactionDateDue" id="lblSthTransactionDateDue" class="active">Flow Due Date</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mt-4_5">
+                <div class="card-body mt-3">
+                    <h5 class="font-weight-500">Transaction History :</h5>
+                    <div class="row">
+                        <div class="col-md-10 offset-1">
+                            <ul class="stepper stepper-horizontal pt-0 mt-0" id="ulSthStep">
+                                <li class="">
+                                    <a href="#!">
+                                        <span class="circle green"><i class="fas fa-tasks"></i></span>
+                                        <span class="label">Execute PPM</span>
+                                    </a>
+                                </li>
+                                <li class="active">
+                                    <a href="#!">
+                                        <span class="circle"><i class="fas fa-check"></i></span>
+                                        <span class="label">Check PPM</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a href="#!">
+                                        <span class="circle"><i class="fas fa-check-double"></i></span>
+                                        <span class="label">Verify PPM</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a href="#!">
+                                        <span class="circle"><i class="fas fa-thumbs-up"></i></span>
+                                        <span class="label">Complete</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <section>
+                        <div class="card card-cascade narrower z-depth-0">
+                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-2 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                                <div>
+                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                                       data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
+                                       data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
+                                    <button type="button" id="btnDtSthListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                </div>
+                                <a href="javascript:void(0);" class="text-white mx-3 pl-5">Transaction History</a>
+                                <div>
+                                    <div id="btnDtSthListExport"></div>
+                                </div>
+                            </div>
+                            <div class="px-2 pb-4">
+                                <div class="table-responsive">
+                                    <table id="dtSthList" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr class="th-strong">
+                                            <th scope="row" style="width: 4%">#</th>
+                                            <th>Checkpoint</th>
+                                            <th width="15%">User</th>
+                                            <th width="12%">Role</th>
+                                            <th width="12%">Group</th>
+                                            <th width="10%">Due Date</th>
+                                            <th width="13%">Time Created</th>
+                                            <th width="13%">Time Submitted</th>
+                                            <th width="10%">Status</th>
+                                            <th width="24px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+                    

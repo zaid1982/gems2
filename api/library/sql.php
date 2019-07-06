@@ -284,6 +284,7 @@ class Class_sql
                     ppm_task_upload_desc,
                     ref_document.document_desc,
                     ref_document.document_type,
+                    sys_upload.upload_id,
                     sys_upload.upload_folder,
                     sys_upload.upload_filename,
                     sys_upload.upload_extension,

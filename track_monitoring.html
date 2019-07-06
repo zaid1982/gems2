@@ -116,39 +116,12 @@
                         </div>
                     </div>
                 </section>
-
-            <!--
-            <div class="row">
-                <div class="col-md-12">
-                    <ul class="stepper stepper-horizontal">
-                        <li class="warning">
-                            <a href="#!">
-                                <span class="circle">1</span>
-                                <span class="label">First step</span>
-                            </a>
-                        </li>
-                        <li class="active">
-                            <a href="#!">
-                                <span class="circle"><i class="fas fa-check"></i></span>
-                                <span class="label">Second step</span>
-                            </a>
-                        </li>
-                        <li class="warning">
-                            <a href="#!">
-                                <span class="circle"><i class="fas fa-exclamation"></i></span>
-                                <span class="label">Third step</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            -->
-
             </div>
         </section>
+        <div class="includeHtml" id="h-section_task_history"></div>
+
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_task_history"></div>
 
 </main>
 
@@ -194,7 +167,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let trackMonitoringClass_;
-    let modalTaskHistoryClass_;
+    let sectionTaskHistoryClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -205,7 +178,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 trackMonitoringClass_ = new MainTrackMonitoring();
-                modalTaskHistoryClass_ = new ModalTaskHistory();
+                sectionTaskHistoryClass_ = new SectionTaskHistory();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
@@ -214,14 +187,21 @@
                 const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
                 const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
 
-                modalTaskHistoryClass_.init();
+                sectionTaskHistoryClass_.setRefStatus(refStatus_);
+                sectionTaskHistoryClass_.setRefRole(refRole_);
+                sectionTaskHistoryClass_.setRefGroup(refGroup_);
+                sectionTaskHistoryClass_.setRefUser(refUser_);
+                sectionTaskHistoryClass_.setRefFlow(refFlow_);
+                sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
+                sectionTaskHistoryClass_.setClassFrom(trackMonitoringClass_);
+                sectionTaskHistoryClass_.init();
 
                 trackMonitoringClass_.setRefStatus(refStatus_);
                 trackMonitoringClass_.setRefRole(refRole_);
                 trackMonitoringClass_.setRefUser(refUser_);
                 trackMonitoringClass_.setRefFlow(refFlow_);
                 trackMonitoringClass_.setRefCheckpoint(refCheckpoint_);
-                trackMonitoringClass_.setModalTaskHistoryClass(modalTaskHistoryClass_);
+                trackMonitoringClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
                 trackMonitoringClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -232,7 +212,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_track_monitoring.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

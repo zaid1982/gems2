@@ -455,15 +455,20 @@ class Class_task {
     }
 
     /**
+     * @param string $transactionId
      * @return array
      * @throws Exception
      */
-    public function get_track_monitoring_list () {
+    public function get_track_monitoring_list ($transactionId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', array());
+            $arrWhere = array('task_current'=>'1');
+            if (!empty($transactionId)) {
+                $arrWhere['wfl_transaction.transaction_id'] = $transactionId;
+            }
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', $arrWhere);
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
@@ -478,6 +483,7 @@ class Class_task {
                 $row_result['checkpointId'] = $dataLocal['checkpoint_id'];
                 $row_result['userId'] = $this->fn_general->clear_null($dataLocal['task_claimed_user']);
                 $row_result['taskTimeCreated'] = str_replace('-', '/', $dataLocal['task_time_created']);
+                $row_result['taskTimeSubmit'] = str_replace('-', '/', $dataLocal['task_time_submit']);
                 $row_result['taskDateDue'] = str_replace('-', '/', $dataLocal['task_date_due']);
                 $row_result['taskStatus'] = $dataLocal['task_status'];
                 $row_result['transactionStatus'] = $dataLocal['transaction_status'];

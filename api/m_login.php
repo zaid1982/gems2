@@ -33,15 +33,21 @@ try {
             //if (empty($deviceId)) {
             //    throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
             //}
-
             $result = $fn_login->check_login($username, $password, $deviceId);
             $fn_general->save_audit('1', $result['userId']);
+        }
+        else if ($action === 'reset_password') {
+            $username = filter_input(INPUT_POST, 'username');
+            $password = filter_input(INPUT_POST, 'password');
+            $userId = $fn_login->reset_password($username, $password);
+            $fn_general->save_audit('103', $userId);
         }
         else if ($action === 'forgot_password') {      
             $username = filter_input(INPUT_POST, 'username');
 
-            $userId = $fn_user->forgot_password($username);
-            $fn_general->save_audit('4', $userId);
+            $result = $fn_user->forgot_password($username);
+            $fn_general->save_audit('4', $result['userId']);
+            $result = '';
             $form_data['errmsg'] = $constant::SUC_FORGOT_PASSWORD;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action ('.$action.') invalid');
