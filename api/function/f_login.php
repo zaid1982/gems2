@@ -250,6 +250,13 @@ class Class_login {
             $result['address']['addressCity'] = $this->fn_general->clear_null($profile['address_city']);          
             $result['address']['addressState'] = $this->fn_general->clear_null($profile['state_desc']);
             $result['roles'] = $arr_roles;
+            if (!empty($profile['upload_id'])) {
+                $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$profile['upload_id']), null, 1);
+                $result['imgUrl'] = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
+            } else {
+                $result['imgUrl'] = '';
+            }
+
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
 
             $arrUpdate = array('user_time_login'=>'Now()');

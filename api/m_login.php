@@ -41,6 +41,7 @@ try {
             $password = filter_input(INPUT_POST, 'password');
             $userId = $fn_login->reset_password($username, $password);
             $fn_general->save_audit('103', $userId);
+            $form_data['errmsg'] = $constant::SUC_RESET_PASSWORD;
         }
         else if ($action === 'forgot_password') {      
             $email = filter_input(INPUT_POST, 'email');

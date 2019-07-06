@@ -296,9 +296,12 @@ class Class_user {
      * @param $name
      * @param $phoneNo
      * @param $email
+     * @param $uploadId
+     * @return string
      * @throws Exception
      */
-    public function update_profile_m ($userId, $name, $phoneNo, $email) {
+    public function update_profile_m ($userId, $name, $phoneNo, $email, $uploadId) {
+        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -314,9 +317,16 @@ class Class_user {
             if (empty($email)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter email empty');
             }
+            if (empty($uploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+            }
 
-            Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name, 'upload_id'=>$uploadId), array('user_id'=>$userId));
             Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$email, 'user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
+
+            $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$uploadId), null, 1);
+            $docUrl = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
+            return $docUrl;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -346,7 +356,10 @@ class Class_user {
             
             $oldPassword = $put_vars['oldPassword'];
             $newPassword = $put_vars['newPassword'];
-            
+
+            if ($oldPassword === $newPassword){
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHANGE_PASSWORD_OLD_NEW_SAME, 31);
+            }
             if (Class_db::getInstance()->db_count('sys_user', array('user_password'=>md5($oldPassword), 'user_id'=>$userId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHANGE_PASSWORD_WRONG_CURRENT, 31);
             }

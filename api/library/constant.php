@@ -8,7 +8,7 @@
 
 class Class_constant {
 
-    //const URL = '//addeen-legacy.com.my/gems2/api/';
+    //const URL = '//addeen-legacy.com.my/gems/api/';
     const URL = '//localhost:8081/gems2/api/';
 
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
@@ -18,14 +18,16 @@ class Class_constant {
     const ERR_LOGIN_NOT_ACTIVE = 'User ID is not active. Please contact Administrator to activate.';
     const ERR_USER_ALREADY_ACTIVATED = 'Your ID already activated.';
     const ERR_FORGOT_PASSWORD_NOT_EXIST = 'Email not exist';
-    const ERR_CHANGE_PASSWORD_WRONG_CURRENT = 'Current Password is incorrect';
+    const ERR_CHANGE_PASSWORD_WRONG_CURRENT = 'Old password not correct';
+    const ERR_CHANGE_PASSWORD_OLD_NEW_SAME = 'New password cannot be the same as old password';
     const ERR_ROLE_DELETE_HAVE_TASK = 'This user cannot be removed from this roles since there are still task assigned. Please delegate the task first.';
     const ERR_ROLE_DELETE_ALONE = 'There is no other user are assigned to this role. Please assign this role to new user before remove this user form this role.';
     const ERR_USER_ADD_SIMILAR_BADAN = 'No. Badan telah sedia didaftar. Sila pastikan No. Badan adalah betul.';
     const ERR_USER_ADD_SIMILAR_USERNAME = 'Login ID telah sedia didaftar. Sila pastikan Login ID baru yang belum didaftar.';
 
     const SUC_FORGOT_PASSWORD = 'Your password successfully reset. Please login with temporary password sent to your email.';
-    const SUC_CHANGE_PASSWORD = 'Your password successfully changed';
+    const SUC_CHANGE_PASSWORD = 'Your password has been changed';
+    const SUC_RESET_PASSWORD = 'Your password successfully updated';
     const SUC_UPDATE_PROFILE = 'Your profile successfully updated';
 
     const ERR_USER_DEACTIVATE = 'User already inactive';
