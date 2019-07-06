@@ -121,10 +121,9 @@ try {
         else if ($action === 'edit_profile') {
             $name = filter_input(INPUT_POST, 'name');
             $phoneNo = filter_input(INPUT_POST, 'phoneNo');
-            $email = filter_input(INPUT_POST, 'email');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $uploadId = $fn_general->uploadDocument($fileUpload, 8, $jwt_data->userId);
-            $result = $fn_user->update_profile_m($jwt_data->userId, $name, $phoneNo, $email, $uploadId);
+            $result = $fn_user->update_profile_m($jwt_data->userId, $name, $phoneNo, $uploadId);
             $fn_general->save_audit('5', $jwt_data->userId);
             $form_data['errmsg'] = $constant::SUC_UPDATE_PROFILE;
         }

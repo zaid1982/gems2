@@ -300,7 +300,7 @@ class Class_user {
      * @return string
      * @throws Exception
      */
-    public function update_profile_m ($userId, $name, $phoneNo, $email, $uploadId) {
+    public function update_profile_m ($userId, $name, $phoneNo, $uploadId) {
         $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -314,15 +314,12 @@ class Class_user {
             if (empty($phoneNo)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter phoneNo empty');
             }
-            if (empty($email)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter email empty');
-            }
             if (empty($uploadId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name, 'upload_id'=>$uploadId), array('user_id'=>$userId));
-            Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$email, 'user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
+            Class_db::getInstance()->db_update('sys_user_profile', array('user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
             $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$uploadId), null, 1);
             $docUrl = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
