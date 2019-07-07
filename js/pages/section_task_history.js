@@ -31,6 +31,10 @@ function SectionTaskHistory() {
             bPaginate: false,
             bInfo : false,
             aaSorting: [6, 'asc'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableTransaction.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
@@ -41,13 +45,13 @@ function SectionTaskHistory() {
                     {mData: null, mRender: function (data, type, row){
                             return row['checkpointId'] !== '' ? refCheckpoint[row['checkpointId']]['checkpointDesc'] : '';
                         }},
-                    {mData: 'userId', mRender: function (data){
+                    {mData: 'taskClaimedUser', mRender: function (data){
                             return data !== '' ? refUser[data]['userFullName'] : '';
                         }},
                     {mData: 'roleId', mRender: function (data){
                             return data !== '' ? refRole[data]['roleDesc'] : '';
                         }},
-                    {mData: 'transGroup', mRender: function (data){
+                    {mData: 'groupId', mRender: function (data){
                             return data !== '' ? refGroup[data]['groupName'] : '';
                         }},
                     {mData: 'taskDateDue'},

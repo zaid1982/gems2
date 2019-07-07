@@ -33,7 +33,7 @@ try {
             $result = $fn_task->get_track_monitoring_list();
         } else if ($type === 'transaction_history') {
             $transactionId = filter_input(INPUT_GET, 'transactionId');
-            $result = $fn_task->get_track_monitoring_list($transactionId);
+            $result = $fn_task->get_task_history('', $transactionId);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
