@@ -163,14 +163,18 @@ function SectionTaskHistory() {
         oTableTransaction.clear().rows.add(dataTransaction).draw();
 
         const dataLength = dataTransaction.length;
-        alert(dataTransaction[dataLength]['']);
-
+        const currentCheckpoint = dataTransaction[dataLength-1]['checkpointId'];
+        let isGreen = 'green';
         $('#ulSthStep').html('');
         for (let i = 0; i < refCheckpoint.length; i++) {
             if (typeof refCheckpoint[i] !== 'undefined') {
-                $('#ulSthStep').append('<li class="">\n' +
+                const isActive = refCheckpoint[i]['checkpointId'] === currentCheckpoint ? 'active' : '';
+                if (isActive === 'active') {
+                    isGreen = '';
+                }
+                $('#ulSthStep').append('<li class="'+isActive+'">\n' +
                     '<a href="#!">\n' +
-                    '<span class="circle"><i class="fas fa-tasks"></i></span>\n' +
+                    '<span class="circle '+isGreen+'"><i class="'+refCheckpoint[i]['checkpointIcon']+'"></i></span>\n' +
                     '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
                     '</a>\n' +
                     '</li>');

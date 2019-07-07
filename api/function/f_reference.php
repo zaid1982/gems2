@@ -488,6 +488,7 @@ class Class_reference {
                 $row_result['checkpointDueDay'] = $dataLocal['checkpoint_due_day'];
                 $row_result['roleId'] = $dataLocal['role_id'];
                 $row_result['groupId'] = $dataLocal['group_id'];
+                $row_result['checkpointIcon'] = $dataLocal['checkpoint_icon'];
                 array_push($result, $row_result);
             }
 
