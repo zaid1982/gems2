@@ -63,12 +63,12 @@ try {
     }       
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
-    if ($is_transaction) {
+    if ($is_transaction && $ex->getCode() !== 32) {
         Class_db::getInstance()->db_rollback();
     }
     Class_db::getInstance()->db_close();
     $form_data['error'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
-    if ($ex->getCode() === 31) {
+    if ($ex->getCode() === 31 && $ex->getCode() === 32) {
         $form_data['errmsg'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
     } else {
         $form_data['errmsg'] = $constant::ERR_DEFAULT;

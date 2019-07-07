@@ -14,6 +14,7 @@ class Class_constant {
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
     const ERR_LOGIN_NOT_EXIST = 'User ID not exist';
     const ERR_LOGIN_WRONG_PASSWORD = 'Password is incorrect';
+    const ERR_LOGIN_BLOCK = 'You account has been blocked. Please retry after 10 minutes.';
     const ERR_RESET_SAME_PASSWORD = 'Password cannot be similar to previous';
     const ERR_LOGIN_NOT_ACTIVE = 'User ID is not active. Please contact Administrator to activate.';
     const ERR_USER_ALREADY_ACTIVATED = 'Your ID already activated.';

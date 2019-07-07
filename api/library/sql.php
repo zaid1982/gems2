@@ -29,6 +29,7 @@ class Class_sql
         try {
             if ($title == 'vw_profile') {
                 $sql = "SELECT
+                    TIMESTAMPDIFF(MINUTE, user_time_block, NOW()) + 1 AS minute_block,
                     sys_user.*,
                     sys_user_profile.user_contact_no,
                     sys_user_profile.user_email,

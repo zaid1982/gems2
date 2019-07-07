@@ -219,19 +219,28 @@ class Class_login {
             }
 
             $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
+            $userId = $profile['user_id'];
             if (empty($profile)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_EXIST, 31);
-            } 
+            }
             if ($profile['user_password'] !== md5($password)) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 31);
+                $timeBlock = $profile['user_fail_attempt'] >= '3' ? 'Now()' : '';
+                Class_db::getInstance()->db_update('sys_user', array('user_fail_attempt'=>'|user_fail_attempt + 1', 'user_time_block'=>$timeBlock), array('user_id'=>$userId));
+                Class_db::getInstance()->db_commit();
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 32);
             } 
             if ($profile['user_status'] !== '1') {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
             }
+            if ($profile['user_fail_attempt'] >= '3') {
+                if (!empty($profile['minute_block']) && $profile['minute_block'] <= '10') {
+                    throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_LOGIN_BLOCK, 31);
+                } else {
+                    Class_db::getInstance()->db_update('sys_user', array('user_fail_attempt'=>'0', 'user_time_block'=>''), array('user_id'=>$userId));
+                }
+            }
 
-            $userId = $profile['user_id'];
             $result = array();
-
             $arr_roles = Class_db::getInstance()->db_select('vw_roles', array(), null, null, null, array('user_id'=>$userId));
             $token = $this->create_jwt($userId, $username);
 
