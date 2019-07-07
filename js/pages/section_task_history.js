@@ -147,6 +147,18 @@ function SectionTaskHistory() {
 
                 self.genTableSthList();
 
+                $('#ulSthStep').html('');
+                for (let i = 0; i < refCheckpoint.length; i++) {
+                    if (typeof refCheckpoint[i] !== 'undefined') {
+                        $('#ulSthStep').append('<li class="">\n' +
+                            '<a href="#!">\n' +
+                            '<span class="circle"><i class="fas fa-tasks"></i></span>\n' +
+                            '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
+                            '</a>\n' +
+                            '</li>');
+                    }
+                }
+
                 $('.sectionTaskHistory').show();
                 if (classFrom.getClassName() === 'MainTrackMonitoring') {
                     $('.sectionTnmMain').hide();

@@ -237,7 +237,7 @@ class Class_sql
                 FROM wfl_task
                 INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
                         AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = 1
-                WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
+                WHERE wfl_task.checkpoint_id = 1 AND YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
                 [claim_filter] GROUP BY task_date_due";
             } else if ($title === 'mw_task_calendar_count_all') {
                 $sql = "SELECT
@@ -245,7 +245,7 @@ class Class_sql
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
                 LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
-                WHERE YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
+                WHERE wfl_task.checkpoint_id = 1 AND YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
                 GROUP BY task_date_due";
             } else if ($title === 'mw_ppm_section_a') {
                 $sql = "SELECT
