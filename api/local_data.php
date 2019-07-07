@@ -5,6 +5,7 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_reference.php';
 require_once 'function/f_user.php';
+require_once 'function/f_email.php';
 require_once 'function/f_asset_brand.php';
 
 $constant = new Class_constant();

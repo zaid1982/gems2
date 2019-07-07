@@ -1,7 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
-require_once 'function/f_email.php';
 
 class Class_user {
      
@@ -203,8 +200,15 @@ class Class_user {
             $temporaryPassword = $this->fn_general->generateRandomString(15);
             Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword, 'user_time_activate'=>''), array('user_id'=>$userId));
             
-            $emailParam = array('userName'=>$userName, 'tempPassword'=>$temporaryPassword); 
+            //$emailParam = array('userName'=>$userName, 'tempPassword'=>$temporaryPassword);
             //$this->fn_email->setup_email($userId, 1, $emailParam);
+            $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
+            $content = '<p>Dear '.$sys_user['user_first_name'].',</p>
+            <p>Your temporary password is '.$temporaryPassword.'.</p>
+            <p>To change your password, please open the mobile apps and key in the given password to login.</p>
+            <br /><br />
+            <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
+            $this->fn_email->send_email_express($email, 'GEMS 2.0 - Temporary Password', $content);
             
             return array('userId'=>$userId, 'tempPassword'=>$temporaryPassword);
         }

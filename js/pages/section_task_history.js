@@ -147,18 +147,6 @@ function SectionTaskHistory() {
 
                 self.genTableSthList();
 
-                $('#ulSthStep').html('');
-                for (let i = 0; i < refCheckpoint.length; i++) {
-                    if (typeof refCheckpoint[i] !== 'undefined') {
-                        $('#ulSthStep').append('<li class="">\n' +
-                            '<a href="#!">\n' +
-                            '<span class="circle"><i class="fas fa-tasks"></i></span>\n' +
-                            '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
-                            '</a>\n' +
-                            '</li>');
-                    }
-                }
-
                 $('.sectionTaskHistory').show();
                 if (classFrom.getClassName() === 'MainTrackMonitoring') {
                     $('.sectionTnmMain').hide();
@@ -173,6 +161,21 @@ function SectionTaskHistory() {
     this.genTableSthList = function () {
         const dataTransaction = mzAjaxRequest('track_monitoring.php?type=transaction_history&transactionId='+transactionId, 'GET');
         oTableTransaction.clear().rows.add(dataTransaction).draw();
+
+        const dataLength = dataTransaction.length;
+        alert(dataTransaction[dataLength]['']);
+
+        $('#ulSthStep').html('');
+        for (let i = 0; i < refCheckpoint.length; i++) {
+            if (typeof refCheckpoint[i] !== 'undefined') {
+                $('#ulSthStep').append('<li class="">\n' +
+                    '<a href="#!">\n' +
+                    '<span class="circle"><i class="fas fa-tasks"></i></span>\n' +
+                    '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
+                    '</a>\n' +
+                    '</li>');
+            }
+        }
     };
 
     this.getClassName = function () {

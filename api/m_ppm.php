@@ -7,6 +7,7 @@ require_once 'function/f_login.php';
 require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
 require_once 'function/f_user.php';
+require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ppm.php';
 

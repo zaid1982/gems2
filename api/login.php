@@ -4,6 +4,7 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_user.php';
+require_once 'function/f_email.php';
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
