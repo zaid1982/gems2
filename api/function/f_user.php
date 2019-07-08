@@ -322,8 +322,12 @@ class Class_user {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
             }
 
+            $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name, 'upload_id'=>$uploadId), array('user_id'=>$userId));
             Class_db::getInstance()->db_update('sys_user_profile', array('user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
+            if (!empty($sys_user['upload_id'])) {
+                Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$sys_user['upload_id']));
+            }
 
             $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$uploadId), null, 1);
             $docUrl = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
