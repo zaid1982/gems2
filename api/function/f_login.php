@@ -227,7 +227,11 @@ class Class_login {
                 $timeBlock = $profile['user_fail_attempt'] >= '2' ? 'Now()' : '';
                 Class_db::getInstance()->db_update('sys_user', array('user_fail_attempt'=>'|user_fail_attempt + 1', 'user_time_block'=>$timeBlock), array('user_id'=>$userId));
                 Class_db::getInstance()->db_commit();
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 32);
+                if ($profile['user_fail_attempt'] >= '2') {
+                    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_BLOCK, 32);
+                } else {
+                    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_WRONG_PASSWORD, 32);
+                }
             } 
             if ($profile['user_status'] !== '1') {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOGIN_NOT_ACTIVE, 31);
