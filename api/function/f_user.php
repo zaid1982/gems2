@@ -198,7 +198,7 @@ class Class_user {
             $userId = $sys_user_profile['user_id'];
 
             $temporaryPassword = $this->fn_general->generateRandomString(15);
-            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword, 'user_time_activate'=>''), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($temporaryPassword), 'user_password_temp'=>$temporaryPassword, 'user_time_activate'=>'', 'user_fail_attempt'=>'0', 'user_time_block'=>''), array('user_id'=>$userId));
             
             //$emailParam = array('userName'=>$userName, 'tempPassword'=>$temporaryPassword);
             //$this->fn_email->setup_email($userId, 1, $emailParam);
