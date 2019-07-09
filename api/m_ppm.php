@@ -123,7 +123,10 @@ try {
             $name = filter_input(INPUT_POST, 'name');
             $phoneNo = filter_input(INPUT_POST, 'phoneNo');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $uploadId = $fn_general->uploadDocument($fileUpload, 8, $jwt_data->userId);
+            $uploadId = '';
+            if (is_array($fileUpload) && !empty($fileUpload) && !empty($fileUpload['filename'])) {
+                $uploadId = $fn_general->uploadDocument($fileUpload, 8, $jwt_data->userId);
+            }
             $result = $fn_user->update_profile_m($jwt_data->userId, $name, $phoneNo, $uploadId);
             $fn_general->save_audit('5', $jwt_data->userId);
             $form_data['errmsg'] = $constant::SUC_UPDATE_PROFILE;
