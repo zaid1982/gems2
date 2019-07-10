@@ -570,14 +570,14 @@ class Class_ppm {
 
             $restFilter = '';
             if (!empty($date)) {
-                $restFilter = 'WHERE task_date_due = \''.$date.'\'';
+                $restFilter = 'AND task_date_due = \''.$date.'\'';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'WHERE (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
+                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), null, null, null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
