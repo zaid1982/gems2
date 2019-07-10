@@ -560,17 +560,21 @@ class Class_ppm {
 
     /**
      * @param string $date
+     * @param string $assetNo
      * @param string $searchTxt
      * @return array
      * @throws Exception
      */
-    public function get_ppm_all_task_m ($date='', $searchTxt='') {
+    public function get_ppm_all_task_m ($date='', $assetNo='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $restFilter = '';
             if (!empty($date)) {
                 $restFilter = 'AND task_date_due = \''.$date.'\'';
+            }
+            if (!empty($assetNo)) {
+                $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
             if (!empty($searchTxt)) {
                 $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';

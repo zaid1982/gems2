@@ -50,7 +50,10 @@ try {
             $result = $fn_ppm->get_ppm_all_task_m();
         } else if ($type === 'all_task_search') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
-            $result = $fn_ppm->get_ppm_all_task_m('', $searchTxt);
+            $result = $fn_ppm->get_ppm_all_task_m('', '', $searchTxt);
+        } else if ($type === 'all_task_scan_asset') {
+            $assetNo = filter_input(INPUT_GET, 'assetNo');
+            $result = $fn_ppm->get_ppm_all_task_m('', $assetNo);
         } else if ($type === 'pending_task_search') {
             $searchTxt = filter_input(INPUT_GET, 'assetNo');
             $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $searchTxt);
