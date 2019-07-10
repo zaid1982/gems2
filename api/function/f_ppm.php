@@ -1,16 +1,15 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
-require_once 'function/f_task.php';
 
 class Class_ppm {
 
     private $fn_general;
     private $fn_task;
+    private $fn_email;
 
     function __construct() {
         $this->fn_general = new Class_general();
         $this->fn_task = new Class_task();
+        $this->fn_email = new Class_email();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -1440,19 +1439,24 @@ class Class_ppm {
             }
 
             $statusUpdate = '';
+            $taskName = '';
             if ($checkpoint === '1') {
                 $statusUpdate = '14';
+                $taskName = 'pending check';
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>$userId, 'ppm_task_time_serviced'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '1') {
                 $statusUpdate = '15';
+                $taskName = 'pending verification';
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by'=>$userId, 'ppm_task_time_checked'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '2') {
                 $statusUpdate = '21';
+                $taskName = 're-open';
             } else if ($checkpoint === '3' && $result === '1') {
                 $statusUpdate = '16';
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by'=>$userId, 'ppm_task_time_verified'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '3' && $result === '2') {
                 $statusUpdate = '21';
+                $taskName = 're-open';
             }
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>$statusUpdate), array('ppm_task_id'=>$ppmTaskId));
@@ -1460,6 +1464,19 @@ class Class_ppm {
                 Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>intval($checkpoint)+3, 'upload_id'=>$uploadId));
             }
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusUpdate), array('transaction_id'=>$transactionId));
+
+           /* if ($taskName !== '') {
+                $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
+                $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), null, 1);
+                $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+                $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
+                    <p>You have received 1 new PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].'.</p>
+                    <p>Please open the mobile apps and proceed with the task.</p>
+                    <br /><br />
+                    <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
+                $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - PPM Task Received', $content);
+            }*/
+
             return $task['task_id'];
         }
         catch(Exception $ex) {

@@ -5,6 +5,7 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_ppm.php';
+require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ppm.php';
 
