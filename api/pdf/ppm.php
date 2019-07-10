@@ -564,11 +564,11 @@ class Class_pdf_ppm {
             foreach ($ppmUploads as $ppmUpload) {
                 $uploadType = $ppmUpload['ppm_task_upload_type'];
                 if ($uploadType === '0') {
-                    array_push($img_before, $ppmUpload);
+                    $img_before = $ppmUpload;
                 } else if ($uploadType === '1') {
                     array_push($img_during, $ppmUpload);
                 } else if ($uploadType === '2') {
-                    array_push($img_after, $ppmUpload);
+                    $img_after = $ppmUpload;
                 }
             }
 
@@ -576,50 +576,81 @@ class Class_pdf_ppm {
                 $pdf->AddPage();
                 $pdf->setPage($pdf->getPage());
                 $pdf->SetFont('helvetica', '', 9);
-                $pdf->writeHTML("<h1>Maintenance Image : Before</h1>", true, false, true, false, 'L');
-                $pdf->Ln();
+
+                $display_img = '';
+                $display_desc = '';
+                $display_time = '';
+                $display_long = '';
+                $display_lat = '';
                 if (!empty($img_before)){
-                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_before[0]['upload_id']));
+                    $display_desc = $img_before['ppm_task_upload_desc'];
+                    $display_time = $this->fn_general->convertDateToDisplay($img_before['ppm_task_upload_timestamp']).substr($img_before['ppm_task_upload_timestamp'], 10);
+                    $display_long = $img_before['ppm_task_upload_longitude'];
+                    $display_lat = $img_before['ppm_task_upload_latitude'];
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_before['upload_id']));
                     if (!empty($upload)) {
-                        $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
-                        $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                        $display_img = '<br/><br/><img src="' . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'] . '" height="200" />';
                     }
                 }
-                $pdf->SetFont('helvetica', '', 9);
+                $pdf->writeHTMLCell(180, 8, '', '', '<h1>Maintenance Image : Before</h1>', 1);
+                $pdf->Ln();
+                $pdf->writeHTMLCell(100, 65, '', '', $display_img, 1, '', '', '', 'C');
+                $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$display_desc."<br/>Time Taken : ".$display_time."<br/>Longitude : ".$display_long."<br/>Latitude : ".$display_lat, 1);
                 $pdf->Ln();
 
-                $pdf->writeHTML("<br/><h1>Maintenance Image : During</h1>", true, false, true, false, 'L');
+                $pdf->writeHTML("<br/><br/>", true, false, true, false);
+                $pdf->writeHTMLCell(180, 8, '', '', '<h1>Maintenance Image : During</h1>', 1);
                 $pdf->Ln();
                 if (!empty($img_during)){
                     foreach ($img_during as $key => $img_display) {
-                        $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_during[$key]['upload_id']));
+                        $display_desc = $img_display['ppm_task_upload_desc'];
+                        $display_time = $this->fn_general->convertDateToDisplay($img_display['ppm_task_upload_timestamp']).substr($img_display['ppm_task_upload_timestamp'], 10);
+                        $display_long = $img_display['ppm_task_upload_longitude'];
+                        $display_lat = $img_display['ppm_task_upload_latitude'];
+                        $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_display['upload_id']));
                         if (!empty($upload)) {
-                            if ($key > 1) {
-                                $pdf->Ln();
-                                $pdf->writeHTML("<br/>", true, false, true, false, 'L');
-                            }
-                            $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
-                            if ($key % 2 === 0) {
-                                $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
-                            } else {
-                                $pdf->Image($fileDir, 110, '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
-                            }
+                            $display_img = '<br/><br/><img src="' . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'] . '" height="200" />';
+                        }
+                        $pdf->writeHTMLCell(100, 65, '', '', $display_img, 1, '', '', '', 'C');
+                        $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$display_desc."<br/>Time Taken : ".$display_time."<br/>Longitude : ".$display_long."<br/>Latitude : ".$display_lat, 1);
+                        $pdf->Ln();
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'GetY() : '.$pdf->GetY());
+                        if ($pdf->GetY() > 200) {
+                            $pdf->AddPage();
+                            $pdf->setPage($pdf->getPage());
                         }
                     }
+                } else {
+                    $pdf->writeHTMLCell(100, 65, '', '', '', 1, '', '', '', 'C');
+                    $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : <br/>Time Taken : <br/>Longitude : <br/>Latitude : ", 1);
+                    $pdf->Ln();
                 }
-                $pdf->SetFont('helvetica', '', 9);
-                $pdf->Ln();
 
-                $pdf->writeHTML("<br/><h1>Maintenance Image : After</h1>", true, false, true, false, 'L');
-                $pdf->Ln();
+                $pdf->writeHTML("<br/><br/>", true, false, true, false);
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'GetY() : '.$pdf->GetY());
+                if ($pdf->GetY() > 200) {
+                    $pdf->AddPage();
+                    $pdf->setPage($pdf->getPage());
+                }
+                $display_img = '';
+                $display_desc = '';
+                $display_time = '';
+                $display_long = '';
+                $display_lat = '';
                 if (!empty($img_after)){
-                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_after[0]['upload_id']));
+                    $display_desc = $img_after['ppm_task_upload_desc'];
+                    $display_time = $this->fn_general->convertDateToDisplay($img_after['ppm_task_upload_timestamp']).substr($img_after['ppm_task_upload_timestamp'], 10);
+                    $display_long = $img_after['ppm_task_upload_longitude'];
+                    $display_lat = $img_after['ppm_task_upload_latitude'];
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_after['upload_id']));
                     if (!empty($upload)) {
-                        $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
-                        $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                        $display_img = '<br/><br/><img src="' . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'] . '" height="200" />';
                     }
                 }
-                $pdf->SetFont('helvetica', '', 9);
+                $pdf->writeHTMLCell(180, 8, '', '', '<h1>Maintenance Image : After</h1>', 1);
+                $pdf->Ln();
+                $pdf->writeHTMLCell(100, 65, '', '', $display_img, 1, '', '', '', 'C');
+                $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$display_desc."<br/>Time Taken : ".$display_time."<br/>Longitude : ".$display_long."<br/>Latitude : ".$display_lat, 1);
                 $pdf->Ln();
             }
 
