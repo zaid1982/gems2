@@ -47,16 +47,19 @@ try {
         if ($type === 'pending_task') {
             $result = $fn_ppm->get_pending_task_m($jwt_data->userId);
         } else if ($type === 'all_task') {
-            $result = $fn_ppm->get_ppm_all_task();
+            $result = $fn_ppm->get_ppm_all_task_m();
+        } else if ($type === 'all_task_search') {
+            $searchTxt = filter_input(INPUT_GET, 'searchTxt');
+            $result = $fn_ppm->get_ppm_all_task_m('', $searchTxt);
         } else if ($type === 'pending_task_search') {
-            $assetNo = filter_input(INPUT_GET, 'assetNo');
-            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', '', $assetNo);
+            $searchTxt = filter_input(INPUT_GET, 'assetNo');
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $searchTxt);
         } else if ($type === 'pending_task_scan_asset') {
             $assetNo = filter_input(INPUT_GET, 'assetNo');
-            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $assetNo);
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, $assetNo);
         } else if ($type === 'calendar_list') {
             $date = filter_input(INPUT_GET, 'date');
-            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, $date);
+            $result = $fn_ppm->get_ppm_all_task_m($date);
         } else if ($type === 'calendar_dot') {
             $month = filter_input(INPUT_GET, 'month');
             $year = filter_input(INPUT_GET, 'year');

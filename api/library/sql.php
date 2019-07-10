@@ -189,7 +189,8 @@ class Class_sql
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    task_frequency.frequency
+                    task_frequency.frequency,
+                    sys_user.user_first_name
                 FROM wfl_task
                 INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
                     AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = [user_id]
@@ -205,7 +206,12 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                WHERE wfl_task.task_current = 1 [claim_filter] [rest_filter]";
+                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
+                WHERE ((MONTH(ppm_task_schedule_date) = MONTH(CURDATE() - INTERVAL 1 MONTH) 
+                AND YEAR(ppm_task_schedule_date) = YEAR(CURDATE() - INTERVAL 1 MONTH)) 
+                OR 
+                (MONTH(ppm_task_schedule_date) = MONTH(CURDATE()) 
+                AND YEAR(ppm_task_schedule_date) = YEAR(CURDATE()))) AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND wfl_task.task_current = 1 [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
                     wfl_task.*,
@@ -216,7 +222,8 @@ class Class_sql
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    task_frequency.frequency
+                    task_frequency.frequency,
+                    sys_user.user_first_name
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
                 LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
@@ -230,6 +237,7 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
+                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
                 WHERE wfl_task.checkpoint_id = 1 [rest_filter]";
             } else if ($title === 'mw_task_calendar_count') {
                 $sql = "SELECT

@@ -514,13 +514,12 @@ class Class_ppm {
 
     /**
      * @param $userId
-     * @param string $date
      * @param string $assetNo
      * @param string $searchTxt
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId, $date='', $assetNo='', $searchTxt='') {
+    public function get_pending_task_m ($userId, $assetNo='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -528,33 +527,16 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
 
-            $result = array();
-            $query = 'mw_task_ppm_pending';
-            $claimFilter = 'AND (wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
-            if (!empty($date) && Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,5,6)')) > 0) {
-                $claimFilter = '';
-                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,6)')) > 0) {
-                    $query = 'mw_task_ppm_all';
-                } else if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                    $claimFilter = 'AND (wfl_task.task_claimed_user = \''.$userId.'\' OR wfl_task.task_claimed_user IS NULL)';
-                }
-            }
-
             $restFilter = '';
-            if (!empty($date)) {
-                $restFilter = 'AND task_date_due = \''.$date.'\'';
-            }
             if (!empty($assetNo)) {
                 $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$assetNo.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$assetNo.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$assetNo.'%\' OR cli_site.site_name LIKE \'%'.$assetNo.'%\')';
+                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
             }
-            //if (!empty($restFilter) && empty($claimFilter) || $query === 'mw_task_ppm_all') {
-            //    $restFilter = substr($restFilter, 4);
-            //}
 
-            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'claim_filter'=>$claimFilter, 'rest_filter'=>$restFilter));
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -564,6 +546,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
+                $row_result['technician'] = $dataLocal['user_first_name'];
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
@@ -576,15 +559,25 @@ class Class_ppm {
     }
 
     /**
+     * @param string $date
+     * @param string $searchTxt
      * @return array
      * @throws Exception
      */
-    public function get_ppm_all_task () {
+    public function get_ppm_all_task_m ($date='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
+            $restFilter = '';
+            if (!empty($date)) {
+                $restFilter = 'WHERE task_date_due = \''.$date.'\'';
+            }
+            if (!empty($searchTxt)) {
+                $restFilter = 'WHERE (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
+            }
+
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('rest_filter'=>''));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'task_date_due', null, null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -594,6 +587,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
+                $row_result['technician'] = $dataLocal['user_first_name'];
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
@@ -627,19 +621,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $query = 'mw_task_calendar_count';
-            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,5,6)')) > 0) {
-                $claimFilter = '';
-                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'(1,2,3,4,6)')) > 0) {
-                    $query = 'mw_task_calendar_count_all';
-                } else if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                    $claimFilter = 'AND wfl_task.task_claimed_user = \''.$userId.'\'';
-                }
-            } else {
-                return array();
-            }
-
-            $arr_dataLocal = Class_db::getInstance()->db_select($query, array(), 'task_date_due', null, null, array('user_id'=>$userId, 'month'=>$month, 'year'=>$year, 'claim_filter'=>$claimFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'month'=>$month, 'year'=>$year));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['date'] = $dataLocal['task_date_due'];
                 $row_result['total'] = $dataLocal['total'];

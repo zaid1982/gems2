@@ -299,7 +299,6 @@ class Class_user {
      * @param $userId
      * @param $name
      * @param $phoneNo
-     * @param $email
      * @param $uploadId
      * @return string
      * @throws Exception
