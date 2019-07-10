@@ -230,10 +230,10 @@ class Class_pdf_ppm {
             $pdf->MultiCell(120, 20, "\nPREVENTIVE MAINTENANCE CHECKLIST\n".strtoupper($asset['site_name']), 1, 'C', 0, 0, '', '');
             $pdf->Ln();
 
-            $pdf->SetFont('helvetica', '', 8);
+            //$pdf->SetLineStyle(array('width' => 0.2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));            $pdf->SetFont('helvetica', '', 8);
             $pdf->SetFillColor(30, 0, 0, 0);
             $pdf->SetTextColor(0);
-            $pdf->SetDrawColor(128, 0, 0);
+            //$pdf->SetDrawColor(128, 0, 0);
             $pdf->SetLineWidth(0.2);
             $pdf->Cell(180, 6, '', 0, 0, 'L', 0);
             $pdf->Ln();
@@ -477,6 +477,7 @@ class Class_pdf_ppm {
             $pdf->Cell(172, 6, ' Additional Report', 1, 0, 'L', 1);
             $pdf->Ln();
 
+            $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$this->ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2,3,4,5,6)'));
             $pdf->SetFont('helvetica', '', 9);
             $pdf->Cell(8, 10, '', 1, 0, 'C', 0);
             if ($ppmTask['ppm_task_is_additional_report'] === '1') {
@@ -541,7 +542,6 @@ class Class_pdf_ppm {
             $pdf->MultiCell(60, 18, "Verified By\n\n\n........................................................\nName : ".$verifyBy."\nDate : ".$this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_verified']), 1, 'L', 0, 0);
             $pdf->Ln();
 
-            $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$this->ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
             foreach ($ppmUploads as $ppmUpload) {
                 $uploadType = $ppmUpload['ppm_task_upload_type'];
                 $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$ppmUpload['upload_id']));
@@ -556,6 +556,71 @@ class Class_pdf_ppm {
                         $pdf->Image($fileDir, 140, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
                     }
                 }
+            }
+
+            $img_before = array();
+            $img_during = array();
+            $img_after = array();
+            foreach ($ppmUploads as $ppmUpload) {
+                $uploadType = $ppmUpload['ppm_task_upload_type'];
+                if ($uploadType === '0') {
+                    array_push($img_before, $ppmUpload);
+                } else if ($uploadType === '1') {
+                    array_push($img_during, $ppmUpload);
+                } else if ($uploadType === '2') {
+                    array_push($img_after, $ppmUpload);
+                }
+            }
+
+            if (!empty($img_before) || !empty($img_during) || !empty($img_after)) {
+                $pdf->AddPage();
+                $pdf->setPage($pdf->getPage());
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->writeHTML("<h1>Maintenance Image : Before</h1>", true, false, true, false, 'L');
+                $pdf->Ln();
+                if (!empty($img_before)){
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_before[0]['upload_id']));
+                    if (!empty($upload)) {
+                        $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
+                        $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                    }
+                }
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->Ln();
+
+                $pdf->writeHTML("<br/><h1>Maintenance Image : During</h1>", true, false, true, false, 'L');
+                $pdf->Ln();
+                if (!empty($img_during)){
+                    foreach ($img_during as $key => $img_display) {
+                        $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_during[$key]['upload_id']));
+                        if (!empty($upload)) {
+                            if ($key > 1) {
+                                $pdf->Ln();
+                                $pdf->writeHTML("<br/>", true, false, true, false, 'L');
+                            }
+                            $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
+                            if ($key % 2 === 0) {
+                                $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                            } else {
+                                $pdf->Image($fileDir, 110, '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                            }
+                        }
+                    }
+                }
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->Ln();
+
+                $pdf->writeHTML("<br/><h1>Maintenance Image : After</h1>", true, false, true, false, 'L');
+                $pdf->Ln();
+                if (!empty($img_after)){
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_after[0]['upload_id']));
+                    if (!empty($upload)) {
+                        $fileDir = $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
+                        $pdf->Image($fileDir, '', '', 85, '', 'JPG', '', '', true, 150, '', false, false, 1, false, false, false);
+                    }
+                }
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->Ln();
             }
 
             // close and output PDF document
