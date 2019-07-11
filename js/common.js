@@ -309,12 +309,14 @@ function MzValidate(name) {
                 fieldLblSelector.removeClass('active');
             }
             else if (u.type === 'select') {
+                fieldSelector.material_select('destroy');
                 fieldSelector.val(null);
+                fieldLblSelector.removeClass('active');
+                fieldSelector.material_select();
                 //$('.mdb-select').material_select('destroy');
                 //$('#' + fieldId).val(null).trigger( 'click');
                 //$('.mdb-select').material_select();
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
-                //fieldLblSelector.html('').removeClass('active');
             }
             else if (u.type === 'selectMultiple') {
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');

@@ -9,6 +9,14 @@ function ModalUser() {
     let refClient;
     let refSite;
     let formValidate;
+    let isFirst = false;
+
+    this.resetReportTo = function () {
+        const versionLocal = mzGetDataVersion();
+        const refUser = mzGetLocalArray('gems_user', versionLocal, 'userId');
+        mzOptionStop('optMusExecutorTo', refUser, 'Choose Reviewer', 'userId', 'userFullName', {roles: '#3'}, 'required');
+        mzOptionStop('optMusReviewerTo', refUser, 'Choose Verifier', 'userId', 'userFullName', {roles: '#4'}, 'required');
+    };
 
     this.init = function () {
         const vDataMus = [
@@ -100,6 +108,22 @@ function ModalUser() {
                 validator: {
                     notEmptyCheck: true
                 }
+            },
+            {
+                field_id: 'optMusExecutorTo',
+                type: 'select',
+                name: 'Executor Report to',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMusReviewerTo',
+                type: 'select',
+                name: 'Reviewer Report to',
+                validator: {
+                    notEmpty: true
+                }
             }
         ];
 
@@ -122,6 +146,8 @@ function ModalUser() {
             $('#optMusSiteId').val(null);
             $("input[name='chkMusRole[]']:checkbox").prop('checked',false);
             formValidate.validateForm();
+            formValidate.disableField('optMusExecutorTo');
+            formValidate.disableField('optMusReviewerTo');
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
                 $('#divMusClient, #divMusSite').hide();
@@ -135,6 +161,39 @@ function ModalUser() {
                 $('#divMusRole6').show();
                 formValidate.enableField('optMusClientId');
                 formValidate.enableField('optMusSiteId');
+                $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
+            }
+        });
+
+        $("input[name='chkMusRole[]']:checkbox").on('click', function () {
+            if ($(this).val() === '3') {
+                if ($(this).prop("checked")) {
+                    $('#divMusReviewer').show();
+                    formValidate.enableField('optMusReviewerTo');
+                    if (!$("input[name='chkMusRole[]'][value='5']:checkbox").prop("checked")) {
+                        $('#divMusReportGap').show();
+                    }
+                } else {
+                    $('#divMusReviewer').hide();
+                    formValidate.disableField('optMusReviewerTo');
+                    if (!$("input[name='chkMusRole[]'][value='5']:checkbox").prop("checked")) {
+                        $('#divMusReportGap').hide();
+                    }
+                }
+            } else if ($(this).val() === '5') {
+                if ($(this).prop("checked")) {
+                    $('#divMusExecutor').show();
+                    formValidate.enableField('optMusExecutorTo');
+                    if (!$("input[name='chkMusRole[]'][value='3']:checkbox").prop("checked")) {
+                        $('#divMusReportGap').show();
+                    }
+                } else {
+                    $('#divMusExecutor').hide();
+                    formValidate.disableField('optMusExecutorTo');
+                    if (!$("input[name='chkMusRole[]'][value='3']:checkbox").prop("checked")) {
+                        $('#divMusReportGap').hide();
+                    }
+                }
             }
         });
 
@@ -166,6 +225,8 @@ function ModalUser() {
                             designationId: $('#optMusDesignationId').val(),
                             userType: userType,
                             siteId: $('#optMusSiteId').val(),
+                            executorTo: $('#optMusExecutorTo').val(),
+                            reviewerTo: $('#optMusReviewerTo').val(),
                             roles: rolesStr
                         };
 
@@ -182,6 +243,8 @@ function ModalUser() {
                                 classFrom.genTableUser();
                             }
                         }
+                        self.resetReportTo();
+
                         $('#modal_user').modal('hide');
                     }
                 } catch (e) {
@@ -193,7 +256,7 @@ function ModalUser() {
     };
 
     this.defaultPageSetup = function () {
-        $('.divMusAddOnly, #divMusClient, #divMusSite, .divMusRoles').hide();
+        $('.divMusAddOnly, #divMusClient, #divMusSite, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
         $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', false);
     };
 
@@ -204,8 +267,13 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
+                if (!isFirst) {
+                    self.resetReportTo();
+                    isFirst = true;
+                }
                 mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
                 mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                mzOptionStopClear('optMusSiteId','Choose Site', 'required');
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
@@ -228,10 +296,15 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
+                if (!isFirst) {
+                    self.resetReportTo();
+                    isFirst = true;
+                }
                 mzCheckFuncParam([_userId, _rowRefresh]);
                 $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', true);
                 mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
                 mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                mzOptionStopClear('optMusSiteId','Choose Site', 'required');
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
@@ -244,6 +317,8 @@ function ModalUser() {
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
                 mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
+                formValidate.disableField('optMusExecutorTo');
+                formValidate.disableField('optMusReviewerTo');
 
                 if (groupId === '1') {
                     mzSetFieldValue('MusUserType', '1', 'check');
@@ -252,6 +327,25 @@ function ModalUser() {
                     $('#divMusRole6').hide();
                     formValidate.disableField('optMusClientId');
                     formValidate.disableField('optMusSiteId');
+                    if ($("input[name='chkMusRole[]'][value='3']:checkbox").prop("checked") || $("input[name='chkMusRole[]'][value='5']:checkbox").prop("checked")) {
+                        $('#divMusReportGap').show();
+                    }
+                    if ($("input[name='chkMusRole[]'][value='3']:checkbox").prop("checked")) {
+                        $('#divMusReviewer').show();
+                        formValidate.enableField('optMusReviewerTo');
+                        const reportTo = mzAjaxRequest('profile.php?type=user_report&userId='+userId+'&roleId=3&reportRole=4', 'GET');
+                        if (reportTo !== '') {
+                            mzSetFieldValue('MusReviewerTo', reportTo, 'select', 'Reviewer Report to *');
+                        }
+                    }
+                    if ($("input[name='chkMusRole[]'][value='5']:checkbox").prop("checked")) {
+                        $('#divMusExecutor').show();
+                        formValidate.enableField('optMusExecutorTo');
+                        const reportTo = mzAjaxRequest('profile.php?type=user_report&userId='+userId+'&roleId=5&reportRole=3', 'GET');
+                        if (reportTo !== '') {
+                            mzSetFieldValue('MusExecutorTo', reportTo, 'select', 'Executor Report to *');
+                        }
+                    }
                 }
                 else if (groupId === '2') {
                     toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);

@@ -85,6 +85,10 @@
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole2" value="2">
                             <label class="form-check-label" for="chkMusRole2">Facility Manager</label>
                         </div>
+                        <div class="form-check form-check-inline" id="divMusRole5">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole5" value="5">
+                            <label class="form-check-label" for="chkMusRole5">Executor</label>
+                        </div>
                         <div class="form-check form-check-inline" id="divMusRole3">
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole3" value="3">
                             <label class="form-check-label" for="chkMusRole3">Reviewer</label>
@@ -93,15 +97,29 @@
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole4" value="4">
                             <label class="form-check-label" for="chkMusRole4">Verifier</label>
                         </div>
-                        <div class="form-check form-check-inline" id="divMusRole5">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole5" value="5">
-                            <label class="form-check-label" for="chkMusRole5">Executor</label>
-                        </div>
                         <div class="form-check form-check-inline" id="divMusRole6">
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole6" value="6">
                             <label class="form-check-label" for="chkMusRole6">Client</label>
                         </div>
                         <p class="font-small text-danger mt-3" id="chkMusRoleErr"></p>
+                    </div>
+                    <div class="row" id="divMusReportGap">
+                        <div class="col-md-12 mt-3">
+                        </div>
+                    </div>
+                    <div class="row" id="divMusExecutor">
+                        <div class="col-md-12 select-outline">
+                            <select id="optMusExecutorTo" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMusExecutorTo" id="lblMusExecutorTo">Executor Report to *</label>
+                            <p class="font-small text-danger" id="optMusExecutorToErr"></p>
+                        </div>
+                    </div>
+                    <div class="row" id="divMusReviewer">
+                        <div class="col-md-12 select-outline">
+                            <select id="optMusReviewerTo" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMusReviewerTo" id="lblMusReviewerTo">Reviewer Report to *</label>
+                            <p class="font-small text-danger" id="optMusReviewerToErr"></p>
+                        </div>
                     </div>
                 </form>
             </div>

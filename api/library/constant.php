@@ -34,6 +34,7 @@ class Class_constant {
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';
     const ERR_USER_EXIST_CONTRACT = 'User already assign to contract. Please remove user from any contract first.';
+    const ERR_USER_EXIST_REPORT = 'User cannot be removed by the role because already assigned as supervisor for another user.';
     const ERR_DESIGNATION_SIMILAR = 'Designation already exist';
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';
     const ERR_DESIGNATION_ACTIVATE = 'Designation already active';

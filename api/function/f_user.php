@@ -249,6 +249,12 @@ class Class_user {
             if (!isset($put_vars['userType']) || empty($put_vars['userType'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userType empty');
             }
+            if (!isset($put_vars['executorTo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter executorTo not exist');
+            }
+            if (!isset($put_vars['reviewerTo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter reviewerTo not exist');
+            }
 
             $userEmail = $put_vars['userEmail'];
             $userFirstName = $put_vars['userFirstName'];
@@ -256,6 +262,8 @@ class Class_user {
             $designationId = $put_vars['designationId'];
             $rolesStr = $put_vars['roles'];
             $userType = $put_vars['userType'];
+            $executorTo = $put_vars['executorTo'];
+            $reviewerTo = $put_vars['reviewerTo'];
 
             if ($userType == '1') {
                 $roles = explode(',', $rolesStr);
@@ -265,11 +273,15 @@ class Class_user {
                     if ($key !== false) {
                         array_splice($roles, $key, 1);
                     } else {
-                        //if (Class_db::getInstance()->db_count('cli_contract_user', array('user_id'=>$userId, 'role_id'=>$dbRole)) > 0) {
-                        //    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_CONTRACT, 31);
-                        //}
+                        if ($dbRole == '5' && Class_db::getInstance()->db_count('cli_contract_user', array('user_id'=>$userId)) > 0) {
+                            throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_CONTRACT, 31);
+                        }
+                        if (($dbRole == '3' || $dbRole == '4') && Class_db::getInstance()->db_count('wfl_user_report', array('report_to'=>$userId, 'report_role'=>$dbRole)) > 0) {
+                            throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_REPORT, 31);
+                        }
                         Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
                         Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
+                        Class_db::getInstance()->db_delete('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$dbRole));
                     }
                 }
                 foreach ($roles as $role) {
@@ -280,6 +292,31 @@ class Class_user {
                         $groupId = $checkpoint['group_id'];
                         if ($groupId === '1' || is_null($groupId)) {
                             Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>'1'));
+                        }
+                    }
+                }
+                $roleReports = explode(',', $rolesStr);
+                foreach ($roleReports as $role) {
+                    if ($role == '3') {
+                        if (empty($reviewerTo)) {
+                            throw new Exception('[' . __LINE__ . '] - Parameter reviewerTo empty');
+                        }
+                        $userReportId = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_role'=>'4'), 'user_report_id');
+                        if (empty($userReportId)) {
+                            Class_db::getInstance()->db_insert('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_to'=>$reviewerTo, 'report_role'=>'4'));
+                        } else {
+                            Class_db::getInstance()->db_update('wfl_user_report', array('report_to'=>$reviewerTo), array('user_report_id'=>$userReportId));
+                        }
+                    }
+                    if ($role == '5') {
+                        if (empty($executorTo)) {
+                            throw new Exception('[' . __LINE__ . '] - Parameter executorTo empty');
+                        }
+                        $userReportId = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_role'=>'3'), 'user_report_id');
+                        if (empty($userReportId)) {
+                            Class_db::getInstance()->db_insert('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_to'=>$executorTo, 'report_role'=>'3'));
+                        } else {
+                            Class_db::getInstance()->db_update('wfl_user_report', array('report_to'=>$executorTo), array('user_report_id'=>$userReportId));
                         }
                     }
                 }
@@ -411,6 +448,12 @@ class Class_user {
             if (!array_key_exists('designationId', $userDetails) && empty($userDetails['designationId'])) {
                 throw new Exception('['.__LINE__.'] - Parameter designationId empty');
             }
+            if (!array_key_exists('executorTo', $userDetails)) {
+                throw new Exception('['.__LINE__.'] - Parameter executorTo not exist');
+            }
+            if (!array_key_exists('reviewerTo', $userDetails)) {
+                throw new Exception('['.__LINE__.'] - Parameter reviewerTo not exist');
+            }
 
             $userName = $userDetails['userName'];
             $userFirstName = $userDetails['userFirstName'];
@@ -420,12 +463,14 @@ class Class_user {
             $designationId = $userDetails['designationId'];
             $userType = $userDetails['userType'];
             $rolesStr = $userDetails['roles'];
+            $executorTo = $userDetails['executorTo'];
+            $reviewerTo = $userDetails['reviewerTo'];
             $groupId = '';
 
             if ($userType == '1') {
                 $groupId = '1';
             }
-            else if  ($userType == '2') {
+            else if ($userType == '2') {
                 if (!array_key_exists('siteId', $userDetails) && empty($userDetails['siteId'])) {
                     throw new Exception('['.__LINE__.'] - Parameter siteId empty');
                 }
@@ -455,6 +500,19 @@ class Class_user {
                     if ($groupId_ === $groupId || is_null($groupId_)) {
                         Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }
+                }
+
+                if ($role == '3') {
+                    if (empty($reviewerTo)) {
+                        throw new Exception('[' . __LINE__ . '] - Parameter reviewerTo empty');
+                    }
+                    Class_db::getInstance()->db_insert('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_to'=>$reviewerTo, 'report_role'=>'4'));
+                }
+                else if ($role == '5') {
+                    if (empty($executorTo)) {
+                        throw new Exception('[' . __LINE__ . '] - Parameter executorTo empty');
+                    }
+                    Class_db::getInstance()->db_insert('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$role, 'report_to'=>$executorTo, 'report_role'=>'3'));
                 }
             }
 
@@ -501,10 +559,39 @@ class Class_user {
 
     /**
      * @param $userId
+     * @param $roleId
+     * @param $reportRole
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_user_report ($userId, $roleId, $reportRole) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($roleId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
+            }
+            if (empty($reportRole)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter reportRole empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$roleId, 'report_role'=>$reportRole), 'report_to');
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
      * @return array
      * @throws Exception
      */
-    public function get_user($userId) {
+    public function get_user ($userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
