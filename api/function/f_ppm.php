@@ -1472,7 +1472,7 @@ class Class_ppm {
                     foreach ($ppmUploads as $ppmUpload) {
                         Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$ppmUpload['upload_id']));
                     }
-                    Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId));
+                    Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
                 }
             }
            /* if ($taskName !== '') {
