@@ -109,7 +109,7 @@ class MYPDF_checklist extends TCPDF {
             $this->SetFont('helvetica', '', 8);
             $this->SetFillColor(30, 0, 0, 0);
             $this->SetTextColor(0);
-            $this->SetDrawColor(128, 0, 0);
+            //$this->SetDrawColor(128, 0, 0);
             $this->SetLineWidth(0.2);
             $this->Cell(180, 6, '', 0, 0, 'L', 0);
             $this->Ln();
@@ -406,8 +406,8 @@ class MYPDF_checklist extends TCPDF {
         $this->SetFont('helvetica', 'I', 9);
         $this->Line(PDF_MARGIN_LEFT, $this->y, $this->w - PDF_MARGIN_RIGHT, $this->y);
         $pageNo = 'Page '.strval($this->getAliasNumPage()).' of '.$this->getAliasNbPages();
-        $this->Cell(65, 6, 'Document No : '.$this->checklistDocumentNo, 0, 0, 'L', 0);
-        $this->Cell(70, 6, 'Issue No : '.$this->checklistIssueNo, 0, 0, 'L', 0);
+        $this->Cell(85, 6, 'Document No : '.$this->checklistDocumentNo, 0, 0, 'L', 0);
+        $this->Cell(50, 6, 'Issue No : '.$this->checklistIssueNo, 0, 0, 'L', 0);
         $this->Cell(55, 6, $pageNo, 0, 0, 'R', 0);
     }
 }
