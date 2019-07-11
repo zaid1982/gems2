@@ -324,6 +324,7 @@ class Class_user {
                     Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$sys_user['upload_id']));
                 }
 
+                Class_db::getInstance()->db_update('sys_user', array('upload_id'=>$uploadId), array('user_id'=>$userId));
                 $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$uploadId), null, 1);
                 $docUrl = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
                 return $docUrl;
