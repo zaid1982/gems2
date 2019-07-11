@@ -531,7 +531,8 @@ class Class_ppm {
                 $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
+                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
+                    'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\')';
             }
 
             $result = array();
@@ -576,7 +577,8 @@ class Class_ppm {
                 $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\')';
+                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
+                    'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\')';
             }
 
             $result = array();
@@ -1018,7 +1020,6 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
-
 
     /**
      * @param $ppmTaskId
