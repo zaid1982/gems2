@@ -314,7 +314,7 @@ class Class_user {
 
             $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
             if (!empty($name)) {
-                Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name, 'upload_id'=>$uploadId), array('user_id'=>$userId));
+                Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$name), array('user_id'=>$userId));
             }
             if (!empty($phoneNo)) {
                 Class_db::getInstance()->db_update('sys_user_profile', array('user_contact_no'=>$phoneNo), array('user_id'=>$userId, 'user_profile_status'=>'1'));
