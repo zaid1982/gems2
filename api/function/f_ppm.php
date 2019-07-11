@@ -1466,6 +1466,15 @@ class Class_ppm {
             }
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusUpdate), array('transaction_id'=>$transactionId));
 
+            if ($statusUpdate === '21') {
+                $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
+                if (!empty($ppmUploads)) {
+                    foreach ($ppmUploads as $ppmUpload) {
+                        Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$ppmUpload['upload_id']));
+                    }
+                    Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId));
+                }
+            }
            /* if ($taskName !== '') {
                 $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
                 $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), null, 1);

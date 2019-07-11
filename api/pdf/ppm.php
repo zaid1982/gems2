@@ -37,8 +37,8 @@ class MYPDF_ppm extends TCPDF {
         $this->SetFont('helvetica', 'I', 9);
         $this->Line(PDF_MARGIN_LEFT, $this->y, $this->w - PDF_MARGIN_RIGHT, $this->y);
         $pageNo = 'Page '.strval($this->getAliasNumPage()).' of '.$this->getAliasNbPages();
-        $this->Cell(65, 6, 'Document No : '.$this->ppmDocumentNo, 0, 0, 'L', 0);
-        $this->Cell(70, 6, 'Issue No : '.$this->ppmIssueNo, 0, 0, 'L', 0);
+        $this->Cell(85, 6, 'Document No : '.$this->ppmDocumentNo, 0, 0, 'L', 0);
+        $this->Cell(50, 6, 'Issue No : '.$this->ppmIssueNo, 0, 0, 'L', 0);
         $this->Cell(55, 6, $pageNo, 0, 0, 'R', 0);
     }
 }
@@ -542,18 +542,24 @@ class Class_pdf_ppm {
             $pdf->MultiCell(60, 18, "Verified By\n\n\n........................................................\nName : ".$verifyBy."\nDate : ".$this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_verified']), 1, 'L', 0, 0);
             $pdf->Ln();
 
+            $signService = false;
+            $signChecked = false;
+            $signVerified = false;
             foreach ($ppmUploads as $ppmUpload) {
                 $uploadType = $ppmUpload['ppm_task_upload_type'];
-                $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$ppmUpload['upload_id']));
+                $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$ppmUpload['upload_id'], 'upload_status'=>'1'), 'upload_time_upload DESC');
                 if (!empty($upload) && $upload['upload_extension'] === 'png') {
                     $fileDir = $upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
                     $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sign : '.$fileDir);
-                    if ($uploadType === '4') {
+                    if ($uploadType === '4' && $signService === false) {
                         $pdf->Image($fileDir, 20, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
-                    } else if ($uploadType === '5') {
+                        $signService = true;
+                    } else if ($uploadType === '5' && $signChecked === false) {
                         $pdf->Image($fileDir, 80, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
-                    } else if ($uploadType === '6') {
+                        $signChecked = true;
+                    } else if ($uploadType === '6' && $signVerified === false) {
                         $pdf->Image($fileDir, 140, $pdf->GetY()-24, 40, 20, 'PNG', '', '', false, 300);
+                        $signVerified = true;
                     }
                 }
             }
