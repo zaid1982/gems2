@@ -239,8 +239,6 @@ class Class_login {
             if ($profile['user_fail_attempt'] >= '3') {
                 if (!empty($profile['minute_block']) && $profile['minute_block'] <= '10') {
                     throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_LOGIN_BLOCK, 31);
-                } else {
-                    Class_db::getInstance()->db_update('sys_user', array('user_fail_attempt'=>'0', 'user_time_block'=>''), array('user_id'=>$userId));
                 }
             }
 
@@ -269,10 +267,9 @@ class Class_login {
             } else {
                 $result['imgUrl'] = '';
             }
-
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
 
-            $arrUpdate = array('user_time_login'=>'Now()');
+            $arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'');
             if ($deviceId !== '') {
                 $arrUpdate['user_device_id'] = $deviceId;
             }
