@@ -1474,6 +1474,7 @@ class Class_ppm {
                     }
                     Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
                 }
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>'', 'ppm_task_checked_by'=>'', 'ppm_task_verified_by'=>'', 'ppm_task_time_serviced'=>'', 'ppm_task_time_checked'=>'', 'ppm_task_time_verified'=>''), array('ppm_task_id'=>$ppmTaskId));
             }
            /* if ($taskName !== '') {
                 $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), null, 1);
