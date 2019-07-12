@@ -218,6 +218,7 @@ class Class_login {
                 throw new Exception('[' . __LINE__ . '] - Parameter password empty');
             }
 
+            // ^(?=.*\d)(?=.*[A-Za-z])[0-9A-Za-z!@#$%]{8,12}$
             $profile = Class_db::getInstance()->db_select_single('vw_profile', array('user_name'=>$username));
             $userId = $profile['user_id'];
             if (empty($profile)) {
