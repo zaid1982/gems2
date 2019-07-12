@@ -107,6 +107,7 @@ class Class_constant {
     const ERR_CONTRACT_USER_SIMILAR = 'This technician already exist in this Location Code and Asset Group';
 
     const SUC_SAVE = 'Successfully saved!';
+    const SUC_SUBMITTED = 'Successfully submitted!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
     const SUC_DELETE = 'Successfully removed!';
     const SUC_USER_ADD = 'User successfully added';
