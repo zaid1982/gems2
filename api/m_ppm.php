@@ -233,7 +233,7 @@ try {
                 throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
             }
             $fn_general->save_audit('100', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', $checkpoint = ' . $checkpoint . ', result = ' . $result);
-            $form_data['errmsg'] = $constant::SUC_SAVE;
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }

@@ -319,12 +319,19 @@ class Class_task {
             $arrInsertTask = array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId, 'task_created_user' => $userId, 'task_created_group' => $groupId,
                 'task_date_due' => $nextpointDueDay, 'task_status_previous' => $status, 'task_status' => '8');
             if ($nextpointClaimType == '3') {
-                $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id'=>$nextPointId, 'role_id'=>$nextRoleId));
-                if (empty($taskAssign) || empty($taskAssign['group_id']) || empty($taskAssign['user_id'])) {
+                $arrInsertTask['task_claimed_user'] = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id' => $userId, 'role_id' => $checkpoint['role_id'], 'report_role' => $nextRoleId), 'report_to');
+                if (!empty($arrInsertTask['task_claimed_user'])) {
                     $arrInsertTask['group_id'] = $nextGroupId;
                 } else {
-                    $arrInsertTask['group_id'] = $taskAssign['group_id'];
-                    $arrInsertTask['task_claimed_user'] = $taskAssign['user_id'];
+                    $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId));
+                    if (empty($taskAssign)) {
+
+                    } else if (empty($taskAssign['group_id']) || empty($taskAssign['user_id'])) {
+                        $arrInsertTask['group_id'] = $nextGroupId;
+                    } else {
+                        $arrInsertTask['group_id'] = $taskAssign['group_id'];
+                        $arrInsertTask['task_claimed_user'] = $taskAssign['user_id'];
+                    }
                 }
             } else if ($nextpointClaimType == '4') {
                 $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id'=>$nextPointId, 'role_id'=>$nextRoleId));
