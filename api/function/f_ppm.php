@@ -450,15 +450,15 @@ class Class_ppm {
                 foreach ($checklistQuals as $checklistQual) {
                     $qualResult = '';
                     $qualFrequency = $checklistQual['frequency_id'];
-                    if ($qualFrequency === '1' && in_array($dateStr, $yearlyDates)) {
+                    if ($qualFrequency === '1' && !in_array($dateStr, $yearlyDates)) {
                         $qualResult = '2';
-                    } else if ($qualFrequency === '2' && in_array($dateStr, $quarterlyDates)) {
+                    } else if ($qualFrequency === '2' && !in_array($dateStr, $quarterlyDates)) {
                         $qualResult = '2';
-                    } else if ($qualFrequency === '3' && in_array($dateStr, $monthlyDates)) {
+                    } else if ($qualFrequency === '3' && !in_array($dateStr, $monthlyDates)) {
                         $qualResult = '2';
-                    } else if ($qualFrequency === '4' && in_array($dateStr, $weeklyDates)) {
+                    } else if ($qualFrequency === '4' && !in_array($dateStr, $weeklyDates)) {
                         $qualResult = '2';
-                    } else if ($qualFrequency === '5' && in_array($dateStr, $dailyDates)) {
+                    } else if ($qualFrequency === '5' && !in_array($dateStr, $dailyDates)) {
                         $qualResult = '2';
                     }
                     Class_db::getInstance()->db_insert('ppm_task_qual', array('ppm_task_qual_numb'=>$checklistQual['checklist_qual_numb'], 'ppm_task_qual_desc'=>$checklistQual['checklist_qual_desc'], 'frequency_id'=>$qualFrequency,
@@ -468,15 +468,15 @@ class Class_ppm {
                 foreach ($checklistQuans as $checklistQuan) {
                     $quanResult = '';
                     $quanFrequency = $this->fn_general->clear_null($checklistQuan['frequency_id']);
-                    if ($quanFrequency === '1' && in_array($dateStr, $yearlyDates)) {
+                    if ($quanFrequency === '1' && !in_array($dateStr, $yearlyDates)) {
                         $quanResult = '2';
-                    } else if ($quanFrequency === '2' && in_array($dateStr, $quarterlyDates)) {
+                    } else if ($quanFrequency === '2' && !in_array($dateStr, $quarterlyDates)) {
                         $quanResult = '2';
-                    } else if ($quanFrequency === '3' && in_array($dateStr, $monthlyDates)) {
+                    } else if ($quanFrequency === '3' && !in_array($dateStr, $monthlyDates)) {
                         $quanResult = '2';
-                    } else if ($quanFrequency === '4' && in_array($dateStr, $weeklyDates)) {
+                    } else if ($quanFrequency === '4' && !in_array($dateStr, $weeklyDates)) {
                         $quanResult = '2';
-                    } else if ($quanFrequency === '5' && in_array($dateStr, $dailyDates)) {
+                    } else if ($quanFrequency === '5' && !in_array($dateStr, $dailyDates)) {
                         $quanResult = '2';
                     }
                     Class_db::getInstance()->db_insert('ppm_task_quan', array('ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'], 'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'frequency_id'=>$quanFrequency,
