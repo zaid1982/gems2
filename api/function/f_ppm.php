@@ -1457,6 +1457,7 @@ class Class_ppm {
                 $taskName = 're-open';
             } else if ($checkpoint === '3' && $result === '1') {
                 $statusUpdate = '16';
+                $taskName = 'completed';
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by'=>$userId, 'ppm_task_time_verified'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '3' && $result === '2') {
                 $statusUpdate = '21';
@@ -1503,6 +1504,16 @@ class Class_ppm {
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
                 $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Re-open PPM Task', $content);
+            }
+            else if ($taskName === 'completed') {
+                $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+                $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$ppmTask['ppm_task_assigned_to']), null, 1);
+                $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$ppmTask['ppm_task_assigned_to'], 'user_profile_status'=>'1'), null, 1);
+                $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
+                    <p>A PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].' has been verified and completed.</p>
+                    <br /><br />
+                    <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
+                $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Closed PPM Task', $content);
             }
 
             return $task['task_id'];
