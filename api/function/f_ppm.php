@@ -1417,7 +1417,7 @@ class Class_ppm {
      * @return mixed
      * @throws Exception
      */
-    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId) {
+    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1504,7 +1504,7 @@ class Class_ppm {
                 $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
                 $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
                     <p>A PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].' was returned to you for further action.</p>
-                    <p>Comment : '.$task['task_remark'].'</p>
+                    <p>Comment : '.$remark.'</p>
                     <p>Please open the mobile apps and proceed with the task.</p>
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';

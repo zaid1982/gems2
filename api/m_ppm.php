@@ -224,7 +224,7 @@ try {
                 $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
             }
-            $taskId = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId);
+            $taskId = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark);
             if ($result == '1') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark);
             } else if ($result == '2') {
