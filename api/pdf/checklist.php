@@ -298,6 +298,11 @@ class MYPDF_checklist extends TCPDF {
                     if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
                     $this->SetXY($startX,$startY);
                     $this->TaskQuanSetHeight($maxnocells);
+
+                    if ($this->GetY() > 272) {
+                        $this->AddPage();
+                        $this->setPage($this->getPage());
+                    }
                 }
             } else {
                 for ($i = 0; $i<3; $i++) {

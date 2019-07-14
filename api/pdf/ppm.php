@@ -424,6 +424,11 @@ class Class_pdf_ppm {
                     if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
                     $pdf->SetXY($startX,$startY);
                     $this->TaskQuanSetHeight($pdf, $maxnocells);
+
+                    if ($pdf->GetY() > 272) {
+                        $pdf->AddPage();
+                        $pdf->setPage($pdf->getPage());
+                    }
                 }
             } else {
                 for ($i = 0; $i<3; $i++) {
