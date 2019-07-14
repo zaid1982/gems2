@@ -111,8 +111,8 @@ function ModalPpm() {
                 mzSetFieldValue('MpmAssetGroupName', refAssetGroup[assetGroupId]['assetGroupName'], 'text');
                 mzSetFieldValue('MpmAssetCategoryName', refAssetCategory[assetCategoryId]['assetCategoryName'], 'text');
                 mzSetFieldValue('MpmAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
-                mzSetFieldValue('MpmAssetBrandName', refAssetBrand[assetBrandId]['assetBrandName'], 'text');
-                mzSetFieldValue('MpmAssetModelName', refAssetModel[assetModelId]['assetModelName'], 'text');
+                mzSetFieldValue('MpmAssetBrandName',  assetBrandId != '' ? refAssetBrand[assetBrandId]['assetBrandName'] : '', 'text');
+                mzSetFieldValue('MpmAssetModelName', assetModelId != '' ? refAssetModel[assetModelId]['assetModelName'] : '', 'text');
                 mzSetFieldValue('MpmAssetCapacity', rowData['assetCapacity'], 'text');
                 mzSetFieldValue('MpmLocationCodeName', rowData['locationCodeName'], 'text');
                 mzDateSetMin('txtMpmPpmDateCycle', contractDateStart);
