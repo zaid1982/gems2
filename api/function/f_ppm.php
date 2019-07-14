@@ -1497,6 +1497,7 @@ class Class_ppm {
                 $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - PPM Task Received', $content);
             }
             else if ($taskName === 're-open') {
+                $comment = !empty($remark) ? $remark : $task['task_remark'];
                 //$taskPrevious = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'2'), 'task_id DESC', 1);
                 $receiver = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'role_id'=>'5', 'checkpoint_id'=>'1'), 'user_id', null, 1);
                 $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$receiver), null, 1);
@@ -1504,7 +1505,7 @@ class Class_ppm {
                 $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
                 $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
                     <p>A PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].' was returned to you for further action.</p>
-                    <p>Comment : '.$remark.'</p>
+                    <p>Comment : '.$comment.'</p>
                     <p>Please open the mobile apps and proceed with the task.</p>
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
