@@ -16,7 +16,7 @@ function MainAsset() {
     let contractId;
 
     this.init = function () {
-        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
+        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractName', {}, 'required');
         mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {
@@ -234,11 +234,16 @@ function MainAsset() {
 
         $('#optAszContractId').on('change', function () {
             $('#optAszGroupId').val(null);
-            mzOption('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
-            mzOption('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            mzOptionStopClear('optAszGroupId', 'All Asset Group');
+            mzOptionStopClear('optAszCategoryId', 'All Asset Category');
+            mzOptionStopClear('optAszTypeId', 'All Asset Type');
             oTableAsset.column(14).search('', false, true, false).draw();
             oTableAsset.column(15).search('', false, true, false).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
+            contractId = $(this).val();
+            self.genTableAsz();
+            self.displayStats();
+            self.displayChart();
         });
 
         $('#btnAszAssetAdd').on('click', function () {
@@ -265,7 +270,7 @@ function MainAsset() {
     };
 
     this.genTableAsz = function () {
-        const dataAsset = mzAjaxRequest('asset.php', 'GET');
+        const dataAsset = mzAjaxRequest('asset.php?contractId='+contractId, 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
     };
 

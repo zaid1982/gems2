@@ -29,10 +29,13 @@ try {
 
     if ('GET' === $request_method) {
         $assetId = filter_input(INPUT_GET, 'assetId');
+        $contractId = filter_input(INPUT_GET, 'contractId');
         if (!is_null($assetId)) {
             $result = $fn_asset->get_asset($assetId);
+        } else if (!is_null($contractId)) {
+            $result = $fn_asset->get_asset_list($contractId);
         } else {
-            $result = $fn_asset->get_asset_list();
+            throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

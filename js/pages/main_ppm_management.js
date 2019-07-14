@@ -23,7 +23,7 @@ function MainPpmManagement() {
     this.init = function () {
         $('#divPmgScheduled').hide();
 
-        mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractDesc', {}, 'required');
+        mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractName', {}, 'required');
         mzOption('optPmgGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {
@@ -283,6 +283,9 @@ function MainPpmManagement() {
             oTableAsset.column(14).search('', false, true, false).draw();
             oTableAsset.column(15).search('', false, true, false).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
+            contractId = $(this).val();
+            self.genTablePmg();
+            self.displayStatsChart();
         });
 
         $('#btnPmgAssetSet').on('click', function () {
@@ -433,7 +436,7 @@ function MainPpmManagement() {
     };
 
     this.genTablePmg = function () {
-        const dataAsset = mzAjaxRequest('ppm.php?type=checklist_by_type', 'GET');
+        const dataAsset = mzAjaxRequest('ppm.php?type=checklist_by_type&contractId='+contractId, 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
     };
 

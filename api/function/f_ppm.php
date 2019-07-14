@@ -218,15 +218,20 @@ class Class_ppm {
     }
 
     /**
+     * @param $contractId
      * @return array
      * @throws Exception
      */
-    public function get_ppm_from_asset_list () {
+    public function get_ppm_from_asset_list ($contractId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
+            }
+
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_asset', array('asset_status'=>'1'));
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_asset', array('ast_asset.contract_id'=>$contractId, 'asset_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);

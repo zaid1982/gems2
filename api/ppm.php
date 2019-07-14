@@ -39,7 +39,8 @@ try {
         $type = filter_input(INPUT_GET, 'type');
         if (!is_null($type)) {
             if ($type === 'checklist_by_type') {
-                $result = $fn_ppm->get_ppm_from_asset_list();
+                $contractId = filter_input(INPUT_GET, 'contractId');
+                $result = $fn_ppm->get_ppm_from_asset_list($contractId);
             } else if ($type === 'scheduled_ppm') {
                 $result = $fn_ppm->get_ppm_scheduled_list($ppmId);
             }

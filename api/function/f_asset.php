@@ -74,15 +74,20 @@ class Class_asset {
     }
 
     /**
+     * @param $contractId
      * @return array
      * @throws Exception
      */
-    public function get_asset_list () {
+    public function get_asset_list ($contractId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
+            }
+
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset');
+            $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset', array('contract_id'=>$contractId));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
