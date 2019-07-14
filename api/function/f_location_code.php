@@ -82,14 +82,16 @@ class Class_locationCode {
             if (empty($contractId)) {
                 $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array());
             } else {
-                $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array('contract_id'=>$contractId));
+                $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+                $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array('site_id'=>$siteId));
             }
 
             $result = array();
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['locationCodeId'] = $dataLocal['location_code_id'];
                 $row_result['locationCodeName'] = $dataLocal['location_code_name'];
-                $row_result['contractId'] = $dataLocal['contract_id'];
+                $row_result['locationCodeDesc'] = $dataLocal['location_code_desc'];
+                $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['locationCodeStatus'] = $dataLocal['location_code_status'];
                 array_push($result, $row_result);
             }
@@ -119,7 +121,8 @@ class Class_locationCode {
             $dataLocal = Class_db::getInstance()->db_select_single('cli_location_code', array('location_code_id'=>$locationCodeId));
             $result['locationCodeId'] = $dataLocal['location_code_id'];
             $result['locationCodeName'] = $dataLocal['location_code_name'];
-            $result['contractId'] = $dataLocal['contract_id'];
+            $result['locationCodeDesc'] = $dataLocal['location_code_desc'];
+            $result['siteId'] = $dataLocal['site_id'];
             $result['locationCodeStatus'] = $dataLocal['location_code_status'];
 
             return $result;
@@ -157,11 +160,12 @@ class Class_locationCode {
             $contractId = $params['contractId'];
             $locationCodeStatus = $params['locationCodeStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId)) > 0) {
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_name'=>$locationCodeName, 'site_id'=>$siteId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_SIMILAR, 31);
             }
 
-            return Class_db::getInstance()->db_insert('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId, 'location_code_status'=>$locationCodeStatus));
+            return Class_db::getInstance()->db_insert('cli_location_code', array('location_code_name'=>$locationCodeName, 'site_id'=>$siteId, 'location_code_status'=>$locationCodeStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -200,11 +204,12 @@ class Class_locationCode {
             $contractId = $put_vars['contractId'];
             $locationCodeStatus = $put_vars['locationCodeStatus'];
 
-            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId, 'location_code_id'=>'<>'.$locationCodeId)) > 0) {
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+            if (Class_db::getInstance()->db_count('cli_location_code', array('location_code_name'=>$locationCodeName, 'site_id'=>$siteId, 'location_code_id'=>'<>'.$locationCodeId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_LOCATION_CODE_SIMILAR, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_location_code', array('location_code_name'=>$locationCodeName, 'contract_id'=>$contractId, 'location_code_status'=>$locationCodeStatus), array('location_code_id'=>$locationCodeId));
+            Class_db::getInstance()->db_update('cli_location_code', array('location_code_name'=>$locationCodeName, 'site_id'=>$siteId, 'location_code_status'=>$locationCodeStatus), array('location_code_id'=>$locationCodeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

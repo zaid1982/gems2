@@ -113,12 +113,13 @@ function ModalContractUser() {
                 contractId = _contractId;
                 locationCodeId = '';
 
-                const versionLocal = mzGetDataVersion();
-                const refLocationCode = mzGetLocalArray('gems_locationCode', versionLocal, 'locationCodeId', {contractId: contractId}, 'location_code');
-                mzOptionStop('optMcuLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', [], 'required');
-
                 const siteId = refContract[contractId]['siteId'];
                 const clientId = refSite[siteId]['clientId'];
+
+                const versionLocal = mzGetDataVersion();
+                const refLocationCode = mzGetLocalArray('gems_locationCode', versionLocal, 'locationCodeId', {siteId: siteId}, 'location_code');
+                mzOptionStop('optMcuLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', [], 'required');
+
 
                 mzSetFieldValue('McuClientName', refClient[clientId]['clientName'], 'text');
                 mzSetFieldValue('McuSiteName', refSite[siteId]['siteName'], 'text');
