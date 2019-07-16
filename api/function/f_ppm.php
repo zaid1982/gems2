@@ -196,6 +196,33 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
+    private function get_dates_halfAnnual ($startDate, $endDate) {
+        try {
+            $newDates = array();
+            $begin = new DateTime( $startDate );
+            $begin = $begin->modify( '+6 month' );
+            //$begin = $begin->modify( '-1 day' );
+            $end = new DateTime( $endDate );
+            $end = $end->modify( '+2 day' );
+            $interval = new DateInterval('P6M');
+            $dateRange = new DatePeriod($begin, $interval ,$end);
+            foreach($dateRange as $date){
+                $xx = $date->modify( '-1 day' );
+                array_push($newDates, $xx->format("Y-m-d"));
+            }
+            return $newDates;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     * @throws Exception
+     */
     private function get_dates_year ($startDate, $endDate) {
         try {
             $newDates = array();
@@ -347,6 +374,7 @@ class Class_ppm {
             }
 
             $isYearly = false;
+            $isHalfAnnaully = false;
             $isQuarterly = false;
             $isMonthly = false;
             $isWeekly = false;
@@ -370,6 +398,9 @@ class Class_ppm {
                     case '5';
                         $isDaily = true;
                         break;
+                    case '6';
+                        $isHalfAnnaully = true;
+                        break;
                 }
             }
 
@@ -391,6 +422,9 @@ class Class_ppm {
                     case '5';
                         $isDaily = true;
                         break;
+                    case '6';
+                        $isHalfAnnaully = true;
+                        break;
                 }
             }
 
@@ -398,6 +432,7 @@ class Class_ppm {
             $weeklyDates = $this->get_dates_week($ppmDateCycle, $contractDateEnd);
             $monthlyDates = $this->get_dates_month($ppmDateCycle, $contractDateEnd);
             $quarterlyDates = $this->get_dates_quarter($ppmDateCycle, $contractDateEnd);
+            $halfAnnuallyDates = $this->get_dates_halfAnnual($ppmDateCycle, $contractDateEnd);
             $yearlyDates = $this->get_dates_year($ppmDateCycle, $contractDateEnd);
 
             $tempDays = array();
@@ -412,6 +447,9 @@ class Class_ppm {
                     array_push($tempDays, $dateStr);
                 }
                 if ($isQuarterly && in_array($dateStr, $quarterlyDates) && !in_array($dateStr, $tempDays)) {
+                    array_push($tempDays, $dateStr);
+                }
+                if ($isHalfAnnaully && in_array($dateStr, $halfAnnuallyDates) && !in_array($dateStr, $tempDays)) {
                     array_push($tempDays, $dateStr);
                 }
                 if ($isYearly && in_array($dateStr, $yearlyDates) && !in_array($dateStr, $tempDays)) {
@@ -465,6 +503,8 @@ class Class_ppm {
                         $qualResult = '2';
                     } else if ($qualFrequency === '5' && !in_array($dateStr, $dailyDates)) {
                         $qualResult = '2';
+                    } else if ($qualFrequency === '6' && !in_array($dateStr, $halfAnnuallyDates)) {
+                        $qualResult = '2';
                     }
                     Class_db::getInstance()->db_insert('ppm_task_qual', array('ppm_task_qual_numb'=>$checklistQual['checklist_qual_numb'], 'ppm_task_qual_desc'=>$checklistQual['checklist_qual_desc'], 'frequency_id'=>$qualFrequency,
                         'ppm_task_qual_result'=>$qualResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_qual_id'=>$checklistQual['checklist_qual_id']));
@@ -482,6 +522,8 @@ class Class_ppm {
                     } else if ($quanFrequency === '4' && !in_array($dateStr, $weeklyDates)) {
                         $quanResult = '2';
                     } else if ($quanFrequency === '5' && !in_array($dateStr, $dailyDates)) {
+                        $quanResult = '2';
+                    } else if ($quanFrequency === '6' && !in_array($dateStr, $halfAnnuallyDates)) {
                         $quanResult = '2';
                     }
                     Class_db::getInstance()->db_insert('ppm_task_quan', array('ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'], 'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'frequency_id'=>$quanFrequency,
@@ -501,6 +543,9 @@ class Class_ppm {
                 }
                 if ($isDaily && in_array($dateStr, $dailyDates)) {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
+                }
+                if ($isHalfAnnaully && in_array($dateStr, $halfAnnuallyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'6'));
                 }
 
                 Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8'), array('transaction_id'=>$transactionId));
