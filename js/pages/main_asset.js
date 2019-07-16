@@ -219,8 +219,8 @@ function MainAsset() {
 
         oTableAsset.column(1).visible(false);
         oTableAsset.column(3).visible(false);
-        oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
+        oTableAsset.column(10).visible(false);
 
         $('#optAszColumns').on('change', function () {
             for (let i=1; i<=10; i++) {

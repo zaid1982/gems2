@@ -326,11 +326,11 @@ class Class_asset {
             if (!isset($put_vars['assetTypeId']) && empty($put_vars['assetTypeId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
             }
-            if (!isset($put_vars['assetBrandId']) && empty($put_vars['assetBrandId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');
+            if (!isset($put_vars['assetBrandId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId not exist');
             }
-            if (!isset($put_vars['assetModelId']) && empty($put_vars['assetModelId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
+            if (!isset($put_vars['assetModelId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
             }
             if (!isset($put_vars['locationCodeId']) && empty($put_vars['locationCodeId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
@@ -405,6 +405,12 @@ class Class_asset {
             if (!isset($put_vars['assetDesc'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
             }
+            if (!isset($put_vars['assetBrandId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId not exist');
+            }
+            if (!isset($put_vars['assetModelId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
+            }
             if (!isset($put_vars['locationCodeId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId not exist');
             }
@@ -417,6 +423,8 @@ class Class_asset {
                 'asset_name'=>$put_vars['assetName'],
                 'asset_serial_no'=>$assetSerialNo,
                 'asset_desc'=>$put_vars['assetDesc'],
+                'asset_brand_id'=>$put_vars['assetBrandId'],
+                'asset_model_id'=>$put_vars['assetModelId'],
                 'location_code_id'=>$put_vars['locationCodeId'],
                 'asset_capacity'=>$put_vars['assetCapacity']
             );

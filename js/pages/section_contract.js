@@ -44,7 +44,7 @@ function SectionContract() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
-                        modalLocationCodeClass.edit(currentRow['locationCodeId'], currentRow['contractId'], rowId);
+                        modalLocationCodeClass.edit(currentRow['locationCodeId'], contractId, rowId);
                     }
                 });
                 $('.lnkSctLocationCodeDeactivate').off('click').on('click', function () {
