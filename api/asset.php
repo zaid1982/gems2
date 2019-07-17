@@ -29,8 +29,14 @@ try {
 
     if ('GET' === $request_method) {
         $assetId = filter_input(INPUT_GET, 'assetId');
+        $type = filter_input(INPUT_GET, 'type');
         $contractId = filter_input(INPUT_GET, 'contractId');
-        if (!is_null($assetId)) {
+        if (!is_null($type)) {
+            if ($type === 'total_asset') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $result = $fn_asset->get_total_asset($contractId);
+            }
+        } else if (!is_null($assetId)) {
             $result = $fn_asset->get_asset($assetId);
         } else if (!is_null($contractId)) {
             $result = $fn_asset->get_asset_list($contractId);

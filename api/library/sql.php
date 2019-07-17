@@ -334,6 +334,8 @@ class Class_sql
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id";
+            } else if ($title === 'vw_count_asset') {
+                $sql = "SELECT count(*) AS total FROM ast_asset";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
