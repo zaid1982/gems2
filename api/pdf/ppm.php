@@ -261,13 +261,13 @@ class Class_pdf_ppm {
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Task No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppm['ppm_task_no'], 1, 0, 'L');
-            $pdf->Cell(30, 5, 'PM Start Date : ', 1, 0, 'R');
+            $pdf->Cell(30, 5, 'PM Start Date/Time : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_start']), 1, 0, 'L');
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Work Order No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppmTask['ppm_task_no'], 1, 0, 'L');
-            $pdf->Cell(30, 5, '', 1, 0, 'R');
-            $pdf->Cell(60, 5, '', 1, 0, 'L');
+            $pdf->Cell(30, 5, 'PM End Date/Time : ', 1, 0, 'R');
+            $pdf->Cell(60, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_serviced']), 1, 0, 'L');
             $pdf->Ln();
 
             $pdf->SetFont('helvetica', '', 11);
