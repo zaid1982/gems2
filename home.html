@@ -37,8 +37,29 @@
 <main>
     <div class="container-fluid">
         <!--Section: Notification panel-->
-        <section class="mt-4 mb-4 sectionHmeMain">
-            <div class="row">
+        <section class="mt-2 mb-4 sectionHmeMain">
+            <!--Navbar-->
+            <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3">
+                <div class="collapse navbar-collapse" id="basicExampleNav">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown mr-2 active">
+                            <a class="nav-link dropdown-toggle" id="navHmeClient" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">Client</a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeClient" id="divHmeClient">
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown active">
+                            <a class="nav-link dropdown-toggle" id="navHmeMonth" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">Month</a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeMonth" id="divHmeMonth">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <a class="navbar-brand" href="#"><i>Bank Negara, August 2019</i></a>
+            </nav>
+            <!--/.Navbar-->
+            <div class="row mt-4_5">
                 <!-- Intro Card: Jumlah Seminar -->
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card card-cascade cascading-admin-card">
@@ -49,8 +70,8 @@
                                 <h4 class="font-weight-bold dark-grey-text" id="lblHmeTotalAsset">0</h4>
                             </div>
                         </div>
-                        <div class="card-body card-body-cascade mb-4">
-                            <p class="card-text">Total active asset</p>
+                        <div class="card-body card-body-cascade">
+                            <p class="card-text">Total active asset<br/><strong>Current</strong></p>
                         </div>
                     </div>
                 </div>
@@ -64,8 +85,8 @@
                                 <h4 class="font-weight-bold dark-grey-text" id="lblHmeTotalPpm">2,213</h4>
                             </div>
                         </div>
-                        <div class="card-body card-body-cascade mb-4">
-                            <p class="card-text">Total PPM for August 2018</p>
+                        <div class="card-body card-body-cascade">
+                            <p class="card-text">Total PPM <br/><strong>August 2019</strong></p>
                         </div>
                     </div>
                 </div>
@@ -79,8 +100,8 @@
                                 <h4 class="font-weight-bold dark-grey-text" id="lblHmeTotalPpmLate">31</h4>
                             </div>
                         </div>
-                        <div class="card-body card-body-cascade mb-4">
-                            <p class="card-text">Total late PPM for August 2018</p>
+                        <div class="card-body card-body-cascade">
+                            <p class="card-text">Total late PPM <br/><strong>August 2019</strong></p>
                         </div>
                     </div>
                 </div>
@@ -90,7 +111,7 @@
                         <div class="admin-up">
                             <i class="fa fas fa-check success-color-dark"></i>
                             <div class="data">
-                                <p>PERCENTAGE PPM DONE</p>
+                                <p>PERC. PPM DONE</p>
                                 <h4 class="font-weight-bold dark-grey-text"  id="lblHmePercPpmDone">54.32 %</h4>
                             </div>
                         </div>
@@ -98,19 +119,11 @@
                             <div class="progress mb-3">
                                 <div class="progress-bar bg-primary" id="divBarHmePercAttendance" role="progressbar" style="width: 54%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
-                            <p class="card-text">PPM done for August 2018</p>
+                            <p class="card-text">PPM done for <strong>August 2019</strong></p>
                         </div>
                     </div>
                 </div>
             </div>
-            <!--<div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading"><i class="fa fas fa-bell"></i>&nbsp;&nbsp; Notification!</h4>
-                <p>You have <strong>3 pending tasks</strong>. Please click on the button below to take action.</p>
-                <hr>
-                <p class="mb-0">1. PPM Draft <strong>'Contract Bank Negara'</strong> <button class="btn btn-sm btn-warning" onclick="tambahAcara(0);">Continue <i class="fas fa-edit ml-1"></i></button></p>
-                <p class="mb-0">2. PPM <strong>'Hitachi Air-cond'</strong> to be verified<button class="btn btn-sm btn-dark-green" onclick="tambahAcara(1);">Process <i class="fas fa-arrow-right ml-1"></i></button></p>
-                <p class="mb-0">3. <strong>'19 pending PPM'</strong> assets to be checked <button class="btn btn-sm btn-danger" onclick="tambahAcara(2);">Pending PPM List <i class="fas fa-highlighter ml-1"></i></button></p>
-            </div>-->
         </section>
     </div>
 
@@ -157,10 +170,17 @@
         setTimeout(function () {
             try {
                 initiatePages();
-                versionLocal = mzGetDataVersion();
+                versionLocal_ = mzGetDataVersion();
                 changePasswordClass = new ModalChangePassword();
                 homeClass_ = new MainHome();
 
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+
+                homeClass_.setRefClient(refClient_);
+                homeClass_.setRefSite(refSite_);
+                homeClass_.setRefContract(refContract_);
                 homeClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
