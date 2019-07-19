@@ -1613,4 +1613,80 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $month
+     * @param string $year
+     * @param string $clientId
+     * @param string $contractId
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_total_ppm_late ($month='', $year='', $clientId='', $contractId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $arrWhere = array('ppm_task_status'=>'(12,13)');
+            if (!empty($clientId) && empty($contractId)) {
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $contractIds = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>'('.$siteIdStr.')', 'contract_status'=>'1'), 'contract_id');
+                    if (!empty($contractIds)) {
+                        $contractId = '('.implode(',',$contractIds).')';
+                    }
+                }
+                $arrWhere['contract_id'] = $contractId;
+            }
+            if (!empty($contractId)) {
+                $arrWhere['contract_id'] = $contractId;
+            }
+            if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
+                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
+                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
+            }
+            return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    public function get_perc_ppm_done ($month='', $year='', $clientId='', $contractId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $arrWhere = array();
+            if (!empty($clientId) && empty($contractId)) {
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $contractIds = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>'('.$siteIdStr.')', 'contract_status'=>'1'), 'contract_id');
+                    if (!empty($contractIds)) {
+                        $contractId = '('.implode(',',$contractIds).')';
+                    }
+                }
+                $arrWhere['contract_id'] = $contractId;
+            }
+            if (!empty($contractId)) {
+                $arrWhere['contract_id'] = $contractId;
+            }
+            if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
+                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
+                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
+            }
+            $total = Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
+            if ($total == '0') {
+                return 0;
+            }
+            $arrWhere = array('ppm_task_status'=>'16');
+            $done = Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
+            return intval($done)/intval($total)*100;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
