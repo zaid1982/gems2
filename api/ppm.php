@@ -43,6 +43,12 @@ try {
                 $result = $fn_ppm->get_ppm_from_asset_list($contractId);
             } else if ($type === 'scheduled_ppm') {
                 $result = $fn_ppm->get_ppm_scheduled_list($ppmId);
+            } else if ($type === 'total_ppm_task') {
+                $month = filter_input(INPUT_GET, 'month');
+                $year = filter_input(INPUT_GET, 'year');
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $contractId = filter_input(INPUT_GET, 'contractId');
+                $result = $fn_ppm->get_total_ppm_task($month, $year, $clientId, $contractId);
             }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);

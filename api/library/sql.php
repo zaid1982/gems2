@@ -336,6 +336,11 @@ class Class_sql
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id";
             } else if ($title === 'vw_count_asset') {
                 $sql = "SELECT count(*) AS total FROM ast_asset";
+            } else if ($title === 'vw_count_ppm_task') {
+                $sql = "SELECT 
+                    count(*) AS total 
+                FROM ppm_task
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

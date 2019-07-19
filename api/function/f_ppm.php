@@ -1583,7 +1583,7 @@ class Class_ppm {
      * @return mixed
      * @throws Exception
      */
-    public function get_total_ppm ($month='', $year='', $clientId='', $contractId='') {
+    public function get_total_ppm_task ($month='', $year='', $clientId='', $contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1594,7 +1594,7 @@ class Class_ppm {
                     $siteIdStr = implode(',', $siteIds);
                     $contractIds = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>'('.$siteIdStr.')', 'contract_status'=>'1'), 'contract_id');
                     if (!empty($contractIds)) {
-                        $contractId = '('.$contractIds.')';
+                        $contractId = '('.implode(',',$contractIds).')';
                     }
                 }
                 $arrWhere['contract_id'] = $contractId;
@@ -1603,9 +1603,10 @@ class Class_ppm {
                 $arrWhere['contract_id'] = $contractId;
             }
             if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere[''] = '';
+                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
+                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
             }
-            return Class_db::getInstance()->db_select_col('vw_count_asset', array('contract_id'=>$contractId), 'total');
+            return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
