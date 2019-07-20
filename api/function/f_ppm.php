@@ -1653,6 +1653,14 @@ class Class_ppm {
         }
     }
 
+    /**
+     * @param string $month
+     * @param string $year
+     * @param string $clientId
+     * @param string $contractId
+     * @return float|int
+     * @throws Exception
+     */
     public function get_perc_ppm_done ($month='', $year='', $clientId='', $contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);

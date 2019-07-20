@@ -8,6 +8,7 @@ function MainHome() {
     let clientId = '1';
     let currentMonth;
     let currentYear;
+    const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
         $.each(refClient, function (_clientId, _client) {
@@ -26,6 +27,8 @@ function MainHome() {
                         clientId = linkId.substr(linkIndex + 1);
                         self.generateTotalAsset();
                         self.generateTotalPpmTask();
+                        self.generateTotalPpmLate();
+                        self.generatePercPpmDone();
                         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
                     }
                 } catch (e) {
@@ -35,7 +38,6 @@ function MainHome() {
             }, 200);
         });
 
-        const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         let dateEarliest = new Date();
         dateEarliest.setFullYear(2019, 3, 1);
         let dateCtr = new Date();
@@ -66,6 +68,8 @@ function MainHome() {
                         currentMonth = month;
                         currentYear = year;
                         self.generateTotalPpmTask();
+                        self.generateTotalPpmLate();
+                        self.generatePercPpmDone();
                         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
                     }
                 } catch (e) {
@@ -78,6 +82,8 @@ function MainHome() {
         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
         self.generateTotalAsset();
         self.generateTotalPpmTask();
+        self.generateTotalPpmLate();
+        self.generatePercPpmDone();
     };
 
     this.generateTotalAsset = function () {
@@ -88,6 +94,21 @@ function MainHome() {
     this.generateTotalPpmTask = function () {
         const totalppmTask = mzAjaxRequest('ppm.php?type=total_ppm_task&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
         $('#lblHmeTotalPpm').html(mzFormatNumber(totalppmTask));
+        $('#lblHmeTotalPpmTitle').html('Total PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+    };
+
+    this.generateTotalPpmLate = function () {
+        const totalppmLate = mzAjaxRequest('ppm.php?type=total_ppm_late&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
+        $('#lblHmeTotalPpmLate').html(mzFormatNumber(totalppmLate));
+        $('#lblHmeTotalPpmLateTitle').html('Total Late PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+    };
+
+    this.generatePercPpmDone = function () {
+        const percPpmDone = mzAjaxRequest('ppm.php?type=perc_ppm_done&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
+        const percDone = mzFormatNumber(percPpmDone,2)+'%';
+        $('#lblHmePercPpmDone').html(percDone);
+        $('#divBarHmePercAttendance').css('width', percDone);
+        $('#lblHmePercPpmDoneTitle').html('PPM done for <strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
     };
 
     this.setRefClient = function (_refClient) {
