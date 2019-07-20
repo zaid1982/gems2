@@ -1459,6 +1459,7 @@ class Class_ppm {
      * @param $result
      * @param $uploadId
      * @param $userId
+     * @param string $remark
      * @return mixed
      * @throws Exception
      */
