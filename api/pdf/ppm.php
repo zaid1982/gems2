@@ -309,7 +309,7 @@ class Class_pdf_ppm {
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $cellcount = $pdf->MultiCell(10, 4, 'N/A', 0, 'C', 0, 0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
-            $cellcount = $pdf->MultiCell(20, 4, 'Action', 0, 'C', 0, 0);
+            $cellcount = $pdf->MultiCell(20, 4, 'Remark', 0, 'C', 0, 0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $pdf->SetXY($startX, $startY);
             $this->TaskQualSetHeight($pdf, $maxnocells);
