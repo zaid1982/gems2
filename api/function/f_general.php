@@ -362,6 +362,9 @@ class Class_general {
             if (sizeof($dateSplit) === 3) {
                 $newDate = intval($dateSplit[2]).'/'.intval($dateSplit[1]).'/'.$dateSplit[0];
             }
+            if(strlen($date)>10) {
+                $newDate = $newDate.substr($date, 10);
+            }
             return $newDate;
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
