@@ -101,6 +101,23 @@ try {
             $pdfId = $fn_pdf_ppm->create_pdf();
             $result = $fn_general->getPdf($pdfId);
             $fn_general->save_audit('82', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+        }
+        else if ($type === 'tnm_list') {
+            $flowId = filter_input(INPUT_GET, 'flowId');
+            $result = $fn_task->get_track_monitoring_list_m($jwt_data->userId, $flowId);
+        }
+        else if ($type === 'tnm_list_scan_asset') {
+            $flowId = filter_input(INPUT_GET, 'flowId');
+            $assetNo = filter_input(INPUT_GET, 'assetNo');
+            $result = $fn_task->get_track_monitoring_list_m($jwt_data->userId, $flowId, $assetNo);
+        }
+        else if ($type === 'tnm_list_search') {
+            $flowId = filter_input(INPUT_GET, 'flowId');
+            $searchTxt = filter_input(INPUT_GET, 'searchTxt');
+            $result = $fn_task->get_track_monitoring_list_m($jwt_data->userId, $flowId, '', $searchTxt);
+        }
+        else if ($type === 'get_tnm_details') {
+
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

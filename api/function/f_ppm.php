@@ -549,7 +549,7 @@ class Class_ppm {
                 }
 
                 Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8'), array('transaction_id'=>$transactionId));
-                Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12'), array('transaction_id'=>$transactionId));
+                Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
                 // notification
             }
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));

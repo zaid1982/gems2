@@ -5,8 +5,6 @@
  * Date: 2/23/2019
  * Time: 1:35 PM
  */
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_task {
 
@@ -462,7 +460,6 @@ class Class_task {
     }
 
     /**
-     * @param string $transactionId
      * @return array
      * @throws Exception
      */
@@ -543,6 +540,73 @@ class Class_task {
                 $row_result['taskStatusPrevious'] = $this->fn_general->clear_null($dataLocal['task_status_previous']);
                 $row_result['taskStatus'] = $dataLocal['task_status'];
                 array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $flowId
+     * @param string $assetNo
+     * @param string $searchTxt
+     * @return array
+     * @throws Exception
+     */
+    public function get_track_monitoring_list_m ($userId, $flowId, $assetNo='', $searchTxt='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($flowId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter flowId empty');
+            }
+
+            $result = array();
+            $arrStatus = $this->fn_general->getRefStatus();
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrFlowName = $this->fn_general->getFlowName();
+            $arrCheckPointName = $this->fn_general->getCheckPointName();
+            $arrWhere = array('task_current'=>'1', 'flow_id'=>$flowId);
+
+            if ($flowId == '1') {
+                $ppmWhere = '';
+                $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
+                $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
+                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>'('.implode(',', $ppmFsArr).')', 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
+                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
+                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
+                    array_push($ppmUserArr, $userId);
+                    $ppmUserArr = array_unique($ppmUserArr);
+                }
+                $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
+            }
+
+            if (!empty($assetNo)) {
+                $arrWhere['asset_no'] = $assetNo;
+            }
+
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_m', $arrWhere);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['transactionId'] = $dataLocal['transaction_id'];
+                $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['transaction_time_created']);
+                $row_result['flowId'] = $dataLocal['flow_id'];
+                $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
+                $row_result['checkpointName'] = $arrCheckPointName[intval(['checkpoint_id'])];
+                $row_result['userFullName'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
+                $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];
+                if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['assetNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
+                    || strpos($row_result['userFullName'], $searchTxt) !== false || strpos($row_result['flowName'], $searchTxt) !== false || strpos($row_result['checkpointName'], $searchTxt) !== false) {
+                    array_push($result, $row_result);
+                }
             }
 
             return $result;
