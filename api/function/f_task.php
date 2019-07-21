@@ -600,7 +600,7 @@ class Class_task {
                 $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['transaction_time_created']);
                 $row_result['flowId'] = $dataLocal['flow_id'];
                 $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
-                $row_result['checkpointName'] = $arrCheckPointName[intval(['checkpoint_id'])];
+                $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
                 $row_result['userFullName'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
                 $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];
                 if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['assetNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
@@ -608,6 +608,69 @@ class Class_task {
                     array_push($result, $row_result);
                 }
             }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $transactionId
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_track_monitoring_details_m ($transactionId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $transaction = Class_db::getInstance()->db_select_single('wfl_transaction', array('transaction_id'=>$transactionId), null, 1);
+            $currentTask = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
+
+            $arrStatus = $this->fn_general->getRefStatus();
+            $arrRoles = $this->fn_general->getRefRole();
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrGroupName = $this->fn_general->getGroupName();
+            $arrFlowName = $this->fn_general->getFlowName();
+            $arrCheckPointName = $this->fn_general->getCheckPointName();
+
+            $result['flowName'] = $arrFlowName[intval($transaction['flow_id'])];
+            $result['transactionNo'] = $transaction['transaction_no'];
+            $result['initiateBy'] = $arrUserFullName[intval($transaction['user_id'])];
+            $result['initiateByGroup'] = $arrGroupName[intval($transaction['group_id'])];
+            $result['initiateTimeCreated'] = $this->fn_general->convertDateToDisplay($transaction['transaction_time_created']);
+            $result['taskStatus'] = $arrStatus[intval($currentTask['task_status'])];
+            $result['currentUser'] = !empty($currentTask['task_claimed_user'])?$arrUserFullName[intval($currentTask['task_claimed_user'])]:'';
+            $result['receivedTime'] = $this->fn_general->convertDateToDisplay($currentTask['task_time_created']);
+            $result['flowStatus'] = $arrStatus[intval($transaction['transaction_status'])];
+            $result['flowDueDate'] = $this->fn_general->convertDateToDisplay($transaction['transaction_date_due']);
+            $result['checkpointId'] = $currentTask['checkpoint_id'];
+
+            if ($transaction['flow_id'] == '1') {
+                $ppmTaskId = Class_db::getInstance()->db_select_col('ppm_task', array('transaction_id'=>$transactionId), 'ppm_task_id', null, 1);
+                $result['ppmTaskId'] = $ppmTaskId;
+            }
+
+            $resultHistory = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wfl_task', array('transaction_id'=>$transactionId), 'task_id');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['checkpointId'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
+                $row_result['roleId'] = $arrRoles[intval($dataLocal['role_id'])];
+                //$row_result['groupId'] = $arrGroupName[intval($dataLocal['group_id'])];
+                $row_result['taskClaimedUser'] = $arrUserFullName[intval($dataLocal['task_claimed_user'])];
+                $row_result['taskRemark'] = $this->fn_general->clear_null($dataLocal['task_remark']);
+                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['task_date_due']);
+                $row_result['taskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
+                $row_result['taskTimeSubmit'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_submit']);
+                $row_result['taskStatus'] = $arrStatus[intval($dataLocal['task_status'])];
+                array_push($resultHistory, $row_result);
+            }
+            $result['taskHistory'] = $resultHistory;
 
             return $result;
         } catch (Exception $ex) {

@@ -59,7 +59,7 @@ function MainTrackMonitoring() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            return '<a><i class="fas fa-edit lnkTnmListView" id="lnkTnmListView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            return '<a><i class="fas fa-info-circle lnkTnmListView" id="lnkTnmListView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Details"></i></a>&nbsp;&nbsp;';
                         }
                     },
                     {mData: 'flowId', visible: false},

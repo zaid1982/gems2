@@ -430,6 +430,24 @@ class Class_general {
      * @return array
      * @throws Exception
      */
+    public function getRefRole () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ref_role', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['role_id'])] = $dataLocal['role_desc'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function getUserFullName () {
         try {
             $refArray = array();
@@ -472,6 +490,24 @@ class Class_general {
             $arr_dataLocal = Class_db::getInstance()->db_select('wfl_checkpoint', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['checkpoint_id'])] = $dataLocal['checkpoint_desc'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getGroupName () {
+        try {
+            $refArray = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('sys_group', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['group_id'])] = $dataLocal['group_name'];
             }
             return $refArray;
         } catch(Exception $ex) {

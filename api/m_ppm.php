@@ -116,8 +116,9 @@ try {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
             $result = $fn_task->get_track_monitoring_list_m($jwt_data->userId, $flowId, '', $searchTxt);
         }
-        else if ($type === 'get_tnm_details') {
-
+        else if ($type === 'tnm_details') {
+            $transactionId = filter_input(INPUT_GET, 'transactionId');
+            $result = $fn_task->get_track_monitoring_details_m($transactionId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
