@@ -658,7 +658,12 @@ class Class_task {
 
             if ($transaction['flow_id'] == '1') {
                 $ppmTaskId = Class_db::getInstance()->db_select_col('ppm_task', array('transaction_id'=>$transactionId), 'ppm_task_id', null, 1);
+                $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_id', null, 1);
+                $contractId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'contract_id', null, 1);
+                $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+                $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
                 $result['ppmTaskId'] = $ppmTaskId;
+                $result['siteName'] = $siteName;
             }
 
             $resultHistory = array();
