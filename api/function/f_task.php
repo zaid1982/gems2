@@ -587,7 +587,7 @@ class Class_task {
                     array_push($ppmUserArr, $userId);
                     $ppmUserArr = array_unique($ppmUserArr);
                 }
-                if (!empty($ppmFsArr)) {
+                if (!empty($ppmUserArr)) {
                     $arrWhere['wfl_transaction.user_id'] = '(' . implode(',', $ppmUserArr) . ')';
                 } else {
                     $arrWhere['wfl_transaction.user_id'] = '0';
