@@ -582,7 +582,7 @@ class Class_ppm {
                 $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
+                $restFilter .= 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
                     'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\')';
             }
 
@@ -610,26 +610,48 @@ class Class_ppm {
     }
 
     /**
+     * @param $userId
      * @param string $date
      * @param string $assetNo
      * @param string $searchTxt
      * @return array
      * @throws Exception
      */
-    public function get_ppm_all_task_m ($date='', $assetNo='', $searchTxt='') {
+    public function get_ppm_all_task_m ($userId, $date='', $assetNo='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $restFilter = '';
+            $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
+            $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
+            if (!empty($ppmFsArr)) {
+                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
+                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
+            }
+            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
+                array_push($ppmUserArr, $userId);
+                $ppmUserArr = array_unique($ppmUserArr, SORT_REGULAR);
+            }
+            if (!empty($ppmUserArr)) {
+                $contractArr = Class_db::getInstance()->db_select_colm('cli_contract_user', array('user_id'=>'(' . implode(',', $ppmUserArr) . ')'), 'contract_id');
+                if (empty($contractArr)) {
+                    return array();
+                }
+                $contractArr = array_unique($contractArr, SORT_REGULAR);
+                $restFilter .= 'AND ppm.contract_id IN ('.implode(',', $contractArr).') ';
+            } else {
+                return array();
+            }
+
             if (!empty($date)) {
-                $restFilter = 'AND task_date_due = \''.$date.'\'';
+                $restFilter .= 'AND ppm_task_schedule_date = \''.$date.'\' ';
             }
             if (!empty($assetNo)) {
-                $restFilter = 'AND ast_asset.asset_no = \''.$assetNo.'\'';
+                $restFilter .= 'AND ast_asset.asset_no = \''.$assetNo.'\' ';
             }
             if (!empty($searchTxt)) {
-                $restFilter = 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
-                    'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\')';
+                $restFilter .= 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
+                    'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\') ';
             }
 
             $result = array();
@@ -676,10 +698,30 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
 
+            $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
+            $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
+            if (!empty($ppmFsArr)) {
+                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
+                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
+            }
+            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
+                array_push($ppmUserArr, $userId);
+                $ppmUserArr = array_unique($ppmUserArr, SORT_REGULAR);
+            }
+            if (!empty($ppmUserArr)) {
+                $contractArr = Class_db::getInstance()->db_select_colm('cli_contract_user', array('user_id'=>'(' . implode(',', $ppmUserArr) . ')'), 'contract_id');
+                if (empty($contractArr)) {
+                    return array();
+                }
+                $contractArr = array_unique($contractArr, SORT_REGULAR);
+            } else {
+                return array();
+            }
+
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'month'=>$month, 'year'=>$year));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('month'=>$month, 'year'=>$year, 'contract_id'=>implode(',', $contractArr)));
             foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['date'] = $dataLocal['task_date_due'];
+                $row_result['date'] = $dataLocal['ppm_task_schedule_date'];
                 $row_result['total'] = $dataLocal['total'];
                 $row_result['status'] = explode(',', $dataLocal['status']);
                 array_push($result, $row_result);

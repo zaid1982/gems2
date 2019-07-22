@@ -236,22 +236,16 @@ class Class_sql
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
                 WHERE wfl_task.checkpoint_id = 1 [rest_filter]";
-            } else if ($title === 'mw_task_calendar_count') {
-                $sql = "SELECT
-                    task_date_due, COUNT(*) AS total
-                FROM wfl_task
-                INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
-                        AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = 1
-                WHERE wfl_task.checkpoint_id = 1 AND YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
-                [claim_filter] GROUP BY task_date_due";
             } else if ($title === 'mw_task_calendar_count_all') {
                 $sql = "SELECT
-                    task_date_due, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total
+                    ppm_task_schedule_date, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
-                WHERE wfl_task.checkpoint_id = 1 AND YEAR(task_date_due) = [year] AND MONTH(task_date_due) = [month]
-                GROUP BY task_date_due";
+                WHERE wfl_task.checkpoint_id = 1 AND ppm.contract_id IN ([contract_id]) AND YEAR(ppm_task_schedule_date) = [year] AND MONTH(ppm_task_schedule_date) = [month]
+                GROUP BY ppm_task_schedule_date";
             } else if ($title === 'mw_ppm_section_a') {
                 $sql = "SELECT
                     ppm_task.ppm_task_id,

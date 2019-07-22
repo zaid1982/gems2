@@ -576,7 +576,6 @@ class Class_task {
             $arrWhere = array('task_current'=>'1', 'flow_id'=>$flowId);
 
             if ($flowId == '1') {
-                $ppmWhere = '';
                 $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
                 $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
                 if (!empty($ppmFsArr)) {
