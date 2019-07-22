@@ -579,13 +579,19 @@ class Class_task {
                 $ppmWhere = '';
                 $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
                 $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
-                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>'('.implode(',', $ppmFsArr).')', 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
-                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
+                if (!empty($ppmFsArr)) {
+                    $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
+                    $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
+                }
                 if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
                     array_push($ppmUserArr, $userId);
                     $ppmUserArr = array_unique($ppmUserArr);
                 }
-                $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
+                if (!empty($ppmFsArr)) {
+                    $arrWhere['wfl_transaction.user_id'] = '(' . implode(',', $ppmUserArr) . ')';
+                } else {
+                    $arrWhere['wfl_transaction.user_id'] = '0';
+                }
             }
 
             if (!empty($assetNo)) {
