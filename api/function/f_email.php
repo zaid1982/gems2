@@ -252,7 +252,7 @@ class Class_email {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $uid = md5(uniqid(time()));
-            $header = "From: gems@globalfm.com.my\r\n";
+            $header = "From: ict-support@globalfm.com.my\r\n";
             $header .= "MIME-Version: 1.0\r\n";
             $header .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n\r\n";
 
@@ -262,7 +262,7 @@ class Class_email {
             $nmessage .= $content . "\r\n\r\n";
             $nmessage .= "--" . $uid . "\r\n";
 
-            mail($receiver, $title, $nmessage, $header, '-fzaid@addeen-legacy.com.my');
+            mail($receiver, $title, $nmessage, $header, '-fict-support@globalfm.com.my');
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
