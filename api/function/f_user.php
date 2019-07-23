@@ -697,4 +697,28 @@ class Class_user {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $userId
+     * @param $token
+     * @throws Exception
+     */
+    public function save_token ($userId, $token) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($token)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter token empty');
+            }
+
+            Class_db::getInstance()->db_update('sys_user', array('user_token'=>$token), array('user_id'=>$userId));
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

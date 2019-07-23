@@ -132,7 +132,11 @@ try {
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        if ($action === 'change_password') {
+        if ($action === 'save_token') {
+            $token = filter_input(INPUT_POST, 'token');
+            $fn_user->save_token($jwt_data->userId, $token);
+        }
+        else if ($action === 'change_password') {
             $oldPassword = filter_input(INPUT_POST, 'oldPassword');
             $newPassword = filter_input(INPUT_POST, 'newPassword');
             $put_vars = array(
