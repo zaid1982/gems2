@@ -1584,6 +1584,13 @@ class Class_ppm {
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
                 $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - PPM Task Received', $content);
+                if (!empty($sysUser['user_token'])) {
+                    if ($taskName === 'pending verification') {
+                        $this->fn_email->send_mobile_notification($sysUser['user_token'], 'You have received PPM task ('.$ppmTask['ppm_task_no'].') to be reviewed.');
+                    } else {
+                        $this->fn_email->send_mobile_notification($sysUser['user_token'], 'You have received PPM task ('.$ppmTask['ppm_task_no'].') to be verified.');
+                    }
+                }
             }
             else if ($taskName === 're-open') {
                 $comment = !empty($remark) ? $remark : $task['task_remark'];
@@ -1599,6 +1606,9 @@ class Class_ppm {
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
                 $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Re-open PPM Task', $content);
+                if (!empty($sysUser['user_token'])) {
+                    $this->fn_email->send_mobile_notification($sysUser['user_token'], 'Your PPM task ('.$ppmTask['ppm_task_no'].') has been re-Opened for re-maintenance.');
+                }
             }
             else if ($taskName === 'completed') {
                 $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
@@ -1609,6 +1619,9 @@ class Class_ppm {
                     <br /><br />
                     <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
                 $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Closed PPM Task', $content);
+                if (!empty($sysUser['user_token'])) {
+                    $this->fn_email->send_mobile_notification($sysUser['user_token'], 'Your PPM task ('.$ppmTask['ppm_task_no'].') have been verified and closed.');
+                }
             }
 
             return $task['task_id'];

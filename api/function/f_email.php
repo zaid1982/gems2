@@ -246,8 +246,7 @@ class Class_email {
      * @param $content
      * @throws Exception
      */
-    public function send_email_express ($receiver, $title, $content)
-    {
+    public function send_email_express ($receiver, $title, $content) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -263,6 +262,55 @@ class Class_email {
             $nmessage .= "--" . $uid . "\r\n";
 
             mail($receiver, $title, $nmessage, $header, '-fict-support@globalfm.com.my');
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $token
+     * @param $message
+     * @throws Exception
+     */
+    public function send_mobile_notification ($token, $message) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($token)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter token empty');
+            }
+            if (empty($message)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter message empty');
+            }
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://fcm.googleapis.com/fcm/send",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => "{\n \"to\" : \"f_gWCiQIopg:APA91bE0UqmP0RWwL_eO_f_DrYwHHaqqkbvuX5Jmj6PwW3qENDp4nZlOjB9loBPO7ldiWbzubQZwKalQQh74W-VQuaio_Xw8D2FxPD7dXB6glThpY2Uh-NW7QzzutynUIvhVpLlcccKf\",\n \"collapse_key\" : \"type_a\",\n \"notification\" : {\n     \"body\" : \"".$message."\",\n     \"title\": \"GEMS 2.0\"\n }\n}",
+                CURLOPT_HTTPHEADER => array(
+                    "Accept: */*",
+                    "Authorization: key=".$token,
+                    "Cache-Control: no-cache",
+                    "Connection: keep-alive",
+                    "Content-Type: application/json",
+                    "Host: fcm.googleapis.com",
+                    "accept-encoding: gzip, deflate",
+                    "cache-control: no-cache"
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
