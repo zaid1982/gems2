@@ -1,1 +1,1 @@
-"C:\xampp\php\php.exe" -f "C:\xampp\htdocs\api\scheduler\push_notification.php"
+"C:\xampp\php\php.exe" -f "C:\xampp\htdocs\api\scheduler_push_notification.php"
