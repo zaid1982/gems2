@@ -282,7 +282,7 @@ class Class_email {
                     Class_db::getInstance()->db_beginTransaction();
                     Class_db::getInstance()->db_insert('email_log', array('email_template_id'=>$emailSend['email_template_id'], 'email_address'=>$emailSend['email_address'],
                         'email_title'=>$emailSend['email_title'], 'email_html'=>$emailSend['email_html'], 'user_id'=> (is_null($emailSend['user_id'])?'':$emailSend['user_id']), 'email_retry_no'=>$emailSend['email_retry_no'],
-                        'email_attachment'=>$emailSend['email_attachment'], 'email_filename'=>$emailSend['email_filename'], 'email_id'=>$emailSend['email_id'], 'email_log_status'=>$status));
+                        'email_attachment'=>$this->fn_general->clear_null($emailSend['email_attachment']), 'email_filename'=>$this->fn_general->clear_null($emailSend['email_filename']), 'email_id'=>$emailSend['email_id'], 'email_log_status'=>$status));
                     Class_db::getInstance()->db_delete('email_send', array('email_id'=>$emailSend['email_id']));
                     Class_db::getInstance()->db_commit();
                 } catch(Exception $ez) {
@@ -400,7 +400,7 @@ class Class_email {
                 try {
                     Class_db::getInstance()->db_beginTransaction();
                     Class_db::getInstance()->db_insert('noti_log', array('noti_text_id'=>$notiSend['noti_text_id'], 'noti_to'=>$notiSend['noti_to'], 'noti_title'=>$notiSend['noti_title'],
-                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> (is_null($notiSend['user_id'])?'':$notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status));
+                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> $this->fn_general->clear_null($notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status));
                     Class_db::getInstance()->db_delete('noti_send', array('noti_id'=>$notiSend['noti_id']));
                     Class_db::getInstance()->db_commit();
                 } catch(Exception $ez) {

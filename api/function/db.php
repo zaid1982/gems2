@@ -1,7 +1,5 @@
 <?php
-require_once 'f_general.php';
-require_once 'library/sql.php';
-     
+
 class Class_db{
     
     private static $instance;
