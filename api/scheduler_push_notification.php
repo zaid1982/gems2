@@ -1,5 +1,6 @@
 <?php
 
+require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_email.php';
