@@ -246,7 +246,8 @@ try {
                 $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
             }
-            $taskId = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark);
+            $submitParam = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark);
+            $taskId = $submitParam['taskId'];
             if ($result == '1') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark);
             } else if ($result == '2') {
@@ -255,6 +256,7 @@ try {
                 throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
             }
             $fn_general->save_audit('100', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', $checkpoint = ' . $checkpoint . ', result = ' . $result);
+            $fn_ppm->ppm_submit_notification($submitParam['emailTo'], $submitParam['taskStatus'], $submitParam['ppmTaskNo'], $submitParam['comment']);
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');

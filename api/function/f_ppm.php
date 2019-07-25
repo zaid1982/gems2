@@ -1574,61 +1574,70 @@ class Class_ppm {
                 }
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>'', 'ppm_task_checked_by'=>'', 'ppm_task_verified_by'=>'', 'ppm_task_time_serviced'=>'', 'ppm_task_time_checked'=>'', 'ppm_task_time_verified'=>''), array('ppm_task_id'=>$ppmTaskId));
             }
+
+            $emailTo = '';
+            $comment = '';
             if (($taskName === 'pending verification' || $taskName === 'pending check') && !empty($reportTo)) {
-                $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$reportTo), null, 1);
-                $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$reportTo, 'user_profile_status'=>'1'), null, 1);
-                $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
-                $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
-                    <p>You have received 1 new PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].'.</p>
-                    <p>Please open the mobile apps and proceed with the task.</p>
-                    <br /><br />
-                    <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
-                $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - PPM Task Received', $content);
-                if (!empty($sysUser['user_token'])) {
-                    if ($taskName === 'pending verification') {
-                        $this->fn_email->send_mobile_notification($sysUser['user_token'], 'You have received PPM task ('.$ppmTask['ppm_task_no'].') to be reviewed.');
-                    } else {
-                        $this->fn_email->send_mobile_notification($sysUser['user_token'], 'You have received PPM task ('.$ppmTask['ppm_task_no'].') to be verified.');
-                    }
-                }
+                $emailTo = $reportTo;
             }
             else if ($taskName === 're-open') {
                 $comment = !empty($remark) ? $remark : $task['task_remark'];
-                //$taskPrevious = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'2'), 'task_id DESC', 1);
                 $receiver = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'role_id'=>'5', 'checkpoint_id'=>'1'), 'user_id', null, 1);
-                $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$receiver), null, 1);
-                $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$receiver, 'user_profile_status'=>'1'), null, 1);
-                $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
-                $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
-                    <p>A PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].' was returned to you for further action.</p>
-                    <p>Comment : '.$comment.'</p>
-                    <p>Please open the mobile apps and proceed with the task.</p>
-                    <br /><br />
-                    <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
-                $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Re-open PPM Task', $content);
-                if (!empty($sysUser['user_token'])) {
-                    $this->fn_email->send_mobile_notification($sysUser['user_token'], 'Your PPM task ('.$ppmTask['ppm_task_no'].') has been re-Opened for re-maintenance.');
-                }
+                $emailTo = $receiver;
             }
             else if ($taskName === 'completed') {
-                $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
-                $sysUser = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$ppmTask['ppm_task_assigned_to']), null, 1);
-                $sysUserProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$ppmTask['ppm_task_assigned_to'], 'user_profile_status'=>'1'), null, 1);
-                $content = '<p>Dear '.$sysUser['user_first_name'].',</p>
-                    <p>A PPM '.$taskName.' task with task no = '.$ppmTask['ppm_task_no'].' has been verified and completed.</p>
-                    <br /><br />
-                    <p><i>Note: This is an automail from GEMS 2.0 System. Please do not reply to this email.</i></p>';
-                $this->fn_email->send_email_express($sysUserProfile['user_email'], 'GEMS 2.0 - Closed PPM Task', $content);
-                if (!empty($sysUser['user_token'])) {
-                    $this->fn_email->send_mobile_notification($sysUser['user_token'], 'Your PPM task ('.$ppmTask['ppm_task_no'].') have been verified and closed.');
-                }
+                $emailTo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_assigned_to', null, 1);
             }
 
-            return $task['task_id'];
+            $ppmTaskNo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_no', null, 1);
+            return array('taskId'=>$task['task_id'], 'emailTo'=>$emailTo, 'taskStatus'=>$taskName, 'ppmTaskNo'=>$ppmTaskNo, 'comment'=>$comment);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param string $taskStatus
+     * @param string $ppmTaskNo
+     * @param string $comment
+     */
+    public function ppm_submit_notification ($userId, $taskStatus='', $ppmTaskNo='', $comment='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($taskStatus)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter taskStatus empty');
+            }
+            if (empty($ppmTaskNo)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskNo empty');
+            }
+
+            if (($taskStatus === 'pending verification' || $taskStatus === 'pending check') && !empty($userId)) {
+                $this->fn_email->setup_email($userId, 1, array('task_name'=>$taskStatus, 'task_no'=>$ppmTaskNo));
+                if ($taskStatus === 'pending verification') {
+                    $this->fn_email->setup_mobile_notification($userId, 1, array('task_no'=>$ppmTaskNo));
+                } else {
+                    $this->fn_email->setup_mobile_notification($userId, 2, array('task_no'=>$ppmTaskNo));
+                }
+            } else if ($taskStatus === 're-open') {
+                $this->fn_email->setup_email($userId, 2, array('task_no'=>$ppmTaskNo, 'comment'=>$comment));
+                $this->fn_email->setup_mobile_notification($userId, 3, array('task_no'=>$ppmTaskNo));
+            } else if ($taskStatus === 'completed') {
+                $this->fn_email->setup_email($userId, 3, array('task_no'=>$ppmTaskNo));
+                $this->fn_email->setup_mobile_notification($userId, 4, array('task_no'=>$ppmTaskNo));
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Email condition false, taskStatus = '.$taskStatus);
+            }
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
