@@ -284,6 +284,7 @@ class Class_email {
                 throw new Exception('[' . __LINE__ . '] - Parameter message empty');
             }
 
+	    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Token = ' . $token);
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
@@ -294,10 +295,10 @@ class Class_email {
                 CURLOPT_TIMEOUT => 30,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "{\n \"to\" : \"f_gWCiQIopg:APA91bE0UqmP0RWwL_eO_f_DrYwHHaqqkbvuX5Jmj6PwW3qENDp4nZlOjB9loBPO7ldiWbzubQZwKalQQh74W-VQuaio_Xw8D2FxPD7dXB6glThpY2Uh-NW7QzzutynUIvhVpLlcccKf\",\n \"collapse_key\" : \"type_a\",\n \"notification\" : {\n     \"body\" : \"".$message."\",\n     \"title\": \"GEMS 2.0\"\n }\n}",
+                CURLOPT_POSTFIELDS => "{\n \"to\" : \"".$token."\",\n \"collapse_key\" : \"type_a\",\n \"notification\" : {\n     \"body\" : \"".$message."\",\n     \"title\": \"GEMS 2.0\"\n }\n}",
                 CURLOPT_HTTPHEADER => array(
                     "Accept: */*",
-                    "Authorization: key=".$token,
+                    "Authorization: key=AAAA0VbV4yY:APA91bEkhqjl72wrey1qcbBlaaGNZTVtRcDQMwBkIOTkzWzytnTHbEVypleaWjHA3SeO0klvh9M2M_MaX-1yf2jupOZnDyn2Zx9lx2CLDgZGOwPfBpr1HvFO14lnZSKlpqi1rKM5BX-i",
                     "Cache-Control: no-cache",
                     "Connection: keep-alive",
                     "Content-Type: application/json",
@@ -308,7 +309,9 @@ class Class_email {
             ));
 
             $response = curl_exec($curl);
+	    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'response = ' . $response);
             $err = curl_error($curl);
+	    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'err = ' . $err);
 
             curl_close($curl);
         } catch (Exception $ex) {
