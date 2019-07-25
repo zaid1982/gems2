@@ -1,7 +1,5 @@
 <?php
 
-require_once 'library/constant.php';
-
 class Class_general {
      
     private $log_dir = '';
