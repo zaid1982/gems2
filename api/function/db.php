@@ -1,4 +1,5 @@
 <?php
+require_once 'library/sql.php';
 
 class Class_db{
     
