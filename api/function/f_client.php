@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_client {
 
@@ -79,7 +77,7 @@ class Class_client {
      */
     public function get_client_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('cli_client');
@@ -107,7 +105,7 @@ class Class_client {
      */
     public function get_client ($clientId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Array clientId empty');
@@ -137,7 +135,7 @@ class Class_client {
     public function add_client ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -176,7 +174,7 @@ class Class_client {
     public function update_client ($clientId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
@@ -219,7 +217,7 @@ class Class_client {
     public function deactivate_client ($clientId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
@@ -245,7 +243,7 @@ class Class_client {
     public function activate_client ($clientId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
@@ -271,7 +269,7 @@ class Class_client {
     public function delete_client ($clientId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');

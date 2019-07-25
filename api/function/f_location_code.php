@@ -77,7 +77,7 @@ class Class_locationCode {
      */
     public function get_locationCode_list ($contractId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($contractId)) {
                 $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array());
@@ -111,7 +111,7 @@ class Class_locationCode {
      */
     public function get_locationCode ($locationCodeId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($locationCodeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
@@ -141,7 +141,7 @@ class Class_locationCode {
     public function add_locationCode ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -181,7 +181,7 @@ class Class_locationCode {
     public function update_locationCode ($locationCodeId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($locationCodeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
@@ -225,7 +225,7 @@ class Class_locationCode {
     public function deactivate_locationCode ($locationCodeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($locationCodeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
@@ -249,7 +249,7 @@ class Class_locationCode {
     public function activate_locationCode ($locationCodeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($locationCodeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
@@ -273,7 +273,7 @@ class Class_locationCode {
     public function delete_locationCode ($locationCodeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($locationCodeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');

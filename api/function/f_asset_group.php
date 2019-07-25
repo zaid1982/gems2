@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_assetGroup {
 
@@ -79,7 +77,7 @@ class Class_assetGroup {
      */
     public function get_assetGroup_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset_group');
@@ -107,7 +105,7 @@ class Class_assetGroup {
      */
     public function get_assetGroup ($assetGroupId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Array assetGroupId empty');
@@ -137,7 +135,7 @@ class Class_assetGroup {
     public function add_assetGroup ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -176,7 +174,7 @@ class Class_assetGroup {
     public function update_assetGroup ($assetGroupId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -219,7 +217,7 @@ class Class_assetGroup {
     public function deactivate_assetGroup ($assetGroupId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -245,7 +243,7 @@ class Class_assetGroup {
     public function activate_assetGroup ($assetGroupId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -271,7 +269,7 @@ class Class_assetGroup {
     public function delete_assetGroup ($assetGroupId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');

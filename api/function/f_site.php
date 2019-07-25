@@ -79,7 +79,7 @@ class Class_site {
      */
     public function get_site_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('cli_site');
@@ -110,7 +110,7 @@ class Class_site {
      */
     public function get_site ($siteId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Array siteId empty');
@@ -143,7 +143,7 @@ class Class_site {
     public function add_site ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -194,7 +194,7 @@ class Class_site {
     public function update_site ($siteId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -250,7 +250,7 @@ class Class_site {
     public function deactivate_site ($siteId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -278,7 +278,7 @@ class Class_site {
     public function activate_site ($siteId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -306,7 +306,7 @@ class Class_site {
     public function delete_site ($siteId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');

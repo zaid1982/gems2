@@ -77,7 +77,7 @@ class Class_contractUser {
      */
     public function get_contractUser_list ($contractId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($contractId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
@@ -115,7 +115,7 @@ class Class_contractUser {
     public function add_contractUser ($contractId, $locationCodeId, $userId, $assetGroupId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($contractId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
@@ -147,7 +147,7 @@ class Class_contractUser {
      */
     public function delete_contractUser ($contractUserId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($contractUserId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractUserId empty');

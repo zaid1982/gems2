@@ -1,12 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Zaid
- * Date: 2/26/2019
- * Time: 11:08 PM
- */
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_reference {
 
@@ -85,7 +77,7 @@ class Class_reference {
      */
     public function get_status () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ref_status');
@@ -113,7 +105,7 @@ class Class_reference {
      */
     public function get_state ($stateId=null) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             if (is_null($stateId)) {
@@ -146,7 +138,7 @@ class Class_reference {
      */
     public function get_city ($cityId=null) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             if (is_null($cityId)) {
@@ -180,7 +172,7 @@ class Class_reference {
      */
     public function get_role () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ref_role');
@@ -207,7 +199,7 @@ class Class_reference {
      */
     public function get_designation ($designationId=null) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             if (is_null($designationId)) {
@@ -241,7 +233,7 @@ class Class_reference {
     public function add_designation ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -276,7 +268,7 @@ class Class_reference {
     public function update_designation ($designationId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($designationId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter designationId empty');
@@ -315,7 +307,7 @@ class Class_reference {
     public function deactivate_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($designationId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter designationId empty');
@@ -341,7 +333,7 @@ class Class_reference {
     public function activate_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__,__FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__,__FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($designationId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter designationId empty');
@@ -367,7 +359,7 @@ class Class_reference {
     public function delete_designation ($designationId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($designationId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter designationId empty');
@@ -396,7 +388,7 @@ class Class_reference {
      */
     public function get_group_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('sys_group');
@@ -423,7 +415,7 @@ class Class_reference {
      */
     public function get_frequency_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency');
@@ -449,7 +441,7 @@ class Class_reference {
      */
     public function get_flow_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('wfl_flow');
@@ -475,7 +467,7 @@ class Class_reference {
      */
     public function get_checkpoint_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('wfl_checkpoint');

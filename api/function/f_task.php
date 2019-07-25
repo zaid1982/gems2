@@ -86,7 +86,7 @@ class Class_task {
      */
     private function check_next_task($checkpoint, $userId, $roleId, $groupId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $checkpointId = $checkpoint['checkpoint_id'];
             $checkpointRole = $checkpoint['role_id'];
@@ -118,7 +118,7 @@ class Class_task {
      */
     private function check_assign ($checkpoint, $transactionId, $assignedGroup = '', $assignedUser = '', $userId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $checkpointId = $checkpoint['checkpoint_id'];
 
@@ -174,7 +174,7 @@ class Class_task {
      */
     public function create_new_task ($flowId, $userId, $roleId, $groupId, $transactionNo, $dueDate='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($flowId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter flowId empty');
@@ -234,7 +234,7 @@ class Class_task {
      */
     public function submit_task ($taskId, $userId, $status = '9', $remark = '', $next = '', $groupId = '', $toGroup = '', $toUser = '') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($taskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter taskId empty');
@@ -365,7 +365,7 @@ class Class_task {
     public function delete_user_role ($userId, $roleId, $groupId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -401,7 +401,7 @@ class Class_task {
      */
     public function add_user_role ($userId, $roleId, $groupId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -438,7 +438,7 @@ class Class_task {
      */
     public function get_checkpoint_groups ($userId, $roleId, $checkpointId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -465,7 +465,7 @@ class Class_task {
      */
     public function get_track_monitoring_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             $result = array();
             $arrWhere = array('task_current'=>'1');
@@ -506,7 +506,7 @@ class Class_task {
      */
     public function get_task_history ($taskId, $transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($taskId) && empty($transactionId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter taskId and transactionId empty');
@@ -559,7 +559,7 @@ class Class_task {
      */
     public function get_track_monitoring_list_m ($userId, $flowId, $assetNo='', $searchTxt='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -628,7 +628,7 @@ class Class_task {
      */
     public function get_track_monitoring_details_m ($transactionId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($transactionId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');

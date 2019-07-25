@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_assetModel {
 
@@ -80,7 +78,7 @@ class Class_assetModel {
      */
     public function get_assetModel_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset_model');
@@ -110,7 +108,7 @@ class Class_assetModel {
      */
     public function get_assetModel ($assetModelId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Array assetModelId empty');
@@ -142,7 +140,7 @@ class Class_assetModel {
     public function add_assetModel ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -189,7 +187,7 @@ class Class_assetModel {
     public function update_assetModel ($assetModelId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -240,7 +238,7 @@ class Class_assetModel {
     public function deactivate_assetModel ($assetModelId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -266,7 +264,7 @@ class Class_assetModel {
     public function activate_assetModel ($assetModelId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -292,7 +290,7 @@ class Class_assetModel {
     public function delete_assetModel ($assetModelId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');

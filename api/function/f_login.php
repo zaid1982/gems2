@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 require_once 'src/BeforeValidException.php';
 require_once 'src/ExpiredException.php';
 require_once 'src/SignatureInvalidException.php';
@@ -88,7 +86,7 @@ class Class_login {
      */
     public function create_jwt ($userId='', $username='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if ($userId === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
@@ -114,7 +112,7 @@ class Class_login {
      */
     public function check_jwt ($jwt='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if ($jwt === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter jwt empty');
             }
@@ -141,7 +139,7 @@ class Class_login {
      */
     public function check_device_id ($userId, $deviceId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($deviceId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
             }
@@ -166,7 +164,7 @@ class Class_login {
      */
     public function get_menu_list ($arr_roles=array()) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($arr_roles)) {
                 throw new Exception('[' . __LINE__ . '] - Array arr_roles empty');
             }
@@ -210,7 +208,7 @@ class Class_login {
     public function check_login ($username, $password, $deviceId='') {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (is_null($username) || $username === '') { 
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             } 
@@ -286,7 +284,7 @@ class Class_login {
     public function check_login_web ($username, $password) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (is_null($username) || $username === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
@@ -347,7 +345,7 @@ class Class_login {
     public function reset_password ($username, $password) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (is_null($username) || $username === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }

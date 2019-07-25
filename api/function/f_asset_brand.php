@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_assetBrand {
 
@@ -79,7 +77,7 @@ class Class_assetBrand {
      */
     public function get_assetBrand_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('ast_asset_brand');
@@ -105,7 +103,7 @@ class Class_assetBrand {
      */
     public function get_assetBrand_groupList () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_asset_brand_group');
@@ -134,7 +132,7 @@ class Class_assetBrand {
      */
     public function get_assetBrand ($assetBrandId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetBrandId)) {
                 throw new Exception('[' . __LINE__ . '] - Array assetBrandId empty');
@@ -164,7 +162,7 @@ class Class_assetBrand {
     public function add_assetBrand ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -203,7 +201,7 @@ class Class_assetBrand {
     public function update_assetBrand ($assetBrandId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetBrandId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');
@@ -246,7 +244,7 @@ class Class_assetBrand {
     public function deactivate_assetBrand ($assetBrandId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetBrandId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');
@@ -272,7 +270,7 @@ class Class_assetBrand {
     public function activate_assetBrand ($assetBrandId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetBrandId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');
@@ -298,7 +296,7 @@ class Class_assetBrand {
     public function delete_assetBrand ($assetBrandId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetBrandId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId empty');

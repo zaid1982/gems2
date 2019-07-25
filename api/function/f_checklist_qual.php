@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_checklistQual {
 
@@ -80,7 +78,7 @@ class Class_checklistQual {
      */
     public function get_checklistQual_list ($checklistId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -113,7 +111,7 @@ class Class_checklistQual {
      */
     public function get_checklistQual ($checklistQualId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistQualId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQualId empty');
@@ -144,7 +142,7 @@ class Class_checklistQual {
     public function add_checklistQual ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -192,7 +190,7 @@ class Class_checklistQual {
     public function update_checklistQual ($checklistQualId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistQualId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQualId empty');
@@ -243,7 +241,7 @@ class Class_checklistQual {
     public function deactivate_checklistQual ($checklistQualId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistQualId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQualId empty');
@@ -268,7 +266,7 @@ class Class_checklistQual {
     public function activate_checklistQual ($checklistQualId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistQualId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQualId empty');
@@ -293,7 +291,7 @@ class Class_checklistQual {
     public function delete_checklistQual ($checklistQualId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($checklistQualId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistQualId empty');

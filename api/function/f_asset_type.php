@@ -1,6 +1,4 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_assetType {
 
@@ -79,7 +77,7 @@ class Class_assetType {
      */
     public function get_assetType_list () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_asset_type');
@@ -110,7 +108,7 @@ class Class_assetType {
      */
     public function get_assetType ($assetTypeId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetTypeId)) {
                 throw new Exception('[' . __LINE__ . '] - Array assetTypeId empty');
@@ -141,7 +139,7 @@ class Class_assetType {
     public function add_assetType ($params) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -184,7 +182,7 @@ class Class_assetType {
     public function update_assetType ($assetTypeId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetTypeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
@@ -231,7 +229,7 @@ class Class_assetType {
     public function deactivate_assetType ($assetTypeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetTypeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
@@ -257,7 +255,7 @@ class Class_assetType {
     public function activate_assetType ($assetTypeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetTypeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
@@ -283,7 +281,7 @@ class Class_assetType {
     public function delete_assetType ($assetTypeId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($assetTypeId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');

@@ -81,7 +81,7 @@ class Class_user {
      */
     public function register_user ($userDetails=array(), $type=0) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($userDetails)) {
                 throw new Exception('['.__LINE__.'] - Array userDetails empty');
             }     
@@ -152,7 +152,7 @@ class Class_user {
      */
     public function activate_user ($activationInput='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($activationInput)) {
                 throw new Exception('['.__LINE__.'] - Parameter activationInput empty');
             }    
@@ -186,7 +186,7 @@ class Class_user {
     public function forgot_password ($email='') {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($email)) {
                 throw new Exception('['.__LINE__.'] - Parameter email empty');
             }
@@ -226,7 +226,7 @@ class Class_user {
     public function update_profile ($userId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -343,7 +343,7 @@ class Class_user {
     public function update_profile_m ($userId, $name, $phoneNo, $uploadId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -382,7 +382,7 @@ class Class_user {
     public function change_password ($userId, $put_vars) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -420,7 +420,7 @@ class Class_user {
     public function add_user ($userDetails=array()) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($userDetails)) {
                 throw new Exception('['.__LINE__.'] - Array userDetails empty');
             }
@@ -530,7 +530,7 @@ class Class_user {
      */
     public function get_users() {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $users = Class_db::getInstance()->db_select('vw_user_list');
@@ -566,7 +566,7 @@ class Class_user {
      */
     public function get_user_report ($userId, $roleId, $reportRole) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -593,7 +593,7 @@ class Class_user {
      */
     public function get_user ($userId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -632,7 +632,7 @@ class Class_user {
      */
     public function get_user_by_role() {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
             $userData = Class_db::getInstance()->db_select('vw_user_by_role');
@@ -657,7 +657,7 @@ class Class_user {
     public function deactivate_profile ($userId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -681,7 +681,7 @@ class Class_user {
     public function activate_profile ($userId) {
         $constant = new Class_constant();
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -705,7 +705,7 @@ class Class_user {
      */
     public function save_token ($userId, $token) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
