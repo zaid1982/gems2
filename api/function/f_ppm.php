@@ -372,6 +372,7 @@ class Class_ppm {
             if (empty($technicians)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
             }
+            $technicianDays = Class_db::getInstance()->db_select('vw_technicians_ppm_monthly', array(), null, null, 0, array('technicians'=>implode(',',$technicians)));
 
             $isYearly = false;
             $isHalfAnnaully = false;
@@ -467,15 +468,42 @@ class Class_ppm {
             $runningNo = intval($runningNo);
             $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_cycle'=>$ppmDateCycle, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
                 'contract_id'=>$contractId, 'ppm_created_by'=>$userId));
+            $currentMonth = array('year'=>'', 'month'=>'');
+            $technicianKpis = array();
+            foreach ($technicians as $technician) {
+                array_push($technicianKpis, array('userId'=>$technician, 'total'=>0));
+            }
 
             foreach($tempDays as $key => $dateStr){
+                $curYear = substr($dateStr, 0, 4);
+                $curMonth = strval(intval(substr($dateStr, 5, 2)));
+                if ($currentMonth['year'] != $curYear || $currentMonth['month'] != $curMonth) {
+                    $currentMonth = array('year'=>$curYear, 'month'=>$curMonth);
+                    foreach ($technicianKpis as $technicianKpi) {
+                        $technicianKpi['total'] = 0;
+                    }
+                    $kpiIntersects = array_intersect(array_keys(array_column($technicianDays, 'ppm_year'), $curYear), array_keys(array_column($technicianDays, 'ppm_month'), $curMonth));
+                    foreach ($kpiIntersects as $kpiIntersect) {
+                        $key = array_search($kpiIntersect['ppm_task_assigned_to'], array_column($technicianKpis, 'userId'));
+                        $technicianKpis[$key]['total'] = intval($kpiIntersect['total']);
+                    }
+                    foreach ($technicianKpis as $technicianKpi) {
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'TechnicianId = ' . $technicianKpi['userId'] . ', Total = ' . $technicianKpi['total']);
+                    }
+                }
+
+                $columnKpi = array_column($technicianKpis, 'total');
+                $lowestKpiIndex = array_search(min($columnKpi), $columnKpi, true);
+                $technician = $technicianKpis[$lowestKpiIndex]['userId'];
+                $technicianKpis[$lowestKpiIndex]['total']++;
+                //$technicianKey = $key%count($technicians);
+                //$technician = $technicians[$technicianKey];
+
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $ppmTaskNo = 'P'.$siteCode.substr($dateStr, 2, 2).substr($dateStr, 5, 2).substr($dateStr, 8, 2).$runningNoStr;
                 $runningNo++;
-                $ppmTaskIssueNo = $key + 1;
-                $technicianKey = $key%count($technicians);
-                $technician = $technicians[$technicianKey];
+
                 $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo, $dateStr);
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
                 $checklistGuideline = !empty($checklist['checklist_guideline']) ? $checklist['checklist_guideline'] : '';

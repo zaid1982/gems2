@@ -175,10 +175,17 @@ class Class_sql
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
                     cli_contract_user.user_id
-                FROM cli_contract_user
-                INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND wfl_checkpoint_user.role_id = 5
-		            AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
+                FROM cli_contract_user                
                 INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
+                // INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND wfl_checkpoint_user.role_id = 5
+                //		            AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
+            } else if ($title === 'vw_technicians_ppm_monthly') {
+                $sql = "SELECT
+                    YEAR(ppm_task_schedule_date) AS ppm_year, 
+                    MONTH(ppm_task_schedule_date) AS ppm_month, 
+                    ppm_task_assigned_to, COUNT(*) AS total
+                FROM ppm_task WHERE ppm_task_assigned_to IN ([technicians])
+                GROUP BY ppm_year, ppm_month, ppm_task_assigned_to";
             } else if ($title === 'mw_task_ppm_pending') {
                 $sql = "SELECT
                     wfl_task.*,
