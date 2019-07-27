@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-12">
             <div class="card card-cascade cascading-admin-card user-card mt-4">
                 <div class="admin-up d-flex justify-content-start">
                     <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-3"></i>
@@ -18,20 +18,20 @@
                 <div class="card-body card-body-cascade px-3 pb-0">
                     <form id="formSct">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-4">
                                 <div class="md-form md-outline mt-4">
                                     <input type="text" id="txtSctClientName" class="form-control" disabled>
                                     <label for="txtSctClientName" id="lblSctClientName">Client Name</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-4">
                                     <input type="text" id="txtSctSiteName" class="form-control" disabled>
                                     <label for="txtSctSiteName" id="lblSctSiteName">Site Name</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-4">
                                     <input type="text" id="txtSctContractName" class="form-control" disabled>
                                     <label for="txtSctContractName" id="lblSctContractName">Contract Name</label>
                                 </div>
@@ -42,19 +42,19 @@
                                     <label for="txaSctContractDesc" id="lblSctContractDesc" class="text-muted">Description</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSctContractDateStart" class="form-control" disabled>
                                     <label for="txtSctContractDateStart" id="lblSctContractDateStart">Contract Date Start</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSctContractDateEnd" class="form-control" disabled>
                                     <label for="txtSctContractDateEnd" id="lblSctContractDateEnd">Contract Date End</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-4">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSctContractStatus" class="form-control" disabled>
                                     <label for="txtSctContractStatus" id="lblSctContractStatus" class="text-muted">Status</label>
@@ -65,7 +65,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+    </div>
+    <div class="row">
+        <div class="col-md-6">
             <div class="card card-cascade narrower mb-5 mt-5">
                 <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
@@ -95,6 +97,7 @@
                         <tr class="th-strong">
                             <th style="width: 5%">#</th>
                             <th>Location Code</th>
+                            <th>Total Technician</th>
                             <th style="width: 20%">Status</th>
                             <th style="width: 64px; min-width: 64px"></th>
                         </tr>
@@ -103,7 +106,9 @@
                     </table>
                 </div>
             </div>
-            <div class="card card-cascade narrower">
+        </div>
+        <div class="col-md-6">
+            <div class="card card-cascade narrower mb-5 mt-5">
                 <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
                         <button type="button" id="btnSctLocationUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Assigned"><i class="fas fa-plus mt-0"></i></button>
@@ -117,7 +122,16 @@
                         <div id="btnDtSctLocationUserExport"></div>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="px-4">
+                    <form class="form-inline md-form form-sm mt-2 mb-0 pb-0 float-right">
+                        <div class="">
+                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                            <input type="text" id="txtSctLocationUserSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                            <label for="txtSctLocationUserSearch" class="ml-4">Search</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="table-responsive pb-4">
                     <table id="dtSctLocationUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
                         <thead>
                         <tr class="th-strong">

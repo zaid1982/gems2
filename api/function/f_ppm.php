@@ -479,13 +479,16 @@ class Class_ppm {
                 $curMonth = strval(intval(substr($dateStr, 5, 2)));
                 if ($currentMonth['year'] != $curYear || $currentMonth['month'] != $curMonth) {
                     $currentMonth = array('year'=>$curYear, 'month'=>$curMonth);
-                    foreach ($technicianKpis as $technicianKpi) {
-                        $technicianKpi['total'] = 0;
+                    foreach ($technicianKpis as $key2 => $technicianKpi) {
+                        $technicianKpis[$key2]['total'] = 0;
                     }
                     $kpiIntersects = array_intersect(array_keys(array_column($technicianDays, 'ppm_year'), $curYear), array_keys(array_column($technicianDays, 'ppm_month'), $curMonth));
                     foreach ($kpiIntersects as $kpiIntersect) {
-                        $key = array_search($kpiIntersect['ppm_task_assigned_to'], array_column($technicianKpis, 'userId'));
-                        $technicianKpis[$key]['total'] = intval($kpiIntersect['total']);
+                        $key = array_search($technicianDays[$kpiIntersect]['ppm_task_assigned_to'], array_column($technicianKpis, 'userId'));
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'kpiIntersect = ' . $kpiIntersect);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'key = ' . $key);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'total = ' . $technicianDays[$kpiIntersect]['total']);
+                        $technicianKpis[$key]['total'] = intval($technicianDays[$kpiIntersect]['total']);
                     }
                     foreach ($technicianKpis as $technicianKpi) {
                         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'TechnicianId = ' . $technicianKpi['userId'] . ', Total = ' . $technicianKpi['total']);
@@ -498,6 +501,8 @@ class Class_ppm {
                 $technicianKpis[$lowestKpiIndex]['total']++;
                 //$technicianKey = $key%count($technicians);
                 //$technician = $technicians[$technicianKey];
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Lowest TechnicianId = ' . $technician . ', Total = ' . $technicianKpis[$lowestKpiIndex]['total']);
+                //throw new Exception('[' . __LINE__ . '] - Block');
 
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
@@ -579,7 +584,6 @@ class Class_ppm {
 
                 Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8'), array('transaction_id'=>$transactionId));
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
-                // notification
             }
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
 

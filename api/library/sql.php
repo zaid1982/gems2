@@ -351,6 +351,15 @@ class Class_sql
                     count(*) AS total 
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id";
+            } else if ($title === 'vw_location_code_with_count') {
+                $sql = "SELECT
+                    cli_location_code.*,
+                    contract_user.total
+                FROM cli_location_code
+                LEFT JOIN (
+                        SELECT location_code_id, COUNT(*) AS total FROM cli_contract_user WHERE contract_id = [contract_id] GROUP BY location_code_id
+                    ) contract_user ON contract_user.location_code_id = cli_location_code.location_code_id
+                WHERE site_id = [site_id]";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

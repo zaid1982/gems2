@@ -79,8 +79,9 @@ function SectionContract() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'locationCodeName', bSortable: false},
-                    {mData: null, bSortable: false,
+                    {mData: 'locationCodeName'},
+                    {mData: 'totalTechnician', mRender: function (data) { return mzFormatNumber(data);}},
+                    {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['locationCodeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['locationCodeStatus']]['statusDesc']+'</span></h6>';
                         }
@@ -107,13 +108,13 @@ function SectionContract() {
         let cntLocationCode;
         let btnLocationCodeOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2],
+                columns: [ 0, 1, 2, 3],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntLocationCode = 1;
                         }
-                        if (column === 2) {
+                        if (column === 3) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -170,8 +171,6 @@ function SectionContract() {
             bLengthChange: false,
             bFilter: true,
             autoWidth: false,
-            bPaginate: false,
-            bInfo : false,
             aaSorting: [1, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableLocationUser.page.info();
@@ -193,11 +192,11 @@ function SectionContract() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'locationCodeName', bSortable: false},
-                    {mData: 'userId', bSortable: false, mRender: function (data){
+                    {mData: 'locationCodeName'},
+                    {mData: 'userId', mRender: function (data){
                             return refUser[data]['userFullName'];
                         }},
-                    {mData: 'assetGroupId', bSortable: false, mRender: function (data){
+                    {mData: 'assetGroupId', mRender: function (data){
                             return refAssetGroup[data]['assetGroupName'];
                         }},
                     {mData: null, bSortable: false, sClass: 'text-center',
@@ -209,6 +208,9 @@ function SectionContract() {
                 ]
         });
         $("#dtSctLocationUser_filter").hide();
+        $('#txtSctLocationUserSearch').on('keyup change', function () {
+            oTableLocationUser.search($(this).val()).draw();
+        });
 
         let cntLocationUser;
         let btnLocationUserOpt = {
@@ -308,7 +310,7 @@ function SectionContract() {
     };
 
     this.genTableLocationCode = function () {
-        const dataLocationCode = mzAjaxRequest('location_code.php?contractId='+contractId, 'GET');
+        const dataLocationCode = mzAjaxRequest('location_code.php?type=location_code_with_count&contractId='+contractId, 'GET');
         oTableLocationCode.clear().rows.add(dataLocationCode).draw();
     };
 

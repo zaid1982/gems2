@@ -30,9 +30,16 @@ try {
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
+        $type = filter_input(INPUT_GET, 'type');
         $locationCodeId = filter_input(INPUT_GET, 'locationCodeId');
         $contractId = filter_input(INPUT_GET, 'contractId');
-        if (!is_null($locationCodeId)) {
+        if (!is_null($type)) {
+            if ($type === 'location_code_with_count') {
+                $result = $fn_locationCode->get_locationCode_list_with_count($contractId);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
+            }
+        } else if (!is_null($locationCodeId)) {
             $result = $fn_locationCode->get_locationCode($locationCodeId);
         } else if (!is_null($contractId)) {
             $result = $fn_locationCode->get_locationCode_list($contractId);

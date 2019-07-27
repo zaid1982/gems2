@@ -105,6 +105,40 @@ class Class_locationCode {
     }
 
     /**
+     * @param string $contractId
+     * @return array
+     * @throws Exception
+     */
+    public function get_locationCode_list_with_count ($contractId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($contractId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
+            }
+
+            $result = array();
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_location_code_with_count', array(), null, null, 0, array('site_id'=>$siteId, 'contract_id'=>$contractId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['locationCodeId'] = $dataLocal['location_code_id'];
+                $row_result['locationCodeName'] = $dataLocal['location_code_name'];
+                $row_result['locationCodeDesc'] = $dataLocal['location_code_desc'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['totalTechnician'] = $this->fn_general->clear_null($dataLocal['total'], '0');
+                $row_result['locationCodeStatus'] = $dataLocal['location_code_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $locationCodeId
      * @return array
      * @throws Exception
