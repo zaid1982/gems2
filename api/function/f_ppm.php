@@ -223,7 +223,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    private function get_dates_year ($startDate, $endDate) {
+    public function get_dates_year ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
@@ -231,11 +231,15 @@ class Class_ppm {
             //$begin = $begin->modify( '-1 day' );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+2 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P1Y');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
                 $xx = $date->modify( '-1 day' );
-                array_push($newDates, $xx->format("Y-m-d"));
+                if ($xx > $apply) {
+                    array_push($newDates, $xx->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
