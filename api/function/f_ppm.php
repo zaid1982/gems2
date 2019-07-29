@@ -502,8 +502,9 @@ class Class_ppm {
             $currentMonth = array('year'=>'', 'month'=>'');
             $technicianKpis = array();
             foreach ($technicians as $technician) {
-                array_push($technicianKpis, array('userId'=>$technician, 'total'=>0));
+                array_push($technicianKpis, array('userId'=>$technician, 'total'=>0, 'totalPPM'=>0));
             }
+            $lastTechnician = '';
 
             foreach($tempDays as $key => $dateStr){
                 $curYear = substr($dateStr, 0, 4);
@@ -521,19 +522,38 @@ class Class_ppm {
                         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'total = ' . $technicianDays[$kpiIntersect]['total']);
                         $technicianKpis[$key]['total'] = intval($technicianDays[$kpiIntersect]['total']);
                     }
-                    foreach ($technicianKpis as $technicianKpi) {
-                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'TechnicianId = ' . $technicianKpi['userId'] . ', Total = ' . $technicianKpi['total']);
+                    foreach ($technicianKpis as $key2 => $technicianKpi) {
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'TechnicianId = ' . $technicianKpi['userId'] . ', Total = ' . $technicianKpi['total'] . ', TotalPPM = ' . $technicianKpi['totalPPM']);
                     }
                 }
 
                 $columnKpi = array_column($technicianKpis, 'total');
+                $lowestKpi = min($columnKpi);
                 $lowestKpiIndex = array_search(min($columnKpi), $columnKpi, true);
                 $technician = $technicianKpis[$lowestKpiIndex]['userId'];
+                if ($technician == $lastTechnician) {
+                    $lowestKpiPPM = 10000;
+                    $lowestKpiPPMIndex = 1000;
+                    foreach ($technicianKpis as $key2 => $technicianKpi) {
+                        if ($technicianKpis[$key2]['total'] == $lowestKpi && $technicianKpis[$key2]['userId'] != $technician) {
+                            if ($technicianKpis[$key2]['totalPPM'] < $lowestKpiPPM) {
+                                $lowestKpiPPM = $technicianKpis[$key2]['totalPPM'];
+                                $lowestKpiPPMIndex = $key2;
+                            }
+                        }
+                    }
+                    if ($lowestKpiPPMIndex != 1000) {
+                        $lowestKpiIndex = $lowestKpiPPMIndex;
+                        $technician = $technicianKpis[$lowestKpiIndex]['userId'];
+                    }
+                }
+
+                $lastTechnician = $technician;
                 $technicianKpis[$lowestKpiIndex]['total']++;
+                $technicianKpis[$lowestKpiIndex]['totalPPM']++;
                 //$technicianKey = $key%count($technicians);
                 //$technician = $technicians[$technicianKey];
                 $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Lowest TechnicianId = ' . $technician . ', Total = ' . $technicianKpis[$lowestKpiIndex]['total']);
-                //throw new Exception('[' . __LINE__ . '] - Block');
 
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
@@ -1603,11 +1623,17 @@ class Class_ppm {
                 $statusUpdate = '14';
                 $taskName = 'pending check';
                 $reportTo = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>'5', 'report_role'=>'3'), 'report_to');
+                if (empty($reportTo)) {
+                    throw new Exception('[' . __LINE__ . '] - No Reviewer assigned yet for this location code and asset group. Please contract administrator.', 31);
+                }
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>$userId, 'ppm_task_time_serviced'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '1') {
                 $statusUpdate = '15';
                 $taskName = 'pending verification';
                 $reportTo = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>'3', 'report_role'=>'4'), 'report_to');
+                if (empty($reportTo)) {
+                    throw new Exception('[' . __LINE__ . '] - No Reviewer assigned yet for this location code and asset group. Please contract administrator.', 31);
+                }
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by'=>$userId, 'ppm_task_time_checked'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '2') {
                 $statusUpdate = '21';

@@ -21,9 +21,13 @@ try {
     //Class_db::getInstance()->db_beginTransaction();
 
     echo '-----------------<br/>';
-    $yearDates = $fn_ppm->get_dates_year('2019-01-01', '2021-12-31', '2020-09-01');
-    foreach ($yearDates as $yearDate) {
-        echo $yearDate.'<br/>';
+    $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'1', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
+        'ppm_checklist.checklist_id'=>'is not NULL', 'ppm_id'=>'is NULL'), null, '1');
+    foreach ($assets as $asset) {
+        var_dump($asset);
+        $result = $fn_ppm->assign_ppm_single($asset['asset_id'], $asset['checklist_id'], '2019-08-01', '1');
+        echo '<br/>ppmId = '.$result['ppmId'].', ppmTaskNo = '.$result['ppmTaskNo'];
+        echo '<br/>-----------------<br/>';
     }
 
     //Class_db::getInstance()->db_commit();

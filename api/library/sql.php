@@ -172,6 +172,14 @@ class Class_sql
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
                 LEFT JOIN cli_location_code ON cli_location_code.location_code_id = ast_asset.location_code_id";
+            } else if ($title === 'vw_ppm_asset_backdoor') {
+                $sql = "SELECT 
+                    ppm_checklist.checklist_id AS checklist_id,
+                    ast_asset.*,
+                    ppm.ppm_id
+                FROM ast_asset 
+                LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
+                LEFT JOIN ppm_checklist ON ppm_checklist.asset_type_id = ast_asset.asset_type_id";
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
                     cli_contract_user.user_id
