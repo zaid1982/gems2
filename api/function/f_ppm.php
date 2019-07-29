@@ -89,19 +89,24 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
-    private function get_dates_day ($startDate, $endDate) {
+    private function get_dates_day ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+1 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P1D');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
-                array_push($newDates, $date->format("Y-m-d"));
+                if ($date > $apply) {
+                    array_push($newDates, $date->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
@@ -113,10 +118,11 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
-    private function get_dates_week ($startDate, $endDate) {
+    private function get_dates_week ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
@@ -124,10 +130,14 @@ class Class_ppm {
             $begin = $begin->modify( '-1 day' );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+1 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P1W');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
-                array_push($newDates, $date->format("Y-m-d"));
+                if ($date > $apply) {
+                    array_push($newDates, $date->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
@@ -139,10 +149,11 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
-    private function get_dates_month ($startDate, $endDate) {
+    private function get_dates_month ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
@@ -150,11 +161,15 @@ class Class_ppm {
             //$begin = $begin->modify( '-1 day' );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+2 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P1M');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
                 $xx = $date->modify( '-1 day' );
-                array_push($newDates, $xx->format("Y-m-d"));
+                if ($xx > $apply) {
+                    array_push($newDates, $xx->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
@@ -166,10 +181,11 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
-    private function get_dates_quarter ($startDate, $endDate) {
+    private function get_dates_quarter ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
@@ -177,11 +193,15 @@ class Class_ppm {
             //$begin = $begin->modify( '-1 day' );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+2 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P3M');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
                 $xx = $date->modify( '-1 day' );
-                array_push($newDates, $xx->format("Y-m-d"));
+                if ($xx > $apply) {
+                    array_push($newDates, $xx->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
@@ -193,10 +213,11 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
-    private function get_dates_halfAnnual ($startDate, $endDate) {
+    private function get_dates_halfAnnual ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
             $begin = new DateTime( $startDate );
@@ -204,11 +225,15 @@ class Class_ppm {
             //$begin = $begin->modify( '-1 day' );
             $end = new DateTime( $endDate );
             $end = $end->modify( '+2 day' );
+
+            $apply = new DateTime( $applyDate );
             $interval = new DateInterval('P6M');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
                 $xx = $date->modify( '-1 day' );
-                array_push($newDates, $xx->format("Y-m-d"));
+                if ($xx > $apply) {
+                    array_push($newDates, $xx->format("Y-m-d"));
+                }
             }
             return $newDates;
         } catch (Exception $ex) {
@@ -220,6 +245,7 @@ class Class_ppm {
     /**
      * @param $startDate
      * @param $endDate
+     * @param $applyDate
      * @return array
      * @throws Exception
      */
@@ -366,6 +392,7 @@ class Class_ppm {
             $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
             $contractId = $asset['contract_id'];
             $contract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
+            $contractDateStart = $contract['contract_date_start'];
             $contractDateEnd = $contract['contract_date_end'];
             if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
                 throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
@@ -433,12 +460,12 @@ class Class_ppm {
                 }
             }
 
-            $dailyDates = $this->get_dates_day($ppmDateCycle, $contractDateEnd);
-            $weeklyDates = $this->get_dates_week($ppmDateCycle, $contractDateEnd);
-            $monthlyDates = $this->get_dates_month($ppmDateCycle, $contractDateEnd);
-            $quarterlyDates = $this->get_dates_quarter($ppmDateCycle, $contractDateEnd);
-            $halfAnnuallyDates = $this->get_dates_halfAnnual($ppmDateCycle, $contractDateEnd);
-            $yearlyDates = $this->get_dates_year($ppmDateCycle, $contractDateEnd);
+            $dailyDates = $this->get_dates_day($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $weeklyDates = $this->get_dates_week($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $monthlyDates = $this->get_dates_month($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $quarterlyDates = $this->get_dates_quarter($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $halfAnnuallyDates = $this->get_dates_halfAnnual($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $yearlyDates = $this->get_dates_year($contractDateStart, $contractDateEnd, $ppmDateCycle);
 
             $tempDays = array();
             foreach($dailyDates as $dateStr){
