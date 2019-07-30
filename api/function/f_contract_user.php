@@ -87,7 +87,7 @@ class Class_contractUser {
             $locationCodes = $this->fn_general->getLocationCode();
             $arr_dataLocal = Class_db::getInstance()->db_select('cli_contract_user', array('contract_id'=>$contractId));
             foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['contractUserId'] = $dataLocal['location_code_id'];
+                $row_result['contractUserId'] = $dataLocal['contract_user_id'];
                 $row_result['userId'] = $dataLocal['user_id'];
                 $row_result['locationCodeId'] = $dataLocal['location_code_id'];
                 $row_result['locationCodeName'] = $locationCodes[intval($dataLocal['location_code_id'])];
