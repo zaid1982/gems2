@@ -175,11 +175,17 @@ class Class_sql
             } else if ($title === 'vw_ppm_asset_backdoor') {
                 $sql = "SELECT 
                     ppm_checklist.checklist_id AS checklist_id,
-                    ast_asset.*,
-                    ppm.ppm_id
+                    aa.total_user,
+                    ppm.ppm_id,
+                    ast_asset.*
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
-                LEFT JOIN ppm_checklist ON ppm_checklist.asset_type_id = ast_asset.asset_type_id";
+                LEFT JOIN ppm_checklist ON ppm_checklist.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN (
+                    select location_code_id, contract_id, asset_group_id, count(*) AS total_user
+                    from cli_contract_user
+                    GROUP BY location_code_id, contract_id, asset_group_id
+                ) aa ON aa.location_code_id = ast_asset.location_code_id AND aa.contract_id = ast_asset.contract_id and aa.asset_group_id = ast_asset.asset_group_id";
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
                     cli_contract_user.user_id
