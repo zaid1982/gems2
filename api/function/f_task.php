@@ -597,7 +597,7 @@ class Class_task {
                 $arrWhere['asset_no'] = $assetNo;
             }
 
-            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_m', $arrWhere);
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_m', $arrWhere, 'task_id DESC', '100');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];

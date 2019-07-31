@@ -232,31 +232,21 @@ class Class_sql
                 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND wfl_task.task_current = 1 [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
-                    wfl_task.*,
-                    ppm_task.ppm_task_id,
-                    ppm_task.ppm_task_schedule_date,
-                    wfl_transaction.transaction_no,
+                    ppm_task.*,
                     ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    task_frequency.frequency,
-                    sys_user.user_first_name
-                FROM wfl_task
-                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
-                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
-                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name) AS frequency
-                    FROM ppm_task_frequency
-                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
-                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                    GROUP_CONCAT(ppm_task_frequency.frequency_id) AS frequency
+                FROM ppm_task 
+                LEFT JOIN ppm_task_frequency ON ppm_task_frequency.ppm_task_id = ppm_task.ppm_task_id                
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
-                WHERE wfl_task.checkpoint_id = 1 [rest_filter]";
+                WHERE [rest_filter] GROUP BY ppm_task.ppm_task_id";
             } else if ($title === 'mw_task_calendar_count_all') {
                 $sql = "SELECT
                     ppm_task_schedule_date, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total

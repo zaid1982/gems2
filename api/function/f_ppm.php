@@ -670,7 +670,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'task_date_due', null, null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_schedule_date', '100', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -721,34 +721,40 @@ class Class_ppm {
                     return array();
                 }
                 $contractArr = array_unique($contractArr, SORT_REGULAR);
-                $restFilter .= 'AND ppm.contract_id IN ('.implode(',', $contractArr).') ';
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= 'ppm.contract_id IN ('.implode(',', $contractArr).') ';
             } else {
                 return array();
             }
 
             if (!empty($date)) {
-                $restFilter .= 'AND ppm_task_schedule_date = \''.$date.'\' ';
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= 'ppm_task_schedule_date = \''.$date.'\' ';
             }
             if (!empty($assetNo)) {
-                $restFilter .= 'AND ast_asset.asset_no = \''.$assetNo.'\' ';
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= 'ast_asset.asset_no = \''.$assetNo.'\' ';
             }
             if (!empty($searchTxt)) {
-                $restFilter .= 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= '(ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
                     'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\') ';
             }
 
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrPpmFrequency = $this->fn_general->getPpmFrequency();
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), null, null, null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_schedule_date', '100', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['taskId'] = $dataLocal['task_id'];
+                $row_result['taskId'] = '';
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
-                $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                $row_result['transactionNo'] = $dataLocal['ppm_task_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
                 $row_result['siteName'] = $dataLocal['site_name'];
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
-                $row_result['frequency'] = explode(',', $dataLocal['frequency']);
-                $row_result['technician'] = $dataLocal['user_first_name'];
+                $row_result['frequency'] = explode(',', $arrPpmFrequency[intval($dataLocal['frequency'])]);
+                $row_result['technician'] = $arrUserFullName[intval($dataLocal['ppm_task_assigned_to'])];
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
