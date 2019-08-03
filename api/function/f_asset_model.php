@@ -2,10 +2,10 @@
 
 class Class_assetModel {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -138,9 +138,9 @@ class Class_assetModel {
      * @throws Exception
      */
     public function add_assetModel ($params) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -185,9 +185,9 @@ class Class_assetModel {
      * @throws Exception
      */
     public function update_assetModel ($assetModelId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -236,9 +236,9 @@ class Class_assetModel {
      * @throws Exception
      */
     public function deactivate_assetModel ($assetModelId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -262,9 +262,9 @@ class Class_assetModel {
      * @throws Exception
      */
     public function activate_assetModel ($assetModelId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');
@@ -288,9 +288,9 @@ class Class_assetModel {
      * @throws Exception
      */
     public function delete_assetModel ($assetModelId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetModelId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId empty');

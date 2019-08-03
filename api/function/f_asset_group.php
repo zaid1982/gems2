@@ -2,10 +2,10 @@
 
 class Class_assetGroup {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -133,9 +133,9 @@ class Class_assetGroup {
      * @throws Exception
      */
     public function add_assetGroup ($params) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -172,9 +172,9 @@ class Class_assetGroup {
      * @throws Exception
      */
     public function update_assetGroup ($assetGroupId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -215,9 +215,9 @@ class Class_assetGroup {
      * @throws Exception
      */
     public function deactivate_assetGroup ($assetGroupId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -241,9 +241,9 @@ class Class_assetGroup {
      * @throws Exception
      */
     public function activate_assetGroup ($assetGroupId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');
@@ -267,9 +267,9 @@ class Class_assetGroup {
      * @throws Exception
      */
     public function delete_assetGroup ($assetGroupId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId empty');

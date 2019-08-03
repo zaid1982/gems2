@@ -1,13 +1,11 @@
 <?php
-require_once 'library/constant.php';
-require_once 'function/f_general.php';
 
 class Class_site {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -141,9 +139,9 @@ class Class_site {
      * @throws Exception
      */
     public function add_site ($params) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -192,9 +190,9 @@ class Class_site {
      * @throws Exception
      */
     public function update_site ($siteId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -248,9 +246,9 @@ class Class_site {
      * @throws Exception
      */
     public function deactivate_site ($siteId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -276,9 +274,9 @@ class Class_site {
      * @throws Exception
      */
     public function activate_site ($siteId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
@@ -304,9 +302,9 @@ class Class_site {
      * @throws Exception
      */
     public function delete_site ($siteId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($siteId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');

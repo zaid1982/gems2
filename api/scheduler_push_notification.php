@@ -5,14 +5,15 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_email.php';
 
-$fn_general = new Class_general();
-$fn_email = new Class_email();
 $api_name = 'schedule_push_notification';
 $is_transaction = false;
 
-$fn_email->__set('fn_general', $fn_general);
+$fn_general = new Class_general();
+$fn_email = new Class_email();
 
 try {
+    $fn_email->__set('fn_general', $fn_general);
+
     Class_db::getInstance()->db_connect();
     $fn_email->send_push_notification();
     Class_db::getInstance()->db_close();

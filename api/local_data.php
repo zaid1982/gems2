@@ -8,20 +8,30 @@ require_once 'function/f_user.php';
 require_once 'function/f_email.php';
 require_once 'function/f_asset_brand.php';
 
+$api_name = 'api_local_data';
+$is_transaction = false;
+$form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
+$result = '';
+
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_reference = new Class_reference();
 $fn_user = new Class_user();
 $fn_assetBrand = new Class_assetBrand();
-$api_name = 'api_local_data';
-$is_transaction = false;
-$form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
-$result = '';
 
-try {   
+try {
+    $fn_general->__set('constant', $constant);
+    $fn_login->__set('constant', $constant);
+    $fn_login->__set('fn_general', $fn_general);
+    $fn_user->__set('constant', $constant);
+    $fn_user->__set('fn_general', $fn_general);
+    $fn_reference->__set('constant', $constant);
+    $fn_reference->__set('fn_general', $fn_general);
+    $fn_assetBrand->__set('constant', $constant);
+    $fn_assetBrand->__set('fn_general', $fn_general);
+
     Class_db::getInstance()->db_connect();
-    //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $request_method = $_SERVER['REQUEST_METHOD'];
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 

@@ -6,21 +6,25 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_contract_user.php';
 
-$constant = new Class_constant();
-$fn_general = new Class_general();
-$fn_login = new Class_login();
-$fn_contractUser = new Class_contractUser();
 $api_name = 'api_contract_user';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fn_contractUser->__set('fn_general', $fn_general);
+$constant = new Class_constant();
+$fn_general = new Class_general();
+$fn_login = new Class_login();
+$fn_contractUser = new Class_contractUser();
 
 try {
+    $fn_general->__set('constant', $constant);
+    $fn_login->__set('constant', $constant);
+    $fn_login->__set('fn_general', $fn_general);
+    $fn_contractUser->__set('constant', $constant);
+    $fn_contractUser->__set('fn_general', $fn_general);
+
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
-    //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();

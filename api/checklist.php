@@ -8,22 +8,27 @@ require_once 'function/f_checklist.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/checklist.php';
 
-$constant = new Class_constant();
-$fn_general = new Class_general();
-$fn_login = new Class_login();
-$fn_checklist = new Class_checklist();
-$fn_pdf_checklist = new Class_pdf_checklist();
 $api_name = 'api_checklist';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fn_pdf_checklist->__set('fn_general', $fn_general);
+$constant = new Class_constant();
+$fn_general = new Class_general();
+$fn_login = new Class_login();
+$fn_checklist = new Class_checklist();
+$fn_pdf_checklist = new Class_pdf_checklist();
 
 try {
+    $fn_general->__set('constant', $constant);
+    $fn_login->__set('constant', $constant);
+    $fn_login->__set('fn_general', $fn_general);
+    $fn_checklist->__set('constant', $constant);
+    $fn_checklist->__set('fn_general', $fn_general);
+    $fn_pdf_checklist->__set('fn_general', $fn_general);
+
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
-    //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();

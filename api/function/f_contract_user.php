@@ -2,6 +2,7 @@
 
 class Class_contractUser {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
@@ -113,9 +114,9 @@ class Class_contractUser {
      * @throws Exception
      */
     public function add_contractUser ($contractId, $locationCodeId, $userId, $assetGroupId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($contractId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');

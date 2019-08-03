@@ -5,7 +5,6 @@ class Class_email {
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {

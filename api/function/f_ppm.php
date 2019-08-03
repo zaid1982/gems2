@@ -2,14 +2,12 @@
 
 class Class_ppm {
 
+    private $constant;
     private $fn_general;
     private $fn_task;
     private $fn_email;
 
     function __construct() {
-        $this->fn_general = new Class_general();
-        $this->fn_task = new Class_task();
-        $this->fn_email = new Class_email();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -368,9 +366,9 @@ class Class_ppm {
      * @throws Exception
      */
     public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle, $userId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $constant = $this->constant;
 
             if (empty($assetId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
@@ -1067,9 +1065,9 @@ class Class_ppm {
      * @throws Exception
      */
     public function get_ppm_section_upload_m ($ppmTaskId, $uploadType) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1241,9 +1239,9 @@ class Class_ppm {
      * @throws Exception
      */
     public function add_ppm_parts_m ($ppmTaskId, $ppmTaskPartsDesc) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');

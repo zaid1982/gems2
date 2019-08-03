@@ -9,17 +9,25 @@ require_once 'function/f_email.php';
 require_once 'function/f_task.php';
 require_once 'function/f_ppm.php';
 
-$fn_general = new Class_general();
-$fn_email = new Class_email();
-$fn_task = new Class_task();
-$fn_ppm = new Class_ppm();
 $api_name = 'backdoor_assign';
 $is_transaction = false;
 
-$fn_email->__set('fn_general', $fn_general);
+$constant = new Class_constant();
+$fn_general = new Class_general();
+$fn_task = new Class_task();
+$fn_email = new Class_email();
+$fn_ppm = new Class_ppm();
 
-Class_db::getInstance()->db_connect();
 try {
+    $fn_email->__set('fn_general', $fn_general);
+    $fn_task->__set('constant', $constant);
+    $fn_task->__set('fn_general', $fn_general);
+    $fn_ppm->__set('constant', $constant);
+    $fn_ppm->__set('fn_general', $fn_general);
+    $fn_ppm->__set('fn_task', $fn_task);
+    $fn_ppm->__set('fn_email', $fn_email);
+
+    Class_db::getInstance()->db_connect();
 
     echo '-----------------<br/>';
     $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'<>2', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
@@ -33,8 +41,9 @@ try {
         echo '<br/>-----------------<br/>';
     }
 
+    Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
     Class_db::getInstance()->db_rollback();
+    Class_db::getInstance()->db_close();
     $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
 }
-Class_db::getInstance()->db_close();

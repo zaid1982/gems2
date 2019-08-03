@@ -2,10 +2,10 @@
 
 class Class_assetCategory {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -135,9 +135,9 @@ class Class_assetCategory {
      * @throws Exception
      */
     public function add_assetCategory ($params) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
@@ -178,9 +178,9 @@ class Class_assetCategory {
      * @throws Exception
      */
     public function update_assetCategory ($assetCategoryId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetCategoryId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
@@ -225,9 +225,9 @@ class Class_assetCategory {
      * @throws Exception
      */
     public function deactivate_assetCategory ($assetCategoryId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetCategoryId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
@@ -251,9 +251,9 @@ class Class_assetCategory {
      * @throws Exception
      */
     public function activate_assetCategory ($assetCategoryId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetCategoryId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
@@ -277,9 +277,9 @@ class Class_assetCategory {
      * @throws Exception
      */
     public function delete_assetCategory ($assetCategoryId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($assetCategoryId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');

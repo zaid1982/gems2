@@ -3,6 +3,7 @@
 class Class_general {
      
     private $log_dir = '';
+    private $constant;
     
     function __construct()
     {
@@ -275,9 +276,10 @@ class Class_general {
      * @throws Exception
      */
     public function getDocument ($uploadId='') {
-        $constant = new Class_constant();
         try {
             $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
             if (empty($uploadId)) {
                 throw new Exception('(ErrCode:0061) [' . __LINE__ . '] - Parameter uploadId empty');   
             }
@@ -303,9 +305,10 @@ class Class_general {
      * @throws Exception
      */
     public function getPdf ($pdfId='') {
-        $constant = new Class_constant();
         try {
             $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
             if (empty($pdfId)) {
                 throw new Exception('(ErrCode:0061) [' . __LINE__ . '] - Parameter pdfId empty');
             }

@@ -2,10 +2,10 @@
 
 class Class_checklist {
 
+    private $constant;
     private $fn_general;
 
     function __construct() {
-        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -186,9 +186,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function save_checklist ($checklistId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -249,9 +249,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function submit_checklist ($checklistId, $put_vars, $userId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -320,9 +320,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function update_checklist ($checklistId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -381,9 +381,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function deactivate_checklist ($checklistId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -405,9 +405,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function activate_checklist ($checklistId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
@@ -429,9 +429,9 @@ class Class_checklist {
      * @throws Exception
      */
     public function delete_checklist ($checklistId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');

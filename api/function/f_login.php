@@ -9,10 +9,9 @@ use \Firebase\JWT\JWT;
 class Class_login {
      
     private $fn_general;
+    private $constant;
     
-    function __construct()
-    {
-        $this->fn_general = new Class_general();
+    function __construct() {
     }
     
     private function get_exception($codes, $function, $line, $msg) {
@@ -206,9 +205,10 @@ class Class_login {
      * @throws Exception
      */
     public function check_login ($username, $password, $deviceId='') {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
             if (is_null($username) || $username === '') { 
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             } 
@@ -282,9 +282,10 @@ class Class_login {
     }
 
     public function check_login_web ($username, $password) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
             if (is_null($username) || $username === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
@@ -343,9 +344,10 @@ class Class_login {
      * @throws Exception
      */
     public function reset_password ($username, $password) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
             if (is_null($username) || $username === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }

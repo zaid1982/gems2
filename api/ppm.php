@@ -10,22 +10,33 @@ require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ppm.php';
 
-$constant = new Class_constant();
-$fn_general = new Class_general();
-$fn_login = new Class_login();
-$fn_ppm = new Class_ppm();
-$fn_pdf_ppm = new Class_pdf_ppm();
 $api_name = 'api_ppm';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fn_pdf_ppm->__set('fn_general', $fn_general);
+$constant = new Class_constant();
+$fn_general = new Class_general();
+$fn_login = new Class_login();
+$fn_task = new Class_task();
+$fn_email = new Class_email();
+$fn_ppm = new Class_ppm();
+$fn_pdf_ppm = new Class_pdf_ppm();
 
 try {
+    $fn_general->__set('constant', $constant);
+    $fn_login->__set('constant', $constant);
+    $fn_login->__set('fn_general', $fn_general);
+    $fn_task->__set('constant', $constant);
+    $fn_task->__set('fn_general', $fn_general);
+    $fn_ppm->__set('constant', $constant);
+    $fn_ppm->__set('fn_general', $fn_general);
+    $fn_ppm->__set('fn_task', $fn_task);
+    $fn_ppm->__set('fn_email', $fn_email);
+    $fn_pdf_ppm->__set('fn_general', $fn_general);
+
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
-    //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();

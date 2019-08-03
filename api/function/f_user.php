@@ -1,13 +1,12 @@
 <?php
 
 class Class_user {
-     
+
+    private $constant;
     private $fn_general;
     private $fn_email;
     
     function __construct() {
-        $this->fn_general = new Class_general();
-        $this->fn_email = new Class_email();
     }
     
     private function get_exception($codes, $function, $line, $msg) {
@@ -184,9 +183,10 @@ class Class_user {
      * @throws Exception
      */
     public function forgot_password ($email='') {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
             if (empty($email)) {
                 throw new Exception('['.__LINE__.'] - Parameter email empty');
             }
@@ -224,9 +224,9 @@ class Class_user {
      * @throws Exception
      */
     public function update_profile ($userId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
             
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -341,9 +341,9 @@ class Class_user {
      * @throws Exception
      */
     public function update_profile_m ($userId, $name, $phoneNo, $uploadId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -380,9 +380,9 @@ class Class_user {
      * @throws Exception
      */
     public function change_password ($userId, $put_vars) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
             
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -418,9 +418,10 @@ class Class_user {
      * @throws Exception
      */
     public function add_user ($userDetails=array()) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
             if (empty($userDetails)) {
                 throw new Exception('['.__LINE__.'] - Array userDetails empty');
             }
@@ -655,9 +656,9 @@ class Class_user {
      * @throws Exception
      */
     public function deactivate_profile ($userId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -679,9 +680,9 @@ class Class_user {
      * @throws Exception
      */
     public function activate_profile ($userId) {
-        $constant = new Class_constant();
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
