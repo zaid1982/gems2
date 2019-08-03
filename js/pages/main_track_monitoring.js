@@ -37,7 +37,7 @@ function MainTrackMonitoring() {
         oTableTrack =  $('#dtTnmList').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [6, 'desc'],
+            "aaSorting": [6, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableTrack.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));

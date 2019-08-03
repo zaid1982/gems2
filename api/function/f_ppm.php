@@ -633,7 +633,7 @@ class Class_ppm {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'6'));
                 }
 
-                Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8'), array('transaction_id'=>$transactionId));
+                Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_created'=>$dateStr, 'task_time_claimed'=>$dateStr), array('transaction_id'=>$transactionId));
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
             }
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
