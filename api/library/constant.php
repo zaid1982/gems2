@@ -106,6 +106,8 @@ class Class_constant {
     const ERR_LOCATION_CODE_DELETE_ASSET = 'Location Code cannot be deleted because currently registered under Asset';
     const ERR_CONTRACT_USER_SIMILAR = 'This technician already exist in this Location Code and Asset Group';
 
+    const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
+
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SUBMITTED = 'Successfully submitted!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
