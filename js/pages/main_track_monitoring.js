@@ -7,11 +7,22 @@ function MainTrackMonitoring() {
     let refUser;
     let refFlow;
     let refCheckpoint;
+    let refSite;
     let oTableTrack;
     let sectionTaskHistoryClass;
+    let siteCode;
+    let flowId;
 
     this.init = function () {
-        mzOption('optTnmFlowId', refFlow, 'All Flow', 'flowId', 'flowDesc', {}, 'required');
+        siteCode = 'BNMDC';
+        flowId = '1';
+
+        mzOption('optTnmSiteCode', refSite, 'Select Site', 'siteCode', 'siteName', {}, 'required');
+        mzOption('optTnmFlowId', refFlow, 'Select Flow', 'flowId', 'flowDesc', {}, 'required');
+        mzOption('optTnmCheckpointId', refCheckpoint, 'All Checkpoint', 'checkpointId', 'checkpointDesc', {flowId: flowId});
+
+        $('#optTnmSiteCode').val(siteCode);
+        $('#optTnmFlowId').val(flowId);
 
         oTableTrack =  $('#dtTnmList').DataTable({
             bLengthChange: false,
@@ -71,10 +82,32 @@ function MainTrackMonitoring() {
             oTableTrack.search($(this).val()).draw();
         });
 
+        $('#optTnmSiteCode').on('change', function () {
+            siteCode = $(this).val();
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableTrack();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         $('#optTnmFlowId').on('change', function () {
             mzOptionStop('optTnmCheckpointId', refCheckpoint, 'All Checkpoint', 'checkpointId', 'checkpointDesc', {flowId: $(this).val()});
-            oTableTrack.column(9).search($(this).val(), false, true, false).draw();
             oTableTrack.column(10).search('', false, true, false).draw();
+            flowId = $(this).val();
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableTrack();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         $('#optTnmCheckpointId').on('change', function () {
@@ -144,7 +177,7 @@ function MainTrackMonitoring() {
     };
 
     this.genTableTrack = function () {
-        const dataTrack = mzAjaxRequest('track_monitoring.php?type=track_monitoring_list', 'GET');
+        const dataTrack = mzAjaxRequest('track_monitoring.php?type=track_monitoring_list&siteCode='+siteCode+'&flowId='+flowId, 'GET');
         oTableTrack.clear().rows.add(dataTrack).draw();
     };
 
@@ -174,6 +207,10 @@ function MainTrackMonitoring() {
 
     this.setSectionTaskHistoryClass = function (_sectionTaskHistoryClass) {
         sectionTaskHistoryClass = _sectionTaskHistoryClass;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 
     this.setRefStatus = function (_refStatus) {

@@ -460,15 +460,24 @@ class Class_task {
     }
 
     /**
+     * @param string $siteCode
+     * @param string $flowId
      * @return array
      * @throws Exception
      */
-    public function get_track_monitoring_list () {
+    public function get_track_monitoring_list ($siteCode='', $flowId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             $result = array();
             $arrWhere = array('task_current'=>'1');
+            if (!empty($siteCode)) {
+                $arrWhere['transaction_no'] = '%'.$siteCode.'%';
+            }
+            if (!empty($flowId)) {
+                $arrWhere['flow_id'] = $flowId;
+            }
+
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', $arrWhere);
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];

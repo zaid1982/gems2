@@ -43,7 +43,7 @@
                 <section>
                     <div class="row">
                         <!--Search Function-->
-                        <div class="col-xl-5 col-lg-12 mr-0">
+                        <div class="col-xl-12 col-lg-12 mr-0">
                             <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
                                 <h2 class="h2-responsive mb-0">Track and Monitoring</h2>
                             </div>
@@ -52,31 +52,35 @@
                                     <h6 class="pb-3">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
+                                            <select id="optTnmSiteCode" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                            <label for="optTnmSiteCode">Site</label>
+                                        </div>
+                                        <div class="col-md-6 select-outline">
                                             <select id="optTnmFlowId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
                                             <label for="optTnmFlowId">Flow</label>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                        <div class="col-md-6 select-outline">
                                             <select id="optTnmCheckpointId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Checkpoint</option>
                                             </select>
                                             <label for="optTnmCheckpointId">Checkpoint</label>
                                         </div>
-                                    </div>
-                                    <div class="md-form md-outline mt-0 mb-0">
-                                        <input type="text" id="txtTnmListSearch" class="form-control">
-                                        <label for="txtTnmListSearch" class="active">Keyword Search</label>
+                                        <div class="col-md-6">
+                                        <div class="md-form md-outline mt-0 mb-0">
+                                            <input type="text" id="txtTnmListSearch" class="form-control">
+                                            <label for="txtTnmListSearch" class="active">Keyword Search</label>
+                                        </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!--Chart-->
-                        <div class="col-xl-7 col-lg-12 mb-5">
-                           <!-- <div class="view view-cascade z-depth-4">
+                        <!-- <<div class="col-xl-6 col-lg-12 mb-5">
+                           div class="view view-cascade z-depth-4">
                                 <div id="chartTnmLeaveByStatus" style="height: 440px; margin: 0"></div>
-                            </div>-->
-                        </div>
+                            </div>
+                        </div>-->
                     </div>
                 </section>
                 <!--Section: Table-->
@@ -186,6 +190,7 @@
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
                 const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
                 sectionTaskHistoryClass_.setRefStatus(refStatus_);
                 sectionTaskHistoryClass_.setRefRole(refRole_);
@@ -201,6 +206,7 @@
                 trackMonitoringClass_.setRefUser(refUser_);
                 trackMonitoringClass_.setRefFlow(refFlow_);
                 trackMonitoringClass_.setRefCheckpoint(refCheckpoint_);
+                trackMonitoringClass_.setRefSite(refSite_);
                 trackMonitoringClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
                 trackMonitoringClass_.init();
             } catch (e) {

@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit','4096M');
 
 require_once 'library/constant.php';
 require_once 'function/db.php';
@@ -30,7 +31,9 @@ try {
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
         if ($type === 'track_monitoring_list') {
-            $result = $fn_task->get_track_monitoring_list();
+            $siteCode = filter_input(INPUT_GET, 'siteCode');
+            $flowId = filter_input(INPUT_GET, 'flowId');
+            $result = $fn_task->get_track_monitoring_list($siteCode, $flowId);
         } else if ($type === 'transaction_history') {
             $transactionId = filter_input(INPUT_GET, 'transactionId');
             $result = $fn_task->get_task_history('', $transactionId);
