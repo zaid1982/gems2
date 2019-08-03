@@ -42,7 +42,6 @@ try {
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
-    //$request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();
