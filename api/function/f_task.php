@@ -462,10 +462,11 @@ class Class_task {
     /**
      * @param string $siteCode
      * @param string $flowId
+     * @param string $year
      * @return array
      * @throws Exception
      */
-    public function get_track_monitoring_list ($siteCode='', $flowId='') {
+    public function get_track_monitoring_list ($siteCode='', $flowId='', $year='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -476,6 +477,9 @@ class Class_task {
             }
             if (!empty($flowId)) {
                 $arrWhere['flow_id'] = $flowId;
+            }
+            if (!empty($year)) {
+                $arrWhere['YEAR(task_time_created)'] = $year;
             }
 
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', $arrWhere);

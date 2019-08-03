@@ -31,9 +31,10 @@ try {
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
         if ($type === 'track_monitoring_list') {
+            $year = filter_input(INPUT_GET, 'year');
             $siteCode = filter_input(INPUT_GET, 'siteCode');
             $flowId = filter_input(INPUT_GET, 'flowId');
-            $result = $fn_task->get_track_monitoring_list($siteCode, $flowId);
+            $result = $fn_task->get_track_monitoring_list($siteCode, $flowId, $year);
         } else if ($type === 'transaction_history') {
             $transactionId = filter_input(INPUT_GET, 'transactionId');
             $result = $fn_task->get_task_history('', $transactionId);

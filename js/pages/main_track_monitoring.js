@@ -12,15 +12,25 @@ function MainTrackMonitoring() {
     let sectionTaskHistoryClass;
     let siteCode;
     let flowId;
+    let yearId;
 
     this.init = function () {
         siteCode = 'BNMDC';
         flowId = '1';
+        yearId = '2019';
 
+        let arrYear = [];
+        let dt = new Date();
+        for (let year = 2019; year <= dt.getFullYear()+3; year++) {
+            arrYear.push({yearId:year.toString(), yearDesc:year.toString()});
+        }
+
+        mzOption('optTnmYear', arrYear, 'Select Year', 'yearId', 'yearDesc', {}, 'required');
         mzOption('optTnmSiteCode', refSite, 'Select Site', 'siteCode', 'siteName', {}, 'required');
         mzOption('optTnmFlowId', refFlow, 'Select Flow', 'flowId', 'flowDesc', {}, 'required');
         mzOption('optTnmCheckpointId', refCheckpoint, 'All Checkpoint', 'checkpointId', 'checkpointDesc', {flowId: flowId});
 
+        $('#optTnmYear').val(yearId);
         $('#optTnmSiteCode').val(siteCode);
         $('#optTnmFlowId').val(flowId);
 
@@ -80,6 +90,19 @@ function MainTrackMonitoring() {
         $("#dtTnmList_filter").hide();
         $('#txtTnmListSearch').on('keyup change', function () {
             oTableTrack.search($(this).val()).draw();
+        });
+
+        $('#optTnmYear').on('change', function () {
+            yearId = $(this).val();
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableTrack();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         $('#optTnmSiteCode').on('change', function () {
@@ -177,7 +200,7 @@ function MainTrackMonitoring() {
     };
 
     this.genTableTrack = function () {
-        const dataTrack = mzAjaxRequest('track_monitoring.php?type=track_monitoring_list&siteCode='+siteCode+'&flowId='+flowId, 'GET');
+        const dataTrack = mzAjaxRequest('track_monitoring.php?type=track_monitoring_list&siteCode='+siteCode+'&flowId='+flowId+'&year='+yearId, 'GET');
         oTableTrack.clear().rows.add(dataTrack).draw();
     };
 
