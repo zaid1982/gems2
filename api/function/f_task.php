@@ -432,8 +432,33 @@ class Class_task {
     /**
      * @param $userId
      * @param $roleId
+     * @return array
+     * @throws Exception
+     */
+    public function get_group_id_from_user ($userId, $roleId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($roleId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('sys_user_role', array('role_id'=>$roleId), 'group_id', null, 1);;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $roleId
      * @param $checkpointId
-     * @return
+     * @return array
      * @throws Exception
      */
     public function get_checkpoint_groups ($userId, $roleId, $checkpointId) {
@@ -452,6 +477,31 @@ class Class_task {
 
             $groupIds = Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'group_id');
             return array_unique($groupIds);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $roleId
+     * @param $checkpointId
+     * @return
+     * @throws Exception
+     */
+    public function get_checkpoints_users ($roleId, $checkpointId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($roleId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
+            }
+            if (empty(checkpointId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checkpointId empty');
+            }
+
+            return Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'user_id');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

@@ -5,6 +5,7 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_task.php';
+require_once 'function/f_email.php';
 require_once 'function/f_wo.php';
 
 $api_name = 'api_m_wo';
@@ -16,6 +17,7 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_task = new Class_task();
+$fn_email = new Class_email();
 $fn_wo = new Class_wo();
 
 try {
@@ -24,6 +26,7 @@ try {
     $fn_login->__set('fn_general', $fn_general);
     $fn_task->__set('constant', $constant);
     $fn_task->__set('fn_general', $fn_general);
+    $fn_email->__set('fn_general', $fn_general);
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
 
@@ -64,21 +67,25 @@ try {
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             foreach ($complaintImages as $complaintImage) {
-                //$uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
-                $uploadId = '1';
+                $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
                 $complaintImageUpload = array('uploadId'=>$uploadId, 'description'=>$complaintImage['description'], 'longitude'=>$complaintImage['longitude'], 'latitude'=>$complaintImage['latitude']);
                 array_push($complaintImageUploads, $complaintImageUpload);
             }
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            //$signatureId = $fn_general->uploadDocument($signature, 13, $jwt_data->userId);
+            $signatureId = $fn_general->uploadDocument($signature, 13, $jwt_data->userId);
 
-            $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId);
-            // generate task
-            // process wo and upload
-            // insert audit trail
-            // send notification
-
-            $result = $woTaskNo;
+            $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, '6');
+            $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
+            $taskId = $this->fn_task->create_new_task('1', $jwt_data->userId, '6', $groupId, $woTaskNo);
+            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint);
+            $fn_wo->process_new_complaint($newTaskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId);
+            $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = ' . $woTaskNo);
+            $nextUsers = $fn_task->get_checkpoints_users ('7', '12');
+            foreach ($nextUsers as $userId) {
+                $this->fn_email->setup_email($userId, 4, array('task_no'=>$woTaskNo));
+                $this->fn_email->setup_mobile_notification($userId, 5);
+            }
+            $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
