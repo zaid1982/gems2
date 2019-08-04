@@ -133,6 +133,9 @@ class Class_task {
                     if (empty($userId)) {
                         throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
                     }
+                    if (empty($groupId)) {
+                        $groupId = $assignedGroup;
+                    }
                     if (Class_db::getInstance()->db_count('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId, 'group_id' => $groupId, 'user_id' => $userId)) == 0) {
                         Class_db::getInstance()->db_insert('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId, 'group_id' => $groupId, 'user_id' => $userId));
                     }
@@ -210,7 +213,7 @@ class Class_task {
             $taskId = Class_db::getInstance()->db_insert('wfl_task', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointId, 'role_id' => $roleId, 'group_id' => $groupId,
                 'task_created_user' => $userId, 'task_created_group' => $groupId,'task_claimed_user' => $userId,  'task_time_claimed' => 'Now()',  'task_date_due' => $checkDueDay, 'task_status' => '5'));
 
-            $this->check_assign($checkpoint, $transactionId, '', '', $userId);
+            $this->check_assign($checkpoint, $transactionId, $groupId, '', $userId);
 
             return $taskId;
         }
@@ -497,7 +500,7 @@ class Class_task {
             if (empty($roleId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
             }
-            if (empty(checkpointId)) {
+            if (empty($checkpointId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checkpointId empty');
             }
 

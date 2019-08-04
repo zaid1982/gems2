@@ -107,6 +107,8 @@ class Class_constant {
     const ERR_CONTRACT_USER_SIMILAR = 'This technician already exist in this Location Code and Asset Group';
 
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
+    const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';
+    const ERR_WO_DESCRIPTION_EMPTY = 'Complaint Description is empty';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SUBMITTED = 'Successfully submitted!';

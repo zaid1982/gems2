@@ -64,6 +64,8 @@ try {
         if ($action === 'submit_complain') {
             $woTaskLocation = filter_input(INPUT_POST, 'woTaskLocation');
             $woTaskComplaint = filter_input(INPUT_POST, 'woTaskComplaint');
+            $woTaskLongitude = filter_input(INPUT_POST, 'woTaskLongitude');
+            $woTaskLatitude = filter_input(INPUT_POST, 'woTaskLatitude');
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             foreach ($complaintImages as $complaintImage) {
@@ -76,9 +78,9 @@ try {
 
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, '6');
             $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
-            $taskId = $this->fn_task->create_new_task('1', $jwt_data->userId, '6', $groupId, $woTaskNo);
+            $taskId = $fn_task->create_new_task('2', $jwt_data->userId, '6', $groupId, $woTaskNo);
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint);
-            $fn_wo->process_new_complaint($newTaskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId);
+            $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = ' . $woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users ('7', '12');
             foreach ($nextUsers as $userId) {
