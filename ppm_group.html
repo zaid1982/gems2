@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.css" rel="stylesheet">
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+
+<main>
+    <div class="container-fluid">
+        <section class="section mb-5 mt-lg-5 sectionPgrMain">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="card card-cascade cascading-admin-card user-card mt-4">
+                        <div class="admin-up d-flex justify-content-start">
+                            <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-3"></i>
+                            <div class="data">
+                                <h3 class="font-weight-bold dark-grey-text ml-3">PPM Group Management</h3>
+                            </div>
+                        </div>
+                        <div class="card-body card-body-cascade pb-0">
+                            <form id="formPgrSearch">
+                                <h6 class="pb-3 pt-3">Filter:</h6>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optPgrClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optPgrClientId">Client</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optPgrSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optPgrSiteId">Site</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnPgrSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                                <i class="fas fa-search mr-1"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Technician Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th>Report To</th>
+                                    <th>Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrSupervisorAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Supervisor Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Supervisor Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrSupervisorRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrSupervisor" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th>Report To</th>
+                                    <th>Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrEngineerAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Engineer Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrEngineerRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrEngineer" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th>Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card mt-4">
+                        <div class="card-header stylish-color">
+                            <h5 class="font-weight-bold white-text ml-3 mt-2">Group Information</h5>
+                        </div>
+                        <div class="card-body px-2">
+                            <form id="formPgrInfo">
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline mt-4">
+                                        <input type="text" id="txtPgrInfoGroupName" class="form-control">
+                                        <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline mt-4">
+                                        <input type="text" id="txtPgrInfoRoleDesc" class="form-control">
+                                        <label for="txtPgrInfoRoleDesc" id="lblPgrInfoGroupDesc">Role</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 select-outline">
+                                    <select id="optPgrInfoClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPgrInfoClientId">Client</label>
+                                </div>
+                                <div class="col-md-12 select-outline">
+                                    <select id="optPgrInfoSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPgrInfoSiteId">Site</label>
+                                </div>
+                                <div class="col-md-12 select-outline">
+                                    <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPgrInfoReportTo">Report to</label>
+                                </div>
+                                <div class="col-md-12">
+                                    <h6 class="font-small">Status:</h6>
+                                    <div class="form-check pl-0 ml-3">
+                                        <input type="checkbox" class="form-check-input" id="chkPgrInfoStatus" name="chkPgrInfoStatus" value="1">
+                                        <label class="form-check-label" for="chkPgrInfoStatus">Active</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnPgrInfoSave" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
+                                <i class="fas fa-save mr-1"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header stylish-color narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="mx-3 white-text">User List</a>
+                            <div>
+                                <button type="button" id="btnDtPgrUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Name</th>
+                                    <th style="width: 20%">Status</th>
+                                    <th style="width: 32px; min-width: 32px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Stepper JavaScript - minified -->
+<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let ppmGroupClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                ppmGroupClass_ = new MainPpmGroup();
+
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+
+                ppmGroupClass_.setRefStatus(refStatus_);
+                ppmGroupClass_.setRefRole(refRole_);
+                ppmGroupClass_.setRefUser(refUser_);
+                ppmGroupClass_.setRefClient(refClient_);
+                ppmGroupClass_.setRefSite(refSite_);
+                ppmGroupClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>

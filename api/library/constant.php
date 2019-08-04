@@ -23,8 +23,8 @@ class Class_constant {
     const ERR_CHANGE_PASSWORD_OLD_NEW_SAME = 'New password cannot be the same as old password';
     const ERR_ROLE_DELETE_HAVE_TASK = 'This user cannot be removed from this roles since there are still task assigned. Please delegate the task first.';
     const ERR_ROLE_DELETE_ALONE = 'There is no other user are assigned to this role. Please assign this role to new user before remove this user form this role.';
-    const ERR_USER_ADD_SIMILAR_BADAN = 'No. Badan telah sedia didaftar. Sila pastikan No. Badan adalah betul.';
-    const ERR_USER_ADD_SIMILAR_USERNAME = 'Login ID telah sedia didaftar. Sila pastikan Login ID baru yang belum didaftar.';
+    const ERR_USER_ADD_SIMILAR_USERNAME = 'Login ID already registered. Please choose another ID.';
+    const ERR_USER_ADD_SIMILAR_EMAIL = 'Email already registered. Please choose another email.';
 
     const SUC_FORGOT_PASSWORD = 'Your password successfully reset. Please login with temporary password sent to your email.';
     const SUC_CHANGE_PASSWORD = 'Your password has been changed';
@@ -33,8 +33,6 @@ class Class_constant {
 
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';
-    const ERR_USER_EXIST_CONTRACT = 'User already assign to contract. Please remove user from any contract first.';
-    const ERR_USER_EXIST_REPORT = 'User cannot be removed by the role because already assigned as supervisor for another user.';
     const ERR_DESIGNATION_SIMILAR = 'Designation already exist';
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';
     const ERR_DESIGNATION_ACTIVATE = 'Designation already active';

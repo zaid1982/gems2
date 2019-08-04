@@ -17,6 +17,7 @@ function SectionContract() {
     let modalContractUserClass;
 
     this.init = function () {
+        $('.toHide').hide();
         $('.sectionContract').hide();
 
         $('#btnSctBack').on('click', function () {
@@ -80,7 +81,7 @@ function SectionContract() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'locationCodeName'},
-                    {mData: 'totalTechnician', mRender: function (data) { return mzFormatNumber(data);}},
+                    /*{mData: 'totalTechnician', mRender: function (data) { return mzFormatNumber(data);}},*/
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['locationCodeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['locationCodeStatus']]['statusDesc']+'</span></h6>';
@@ -108,13 +109,13 @@ function SectionContract() {
         let cntLocationCode;
         let btnLocationCodeOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3],
+                columns: [ 0, 1, 2],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntLocationCode = 1;
                         }
-                        if (column === 3) {
+                        if (column === 2) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -310,7 +311,7 @@ function SectionContract() {
     };
 
     this.genTableLocationCode = function () {
-        const dataLocationCode = mzAjaxRequest('location_code.php?type=location_code_with_count&contractId='+contractId, 'GET');
+        const dataLocationCode = mzAjaxRequest('location_code.php?contractId='+contractId, 'GET');
         oTableLocationCode.clear().rows.add(dataLocationCode).draw();
     };
 

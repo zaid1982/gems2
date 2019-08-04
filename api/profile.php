@@ -44,10 +44,6 @@ try {
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter Reportid (' . $reportId . ') invalid');
             }
-        } else if ($type === 'user_report') {
-            $roleId = filter_input(INPUT_GET, 'roleId');
-            $reportRole = filter_input(INPUT_GET, 'reportRole');
-            $result = $fn_user->get_user_report($userId, $roleId, $reportRole);
         } else if (!is_null($userId)) {
             $result = $fn_user->get_user($userId);
         } else {
@@ -72,8 +68,6 @@ try {
             $userType = filter_input(INPUT_POST, 'userType');
             $siteId = filter_input(INPUT_POST, 'siteId');
             $roles = filter_input(INPUT_POST, 'roles');
-            $executorTo = filter_input(INPUT_POST, 'executorTo');
-            $reviewerTo = filter_input(INPUT_POST, 'reviewerTo');
 
             $params = array(
                 'userName'=>$userName,
@@ -84,9 +78,7 @@ try {
                 'designationId'=>$designationId,
                 'userType'=>$userType,
                 'siteId'=>$siteId,
-                'roles'=>$roles,
-                'executorTo'=>$executorTo,
-                'reviewerTo'=>$reviewerTo
+                'roles'=>$roles
             );
             $result = $fn_user->add_user($params);
             $fn_general->updateVersion(3);
