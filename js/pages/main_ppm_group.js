@@ -10,10 +10,14 @@ function MainPpmGroup() {
     let clientId;
     let siteId;
     let oTableTechnician;
+    let oTableSupervisor;
+    let oTableEngineer;
 
     this.init = function () {
         clientId = '1';
         siteId = '1';
+        $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
+        $('#divPgrDetails').hide();
 
         mzOption('optPgrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
         mzOption('optPgrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId}, 'required');
@@ -57,29 +61,29 @@ function MainPpmGroup() {
             bInfo: false,
             bPaginate: false,
             autoWidth: false,
-            //aaSorting: [1, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableTechnician.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrLocationCodeEdit').off('click').on('click', function () {
+                $('.lnkPgrTechnicianEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableTechnician.row(parseInt(rowId)).data();
-                       // modalLocationCodeClass.edit(currentRow['locationCodeId'], contractId, rowId);
+                        self.viewDetails(currentRow['ppmGroupId'], rowId);
+                        $('#divPgrMain').removeClass('col-md-12').addClass('col-md-7');
+                        $('#divPgrDetails').show();
                     }
                 });
-                $('.lnkPgrLocationCodeDelete').off('click').on('click', function () {
+                $('.lnkPgrTechnicianDelete').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableTechnician.row(parseInt(rowId)).data();
-                        //modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalLocationCodeClass);
                     }
                 });
             },
@@ -88,9 +92,8 @@ function MainPpmGroup() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'ppmGroupName', bSortable: false},
-                    {mData: 'ppmGroupReportTo', bSortable: false},
+                    {mData: 'reportTo', bSortable: false},
                     {mData: 'totalUser', bSortable: false},
-                    /*{mData: 'ppmGroupReportTo', mRender: function (data) { return mzFormatNumber(data);}},*/
                     {mData: null, bSortable: false,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['ppmGroupStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmGroupStatus']]['statusDesc']+'</span></h6>';
@@ -98,25 +101,193 @@ function MainPpmGroup() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPgrLocationCodeEdit" id="lnkPgrLocationCodeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                            label += '<a><i class="fas fa-trash-alt lnkPgrLocationCodeDelete" id="lnkPgrLocationCodeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            let label = '<a><i class="fas fa-edit lnkPgrTechnicianEdit" id="lnkPgrTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-trash-alt lnkPgrTechnicianDelete" id="lnkPgrTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             return label;
                         }
                     }
                 ]
         });
         $("#dtPgrTechnician_filter").hide();
-        $('#txtPgrLocationCodeSearch').on('keyup change', function () {
-            oTableTechnician.search($(this).val()).draw();
+
+        $('#btnDtPgrTechnicianRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableTechnician();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        oTableSupervisor = $('#dtPgrSupervisor').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            bInfo: false,
+            bPaginate: false,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableSupervisor.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkPgrSupervisorEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSupervisor.row(parseInt(rowId)).data();
+                        self.viewDetails(currentRow['ppmGroupId'], rowId);
+                        $('#divPgrMain').removeClass('col-md-12').addClass('col-md-7');
+                        $('#divPgrDetails').show();
+                    }
+                });
+                $('.lnkPgrSupervisorDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSupervisor.row(parseInt(rowId)).data();
+                        //modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalSupervisorClass);
+                    }
+                });
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'ppmGroupName', bSortable: false},
+                    {mData: 'reportTo', bSortable: false},
+                    {mData: 'totalUser', bSortable: false},
+                    {mData: null, bSortable: false,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmGroupStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmGroupStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            let label = '<a><i class="fas fa-edit lnkPgrSupervisorEdit" id="lnkPgrSupervisorEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-trash-alt lnkPgrSupervisorDelete" id="lnkPgrSupervisorDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            return label;
+                        }
+                    }
+                ]
+        });
+        $("#dtPgrSupervisor_filter").hide();
+
+        $('#btnDtPgrSupervisorRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableSupervisor();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        oTableEngineer = $('#dtPgrEngineer').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            bInfo: false,
+            bPaginate: false,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableEngineer.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkPgrEngineerEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableEngineer.row(parseInt(rowId)).data();
+                        self.viewDetails(currentRow['ppmGroupId'], rowId);
+                        $('#divPgrMain').removeClass('col-md-12').addClass('col-md-7');
+                        $('#divPgrDetails').show();
+                    }
+                });
+                $('.lnkPgrEngineerDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableEngineer.row(parseInt(rowId)).data();
+                    }
+                });
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'ppmGroupName', bSortable: false},
+                    {mData: 'reportTo', bSortable: false},
+                    {mData: 'totalUser', bSortable: false},
+                    {mData: null, bSortable: false,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmGroupStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmGroupStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            let label = '<a><i class="fas fa-edit lnkPgrEngineerEdit" id="lnkPgrEngineerEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-trash-alt lnkPgrEngineerDelete" id="lnkPgrEngineerDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            return label;
+                        }
+                    }
+                ]
+        });
+        $("#dtPgrEngineer_filter").hide();
+
+        $('#btnDtPgrEngineerRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableEngineer();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         self.genTableTechnician();
+        self.genTableSupervisor();
+        self.genTableEngineer();
     };
 
     this.genTableTechnician = function () {
-        const dataTechnician = [{ppmGroupName:'Halimi Staff\'s', ppmGroupReportTo: 'Azmi Staff\'s', totalUser:'3', ppmGroupStatus:'1'}, {ppmGroupName:'Salim Staff\'s', ppmGroupReportTo: 'Azmi Staff\'s', totalUser:'3', ppmGroupStatus:'1'}]
-        //const dataTechnician = mzAjaxRequest('track_monitoring.php?type=track_monitoring_list&siteCode='+siteCode+'&flowId='+flowId+'&year='+yearId, 'GET');
+        const dataTechnician = mzAjaxRequest('ppm_group.php?roleId=5&siteId='+siteId, 'GET');
         oTableTechnician.clear().rows.add(dataTechnician).draw();
+    };
+
+    this.genTableSupervisor = function () {
+        const dataSupervisor = mzAjaxRequest('ppm_group.php?roleId=3&siteId='+siteId, 'GET');
+        oTableSupervisor.clear().rows.add(dataSupervisor).draw();
+    };
+
+    this.genTableEngineer = function () {
+        const dataEngineer = mzAjaxRequest('ppm_group.php?roleId=4&siteId='+siteId, 'GET');
+        oTableEngineer.clear().rows.add(dataEngineer).draw();
+    };
+
+    this.viewDetails = function (_ppmGroupId, _rowId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                alert(_ppmGroupId);
+                alert(_rowId);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
     };
 
     this.getClassName = function () {

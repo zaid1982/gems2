@@ -364,6 +364,18 @@ class Class_sql
                         SELECT location_code_id, COUNT(*) AS total FROM cli_contract_user WHERE contract_id = [contract_id] GROUP BY location_code_id
                     ) contract_user ON contract_user.location_code_id = cli_location_code.location_code_id
                 WHERE site_id = [site_id]";
+            } else if ($title === 'vw_ppm_group') {
+                $sql = "SELECT
+                    ppm_group.*,
+                    ppm_group_report.ppm_group_name AS report_to,
+                    group_user.total_user
+                FROM ppm_group
+                LEFT JOIN ppm_group ppm_group_report ON ppm_group_report.ppm_group_id = ppm_group.ppm_group_report_to
+                LEFT JOIN (
+                    SELECT ppm_group_id, COUNT(*) AS total_user
+                    FROM ppm_group_user 
+                    GROUP BY ppm_group_id
+                ) group_user ON group_user.ppm_group_id = ppm_group.ppm_group_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
