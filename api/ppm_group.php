@@ -57,27 +57,41 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $siteId = filter_input(INPUT_POST, 'siteId');
-        $roleId = filter_input(INPUT_POST, 'roleId');
-        $ppmGroupName = filter_input(INPUT_POST, 'ppmGroupName');
-        $reportTo = filter_input(INPUT_POST, 'reportTo');
-
-        $params = array(
-            'siteId'=>$siteId,
-            'roleId'=>$roleId,
-            'ppmGroupName'=>$ppmGroupName,
-            'reportTo'=>$reportTo
-        );
+        $action = filter_input(INPUT_POST, 'action');
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $result = $fn_ppmGroup->add_ppmGroup($params);
-        $fn_general->updateVersion(19);
-        $fn_general->save_audit('105', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
+        if (!is_null($action)) {
+            if ($action === 'add_ppm_group_user') {
+                $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
+                $userId = filter_input(INPUT_POST, 'userId');
+                $result = $fn_ppmGroup->add_ppmGroupUser($ppmGroupId, $userId);
+                $fn_general->save_audit('108', $jwt_data->userId, 'PPM Group Id = ' . $ppmGroupId . ', User Id = ' . $userId);
+                $form_data['errmsg'] = $constant::SUC_PPM_GROUP_USER_ADD;
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
+            }
+        } else {
+            $siteId = filter_input(INPUT_POST, 'siteId');
+            $roleId = filter_input(INPUT_POST, 'roleId');
+            $ppmGroupName = filter_input(INPUT_POST, 'ppmGroupName');
+            $reportTo = filter_input(INPUT_POST, 'reportTo');
+
+            $params = array(
+                'siteId' => $siteId,
+                'roleId' => $roleId,
+                'ppmGroupName' => $ppmGroupName,
+                'reportTo' => $reportTo
+            );
+
+            $result = $fn_ppmGroup->add_ppmGroup($params);
+            $fn_general->updateVersion(19);
+            $fn_general->save_audit('105', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
+            $form_data['errmsg'] = $constant::SUC_PPM_GROUP_ADD;
+        }
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_PPM_GROUP_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
@@ -103,17 +117,28 @@ try {
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {
-        $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
+        $action = filter_input(INPUT_GET, 'action');
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $ppmGroupName = $fn_ppmGroup->delete_ppmGroup($ppmGroupId);
-        $fn_general->updateVersion(19);
-        $fn_general->save_audit('107', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
+        if ($action === 'delete_ppm_group') {
+            $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
+            $ppmGroupName = $fn_ppmGroup->delete_ppmGroup($ppmGroupId);
+            $fn_general->updateVersion(19);
+            $fn_general->save_audit('107', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
+            $form_data['errmsg'] = $constant::SUC_PPM_GROUP_DELETE;
+        }
+        else if ($action === 'delete_ppm_group_user') {
+            $ppmGroupUserId = filter_input(INPUT_GET, 'ppmGroupUserId');
+            $result = $fn_ppmGroup->delete_ppmGroupUser($ppmGroupUserId);
+            $fn_general->save_audit('109', $jwt_data->userId, 'PPM Group = ' . $result['ppmGroupName'] . ', User = ' . $result['userFirstName']);
+            $form_data['errmsg'] = $constant::SUC_PPM_GROUP_USER_DELETE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action empty');
+        }
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_PPM_GROUP_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

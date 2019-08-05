@@ -183,7 +183,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 select-outline" id="divPgrInfoReportTo">
-                                    <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
                                     <label for="optPgrInfoReportTo">Report to *</label>
                                 </div>
                                 <div class="col-md-12">
@@ -232,6 +232,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_ppm_group"></div>
+    <div class="includeHtml" id="h-modal_ppm_user"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 </main>
 
@@ -269,6 +270,7 @@
     let changePasswordClass_;
     let ppmGroupClass_;
     let modalPpmGroupClass_;
+    let modalPpmUserClass_;
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -281,6 +283,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 ppmGroupClass_ = new MainPpmGroup();
                 modalPpmGroupClass_ = new ModalPpmGroup();
+                modalPpmUserClass_ = new ModalPpmUser();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
@@ -295,12 +298,20 @@
                 modalPpmGroupClass_.setRefSite(refSite_);
                 modalPpmGroupClass_.init();
 
+                modalPpmUserClass_.setClassFrom(ppmGroupClass_);
+                modalPpmUserClass_.setRefRole(refRole_);
+                modalPpmUserClass_.setRefClient(refClient_);
+                modalPpmUserClass_.setRefSite(refSite_);
+                modalPpmUserClass_.setRefUser(refUser_);
+                modalPpmUserClass_.init();
+
                 ppmGroupClass_.setRefStatus(refStatus_);
                 ppmGroupClass_.setRefRole(refRole_);
                 ppmGroupClass_.setRefUser(refUser_);
                 ppmGroupClass_.setRefClient(refClient_);
                 ppmGroupClass_.setRefSite(refSite_);
                 ppmGroupClass_.setModalPpmGroupClass(modalPpmGroupClass_);
+                ppmGroupClass_.setModalPpmUserClass(modalPpmUserClass_);
                 ppmGroupClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 ppmGroupClass_.init();
             } catch (e) {
@@ -313,6 +324,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm_user.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

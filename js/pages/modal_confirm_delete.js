@@ -22,6 +22,7 @@ function ModalConfirmDelete() {
                 case 'ModalLocationCode':
                 case 'ModalContractUser':
                 case 'ModalPpmGroup':
+                case 'ModalPpmUser':
                     if (typeof returnClass !== 'undefined') {
                         returnClass.delete(id);
                     }

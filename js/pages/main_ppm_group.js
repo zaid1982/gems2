@@ -16,7 +16,8 @@ function MainPpmGroup() {
     let oTableUser;
     let modalConfirmDeleteClass;
     let modalPpmGroupClass;
-    let ppmGroupId;
+    let modalPpmUserClass;
+    let ppmGroupId = '';
     let rowRefresh = '';
     let formValidateInfo;
 
@@ -359,22 +360,13 @@ function MainPpmGroup() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrUserEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                    }
-                });
                 $('.lnkPgrUserDelete').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+                        modalConfirmDeleteClass.delete(currentRow['ppmGroupUserId'], modalPpmUserClass);
                     }
                 });
             },
@@ -403,7 +395,7 @@ function MainPpmGroup() {
         $("#dtPgrUser_filter").hide();
 
         $('#btnPgrUserAdd').on('click', function () {
-            modalPpmGroupClass.add(siteId, '4');
+            modalPpmUserClass.add(ppmGroupId, siteId, roleId);
         });
 
         $('#btnDtPgrUserRefresh').on('click', function () {
@@ -439,7 +431,7 @@ function MainPpmGroup() {
                 siteId = dataPpmGroup['siteId'];
                 clientId = refSite[siteId]['clientId'];
 
-                if (roleId === '5' || roleId === '3') {
+                if (roleId == '5' || roleId == '3') {
                     const versionLocal = mzGetDataVersion();
                     const roleCur = roleId === '5' ? '3' : '4';
                     const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
@@ -494,6 +486,10 @@ function MainPpmGroup() {
         return className;
     };
 
+    this.getPpmGroupId = function () {
+        return ppmGroupId;
+    };
+
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };
@@ -516,6 +512,10 @@ function MainPpmGroup() {
 
     this.setModalPpmGroupClass = function (_modalPpmGroupClass) {
         modalPpmGroupClass = _modalPpmGroupClass;
+    };
+
+    this.setModalPpmUserClass = function (_modalPpmUserClass) {
+        modalPpmUserClass = _modalPpmUserClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {

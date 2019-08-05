@@ -124,11 +124,15 @@ function ModalPpmGroup() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_ppmGroupId]);
-                mzAjaxRequest('ppm_group.php?ppmGroupId='+_ppmGroupId, 'DELETE');
+                mzAjaxRequest('ppm_group.php?action=delete_ppm_group&ppmGroupId='+_ppmGroupId, 'DELETE');
                 if (classFrom.getClassName() === 'MainPpmGroup') {
                     classFrom.genTableTechnician();
                     classFrom.genTableSupervisor();
                     classFrom.genTableEngineer();
+                    if (_ppmGroupId == classFrom.getPpmGroupId()) {
+                        $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
+                        $('#divPgrDetails').hide();
+                    }
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

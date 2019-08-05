@@ -269,7 +269,7 @@ class Class_ppmGroup {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
             }
             if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_id'=>$ppmGroupId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Asset Group data not exist');
+                throw new Exception('[' . __LINE__ . '] - PPM Group data not exist');
             }
             if (Class_db::getInstance()->db_count('ppm_group_user', array('ppm_group_id'=>$ppmGroupId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_USER, 31);
@@ -309,7 +309,7 @@ class Class_ppmGroup {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group_user');
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group_user', array('ppm_group_id'=>$ppmGroupId));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmGroupUserId'] = $dataLocal['ppm_group_user_id'];
                 $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
@@ -318,6 +318,64 @@ class Class_ppmGroup {
             }
 
             return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmGroupId
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function add_ppmGroupUser ($ppmGroupId, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_group_user', array('ppm_group_id'=>$ppmGroupId, 'user_id'=>$userId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_USER_SIMILAR, 31);
+            }
+
+            return Class_db::getInstance()->db_insert('ppm_group_user', array('ppm_group_id'=>$ppmGroupId, 'user_id'=>$userId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmGroupUserId
+     * @return array
+     * @throws Exception
+     */
+    public function delete_ppmGroupUser ($ppmGroupUserId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($ppmGroupUserId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupUserId empty');
+            }
+            if (Class_db::getInstance()->db_count('ppm_group_user', array('ppm_group_user_id'=>$ppmGroupUserId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Group User data not exist');
+            }
+
+            $ppmGroup = Class_db::getInstance()->db_select_single('ppm_group_user', array('ppm_group_user_id'=>$ppmGroupUserId), null, 1);
+            $ppmGroupName = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroup['ppm_group_id']), 'ppm_group_name', null, 1);
+            $userFirstName = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$ppmGroup['user_id']), 'user_first_name', null, 1);
+            Class_db::getInstance()->db_delete('ppm_group_user', array('ppm_group_user_id'=>$ppmGroupUserId));
+
+            return array('ppmGroupName'=>$ppmGroupName, 'userFirstName'=>$userFirstName);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

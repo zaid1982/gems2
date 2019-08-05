@@ -108,6 +108,7 @@ class Class_constant {
     const ERR_PPM_GROUP_DELETE_REPORT_TO = 'PPM Group cannot be deleted because currently have another PPM Group report to this group';
     const ERR_PPM_GROUP_DELETE_ASSET = 'PPM Group cannot be deleted because currently registered under Asset';
     const ERR_PPM_GROUP_DELETE_PPM = 'PPM Group cannot be deleted because already assigned PPM Task';
+    const ERR_PPM_GROUP_USER_SIMILAR = 'This user already in this group';
 
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
     const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';
@@ -199,6 +200,8 @@ class Class_constant {
     const SUC_PPM_GROUP_ADD = 'PPM Group successfully added';
     const SUC_PPM_GROUP_EDIT = 'PPM Group successfully updated';
     const SUC_PPM_GROUP_DELETE = 'PPM Group successfully deleted';
+    const SUC_PPM_GROUP_USER_ADD = 'PPM Group User successfully added';
+    const SUC_PPM_GROUP_USER_DELETE = 'PPM Group User successfully deleted';
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon by GFM representative. You will receive notification soon on your mobile and email.';
 }

@@ -10,6 +10,7 @@ function ModalPpmUser() {
     let refRole;
     let refClient;
     let refSite;
+    let refUser;
     let formValidate;
 
     this.init = function () {
@@ -31,7 +32,7 @@ function ModalPpmUser() {
             $('#btnMpuSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_ppm_group').on('hidden.bs.modal', function(){
+        $('#modal_ppm_user').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMpuSubmit').attr('disabled', true);
         });
@@ -44,17 +45,16 @@ function ModalPpmUser() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const txtName = $('#txtMpuName').val();
-                        const reportTo = roleId === '5' || roleId === '3' ? $('#optMpuReportTo').val() : '';
+                        const userId = $('#optMpuUserId').val();
                         const data = {
-                            siteId: siteId,
-                            roleId: roleId,
-                            ppmGroupName: txtName,
-                            reportTo: reportTo
+                            action: 'add_ppm_group_user',
+                            ppmGroupId: ppmGroupId,
+                            userId: userId
                         };
 
                         mzAjaxRequest('ppm_group.php', 'POST', data);
                         if (classFrom.getClassName() === 'MainPpmGroup') {
+                            classFrom.genTableUser();
                             if (roleId === '5') {
                                 classFrom.genTableTechnician();
                             } else if (roleId === '3') {
@@ -63,7 +63,7 @@ function ModalPpmUser() {
                                 classFrom.genTableEngineer();
                             }
                         }
-                        $('#modal_ppm_group').modal('hide');
+                        $('#modal_ppm_user').modal('hide');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -86,15 +86,22 @@ function ModalPpmUser() {
 
                 const versionLocal = mzGetDataVersion();
                 const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
-                mzOptionStop('optMpuReportTo', refPpmGroup, 'Choose Assigned User', 'ppmGroupId', 'ppmGroupName', {roleId:roleId, siteId:siteId, ppmGroupStatus: '1'}, 'required');
 
+                if (roleId === '3') {
+                    mzOptionStop('optMpuUserId', refUser, 'Choose Executor', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                } else if (roleId === '4') {
+                    mzOptionStop('optMpuUserId', refUser, 'Choose Reviewer', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                } else if (roleId === '5') {
+                    mzOptionStop('optMpuUserId', refUser, 'Choose Verifier', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                }
 
                 const clientId = refSite[siteId]['clientId'];
                 mzSetFieldValue('MpuClient', refClient[clientId]['clientName'], 'text');
                 mzSetFieldValue('MpuSite', refSite[siteId]['siteName'], 'text');
                 mzSetFieldValue('MpuRole', refRole[roleId]['roleDesc'], 'text');
+                mzSetFieldValue('MpuGroupName', refPpmGroup[ppmGroupId]['ppmGroupName'], 'text');
 
-                $('#modal_ppm_group').modal({backdrop: 'static', keyboard: false});
+                $('#modal_ppm_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -102,16 +109,14 @@ function ModalPpmUser() {
         }, 300);
     };
 
-    this.delete = function (_ppmGroupId) {
+    this.delete = function (_ppmGroupUserId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_ppmGroupId]);
-                mzAjaxRequest('ppm_group.php?ppmGroupId='+_ppmGroupId, 'DELETE');
+                mzCheckFuncParam([_ppmGroupUserId]);
+                mzAjaxRequest('ppm_group.php?action=delete_ppm_group_user&ppmGroupUserId='+_ppmGroupUserId, 'DELETE');
                 if (classFrom.getClassName() === 'MainPpmGroup') {
-                    classFrom.genTableTechnician();
-                    classFrom.genTableSupervisor();
-                    classFrom.genTableEngineer();
+                    classFrom.genTableUser();
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -138,5 +143,9 @@ function ModalPpmUser() {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 }
