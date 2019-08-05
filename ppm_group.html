@@ -86,8 +86,8 @@
                                 <tr class="th-strong">
                                     <th style="width: 5%">#</th>
                                     <th>Group Name</th>
-                                    <th>Report To</th>
-                                    <th>Total User</th>
+                                    <th style="width: 30%">Report To</th>
+                                    <th style="width: 15%">Total User</th>
                                     <th style="width: 15%">Status</th>
                                     <th style="width: 64px; min-width: 64px"></th>
                                 </tr>
@@ -113,8 +113,8 @@
                                 <tr class="th-strong">
                                     <th style="width: 5%">#</th>
                                     <th>Group Name</th>
-                                    <th>Report To</th>
-                                    <th>Total User</th>
+                                    <th style="width: 30%">Report To</th>
+                                    <th style="width: 15%">Total User</th>
                                     <th style="width: 15%">Status</th>
                                     <th style="width: 64px; min-width: 64px"></th>
                                 </tr>
@@ -140,7 +140,7 @@
                                 <tr class="th-strong">
                                     <th style="width: 5%">#</th>
                                     <th>Group Name</th>
-                                    <th>Total User</th>
+                                    <th style="width: 15%">Total User</th>
                                     <th style="width: 15%">Status</th>
                                     <th style="width: 64px; min-width: 64px"></th>
                                 </tr>
@@ -213,7 +213,7 @@
                                 <tr class="th-strong">
                                     <th style="width: 5%">#</th>
                                     <th>Name</th>
-                                    <th style="width: 20%">Status</th>
+                                    <th style="width: 15%">Status</th>
                                     <th style="width: 32px; min-width: 32px"></th>
                                 </tr>
                                 </thead>
@@ -285,6 +285,9 @@
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
                 modalPpmGroupClass_.setClassFrom(ppmGroupClass_);
+                modalPpmGroupClass_.setRefRole(refRole_);
+                modalPpmGroupClass_.setRefClient(refClient_);
+                modalPpmGroupClass_.setRefSite(refSite_);
                 modalPpmGroupClass_.init();
 
                 ppmGroupClass_.setRefStatus(refStatus_);

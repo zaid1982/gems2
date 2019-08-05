@@ -7,6 +7,9 @@ function ModalPpmGroup() {
     let classFrom;
     let siteId;
     let roleId;
+    let refRole;
+    let refClient;
+    let refSite;
 
     this.init = function () {
         const vData = [
@@ -49,16 +52,24 @@ function ModalPpmGroup() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const assetGroupId = $('#optMpgReportTo').val();
                         const txtName = $('#txtMpgName').val();
+                        const reportTo = roleId === '5' || roleId === '3' ? $('#optMpgReportTo').val() : '';
                         const data = {
-                            assetGroupId: assetGroupId,
-                            ppmGroupName: txtName
+                            siteId: siteId,
+                            roleId: roleId,
+                            ppmGroupName: txtName,
+                            reportTo: reportTo
                         };
 
                         mzAjaxRequest('ppm_group.php', 'POST', data);
                         if (classFrom.getClassName() === 'MainPpmGroup') {
-                            classFrom.genTableTechnician();
+                            if (roleId === '5') {
+                                classFrom.genTableTechnician();
+                            } else if (roleId === '3') {
+                                classFrom.genTableSupervisor();
+                            } else if (roleId === '4') {
+                                classFrom.genTableEngineer();
+                            }
                         }
                         $('#modal_ppm_group').modal('hide');
                     }
@@ -81,8 +92,22 @@ function ModalPpmGroup() {
                 siteId = _siteId;
                 roleId = _roleId;
 
-                //mzOptionStop('optMpgReportTo', refUser, 'Choose Asset Group', 'userId', 'userFirstName', {assetGroupStatus: '1'}, 'required');
-                mzSetFieldValue('MpgClient', 'sssss', 'text');
+                if (roleId === '5' || roleId === '3') {
+                    const versionLocal = mzGetDataVersion();
+                    const roleCur = roleId === '5' ? '3' : '4';
+                    const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
+                    const defaultText = roleId === '5' ? 'Choose Supervisor Group' : 'Choose Engineer Group';
+                    mzOptionStop('optMpgReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
+                    $('#divMpgReportTo').show();
+                } else {
+                    $('#divMpgReportTo').hide();
+                }
+
+                const clientId = refSite[siteId]['clientId'];
+                mzSetFieldValue('MpgClient', refClient[clientId]['clientName'], 'text');
+                mzSetFieldValue('MpgSite', refSite[siteId]['siteName'], 'text');
+                mzSetFieldValue('MpgRole', refRole[roleId]['roleDesc'], 'text');
+
                 $('#modal_ppm_group').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -97,8 +122,10 @@ function ModalPpmGroup() {
             try {
                 mzCheckFuncParam([_ppmGroupId]);
                 mzAjaxRequest('ppm_group.php?ppmGroupId='+_ppmGroupId, 'DELETE');
-                if (classFrom.getClassName() === 'MainAssetCategory') {
-                    classFrom.genTableAct(1);
+                if (classFrom.getClassName() === 'MainPpmGroup') {
+                    classFrom.genTableTechnician();
+                    classFrom.genTableSupervisor();
+                    classFrom.genTableEngineer();
                 }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -113,5 +140,17 @@ function ModalPpmGroup() {
 
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
+    };
+
+    this.setRefRole = function (_refRole) {
+        refRole = _refRole;
+    };
+
+    this.setRefClient = function (_refClient) {
+        refClient = _refClient;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 }

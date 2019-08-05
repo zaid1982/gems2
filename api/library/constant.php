@@ -103,6 +103,11 @@ class Class_constant {
     const ERR_LOCATION_CODE_DELETE_USER = 'Location Code cannot be deleted because currently registered under Technician';
     const ERR_LOCATION_CODE_DELETE_ASSET = 'Location Code cannot be deleted because currently registered under Asset';
     const ERR_CONTRACT_USER_SIMILAR = 'This technician already exist in this Location Code and Asset Group';
+    const ERR_PPM_GROUP_SIMILAR = 'PPM Group already exist in similar site';
+    const ERR_PPM_GROUP_DELETE_USER = 'PPM Group cannot be deleted because currently have user in it';
+    const ERR_PPM_GROUP_DELETE_REPORT_TO = 'PPM Group cannot be deleted because currently have another PPM Group report to this group';
+    const ERR_PPM_GROUP_DELETE_ASSET = 'PPM Group cannot be deleted because currently registered under Asset';
+    const ERR_PPM_GROUP_DELETE_PPM = 'PPM Group cannot be deleted because already assigned PPM Task';
 
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
     const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';
@@ -191,6 +196,9 @@ class Class_constant {
     const SUC_LOCATION_CODE_DELETE = 'Location Code successfully deleted';
     const SUC_CONTRACT_USER_ADD = 'Technician successfully added';
     const SUC_CONTRACT_USER_DELETE = 'Technician successfully removed';
+    const SUC_PPM_GROUP_ADD = 'PPM Group successfully added';
+    const SUC_PPM_GROUP_EDIT = 'PPM Group successfully updated';
+    const SUC_PPM_GROUP_DELETE = 'PPM Group successfully deleted';
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon by GFM representative. You will receive notification soon on your mobile and email.';
 }

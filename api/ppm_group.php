@@ -40,36 +40,42 @@ try {
         } else {
             $siteId = filter_input(INPUT_GET, 'siteId');
             $roleId = filter_input(INPUT_GET, 'roleId');
-            $result = $fn_ppmGroup->get_ppmGroup_list($siteId, $roleId);
+            if (!is_null($siteId)) {
+                $result = $fn_ppmGroup->get_ppmGroup_list_filtered($siteId, $roleId);
+            } else {
+                $result = $fn_ppmGroup->get_ppmGroup_list();
+            }
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $assetGroupName = filter_input(INPUT_POST, 'assetGroupName');
-        $assetGroupDesc = filter_input(INPUT_POST, 'assetGroupDesc');
-        $assetGroupStatus = filter_input(INPUT_POST, 'assetGroupStatus');
+        $siteId = filter_input(INPUT_POST, 'siteId');
+        $roleId = filter_input(INPUT_POST, 'roleId');
+        $ppmGroupName = filter_input(INPUT_POST, 'ppmGroupName');
+        $reportTo = filter_input(INPUT_POST, 'reportTo');
 
         $params = array(
-            'assetGroupName'=>$assetGroupName,
-            'assetGroupDesc'=>$assetGroupDesc,
-            'assetGroupStatus'=>$assetGroupStatus
+            'siteId'=>$siteId,
+            'roleId'=>$roleId,
+            'ppmGroupName'=>$ppmGroupName,
+            'reportTo'=>$reportTo
         );
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $result = $fn_assetGroup->add_assetGroup($params);
-        $fn_general->updateVersion(9);
-        $fn_general->save_audit('31', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
+        $result = $fn_ppmGroup->add_ppmGroup($params);
+        $fn_general->updateVersion(19);
+        $fn_general->save_audit('105', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_ADD;
+        $form_data['errmsg'] = $constant::SUC_PPM_GROUP_ADD;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('PUT' === $request_method) {
-        $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
+        $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
         $put_data = file_get_contents("php://input");
         parse_str($put_data, $put_vars);
         $action = $put_vars['action'];
@@ -78,10 +84,10 @@ try {
         $is_transaction = true;
 
         if ($action === 'update') {
-            $fn_assetGroup->update_assetGroup($assetGroupId, $put_vars);
-            $fn_general->updateVersion(9);
-            $fn_general->save_audit('32', $jwt_data->userId, 'Asset Group = ' . $put_vars['assetGroupName']);
-            $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_EDIT;
+            $fn_ppmGroup->update_ppmGroup($ppmGroupId, $put_vars);
+            $fn_general->updateVersion(19);
+            $fn_general->save_audit('106', $jwt_data->userId, 'PPM Group = ' . $put_vars['ppmGroupName']);
+            $form_data['errmsg'] = $constant::SUC_PPM_GROUP_EDIT;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
@@ -90,17 +96,17 @@ try {
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {
-        $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
+        $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $assetGroupName = $fn_assetGroup->delete_assetGroup($assetGroupId);
-        $fn_general->updateVersion(9);
-        $fn_general->save_audit('35', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
+        $ppmGroupName = $fn_ppmGroup->delete_ppmGroup($ppmGroupId);
+        $fn_general->updateVersion(19);
+        $fn_general->save_audit('107', $jwt_data->userId, 'PPM Group = ' . $ppmGroupName);
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_DELETE;
+        $form_data['errmsg'] = $constant::SUC_PPM_GROUP_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

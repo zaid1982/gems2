@@ -86,6 +86,7 @@ function MainPpmGroup() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableTechnician.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
                     }
                 });
             },
@@ -157,7 +158,7 @@ function MainPpmGroup() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSupervisor.row(parseInt(rowId)).data();
-                        //modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalSupervisorClass);
+                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
                     }
                 });
             },
@@ -184,7 +185,7 @@ function MainPpmGroup() {
         });
         $("#dtPgrSupervisor_filter").hide();
 
-        $('#btnPgrTechnicianAdd').on('click', function () {
+        $('#btnPgrSupervisorAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '3');
         });
 
@@ -229,6 +230,7 @@ function MainPpmGroup() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableEngineer.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
                     }
                 });
             },
@@ -237,7 +239,6 @@ function MainPpmGroup() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'ppmGroupName', bSortable: false},
-                    {mData: 'reportTo', bSortable: false},
                     {mData: 'totalUser', bSortable: false},
                     {mData: null, bSortable: false,
                         mRender: function (data, type, row) {
@@ -255,7 +256,7 @@ function MainPpmGroup() {
         });
         $("#dtPgrEngineer_filter").hide();
 
-        $('#btnPgrTechnicianAdd').on('click', function () {
+        $('#btnPgrEngineerAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '4');
         });
 

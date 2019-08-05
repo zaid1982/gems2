@@ -71,13 +71,37 @@ class Class_ppmGroup {
         }
     }
 
+    public function get_ppmGroup_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['ppmGroupName'] = $dataLocal['ppm_group_name'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['roleId'] = $dataLocal['role_id'];
+                $row_result['ppmGroupReportTo'] = $this->fn_general->clear_null($dataLocal['ppm_group_report_to']);
+                $row_result['ppmGroupStatus'] = $dataLocal['ppm_group_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
     /**
      * @param string $siteId
      * @param string $roleId
      * @return array
      * @throws Exception
      */
-    public function get_ppmGroup_list ($siteId='', $roleId='') {
+    public function get_ppmGroup_list_filtered ($siteId='', $roleId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -146,25 +170,29 @@ class Class_ppmGroup {
             if (empty($params)) {
                 throw new Exception('[' . __LINE__ . '] - Array params empty');
             }
+            if (!array_key_exists('siteId', $params) || empty($params['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
+            if (!array_key_exists('roleId', $params) || empty($params['roleId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
+            }
             if (!array_key_exists('ppmGroupName', $params) || empty($params['ppmGroupName'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupName empty');
             }
-            if (!array_key_exists('ppmGroupDesc', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupDesc not exist');
-            }
-            if (!array_key_exists('ppmGroupStatus', $params) || empty($params['ppmGroupStatus'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupStatus empty');
+            if (!array_key_exists('reportTo', $params)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter reportTo not exist');
             }
 
+            $siteId = $params['siteId'];
+            $roleId = $params['roleId'];
             $ppmGroupName = $params['ppmGroupName'];
-            $ppmGroupDesc = $params['ppmGroupDesc'];
-            $ppmGroupStatus = $params['ppmGroupStatus'];
+            $reportTo = $params['reportTo'];
 
-            if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_name'=>$ppmGroupName)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_GROUP_SIMILAR, 31);
+            if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'site_id'=>$siteId, 'role_id'=>$roleId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_SIMILAR, 31);
             }
 
-            return Class_db::getInstance()->db_insert('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'ppm_group_desc'=>$ppmGroupDesc, 'ppm_group_status'=>$ppmGroupStatus));
+            return Class_db::getInstance()->db_insert('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'site_id'=>$siteId, 'role_id'=>$roleId, 'ppm_group_report_to'=>$reportTo));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -231,8 +259,17 @@ class Class_ppmGroup {
             if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_id'=>$ppmGroupId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Asset Group data not exist');
             }
-            if (Class_db::getInstance()->db_count('ppm_category', array('ppm_group_id'=>$ppmGroupId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_GROUP_DELETE_CATEGORY, 31);
+            if (Class_db::getInstance()->db_count('ppm_group_user', array('ppm_group_id'=>$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_USER, 31);
+            }
+            if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_report_to'=>$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_REPORT_TO, 31);
+            }
+            if (Class_db::getInstance()->db_count('ast_asset', array('ppm_group_id'=>$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_ASSET, 31);
+            }
+            if (Class_db::getInstance()->db_count('ppm', array('ppm_group_id'=>$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_PPM, 31);
             }
 
             $ppmGroupName = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupId), 'ppm_group_name', null, 1);
