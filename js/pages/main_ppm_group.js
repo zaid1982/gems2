@@ -9,11 +9,16 @@ function MainPpmGroup() {
     let refSite;
     let clientId;
     let siteId;
+    let roleId;
     let oTableTechnician;
     let oTableSupervisor;
     let oTableEngineer;
+    let oTableUser;
     let modalConfirmDeleteClass;
     let modalPpmGroupClass;
+    let ppmGroupId;
+    let rowRefresh = '';
+    let formValidateInfo;
 
     this.init = function () {
         clientId = '1';
@@ -220,8 +225,6 @@ function MainPpmGroup() {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableEngineer.row(parseInt(rowId)).data();
                         self.viewDetails(currentRow['ppmGroupId'], rowId);
-                        $('#divPgrMain').removeClass('col-md-12').addClass('col-md-7');
-                        $('#divPgrDetails').show();
                     }
                 });
                 $('.lnkPgrEngineerDelete').off('click').on('click', function () {
@@ -272,9 +275,199 @@ function MainPpmGroup() {
             }, 200);
         });
 
+        const vDataInfo = [
+            {
+                field_id: 'txtPgrInfoGroupName',
+                type: 'text',
+                name: 'Group Name',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 150
+                }
+            },
+            {
+                field_id: 'optPgrInfoReportTo',
+                type: 'select',
+                name: 'Report To',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'chkPgrInfoStatus',
+                type: 'checkSingle',
+                name: 'Status',
+                validator: {
+                }
+            }
+        ];
+
+        formValidateInfo = new MzValidate('formPgrInfo');
+        formValidateInfo.registerFields(vDataInfo);
+
+        $('#formPgrInfo').on('keyup change', function () {
+            $('#btnPgrInfoUpdate').attr('disabled', !formValidateInfo.validateForm());
+        });
+
+        $('#btnPgrInfoUpdate').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidateInfo.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    }
+                    else {
+                        const txtName = $('#txtPgrInfoGroupName').val();
+                        const reportTo = roleId === '5' || roleId === '3' ? $('#optPgrInfoReportTo').val() : '';
+                        const statusVal = $("input[name='chkPgrInfoStatus']").is(":checked") ? '1' : '2';
+                        const data = {
+                            ppmGroupId: ppmGroupId,
+                            ppmGroupName: txtName,
+                            siteId: siteId,
+                            roleId: roleId,
+                            reportTo: reportTo,
+                            ppmGroupStatus: statusVal
+                        };
+
+                        data['action'] = 'update';
+                        mzAjaxRequest('ppm_group.php?ppmGroupId='+ppmGroupId, 'PUT', data);
+                        if (roleId === '5') {
+                            self.genTableTechnician();
+                        } else if (roleId === '3') {
+                            self.genTableSupervisor();
+                        } else if (roleId === '4') {
+                            self.genTableEngineer();
+                        }
+                        $('#btnPgrInfoUpdate').attr('disabled', true);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        oTableUser = $('#dtPgrUser').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            bInfo: false,
+            bPaginate: false,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableUser.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkPgrUserEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableUser.row(parseInt(rowId)).data();
+                        self.viewDetails(currentRow['ppmGroupId'], rowId);
+                    }
+                });
+                $('.lnkPgrUserDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableUser.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+                    }
+                });
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'userId', bSortable: false,
+                        mRender: function (data) {
+                            return refUser[data]['userFirstName'];
+                        }},
+                    {mData: null, bSortable: false,
+                        mRender: function (data, type, row) {
+                            const userId = row['userId'];
+                            const userStatus = refUser[userId]['userStatus'];
+                            return '<h6><span class="badge badge-pill '+refStatus[userStatus]['statusColor']+' z-depth-2">'+refStatus[userStatus]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            return '<a><i class="fas fa-trash-alt lnkPgrUserDelete" id="lnkPgrUserDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        }
+                    }
+                ]
+        });
+        $("#dtPgrUser_filter").hide();
+
+        $('#btnPgrUserAdd').on('click', function () {
+            modalPpmGroupClass.add(siteId, '4');
+        });
+
+        $('#btnDtPgrUserRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableUser();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         self.genTableTechnician();
         self.genTableSupervisor();
         self.genTableEngineer();
+    };
+
+    this.viewDetails = function (_ppmGroupId, _rowId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                formValidateInfo.clearValidation();
+                $('#btnPgrInfoUpdate').attr('disabled', true);
+
+                mzCheckFuncParam([_ppmGroupId, _rowId]);
+                ppmGroupId = _ppmGroupId;
+                rowRefresh = _rowId;
+
+                const dataPpmGroup = mzAjaxRequest('ppm_group.php?ppmGroupId='+ppmGroupId, 'GET');
+                roleId = dataPpmGroup['roleId'];
+                siteId = dataPpmGroup['siteId'];
+                clientId = refSite[siteId]['clientId'];
+
+                if (roleId === '5' || roleId === '3') {
+                    const versionLocal = mzGetDataVersion();
+                    const roleCur = roleId === '5' ? '3' : '4';
+                    const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
+                    const defaultText = roleId === '5' ? 'Choose Supervisor Group' : 'Choose Engineer Group';
+                    mzOptionStop('optPgrInfoReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
+                    formValidateInfo.enableField('optPgrInfoReportTo');
+                    $('#divPgrInfoReportTo').show();
+                } else {
+                    formValidateInfo.disableField('optPgrInfoReportTo');
+                    $('#divPgrInfoReportTo').hide();
+                }
+
+                mzSetFieldValue('PgrInfoReportTo', dataPpmGroup['ppmGroupReportTo'], 'select', 'Report to *');
+                mzSetFieldValue('PgrInfoGroupName', dataPpmGroup['ppmGroupName'], 'text');
+                mzSetFieldValue('PgrInfoRoleDesc', refRole[roleId]['roleDesc'], 'text');
+                mzSetFieldValue('PgrInfoClientName', refClient[clientId]['clientName'], 'text');
+                mzSetFieldValue('PgrInfoSiteName', refSite[siteId]['siteName'], 'text');
+                mzSetFieldValue('PgrInfoStatus', dataPpmGroup['ppmGroupStatus'], 'checkSingle', '1');
+
+                self.genTableUser();
+
+                $('#divPgrMain').removeClass('col-md-12').addClass('col-md-7');
+                $('#divPgrDetails').show();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
     };
 
     this.genTableTechnician = function () {
@@ -292,17 +485,9 @@ function MainPpmGroup() {
         oTableEngineer.clear().rows.add(dataEngineer).draw();
     };
 
-    this.viewDetails = function (_ppmGroupId, _rowId) {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                alert(_ppmGroupId);
-                alert(_rowId);
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-            HideLoader();
-        }, 200);
+    this.genTableUser = function () {
+        const dataUser = mzAjaxRequest('ppm_group.php?type=ppm_group_user&ppmGroupId='+ppmGroupId, 'GET');
+        oTableUser.clear().rows.add(dataUser).draw();
     };
 
     this.getClassName = function () {

@@ -158,28 +158,33 @@
                         <div class="card-body px-2">
                             <form id="formPgrInfo">
                                 <div class="col-md-12">
-                                    <div class="md-form md-outline mt-4">
-                                        <input type="text" id="txtPgrInfoGroupName" class="form-control">
-                                        <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name</label>
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoClientName" class="form-control" disabled>
+                                        <label for="txtPgrInfoClientName" id="lblPgrInfoClientName">Client</label>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <div class="md-form md-outline mt-4">
-                                        <input type="text" id="txtPgrInfoRoleDesc" class="form-control">
-                                        <label for="txtPgrInfoRoleDesc" id="lblPgrInfoGroupDesc">Role</label>
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoSiteName" class="form-control" disabled>
+                                        <label for="txtPgrInfoSiteName" id="lblPgrInfoSiteName">Site</label>
                                     </div>
                                 </div>
-                                <div class="col-md-12 select-outline">
-                                    <select id="optPgrInfoClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPgrInfoClientId">Client</label>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoRoleDesc" class="form-control" disabled>
+                                        <label for="txtPgrInfoRoleDesc" id="lblPgrInfoRoleDesc">Role</label>
+                                    </div>
                                 </div>
-                                <div class="col-md-12 select-outline">
-                                    <select id="optPgrInfoSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPgrInfoSiteId">Site</label>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoGroupName" class="form-control">
+                                        <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name *</label>
+                                        <p class="font-small text-danger" id="txtPgrInfoGroupNameErr"></p>
+                                    </div>
                                 </div>
-                                <div class="col-md-12 select-outline">
+                                <div class="col-md-12 select-outline" id="divPgrInfoReportTo">
                                     <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPgrInfoReportTo">Report to</label>
+                                    <label for="optPgrInfoReportTo">Report to *</label>
                                 </div>
                                 <div class="col-md-12">
                                     <h6 class="font-small">Status:</h6>
@@ -191,7 +196,7 @@
                             </form>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="btnPgrInfoSave" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
+                            <button type="button" id="btnPgrInfoUpdate" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
                                 <i class="fas fa-save mr-1"></i> Update
                             </button>
                         </div>

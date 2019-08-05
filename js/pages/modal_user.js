@@ -118,23 +118,16 @@ function ModalUser() {
         });
 
         $("input[name='chkMusUserType']:radio").on('click', function () {
-            $('#optMusClientId').val(null);
-            $('#optMusSiteId').val(null);
             $("input[name='chkMusRole[]']:checkbox").prop('checked',false);
             formValidate.validateForm();
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
-                $('#divMusClient, #divMusSite').hide();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').show();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5, #divMusRole7, #divMusRole8').show();
                 $('#divMusRole6').hide();
-                formValidate.disableField('optMusClientId');
-                formValidate.disableField('optMusSiteId');
             } else if ($(this).val() === '2') {
-                $('.divMusRoles, #divMusClient, #divMusSite').show();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').hide();
+                $('.divMusRoles').show();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5, #divMusRole7, #divMusRole8').hide();
                 $('#divMusRole6').show();
-                formValidate.enableField('optMusClientId');
-                formValidate.enableField('optMusSiteId');
                 $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
             }
         });
@@ -183,7 +176,6 @@ function ModalUser() {
                                 classFrom.genTableUser();
                             }
                         }
-                        self.resetReportTo();
 
                         $('#modal_user').modal('hide');
                     }
@@ -196,8 +188,8 @@ function ModalUser() {
     };
 
     this.defaultPageSetup = function () {
-        $('.divMusAddOnly, #divMusClient, #divMusSite, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
-        $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', false);
+        $('.divMusAddOnly, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
+        $('#chkMusUserType1, #chkMusUserType2').prop('disabled', false);
     };
 
     this.add = function () {
@@ -233,7 +225,7 @@ function ModalUser() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_userId, _rowRefresh]);
-                $('#chkMusUserType1, #chkMusUserType2, #optMusClientId, #optMusSiteId').prop('disabled', true);
+                $('#chkMusUserType1, #chkMusUserType2').prop('disabled', true);
                 mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
                 mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
                 mzOptionStopClear('optMusSiteId','Choose Site', 'required');
@@ -241,36 +233,30 @@ function ModalUser() {
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
                 const groupId = dataUser['groupId'];
+                const userType = dataUser['userType'];
                 formValidate.disableField('txtMusUserName');
                 formValidate.disableField('txtMusUserPassword');
                 mzSetFieldValue('MusUserName', dataUser['userName'], 'text');
+                mzSetFieldValue('MusUserType', userType, 'check');
                 mzSetFieldValue('MusUserFirstName', dataUser['userFirstName'], 'text');
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
                 mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
                 mzSetFieldValue('MusRole', roles.split(','), 'check');
 
-                if (groupId === '1') {
-                    mzSetFieldValue('MusUserType', '1', 'check');
+                mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
+                mzSetFieldValue('MusClientId', dataUser['clientId'], 'select', 'Client *');
+                mzSetFieldValue('MusSiteId', dataUser['siteId'], 'select', 'Site *');
+
+                if (userType === '1') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').show();
+                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5, #divMusRole7, #divMusRole8').show();
                     $('#divMusRole6').hide();
-                    formValidate.disableField('optMusClientId');
-                    formValidate.disableField('optMusSiteId');
                 }
-                else if (groupId === '2') {
-                    toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-                }
-                else {
-                    mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
-                    mzSetFieldValue('MusUserType', '2', 'check');
-                    mzSetFieldValue('MusClientId', dataUser['clientId'], 'select', 'Client *');
-                    mzSetFieldValue('MusSiteId', dataUser['siteId'], 'select', 'Site *');
-                    $('.divMusRoles, #divMusClient, #divMusSite').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5').hide();
+                else if (userType === '2') {
+                    $('.divMusRoles').show();
+                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole4, #divMusRole5, #divMusRole7, #divMusRole8').hide();
                     $('#divMusRole6').show();
-                    formValidate.disableField('optMusClientId');
-                    formValidate.disableField('optMusSiteId');
                 }
                 formValidate.validateForm();
 

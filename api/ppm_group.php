@@ -34,8 +34,15 @@ try {
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
+        $type = filter_input(INPUT_GET, 'type');
         $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
-        if (!is_null($ppmGroupId)) {
+        if (!is_null($type)) {
+            if ($type === 'ppm_group_user') {
+                $result = $fn_ppmGroup->get_ppmGroupUser_list($ppmGroupId);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
+            }
+        } else if (!is_null($ppmGroupId)) {
             $result = $fn_ppmGroup->get_ppmGroup($ppmGroupId);
         } else {
             $siteId = filter_input(INPUT_GET, 'siteId');

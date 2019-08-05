@@ -1,6 +1,6 @@
-function ModalPpmGroup() {
+function ModalPpmUser() {
 
-    const className = 'ModalPpmGroup';
+    const className = 'ModalPpmUser';
     let self = this;
     let ppmGroupId = '';
     let rowRefresh = '';
@@ -15,16 +15,7 @@ function ModalPpmGroup() {
     this.init = function () {
         const vData = [
             {
-                field_id: 'txtMpgName',
-                type: 'text',
-                name: 'Group Name',
-                validator: {
-                    notEmpty: true,
-                    maxLength: 150
-                }
-            },
-            {
-                field_id: 'optMpgReportTo',
+                field_id: 'optMpuUserId',
                 type: 'select',
                 name: 'Report To',
                 validator: {
@@ -33,19 +24,19 @@ function ModalPpmGroup() {
             }
         ];
 
-        formValidate = new MzValidate('formMpg');
+        formValidate = new MzValidate('formMpu');
         formValidate.registerFields(vData);
 
-        $('#formMpg').on('keyup change', function () {
-            $('#btnMpgSubmit').attr('disabled', !formValidate.validateForm());
+        $('#formMpu').on('keyup change', function () {
+            $('#btnMpuSubmit').attr('disabled', !formValidate.validateForm());
         });
 
         $('#modal_ppm_group').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
-            $('#btnMpgSubmit').attr('disabled', true);
+            $('#btnMpuSubmit').attr('disabled', true);
         });
 
-        $('#btnMpgSubmit').on('click', function () {
+        $('#btnMpuSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
@@ -53,8 +44,8 @@ function ModalPpmGroup() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const txtName = $('#txtMpgName').val();
-                        const reportTo = roleId === '5' || roleId === '3' ? $('#optMpgReportTo').val() : '';
+                        const txtName = $('#txtMpuName').val();
+                        const reportTo = roleId === '5' || roleId === '3' ? $('#optMpuReportTo').val() : '';
                         const data = {
                             siteId: siteId,
                             roleId: roleId,
@@ -82,34 +73,26 @@ function ModalPpmGroup() {
         });
     };
 
-    this.add = function (_siteId, _roleId) {
-        ppmGroupId = '';
+    this.add = function (_ppmGroupId, _siteId, _roleId) {
         rowRefresh = '';
 
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_siteId, _roleId]);
+                mzCheckFuncParam([_ppmGroupId, _siteId, _roleId]);
+                ppmGroupId = _ppmGroupId;
                 siteId = _siteId;
                 roleId = _roleId;
 
-                if (roleId === '5' || roleId === '3') {
-                    const versionLocal = mzGetDataVersion();
-                    const roleCur = roleId === '5' ? '3' : '4';
-                    const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
-                    const defaultText = roleId === '5' ? 'Choose Supervisor Group' : 'Choose Engineer Group';
-                    mzOptionStop('optMpgReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
-                    formValidate.enableField('optMpgReportTo');
-                    $('#divMpgReportTo').show();
-                } else {
-                    formValidate.disableField('optMpgReportTo');
-                    $('#divMpgReportTo').hide();
-                }
+                const versionLocal = mzGetDataVersion();
+                const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
+                mzOptionStop('optMpuReportTo', refPpmGroup, 'Choose Assigned User', 'ppmGroupId', 'ppmGroupName', {roleId:roleId, siteId:siteId, ppmGroupStatus: '1'}, 'required');
+
 
                 const clientId = refSite[siteId]['clientId'];
-                mzSetFieldValue('MpgClient', refClient[clientId]['clientName'], 'text');
-                mzSetFieldValue('MpgSite', refSite[siteId]['siteName'], 'text');
-                mzSetFieldValue('MpgRole', refRole[roleId]['roleDesc'], 'text');
+                mzSetFieldValue('MpuClient', refClient[clientId]['clientName'], 'text');
+                mzSetFieldValue('MpuSite', refSite[siteId]['siteName'], 'text');
+                mzSetFieldValue('MpuRole', refRole[roleId]['roleDesc'], 'text');
 
                 $('#modal_ppm_group').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

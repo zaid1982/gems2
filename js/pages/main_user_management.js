@@ -6,13 +6,16 @@ function MainUserManagement() {
     let refRole;
     let refDesignation;
     let refGroup;
+    let refSite;
     let oTableUser;
     let modalUserClass;
+    let refUserType;
 
     this.init = function () {
         mzOption('optUmnDesignationId', refDesignation, 'All Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, '', false);
-        mzOption('optUmnGroupId', refGroup, 'All Sites', 'groupId', 'groupName', {groupStatus: '1'}, '', false);
+        mzOption('optUmnGroupId', refSite, 'All Sites', 'siteId', 'siteName', {siteStatus: '1'}, '', false);
 
+        refUserType = ['', 'GFM Internal', 'Client', 'Public User'];
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -58,10 +61,10 @@ function MainUserManagement() {
                     {mData: null, bSortable: false},
                     {mData: 'userFullName'},
                     {mData: null, mRender: function (data, type, row){
-                            return row['groupId'] !== '' ? refGroup[row['groupId']]['groupName'] : '';
+                            return row['siteId'] !== '' ? refSite[row['siteId']]['siteName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
-                            return row['designationId'] !== '' ? refDesignation[row['designationId']]['designationDesc'] : '';
+                    {mData: 'userType', mRender: function (data){
+                            return refUserType[data];
                         }},
                     {mData: 'userContactNo'},
                     {mData: 'userEmail', mRender: function (data){
@@ -102,7 +105,8 @@ function MainUserManagement() {
                     {mData: 'userStatus', visible: false},
                     {mData: 'roles', visible: false},
                     {mData: 'groupId', visible: false},
-                    {mData: 'designationId', visible: false}
+                    {mData: 'designationId', visible: false},
+                    {mData: 'siteId', visible: false},
                 ]
         });
         $("#dtUmnUser_filter").hide();
@@ -113,7 +117,7 @@ function MainUserManagement() {
             oTableUser.column(13).search($(this).val(), false, true, false).draw();
         });
         $('#optUmnGroupId').on('change', function () {
-            oTableUser.column(12).search($(this).val(), false, true, false).draw();
+            oTableUser.column(14).search($(this).val(), false, true, false).draw();
         });
         $('#linkUmn0').on('click', function () {
             oTableUser.column(11).search('').draw();
@@ -302,6 +306,10 @@ function MainUserManagement() {
 
     this.setRefGroup = function (_refGroup) {
         refGroup = _refGroup;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 
     this.setModalUserClass = function (_modalUserClass) {

@@ -249,6 +249,9 @@ class Class_user {
             if (!isset($put_vars['userType']) || empty($put_vars['userType'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userType empty');
             }
+            if (!isset($put_vars['siteId']) || empty($put_vars['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
 
             $userEmail = $put_vars['userEmail'];
             $userFirstName = $put_vars['userFirstName'];
@@ -256,6 +259,7 @@ class Class_user {
             $designationId = $put_vars['designationId'];
             $rolesStr = $put_vars['roles'];
             $userType = $put_vars['userType'];
+            $siteId = $put_vars['siteId'];
 
             if ($userType == '1') {
                 $roles = explode(',', $rolesStr);
@@ -283,7 +287,7 @@ class Class_user {
                 }
             }
 
-            Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName, 'site_id'=>$siteId), array('user_id'=>$userId));
             Class_db::getInstance()->db_update('sys_user_profile', array('user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId), array('user_id'=>$userId, 'user_profile_status'=>'1'));
 
         }
@@ -410,6 +414,9 @@ class Class_user {
             if (!array_key_exists('designationId', $userDetails) && empty($userDetails['designationId'])) {
                 throw new Exception('['.__LINE__.'] - Parameter designationId empty');
             }
+            if (!array_key_exists('siteId', $userDetails) && empty($userDetails['siteId'])) {
+                throw new Exception('['.__LINE__.'] - Parameter siteId empty');
+            }
 
             $userName = $userDetails['userName'];
             $userFirstName = $userDetails['userFirstName'];
@@ -419,16 +426,12 @@ class Class_user {
             $designationId = $userDetails['designationId'];
             $userType = $userDetails['userType'];
             $rolesStr = $userDetails['roles'];
-            $groupId = '';
+            $siteId = $userDetails['siteId'];
 
             if ($userType == '1') {
                 $groupId = '1';
             }
             else if ($userType == '2') {
-                if (!array_key_exists('siteId', $userDetails) && empty($userDetails['siteId'])) {
-                    throw new Exception('['.__LINE__.'] - Parameter siteId empty');
-                }
-                $siteId = $userDetails['siteId'];
                 $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
             } else {
                 throw new Exception('['.__LINE__.'] - Parameter userType invalid ('.$userType.')');
@@ -441,7 +444,7 @@ class Class_user {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_EMAIL, 31);
             }
 
-            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>'1', 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_status'=>'1'));
+            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>$userType, 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_status'=>'1'));
             Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId));
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>$groupId));
             $roles = explode(',', $rolesStr);
@@ -478,6 +481,7 @@ class Class_user {
             foreach ($users as $user) {
                 $row_result['userId'] = $user['user_id'];
                 $row_result['userName'] = $user['user_name'];
+                $row_result['userType'] = $user['user_type'];
                 $row_result['userFirstName'] = $user['user_first_name'];
                 $row_result['userLastName'] = $user['user_last_name'];
                 $row_result['userFullName'] = $user['user_first_name'].' '.$user['user_last_name'];
@@ -488,6 +492,7 @@ class Class_user {
                 $row_result['roles'] = $this->fn_general->clear_null($user['roles']);
                 $row_result['groupId'] = $this->fn_general->clear_null($user['group_id']);
                 $row_result['userStatus'] = $user['user_status'];
+                $row_result['siteId'] = $this->fn_general->clear_null($user['site_id']);
                 array_push($result, $row_result);
             }
             return $result;
@@ -516,6 +521,7 @@ class Class_user {
             $user = Class_db::getInstance()->db_select_single('vw_user_list', array('sys_user.user_id'=>$userId), null, 1);
             $result['userId'] = $user['user_id'];
             $result['userName'] = $user['user_name'];
+            $result['userType'] = $user['user_type'];
             $result['userFirstName'] = $user['user_first_name'];
             $result['userLastName'] = $user['user_last_name'];
             $result['userFullName'] = $user['user_first_name'].' '.$user['user_last_name'];
@@ -526,10 +532,12 @@ class Class_user {
             $result['roles'] = $this->fn_general->clear_null($user['roles']);
             $result['groupId'] = $user['group_id'];
             $result['userStatus'] = $user['user_status'];
+            $result['siteId'] = $this->fn_general->clear_null($user['site_id']);
+            $result['clientId'] = '';
 
-            $site = Class_db::getInstance()->db_select_single('cli_site', array('group_id'=>$result['groupId']));
-            $result['clientId'] = !empty($site) ? $site['client_id'] : '';
-            $result['siteId'] = !empty($site) ? $site['site_id'] : '';
+            if (!empty($result['siteId'])) {
+                $result['clientId'] = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $result['siteId']), 'client_id');
+            }
 
             return $result;
         }

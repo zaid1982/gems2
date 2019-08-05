@@ -13,14 +13,27 @@
             <div class="modal-body">
                 <form id="formMpu">
                     <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMpuName" class="form-control">
-                        <label for="txtMpuName" id="lblMpuName">Asset Brand *</label>
-                        <p class="font-small text-danger" id="txtMpuNameErr"></p>
+                        <input type="text" id="txtMpuClient" class="form-control" disabled>
+                        <label for="txtMpuClient" id="lblMpuClient">Client</label>
                     </div>
-                    <div class="md-form md-outline">
-                        <textarea id="txaMpuDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMpuDesc" id="lblMpuDesc" class="text-muted">Description</label>
-                        <p class="font-small text-danger" id="txaMpuDescErr"></p>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMpuSite" class="form-control" disabled>
+                        <label for="txtMpuSite" id="lblMpuSite">Site</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMpuRole" class="form-control" disabled>
+                        <label for="txtMpuRole" id="lblMpuRole">Role</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMpuGroupName" class="form-control" disabled>
+                        <label for="txtMpuGroupName" id="lblMpuGroupName">Group Name</label>
+                    </div>
+                    <div class="row" id="divMpuUserId">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMpuUserId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true" searchable="Search here.."></select>
+                            <label for="optMpuUserId" id="lblMpuUserId">Assigned User *</label>
+                            <p class="font-small text-danger" id="optMpuUserIdErr"></p>
+                        </div>
                     </div>
                 </form>
             </div>

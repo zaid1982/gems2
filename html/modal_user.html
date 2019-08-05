@@ -44,6 +44,22 @@
                         <label for="txtMusUserEmail" id="lblMusUserEmail">Email *</label>
                         <p class="font-small text-danger" id="txtMusUserEmailErr"></p>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline">
+                            <select id="optMusClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMusClientId" id="lblMusClientId">Client *</label>
+                            <p class="font-small text-danger" id="optMusClientIdErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline">
+                            <select id="optMusSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                <option value="" disabled selected>Choose Site</option>
+                            </select>
+                            <label for="optMusSiteId" id="lblMusSiteId">Site *</label>
+                            <p class="font-small text-danger" id="optMusSiteIdErr"></p>
+                        </div>
+                    </div>
                     <h6 class="font-small mb-0">User Type:</h6>
                     <div class="md-form mt-0 ml-2">
                         <div class="form-check form-check-inline">
@@ -57,22 +73,6 @@
                         <div class="form-check form-check-inline">
                             <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType3" value="3" disabled>
                             <label class="form-check-label" for="chkMusUserType3">Public</label>
-                        </div>
-                    </div>
-                    <div class="row" id="divMusClient">
-                        <div class="col-md-12 select-outline mt-2">
-                            <select id="optMusClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMusClientId" id="lblMusClientId">Client *</label>
-                            <p class="font-small text-danger" id="optMusClientIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row" id="divMusSite">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMusSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                <option value="" disabled selected>Choose Site</option>
-                            </select>
-                            <label for="optMusSiteId" id="lblMusSiteId">Site *</label>
-                            <p class="font-small text-danger" id="optMusSiteIdErr"></p>
                         </div>
                     </div>
                     <h6 class="font-small mb-0 divMusRoles">Roles:</h6>
@@ -96,6 +96,14 @@
                         <div class="form-check form-check-inline" id="divMusRole4">
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole4" value="4">
                             <label class="form-check-label" for="chkMusRole4">Verifier</label>
+                        </div>
+                        <div class="form-check form-check-inline" id="divMusRole7">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole7" value="7">
+                            <label class="form-check-label" for="chkMusRole7">WO Assigner</label>
+                        </div>
+                        <div class="form-check form-check-inline" id="divMusRole8">
+                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole8" value="8">
+                            <label class="form-check-label" for="chkMusRole8">WO Executor</label>
                         </div>
                         <div class="form-check form-check-inline" id="divMusRole6">
                             <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole6" value="6">

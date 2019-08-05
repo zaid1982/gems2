@@ -71,6 +71,10 @@ class Class_ppmGroup {
         }
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_ppmGroup_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
@@ -220,22 +224,30 @@ class Class_ppmGroup {
             if (!isset($put_vars['ppmGroupName']) || empty($put_vars['ppmGroupName'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupName empty');
             }
-            if (!isset($put_vars['ppmGroupDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupDesc not exist');
+            if (!isset($put_vars['siteId']) || empty($put_vars['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
+            if (!isset($put_vars['roleId']) || empty($put_vars['roleId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
+            }
+            if (!isset($put_vars['reportTo'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter reportTo not exist');
             }
             if (!isset($put_vars['ppmGroupStatus']) || empty($put_vars['ppmGroupStatus'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupStatus empty');
             }
 
+            $siteId = $put_vars['siteId'];
+            $roleId = $put_vars['roleId'];
             $ppmGroupName = $put_vars['ppmGroupName'];
-            $ppmGroupDesc = $put_vars['ppmGroupDesc'];
+            $reportTo = $put_vars['reportTo'];
             $ppmGroupStatus = $put_vars['ppmGroupStatus'];
 
-            if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'ppm_group_id'=>'<>'.$ppmGroupId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_GROUP_SIMILAR, 31);
+            if (Class_db::getInstance()->db_count('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'site_id'=>$siteId, 'role_id'=>$roleId, 'ppm_group_id'=>'<>'.$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_SIMILAR, 31);
             }
 
-            Class_db::getInstance()->db_update('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'ppm_group_desc'=>$ppmGroupDesc, 'ppm_group_status'=>$ppmGroupStatus), array('ppm_group_id'=>$ppmGroupId));
+            Class_db::getInstance()->db_update('ppm_group', array('ppm_group_name'=>$ppmGroupName, 'site_id'=>$siteId, 'role_id'=>$roleId, 'ppm_group_report_to'=>$reportTo, 'ppm_group_status'=>$ppmGroupStatus), array('ppm_group_id'=>$ppmGroupId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -276,6 +288,36 @@ class Class_ppmGroup {
             Class_db::getInstance()->db_delete('ppm_group', array('ppm_group_id'=>$ppmGroupId));
 
             return $ppmGroupName;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmGroupId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppmGroupUser_list ($ppmGroupId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group_user');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmGroupUserId'] = $dataLocal['ppm_group_user_id'];
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['userId'] = $dataLocal['user_id'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
