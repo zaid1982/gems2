@@ -226,6 +226,8 @@
         </section>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_ppm_group"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -261,6 +263,8 @@
     let versionLocal_;
     let changePasswordClass_;
     let ppmGroupClass_;
+    let modalPpmGroupClass_;
+    let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -271,6 +275,8 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 ppmGroupClass_ = new MainPpmGroup();
+                modalPpmGroupClass_ = new ModalPpmGroup();
+                modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
@@ -278,11 +284,16 @@
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
+                modalPpmGroupClass_.setClassFrom(ppmGroupClass_);
+                modalPpmGroupClass_.init();
+
                 ppmGroupClass_.setRefStatus(refStatus_);
                 ppmGroupClass_.setRefRole(refRole_);
                 ppmGroupClass_.setRefUser(refUser_);
                 ppmGroupClass_.setRefClient(refClient_);
                 ppmGroupClass_.setRefSite(refSite_);
+                ppmGroupClass_.setModalPpmGroupClass(modalPpmGroupClass_);
+                ppmGroupClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 ppmGroupClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -293,6 +304,8 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

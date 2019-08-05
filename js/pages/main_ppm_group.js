@@ -12,6 +12,8 @@ function MainPpmGroup() {
     let oTableTechnician;
     let oTableSupervisor;
     let oTableEngineer;
+    let modalConfirmDeleteClass;
+    let modalPpmGroupClass;
 
     this.init = function () {
         clientId = '1';
@@ -110,6 +112,10 @@ function MainPpmGroup() {
         });
         $("#dtPgrTechnician_filter").hide();
 
+        $('#btnPgrTechnicianAdd').on('click', function () {
+            modalPpmGroupClass.add(siteId, '5');
+        });
+
         $('#btnDtPgrTechnicianRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -178,6 +184,10 @@ function MainPpmGroup() {
         });
         $("#dtPgrSupervisor_filter").hide();
 
+        $('#btnPgrTechnicianAdd').on('click', function () {
+            modalPpmGroupClass.add(siteId, '3');
+        });
+
         $('#btnDtPgrSupervisorRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -244,6 +254,10 @@ function MainPpmGroup() {
                 ]
         });
         $("#dtPgrEngineer_filter").hide();
+
+        $('#btnPgrTechnicianAdd').on('click', function () {
+            modalPpmGroupClass.add(siteId, '4');
+        });
 
         $('#btnDtPgrEngineerRefresh').on('click', function () {
             ShowLoader();
@@ -312,5 +326,13 @@ function MainPpmGroup() {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setModalPpmGroupClass = function (_modalPpmGroupClass) {
+        modalPpmGroupClass = _modalPpmGroupClass;
+    };
+
+    this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
+        modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
 }
