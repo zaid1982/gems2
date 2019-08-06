@@ -133,7 +133,20 @@ class Class_ppm {
             $interval = new DateInterval('P1W');
             $dateRange = new DatePeriod($begin, $interval ,$end);
             foreach($dateRange as $date){
-                if ($date > $apply) {
+                if ($date->format("D") == 'Mon') {
+                    $date->modify( '+6 day' );
+                } else if ($date->format("D") == 'Tue') {
+                    $date->modify( '+5 day' );
+                } else if ($date->format("D") == 'Wed') {
+                    $date->modify( '+4 day' );
+                } else if ($date->format("D") == 'Thu') {
+                    $date->modify( '+3 day' );
+                } else if ($date->format("D") == 'Fri') {
+                    $date->modify( '+2 day' );
+                } else if ($date->format("D") == 'Sat') {
+                    $date->modify( '+1 day' );
+                }
+                if ($date > $apply && $date < $end) {
                     array_push($newDates, $date->format("Y-m-d"));
                 }
             }
@@ -615,32 +628,88 @@ class Class_ppm {
                     Class_db::getInstance()->db_insert('ppm_task_quan', array('ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'], 'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'frequency_id'=>$quanFrequency,
                         'ppm_task_quan_unit'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_unit']), 'ppm_task_quan_set_values'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_set_values']), 'ppm_task_quan_result'=>$quanResult, 'ppm_task_id'=>$ppmTaskId, 'checklist_quan_id'=>$checklistQuan['checklist_quan_id']));
                 }
-                if ($isYearly && in_array($dateStr, $yearlyDates)) {
-                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'1'));
-                }
-                if ($isQuarterly && in_array($dateStr, $quarterlyDates)) {
-                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'2'));
-                }
-                if ($isMonthly && in_array($dateStr, $monthlyDates)) {
-                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'3'));
+
+                $highestFrequency = '';
+                if ($isDaily && in_array($dateStr, $dailyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
+                    $highestFrequency = '5';
                 }
                 if ($isWeekly && in_array($dateStr, $weeklyDates)) {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'4'));
+                    $highestFrequency = '4';
                 }
-                if ($isDaily && in_array($dateStr, $dailyDates)) {
-                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
+                if ($isMonthly && in_array($dateStr, $monthlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'3'));
+                    $highestFrequency = '3';
+                }
+                if ($isQuarterly && in_array($dateStr, $quarterlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'2'));
+                    $highestFrequency = '2';
                 }
                 if ($isHalfAnnaully && in_array($dateStr, $halfAnnuallyDates)) {
                     Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'6'));
+                    $highestFrequency = '6';
                 }
+                if ($isYearly && in_array($dateStr, $yearlyDates)) {
+                    Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'1'));
+                    $highestFrequency = '1';
+                }
+                $ppmStartDate = $this->get_ppm_start_date($dateStr, $highestFrequency);
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$ppmStartDate), array('ppm_task_id'=>$ppmTaskId));
 
-                Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_created'=>$dateStr, 'task_time_claimed'=>$dateStr), array('transaction_id'=>$transactionId));
+                Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_claimed'=>''), array('transaction_id'=>$transactionId));
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
             }
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
 
             return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklist_document_no']);
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmDate
+     * @param $frequency
+     * @return mixed
+     * @throws Exception
+     */
+    private function get_ppm_start_date ($ppmDate, $frequency) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($ppmDate)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmDate empty');
+            }
+            if (empty(frequency)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter frequency empty');
+            }
+
+            $ppmStartDate = '';
+            $ppmDate = new DateTime($ppmDate);
+            if ($frequency === '1') {   // yearly
+
+            } else if ($frequency === '2') {    // quarterly
+
+            } else if ($frequency === '3') {    // monthly
+                $ppmDate->modify('+1 day');
+                $ppmDate->modify('-1 month');
+                $ppmStartDate = $ppmDate->format("Y-m-d");
+            } else if ($frequency === '4') {    // weekly
+                $ppmDate->modify('-6 day');
+                $ppmStartDate = $ppmDate->format("Y-m-d");
+            } else if ($frequency === '5') {    // daily
+                $ppmStartDate = $ppmDate;
+            } else if ($frequency === '6') {    // half-anually
+
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter frequency invalid');
+            }
+
+            return $ppmStartDate;
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1536,6 +1605,7 @@ class Class_ppm {
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status' => '13'), array('transaction_id' => $transactionId));
+            Class_db::getInstance()->db_update('wfl_task', array('task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
 
             $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
             $sectionStatus = $totalNull > '0' ? '18' : '19';
