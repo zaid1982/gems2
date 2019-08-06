@@ -97,18 +97,25 @@
                     </div>
                     <h6 class="font-small">PPM Form :</h6>
                     <div class="row pl-2 mt-3">
-                        <div class="col-md-9 select-outline">
+                        <div class="col-md-12 select-outline">
                             <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                 <option value="" disabled selected>Choose PPM Checklist</option>
                             </select>
                             <label for="optMpmChecklistId" id="lblMpmChecklistId">PPM Checklist *</label>
                             <p class="font-small text-danger" id="optMpmChecklistIdErr"></p>
                         </div>
+                        <div class="col-md-9 select-outline">
+                            <select id="optMpmPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                <option value="" disabled selected>Choose PPM Executor Group</option>
+                            </select>
+                            <label for="optMpmPpmGroupId" id="lblMpmPpmGroupId">PPM Executor Group *</label>
+                            <p class="font-small text-danger" id="optMpmPpmGroupIdErr"></p>
+                        </div>
                         <div class="col-md-3">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmPpmDateCycle" class="form-control datepicker">
-                                <label for="txtMpmPpmDateCycle" id="lblMpmPpmDateCycle">Start Cycle Date *</label>
-                                <p class="font-small text-danger" id="txtMpmPpmDateCycleErr"></p>
+                                <input type="text" id="txtMpmPpmDateStart" class="form-control datepicker">
+                                <label for="txtMpmPpmDateStart" id="lblMpmPpmDateStart">Start PPM Date *</label>
+                                <p class="font-small text-danger" id="txtMpmPpmDateStartErr"></p>
                             </div>
                         </div>
                     </div>

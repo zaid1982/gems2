@@ -306,7 +306,7 @@ class Class_ppm {
                 $row_result['assetStatus'] = $dataLocal['asset_status'];
                 $row_result['ppmId'] = $this->fn_general->clear_null($dataLocal['ppm_id']);
                 $row_result['ppmTaskNo'] = $this->fn_general->clear_null($dataLocal['ppm_task_no']);
-                $row_result['ppmDateCycle'] = $this->fn_general->clear_null($dataLocal['ppm_date_cycle']);
+                $row_result['ppmDateStart'] = $this->fn_general->clear_null($dataLocal['ppm_date_start']);
                 $row_result['checklistId'] = $this->fn_general->clear_null($dataLocal['checklist_id']);
                 $row_result['ppmCreatedBy'] = $this->fn_general->clear_null($dataLocal['ppm_created_by']);
                 $row_result['ppmTimeCreated'] = $this->fn_general->clear_null($dataLocal['ppm_time_created']);
@@ -360,12 +360,12 @@ class Class_ppm {
     /**
      * @param $assetId
      * @param $checklistId
-     * @param $ppmDateCycle
+     * @param $ppmDateStart
      * @param $userId
      * @return array
      * @throws Exception
      */
-    public function assign_ppm_single ($assetId, $checklistId, $ppmDateCycle, $userId) {
+    public function assign_ppm_single ($assetId, $checklistId, $ppmDateStart, $userId, $ppmGroupId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -376,8 +376,8 @@ class Class_ppm {
             if (empty($checklistId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
             }
-            if (empty($ppmDateCycle)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmDateCycle empty');
+            if (empty($ppmDateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmDateStart empty');
             }
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -458,12 +458,12 @@ class Class_ppm {
                 }
             }
 
-            $dailyDates = $this->get_dates_day($contractDateStart, $contractDateEnd, $ppmDateCycle);
-            $weeklyDates = $this->get_dates_week($contractDateStart, $contractDateEnd, $ppmDateCycle);
-            $monthlyDates = $this->get_dates_month($contractDateStart, $contractDateEnd, $ppmDateCycle);
-            $quarterlyDates = $this->get_dates_quarter($contractDateStart, $contractDateEnd, $ppmDateCycle);
-            $halfAnnuallyDates = $this->get_dates_halfAnnual($contractDateStart, $contractDateEnd, $ppmDateCycle);
-            $yearlyDates = $this->get_dates_year($contractDateStart, $contractDateEnd, $ppmDateCycle);
+            $dailyDates = $this->get_dates_day($contractDateStart, $contractDateEnd, $ppmDateStart);
+            $weeklyDates = $this->get_dates_week($contractDateStart, $contractDateEnd, $ppmDateStart);
+            $monthlyDates = $this->get_dates_month($contractDateStart, $contractDateEnd, $ppmDateStart);
+            $quarterlyDates = $this->get_dates_quarter($contractDateStart, $contractDateEnd, $ppmDateStart);
+            $halfAnnuallyDates = $this->get_dates_halfAnnual($contractDateStart, $contractDateEnd, $ppmDateStart);
+            $yearlyDates = $this->get_dates_year($contractDateStart, $contractDateEnd, $ppmDateStart);
 
             $tempDays = array();
             foreach($dailyDates as $dateStr){
@@ -495,7 +495,7 @@ class Class_ppm {
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
-            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_cycle'=>$ppmDateCycle, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
+            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
                 'contract_id'=>$contractId, 'ppm_created_by'=>$userId));
             $currentMonth = array('year'=>'', 'month'=>'');
             $technicianKpis = array();

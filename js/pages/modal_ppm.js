@@ -11,6 +11,7 @@ function ModalPpm() {
     let refAssetType;
     let refAssetBrand;
     let refAssetModel;
+    let refPpmGroup;
     let formValidate;
 
     this.init = function () {
@@ -28,7 +29,15 @@ function ModalPpm() {
                 }
             },
             {
-                field_id: 'txtMpmPpmDateCycle',
+                field_id: 'optMpmPpmGroupId',
+                type: 'select',
+                name: 'PPM Executor Group',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'txtMpmPpmDateStart',
                 type: 'text',
                 name: 'Start Cycle Date',
                 validator: {
@@ -59,12 +68,14 @@ function ModalPpm() {
                     }
                     else {
                         const checklistId = $('#optMpmChecklistId').val();
-                        const ppmDateCycle = mzConvertDate($('#txtMpmPpmDateCycle').val());
+                        const ppmGroupId = $('#optMpmPpmGroupId').val();
+                        const ppmDateStart = mzConvertDate($('#txtMpmPpmDateStart').val());
                         let data = {
                             action: 'assign_ppm_single',
                             assetId: assetId,
                             checklistId: checklistId,
-                            ppmDateCycle: ppmDateCycle
+                            ppmGroupId: ppmGroupId,
+                            ppmDateStart: ppmDateStart
                         };
 
                         const ppmReturn = mzAjaxRequest('ppm.php', 'POST', data);
@@ -73,6 +84,7 @@ function ModalPpm() {
                             data['ppmTaskNo'] = ppmReturn['ppmTaskNo'];
                             data['ppmStatus'] = '10';
                             data['assignedStatus'] = '10';
+                            data['ppmGroupId'] = ppmGroupId;
                             classFrom.updateTablePmg(data, rowRefresh);
                         }
                         $('#modal_ppm').modal('hide');
@@ -102,6 +114,7 @@ function ModalPpm() {
                 const assetModelId = rowData['assetModelId'];
                 const contractDateStart = refContract[contractId]['contractDateStart'];
                 const contractDateEnd = refContract[contractId]['contractDateEnd'];
+                const siteId = refContract[contractId]['siteId'];
 
                 mzSetFieldValue('MpmContractName', refContract[contractId]['contractName'], 'text');
                 mzSetFieldValue('MpmContractDateStart', mzConvertDateDisplay(contractDateStart), 'text');
@@ -115,11 +128,12 @@ function ModalPpm() {
                 mzSetFieldValue('MpmAssetModelName', assetModelId != '' ? refAssetModel[assetModelId]['assetModelName'] : '', 'text');
                 mzSetFieldValue('MpmAssetCapacity', rowData['assetCapacity'], 'text');
                 mzSetFieldValue('MpmLocationCodeName', rowData['locationCodeName'], 'text');
-                mzDateSetMin('txtMpmPpmDateCycle', contractDateStart);
-                mzDateSetMax('txtMpmPpmDateCycle', contractDateEnd);
+                mzDateSetMin('txtMpmPpmDateStart', contractDateStart);
+                mzDateSetMax('txtMpmPpmDateStart', contractDateEnd);
 
                 const refChecklist = mzAjaxRequest('checklist.php?assetTypeId='+assetTypeId, 'GET');
                 mzOptionStop('optMpmChecklistId', refChecklist, 'Choose PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true);
+                mzOptionStop('optMpmPpmGroupId', refPpmGroup, 'Choose PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId:'5', siteId:siteId, ppmGroupStatus: '1'}, 'required');
 
                 $('#lblMpmTitle').html('<i class="fas fa-pen-alt text-white"></i> &nbsp;Assign PPM');
                 $('#modal_ppm').modal({backdrop: 'static', keyboard: false});
@@ -160,6 +174,10 @@ function ModalPpm() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
+    };
+
+    this.setRefPpmGroup = function (_refPpmGroup) {
+        refPpmGroup = _refPpmGroup;
     };
 
 }

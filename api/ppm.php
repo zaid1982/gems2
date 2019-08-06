@@ -89,9 +89,10 @@ try {
         if ($action === 'assign_ppm_single') {
             $assetId = filter_input(INPUT_POST, 'assetId');
             $checklistId = filter_input(INPUT_POST, 'checklistId');
-            $ppmDateCycle = filter_input(INPUT_POST, 'ppmDateCycle');
+            $ppmDateStart = filter_input(INPUT_POST, 'ppmDateStart');
+            $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
 
-            $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateCycle, $jwt_data->userId);
+            $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateStart, $jwt_data->userId, $ppmGroupId);
             $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
             $form_data['errmsg'] = $constant::SUC_PPM_SAVE;
         }

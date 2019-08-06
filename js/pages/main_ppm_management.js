@@ -448,7 +448,7 @@ function MainPpmManagement() {
         if (typeof _dataEdit['action'] !== 'undefined') {
             if (_dataEdit['action'] === 'assign_ppm_single') {
                 currentRow['checklistId'] = _dataEdit['checklistId'];
-                currentRow['ppmDateCycle'] = _dataEdit['ppmDateCycle'];
+                currentRow['ppmDateStart'] = _dataEdit['ppmDateStart'];
                 currentRow['ppmId'] = _dataEdit['ppmId'];
                 currentRow['ppmTaskNo'] = _dataEdit['ppmTaskNo'];
                 currentRow['ppmStatus'] = _dataEdit['ppmStatus'];
