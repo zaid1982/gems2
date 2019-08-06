@@ -496,7 +496,7 @@ class Class_ppm {
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
             $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
-                'contract_id'=>$contractId, 'ppm_created_by'=>$userId));
+                'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
             $currentMonth = array('year'=>'', 'month'=>'');
             $technicianKpis = array();
             foreach ($technicians as $technician) {
