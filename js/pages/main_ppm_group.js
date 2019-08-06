@@ -410,6 +410,15 @@ function MainPpmGroup() {
             }, 200);
         });
 
+        $('#btnPgrSearch').on('click', function () {
+            siteId = $('#optPgrSiteId').val();
+            self.genTableTechnician();
+            self.genTableSupervisor();
+            self.genTableEngineer();
+            $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
+            $('#divPgrDetails').hide();
+        });
+
         self.genTableTechnician();
         self.genTableSupervisor();
         self.genTableEngineer();
