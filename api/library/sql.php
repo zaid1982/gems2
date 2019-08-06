@@ -188,11 +188,10 @@ class Class_sql
                 ) aa ON aa.location_code_id = ast_asset.location_code_id AND aa.contract_id = ast_asset.contract_id and aa.asset_group_id = ast_asset.asset_group_id";
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
-                    cli_contract_user.user_id
-                FROM cli_contract_user                
-                INNER JOIN sys_user ON sys_user.user_id = cli_contract_user.user_id AND sys_user.user_status = 1";
-                // INNER JOIN wfl_checkpoint_user ON cli_contract_user.user_id = wfl_checkpoint_user.user_id AND wfl_checkpoint_user.role_id = 5
-                //		            AND wfl_checkpoint_user.group_id = 1 AND wfl_checkpoint_user.checkpoint_id = 1
+                    ppm_group_user.user_id
+                FROM ppm_group_user 
+                INNER JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id AND role_id = 5               
+                INNER JOIN sys_user ON sys_user.user_id = ppm_group_user.user_id AND sys_user.user_status = 1";
             } else if ($title === 'vw_technicians_ppm_monthly') {
                 $sql = "SELECT
                     YEAR(ppm_task_schedule_date) AS ppm_year, 

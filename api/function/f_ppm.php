@@ -382,6 +382,9 @@ class Class_ppm {
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
             }
@@ -392,12 +395,12 @@ class Class_ppm {
             $contract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id'=>$contractId), null, 1);
             $contractDateStart = $contract['contract_date_start'];
             $contractDateEnd = $contract['contract_date_end'];
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
             if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
                 throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
-            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('cli_contract_user.contract_id'=>$contractId, 'cli_contract_user.location_code_id'=>$asset['location_code_id'],
-                'cli_contract_user.asset_group_id'=>$asset['asset_group_id']), 'user_id');
+            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group.site_id'=>$siteId), 'user_id');
             if (empty($technicians)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
             }
@@ -491,7 +494,6 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_DATES, 31);
             }
 
-            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
