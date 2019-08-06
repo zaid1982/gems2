@@ -118,14 +118,14 @@
                                                 <option value="" disabled>Choose Column Visibility</option>
                                                 <option value="1">Asset Name</option>
                                                 <option value="2" selected>Asset No</option>
-                                                <option value="3" selected>PPM Task No</option>
+                                                <option value="3" selected>Checklist</option>
                                                 <option value="4">Asset Serial No</option>
                                                 <option value="5" selected>Asset Group</option>
                                                 <option value="6" selected>Asset Category</option>
                                                 <option value="7" selected>Asset Type</option>
                                                 <option value="8">Brand</option>
                                                 <option value="9">Model</option>
-                                                <option value="10">Capacity</option>
+                                                <option value="10" selected>Executor Group</option>
                                                 <option value="11" selected>Location Code</option>
                                                 <option value="12" selected>Status</option>
                                             </select>
@@ -167,14 +167,14 @@
                                         <th scope="row" style="max-width: 30px">#</th>
                                         <th style="min-width: 100px">Asset Name</th>
                                         <th style="min-width: 130px">Asset No</th>
-                                        <th style="min-width: 130px">PPM Task No</th>
+                                        <th style="min-width: 80px">Checklist</th>
                                         <th style="min-width: 130px">Asset Serial No</th>
                                         <th style="min-width: 80px">Asset Group</th>
                                         <th style="min-width: 80px">Asset Category</th>
                                         <th style="min-width: 80px">Asset Type</th>
                                         <th style="min-width: 80px">Brand</th>
                                         <th style="min-width: 80px">Model</th>
-                                        <th style="min-width: 80px">Capacity</th>
+                                        <th style="min-width: 100px">Executor Group</th>
                                         <th style="min-width: 100px">Location Code</th>
                                         <th style="max-width: 70px">Status</th>
                                         <th style="width: 64px; min-width: 64px"></th>
@@ -343,6 +343,7 @@
                 ppmManagementClass_.setRefAssetModel(refAssetModel_);
                 ppmManagementClass_.setRefLocationCode(refLocationCode_);
                 ppmManagementClass_.setRefUser(refUser_);
+                ppmManagementClass_.setRefPpmGroup(refPpmGroup_);
                 ppmManagementClass_.setModalPpmClass(modalPpmClass_);
                 ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
                 ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);

@@ -12,6 +12,7 @@ function MainPpmManagement() {
     let refAssetModel;
     let refLocationCode;
     let refUser;
+    let refPpmGroup;
     let oTableAsset;
     let oTableScheduled;
     let sectionAssetClass;
@@ -124,7 +125,7 @@ function MainPpmManagement() {
                             return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetCapacity'] !== 'undefined' ? row['assetCapacity'] : '';
+                            return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
@@ -263,7 +264,6 @@ function MainPpmManagement() {
         oTableAsset.column(4).visible(false);
         oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
-        oTableAsset.column(10).visible(false);
 
         $('#optPmgColumns').on('change', function () {
             for (let i=1; i<=10; i++) {
@@ -569,6 +569,10 @@ function MainPpmManagement() {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+    };
+
+    this.setRefPpmGroup = function (_refPpmGroup) {
+        refPpmGroup = _refPpmGroup;
     };
 
     this.setSectionAssetClass = function (_sectionAssetClass) {

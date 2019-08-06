@@ -165,6 +165,7 @@ class Class_sql
                     ppm.ppm_task_no,
                     ppm.ppm_date_start,
                     ppm.checklist_id,
+                    ppm.ppm_group_id,
                     ppm.ppm_created_by,
                     ppm.ppm_time_created,
                     ppm.ppm_status,

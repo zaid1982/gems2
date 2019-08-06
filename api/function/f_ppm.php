@@ -306,6 +306,7 @@ class Class_ppm {
                 $row_result['assetStatus'] = $dataLocal['asset_status'];
                 $row_result['ppmId'] = $this->fn_general->clear_null($dataLocal['ppm_id']);
                 $row_result['ppmTaskNo'] = $this->fn_general->clear_null($dataLocal['ppm_task_no']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
                 $row_result['ppmDateStart'] = $this->fn_general->clear_null($dataLocal['ppm_date_start']);
                 $row_result['checklistId'] = $this->fn_general->clear_null($dataLocal['checklist_id']);
                 $row_result['ppmCreatedBy'] = $this->fn_general->clear_null($dataLocal['ppm_created_by']);
