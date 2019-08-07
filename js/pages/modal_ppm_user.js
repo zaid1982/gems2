@@ -88,11 +88,11 @@ function ModalPpmUser() {
                 const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
 
                 if (roleId === '3') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose Executor', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    mzOptionStop('optMpuUserId', refUser, 'Choose Verifier', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
                 } else if (roleId === '4') {
                     mzOptionStop('optMpuUserId', refUser, 'Choose Reviewer', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
                 } else if (roleId === '5') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose Verifier', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    mzOptionStop('optMpuUserId', refUser, 'Choose Executor', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
                 }
 
                 const clientId = refSite[siteId]['clientId'];

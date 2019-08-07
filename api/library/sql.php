@@ -376,6 +376,12 @@ class Class_sql
                     FROM ppm_group_user 
                     GROUP BY ppm_group_id
                 ) group_user ON group_user.ppm_group_id = ppm_group.ppm_group_id";
+            } else if ($title === 'vw_ppm_least_task') {
+                $sql = "SELECT 
+                    task_claimed_user, COUNT(*) AS total
+                FROM wfl_task
+                WHERE task_claimed_user IN ([user_ids]) AND checkpoint_id = [checkpoint_id] AND MONTH(task_time_created) = MONTH(CURDATE()) AND YEAR(task_time_created) = YEAR(CURDATE())
+                GROUP BY task_claimed_user";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

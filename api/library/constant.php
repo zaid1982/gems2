@@ -109,6 +109,8 @@ class Class_constant {
     const ERR_PPM_GROUP_DELETE_ASSET = 'PPM Group cannot be deleted because currently registered under Asset';
     const ERR_PPM_GROUP_DELETE_PPM = 'PPM Group cannot be deleted because already assigned PPM Task';
     const ERR_PPM_GROUP_USER_SIMILAR = 'This user already in this group';
+    const ERR_PPM_GROUP_SUPERVISOR_EMPTY = 'Task fail to submit because supervisor not assigned yet. Please contact system administrator.';
+    const ERR_PPM_GROUP_ENGINEER_EMPTY = 'Task fail to submit because engineer not assigned yet. Please contact system administrator.';
 
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
     const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';

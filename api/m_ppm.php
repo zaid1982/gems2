@@ -255,14 +255,18 @@ try {
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
             $uploadId = '';
+            $nextUser = '';
             if ($result == '1') {
+                if ($checkpoint == '1' || $checkpoint == '2') {
+                    $nextUser = $fn_ppm->get_next_ppm_user($ppmTaskId, $checkpoint);
+                }
                 $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
             }
             $submitParam = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark);
             $taskId = $submitParam['taskId'];
             if ($result == '1') {
-                $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark);
+                $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark, '', '', '', $nextUser);
             } else if ($result == '2') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1');
             } else {

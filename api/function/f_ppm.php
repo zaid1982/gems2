@@ -1933,4 +1933,62 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $ppmTaskId
+     * @param $checkpointId
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_next_ppm_user ($ppmTaskId, $checkpointId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($checkpointId) || ($checkpointId != '1' && $checkpointId != '2')) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checkpointId invalid');
+            }
+
+            if ($checkpointId == '1') {
+                $roleId = '5';
+                $checkpointTo = '2';
+            } else {
+                $roleId = '3';
+                $checkpointTo = '3';
+            }
+
+            $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+            $transactionId = $ppmTask['transaction_id'];
+            $ppmId = $ppmTask['ppm_id'];
+            $ppmGroupId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'ppm_group_id', null, 1);
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Variable ppmGroupId empty');
+            }
+            if (Class_db::getInstance()->db_count('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId)) > 0) {
+                return '';
+            }
+
+            $ppmGroupId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'ppm_group_id', null, 1);
+            $ppmGroupTo = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupId, 'role_id'=>$roleId), 'ppm_group_report_to', null, 1);
+            $ppmGroupUser = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>$ppmGroupTo), 'user_id');
+            if (empty($ppmGroupUser)) {
+                throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_PPM_GROUP_SUPERVISOR_EMPTY, 31);
+            }
+
+            $userId = Class_db::getInstance()->db_select_col('vw_ppm_least_task', array(), 'task_claimed_user', 'total', 0, array('checkpoint_id'=>$checkpointTo, 'user_ids'=>implode(',',$ppmGroupUser)));
+            if (empty($userId)) {
+                $userId = $ppmGroupUser[0];
+            }
+
+            return $userId;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
 }
