@@ -690,11 +690,15 @@ class Class_ppm {
             $ppmStartDate = '';
             $ppmDate = new DateTime($ppmDate);
             if ($frequency === '1') {   // yearly
-                $ppmDate->modify('-1 year');
                 $ppmDate->modify('+1 day');
+                $ppmDate->modify('-1 month');
+                //$ppmDate->modify('-1 year');
+                //$ppmDate->modify('+1 day');
             } else if ($frequency === '2') {    // quarterly
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-3 month');
+                $ppmDate->modify('-1 month');
+                //$ppmDate->modify('+1 day');
+                //$ppmDate->modify('-3 month');
             } else if ($frequency === '3') {    // monthly
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');
@@ -706,7 +710,9 @@ class Class_ppm {
                 $ppmStartDate = $ppmDate;
             } else if ($frequency === '6') {    // half-annually
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-6 month');
+                $ppmDate->modify('-1 month');
+                //$ppmDate->modify('+1 day');
+                //$ppmDate->modify('-6 month');
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency invalid');
             }
@@ -755,6 +761,7 @@ class Class_ppm {
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
                 $row_result['technician'] = $dataLocal['user_first_name'];
+                $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
@@ -829,6 +836,7 @@ class Class_ppm {
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $arrPpmFrequency[intval($dataLocal['frequency'])]);
                 $row_result['technician'] = $arrUserFullName[intval($dataLocal['ppm_task_assigned_to'])];
+                $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
@@ -884,7 +892,7 @@ class Class_ppm {
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('month'=>$month, 'year'=>$year, 'contract_id'=>implode(',', $contractArr)));
             foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['date'] = $dataLocal['ppm_task_schedule_date'];
+                $row_result['date'] = $dataLocal['ppm_task_start_date'];
                 $row_result['total'] = $dataLocal['total'];
                 $row_result['status'] = explode(',', $dataLocal['status']);
                 array_push($result, $row_result);

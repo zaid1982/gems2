@@ -665,7 +665,7 @@ class Class_task {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
-                $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['transaction_time_created']);
+                $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
                 $row_result['flowId'] = $dataLocal['flow_id'];
                 $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
                 $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
