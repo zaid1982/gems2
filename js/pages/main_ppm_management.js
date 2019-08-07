@@ -451,6 +451,7 @@ function MainPpmManagement() {
                 currentRow['ppmDateStart'] = _dataEdit['ppmDateStart'];
                 currentRow['ppmId'] = _dataEdit['ppmId'];
                 currentRow['ppmTaskNo'] = _dataEdit['ppmTaskNo'];
+                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['ppmStatus'] = _dataEdit['ppmStatus'];
                 currentRow['assignedStatus'] = _dataEdit['assignedStatus'];
             }

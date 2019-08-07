@@ -376,6 +376,7 @@ class Class_ppm {
      * @param $checklistId
      * @param $ppmDateStart
      * @param $userId
+     * @param string $ppmGroupId
      * @return array
      * @throws Exception
      */
@@ -682,16 +683,18 @@ class Class_ppm {
             if (empty($ppmDate)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmDate empty');
             }
-            if (empty(frequency)) {
+            if (empty($frequency)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency empty');
             }
 
             $ppmStartDate = '';
             $ppmDate = new DateTime($ppmDate);
             if ($frequency === '1') {   // yearly
-
+                $ppmDate->modify('-1 year');
+                $ppmDate->modify('+1 day');
             } else if ($frequency === '2') {    // quarterly
-
+                $ppmDate->modify('+1 day');
+                $ppmDate->modify('-3 month');
             } else if ($frequency === '3') {    // monthly
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');
@@ -701,8 +704,9 @@ class Class_ppm {
                 $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '5') {    // daily
                 $ppmStartDate = $ppmDate;
-            } else if ($frequency === '6') {    // half-anually
-
+            } else if ($frequency === '6') {    // half-annually
+                $ppmDate->modify('+1 day');
+                $ppmDate->modify('-6 month');
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency invalid');
             }
