@@ -79,13 +79,13 @@ try {
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, '6');
             $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, '6', $groupId, $woTaskNo);
-            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint);
+            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
             $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = ' . $woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users ('7', '12');
             foreach ($nextUsers as $userId) {
-                $this->fn_email->setup_email($userId, 4, array('task_no'=>$woTaskNo));
-                $this->fn_email->setup_mobile_notification($userId, 5);
+                $fn_email->setup_email($userId, 4, array('task_no'=>$woTaskNo));
+                $fn_email->setup_mobile_notification($userId, 5);
             }
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
         } else {
