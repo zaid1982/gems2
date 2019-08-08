@@ -786,27 +786,17 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             $restFilter = '';
-            $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
-            $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
-            if (!empty($ppmFsArr)) {
-                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
-                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
-            }
-            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                array_push($ppmUserArr, $userId);
-                $ppmUserArr = array_unique($ppmUserArr, SORT_REGULAR);
-            }
-            if (!empty($ppmUserArr)) {
-                $contractArr = Class_db::getInstance()->db_select_colm('cli_contract_user', array('user_id'=>'(' . implode(',', $ppmUserArr) . ')'), 'contract_id');
-                if (empty($contractArr)) {
-                    return array();
-                }
-                $contractArr = array_unique($contractArr, SORT_REGULAR);
-                if (!empty($restFilter)) { $restFilter .= ' AND '; }
-                $restFilter .= 'ppm.contract_id IN ('.implode(',', $contractArr).') ';
-            } else {
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
+            if (empty($siteId)) {
                 return array();
             }
+            $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId), 'contract_id');
+            if (empty($contractArr)) {
+                return array();
+            }
+            $contractArr = array_unique($contractArr, SORT_REGULAR);
+            if (!empty($restFilter)) { $restFilter .= ' AND '; }
+            $restFilter .= 'ppm.contract_id IN ('.implode(',', $contractArr).') ';
 
             if (!empty($date)) {
                 if (!empty($restFilter)) { $restFilter .= ' AND '; }
@@ -869,25 +859,15 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
 
-            $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
-            $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
-            if (!empty($ppmFsArr)) {
-                $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
-                $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
-            }
-            if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                array_push($ppmUserArr, $userId);
-                $ppmUserArr = array_unique($ppmUserArr, SORT_REGULAR);
-            }
-            if (!empty($ppmUserArr)) {
-                $contractArr = Class_db::getInstance()->db_select_colm('cli_contract_user', array('user_id'=>'(' . implode(',', $ppmUserArr) . ')'), 'contract_id');
-                if (empty($contractArr)) {
-                    return array();
-                }
-                $contractArr = array_unique($contractArr, SORT_REGULAR);
-            } else {
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
+            if (empty($siteId)) {
                 return array();
             }
+            $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId), 'contract_id');
+            if (empty($contractArr)) {
+                return array();
+            }
+            $contractArr = array_unique($contractArr, SORT_REGULAR);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('month'=>$month, 'year'=>$year, 'contract_id'=>implode(',', $contractArr)));
