@@ -125,7 +125,11 @@ function MainPpmManagement() {
                             return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
+                            let ppmGroupId = row['ppmGroupIdPpm'];
+                            if (ppmGroupId == '') {
+                                ppmGroupId = row['ppmGroupId'];
+                            }
+                            return ppmGroupId !== '' ? refPpmGroup[ppmGroupId]['ppmGroupName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';

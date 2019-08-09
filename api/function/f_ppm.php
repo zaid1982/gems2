@@ -308,6 +308,7 @@ class Class_ppm {
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
                 $row_result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
                 $row_result['locationCodeName'] = $this->fn_general->clear_null($dataLocal['location_code_name']);
                 $row_result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
                 $row_result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
@@ -319,7 +320,7 @@ class Class_ppm {
                 $row_result['assetStatus'] = $dataLocal['asset_status'];
                 $row_result['ppmId'] = $this->fn_general->clear_null($dataLocal['ppm_id']);
                 $row_result['ppmTaskNo'] = $this->fn_general->clear_null($dataLocal['ppm_task_no']);
-                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['ppmGroupIdPpm'] = $this->fn_general->clear_null($dataLocal['ppm_group_id_ppm']);
                 $row_result['ppmDateStart'] = $this->fn_general->clear_null($dataLocal['ppm_date_start']);
                 $row_result['checklistId'] = $this->fn_general->clear_null($dataLocal['checklist_id']);
                 $row_result['ppmCreatedBy'] = $this->fn_general->clear_null($dataLocal['ppm_created_by']);

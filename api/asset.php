@@ -57,12 +57,14 @@ try {
         $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
         $assetCategoryId = filter_input(INPUT_POST, 'assetCategoryId');
         $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
+        $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
 
         $params = array(
             'contractId'=>$contractId,
             'assetGroupId'=>$assetGroupId,
             'assetCategoryId'=>$assetCategoryId,
-            'assetTypeId'=>$assetTypeId
+            'assetTypeId'=>$assetTypeId,
+            'ppmGroupId'=>$ppmGroupId
         );
 
         Class_db::getInstance()->db_beginTransaction();

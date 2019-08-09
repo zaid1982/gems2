@@ -11,6 +11,7 @@ function MainAsset() {
     let refAssetBrand;
     let refAssetModel;
     let refLocationCode;
+    let refPpmGroup;
     let oTableAsset;
     let sectionAssetClass;
     let contractId;
@@ -104,7 +105,7 @@ function MainAsset() {
                             return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetCapacity'] !== 'undefined' ? row['assetCapacity'] : '';
+                            return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
@@ -219,8 +220,8 @@ function MainAsset() {
 
         oTableAsset.column(1).visible(false);
         oTableAsset.column(3).visible(false);
-        oTableAsset.column(9).visible(false);
-        oTableAsset.column(10).visible(false);
+        oTableAsset.column(7).visible(false);
+        oTableAsset.column(8).visible(false);
 
         $('#optAszColumns').on('change', function () {
             for (let i=1; i<=10; i++) {
@@ -429,6 +430,7 @@ function MainAsset() {
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
                 currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
             else if (_dataEdit['action'] === 'submit') {
@@ -441,6 +443,7 @@ function MainAsset() {
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
                 currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
                 currentRow['assetStatus'] = '1';
                 self.displayStats();
@@ -449,6 +452,7 @@ function MainAsset() {
                 currentRow['assetName'] = _dataEdit['assetName'];
                 currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
                 currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
         }
@@ -500,6 +504,10 @@ function MainAsset() {
 
     this.setRefLocationCode = function (_refLocationCode) {
         refLocationCode = _refLocationCode;
+    };
+
+    this.setRefPpmGroup = function (_refPpmGroup) {
+        refPpmGroup = _refPpmGroup;
     };
 
     this.setSectionAssetClass = function (_sectionAssetClass) {

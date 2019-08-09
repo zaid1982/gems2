@@ -107,9 +107,9 @@
                                                 <option value="4" selected>Asset Group</option>
                                                 <option value="5" selected>Asset Category</option>
                                                 <option value="6" selected>Asset Type</option>
-                                                <option value="7" selected>Brand</option>
-                                                <option value="8" selected>Model</option>
-                                                <option value="9">Capacity</option>
+                                                <option value="7">Brand</option>
+                                                <option value="8">Model</option>
+                                                <option value="9" selected>PPM Group</option>
                                                 <option value="10">Location Code</option>
                                                 <option value="11" selected>Status</option>
                                             </select>
@@ -150,16 +150,16 @@
                                     <tr class="th-strong">
                                         <th scope="row" style="max-width: 30px">#</th>
                                         <th style="min-width: 100px">Asset Name</th>
-                                        <th style="min-width: 130px">Asset No</th>
-                                        <th style="min-width: 130px">Asset Serial No</th>
+                                        <th style="min-width: 80px">Asset No</th>
+                                        <th style="min-width: 100px">Asset Serial No</th>
                                         <th style="min-width: 80px">Asset Group</th>
-                                        <th style="min-width: 80px">Asset Category</th>
-                                        <th style="min-width: 80px">Asset Type</th>
+                                        <th style="min-width: 120px">Asset Category</th>
+                                        <th style="min-width: 120px">Asset Type</th>
                                         <th style="min-width: 80px">Brand</th>
                                         <th style="min-width: 80px">Model</th>
-                                        <th style="min-width: 80px">Capacity</th>
-                                        <th style="min-width: 100px">Location Code</th>
-                                        <th style="max-width: 70px">Status</th>
+                                        <th style="min-width: 80px">PPM Group</th>
+                                        <th style="min-width: 80px">Location Code</th>
+                                        <th style="max-width: 55px">Status</th>
                                         <th style="min-width: 42px"></th>
                                     </tr>
                                     </thead>
@@ -209,6 +209,8 @@
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/themes/dark-blue.js"></script>
+<!-- QR Code -->
+<script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -243,6 +245,7 @@
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refLocationCode_ = mzGetLocalArray('gems_locationCode', versionLocal_, 'locationCodeId', [], 'location_code');
+                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
                 sectionAssetDetails_.setClassFrom(assetClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
@@ -256,6 +259,7 @@
                 sectionAssetDetails_.setRefSite(refSite_);
                 sectionAssetDetails_.setRefClient(refClient_);
                 sectionAssetDetails_.setRefLocationCode(refLocationCode_);
+                sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
                 sectionAssetDetails_.setVersionLocal(versionLocal_);
                 sectionAssetDetails_.init();
 
@@ -267,6 +271,7 @@
                 assetClass_.setRefAssetBrand(refAssetBrand_);
                 assetClass_.setRefAssetModel(refAssetModel_);
                 assetClass_.setRefLocationCode(refLocationCode_);
+                assetClass_.setRefPpmGroup(refPpmGroup_);
                 assetClass_.setSectionAssetClass(sectionAssetDetails_);
                 assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 assetClass_.init();
