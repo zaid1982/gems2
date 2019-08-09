@@ -638,34 +638,60 @@ class Class_task {
             $arrCheckPointName = $this->fn_general->getCheckPointName();
             $arrWhere = array('task_current'=>'1', 'flow_id'=>$flowId);
 
-            if ($flowId == '1') {
-                $ppmUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'3', 'role_id'=>'5'), 'user_id');
-                $ppmFsArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to'=>$userId, 'report_role'=>'4', 'role_id'=>'3'), 'user_id');
-                if (!empty($ppmFsArr)) {
-                    $ppmFsUserArr = Class_db::getInstance()->db_select_colm('wfl_user_report', array('report_to' => '(' . implode(',', $ppmFsArr) . ')', 'report_role' => '3', 'role_id' => '5'), 'user_id');
-                    $ppmUserArr = array_unique(array_merge($ppmUserArr, $ppmFsUserArr), SORT_REGULAR);
-                }
-                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'5')) > 0) {
-                    array_push($ppmUserArr, $userId);
-                    $ppmUserArr = array_unique($ppmUserArr);
-                }
-                if (!empty($ppmUserArr)) {
-                    $arrWhere['wfl_transaction.user_id'] = '(' . implode(',', $ppmUserArr) . ')';
-                } else {
-                    $arrWhere['wfl_transaction.user_id'] = '0';
-                }
-            }
-
             if (!empty($assetNo)) {
                 $arrWhere['asset_no'] = $assetNo;
             }
 
-            $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_m', $arrWhere, 'task_id DESC', '100');
+            if ($flowId == '1') {
+                $ppmGroupFinalArr = array();
+                $ppmGroupIdArr = Class_db::getInstance()->db_select_colm('ppm_group_user', array('user_id' => $userId), 'ppm_group_id');
+                if (!empty($ppmGroupIdArr)) {
+                    foreach ($ppmGroupIdArr as $ppmGroupId) {
+                        $ppmGroup = Class_db::getInstance()->db_select_single('ppm_group', array('ppm_group_id'=>$ppmGroupId));
+                        if (!empty($ppmGroup)) {
+                            if ($ppmGroup['role_id'] == '4') {
+                                $ppmGroupFsArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>$ppmGroupId, 'role_id'=>'3'), 'ppm_group_id');
+                                if (!empty($ppmGroupFsArr)) {
+                                    $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>'('.implode(',', $ppmGroupFsArr).')', 'role_id' => '5'), 'ppm_group_id');
+                                    $ppmGroupFinalArr = array_unique(array_merge($ppmGroupTechArr, $ppmGroupFinalArr));
+                                }
+                            } else if ($ppmGroup['role_id'] == '3') {
+                                $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to' => $ppmGroupId, 'role_id' => '5'), 'ppm_group_id');
+                                $ppmGroupFinalArr = array_unique(array_merge($ppmGroupTechArr, $ppmGroupFinalArr));
+                            } else if ($ppmGroup['role_id'] == '5') {
+                                array_push($ppmGroupFinalArr, $ppmGroupId);
+                                $ppmGroupFinalArr = array_unique($ppmGroupFinalArr);
+                            }
+                        }
+                    }
+                }
+                if (empty($ppmGroupFinalArr)) {
+                    return array();
+                }
+
+                $ppmUserArr = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>'('.implode(',', $ppmGroupFinalArr).')'), 'user_id');
+                if (empty($ppmUserArr)) {
+                    return array();
+                }
+                $ppmUserArr = array_unique($ppmUserArr);
+                $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
+                $sql = 'vw_track_monitoring_ppm_m';
+            } else if ($flowId == '2') {
+                $sql = 'vw_track_monitoring_m';
+            } else {
+                return array();
+            }
+
+            $arr_dataLocal = Class_db::getInstance()->db_select($sql, $arrWhere, 'task_id DESC', '100');
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
-                $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
+                if ($dataLocal['checkpoint_id'] == '1') {
+                    $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
+                } else {
+                    $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
+                }
                 $row_result['flowId'] = $dataLocal['flow_id'];
                 $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
                 $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];

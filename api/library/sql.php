@@ -349,6 +349,20 @@ class Class_sql
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id";
+            } else if ($title === 'vw_track_monitoring_ppm_m') {
+                $sql = "SELECT
+                    transaction_no,
+                    transaction_time_created,
+                    transaction_date_due,
+                    transaction_time_complete,
+                    transaction_status,
+                    flow_id,
+                    asset_no,
+                    ppm_task_start_date,
+                    wfl_task.*
+                FROM wfl_task
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_task.transaction_id";
             } else if ($title === 'vw_count_asset') {
                 $sql = "SELECT count(*) AS total FROM ast_asset";
             } else if ($title === 'vw_count_ppm_task') {
