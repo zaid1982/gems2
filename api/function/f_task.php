@@ -326,9 +326,9 @@ class Class_task {
             if ($nextpointClaimType == '3') {
                 $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId));
                 if (empty($taskAssign)) {
-                    $arrInsertTask['group_id'] = $nextGroupId;
+                    throw new Exception('[' . __LINE__ . '] - Data taskAssign empty when assigned to user');
                 } else if (empty($taskAssign['group_id']) || empty($taskAssign['user_id'])) {
-                    $arrInsertTask['group_id'] = $nextGroupId;
+                    throw new Exception('[' . __LINE__ . '] - Parameter group_id or user_id empty when assigned to user');
                 } else {
                     $arrInsertTask['group_id'] = $taskAssign['group_id'];
                     $arrInsertTask['task_claimed_user'] = $taskAssign['user_id'];

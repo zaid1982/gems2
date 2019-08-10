@@ -1956,18 +1956,21 @@ class Class_ppm {
             if (empty($ppmGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Variable ppmGroupId empty');
             }
-            if (Class_db::getInstance()->db_count('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointTo, 'role_id' => $roleId)) > 0) {
+            if (Class_db::getInstance()->db_count('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>$checkpointTo, 'role_id'=>$roleId)) > 0) {
                 return '';
             }
 
             $ppmGroupId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'ppm_group_id', null, 1);
+            if ($checkpointId == '2') {
+                $ppmGroupId = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupId, 'role_id'=>'5'), 'ppm_group_report_to', null, 1);
+            }
             $ppmGroupTo = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupId, 'role_id'=>$roleId), 'ppm_group_report_to', null, 1);
             $ppmGroupUser = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>$ppmGroupTo), 'user_id');
             if (empty($ppmGroupUser)) {
                 throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_PPM_GROUP_SUPERVISOR_EMPTY, 31);
             }
 
-            $userId = Class_db::getInstance()->db_select_col('vw_ppm_least_task', array(), 'task_claimed_user', 'total', 0, array('checkpoint_id'=>$checkpointTo, 'user_ids'=>implode(',',$ppmGroupUser)));
+            $userId = Class_db::getInstance()->db_select_col('vw_ppm_least_task', array(), 'user_id', 'total', 0, array('user_ids'=>implode(',',$ppmGroupUser)));
             if (empty($userId)) {
                 $userId = $ppmGroupUser[0];
             }

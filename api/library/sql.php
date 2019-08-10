@@ -393,10 +393,12 @@ class Class_sql
                 ) group_user ON group_user.ppm_group_id = ppm_group.ppm_group_id";
             } else if ($title === 'vw_ppm_least_task') {
                 $sql = "SELECT 
-                    task_claimed_user, COUNT(*) AS total
-                FROM wfl_task
-                WHERE task_claimed_user IN ([user_ids]) AND checkpoint_id = [checkpoint_id] AND MONTH(task_time_created) = MONTH(CURDATE()) AND YEAR(task_time_created) = YEAR(CURDATE())
-                GROUP BY task_claimed_user";
+                        sys_user.user_id, SUM(IF(wfl_transaction.transaction_id IS NOT NULL, 1, 0)) AS total
+                FROM sys_user
+                LEFT JOIN wfl_task_assign ON wfl_task_assign.user_id = sys_user.user_id AND wfl_task_assign.checkpoint_id NOT IN (11,12)
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task_assign.transaction_id AND MONTH(transaction_time_update) = MONTH(CURDATE()) AND YEAR(transaction_time_update) = YEAR(CURDATE()) 
+                WHERE sys_user.user_id IN ([user_ids]) 
+                GROUP BY sys_user.user_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

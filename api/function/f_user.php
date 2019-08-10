@@ -262,26 +262,56 @@ class Class_user {
             $siteId = $put_vars['siteId'];
 
             if ($userType == '1') {
+                $groupId = '1';
+            } else if ($userType == '2') {
+                $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+            } else {
+                throw new Exception('['.__LINE__.'] - Parameter userType invalid ('.$userType.')');
+            }
+
+            if ($userType == '1' || $userType == '2') {
                 $roles = explode(',', $rolesStr);
-                $dbRoles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
+                $dbRoles = Class_db::getInstance()->db_select('sys_user_role', array('user_id'=>$userId));
                 foreach ($dbRoles as $dbRole) {
-                    $key = array_search($dbRole, $roles);
+                    $curRole = $dbRole['role_id'];
+                    $key = array_search($curRole, $roles);
                     if ($key !== false) {
+                        if (($curRole === '3' || $curRole === '4' || $curRole === '5') && $dbRole['group_id'] !== $groupId) {
+                            Class_db::getInstance()->db_update('sys_user_role', array('group_id'=>$groupId), array('user_id'=>$userId, 'role_id'=>$curRole));
+                            Class_db::getInstance()->db_update('wfl_checkpoint_user', array('group_id'=>$groupId), array('user_id'=>$userId, 'role_id'=>$curRole));
+                            $ppmGroupUsers = Class_db::getInstance()->db_select('ppm_group_user', array('user_id'=>$userId));
+                            foreach ($ppmGroupUsers as $ppmGroupUser) {
+                                if (Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupUser['ppm_group_id']), 'role_id', null, 1) == $curRole) {
+                                    Class_db::getInstance()->db_delete('ppm_group_user', array('ppm_group_user_id' => $ppmGroupUser['ppm_group_user_id']));
+                                }
+                            }
+                        }
                         array_splice($roles, $key, 1);
                     } else {
-                        Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
-                        Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$dbRole, 'group_id'=>'1'));
-                        Class_db::getInstance()->db_delete('wfl_user_report', array('user_id'=>$userId, 'role_id'=>$dbRole));
+                        Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$curRole));
+                        Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$curRole));
+                        if ($curRole === '3' || $curRole === '4' || $curRole === '5') {
+                            $ppmGroupUsers = Class_db::getInstance()->db_select('ppm_group_user', array('user_id'=>$userId));
+                            foreach ($ppmGroupUsers as $ppmGroupUser) {
+                                if (Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupUser['ppm_group_id']), 'role_id', null, 1) == $curRole) {
+                                    Class_db::getInstance()->db_delete('ppm_group_user', array('ppm_group_user_id' => $ppmGroupUser['ppm_group_user_id']));
+                                }
+                            }
+                        }
                     }
                 }
                 foreach ($roles as $role) {
-                    Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>'1'));
+                    Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>$groupId));
                     $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                     foreach ($checkpoints as $checkpoint) {
                         $checkpointId = $checkpoint['checkpoint_id'];
-                        $groupId = $checkpoint['group_id'];
-                        if ($groupId === '1' || is_null($groupId)) {
-                            Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>'1'));
+                        if ($checkpointId == '3' && $role == '4') {
+                            $groupId_ = $groupId;
+                        } else {
+                            $groupId_ = $checkpoint['group_id'];
+                        }
+                        if ($groupId_ === $groupId || is_null($groupId_)) {
+                            Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId_));
                         }
                     }
                 }
@@ -430,8 +460,7 @@ class Class_user {
 
             if ($userType == '1') {
                 $groupId = '1';
-            }
-            else if ($userType == '2') {
+            } else if ($userType == '2') {
                 $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
             } else {
                 throw new Exception('['.__LINE__.'] - Parameter userType invalid ('.$userType.')');
@@ -453,7 +482,11 @@ class Class_user {
                 $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                 foreach ($checkpoints as $checkpoint) {
                     $checkpointId = $checkpoint['checkpoint_id'];
-                    $groupId_ = $checkpoint['group_id'];
+                    if ($checkpointId == '3' && $role == '4') {
+                        $groupId_ = $groupId;
+                    } else {
+                        $groupId_ = $checkpoint['group_id'];
+                    }
                     if ($groupId_ === $groupId || is_null($groupId_)) {
                         Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }

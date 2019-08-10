@@ -266,7 +266,11 @@ try {
             $submitParam = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark);
             $taskId = $submitParam['taskId'];
             if ($result == '1') {
-                $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark, '', '', '', $nextUser);
+                $toGroup = '';
+                if ($checkpoint == '2' && $nextUser !== '') {
+                    $toGroup = $fn_task->get_group_id_from_user($nextUser, '4');
+                }
+                $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark, '', '', $toGroup, $nextUser);
             } else if ($result == '2') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1');
             } else {
