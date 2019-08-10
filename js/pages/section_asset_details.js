@@ -129,6 +129,22 @@ function SectionAssetDetails() {
                 name: 'PPM Group',
                 validator: {
                 }
+            },
+            {
+                field_id: 'txtSszAssetBlock',
+                type: 'text',
+                name: 'Asset Block',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetLevel',
+                type: 'text',
+                name: 'Asset Level',
+                validator: {
+                    maxLength: 30
+                }
             }
         ];
 
@@ -191,7 +207,9 @@ function SectionAssetDetails() {
                         assetModelId: assetModelId !== null ? assetModelId : '',
                         locationCodeId: locationCodeId !== null ? locationCodeId : '',
                         ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
-                        assetCapacity: $('#txtSszAssetCapacity').val()
+                        assetCapacity: $('#txtSszAssetCapacity').val(),
+                        assetBlock: $('#txtSszAssetBlock').val(),
+                        assetLevel: $('#txtSszAssetLevel').val()
                     };
 
                     mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
@@ -229,7 +247,9 @@ function SectionAssetDetails() {
                             assetModelId: $('#optSszAssetModelId').val(),
                             locationCodeId: $('#optSszLocationCodeId').val(),
                             ppmGroupId: $('#optSszPpmGroupId').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val()
+                            assetCapacity: $('#txtSszAssetCapacity').val(),
+                            assetBlock: $('#txtSszAssetBlock').val(),
+                            assetLevel: $('#txtSszAssetLevel').val()
                         };
 
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
@@ -264,7 +284,9 @@ function SectionAssetDetails() {
                             assetModelId: $('#optSszAssetModelId').val(),
                             assetCapacity: $('#txtSszAssetCapacity').val(),
                             locationCodeId: $('#optSszLocationCodeId').val(),
-                            ppmGroupId: $('#optSszPpmGroupId').val()
+                            ppmGroupId: $('#optSszPpmGroupId').val(),
+                            assetBlock: $('#txtSszAssetBlock').val(),
+                            assetLevel: $('#txtSszAssetLevel').val()
                         };
 
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
@@ -338,6 +360,8 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
+        mzSetFieldValue('SszAssetBlock', dataSsz['assetBlock'], 'text');
+        mzSetFieldValue('SszAssetLevel', dataSsz['assetLevel'], 'text');
 
         $('#lblSszContactName').html(refContract[contractId]['contractName']);
         $('#lblSszSiteName').html(refSite[siteId]['siteName']);
@@ -373,7 +397,7 @@ function SectionAssetDetails() {
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').hide();
-                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity').prop('disabled', false);
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
 
                 $('#btnSszSubmit').prop('disabled', true);
                 $('.divSszRegisterInfo, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
@@ -420,7 +444,7 @@ function SectionAssetDetails() {
                     formValidate.disableField('optSszAssetCategoryId');
                     formValidate.disableField('optSszAssetTypeId');
                 }
-                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity').prop('disabled', false);
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
 
                 $('#btnSszUpdate').prop('disabled', true);
                 $('.sectionAssetDetails').show();
@@ -446,7 +470,7 @@ function SectionAssetDetails() {
                 formValidate.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').show();
-                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity').prop('disabled', true);
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', true);
 
                 mzDisableSelect('optSszAssetGroupId', true);
                 mzDisableSelect('optSszAssetCategoryId', true);

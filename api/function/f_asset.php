@@ -101,6 +101,8 @@ class Class_asset {
                 $row_result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
                 $row_result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
                 $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
+                $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
                 $row_result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
                 $row_result['assetStatus'] = $dataLocal['asset_status'];
                 array_push($result, $row_result);
@@ -143,6 +145,8 @@ class Class_asset {
             $result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
             $result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
             $result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+            $result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
+            $result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
             $result['assetTimeRegistered'] = str_replace('-', '/', $dataLocal['asset_time_registered']);
             $result['assetTimeCreated'] = str_replace('-', '/', $dataLocal['asset_time_created']);
             $result['assetRegisteredBy'] = $this->fn_general->clear_null($dataLocal['asset_registered_by']);
@@ -180,18 +184,14 @@ class Class_asset {
             if (!array_key_exists('assetTypeId', $params)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
             }
-            if (!array_key_exists('ppmGroupId', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
-            }
 
             $contractId = $params['contractId'];
             $assetGroupId = $params['assetGroupId'];
             $assetCategoryId = $params['assetCategoryId'];
             $assetTypeId = $params['assetTypeId'];
-            $ppmGroupId = $params['ppmGroupId'];
 
             return Class_db::getInstance()->db_insert('ast_asset', array('contract_id'=>$contractId, 'asset_group_id'=>$assetGroupId, 'asset_category_id'=>$assetCategoryId,
-                'asset_type_id'=>$assetTypeId, 'ppm_group_id'=>$ppmGroupId, 'asset_status'=>'5'));
+                'asset_type_id'=>$assetTypeId, 'asset_status'=>'5'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -252,6 +252,12 @@ class Class_asset {
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
             }
+            if (!isset($put_vars['assetBlock'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBlock not exist');
+            }
+            if (!isset($put_vars['assetLevel'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLevel not exist');
+            }
 
             $assetNo = $put_vars['assetNo'];
             $assetSerialNo = $put_vars['assetSerialNo'];
@@ -267,7 +273,9 @@ class Class_asset {
                 'asset_model_id'=>$put_vars['assetModelId'],
                 'location_code_id'=>$put_vars['locationCodeId'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
-                'asset_capacity'=>$put_vars['assetCapacity']
+                'asset_capacity'=>$put_vars['assetCapacity'],
+                'asset_block'=>$put_vars['assetBlock'],
+                'asset_level'=>$put_vars['assetLevel']
             );
 
             $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
@@ -349,6 +357,12 @@ class Class_asset {
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
             }
+            if (!isset($put_vars['assetBlock'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBlock not exist');
+            }
+            if (!isset($put_vars['assetLevel'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLevel not exist');
+            }
 
             $assetNo = $put_vars['assetNo'];
             $assetSerialNo = $put_vars['assetSerialNo'];
@@ -365,6 +379,8 @@ class Class_asset {
                 'location_code_id'=>$put_vars['locationCodeId'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
+                'asset_block'=>$put_vars['assetBlock'],
+                'asset_level'=>$put_vars['assetLevel'],
                 'asset_registered_by'=>$userId,
                 'asset_time_registered'=>'Now()',
                 'asset_status'=>'1'
@@ -432,6 +448,12 @@ class Class_asset {
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
             }
+            if (!isset($put_vars['assetBlock'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetBlock not exist');
+            }
+            if (!isset($put_vars['assetLevel'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLevel not exist');
+            }
 
             $assetSerialNo = $put_vars['assetSerialNo'];
             $updateArr = array(
@@ -442,7 +464,9 @@ class Class_asset {
                 'asset_model_id'=>$put_vars['assetModelId'],
                 'location_code_id'=>$put_vars['locationCodeId'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
-                'asset_capacity'=>$put_vars['assetCapacity']
+                'asset_capacity'=>$put_vars['assetCapacity'],
+                'asset_block'=>$put_vars['assetBlock'],
+                'asset_level'=>$put_vars['assetLevel']
             );
 
             $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
