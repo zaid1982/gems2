@@ -47,8 +47,9 @@ try {
 
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
-        if ($type === 'pending_task') {
-
+        if ($type === 'submitted_wo') {
+            $searchTxt = filter_input(INPUT_GET, 'searchTxt');
+            $result = $fn_wo->get_submitted_wo_m($jwt_data->userId, $searchTxt);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

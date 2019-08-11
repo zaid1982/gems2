@@ -399,6 +399,13 @@ class Class_sql
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task_assign.transaction_id AND MONTH(transaction_time_update) = MONTH(CURDATE()) AND YEAR(transaction_time_update) = YEAR(CURDATE()) 
                 WHERE sys_user.user_id IN ([user_ids]) 
                 GROUP BY sys_user.user_id";
+            } else if ($title === 'mw_wo_submitted') {
+                $sql = "SELECT
+                    wo_task.*,
+                    sys_user.user_first_name
+                FROM wo_task 
+                LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
+                WHERE wo_task_created_by = [user_id] AND (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
