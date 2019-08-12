@@ -142,7 +142,7 @@ class Class_wo {
             $task = Class_db::getInstance()->db_select_single('wfl_task', array('task_id'=>$taskId), null, 1);
             $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$task['group_id']), 'site_id', null, 1);
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>'1', 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
-                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'12'));
+                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24'));
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$woTaskId, 'wo_task_upload_type'=>'5', 'upload_id'=>$signatureId));
             foreach ($complaintImageUploads as $complaintImageUpload) {
                 if (!array_key_exists('uploadId', $complaintImageUpload)) {
@@ -160,6 +160,7 @@ class Class_wo {
                 Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$woTaskId, 'wo_task_upload_type'=>'1', 'upload_id'=>$complaintImageUpload['uploadId'], 'wo_task_upload_desc'=>$complaintImageUpload['description'],
                     'wo_task_upload_longitude'=>$complaintImageUpload['longitude'], 'wo_task_upload_latitude'=>$complaintImageUpload['latitude']));
             }
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'24'), array('transaction_id'=>$task['transaction_id']));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
