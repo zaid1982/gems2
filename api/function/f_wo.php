@@ -184,7 +184,43 @@ class Class_wo {
             $statusArr = $this->fn_general->getRefStatus ();
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted', array(), 'wo_task_time_created', '100', null, array('user_id'=>$userId, 'search_text'=>$searchText));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted_m', array(), 'wo_task_time_created', '100', null, array('user_id'=>$userId, 'search_text'=>$searchText));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['reportedBy'] = $dataLocal['user_first_name'];
+                $row_result['woTaskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['wo_task_time_created']);
+                $row_result['woTaskStatus'] = $statusArr[$dataLocal['wo_task_status']];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param string $searchText
+     * @param string $assetNo
+     * @return array
+     * @throws Exception
+     */
+    public function get_pending_task_m ($userId, $searchText='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $statusArr = $this->fn_general->getRefStatus ();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_pending_m', array(), 'wfl_task.task_id', '100', null, array('user_id'=>$userId, 'search_text'=>$searchText));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
