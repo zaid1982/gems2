@@ -236,4 +236,54 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_section_status_m ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $arr_status = $this->fn_general->getRefStatus();
+            $result = array(
+                array('sectionName'=>'A', 'sectionStatus'=>$arr_status[17]),
+                array('sectionName'=>'B', 'sectionStatus'=>$arr_status[18]),
+                array('sectionName'=>'C', 'sectionStatus'=>$arr_status[18])
+            );
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            if (!empty($woTask['wo_task_repair_desc'])) {
+                $result[1]['sectionStatus'] = $arr_status[19];
+            }
+
+            $imgBefore = false;
+            $imgDuring = false;
+            $imfAfter = false;
+            $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$woTaskId));
+            foreach ($woTaskUploads as $woTaskUpload) {
+                $uploadType = $woTaskUpload['wo_task_upload_type'];
+                if ($uploadType === '2') {
+                    $imgBefore = true;
+                } else if ($uploadType === '3') {
+                    $imgDuring = true;
+                } else if ($uploadType === '4') {
+                    $imfAfter = true;
+                }
+            }
+            if ($imgBefore && $imgDuring && $imfAfter) {
+                $result[2]['sectionStatus'] = $arr_status[19];
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

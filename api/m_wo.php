@@ -53,6 +53,9 @@ try {
         } else if ($type === 'pending_task') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
             $result = $fn_wo->get_pending_task_m($jwt_data->userId, $searchTxt);
+        } else if ($type === 'section_status') {
+            $woTaskId = filter_input(INPUT_GET, 'woTaskId');
+            $result = $fn_wo->get_section_status_m($woTaskId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
