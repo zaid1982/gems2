@@ -135,9 +135,6 @@ class Class_wo {
             if (empty($woTaskComplaint)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_WO_DESCRIPTION_EMPTY, 31);
             }
-            if (empty($complaintImageUploads)) {
-                throw new Exception('[' . __LINE__ . '] - Array complaintImageUploads empty');
-            }
             if (empty($signatureId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
             }
@@ -320,14 +317,75 @@ class Class_wo {
             }
 
             $result = array();
-            $arr_status = $this->fn_general->getRefStatus();
+            $arrStatus = $this->fn_general->getRefStatus();
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrSiteName = $this->fn_general->getSiteName();
+            $arrWoTaskType = array('', 'External Complaint', 'Internal Complaint');
 
             $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $createdBy = $dataLocal['wo_task_created_by'];
             $result['woTaskId'] = $dataLocal['wo_task_id'];
-            //$result['ppmTaskGuideline'] = $this->fn_general->clear_null($dataLocal['ppm_task_guideline']);
+            $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)];
+            $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
+            $result['woTaskCategory'] = $arrWoTaskType[intval($dataLocal['wo_task_type'])];
+            $result['woTaskClient'] = !empty($dataLocal['site_id']) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
+            $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+            $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+            $result['woTaskStatus'] = $arrStatus[intval($dataLocal['wo_task_status'])];
+
+            $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$createdBy, 'user_profile_status'=>'1'), null, 1);
+            $result['woTaskPhoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no']);
+            $result['woTaskEmail'] = $this->fn_general->clear_null($userProfile['user_email']);
+
+            $result['complaintImages'] = $this->get_wo_section_upload_m('1');
 
             return $result;
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $uploadType
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_section_upload_m ($uploadType) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($uploadType)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType empty');
+            }
+
+            $imageType = ['', 'Complaint', 'Before', 'During', 'After'];
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_upload_m', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>$uploadType, 'sys_upload.upload_status'=>'1'));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskUploadId'] = $dataLocal['wo_task_upload_id'];
+                $row_result['woTaskUploadType'] = $imageType[intval($dataLocal['wo_task_upload_type'])];
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskUploadLongitude'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_longitude']);
+                $row_result['woTaskUploadLatitude'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_latitude']);
+                $row_result['woTaskUploadTimestamp'] = str_replace('-', '/', $dataLocal['wo_task_upload_timestamp']);
+                $row_result['woTaskUploadDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_desc']);
+                $row_result['uploadId'] = $dataLocal['upload_id'];
+                $row_result['uploadName'] = $this->fn_general->clear_null($dataLocal['upload_name']);
+                $row_result['documentDesc'] = $this->fn_general->clear_null($dataLocal['document_desc']);
+                $row_result['documentFilename'] = $this->fn_general->clear_null($dataLocal['upload_uplname']);
+                $docUrl = $constant::URL.$dataLocal['upload_folder'].'/'.$dataLocal['upload_filename'].'.'.$dataLocal['upload_extension'];
+                $row_result['documentSrc'] = $docUrl;
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

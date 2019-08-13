@@ -82,10 +82,12 @@ try {
             $woTaskLatitude = filter_input(INPUT_POST, 'woTaskLatitude');
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            foreach ($complaintImages as $complaintImage) {
-                $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
-                $complaintImageUpload = array('uploadId'=>$uploadId, 'description'=>$complaintImage['description'], 'longitude'=>$complaintImage['longitude'], 'latitude'=>$complaintImage['latitude']);
-                array_push($complaintImageUploads, $complaintImageUpload);
+            if (!empty($complaintImages)) {
+                foreach ($complaintImages as $complaintImage) {
+                    $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
+                    $complaintImageUpload = array('uploadId'=>$uploadId, 'description'=>$complaintImage['description'], 'longitude'=>$complaintImage['longitude'], 'latitude'=>$complaintImage['latitude']);
+                    array_push($complaintImageUploads, $complaintImageUpload);
+                }
             }
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 13, $jwt_data->userId);
