@@ -39,6 +39,7 @@ try {
         throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
     $jwt_data = $fn_login->check_jwt($headers['authorization']);
+    $fn_wo->__set('userId', $jwt_data->userId);
 
     if (!isset($headers['deviceid'])) {
         throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
@@ -47,15 +48,18 @@ try {
 
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
+        $woTaskId = filter_input(INPUT_GET, 'woTaskId');
+        $fn_wo->__set('woTaskId', $woTaskId);
         if ($type === 'submitted_wo') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
-            $result = $fn_wo->get_submitted_wo_m($jwt_data->userId, $searchTxt);
+            $result = $fn_wo->get_submitted_wo_m($searchTxt);
         } else if ($type === 'pending_task') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
-            $result = $fn_wo->get_pending_task_m($jwt_data->userId, $searchTxt);
+            $result = $fn_wo->get_pending_task_m($searchTxt);
         } else if ($type === 'section_status') {
-            $woTaskId = filter_input(INPUT_GET, 'woTaskId');
-            $result = $fn_wo->get_section_status_m($woTaskId);
+            $result = $fn_wo->get_section_status_m();
+        } else if ($type === 'complaint_details') {
+            $result = $fn_wo->get_complaint_details_m();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
@@ -65,6 +69,9 @@ try {
     }
     else if ('POST' === $request_method) {
         $action = filter_input(INPUT_POST, 'action');
+        $woTaskId = filter_input(INPUT_POST, 'woTaskId');
+        $fn_wo->__set('woTaskId', $woTaskId);
+
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
@@ -87,13 +94,15 @@ try {
             $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, '6', $groupId, $woTaskNo);
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
-            $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
+            $woTaskId = $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
+            $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = ' . $woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users ('7', '12');
             foreach ($nextUsers as $userId) {
                 $fn_email->setup_email($userId, 4, array('task_no'=>$woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5);
             }
+            $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');

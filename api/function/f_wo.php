@@ -4,6 +4,8 @@ class Class_wo {
 
     private $constant;
     private $fn_general;
+    private $userId;
+    private $woTaskId;
 
     function __construct() {
     }
@@ -113,6 +115,7 @@ class Class_wo {
      * @param string $signatureId
      * @param string $woTaskLongitude
      * @param string $woTaskLatitude
+     * @return mixed
      * @throws Exception
      */
     public function process_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $signatureId='', $woTaskLongitude='', $woTaskLatitude='') {
@@ -161,6 +164,8 @@ class Class_wo {
                     'wo_task_upload_longitude'=>$complaintImageUpload['longitude'], 'wo_task_upload_latitude'=>$complaintImageUpload['latitude']));
             }
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'24'), array('transaction_id'=>$task['transaction_id']));
+
+            return $woTaskId;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -168,58 +173,22 @@ class Class_wo {
     }
 
     /**
-     * @param $userId
-     * @param $searchText
-     * @return array
-     * @throws Exception
-     */
-    public function get_submitted_wo_m ($userId, $searchText='') {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
-
-            if (empty($userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
-            }
-
-            $statusArr = $this->fn_general->getRefStatus ();
-
-            $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted_m', array(), 'wo_task_time_created', '100', null, array('user_id'=>$userId, 'search_text'=>$searchText));
-            foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
-                $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
-                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
-                $row_result['reportedBy'] = $dataLocal['user_first_name'];
-                $row_result['woTaskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['wo_task_time_created']);
-                $row_result['woTaskStatus'] = $statusArr[$dataLocal['wo_task_status']];
-                array_push($result, $row_result);
-            }
-
-            return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param $userId
      * @param string $searchText
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId, $searchText='') {
+    public function get_submitted_wo_m ($searchText='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            if (empty($userId)) {
+            if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
 
             $statusArr = $this->fn_general->getRefStatus ();
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_pending_m', array(), 'wfl_task.task_id', '100', null, array('user_id'=>$userId, 'search_text'=>$searchText));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted_m', array(), 'wo_task_time_created', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
@@ -238,15 +207,48 @@ class Class_wo {
     }
 
     /**
-     * @param $woTaskId
+     * @param string $searchText
      * @return array
      * @throws Exception
      */
-    public function get_section_status_m ($woTaskId) {
+    public function get_pending_task_m ($searchText='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            if (empty($woTaskId)) {
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $statusArr = $this->fn_general->getRefStatus ();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_pending_m', array(), 'wfl_task.task_id', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['reportedBy'] = $dataLocal['user_first_name'];
+                $row_result['woTaskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['wo_task_time_created']);
+                $row_result['woTaskStatus'] = $statusArr[$dataLocal['wo_task_status']];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_section_status_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
             }
 
@@ -257,7 +259,7 @@ class Class_wo {
                 array('sectionName'=>'C', 'sectionStatus'=>$arr_status[18])
             );
 
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             if (!empty($woTask['wo_task_repair_desc'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
             }
@@ -265,7 +267,7 @@ class Class_wo {
             $imgBefore = false;
             $imgDuring = false;
             $imfAfter = false;
-            $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$woTaskId));
+            $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId));
             foreach ($woTaskUploads as $woTaskUpload) {
                 $uploadType = $woTaskUpload['wo_task_upload_type'];
                 if ($uploadType === '2') {
@@ -279,6 +281,50 @@ class Class_wo {
             if ($imgBefore && $imgDuring && $imfAfter) {
                 $result[2]['sectionStatus'] = $arr_status[19];
             }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function save_respond_time_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_time_responded'=>'Now()'), array('wo_task_id'=>$this->woTaskId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_complaint_details_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $result = array();
+            $arr_status = $this->fn_general->getRefStatus();
+
+            $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $result['woTaskId'] = $dataLocal['wo_task_id'];
+            //$result['ppmTaskGuideline'] = $this->fn_general->clear_null($dataLocal['ppm_task_guideline']);
 
             return $result;
         } catch (Exception $ex) {
