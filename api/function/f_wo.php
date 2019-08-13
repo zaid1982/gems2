@@ -205,7 +205,6 @@ class Class_wo {
     /**
      * @param $userId
      * @param string $searchText
-     * @param string $assetNo
      * @return array
      * @throws Exception
      */
