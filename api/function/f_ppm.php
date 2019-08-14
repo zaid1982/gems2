@@ -1968,13 +1968,14 @@ class Class_ppm {
             $ppmGroupUser = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>$ppmGroupTo), 'user_id');
             if (empty($ppmGroupUser)) {
                 throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_PPM_GROUP_SUPERVISOR_EMPTY, 31);
-            }
-
-            $userId = Class_db::getInstance()->db_select_col('vw_ppm_least_task', array(), 'user_id', 'total', 0, array('user_ids'=>implode(',',$ppmGroupUser)));
-            if (empty($userId)) {
+            } else if (sizeof($ppmGroupUser) === 1) {
                 $userId = $ppmGroupUser[0];
+            } else {
+                $userId = Class_db::getInstance()->db_select_col('vw_ppm_least_task', array(), 'user_id', 'total', 0, array('user_ids'=>implode(',',$ppmGroupUser)));
+                if (empty($userId)) {
+                    $userId = $ppmGroupUser[0];
+                }
             }
-
             return $userId;
         }
         catch(Exception $ex) {

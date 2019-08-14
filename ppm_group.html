@@ -41,9 +41,9 @@
                 <div class="col-md-7" id="divPgrMain">
                     <div class="card card-cascade cascading-admin-card user-card mt-4">
                         <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-3"></i>
+                            <i class="fas fa-users rgba-cyan-strong py-4 z-depth-3"></i>
                             <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">PPM Group Management</h3>
+                                <h3 class="font-weight-bold dark-grey-text ml-3">Group Management</h3>
                             </div>
                         </div>
                         <div class="card-body card-body-cascade pb-0">
@@ -75,7 +75,7 @@
                             <div>
                                 <button type="button" id="btnPgrTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Group"><i class="fas fa-plus mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Executor Group</a>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Executor Group</a>
                             <div>
                                 <button type="button" id="btnDtPgrTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
@@ -102,7 +102,7 @@
                             <div>
                                 <button type="button" id="btnPgrSupervisorAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Supervisor Group"><i class="fas fa-plus mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Reviewer Group</a>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Reviewer Group</a>
                             <div>
                                 <button type="button" id="btnDtPgrSupervisorRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
@@ -129,7 +129,7 @@
                             <div>
                                 <button type="button" id="btnPgrEngineerAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Verifier Group</a>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Verifier Group</a>
                             <div>
                                 <button type="button" id="btnDtPgrEngineerRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
@@ -149,6 +149,60 @@
                             </table>
                         </div>
                     </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrWoTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add WO Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">WO Executor Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrWoTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrWoTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 30%">Report To</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrWoVerifierAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add WO Verifier Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">WO Verifier Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrWoVerifierRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrWoVerifier" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-5" id="divPgrDetails">
                     <div class="card mt-4">
