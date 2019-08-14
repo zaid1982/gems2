@@ -96,7 +96,7 @@ try {
             if (!empty($complaintImages)) {
                 foreach ($complaintImages as $complaintImage) {
                     $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
-                    $complaintImageUpload = array('uploadId'=>$uploadId, 'description'=>$complaintImage['description'], 'longitude'=>$complaintImage['longitude'], 'latitude'=>$complaintImage['latitude']);
+                    $complaintImageUpload = array('uploadId' => $uploadId, 'description' => $complaintImage['description'], 'longitude' => $complaintImage['longitude'], 'latitude' => $complaintImage['latitude']);
                     array_push($complaintImageUploads, $complaintImageUpload);
                 }
             }
@@ -109,14 +109,20 @@ try {
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
             $woTaskId = $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
-            $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = ' . $woTaskNo);
-            $nextUsers = $fn_task->get_checkpoints_users ('7', '12');
+            $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
+            $nextUsers = $fn_task->get_checkpoints_users('7', '12');
             foreach ($nextUsers as $userId) {
-                $fn_email->setup_email($userId, 4, array('task_no'=>$woTaskNo));
+                $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5);
             }
             $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
+        }
+        else if ($action === 'save_assigned_technician') {
+            $userId = filter_input(INPUT_POST, 'userId');
+            $returnVal = $fn_wo->save_assigned_technician_m($userId);
+            $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName']);
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }

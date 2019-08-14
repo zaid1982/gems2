@@ -520,4 +520,29 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    public function save_assigned_technician_m ($userTechId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($userTechId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
+            }
+
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId), array('wo_task_id'=>$this->woTaskId));
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId));
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'userFirstName'=>$arrUserFullName[intval($userTechId)]
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
