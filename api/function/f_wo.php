@@ -404,7 +404,13 @@ class Class_wo {
             }
 
             $result = array();
-
+            $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'site_id', null, 1);
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group', array('site_id'=>$siteId, 'role_id'=>'8'));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['groupId'] = $dataLocal['ppm_group_id'];
+                $row_result['groupName'] = $dataLocal['ppm_group_name'];
+                array_push($result, $row_result);
+            }
             return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -421,8 +427,8 @@ class Class_wo {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            if (empty($this->woTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
             }
 
             $result = array();

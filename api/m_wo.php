@@ -60,6 +60,11 @@ try {
             $result = $fn_wo->get_section_status_m();
         } else if ($type === 'complaint_details') {
             $result = $fn_wo->get_complaint_details_m();
+        } else if ($type === 'wo_group_list') {
+            $result = $fn_wo->get_wo_group_m();
+        } else if ($type === 'wo_technician_list') {
+            $ppmGroupId = filter_input(INPUT_GET, 'groupId');
+            $result = $fn_wo->get_wo_technician_m($ppmGroupId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
