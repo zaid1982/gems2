@@ -65,6 +65,10 @@ try {
         } else if ($type === 'wo_technician_list') {
             $ppmGroupId = filter_input(INPUT_GET, 'groupId');
             $result = $fn_wo->get_wo_technician_m($ppmGroupId);
+        } else if ($type === 'technician_details') {
+            $ppmGroupId = filter_input(INPUT_GET, 'groupId');
+            $userId = filter_input(INPUT_GET, 'userId');
+            $result = $fn_wo->get_technician_details_m($userId, $ppmGroupId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

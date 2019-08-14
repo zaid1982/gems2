@@ -445,4 +445,49 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $userTechId
+     * @param $ppmGroupId
+     * @return array
+     * @throws Exception
+     */
+    public function get_technician_details_m ($userTechId='', $ppmGroupId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userTechId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
+            }
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter groupId empty');
+            }
+
+            $result = array();
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrPpmGroupName = $this->fn_general->getPpmGroupName();
+
+            $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userTechId, 'user_profile_status'=>'1'));
+            $result['name'] = $arrUserFullName[$userTechId];
+            $result['phoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no']);
+            $result['email'] = $this->fn_general->clear_null($userProfile['user_email']);
+            $result['group'] = $arrPpmGroupName[$ppmGroupId];
+
+            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'13'));
+            $result['totalCurrentTask'] = sizeof($woTasks);
+            $result['currentTask'] = array();
+            foreach ($woTasks as $woTask) {
+                $row_result['woTaskNo'] = $woTask['wo_task_no'];
+                $row_result['dateReceived'] = str_replace('-', '/', $this->fn_general->clear_null($woTask['wo_task_time_assigned']));
+                if (!empty($row_result['dateReceived'])) {
+                    $row_result['dateReceived'] = substr($row_result['dateReceived'], 0, 10);
+                }
+                array_push($result['currentTask'], $row_result);
+            }
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
