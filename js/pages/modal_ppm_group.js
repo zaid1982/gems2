@@ -54,7 +54,7 @@ function ModalPpmGroup() {
                     }
                     else {
                         const txtName = $('#txtMpgName').val();
-                        const reportTo = roleId === '5' || roleId === '3' ? $('#optMpgReportTo').val() : '';
+                        const reportTo = roleId === '5' || roleId === '3' || roleId === '8' ? $('#optMpgReportTo').val() : '';
                         const data = {
                             siteId: siteId,
                             roleId: roleId,
@@ -70,6 +70,10 @@ function ModalPpmGroup() {
                                 classFrom.genTableSupervisor();
                             } else if (roleId === '4') {
                                 classFrom.genTableEngineer();
+                            } else if (roleId === '8') {
+                                classFrom.genTableWoTechnician();
+                            } else if (roleId === '9') {
+                                classFrom.genTableWoVerifier();
                             }
                         }
                         $('#modal_ppm_group').modal('hide');
@@ -93,11 +97,21 @@ function ModalPpmGroup() {
                 siteId = _siteId;
                 roleId = _roleId;
 
-                if (roleId === '5' || roleId === '3') {
+                if (roleId === '5' || roleId === '3' || roleId === '8') {
                     const versionLocal = mzGetDataVersion();
-                    const roleCur = roleId === '5' ? '3' : '4';
+                    let roleCur = '';
+                    let defaultText = '';
+                    if (roleId === '5') {
+                        roleCur = '3';
+                        defaultText = 'Choose Supervisor Group';
+                    } else if (roleId === '3') {
+                        roleCur = '4';
+                        defaultText = 'Choose Engineer Group';
+                    } else if (roleId === '8') {
+                        roleCur = '9';
+                        defaultText = 'Choose WO Verifier Group';
+                    }
                     const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
-                    const defaultText = roleId === '5' ? 'Choose Supervisor Group' : 'Choose Engineer Group';
                     mzOptionStop('optMpgReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
                     formValidate.enableField('optMpgReportTo');
                     $('#divMpgReportTo').show();
@@ -129,6 +143,8 @@ function ModalPpmGroup() {
                     classFrom.genTableTechnician();
                     classFrom.genTableSupervisor();
                     classFrom.genTableEngineer();
+                    classFrom.genTableWoTechnician();
+                    classFrom.genTableWoVerifier();
                     if (_ppmGroupId == classFrom.getPpmGroupId()) {
                         $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
                         $('#divPgrDetails').hide();

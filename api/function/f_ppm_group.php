@@ -283,6 +283,9 @@ class Class_ppmGroup {
             if (Class_db::getInstance()->db_count('ppm', array('ppm_group_id'=>$ppmGroupId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_PPM, 31);
             }
+            if (Class_db::getInstance()->db_count('wo_task', array('ppm_group_id'=>$ppmGroupId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_GROUP_DELETE_PPM, 31);
+            }
 
             $ppmGroupName = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id'=>$ppmGroupId), 'ppm_group_name', null, 1);
             Class_db::getInstance()->db_delete('ppm_group', array('ppm_group_id'=>$ppmGroupId));
