@@ -428,11 +428,16 @@ class Class_wo {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             if (empty($ppmGroupId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter groupId empty');
             }
 
             $result = array();
-            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_ppm_group_user', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'user_status'=>'1'));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['userId'] = $dataLocal['user_id'];
+                $row_result['userName'] = $dataLocal['user_first_name'];
+                array_push($result, $row_result);
+            }
 
             return $result;
         } catch (Exception $ex) {

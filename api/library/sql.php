@@ -438,9 +438,11 @@ class Class_sql
             } else if ($title === 'mw_ppm_group_user') {
                 $sql = "SELECT
                     ppm_group_user.user_id,
+                    sys_user.user_first_name,
                     ppm_group.*
                 FROM ppm_group_user 
-                INNER JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id";
+                LEFT JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id
+                LEFT JOIN sys_user ON sys_user.user_id = ppm_group_user.user_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
