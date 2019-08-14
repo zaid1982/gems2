@@ -435,6 +435,12 @@ class Class_sql
                 FROM wo_task_upload
                 LEFT JOIN sys_upload ON sys_upload.upload_id = wo_task_upload.upload_id
                 LEFT JOIN ref_document ON ref_document.document_id = sys_upload.document_id";
+            } else if ($title === 'mw_ppm_group_user') {
+                $sql = "SELECT
+                    ppm_group_user.user_id,
+                    ppm_group.*
+                FROM ppm_group_user 
+                INNER JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

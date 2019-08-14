@@ -261,6 +261,13 @@ class Class_user {
             $userType = $put_vars['userType'];
             $siteId = $put_vars['siteId'];
 
+            $curSite = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+            if ($curSite !== $siteId) {
+                if (Class_db::getInstance()->db_count('mw_ppm_group_user', array('user_id'=>$userId, 'site_id'=>$curSite)) > 0) {
+                    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_IN_GROUP, 31);
+                }
+            }
+
             if ($userType == '1') {
                 $groupId = '1';
             } else if ($userType == '2') {
@@ -276,7 +283,7 @@ class Class_user {
                     $curRole = $dbRole['role_id'];
                     $key = array_search($curRole, $roles);
                     if ($key !== false) {
-                        if (($curRole === '3' || $curRole === '4' || $curRole === '5') && $dbRole['group_id'] !== $groupId) {
+                        if (($curRole === '3' || $curRole === '4' || $curRole === '5' || $curRole === '8') && $dbRole['group_id'] !== $groupId) {
                             Class_db::getInstance()->db_update('sys_user_role', array('group_id'=>$groupId), array('user_id'=>$userId, 'role_id'=>$curRole));
                             Class_db::getInstance()->db_update('wfl_checkpoint_user', array('group_id'=>$groupId), array('user_id'=>$userId, 'role_id'=>$curRole));
                             $ppmGroupUsers = Class_db::getInstance()->db_select('ppm_group_user', array('user_id'=>$userId));

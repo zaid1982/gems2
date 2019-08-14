@@ -14,7 +14,6 @@ function MainPpmGroup() {
     let oTableSupervisor;
     let oTableEngineer;
     let oTableWoTechnician;
-    let oTableWoVerifier;
     let oTableUser;
     let modalConfirmDeleteClass;
     let modalPpmGroupClass;
@@ -316,7 +315,6 @@ function MainPpmGroup() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'ppmGroupName', bSortable: false},
-                    {mData: 'reportTo', bSortable: false},
                     {mData: 'totalUser', bSortable: false},
                     {mData: null, bSortable: false,
                         mRender: function (data, type, row) {
@@ -343,75 +341,6 @@ function MainPpmGroup() {
             setTimeout(function () {
                 try {
                     self.genTableWoTechnician();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
-        });
-
-        oTableWoVerifier = $('#dtPgrWoVerifier').DataTable({
-            bLengthChange: false,
-            bFilter: true,
-            bInfo: false,
-            bPaginate: false,
-            autoWidth: false,
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableWoVerifier.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrWoVerifierEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableWoVerifier.row(parseInt(rowId)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                    }
-                });
-                $('.lnkPgrWoVerifierDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableWoVerifier.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
-                    }
-                });
-            },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'ppmGroupName', bSortable: false},
-                    {mData: 'totalUser', bSortable: false},
-                    {mData: null, bSortable: false,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmGroupStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmGroupStatus']]['statusDesc']+'</span></h6>';
-                        }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPgrWoVerifierEdit" id="lnkPgrWoVerifierEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                            label += '<a><i class="fas fa-trash-alt lnkPgrWoVerifierDelete" id="lnkPgrWoVerifierDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
-                            return label;
-                        }
-                    }
-                ]
-        });
-        $("#dtPgrWoVerifier_filter").hide();
-
-        $('#btnPgrWoVerifierAdd').on('click', function () {
-            modalPpmGroupClass.add(siteId, '9');
-        });
-
-        $('#btnDtPgrWoVerifierRefresh').on('click', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    self.genTableWoVerifier();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -483,8 +412,6 @@ function MainPpmGroup() {
                             self.genTableEngineer();
                         } else if (roleId === '8') {
                             self.genTableWoTechnician();
-                        } else if (roleId === '9') {
-                            self.genTableWoVerifier();
                         }
                         $('#btnPgrInfoUpdate').attr('disabled', true);
                     }
@@ -569,6 +496,7 @@ function MainPpmGroup() {
         self.genTableTechnician();
         self.genTableSupervisor();
         self.genTableEngineer();
+        self.genTableWoTechnician();
     };
 
     this.viewDetails = function (_ppmGroupId, _rowId) {
@@ -636,11 +564,6 @@ function MainPpmGroup() {
     this.genTableWoTechnician = function () {
         const dataWoTechnician = mzAjaxRequest('ppm_group.php?roleId=8&siteId='+siteId, 'GET');
         oTableWoTechnician.clear().rows.add(dataWoTechnician).draw();
-    };
-
-    this.genTableWoVerifier = function () {
-        const dataWoVerifier = mzAjaxRequest('ppm_group.php?roleId=9&siteId='+siteId, 'GET');
-        oTableWoVerifier.clear().rows.add(dataWoVerifier).draw();
     };
 
     this.genTableUser = function () {
