@@ -74,6 +74,13 @@ class Class_wo {
     }
 
     /**
+     * @return array
+     */
+    public function get_severity () {
+        return array('', 'Non-Critical', 'Critical');
+    }
+
+    /**
      * @param $userId
      * @param $groupId
      * @return string
@@ -118,7 +125,7 @@ class Class_wo {
      * @return mixed
      * @throws Exception
      */
-    public function process_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $signatureId='', $woTaskLongitude='', $woTaskLatitude='') {
+    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $signatureId='', $woTaskLongitude='', $woTaskLatitude='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -305,7 +312,7 @@ class Class_wo {
             );
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
-            if (!empty($woTask['wo_task_assigned_to'])) {
+            if (!empty($woTask['wo_task_assigned_to']) && !empty($woTask['wo_task_severity'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
             }
 
@@ -521,6 +528,11 @@ class Class_wo {
         }
     }
 
+    /**
+     * @param string $userTechId
+     * @return array
+     * @throws Exception
+     */
     public function save_assigned_technician_m ($userTechId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
@@ -535,11 +547,135 @@ class Class_wo {
             $arrUserFullName = $this->fn_general->getUserFullName();
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId), array('wo_task_id'=>$this->woTaskId));
 
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId));
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
                 'userFirstName'=>$arrUserFullName[intval($userTechId)]
             );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $severityId
+     * @return array
+     * @throws Exception
+     */
+    public function save_wo_severity_m ($severityId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($severityId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severityId empty');
+            }
+
+            $arrSeverity = $this->get_severity();
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'severityName'=>$arrSeverity[intval($severityId)]
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_assigned_technician () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_assigned_to', null, 1);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $currentStatus
+     * @param string $currentCheckpoint
+     * @return array
+     * @throws Exception
+     */
+    public function get_current_task ($currentStatus='', $currentCheckpoint='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $constant = $this->constant;
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($currentStatus)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter currentStatus empty');
+            }
+            if (empty($currentCheckpoint)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter currentCheckpoint empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $transactionId = $woTask['transaction_id'];
+            if ($woTask['wo_task_status'] !== $currentStatus) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
+            }
+
+            $wfTask = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
+            if ($wfTask['checkpoint_id'] !== $currentCheckpoint) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
+            }
+
+            return array(
+                'transactionId'=>$transactionId,
+                'taskId'=>$wfTask['task_id']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
+     * @return mixed
+     * @throws Exception
+     */
+    public function submit_assign ($transactionId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>'13'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'13'), array('transaction_id'=>$transactionId));
+
+            return $woTask['wo_task_no'];
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

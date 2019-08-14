@@ -34,6 +34,8 @@ class Class_constant {
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';
     const ERR_USER_EXIST_IN_GROUP = 'User already registered in PPM / WO Group for current site. Please remove user from the group first to change site.';
+    const ERR_TASK_ALREADY_SUBMITTED = 'This task already submitted';
+
     const ERR_DESIGNATION_SIMILAR = 'Designation already exist';
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';
     const ERR_DESIGNATION_ACTIVATE = 'Designation already active';
@@ -208,4 +210,5 @@ class Class_constant {
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon by GFM representative. You will receive notification soon on your mobile and email.';
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';
+    const SUC_WO_SAVE_WO_SEVERITY = 'Work Order severity successfully saved';
 }

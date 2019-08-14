@@ -107,7 +107,7 @@ try {
             $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, '6', $groupId, $woTaskNo);
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
-            $woTaskId = $fn_wo->process_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12');
@@ -123,6 +123,22 @@ try {
             $returnVal = $fn_wo->save_assigned_technician_m($userId);
             $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
+        }
+        else if ($action === 'save_wo_severity') {
+            $severity = filter_input(INPUT_POST, 'severity');
+            $returnVal = $fn_wo->save_wo_severity_m($severity);
+            $fn_general->save_audit('111', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', severity = '.$returnVal['severityName']);
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_SEVERITY;
+        }
+        else if ($action === 'submit_assign') {
+            $assignedTechnician = $fn_wo->get_assigned_technician();
+            $currentTask = $fn_wo->get_current_task('24', '12');
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
+            $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
+            $fn_general->save_audit('112', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
+            $fn_email->setup_mobile_notification($assignedTechnician, 6);
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }

@@ -241,6 +241,7 @@ class Class_task {
     public function submit_task ($taskId, $userId, $status = '9', $remark = '', $next = '', $groupId = '', $toGroup = '', $toUser = '') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($taskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter taskId empty');
@@ -258,7 +259,7 @@ class Class_task {
             $taskClaimedUser = $task['task_claimed_user'];
 
             if ($task['task_current'] != '1') {
-                throw new Exception('[' . __LINE__ . '] - Parameter task_current not equal to 1');
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
             if (empty($roleId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
