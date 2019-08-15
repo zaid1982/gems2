@@ -139,6 +139,12 @@ try {
             $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
             $fn_email->setup_mobile_notification($assignedTechnician, 6);
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+        }
+        else if ($action === 'save_wo_repair_work') {
+            $repairDesc = filter_input(INPUT_POST, 'repairWork');
+            $returnVal = $fn_wo->save_wo_repair_desc_m($repairDesc);
+            $fn_general->save_audit('113', $jwt_data->userId, 'Work Order no. = '.$returnVal.', repair work = '.$repairDesc);
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_REPAIR_WORK;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
