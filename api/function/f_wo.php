@@ -707,4 +707,23 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wo_repair_desc_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return $this->fn_general->clear_null(Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_repair_desc', null, 1));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
