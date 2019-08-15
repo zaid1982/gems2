@@ -117,7 +117,7 @@ try {
             $nextUsers = $fn_task->get_checkpoints_users('7', '12');
             foreach ($nextUsers as $userId) {
                 $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
-                $fn_email->setup_mobile_notification($userId, 5);
+                $fn_email->setup_mobile_notification($userId, 5, array('task_no' => $woTaskNo));
             }
             $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
@@ -141,7 +141,7 @@ try {
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
             $fn_general->save_audit('112', $jwt_data->userId, 'Work Order no. = '.$returnVal);
             $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
-            $fn_email->setup_mobile_notification($assignedTechnician, 6);
+            $fn_email->setup_mobile_notification($assignedTechnician, 6, array('task_no' => $woTaskNo));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'save_wo_repair_work') {
@@ -169,6 +169,16 @@ try {
             $returnVal = $fn_wo->save_wo_image_desc_m($woTaskUploads);
             $fn_general->save_audit('115', $jwt_data->userId, 'Work Order no. = '.$returnVal);
             $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'return_by_technician') {
+            $remark = filter_input(INPUT_POST, 'remark');
+            $currentTask = $fn_wo->get_current_task('13', '13');
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
+            $returnVal = $fn_wo->return_by_technician($currentTask['transactionId']);
+            $fn_general->save_audit('117', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+            $fn_email->setup_email($returnVal['woTaskAssignedBy'], 6, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 7, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $form_data['errmsg'] = $constant::SUC_RETURNED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
