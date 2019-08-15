@@ -81,6 +81,12 @@ class Class_wo {
     }
 
     /**
+     * @return array
+     */
+    public function get_upload_type () {
+        return array('', '', 'Before', 'During', 'After');
+    }
+    /**
      * @param $userId
      * @param $groupId
      * @return string
@@ -722,6 +728,154 @@ class Class_wo {
 
             return $this->fn_general->clear_null(Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_repair_desc', null, 1));
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $uploadId
+     * @param $uploadType
+     * @param string $longitude
+     * @param string $latitude
+     * @return mixed
+     * @throws Exception
+     */
+    public function save_wo_image_m ($uploadId, $uploadType, $longitude='', $latitude='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($uploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+            }
+            if ($uploadType != '2' && $uploadType != '3' && $uploadType != '4') {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
+            }
+            if (empty($longitude)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter longitude empty');
+            }
+            if (empty($latitude)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
+            }
+
+            Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId,
+                'wo_task_upload_longitude'=>$longitude, 'wo_task_upload_latitude'=>$latitude));
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return $woTask['wo_task_no'];
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskUploads
+     * @return mixed
+     * @throws Exception
+     */
+    public function save_wo_image_desc_m ($woTaskUploads) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (!is_array($woTaskUploads)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskUploads is not array');
+            }
+            if (empty($woTaskUploads)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskUploads empty');
+            }
+
+            foreach ($woTaskUploads as $woTaskUpload) {
+                if (!array_key_exists('woTaskUploadId', $woTaskUpload) || empty($woTaskUpload['woTaskUploadId'])) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter woTaskUpload[woTaskUploadId] empty');
+                }
+                if (!array_key_exists('woTaskUploadDesc', $woTaskUpload)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter woTaskUpload[woTaskUploadDesc] not exist');
+                }
+                Class_db::getInstance()->db_update('wo_task_upload', array('wo_task_upload_desc'=>$woTaskUpload['woTaskUploadDesc']), array('wo_task_upload_id'=>$woTaskUpload['woTaskUploadId']));
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return $woTask['wo_task_no'];
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskUploadId
+     * @return mixed
+     * @throws Exception
+     */
+    public function delete_wo_repair_image_m ($woTaskUploadId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($woTaskUploadId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskUploadId empty');
+            }
+
+            $uploadId = Class_db::getInstance()->db_select_col('wo_task_upload', array('wo_task_upload_id'=>$woTaskUploadId), 'upload_id', null, 1);
+            Class_db::getInstance()->db_delete('wo_task_upload', array('wo_task_upload_id'=>$woTaskUploadId));
+            Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$uploadId));
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return $woTask['wo_task_no'];
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_repair_images_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $result = array();
+            $arrUploadType = $this->get_upload_type();
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_repair_images', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'(2,3,4)', 'sys_upload.upload_status'=>'1'));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskUploadId'] = $dataLocal['wo_task_upload_id'];
+                $row_result['woTaskUploadType'] = $arrUploadType[intval($dataLocal['wo_task_upload_type'])];
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskUploadLongitude'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_longitude']);
+                $row_result['woTaskUploadLatitude'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_latitude']);
+                $row_result['woTaskUploadTimestamp'] = str_replace('-', '/', $dataLocal['wo_task_upload_timestamp']);
+                $row_result['woTaskUploadDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_upload_desc']);
+                $row_result['uploadId'] = $dataLocal['upload_id'];
+                $row_result['uploadName'] = $this->fn_general->clear_null($dataLocal['upload_name']);
+                $row_result['documentDesc'] = $this->fn_general->clear_null($dataLocal['document_desc']);
+                $row_result['documentFilename'] = $this->fn_general->clear_null($dataLocal['upload_uplname']);
+                $docUrl = $constant::URL.$dataLocal['upload_folder'].'/'.$dataLocal['upload_filename'].'.'.$dataLocal['upload_extension'];
+                $row_result['documentSrc'] = $docUrl;
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

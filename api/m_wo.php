@@ -73,6 +73,8 @@ try {
             $result = $fn_wo->get_technician_details_m($userId, $ppmGroupId);
         } else if ($type === 'wo_repair_work') {
             $result = $fn_wo->get_wo_repair_desc_m();
+        } else if ($type === 'wo_repair_images') {
+            $result = $fn_wo->get_wo_repair_images_m();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
@@ -147,12 +149,52 @@ try {
             $returnVal = $fn_wo->save_wo_repair_desc_m($repairDesc);
             $fn_general->save_audit('113', $jwt_data->userId, 'Work Order no. = '.$returnVal.', repair work = '.$repairDesc);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_REPAIR_WORK;
+        }
+        else if ($action === 'upload_repair_image') {
+            $uploadType = filter_input(INPUT_POST, 'uploadType');
+            $longitude = filter_input(INPUT_POST, 'longitude');
+            $latitude = filter_input(INPUT_POST, 'latitude');
+            $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            if ($uploadType !== '2' && $uploadType !== '3' && $uploadType !== '4') {
+                throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
+            }
+            $uploadId = $fn_general->uploadDocument($fileUpload, intval($uploadType)+8, $jwt_data->userId);
+            $returnVal = $fn_wo->save_wo_image_m($uploadId, $uploadType, $longitude, $latitude);
+            $arrUploadType = $fn_wo->get_upload_type();
+            $fn_general->save_audit('114', $jwt_data->userId, 'Work Order no. = '.$returnVal.', upload type = '.$arrUploadType[intval($uploadType)]);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'save_wo_repair_image_desc') {
+            $woTaskUploads = filter_input(INPUT_POST, 'woTaskUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $returnVal = $fn_wo->save_wo_image_desc_m($woTaskUploads);
+            $fn_general->save_audit('115', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
 
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+        $action = filter_input(INPUT_GET, 'action');
+        $woTaskId = filter_input(INPUT_GET, 'woTaskId');
+        $fn_wo->__set('woTaskId', $woTaskId);
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'delete_wo_repair_image') {
+            $woTaskUploadId = filter_input(INPUT_GET, 'woTaskUploadId');
+            $returnVal = $fn_wo->delete_wo_repair_image_m($woTaskUploadId);
+            $fn_general->save_audit('116', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $form_data['errmsg'] = $constant::SUC_DELETE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action empty');
+        }
+
+        Class_db::getInstance()->db_commit();
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
