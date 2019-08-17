@@ -595,7 +595,7 @@ class Class_pdf_ppm {
                 $display_lat = '';
                 if (!empty($img_before)){
                     $display_desc = $img_before['ppm_task_upload_desc'];
-                    $display_time = $this->fn_general->convertDateToDisplay($img_before['ppm_task_upload_timestamp']).substr($img_before['ppm_task_upload_timestamp'], 10);
+                    $display_time = $this->fn_general->convertDateToDisplay($img_before['ppm_task_upload_timestamp']);
                     $display_long = $img_before['ppm_task_upload_longitude'];
                     $display_lat = $img_before['ppm_task_upload_latitude'];
                     $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_before['upload_id']));
@@ -615,7 +615,7 @@ class Class_pdf_ppm {
                 if (!empty($img_during)){
                     foreach ($img_during as $key => $img_display) {
                         $display_desc = $img_display['ppm_task_upload_desc'];
-                        $display_time = $this->fn_general->convertDateToDisplay($img_display['ppm_task_upload_timestamp']).substr($img_display['ppm_task_upload_timestamp'], 10);
+                        $display_time = $this->fn_general->convertDateToDisplay($img_display['ppm_task_upload_timestamp']);
                         $display_long = $img_display['ppm_task_upload_longitude'];
                         $display_lat = $img_display['ppm_task_upload_latitude'];
                         $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_display['upload_id']));
@@ -650,7 +650,7 @@ class Class_pdf_ppm {
                 $display_lat = '';
                 if (!empty($img_after)){
                     $display_desc = $img_after['ppm_task_upload_desc'];
-                    $display_time = $this->fn_general->convertDateToDisplay($img_after['ppm_task_upload_timestamp']).substr($img_after['ppm_task_upload_timestamp'], 10);
+                    $display_time = $this->fn_general->convertDateToDisplay($img_after['ppm_task_upload_timestamp']);
                     $display_long = $img_after['ppm_task_upload_longitude'];
                     $display_lat = $img_after['ppm_task_upload_latitude'];
                     $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$img_after['upload_id']));

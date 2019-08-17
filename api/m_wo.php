@@ -7,6 +7,8 @@ require_once 'function/f_login.php';
 require_once 'function/f_task.php';
 require_once 'function/f_email.php';
 require_once 'function/f_wo.php';
+require_once 'pdf/tcpdf_include.php';
+require_once 'pdf/wo.php';
 
 $api_name = 'api_m_wo';
 $is_transaction = false;
@@ -19,6 +21,7 @@ $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_email = new Class_email();
 $fn_wo = new Class_wo();
+$fn_pdf_wo = new Class_pdf_wo();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -29,6 +32,7 @@ try {
     $fn_email->__set('fn_general', $fn_general);
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
+    $fn_pdf_wo->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -75,6 +79,11 @@ try {
             $result = $fn_wo->get_wo_repair_desc_m();
         } else if ($type === 'wo_repair_images') {
             $result = $fn_wo->get_wo_repair_images_m();
+        } else if ($type === 'preview_pdf') {
+            $fn_pdf_wo->__set('woTaskId', $woTaskId);
+            $returnVal = $fn_pdf_wo->create_pdf();
+            $result = $fn_general->getPdf($returnVal['pdfId']);
+            $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

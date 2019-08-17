@@ -3,6 +3,7 @@ api/library/config.ini
 api/upload/
 api/pdf/ppm/
 api/pdf/checklist/
+api/pdf/wo/
 globalfm.p12
 9880959c-7403-4c07-9d2a-4af4ee4c1abb.txt
 .htaccess

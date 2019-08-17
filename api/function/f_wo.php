@@ -408,7 +408,7 @@ class Class_wo {
 
             $imageType = ['', 'Complaint', 'Before', 'During', 'After'];
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_upload_m', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>$uploadType, 'sys_upload.upload_status'=>'1'));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>$uploadType, 'sys_upload.upload_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskUploadId'] = $dataLocal['wo_task_upload_id'];
                 $row_result['woTaskUploadType'] = $imageType[intval($dataLocal['wo_task_upload_type'])];
@@ -861,7 +861,7 @@ class Class_wo {
 
             $result = array();
             $arrUploadType = $this->get_upload_type();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_repair_images', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'(2,3,4)', 'sys_upload.upload_status'=>'1'));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'(2,3,4)', 'sys_upload.upload_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskUploadId'] = $dataLocal['wo_task_upload_id'];
                 $row_result['woTaskUploadType'] = $arrUploadType[intval($dataLocal['wo_task_upload_type'])];

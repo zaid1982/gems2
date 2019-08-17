@@ -385,6 +385,7 @@ class Class_ppm {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
+            date_default_timezone_set("Asia/Kuala_Lumpur");
 
             if (empty($assetId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');

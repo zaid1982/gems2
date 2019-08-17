@@ -415,7 +415,7 @@ class Class_sql
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
-            } else if ($title === 'mw_wo_upload_m') {
+            } else if ($title === 'mw_wo_upload') {
                 $sql = "SELECT 
                     wo_task_upload_id,
                     wo_task_upload_type,
@@ -443,26 +443,6 @@ class Class_sql
                 FROM ppm_group_user 
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_group_user.user_id";
-            } else if ($title === 'mw_wo_repair_images') {
-                $sql = "SELECT 
-                    wo_task_upload_id,
-                    wo_task_upload_type,
-                    wo_task_id,
-                    wo_task_upload_longitude,
-                    wo_task_upload_latitude,
-                    wo_task_upload_timestamp,
-                    wo_task_upload_desc,
-                    ref_document.document_desc,
-                    ref_document.document_type,
-                    sys_upload.upload_id,
-                    sys_upload.upload_folder,
-                    sys_upload.upload_filename,
-                    sys_upload.upload_extension,
-                    sys_upload.upload_name,
-                    sys_upload.upload_uplname
-                FROM wo_task_upload
-                LEFT JOIN sys_upload ON sys_upload.upload_id = wo_task_upload.upload_id
-                LEFT JOIN ref_document ON ref_document.document_id = sys_upload.document_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

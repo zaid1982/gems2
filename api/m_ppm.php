@@ -113,7 +113,7 @@ try {
             $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
             $pdfId = $fn_pdf_ppm->create_pdf();
             $result = $fn_general->getPdf($pdfId);
-            $fn_general->save_audit('82', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+            $fn_general->save_audit('101', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
         }
         else if ($type === 'tnm_list') {
             $flowId = filter_input(INPUT_GET, 'flowId');

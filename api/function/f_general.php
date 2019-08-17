@@ -358,15 +358,12 @@ class Class_general {
                 return '';
             }
 
-            $newDate = '';
-            $dateSplit = explode('-', $date);
-            if (sizeof($dateSplit) === 3) {
-                $newDate = intval($dateSplit[2]).'/'.intval($dateSplit[1]).'/'.$dateSplit[0];
-            }
+            $newDate = new DateTime($date);
             if(strlen($date)>10) {
-                $newDate = $newDate.substr($date, 10);
+                return $newDate->format('j/n/Y g:i:sa');
+            } else {
+                return $newDate->format('j/n/Y');
             }
-            return $newDate;
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
