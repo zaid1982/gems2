@@ -124,8 +124,9 @@ try {
         }
         else if ($action === 'save_assigned_technician') {
             $userId = filter_input(INPUT_POST, 'userId');
-            $returnVal = $fn_wo->save_assigned_technician_m($userId);
-            $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName']);
+            $severity = filter_input(INPUT_POST, 'severity');
+            $returnVal = $fn_wo->save_assigned_technician_m($userId, $severity);
+            $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
         }
         else if ($action === 'save_wo_severity') {

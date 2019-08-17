@@ -536,10 +536,11 @@ class Class_wo {
 
     /**
      * @param string $userTechId
+     * @param string $severityId
      * @return array
      * @throws Exception
      */
-    public function save_assigned_technician_m ($userTechId='') {
+    public function save_assigned_technician_m ($userTechId='', $severityId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -549,14 +550,19 @@ class Class_wo {
             if (empty($userTechId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
             }
+            if (empty($severityId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severityId empty');
+            }
 
             $arrUserFullName = $this->fn_general->getUserFullName();
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId), array('wo_task_id'=>$this->woTaskId));
+            $arrSeverity = $this->get_severity();
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
-                'userFirstName'=>$arrUserFullName[intval($userTechId)]
+                'userFirstName'=>$arrUserFullName[intval($userTechId)],
+                'severityName'=>$arrSeverity[intval($severityId)]
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
