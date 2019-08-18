@@ -215,7 +215,12 @@ try {
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 16, $jwt_data->userId);
             $currentTask = $fn_wo->get_current_task('15', '14');
-
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
+            $returnVal = $fn_wo->submit_verify($currentTask['transactionId'], $signatureId);
+            $fn_general->save_audit('121', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+            $fn_email->setup_email($returnVal['woTaskTechnician'], 9, array('task_no'=>$returnVal['woTaskNo']));
+            $fn_email->setup_mobile_notification($returnVal['woTaskTechnician'], 10, array('task_no'=>$returnVal['woTaskNo']));
+            $form_data['errmsg'] = $constant::SUC_VERIFIED_AND_CLOSED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
