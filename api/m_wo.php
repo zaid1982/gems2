@@ -193,13 +193,29 @@ try {
         else if ($action === 'submit_repair') {
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 15, $jwt_data->userId);
-            $currentTask = $fn_wo->get_current_task('13', '13');
+            $currentTask = $fn_wo->get_current_task('13', '13', '21');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
             $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             $fn_email->setup_email($returnVal['woTaskCreatedBy'], 7, array('task_no'=>$returnVal['woTaskNo']));
             $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 8, array('task_no'=>$returnVal['woTaskNo']));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+        }
+        else if ($action === 'return_verify') {
+            $remark = filter_input(INPUT_POST, 'remark');
+            $currentTask = $fn_wo->get_current_task('15', '14');
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
+            $returnVal = $fn_wo->return_verify($currentTask['transactionId']);
+            $fn_general->save_audit('120', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+            $fn_email->setup_email($returnVal['woTaskReturnTo'], 8, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $fn_email->setup_mobile_notification($returnVal['woTaskReturnTo'], 9, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $form_data['errmsg'] = $constant::SUC_RETURNED;
+        }
+        else if ($action === 'submit_verify') {
+            $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $signatureId = $fn_general->uploadDocument($signature, 16, $jwt_data->userId);
+            $currentTask = $fn_wo->get_current_task('15', '14');
+
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }
