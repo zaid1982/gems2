@@ -75,6 +75,8 @@ try {
             $ppmGroupId = filter_input(INPUT_GET, 'groupId');
             $userId = filter_input(INPUT_GET, 'userId');
             $result = $fn_wo->get_technician_details_m($userId, $ppmGroupId);
+        } else if ($type === 'assign_and_severity') {
+            $result = $fn_wo->get_wo_assign_severity_m();
         } else if ($type === 'wo_repair_work') {
             $result = $fn_wo->get_wo_repair_desc_m();
         } else if ($type === 'wo_repair_images') {
