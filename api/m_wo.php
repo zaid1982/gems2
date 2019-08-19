@@ -116,9 +116,11 @@ try {
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 13, $jwt_data->userId);
 
-            $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, '6');
-            $woTaskNo = $fn_wo->create_wo_no($jwt_data->userId, $groupId);
-            $taskId = $fn_task->create_new_task('2', $jwt_data->userId, '6', $groupId, $woTaskNo);
+            $roleId = $fn_wo->get_role_id_from_user();
+            $checkpointId = $roleId==='6'?'11':'10';
+            $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
+            $woTaskNo = $fn_wo->create_wo_no($groupId);
+            $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
@@ -194,7 +196,9 @@ try {
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 15, $jwt_data->userId);
             $currentTask = $fn_wo->get_current_task('13', '13', '21');
-            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
+            $woType = $fn_wo->get_wo_task_type();
+            $nextCheck = $woType==='2'?'2':'';
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', '', $nextCheck);
             $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             $fn_email->setup_email($returnVal['woTaskCreatedBy'], 7, array('task_no'=>$returnVal['woTaskNo']));
@@ -203,7 +207,9 @@ try {
         }
         else if ($action === 'return_verify') {
             $remark = filter_input(INPUT_POST, 'remark');
-            $currentTask = $fn_wo->get_current_task('15', '14');
+            $woType = $fn_wo->get_wo_task_type();
+            $currentCheckpoint = $woType==='2'?'16':'14';
+            $currentTask = $fn_wo->get_current_task('15', $currentCheckpoint);
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
             $returnVal = $fn_wo->return_verify($currentTask['transactionId']);
             $fn_general->save_audit('120', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
@@ -214,7 +220,9 @@ try {
         else if ($action === 'submit_verify') {
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 16, $jwt_data->userId);
-            $currentTask = $fn_wo->get_current_task('15', '14');
+            $woType = $fn_wo->get_wo_task_type();
+            $currentCheckpoint = $woType==='2'?'16':'14';
+            $currentTask = $fn_wo->get_current_task('15', $currentCheckpoint);
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
             $returnVal = $fn_wo->submit_verify($currentTask['transactionId'], $signatureId);
             $fn_general->save_audit('121', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);

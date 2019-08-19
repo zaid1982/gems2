@@ -122,11 +122,11 @@ function ModalUser() {
             formValidate.validateForm();
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8').show();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9').show();
                 $('#divMusRole6').hide();
             } else if ($(this).val() === '2') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8').hide();
+                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9').hide();
                 $('#divMusRole6').show();
                 $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
             }
@@ -146,16 +146,21 @@ function ModalUser() {
                     else {
                         let rolesStr = '';
                         let isClient = false;
+                        let isInternalComplainer = false;
                         $("input[name='chkMusRole[]']:checked").map(function(){
                             rolesStr += ','+$(this).val();
                             if ($(this).val() === '6') {
                                 isClient = true;
+                            } else if ($(this).val() === '9') {
+                                isInternalComplainer = true;
                             }
                         });
                         rolesStr = rolesStr.substr(1);
                         const userType = $("input[name='chkMusUserType']:checked").val();
 
-                        if (userType === '2' && isClient === false) {
+                        if (userType === '1' && isInternalComplainer === false) {
+                            toastr['error']('User must have WO Complainer roles. Please check on WO Complainer roles.', _ALERT_TITLE_ERROR);
+                        } else if (userType === '2' && isClient === false) {
                             toastr['error']('Client type must have Client/Complainer roles. Please check on Client/Complainer roles.', _ALERT_TITLE_ERROR);
                         }
                         else {
@@ -259,12 +264,12 @@ function ModalUser() {
 
                 if (userType === '1') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8').show();
+                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9').show();
                     $('#divMusRole6').hide();
                 }
                 else if (userType === '2') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8').hide();
+                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9').hide();
                     $('#divMusRole6').show();
                 }
                 formValidate.validateForm();

@@ -86,17 +86,59 @@ class Class_wo {
     public function get_upload_type () {
         return array('', '', 'Before', 'During', 'After');
     }
+
     /**
      * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_role_id_from_user () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('sys_user_role', array('user_id'=>$this->userId, 'role_id'=>'(6,9)'), 'role_id', null, 1);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wo_task_type () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_type', null, 1);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $groupId
      * @return string
      * @throws Exception
      */
-    public function create_wo_no ($userId, $groupId) {
+    public function create_wo_no ($groupId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            if (empty($userId)) {
+            if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
             if (empty($groupId)) {
@@ -104,8 +146,14 @@ class Class_wo {
             }
 
             $curDates = new DateTime();
-            $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_code', null, 1);
-            $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_running_no_wo', null, 1);
+            if ($groupId === '1') {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+                $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
+                $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no_wo', null, 1);
+            } else {
+                $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_code', null, 1);
+                $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_running_no_wo', null, 1);
+            }
             $runningNo = intval($runningNo);
             $runningNoTemp = 100000 + $runningNo;
             $runningNoStr = substr(strval($runningNoTemp), 1);
@@ -153,8 +201,15 @@ class Class_wo {
             }
 
             $task = Class_db::getInstance()->db_select_single('wfl_task', array('task_id'=>$taskId), null, 1);
-            $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$task['group_id']), 'site_id', null, 1);
-            $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>'1', 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
+            $groupId = $task['group_id'];
+            $woTaskType = $task['checkpoint_id']==='10'?'2':'1';
+            if ($groupId === '1') {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+            } else {
+                $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_id', null, 1);
+            }
+
+            $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24'));
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$woTaskId, 'wo_task_upload_type'=>'5', 'upload_id'=>$signatureId));
             foreach ($complaintImageUploads as $complaintImageUpload) {

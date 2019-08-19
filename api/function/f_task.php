@@ -175,10 +175,11 @@ class Class_task {
      * @param $groupId
      * @param $transactionNo
      * @param string $dueDate
+     * @param string $checkpointId
      * @return string
      * @throws Exception
      */
-    public function create_new_task ($flowId, $userId, $roleId, $groupId, $transactionNo, $dueDate='') {
+    public function create_new_task ($flowId, $userId, $roleId, $groupId, $transactionNo, $dueDate='', $checkpointId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -198,23 +199,28 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionNo empty');
             }
 
-            $checkpoint = Class_db::getInstance()->db_select_single('wfl_checkpoint', array('flow_id' => $flowId, 'checkpoint_type' => '1'), null, 1);
-            $checkpointId = $checkpoint['checkpoint_id'];
+            if (empty($checkpointId)) {
+                $checkpoint = Class_db::getInstance()->db_select_single('wfl_checkpoint', array('flow_id'=>$flowId, 'checkpoint_type'=>'1'), null, 1);
+                $checkpointId = $checkpoint['checkpoint_id'];
+            } else {
+                $checkpoint = Class_db::getInstance()->db_select_single('wfl_checkpoint', array('checkpoint_id'=>$checkpointId,'flow_id'=>$flowId, 'checkpoint_type'=>'1'), null, 1);
+            }
+
             if (empty($dueDate)) {
                 $checkDueDay = $checkpoint['checkpoint_due_day'];
-                $checkDueDay = !empty($checkDueDay) ? '|Curdate() + INTERVAL ' . $checkDueDay . ' DAY' : '';
+                $checkDueDay = !empty($checkDueDay)?'|Curdate() + INTERVAL '.$checkDueDay.' DAY':'';
             } else {
                 $checkDueDay = $dueDate;
             }
 
             $this->check_next_task($checkpoint, $userId, $roleId, $groupId);
 
-            $flowDueDay = Class_db::getInstance()->db_select_col('wfl_flow', array('flow_id' => $flowId), 'flow_due_day', null, 1);
-            $transactionId = Class_db::getInstance()->db_insert('wfl_transaction', array('transaction_no' => $transactionNo, 'flow_id' => $flowId, 'user_id' => $userId, 'group_id' => $groupId,
-                'transaction_date_due' => '|Curdate() + INTERVAL ' . $flowDueDay . ' DAY', 'transaction_status' => '5'));
+            $flowDueDay = Class_db::getInstance()->db_select_col('wfl_flow', array('flow_id'=>$flowId), 'flow_due_day', null, 1);
+            $transactionId = Class_db::getInstance()->db_insert('wfl_transaction', array('transaction_no'=>$transactionNo, 'flow_id'=>$flowId, 'user_id'=>$userId, 'group_id'=>$groupId,
+                'transaction_date_due'=>'|Curdate() + INTERVAL '.$flowDueDay.' DAY', 'transaction_status'=>'5'));
 
-            $taskId = Class_db::getInstance()->db_insert('wfl_task', array('transaction_id' => $transactionId, 'checkpoint_id' => $checkpointId, 'role_id' => $roleId, 'group_id' => $groupId,
-                'task_created_user' => $userId, 'task_created_group' => $groupId,'task_claimed_user' => $userId,  'task_time_claimed' => 'Now()',  'task_date_due' => $checkDueDay, 'task_status' => '5'));
+            $taskId = Class_db::getInstance()->db_insert('wfl_task', array('transaction_id'=>$transactionId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$roleId, 'group_id'=>$groupId,
+                'task_created_user'=>$userId, 'task_created_group'=>$groupId,'task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()', 'task_date_due'=>$checkDueDay, 'task_status'=>'5'));
 
             //$this->check_assign($checkpoint, $transactionId, $groupId, '', $userId);
 
