@@ -136,9 +136,10 @@ try {
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
         }
         else if ($action === 'save_assigned_technician') {
+            $ppmGroupId = filter_input(INPUT_POST, 'groupId');
             $userId = filter_input(INPUT_POST, 'userId');
             $severity = filter_input(INPUT_POST, 'severity');
-            $returnVal = $fn_wo->save_assigned_technician_m($userId, $severity);
+            $returnVal = $fn_wo->save_assigned_technician_m($ppmGroupId, $userId, $severity);
             $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
         }
@@ -157,6 +158,17 @@ try {
             $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
             $fn_email->setup_mobile_notification($assignedTechnician, 6, array('task_no' => $returnVal));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+        }
+        else if ($action === 'reject_complaint') {
+            $remark = filter_input(INPUT_POST, 'remark');
+            $currentTask = $fn_wo->get_current_task('24', '12');
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', $remark, '1');
+            $returnVal = $fn_wo->reject_complaint($currentTask['transactionId']);
+            $fn_general->save_audit('122', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $complainer = $fn_wo->get_complainer();
+            $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal, 'comment'=>$remark));
+            $fn_email->setup_mobile_notification($complainer, 11, array('task_no' => $returnVal, 'comment'=>$remark));
+            $form_data['errmsg'] = $constant::SUC_REJECTED;
         }
         else if ($action === 'save_wo_repair_work') {
             $repairDesc = filter_input(INPUT_POST, 'repairWork');
@@ -186,7 +198,7 @@ try {
         }
         else if ($action === 'return_by_technician') {
             $remark = filter_input(INPUT_POST, 'remark');
-            $currentTask = $fn_wo->get_current_task('13', '13');
+            $currentTask = $fn_wo->get_current_task('13', '13', '21');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
             $returnVal = $fn_wo->return_by_technician($currentTask['transactionId']);
             $fn_general->save_audit('117', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);

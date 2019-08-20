@@ -122,6 +122,7 @@ class Class_constant {
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SUBMITTED = 'Successfully submitted!';
     const SUC_RETURNED = 'Successfully returned!';
+    const SUC_REJECTED = 'Successfully rejected!';
     const SUC_VERIFIED_AND_CLOSED = 'Successfully verified and closed!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
     const SUC_DELETE = 'Successfully removed!';
