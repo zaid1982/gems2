@@ -265,13 +265,14 @@ class Class_pdf_wo {
                     $dueTime = $createdTime->modify('+'.$arrDue[intval($woTask['wo_task_severity'])].' hour');
                 }
                 if (!empty($woTask['wo_task_time_executed'])) {
+                    $assignedTime = new DateTime($woTask['wo_task_time_assigned']);
                     $executedTime = new DateTime($woTask['wo_task_time_executed']);
                     $fixedTime = $executedTime->format('j/n/Y g:i:sa');
-                    $interval = $createdTime->diff($executedTime);
+                    $interval = $assignedTime->diff($executedTime);
                     $duration = $interval->format('%a days %H:%I:%S');
-                } else {
-                    date_default_timezone_set("Asia/Kuala_Lumpur");
-                }
+                } //else {
+                    //date_default_timezone_set("Asia/Kuala_Lumpur");
+                //}
             }
 
             $pdf->SetFont('helvetica', '', 9);

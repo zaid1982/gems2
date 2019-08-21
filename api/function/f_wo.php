@@ -1110,7 +1110,7 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'21'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'21', 'wo_task_time_executed'=>''), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
 
             $woTaskReturnTo = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13', 'role_id'=>'8'), 'user_id');
