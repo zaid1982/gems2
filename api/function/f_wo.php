@@ -287,7 +287,7 @@ class Class_wo {
             $statusArr = $this->fn_general->getRefStatus ();
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_pending_m', array(), 'wfl_task.task_id', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_pending_m', array(), 'wfl_task.task_id DESC', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
