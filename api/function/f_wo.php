@@ -173,13 +173,12 @@ class Class_wo {
      * @param string $woTaskLocation
      * @param string $woTaskComplaint
      * @param array $complaintImageUploads
-     * @param string $signatureId
      * @param string $woTaskLongitude
      * @param string $woTaskLatitude
      * @return mixed
      * @throws Exception
      */
-    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $signatureId='', $woTaskLongitude='', $woTaskLatitude='') {
+    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -196,9 +195,6 @@ class Class_wo {
             if (empty($woTaskComplaint)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_WO_DESCRIPTION_EMPTY, 31);
             }
-            if (empty($signatureId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
-            }
 
             $task = Class_db::getInstance()->db_select_single('wfl_task', array('task_id'=>$taskId), null, 1);
             $groupId = $task['group_id'];
@@ -211,7 +207,6 @@ class Class_wo {
 
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24'));
-            Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$woTaskId, 'wo_task_upload_type'=>'5', 'upload_id'=>$signatureId));
             foreach ($complaintImageUploads as $complaintImageUpload) {
                 if (!array_key_exists('uploadId', $complaintImageUpload)) {
                     throw new Exception('[' . __LINE__ . '] - Index uploadId not exist in complaintImageUpload');

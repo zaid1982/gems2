@@ -115,8 +115,6 @@ try {
                     array_push($complaintImageUploads, $complaintImageUpload);
                 }
             }
-            $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $signatureId = $fn_general->uploadDocument($signature, 13, $jwt_data->userId);
 
             $roleId = $fn_wo->get_role_id_from_user();
             $checkpointId = $roleId==='6'?'11':'10';
@@ -124,7 +122,7 @@ try {
             $woTaskNo = $fn_wo->create_wo_no($groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
             $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
-            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $signatureId, $woTaskLongitude, $woTaskLatitude);
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12');
