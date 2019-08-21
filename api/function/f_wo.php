@@ -88,7 +88,6 @@ class Class_wo {
     }
 
     /**
-     * @param $userId
      * @return mixed
      * @throws Exception
      */

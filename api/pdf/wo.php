@@ -266,13 +266,12 @@ class Class_pdf_wo {
                 }
                 if (!empty($woTask['wo_task_time_executed'])) {
                     $executedTime = new DateTime($woTask['wo_task_time_executed']);
+                    $fixedTime = $executedTime->format('j/n/Y g:i:sa');
+                    $interval = $createdTime->diff($executedTime);
+                    $duration = $interval->format('%a days %H:%I:%S');
                 } else {
                     date_default_timezone_set("Asia/Kuala_Lumpur");
-                    $executedTime = new DateTime();
                 }
-                $fixedTime = $executedTime->format('j/n/Y g:i:sa');
-                $interval = $createdTime->diff($executedTime);
-                $duration = $interval->format('%a days %H:%I:%S');
             }
 
             $pdf->SetFont('helvetica', '', 9);
