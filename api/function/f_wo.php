@@ -1113,6 +1113,12 @@ class Class_wo {
             Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'21', 'wo_task_time_executed'=>''), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
 
+            $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'7'));
+            foreach ($woTaskUploads as $woTaskUpload) {
+                Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$woTaskUpload['upload_id']));
+                Class_db::getInstance()->db_delete('wo_task_upload', array('wo_task_upload_id'=>$woTaskUpload['wo_task_upload_id']));
+            }
+
             $woTaskReturnTo = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13', 'role_id'=>'8'), 'user_id');
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
