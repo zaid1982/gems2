@@ -412,7 +412,7 @@ class Class_wo {
             $arrStatus = $this->fn_general->getRefStatus();
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrSiteName = $this->fn_general->getSiteName();
-            $arrWoTaskType = array('', 'External Complaint', 'Internal Complaint');
+            $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
 
             $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $createdBy = $dataLocal['wo_task_created_by'];
