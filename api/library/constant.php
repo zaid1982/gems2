@@ -215,4 +215,5 @@ class Class_constant {
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';
     const SUC_WO_SAVE_WO_SEVERITY = 'Work Order severity successfully saved';
     const SUC_WO_SAVE_WO_REPAIR_WORK = 'Work Order repair work successfully saved';
+    const SUC_WO_SAVE_WO_RATE = 'Rating successfully saved';
 }

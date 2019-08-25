@@ -86,6 +86,8 @@ try {
             $returnVal = $fn_pdf_wo->create_pdf();
             $result = $fn_general->getPdf($returnVal['pdfId']);
             $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+        } else if ($type === 'wo_rate') {
+            $result = $fn_wo->get_wo_rate_m();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
@@ -241,6 +243,12 @@ try {
             $fn_email->setup_email($returnVal['woTaskTechnician'], 9, array('task_no'=>$returnVal['woTaskNo']));
             $fn_email->setup_mobile_notification($returnVal['woTaskTechnician'], 10, array('task_no'=>$returnVal['woTaskNo']));
             $form_data['errmsg'] = $constant::SUC_VERIFIED_AND_CLOSED;
+        }
+        else if ($action === 'save_wo_rate') {
+            $rating = filter_input(INPUT_POST, 'rating');
+            $returnVal = $fn_wo->save_wo_rate_m($rating);
+            $fn_general->save_audit('123', $jwt_data->userId, 'Work Order no. = '.$returnVal.', rating = '.$rating);
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_RATE;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
         }

@@ -801,6 +801,29 @@ class Class_wo {
     }
 
     /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wo_assign_severity_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return array(
+                'groupId'=>$this->fn_general->clear_null($woTask['ppm_group_id']),
+                'userId'=>$this->fn_general->clear_null($woTask['wo_task_assigned_to']),
+                'severity'=>$this->fn_general->clear_null($woTask['wo_task_severity']));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $repairDesc
      * @return mixed
      * @throws Exception
@@ -820,29 +843,6 @@ class Class_wo {
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return $woTask['wo_task_no'];
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @return mixed
-     * @throws Exception
-     */
-    public function get_wo_assign_severity_m () {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
-
-            if (empty($this->woTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
-            }
-
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
-            return array(
-                'groupId'=>$this->fn_general->clear_null($woTask['ppm_group_id']),
-                'userId'=>$this->fn_general->clear_null($woTask['wo_task_assigned_to']),
-                'severity'=>$this->fn_general->clear_null($woTask['wo_task_severity']));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -1166,6 +1166,51 @@ class Class_wo {
                 'woTaskNo'=>$woTask['wo_task_no'],
                 'woTaskTechnician'=>$woTaskTechnician
             );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $woTaskRate
+     * @return mixed
+     * @throws Exception
+     */
+    public function save_wo_rate_m ($woTaskRate='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($woTaskRate)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskRate empty');
+            }
+
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_rate'=>$woTaskRate), array('wo_task_id'=>$this->woTaskId));
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            return $woTask['wo_task_no'];
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wo_rate_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return $this->fn_general->clear_null(Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_rate', null, 1));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
