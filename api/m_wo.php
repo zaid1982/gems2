@@ -232,13 +232,14 @@ try {
             $form_data['errmsg'] = $constant::SUC_RETURNED;
         }
         else if ($action === 'submit_verify') {
+            $rating = filter_input(INPUT_POST, 'rating');
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 16, $jwt_data->userId);
             $woType = $fn_wo->get_wo_task_type();
             $currentCheckpoint = $woType==='2'?'16':'14';
             $currentTask = $fn_wo->get_current_task('15', $currentCheckpoint);
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
-            $returnVal = $fn_wo->submit_verify($currentTask['transactionId'], $signatureId);
+            $returnVal = $fn_wo->submit_verify($currentTask['transactionId'], $signatureId, $rating);
             $fn_general->save_audit('121', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             $fn_email->setup_email($returnVal['woTaskTechnician'], 9, array('task_no'=>$returnVal['woTaskNo']));
             $fn_email->setup_mobile_notification($returnVal['woTaskTechnician'], 10, array('task_no'=>$returnVal['woTaskNo']));
