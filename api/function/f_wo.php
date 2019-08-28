@@ -315,7 +315,8 @@ class Class_wo {
             $result = array(
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17]),
                 array('sectionName'=>'B', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$arr_status[18]),
-                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$arr_status[18])
+                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$arr_status[18]),
+                array('sectionName'=>'D', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>'')
             );
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
@@ -341,6 +342,9 @@ class Class_wo {
                 $result[2]['sectionStatus'] = $arr_status[19];
             }
 
+            $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
+            $result[3]['comment'] = $remark;
+
             return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -363,13 +367,17 @@ class Class_wo {
             $arr_status = $this->fn_general->getRefStatus();
             $result = array(
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17]),
-                array('sectionName'=>'B', 'sectionDesc'=>'Assign Executor', 'sectionStatus'=>$arr_status[18])
+                array('sectionName'=>'B', 'sectionDesc'=>'Assign Executor', 'sectionStatus'=>$arr_status[18]),
+                array('sectionName'=>'C', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>'')
             );
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             if (!empty($woTask['wo_task_assigned_to']) && !empty($woTask['wo_task_severity'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
             }
+
+            $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
+            $result[2]['comment'] = $remark;
 
             return $result;
         } catch (Exception $ex) {
