@@ -322,6 +322,25 @@ class Class_pdf_wo {
             $pdf->MultiCell(172, ($maxnocells*4)+8, '', 1, 'L', 0, 0);
             $pdf->Ln();
 
+            if ($pdf->GetY() > 250) {
+                $pdf->AddPage();
+                $pdf->setPage($pdf->getPage());
+            }
+
+            $pdf->SetFont('helvetica', '', 11);
+            $pdf->Cell(8, 6, 'E', 1, 0, 'C', 1);
+            $pdf->Cell(172, 6, ' List of Assisted Technician', 1, 0, 'L', 1);
+            $pdf->Ln();
+
+            $pdf->SetFont('helvetica', '', 9);
+            $woAssists = Class_db::getInstance()->db_select('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
+            for ($i=0; $i<count($woAssists);$i++) {
+                $assistName = $arrUserFullName[intval($woAssists[$i]['user_id'])];
+                $pdf->Cell(8, 5, $i, 1, 0, 'R');
+                $pdf->Cell(172, 5, $assistName, 1, 0, 'L');
+                $pdf->Ln();
+            }
+
             if ($pdf->GetY() > 240) {
                 $pdf->AddPage();
                 $pdf->setPage($pdf->getPage());
