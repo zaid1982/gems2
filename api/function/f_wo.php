@@ -595,6 +595,7 @@ class Class_wo {
      * @param string $ppmGroupId
      * @param string $userTechId
      * @param string $severityId
+     * @param array $assistUserId
      * @return array
      * @throws Exception
      */
@@ -620,8 +621,10 @@ class Class_wo {
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
 
             Class_db::getInstance()->db_delete('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
-            foreach ($assistUserId as $userId) {
-                Class_db::getInstance()->db_insert('wo_task_assist', array('wo_task_id'=>$this->woTaskId, 'user_id'=>$userId));
+            if (!empty($assistUserId)) {
+                foreach ($assistUserId as $userId) {
+                    Class_db::getInstance()->db_insert('wo_task_assist', array('wo_task_id'=>$this->woTaskId, 'user_id'=>$userId));
+                }
             }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
@@ -1170,7 +1173,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
             }
             if (empty($woTaskRate)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskRate empty');
+                $woTaskRate = '';
             }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
