@@ -376,7 +376,7 @@ class Class_general {
      */
     public function getPpmFrequency () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_name'];
@@ -394,7 +394,7 @@ class Class_general {
      */
     public function getPpmFrequencyCode () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_frequency', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['frequency_id'])] = $dataLocal['frequency_code'];
@@ -412,7 +412,7 @@ class Class_general {
      */
     public function getRefStatus () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('ref_status', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['status_id'])] = $dataLocal['status_desc'];
@@ -430,7 +430,7 @@ class Class_general {
      */
     public function getRefRole () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('ref_role', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['role_id'])] = $dataLocal['role_desc'];
@@ -448,7 +448,7 @@ class Class_general {
      */
     public function getUserFullName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('sys_user', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['user_id'])] = $dataLocal['user_first_name'];
@@ -466,7 +466,7 @@ class Class_general {
      */
     public function getFlowName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('wfl_flow', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['flow_id'])] = $dataLocal['flow_desc'];
@@ -484,7 +484,7 @@ class Class_general {
      */
     public function getCheckPointName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('wfl_checkpoint', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['checkpoint_id'])] = $dataLocal['checkpoint_desc'];
@@ -502,7 +502,7 @@ class Class_general {
      */
     public function getGroupName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('sys_group', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['group_id'])] = $dataLocal['group_name'];
@@ -520,7 +520,7 @@ class Class_general {
      */
     public function getLocationCode () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['location_code_id'])] = $dataLocal['location_code_name'];
@@ -538,7 +538,7 @@ class Class_general {
      */
     public function getSiteName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('cli_site', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['site_id'])] = $dataLocal['site_name'];
@@ -556,7 +556,7 @@ class Class_general {
      */
     public function getPpmGroupName () {
         try {
-            $refArray = array();
+            $refArray = array('');
             $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group', array(), null, null, 1);
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['ppm_group_id'])] = $dataLocal['ppm_group_name'];

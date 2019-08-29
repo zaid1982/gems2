@@ -693,7 +693,7 @@ class Class_task {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['transactionId'] = $dataLocal['transaction_id'];
                 $row_result['transactionNo'] = $dataLocal['transaction_no'];
-                $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
                 if ($dataLocal['checkpoint_id'] == '1') {
                     $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 } else {
