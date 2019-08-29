@@ -598,7 +598,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function save_assigned_technician_m ($ppmGroupId='', $userTechId='', $severityId='') {
+    public function save_assigned_technician_m ($ppmGroupId='', $userTechId='', $severityId='', $assistUserId=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -618,6 +618,11 @@ class Class_wo {
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrSeverity = $this->get_severity();
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
+
+            Class_db::getInstance()->db_delete('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
+            foreach ($assistUserId as $userId) {
+                Class_db::getInstance()->db_insert('wo_task_assist', array('wo_task_id'=>$this->woTaskId, 'user_id'=>$userId));
+            }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return array(
@@ -821,10 +826,13 @@ class Class_wo {
             }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $assistUserId = Class_db::getInstance()->db_select_colm('wo_task_assist', array('wo_task_id'=>$this->woTaskId), 'user_id');
+
             return array(
                 'groupId'=>$this->fn_general->clear_null($woTask['ppm_group_id']),
                 'userId'=>$this->fn_general->clear_null($woTask['wo_task_assigned_to']),
-                'severity'=>$this->fn_general->clear_null($woTask['wo_task_severity']));
+                'severity'=>$this->fn_general->clear_null($woTask['wo_task_severity']),
+                'assistUserId'=>$assistUserId);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
