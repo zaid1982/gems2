@@ -719,8 +719,8 @@ class Class_task {
                     $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
                     $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
                     $row_result['currentTaskOwner'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
-                    $row_result['woTaskType'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))];
-                    $row_result['woTaskSeverity'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))];
+                    $row_result['woTaskType'] = $arrWoTaskType[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))];
+                    $row_result['woTaskSeverity'] = $arrWoTaskSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))];
                     $row_result['assignedTo'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_assigned_to']))];
                     $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];
                     if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
