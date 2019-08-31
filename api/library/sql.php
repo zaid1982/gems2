@@ -337,7 +337,7 @@ class Class_sql
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id";
-            } else if ($title === 'vw_track_monitoring_m') {
+            } else if ($title === 'vw_track_monitoring_wo_m') {
                 $sql = "SELECT
                     transaction_no,
                     transaction_time_created,
@@ -345,10 +345,13 @@ class Class_sql
                     transaction_time_complete,
                     transaction_status,
                     flow_id,
-                    asset_no,
+                    wo_task_type,
+                    wo_task_severity,
+                    wo_task_assigned_to,
                     wfl_task.*
                 FROM wfl_task
-                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id";
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id";
             } else if ($title === 'vw_track_monitoring_ppm_m') {
                 $sql = "SELECT
                     transaction_no,
