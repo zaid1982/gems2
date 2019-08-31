@@ -36,7 +36,7 @@ function ModalAssetType() {
                 name: 'Asset Type',
                 validator: {
                     notEmpty: true,
-                    maxLength: 150
+                    maxLength: 255
                 }
             },
             {

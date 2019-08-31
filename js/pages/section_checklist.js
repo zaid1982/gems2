@@ -37,7 +37,7 @@ function SectionChecklist() {
                 name: 'Checklist Name',
                 validator: {
                     notEmpty: true,
-                    maxLength: 150
+                    maxLength: 255
                 }
             },
             {
