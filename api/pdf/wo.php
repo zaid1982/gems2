@@ -336,7 +336,7 @@ class Class_pdf_wo {
             $woAssists = Class_db::getInstance()->db_select('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
             for ($i=0; $i<count($woAssists);$i++) {
                 $assistName = $arrUserFullName[intval($woAssists[$i]['user_id'])];
-                $pdf->Cell(8, 5, $i, 1, 0, 'R');
+                $pdf->Cell(8, 5, ($i+1), 1, 0, 'R');
                 $pdf->Cell(172, 5, $assistName, 1, 0, 'L');
                 $pdf->Ln();
             }
