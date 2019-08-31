@@ -147,6 +147,7 @@ class Class_sql
                 LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = asset_model.asset_brand_id";
             } else if ($title === 'vw_checklist_by_type') {
                 $sql = "SELECT
+                    'Asset Type' AS checklist_types,
                     ast_asset_type.asset_type_id,
                     ast_asset_category.asset_category_id,
                     ast_asset_category.asset_group_id,
@@ -157,7 +158,10 @@ class Class_sql
                     SELECT asset_type_id, COUNT(*) AS total_checklist
                     FROM ppm_checklist 
                     GROUP BY asset_type_id
-                ) group_checklist ON group_checklist.asset_type_id = ast_asset_type.asset_type_id";
+                ) group_checklist ON group_checklist.asset_type_id = ast_asset_type.asset_type_id
+                UNION
+                SELECT 'Special Checklist' AS checklist_types, '' AS asset_type_id, '' AS asset_category_id, '' AS asset_group_id, COUNT(*) AS total_checklist
+                FROM ppm_checklist WHERE checklist_type = 2";
             } else if ($title === 'vw_ppm_asset') {
                 $sql = "SELECT 
                     ast_asset.*,

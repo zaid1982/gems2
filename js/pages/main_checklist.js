@@ -51,6 +51,7 @@ function MainChecklist() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
+                    {mData: 'checklistType'},
                     {mData: null, mRender: function (data, type, row){
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
@@ -84,31 +85,31 @@ function MainChecklist() {
         $('#optPcmGroupId').on('change', function () {
             mzOptionStop('optPcmCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optPcmTypeId', 'All Asset Type');
-            oTableChecklistGroup.column(6).search($(this).val(), false, true, false).draw();
-            oTableChecklistGroup.column(7).search('', false, true, false).draw();
+            oTableChecklistGroup.column(7).search($(this).val(), false, true, false).draw();
             oTableChecklistGroup.column(8).search('', false, true, false).draw();
+            oTableChecklistGroup.column(9).search('', false, true, false).draw();
         });
 
         $('#optPcmCategoryId').on('change', function () {
             mzOptionStop('optPcmTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            oTableChecklistGroup.column(7).search($(this).val(), false, true, false).draw();
-            oTableChecklistGroup.column(8).search('', false, true, false).draw();
+            oTableChecklistGroup.column(8).search($(this).val(), false, true, false).draw();
+            oTableChecklistGroup.column(9).search('', false, true, false).draw();
         });
 
         $('#optPcmTypeId').on('change', function () {
-            oTableChecklistGroup.column(8).search($(this).val(), false, true, false).draw();
+            oTableChecklistGroup.column(9).search($(this).val(), false, true, false).draw();
         });
 
         let cntChecklistGroup;
         let btnChecklistGroupOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
+                columns: [ 0, 1, 2, 3, 4, 5],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntChecklistGroup = 1;
                         }
-                        if (column === 4) {
+                        if (column === 5) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</a>','');

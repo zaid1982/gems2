@@ -82,6 +82,7 @@ class Class_checklist {
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_checklist_by_type');
             foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['checklistType'] = $dataLocal['checklist_types'];
                 $row_result['assetGroupId'] = $dataLocal['asset_group_id'];
                 $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
                 $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
