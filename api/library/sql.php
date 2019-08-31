@@ -402,19 +402,41 @@ class Class_sql
             } else if ($title === 'mw_wo_submitted_m') {
                 $sql = "SELECT
                     wo_task.*,
-                    sys_user.user_first_name
+                    sys_user.user_first_name,
+                    sys_user_assigned.user_first_name AS assigned_to,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type = 2 THEN 'Self Finding'
+                        ELSE ''
+                    END AS wo_task_type_desc,
+                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
+                        WHEN wo_task_severity = 2 THEN 'Critical'
+                        ELSE ''
+                    END AS wo_task_severity_desc
                 FROM wo_task 
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
-                WHERE wo_task_created_by = [user_id] AND (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
+                LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
+                WHERE wo_task_created_by = [user_id] 
+                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
             } else if ($title === 'mw_wo_pending_m') {
                 $sql = "SELECT
                     wo_task.*,
-                    sys_user.user_first_name
+                    sys_user.user_first_name,
+                    sys_user_assigned.user_first_name AS assigned_to,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type = 2 THEN 'Self Finding'
+                        ELSE ''
+                    END AS wo_task_type_desc,
+                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
+                        WHEN wo_task_severity = 2 THEN 'Critical'
+                        ELSE ''
+                    END AS wo_task_severity_desc
                 FROM wfl_task
                 LEFT JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
-                WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
+                LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
+                WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
+                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%')";
             } else if ($title === 'mw_wo_upload') {
                 $sql = "SELECT 
                     wo_task_upload_id,

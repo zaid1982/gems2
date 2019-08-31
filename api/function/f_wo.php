@@ -249,8 +249,11 @@ class Class_wo {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskType'] = $dataLocal['wo_task_type_desc'];
+                $row_result['woTaskSeverity'] = $dataLocal['wo_task_severity_desc'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['reportedBy'] = $dataLocal['user_first_name'];
+                $row_result['assignedTo'] = $this->fn_general->clear_null($dataLocal['assigned_to']);
                 $row_result['woTaskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['wo_task_time_created']);
                 $row_result['woTaskStatus'] = $statusArr[$dataLocal['wo_task_status']];
                 array_push($result, $row_result);
@@ -283,8 +286,11 @@ class Class_wo {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskType'] = $dataLocal['wo_task_type_desc'];
+                $row_result['woTaskSeverity'] = $dataLocal['wo_task_severity_desc'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['reportedBy'] = $dataLocal['user_first_name'];
+                $row_result['assignedTo'] = $this->fn_general->clear_null($dataLocal['assigned_to']);
                 $row_result['woTaskTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['wo_task_time_created']);
                 $row_result['woTaskStatus'] = $statusArr[$dataLocal['wo_task_status']];
                 array_push($result, $row_result);

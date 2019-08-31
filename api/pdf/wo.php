@@ -348,11 +348,11 @@ class Class_pdf_wo {
 
             $servicedBy = '';
             $verifyBy = '';
-            if (!empty($woTask['ppm_task_serviced_by'])) {
-                $servicedBy = $arrUserFullName[intval($woTask['ppm_task_serviced_by'])];
+            if (!empty($woTask['wo_task_fixed_by'])) {
+                $servicedBy = $arrUserFullName[intval($woTask['wo_task_fixed_by'])];
             }
-            if (!empty($woTask['ppm_task_verified_by'])) {
-                $verifyBy = $arrUserFullName[intval($woTask['ppm_task_verified_by'])];
+            if (!empty($woTask['wo_task_verified_by'])) {
+                $verifyBy = $arrUserFullName[intval($woTask['wo_task_verified_by'])];
             }
 
             $pdf->MultiCell(90, 18, "Service By\n\n\n....................................................................\nName : ".$servicedBy."\nDate : ".$this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed']), 1, 'L', 0, 0);

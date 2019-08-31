@@ -263,7 +263,7 @@ class Class_user {
 
             $curSite = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
             if ($curSite !== $siteId) {
-                if (Class_db::getInstance()->db_count('mw_ppm_group_user', array('user_id'=>$userId, 'site_id'=>$curSite)) > 0) {
+                if (Class_db::getInstance()->db_count('mw_ppm_group_user', array('ppm_group_user.user_id'=>$userId, 'sys_user.site_id'=>$curSite)) > 0) {
                     throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_EXIST_IN_GROUP, 31);
                 }
             }
