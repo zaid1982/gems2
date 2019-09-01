@@ -711,7 +711,7 @@ class Class_ppm {
                 $ppmDate->modify('-6 day');
                 $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '5') {    // daily
-                $ppmStartDate = $ppmDate;
+                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '6') {    // half-annually
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');

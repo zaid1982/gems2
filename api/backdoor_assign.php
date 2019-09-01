@@ -30,7 +30,7 @@ try {
     Class_db::getInstance()->db_connect();
 
     echo '-----------------<br/>';
-    $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'4', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
+    $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'3', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
         'ppm_checklist.checklist_id'=>'is not NULL', 'ppm_id'=>'is NULL', 'total_user'=>'is not NULL'), null, '100');
     foreach ($assets as $asset) {
         //var_dump($asset);
