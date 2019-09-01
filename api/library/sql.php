@@ -177,7 +177,7 @@ class Class_sql
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
                 LEFT JOIN cli_location_code ON cli_location_code.location_code_id = ast_asset.location_code_id";
-            } else if ($title === 'vw_ppm_asset_backdoor') {
+            } else if ($title === 'vw_ppm_asset_backdoor') { //  AND ppm_checklist.asset_type_id = ast_asset.asset_type_id
                 $sql = "SELECT 
                     ppm_checklist.checklist_id AS checklist_id,
                     aa.total_user,
@@ -185,7 +185,7 @@ class Class_sql
                     ast_asset.*
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
-                LEFT JOIN ppm_checklist ON ppm_checklist.checklist_document_no = ast_asset.document_no AND ppm_checklist.asset_type_id = ast_asset.asset_type_id AND checklist_status = 1
+                LEFT JOIN ppm_checklist ON ppm_checklist.checklist_document_no = ast_asset.document_no AND checklist_status = 1 
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFT JOIN (
                     select ppm_group_id, site_id, count(*) AS total_user

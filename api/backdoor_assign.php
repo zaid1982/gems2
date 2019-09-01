@@ -30,12 +30,12 @@ try {
     Class_db::getInstance()->db_connect();
 
     echo '-----------------<br/>';
-    $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'<>2', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
+    $assets = Class_db::getInstance()->db_select('vw_ppm_asset_backdoor', array('ast_asset.contract_id'=>'4', 'asset_status'=>'1', 'ast_asset.asset_type_id'=>'is not NULL',
         'ppm_checklist.checklist_id'=>'is not NULL', 'ppm_id'=>'is NULL', 'total_user'=>'is not NULL'), null, '100');
     foreach ($assets as $asset) {
         //var_dump($asset);
         Class_db::getInstance()->db_beginTransaction();
-        $result = $fn_ppm->assign_ppm_single($asset['asset_id'], $asset['checklist_id'], '2019-08-01', '1');
+        $result = $fn_ppm->assign_ppm_single($asset['asset_id'], $asset['checklist_id'], '2019-08-01', '1', $asset['ppm_group_id']);
         Class_db::getInstance()->db_commit();
         echo '<br/>ppmId = '.$result['ppmId'].', ppmTaskNo = '.$result['ppmTaskNo'];
         echo '<br/>-----------------<br/>';

@@ -414,7 +414,7 @@ class Class_ppm {
             $contractDateEnd = $contract['contract_date_end'];
             $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
             if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
-                throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
+                //throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
             $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group.site_id'=>$siteId), 'user_id');
