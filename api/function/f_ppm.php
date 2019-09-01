@@ -696,11 +696,13 @@ class Class_ppm {
                 $ppmDate->modify('-1 month');
                 //$ppmDate->modify('-1 year');
                 //$ppmDate->modify('+1 day');
+                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '2') {    // quarterly
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');
                 //$ppmDate->modify('+1 day');
                 //$ppmDate->modify('-3 month');
+                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '3') {    // monthly
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');
@@ -715,6 +717,7 @@ class Class_ppm {
                 $ppmDate->modify('-1 month');
                 //$ppmDate->modify('+1 day');
                 //$ppmDate->modify('-6 month');
+                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency invalid');
             }
