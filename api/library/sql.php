@@ -185,12 +185,13 @@ class Class_sql
                     ast_asset.*
                 FROM ast_asset 
                 LEFT JOIN ppm ON ppm.asset_id = ast_asset.asset_id
-                LEFT JOIN ppm_checklist ON ppm_checklist.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN ppm_checklist ON ppm_checklist.checklist_document_no = ast_asset.document_no AND ppm_checklist.asset_type_id = ast_asset.asset_type_id AND checklist_status = 1
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFT JOIN (
-                    select location_code_id, contract_id, asset_group_id, count(*) AS total_user
-                    from cli_contract_user
-                    GROUP BY location_code_id, contract_id, asset_group_id
-                ) aa ON aa.location_code_id = ast_asset.location_code_id AND aa.contract_id = ast_asset.contract_id and aa.asset_group_id = ast_asset.asset_group_id";
+                    select ppm_group_id, site_id, count(*) AS total_user
+                    from ppm_group
+                    GROUP BY ppm_group_id, site_id
+                ) aa ON aa.ppm_group_id = ast_asset.ppm_group_id AND aa.site_id = cli_contract.site_id";
             } else if ($title === 'vw_technicians') {
                 $sql = "SELECT
                     ppm_group_user.user_id

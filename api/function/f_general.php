@@ -148,12 +148,12 @@ class Class_general {
                 $ipaddress = 'UNKNOWN';
             }
             
-            if (!in_array($ipaddress, array('', 'UNKNOWN', '::1'), true)) {
+            /*if (!in_array($ipaddress, array('', 'UNKNOWN', '::1'), true)) {
                 $details = json_decode(file_get_contents("http://ipinfo.io/$ipaddress/json"));
                 if (isset($details->city)) {
                     $place = $details->city;
                 }
-            }
+            }*/
             return Class_db::getInstance()->db_insert('sys_audit', array('audit_action_id'=>$audit_action_id, 'user_id'=>$user_id, 'audit_ip'=>$ipaddress, 'audit_place'=>$place, 'audit_remark'=>$remark));
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
