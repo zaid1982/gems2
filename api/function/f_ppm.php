@@ -1660,10 +1660,11 @@ class Class_ppm {
      * @param $uploadId
      * @param $userId
      * @param string $remark
+     * @param string $nextUser
      * @return mixed
      * @throws Exception
      */
-    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='') {
+    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='', $nextUser='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1696,18 +1697,10 @@ class Class_ppm {
             if ($checkpoint === '1') {
                 $statusUpdate = '14';
                 $taskName = 'pending check';
-                $reportTo = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>'5', 'report_role'=>'3'), 'report_to');
-                if (empty($reportTo)) {
-                    throw new Exception('[' . __LINE__ . '] - No Reviewer assigned yet for this location code and asset group. Please contract administrator.', 31);
-                }
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>$userId, 'ppm_task_time_serviced'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '1') {
                 $statusUpdate = '15';
                 $taskName = 'pending verification';
-                $reportTo = Class_db::getInstance()->db_select_col('wfl_user_report', array('user_id'=>$userId, 'role_id'=>'3', 'report_role'=>'4'), 'report_to');
-                if (empty($reportTo)) {
-                    throw new Exception('[' . __LINE__ . '] - No Reviewer assigned yet for this location code and asset group. Please contract administrator.', 31);
-                }
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by'=>$userId, 'ppm_task_time_checked'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             } else if ($checkpoint === '2' && $result === '2') {
                 $statusUpdate = '21';
@@ -1740,8 +1733,8 @@ class Class_ppm {
 
             $emailTo = '';
             $comment = '';
-            if (($taskName === 'pending verification' || $taskName === 'pending check') && !empty($reportTo)) {
-                $emailTo = $reportTo;
+            if (($taskName === 'pending verification' || $taskName === 'pending check') && !empty($nextUser)) {
+                $emailTo = $nextUser;
             }
             else if ($taskName === 're-open') {
                 $comment = !empty($remark) ? $remark : $task['task_remark'];
