@@ -453,7 +453,7 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter roleId empty');
             }
 
-            return Class_db::getInstance()->db_select_col('sys_user_role', array('role_id'=>$roleId), 'group_id', null, 1);
+            return Class_db::getInstance()->db_select_col('sys_user_role', array('role_id'=>$roleId, 'user_id'=>$userId), 'group_id', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
