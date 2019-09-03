@@ -123,7 +123,7 @@ try {
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
-            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', $woTaskComplaint, '', '', $groupId);
+            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
