@@ -767,7 +767,8 @@ class Class_ppm {
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
                 $row_result['technician'] = $dataLocal['user_first_name'];
                 $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
-                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
+                $row_result['taskDateDue'] = $row_result['taskStartDue'];
+                //$row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
                 array_push($result, $row_result);
             }
 

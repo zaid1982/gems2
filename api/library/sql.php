@@ -234,7 +234,7 @@ class Class_sql
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
-                WHERE ppm_task_schedule_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_schedule_date <= CURDATE() + INTERVAL 1 MONTH 
+                WHERE wfl_transaction.flow_id = 1 AND ppm_task_schedule_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_schedule_date <= CURDATE() + INTERVAL 1 MONTH 
                 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND wfl_task.task_current = 1 [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
@@ -439,7 +439,7 @@ class Class_sql
                         ELSE ''
                     END AS wo_task_severity_desc
                 FROM wfl_task
-                LEFT JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
+                INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
