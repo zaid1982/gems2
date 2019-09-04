@@ -218,7 +218,7 @@ class Class_pdf_ppm {
 
 
             $frequencies = $this->fn_general->getPpmFrequencyCode();
-            $locationCodes = $this->fn_general->getLocationCode();
+            //$locationCodes = $this->fn_general->getLocationCode();
             $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$this->ppmTaskId), null, 1);
             $ppm = Class_db::getInstance()->db_select_single('ppm', array('ppm_id'=>$ppmTask['ppm_id']), null, 1);
             $asset = Class_db::getInstance()->db_select_single('mw_ppm_section_a', array('ppm_task_id'=>$this->ppmTaskId), null, 1);
@@ -257,7 +257,7 @@ class Class_pdf_ppm {
             $pdf->Cell(30, 5, 'Asset Type : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $asset['asset_type_name'], 1, 0, 'L');
             $pdf->Cell(35, 5, 'Location Code : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $locationCodes[intval($asset['location_code_id'])], 1, 0, 'L');
+            $pdf->Cell(55, 5, $this->fn_general->clear_null($asset['asset_location_code']), 1, 0, 'L');
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Task No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppm['ppm_task_no'], 1, 0, 'L');
