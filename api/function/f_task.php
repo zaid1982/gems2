@@ -685,7 +685,7 @@ class Class_task {
                 $ppmUserArr = array_unique($ppmUserArr);
                 $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
 
-                $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_ppm_m', $arrWhere, 'task_id DESC', '100');
+                $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_ppm_m', $arrWhere, 'transaction_date_due', '100');
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
                     $row_result['transactionNo'] = $dataLocal['transaction_no'];
