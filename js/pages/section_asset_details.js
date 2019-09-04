@@ -390,7 +390,8 @@ function SectionAssetDetails() {
                     assetCategoryId: '',
                     assetTypeId: '',
                     assetStatus: '5',
-                    locationCodeId: ''
+                    locationCodeId: '',
+                    ppmGroupId: ''
                 };
                 rowRefresh = classFrom.addTableAsz(tempRow);
 
