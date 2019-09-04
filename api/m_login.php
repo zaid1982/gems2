@@ -15,13 +15,16 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_user = new Class_user();
+$fn_email = new Class_email();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
+    $fn_email->__set('fn_general', $fn_general);
     $fn_user->__set('constant', $constant);
     $fn_user->__set('fn_general', $fn_general);
+    $fn_user->__set('fn_email', $fn_email);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
