@@ -494,10 +494,11 @@ class Class_task {
     /**
      * @param $roleId
      * @param $checkpointId
+     * @param $woTaskId
      * @return
      * @throws Exception
      */
-    public function get_checkpoints_users ($roleId, $checkpointId) {
+    public function get_checkpoints_users ($roleId, $checkpointId, $woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -508,6 +509,13 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter checkpointId empty');
             }
 
+            if ($checkpointId === '12') {
+                if (empty($woTaskId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+                }
+                $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', null, 1);
+                return Class_db::getInstance()->db_select_colm('mw_checkpoint_user_with_site', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId, 'site_id'=>$siteId), 'user_id');
+            }
             return Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'user_id');
         }
         catch(Exception $ex) {

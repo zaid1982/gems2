@@ -127,7 +127,7 @@ try {
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
-            $nextUsers = $fn_task->get_checkpoints_users('7', '12');
+            $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
             foreach ($nextUsers as $userId) {
                 $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5, array('task_no' => $woTaskNo));
