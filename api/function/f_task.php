@@ -706,6 +706,7 @@ class Class_task {
                     }
                 }
             } else if ($flowId == '2') {
+                $arrWhere['wo_task.site_id'] = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
                 $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_wo_m', $arrWhere, 'task_id DESC', '100');
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
@@ -720,6 +721,7 @@ class Class_task {
                     $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
                     $row_result['currentTaskOwner'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
                     $row_result['woTaskType'] = $arrWoTaskType[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))];
+                    $row_result['siteId'] = $dataLocal['site_id'];
                     $row_result['woTaskSeverity'] = $arrWoTaskSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))];
                     $row_result['assignedTo'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_assigned_to']))];
                     $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];

@@ -353,10 +353,11 @@ class Class_sql
                     wo_task_type,
                     wo_task_severity,
                     wo_task_assigned_to,
+                    wo_task.site_id,
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
-                LEFT JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id";
+                INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id";
             } else if ($title === 'vw_track_monitoring_ppm_m') {
                 $sql = "SELECT
                     transaction_no,
@@ -437,13 +438,15 @@ class Class_sql
                     CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
                         WHEN wo_task_severity = 2 THEN 'Critical'
                         ELSE ''
-                    END AS wo_task_severity_desc
+                    END AS wo_task_severity_desc,
+                    wfl_task.checkpoint_id
                 FROM wfl_task
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
+                AND (wfl_task.checkpoint_id <> 12 OR (wfl_task.checkpoint_id = 12 AND wo_task.site_id = sys_user.site_id))
                 HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%')";
             } else if ($title === 'mw_wo_upload') {
                 $sql = "SELECT 
@@ -473,6 +476,8 @@ class Class_sql
                 FROM ppm_group_user 
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = ppm_group_user.ppm_group_id
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_group_user.user_id";
+            } else if ($title === 'mw_checkpoint_user_with_site') {
+
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
