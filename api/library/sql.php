@@ -446,7 +446,7 @@ class Class_sql
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wfl_checkpoint_user.user_id
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
-                AND (wfl_task.checkpoint_id <> 12 OR (wfl_task.checkpoint_id = 12 AND wo_task.site_id = sys_user.site_id))
+                AND (wfl_task.checkpoint_id <> 12 OR (wfl_task.checkpoint_id = 12 AND wo_task.site_id = sys_user_assigned.site_id))
                 HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%')";
             } else if ($title === 'mw_wo_upload') {
                 $sql = "SELECT 
