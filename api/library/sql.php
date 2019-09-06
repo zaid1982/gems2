@@ -444,7 +444,7 @@ class Class_sql
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
-                LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
+                LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wfl_checkpoint_user.user_id
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
                 AND (wfl_task.checkpoint_id <> 12 OR (wfl_task.checkpoint_id = 12 AND wo_task.site_id = sys_user.site_id))
                 HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%')";
