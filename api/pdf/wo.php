@@ -255,7 +255,6 @@ class Class_pdf_wo {
             $picEmail = '';
             $dueTime = '';
             $fixedTime = '';
-            $duration = '';
             if (!empty($woTask['wo_task_assigned_to'])) {
                 $picName = $arrUserFullName[intval($woTask['wo_task_assigned_to'])];
                 $userProfileTech = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_assigned_to'], 'user_profile_status'=>'1'), null, 1);
@@ -268,12 +267,15 @@ class Class_pdf_wo {
                     $assignedTime = new DateTime($woTask['wo_task_time_assigned']);
                     $executedTime = new DateTime($woTask['wo_task_time_executed']);
                     $fixedTime = $executedTime->format('j/n/Y g:i:sa');
-                    $interval = $assignedTime->diff($executedTime);
-                    $duration = $interval->format('%a days %H:%I:%S');
+                    //$interval = $assignedTime->diff($executedTime);
+                    //$duration = $interval->format('%a days %H:%I:%S');
                 } //else {
                     //date_default_timezone_set("Asia/Kuala_Lumpur");
                 //}
             }
+            
+            $totalExecTime = Class_db::getInstance()->db_select_col('mw_wo_execute_duration', array(), 'duration', null, 0, array('transaction_id'=>$woTask['transaction_id']));
+            $duration = !empty($totalExecTime) ? $totalExecTime : '';
 
             $pdf->SetFont('helvetica', '', 9);
             $pdf->Cell(30, 5, 'Person In Charged : ', 1, 0, 'R');

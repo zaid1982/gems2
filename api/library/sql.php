@@ -482,6 +482,11 @@ class Class_sql
                     sys_user.site_id
                 FROM wfl_checkpoint_user 
                 LEFT JOIN sys_user ON sys_user.user_id = wfl_checkpoint_user.user_id";
+            } else if ($title === 'mw_wo_execute_duration') {
+                $sql = "SELECT
+                    SEC_TO_TIME(SUM(TIMESTAMPDIFF(SECOND, task_time_created, task_time_submit))) as duration
+                FROM wfl_task
+                WHERE transaction_id = [transaction_id] AND task_time_submit IS NOT NULL AND checkpoint_id = 13";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
