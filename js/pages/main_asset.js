@@ -10,7 +10,6 @@ function MainAsset() {
     let refAssetType;
     let refAssetBrand;
     let refAssetModel;
-    let refLocationCode;
     let refPpmGroup;
     let oTableAsset;
     let sectionAssetClass;
@@ -107,9 +106,7 @@ function MainAsset() {
                     {mData: null, mRender: function (data, type, row){
                             return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
-                            return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
-                        }},
+                    {mData: 'assetLocationCode'},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['assetStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetStatus']]['statusDesc']+'</span></h6>';
@@ -500,10 +497,6 @@ function MainAsset() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
-    };
-
-    this.setRefLocationCode = function (_refLocationCode) {
-        refLocationCode = _refLocationCode;
     };
 
     this.setRefPpmGroup = function (_refPpmGroup) {

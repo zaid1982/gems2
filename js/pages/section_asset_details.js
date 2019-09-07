@@ -11,7 +11,6 @@ function SectionAssetDetails() {
     let refAssetType;
     let refAssetBrand;
     let refAssetModel;
-    let refLocationCode;
     let refUser;
     let refContract;
     let refSite;
@@ -108,14 +107,6 @@ function SectionAssetDetails() {
                 }
             },
             {
-                field_id: 'optSszLocationCodeId',
-                type: 'select',
-                name: 'Location Code',
-                validator: {
-                    notEmpty: true
-                }
-            },
-            {
                 field_id: 'txtSszAssetCapacity',
                 type: 'text',
                 name: 'Capacity',
@@ -192,7 +183,6 @@ function SectionAssetDetails() {
                     const assetTypeId = $('#optSszAssetTypeId').val();
                     const assetBrandId = $('#optSszAssetBrandId').val();
                     const assetModelId = $('#optSszAssetModelId').val();
-                    const locationCodeId = $('#optSszLocationCodeId').val();
                     const ppmGroupId = $('#optSszPpmGroupId').val();
                     const data = {
                         action: 'save',
@@ -245,7 +235,6 @@ function SectionAssetDetails() {
                             assetTypeId: $('#optSszAssetTypeId').val(),
                             assetBrandId: $('#optSszAssetBrandId').val(),
                             assetModelId: $('#optSszAssetModelId').val(),
-                            locationCodeId: $('#optSszLocationCodeId').val(),
                             ppmGroupId: $('#optSszPpmGroupId').val(),
                             assetCapacity: $('#txtSszAssetCapacity').val(),
                             assetBlock: $('#txtSszAssetBlock').val(),
@@ -283,7 +272,6 @@ function SectionAssetDetails() {
                             assetBrandId: $('#optSszAssetBrandId').val(),
                             assetModelId: $('#optSszAssetModelId').val(),
                             assetCapacity: $('#txtSszAssetCapacity').val(),
-                            locationCodeId: $('#optSszLocationCodeId').val(),
                             ppmGroupId: $('#optSszPpmGroupId').val(),
                             assetBlock: $('#txtSszAssetBlock').val(),
                             assetLevel: $('#txtSszAssetLevel').val()
@@ -314,7 +302,6 @@ function SectionAssetDetails() {
         const assetTypeId = dataSsz['assetTypeId'];
         const assetBrandId = dataSsz['assetBrandId'];
         const assetModelId = dataSsz['assetModelId'];
-        const locationCodeId = dataSsz['locationCodeId'];
         const ppmGroupId = dataSsz['ppmGroupId'];
         const contractId = dataSsz['contractId'];
         const assetStatus = dataSsz['assetStatus'];
@@ -327,7 +314,6 @@ function SectionAssetDetails() {
         const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: assetTypeId});
         mzOptionStop('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'});
         mzOptionStop('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'});
-        mzOptionStop('optSszLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', {siteId: siteId, locationCodeStatus: '1'}, 'required');
         mzOptionStop('optSszPpmGroupId', refPpmGroup, 'Choose PPM Group', 'ppmGroupId', 'ppmGroupName', {siteId: siteId, roleId: '5', ppmGroupStatus: '1'});
 
         mzDisableSelect('optSszAssetGroupId', false);
@@ -335,15 +321,12 @@ function SectionAssetDetails() {
         mzDisableSelect('optSszAssetTypeId', false);
         mzDisableSelect('optSszAssetBrandId', false);
         mzDisableSelect('optSszAssetModelId', false);
-        mzDisableSelect('optSszLocationCodeId', false);
 
-        formValidate.enableField('txtSszAssetNo');
         formValidate.enableField('optSszAssetGroupId');
         formValidate.enableField('optSszAssetCategoryId');
         formValidate.enableField('optSszAssetTypeId');
         formValidate.enableField('optSszAssetBrandId');
         formValidate.enableField('optSszAssetModelId');
-        formValidate.enableField('optSszLocationCodeId');
 
         mzSetFieldValue('SszAssetName', dataSsz['assetName'], 'text');
         mzSetFieldValue('SszAssetNo', dataSsz['assetNo'], 'text');
@@ -355,7 +338,6 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetTypeId', assetTypeId, 'select', 'Asset Type *');
         mzSetFieldValue('SszAssetBrandId', assetBrandId, 'select', 'Asset Brand *');
         mzSetFieldValue('SszAssetModelId', assetModelId, 'select', 'Asset Model *');
-        mzSetFieldValue('SszLocationCodeId', locationCodeId, 'select', 'Location Code *');
         mzSetFieldValue('SszPpmGroupId', ppmGroupId, 'select', 'PPM Group');
         mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
@@ -428,14 +410,10 @@ function SectionAssetDetails() {
                 if (assetStatus === '5') {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').hide();
                     $('#btnSszSave, #btnSszSubmit').show();
-                    $('#txtSszAssetNo').prop('disabled', false);
-                    formValidate.enableField('txtSszAssetNo');
                     $('#btnSszSubmit').prop('disabled', !formValidate.validateForm());
                 } else {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').show();
                     $('#btnSszSave, #btnSszSubmit').hide();
-                    $('#txtSszAssetNo').prop('disabled', true);
-                    formValidate.disableField('txtSszAssetNo');
 
                     mzDisableSelect('optSszAssetGroupId', true);
                     mzDisableSelect('optSszAssetCategoryId', true);
@@ -478,7 +456,6 @@ function SectionAssetDetails() {
                 mzDisableSelect('optSszAssetTypeId', true);
                 mzDisableSelect('optSszAssetBrandId', true);
                 mzDisableSelect('optSszAssetModelId', true);
-                mzDisableSelect('optSszLocationCodeId', true);
 
                 $('#btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
                 $('.sectionAssetDetails, .divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
@@ -576,10 +553,6 @@ function SectionAssetDetails() {
 
     this.setRefAssetModel = function (_refAssetModel) {
         refAssetModel = _refAssetModel;
-    };
-
-    this.setRefLocationCode = function (_refLocationCode) {
-        refLocationCode = _refLocationCode;
     };
 
     this.setRefContract = function (_refContract) {

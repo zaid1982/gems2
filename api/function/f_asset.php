@@ -93,7 +93,8 @@ class Class_asset {
                 $row_result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
                 $row_result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
                 $row_result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
-                $row_result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
+                $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+                $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
                 $row_result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
                 $row_result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
@@ -137,7 +138,8 @@ class Class_asset {
             $result['assetSerialNo'] = $this->fn_general->clear_null($dataLocal['asset_serial_no']);
             $result['assetDesc'] = $this->fn_general->clear_null($dataLocal['asset_desc']);
             $result['assetCapacity'] = $this->fn_general->clear_null($dataLocal['asset_capacity']);
-            $result['locationCodeId'] = $this->fn_general->clear_null($dataLocal['location_code_id']);
+            $result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+            $result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
             $result['assetGroupId'] = $this->fn_general->clear_null($dataLocal['asset_group_id']);
             $result['assetCategoryId'] = $this->fn_general->clear_null($dataLocal['asset_category_id']);
             $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
