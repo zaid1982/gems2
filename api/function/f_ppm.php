@@ -755,7 +755,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_schedule_date', '100', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '100', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -806,7 +806,7 @@ class Class_ppm {
 
             if (!empty($date)) {
                 if (!empty($restFilter)) { $restFilter .= ' AND '; }
-                $restFilter .= 'ppm_task_schedule_date = \''.$date.'\' ';
+                $restFilter .= 'ppm_task_start_date = \''.$date.'\' ';
             }
             if (!empty($assetNo)) {
                 if (!empty($restFilter)) { $restFilter .= ' AND '; }
@@ -821,7 +821,7 @@ class Class_ppm {
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_schedule_date', '100', null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '100', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = '';
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];

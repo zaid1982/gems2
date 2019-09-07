@@ -234,7 +234,7 @@ class Class_sql
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
-                WHERE wfl_transaction.flow_id = 1 AND ppm_task_schedule_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_schedule_date <= CURDATE() + INTERVAL 1 MONTH 
+                WHERE wfl_transaction.flow_id = 1 AND ppm_task_start_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_start_date <= CURDATE() + INTERVAL 1 MONTH 
                 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND wfl_task.task_current = 1 [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
