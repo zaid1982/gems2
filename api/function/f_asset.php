@@ -245,8 +245,11 @@ class Class_asset {
             if (!isset($put_vars['assetModelId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
             }
-            if (!isset($put_vars['locationCodeId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId not exist');
+            if (!isset($put_vars['assetLocationCode'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
+            }
+            if (!isset($put_vars['assetLocationDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationDesc not exist');
             }
             if (!isset($put_vars['ppmGroupId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId not exist');
@@ -273,7 +276,8 @@ class Class_asset {
                 'asset_type_id'=>$put_vars['assetTypeId'],
                 'asset_brand_id'=>$put_vars['assetBrandId'],
                 'asset_model_id'=>$put_vars['assetModelId'],
-                'location_code_id'=>$put_vars['locationCodeId'],
+                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'asset_location_desc'=>$put_vars['assetLocationDesc'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'asset_block'=>$put_vars['assetBlock'],
@@ -353,8 +357,11 @@ class Class_asset {
             if (!isset($put_vars['ppmGroupId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId not exist');
             }
-            if (!isset($put_vars['locationCodeId']) && empty($put_vars['locationCodeId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId empty');
+            if (!isset($put_vars['assetLocationCode']) && empty($put_vars['assetLocationCode'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode empty');
+            }
+            if (!isset($put_vars['assetLocationDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
@@ -378,7 +385,8 @@ class Class_asset {
                 'asset_type_id'=>$put_vars['assetTypeId'],
                 'asset_brand_id'=>$put_vars['assetBrandId'],
                 'asset_model_id'=>$put_vars['assetModelId'],
-                'location_code_id'=>$put_vars['locationCodeId'],
+                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'asset_location_desc'=>$put_vars['assetLocationDesc'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
                 'asset_block'=>$put_vars['assetBlock'],
@@ -441,11 +449,14 @@ class Class_asset {
             if (!isset($put_vars['assetModelId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
             }
-            if (!isset($put_vars['locationCodeId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter locationCodeId not exist');
-            }
             if (!isset($put_vars['ppmGroupId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId not exist');
+            }
+            if (!isset($put_vars['assetLocationCode'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
+            }
+            if (!isset($put_vars['txtSszAssetLocationDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter txtSszAssetLocationDesc not exist');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
@@ -464,7 +475,8 @@ class Class_asset {
                 'asset_desc'=>$put_vars['assetDesc'],
                 'asset_brand_id'=>$put_vars['assetBrandId'],
                 'asset_model_id'=>$put_vars['assetModelId'],
-                'location_code_id'=>$put_vars['locationCodeId'],
+                'asset_location_code'=>$put_vars['assetLocationCode'],
+                'asset_location_desc'=>$put_vars['assetLocationDesc'],
                 'ppm_group_id'=>$put_vars['ppmGroupId'],
                 'asset_capacity'=>$put_vars['assetCapacity'],
                 'asset_block'=>$put_vars['assetBlock'],

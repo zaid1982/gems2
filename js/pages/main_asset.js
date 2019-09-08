@@ -426,7 +426,8 @@ function MainAsset() {
                 currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetLocationDesc'] = _dataEdit['assetLocationDesc'];
                 currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }
@@ -439,7 +440,8 @@ function MainAsset() {
                 currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
                 currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
                 currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetLocationDesc'] = _dataEdit['assetLocationDesc'];
                 currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
                 currentRow['assetStatus'] = '1';
@@ -447,8 +449,10 @@ function MainAsset() {
             }
             else if (_dataEdit['action'] === 'update') {
                 currentRow['assetName'] = _dataEdit['assetName'];
+                currentRow['assetNo'] = _dataEdit['assetNo'];
                 currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['locationCodeId'] = _dataEdit['locationCodeId'];
+                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
+                currentRow['assetLocationDesc'] = _dataEdit['assetLocationDesc'];
                 currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
                 currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
             }

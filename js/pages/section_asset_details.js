@@ -122,6 +122,23 @@ function SectionAssetDetails() {
                 }
             },
             {
+                field_id: 'txtSszAssetLocationCode',
+                type: 'text',
+                name: 'Location Code',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetLocationDesc',
+                type: 'text',
+                name: 'Location Description',
+                validator: {
+                    maxLength: 255
+                }
+            },
+            {
                 field_id: 'txtSszAssetBlock',
                 type: 'text',
                 name: 'Asset Block',
@@ -195,7 +212,8 @@ function SectionAssetDetails() {
                         assetTypeId: assetTypeId !== null ? assetTypeId : '',
                         assetBrandId: assetBrandId !== null ? assetBrandId : '',
                         assetModelId: assetModelId !== null ? assetModelId : '',
-                        locationCodeId: locationCodeId !== null ? locationCodeId : '',
+                        assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                        assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
                         ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
                         assetCapacity: $('#txtSszAssetCapacity').val(),
                         assetBlock: $('#txtSszAssetBlock').val(),
@@ -237,6 +255,8 @@ function SectionAssetDetails() {
                             assetModelId: $('#optSszAssetModelId').val(),
                             ppmGroupId: $('#optSszPpmGroupId').val(),
                             assetCapacity: $('#txtSszAssetCapacity').val(),
+                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
                             assetBlock: $('#txtSszAssetBlock').val(),
                             assetLevel: $('#txtSszAssetLevel').val()
                         };
@@ -273,6 +293,8 @@ function SectionAssetDetails() {
                             assetModelId: $('#optSszAssetModelId').val(),
                             assetCapacity: $('#txtSszAssetCapacity').val(),
                             ppmGroupId: $('#optSszPpmGroupId').val(),
+                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
+                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
                             assetBlock: $('#txtSszAssetBlock').val(),
                             assetLevel: $('#txtSszAssetLevel').val()
                         };
@@ -342,6 +364,8 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
+        mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
+        mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
         mzSetFieldValue('SszAssetBlock', dataSsz['assetBlock'], 'text');
         mzSetFieldValue('SszAssetLevel', dataSsz['assetLevel'], 'text');
 
@@ -372,8 +396,9 @@ function SectionAssetDetails() {
                     assetCategoryId: '',
                     assetTypeId: '',
                     assetStatus: '5',
-                    locationCodeId: '',
-                    ppmGroupId: ''
+                    ppmGroupId: '',
+                    assetLocationCode: '',
+                    assetLocationDesc: ''
                 };
                 rowRefresh = classFrom.addTableAsz(tempRow);
 
