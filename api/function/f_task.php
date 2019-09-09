@@ -762,7 +762,8 @@ class Class_task {
                     $row_result['flowId'] = $dataLocal['flow_id'];
                     $row_result['flowName'] = isset($arrFlowName) ? $arrFlowName[intval($dataLocal['flow_id'])] : $dataLocal['flow_desc'];
                     $row_result['checkpointName'] = isset($arrCheckPointName) ? $arrCheckPointName[intval($dataLocal['checkpoint_id'])] : $dataLocal['checkpoint_desc'];
-                    $row_result['currentTaskOwner'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))] : $this->fn_general->clear_null($dataLocal['user_first_name']);
+                    //$row_result['currentTaskOwner'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))] : $this->fn_general->clear_null($dataLocal['user_first_name']);
+                    $row_result['currentTaskOwner'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_assigned_to']))] : $this->fn_general->clear_null($dataLocal['assigned_name']);
                     $row_result['woTaskType'] = isset($arrWoTaskType) ? $arrWoTaskType[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))] : $dataLocal['wo_task_type'];
                     $row_result['siteId'] = $dataLocal['site_id'];
                     $row_result['woTaskSeverity'] = isset($arrWoTaskSeverity) ? $arrWoTaskSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))] : $dataLocal['wo_task_severity'];
