@@ -647,97 +647,133 @@ class Class_task {
             }
 
             $result = array();
-            $arrStatus = $this->fn_general->getRefStatus();
-            $arrUserFullName = $this->fn_general->getUserFullName();
-            $arrFlowName = $this->fn_general->getFlowName();
-            $arrCheckPointName = $this->fn_general->getCheckPointName();
-            $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
-            $arrWoTaskSeverity = array('', 'Non-Critical', 'Critical');
-            $arrWhere = array('task_current'=>'1', 'flow_id'=>$flowId);
+            $arrWhere = array();
+            $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
 
-            if (!empty($assetNo)) {
-                $arrWhere['asset_no'] = $assetNo;
+            if (empty($searchTxt)) {
+                $arrStatus = $this->fn_general->getRefStatus();
+                $arrUserFullName = $this->fn_general->getUserFullName();
+                $arrFlowName = $this->fn_general->getFlowName();
+                $arrCheckPointName = $this->fn_general->getCheckPointName();
+                $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
+                $arrWoTaskSeverity = array('', 'Non-Critical', 'Critical');
             }
 
             if ($flowId == '1') {
-                $ppmGroupFinalArr = array();
-                $ppmGroupIdArr = Class_db::getInstance()->db_select_colm('ppm_group_user', array('user_id' => $userId), 'ppm_group_id');
-                if (!empty($ppmGroupIdArr)) {
-                    foreach ($ppmGroupIdArr as $ppmGroupId) {
-                        $ppmGroup = Class_db::getInstance()->db_select_single('ppm_group', array('ppm_group_id'=>$ppmGroupId));
-                        if (!empty($ppmGroup)) {
-                            if ($ppmGroup['role_id'] == '4') {
-                                $ppmGroupFsArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>$ppmGroupId, 'role_id'=>'3'), 'ppm_group_id');
-                                if (!empty($ppmGroupFsArr)) {
-                                    $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>'('.implode(',', $ppmGroupFsArr).')', 'role_id' => '5'), 'ppm_group_id');
-                                    $ppmGroupFinalArr = array_unique(array_merge($ppmGroupTechArr, $ppmGroupFinalArr));
-                                }
-                            } else if ($ppmGroup['role_id'] == '3') {
-                                $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to' => $ppmGroupId, 'role_id' => '5'), 'ppm_group_id');
+                if (in_array('1', $roles) || in_array('10', $roles)) {
+                    //
+                }
+                else if (in_array('2', $roles)) {
+                    $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id' => $userId), 'site_id');
+                    if (empty($siteId)) {
+                        return array();
+                    }
+                    $contractId = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $siteId), 'contract_id');
+                    $arrWhere['contract_id'] = $contractId;
+                } else if (in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
+                    $ppmGroupFinalArr = array();
+                    $ppmGroups = Class_db::getInstance()->db_select('mw_ppm_group_user', array('ppm_group_user.user_id' => $userId));
+                    foreach ($ppmGroups as $ppmGroup) {
+                        $ppmGroupId = $ppmGroup['ppm_group_id'];
+                        if ($ppmGroup['role_id'] == '4') {
+                            $ppmGroupFsArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>$ppmGroupId, 'role_id'=>'3'), 'ppm_group_id');
+                            if (!empty($ppmGroupFsArr)) {
+                                $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to'=>'('.implode(',', $ppmGroupFsArr).')', 'role_id' => '5'), 'ppm_group_id');
                                 $ppmGroupFinalArr = array_unique(array_merge($ppmGroupTechArr, $ppmGroupFinalArr));
-                            } else if ($ppmGroup['role_id'] == '5') {
-                                array_push($ppmGroupFinalArr, $ppmGroupId);
-                                $ppmGroupFinalArr = array_unique($ppmGroupFinalArr);
                             }
+                        } else if ($ppmGroup['role_id'] == '3') {
+                            $ppmGroupTechArr = Class_db::getInstance()->db_select_colm('ppm_group', array('ppm_group_report_to' => $ppmGroupId, 'role_id' => '5'), 'ppm_group_id');
+                            $ppmGroupFinalArr = array_unique(array_merge($ppmGroupTechArr, $ppmGroupFinalArr));
+                        } else if ($ppmGroup['role_id'] == '5') {
+                            array_push($ppmGroupFinalArr, $ppmGroupId);
+                            $ppmGroupFinalArr = array_unique($ppmGroupFinalArr);
                         }
                     }
-                }
-                if (empty($ppmGroupFinalArr)) {
+                    if (empty($ppmGroupFinalArr)) {
+                        return array();
+                    }
+
+                    $ppmUserArr = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>'('.implode(',', $ppmGroupFinalArr).')'), 'user_id');
+                    if (empty($ppmUserArr)) {
+                        return array();
+                    }
+                    $ppmUserArr = array_unique($ppmUserArr);
+                    $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
+                } else {
                     return array();
                 }
 
-                $ppmUserArr = Class_db::getInstance()->db_select_colm('ppm_group_user', array('ppm_group_id'=>'('.implode(',', $ppmGroupFinalArr).')'), 'user_id');
-                if (empty($ppmUserArr)) {
-                    return array();
+                if (!empty($assetNo)) {
+                    $arrWhere['asset_no'] = $assetNo;
                 }
-                $ppmUserArr = array_unique($ppmUserArr);
-                $arrWhere['wfl_transaction.user_id'] = '('.implode(',', $ppmUserArr).')';
 
-                $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_ppm_m', $arrWhere, 'transaction_date_due', '100');
+                if (!empty($searchTxt)) {
+                    $arrWhere['w1'] = "(transaction_no LIKE '%".$searchTxt."%' OR asset_no LIKE '%".$searchTxt."%'  OR status_desc LIKE '%".$searchTxt."%' OR user_first_name LIKE '%".$searchTxt."%' OR flow_desc LIKE '%".$searchTxt."%' OR checkpoint_desc LIKE '%".$searchTxt."%')";
+                }
+
+                $arrWhere['task_current'] = '1';
+                $arrWhere['wfl_transaction.flow_id'] = $flowId;
+                $arrWhere['wfl_task.checkpoint_id'] = '<> 1';
+                $sqlText = $searchTxt === '' ? 'vw_track_monitoring_ppm_m' : 'vw_track_monitoring_ppm_search_m';
+                $arr_dataLocal = Class_db::getInstance()->db_select($sqlText, $arrWhere, 'task_id DESC', '200');
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
                     $row_result['transactionNo'] = $dataLocal['transaction_no'];
                     $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
-                    if ($dataLocal['checkpoint_id'] == '1') {
+                    //if ($dataLocal['checkpoint_id'] == '1') {
                         $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
-                    } else {
-                        $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
-                    }
+                    //} else {
+                    //    $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
+                    //}
                     $row_result['flowId'] = $dataLocal['flow_id'];
-                    $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
-                    $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
-                    $row_result['userFullName'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
-                    $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];
-                    if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['assetNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
-                        || strpos($row_result['userFullName'], $searchTxt) !== false || strpos($row_result['flowName'], $searchTxt) !== false || strpos($row_result['checkpointName'], $searchTxt) !== false) {
-                        array_push($result, $row_result);
-                    }
+                    $row_result['flowName'] = isset($arrFlowName) ? $arrFlowName[intval($dataLocal['flow_id'])] : $dataLocal['flow_desc'];
+                    $row_result['checkpointName'] = isset($arrCheckPointName) ? $arrCheckPointName[intval($dataLocal['checkpoint_id'])] : $dataLocal['checkpoint_desc'];
+                    $row_result['userFullName'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))] : $dataLocal['user_first_name'];
+                    $row_result['transactionStatus'] = isset($arrStatus) ? $arrStatus[intval($dataLocal['transaction_status'])] : $dataLocal['status_desc'];
+                    array_push($result, $row_result);
+                    //if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['assetNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
+                    //    || strpos($row_result['userFullName'], $searchTxt) !== false || strpos($row_result['flowName'], $searchTxt) !== false || strpos($row_result['checkpointName'], $searchTxt) !== false) {
+                    //    array_push($result, $row_result);
+                    //}
                 }
             } else if ($flowId == '2') {
-                $arrWhere['wo_task.site_id'] = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
-                $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring_wo_m', $arrWhere, 'task_id DESC', '100');
+                if (in_array('1', $roles) || in_array('10', $roles)) {
+                    //
+                } else {
+                    $arrWhere['site_id'] = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+                }
+
+                if (!empty($assetNo)) {
+                    return array();
+                }
+
+                if (!empty($searchTxt)) {
+                    $arrWhere['w1'] = "(transaction_no LIKE '%".$searchTxt."%' OR status_desc LIKE '%".$searchTxt."%' OR user_first_name LIKE '%".$searchTxt."%' OR flow_desc LIKE '%".$searchTxt."%' OR checkpoint_desc LIKE '%".$searchTxt."%' OR assigned_name LIKE '%".$searchTxt."%' OR wo_task_type LIKE '%".$searchTxt."%' OR wo_task_severity LIKE '%".$searchTxt."%')";
+                }
+
+                $arrWhere['task_current'] = '1';
+                $arrWhere['flow_id'] = $flowId;
+                $sqlText = $searchTxt === '' ? 'vw_track_monitoring_wo_m' : 'vg_track_monitoring_wo_search_m';
+                $arr_dataLocal = Class_db::getInstance()->db_select($sqlText, $arrWhere, 'task_id DESC', '200');
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
                     $row_result['transactionNo'] = $dataLocal['transaction_no'];
-                    if ($dataLocal['checkpoint_id'] == '1') {
-                        $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
-                    } else {
-                        $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
-                    }
+                    $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
                     $row_result['flowId'] = $dataLocal['flow_id'];
-                    $row_result['flowName'] = $arrFlowName[intval($dataLocal['flow_id'])];
-                    $row_result['checkpointName'] = $arrCheckPointName[intval($dataLocal['checkpoint_id'])];
-                    $row_result['currentTaskOwner'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))];
-                    $row_result['woTaskType'] = $arrWoTaskType[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))];
+                    $row_result['flowName'] = isset($arrFlowName) ? $arrFlowName[intval($dataLocal['flow_id'])] : $dataLocal['flow_desc'];
+                    $row_result['checkpointName'] = isset($arrCheckPointName) ? $arrCheckPointName[intval($dataLocal['checkpoint_id'])] : $dataLocal['checkpoint_desc'];
+                    $row_result['currentTaskOwner'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['task_claimed_user']))] : $this->fn_general->clear_null($dataLocal['user_first_name']);
+                    $row_result['woTaskType'] = isset($arrWoTaskType) ? $arrWoTaskType[intval($this->fn_general->clear_null($dataLocal['wo_task_type']))] : $dataLocal['wo_task_type'];
                     $row_result['siteId'] = $dataLocal['site_id'];
-                    $row_result['woTaskSeverity'] = $arrWoTaskSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))];
-                    $row_result['assignedTo'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_assigned_to']))];
-                    $row_result['transactionStatus'] = $arrStatus[intval($dataLocal['transaction_status'])];
-                    if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
-                        || strpos($row_result['currentTaskOwner'], $searchTxt) !== false || strpos($row_result['flowName'], $searchTxt) !== false || strpos($row_result['checkpointName'], $searchTxt) !== false
-                        || strpos($row_result['woTaskType'], $searchTxt) !== false || strpos($row_result['assignedTo'], $searchTxt) !== false || strpos($row_result['woTaskSeverity'], $searchTxt) !== false) {
-                        array_push($result, $row_result);
-                    }
+                    $row_result['woTaskSeverity'] = isset($arrWoTaskSeverity) ? $arrWoTaskSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity']))] : $dataLocal['wo_task_severity'];
+                    $row_result['assignedTo'] = isset($arrUserFullName) ? $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['wo_task_assigned_to']))] : $this->fn_general->clear_null($dataLocal['assigned_name']);
+                    $row_result['transactionStatus'] = isset($arrStatus) ? $arrStatus[intval($dataLocal['transaction_status'])] : $dataLocal['status_desc'];
+                    array_push($result, $row_result);
+                    //if ($searchTxt === '' || strpos($row_result['transactionNo'], $searchTxt) !== false || strpos($row_result['transactionStatus'], $searchTxt) !== false
+                    //    || strpos($row_result['currentTaskOwner'], $searchTxt) !== false || strpos($row_result['flowName'], $searchTxt) !== false || strpos($row_result['checkpointName'], $searchTxt) !== false
+                    //    || strpos($row_result['woTaskType'], $searchTxt) !== false || strpos($row_result['assignedTo'], $searchTxt) !== false || strpos($row_result['woTaskSeverity'], $searchTxt) !== false) {
+                    //    array_push($result, $row_result);
+                    //}
                 }
             } else {
                 return array();

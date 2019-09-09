@@ -253,15 +253,13 @@ class Class_sql
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
                 WHERE [rest_filter] GROUP BY ppm_task.ppm_task_id";
-            } else if ($title === 'mw_task_calendar_count_all') {
+            } else if ($title === 'mw_task_ppm_calendar_count_all') {
                 $sql = "SELECT
                     ppm_task_start_date, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total
-                FROM wfl_task
-                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
-                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
+                FROM ppm_task 
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
-                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
-                WHERE wfl_task.checkpoint_id = 1 AND ppm.contract_id IN ([contract_id]) AND YEAR(ppm_task_start_date) = [year] AND MONTH(ppm_task_start_date) = [month]
+                LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
+                WHERE ppm.contract_id IN ([contract_id]) AND YEAR(ppm_task_start_date) = [year] AND MONTH(ppm_task_start_date) = [month]
                 GROUP BY ppm_task_start_date";
             } else if ($title === 'mw_ppm_section_a') {
                 $sql = "SELECT
@@ -358,6 +356,36 @@ class Class_sql
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id";
+            } else if ($title === 'vg_track_monitoring_wo_search_m') {
+                $sql = "SELECT
+                    transaction_no,
+                    transaction_time_created,
+                    transaction_date_due,
+                    transaction_time_complete,
+                    transaction_status,
+                    wfl_transaction.flow_id,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                     WHEN wo_task_type = 2 THEN 'Self Finding'
+                     ELSE '' END AS wo_task_type,                     
+                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
+                     WHEN wo_task_severity = 2 THEN 'Critical'
+                     ELSE '' END AS wo_task_severity,
+                    wo_task_assigned_to,
+                    wo_task.site_id,
+                    wfl_flow.flow_desc,
+                    wfl_checkpoint.checkpoint_desc,
+                    sys_user.user_first_name,
+                    ref_status.status_desc,
+                    user_assigned.user_first_name AS assigned_name,
+                    wfl_task.*
+                FROM wfl_task
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
+                LEFT JOIN wfl_flow ON wfl_flow.flow_id = wfl_transaction.flow_id
+                LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id
+                LEFT JOIN sys_user ON sys_user.user_id = wfl_task.task_claimed_user
+                LEFT JOIN sys_user user_assigned ON user_assigned.user_id = wo_task.wo_task_assigned_to
+                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status";
             } else if ($title === 'vw_track_monitoring_ppm_m') {
                 $sql = "SELECT
                     transaction_no,
@@ -368,10 +396,36 @@ class Class_sql
                     flow_id,
                     asset_no,
                     ppm_task_start_date,
+                    ppm.contract_id,
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
-                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_task.transaction_id";
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id";
+            } else if ($title === 'vw_track_monitoring_ppm_search_m') {
+                $sql = "SELECT
+                    transaction_no,
+                    transaction_time_created,
+                    transaction_date_due,
+                    transaction_time_complete,
+                    transaction_status,
+                    wfl_transaction.flow_id,
+                    asset_no,
+                    ppm_task_start_date,
+                    ppm.contract_id,
+                    wfl_flow.flow_desc,
+                    wfl_checkpoint.checkpoint_desc,
+                    sys_user.user_first_name,
+                    ref_status.status_desc,
+                    wfl_task.*
+                FROM wfl_task
+                LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_task.transaction_id
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN wfl_flow ON wfl_flow.flow_id = wfl_transaction.flow_id
+                LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id
+                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
+                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status";
             } else if ($title === 'vw_count_asset') {
                 $sql = "SELECT count(*) AS total FROM ast_asset";
             } else if ($title === 'vw_count_ppm_task') {

@@ -755,7 +755,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '100', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '200', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -790,19 +790,30 @@ class Class_ppm {
     public function get_ppm_all_task_m ($userId, $date='', $assetNo='', $searchTxt='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
 
             $restFilter = '';
-            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
-            if (empty($siteId)) {
+            $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
+            if (in_array('1', $roles) || in_array('10', $roles)) {
+                $restFilter = 'ppm_task.ppm_task_id > 0 ';
+            }
+            else if (in_array('2', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
+                if (empty($siteId)) {
+                    return array();
+                }
+                $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId), 'contract_id');
+                if (empty($contractArr)) {
+                    return array();
+                }
+                $contractArr = array_unique($contractArr, SORT_REGULAR);
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= 'ppm.contract_id IN ('.implode(',', $contractArr).') ';
+            } else {
                 return array();
             }
-            $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId), 'contract_id');
-            if (empty($contractArr)) {
-                return array();
-            }
-            $contractArr = array_unique($contractArr, SORT_REGULAR);
-            if (!empty($restFilter)) { $restFilter .= ' AND '; }
-            $restFilter .= 'ppm.contract_id IN ('.implode(',', $contractArr).') ';
 
             if (!empty($date)) {
                 if (!empty($restFilter)) { $restFilter .= ' AND '; }
@@ -821,7 +832,7 @@ class Class_ppm {
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '100', null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '200', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = '';
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -865,18 +876,27 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
 
-            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
-            if (empty($siteId)) {
+            $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$userId), 'role_id');
+            if (in_array('1', $roles) || in_array('10', $roles)) {
+                $siteId = '';
+            }
+            else if (in_array('2', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
+                if (empty($siteId)) {
+                    return array();
+                }
+            } else {
                 return array();
             }
-            $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId), 'contract_id');
+
+            $contractArr = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteId, 'contract_status'=>'1'), 'contract_id');
             if (empty($contractArr)) {
                 return array();
             }
             $contractArr = array_unique($contractArr, SORT_REGULAR);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_calendar_count_all', array(), 'task_date_due', null, null, array('month'=>$month, 'year'=>$year, 'contract_id'=>implode(',', $contractArr)));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_calendar_count_all', array(), null, null, null, array('month'=>$month, 'year'=>$year, 'contract_id'=>implode(',', $contractArr)));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['date'] = $dataLocal['ppm_task_start_date'];
                 $row_result['total'] = $dataLocal['total'];
