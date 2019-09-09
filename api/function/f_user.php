@@ -480,7 +480,7 @@ class Class_user {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_USER_ADD_SIMILAR_EMAIL, 31);
             }
 
-            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>$userType, 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'user_status'=>'1'));
+            $userId = Class_db::getInstance()->db_insert('sys_user', array('user_name'=>$userName, 'user_type'=>$userType, 'user_password'=>md5($userPassword), 'user_first_name'=>$userFirstName, 'site_id'=>$siteId, 'user_status'=>'1'));
             Class_db::getInstance()->db_insert('sys_user_profile', array('user_id'=>$userId, 'user_email'=>$userEmail, 'user_contact_no'=>$userContactNo, 'designation_id'=>$designationId));
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>$groupId));
             $roles = explode(',', $rolesStr);
