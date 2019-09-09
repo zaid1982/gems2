@@ -12,7 +12,6 @@ function MainUserManagement() {
     let refUserType;
 
     this.init = function () {
-        mzOption('optUmnDesignationId', refDesignation, 'All Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, '', false);
         mzOption('optUmnGroupId', refSite, 'All Sites', 'siteId', 'siteName', {siteStatus: '1'}, '', false);
 
         refUserType = ['', 'GFM Internal', 'Client', 'Public User'];
@@ -68,7 +67,7 @@ function MainUserManagement() {
                         }},
                     {mData: 'userContactNo'},
                     {mData: 'userEmail', mRender: function (data){
-                            return mzEmailShort(data, 15);
+                            return mzEmailShort(data, 20);
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -112,9 +111,6 @@ function MainUserManagement() {
         $("#dtUmnUser_filter").hide();
         $('#txtUmnUserSearch').on('keyup change', function () {
             oTableUser.search($(this).val()).draw();
-        });
-        $('#optUmnDesignationId').on('change', function () {
-            oTableUser.column(13).search($(this).val(), false, true, false).draw();
         });
         $('#optUmnGroupId').on('change', function () {
             oTableUser.column(14).search($(this).val(), false, true, false).draw();
@@ -225,6 +221,11 @@ function MainUserManagement() {
         let total3 = 0;
         let total4 = 0;
         let total5 = 0;
+        let total6 = 0;
+        let total7 = 0;
+        let total8 = 0;
+        let total9 = 0;
+        let total10 = 0;
 
         $.each(result, function (n, u) {
             chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
@@ -238,6 +239,16 @@ function MainUserManagement() {
                 total4 = parseInt(u['total']);
             } else if (u['roleId'] === '5') {
                 total5 = parseInt(u['total']);
+            } else if (u['roleId'] === '6') {
+                total6 = parseInt(u['total']);
+            } else if (u['roleId'] === '7') {
+                total7 = parseInt(u['total']);
+            } else if (u['roleId'] === '8') {
+                total8 = parseInt(u['total']);
+            } else if (u['roleId'] === '9') {
+                total9 = parseInt(u['total']);
+            } else if (u['roleId'] === '10') {
+                total10 = parseInt(u['total']);
             }
             total0 += parseInt(u['total']);
         });
@@ -246,8 +257,13 @@ function MainUserManagement() {
         $('#linkUmn1').html('<span class="bullet yellow z-depth-2"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
         $('#linkUmn2').html('<span class="bullet light-green z-depth-2"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
         $('#linkUmn3').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
-        $('#linkUmn4').html('<span class="bullet purple z-depth-2"></span> '+refRole[4]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total4)+'</span>');
-        $('#linkUmn5').html('<span class="bullet blue-grey accent-2 z-depth-2"></span> '+refRole[5]['roleDesc']+' <span class="badge blue-grey accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
+        $('#linkUmn4').html('<span class="bullet mdb-color lighten-2 z-depth-2"></span> '+refRole[4]['roleDesc']+' <span class="badge mdb-color lighten-2 float-right">'+mzFormatNumber(total4)+'</span>');
+        $('#linkUmn5').html('<span class="bullet teal accent-1 accent-2 z-depth-2"></span> '+refRole[5]['roleDesc']+' <span class="badge teal accent-1 accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
+        $('#linkUmn6').html('<span class="bullet pink z-depth-2"></span> '+refRole[6]['roleDesc']+' <span class="badge pink float-right">'+mzFormatNumber(total6)+'</span>');
+        $('#linkUmn7').html('<span class="bullet purple lighten-4 z-depth-2"></span> '+refRole[7]['roleDesc']+' <span class="badge purple lighten-4 float-right">'+mzFormatNumber(total7)+'</span>');
+        $('#linkUmn8').html('<span class="bullet light-green z-depth-2"></span> '+refRole[8]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total8)+'</span>');
+        $('#linkUmn9').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[9]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total9)+'</span>');
+        $('#linkUmn10').html('<span class="bullet purple z-depth-2"></span> '+refRole[10]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total10)+'</span>');
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
