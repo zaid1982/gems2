@@ -352,6 +352,7 @@ class Class_sql
                     wo_task_severity,
                     wo_task_assigned_to,
                     wo_task.site_id,
+                    wo_task_created_by,
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
@@ -383,7 +384,7 @@ class Class_sql
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 LEFT JOIN wfl_flow ON wfl_flow.flow_id = wfl_transaction.flow_id
                 LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id
-                LEFT JOIN sys_user ON sys_user.user_id = wfl_task.task_claimed_user
+                LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user user_assigned ON user_assigned.user_id = wo_task.wo_task_assigned_to
                 LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status";
             } else if ($title === 'vw_track_monitoring_ppm_m') {
