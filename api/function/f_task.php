@@ -831,6 +831,11 @@ class Class_task {
                 $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
                 $result['ppmTaskId'] = $ppmTaskId;
                 $result['siteName'] = $siteName;
+            } else if ($transaction['flow_id'] == '2') {
+                $woTask = Class_db::getInstance()->db_select_single('wo_task', array('transaction_id'=>$transactionId), null, 1);
+                $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'site_name', null, 1);
+                $result['woTaskId'] = $woTask['wo_task_id'];
+                $result['siteName'] = $siteName;
             }
 
             $resultHistory = array();
