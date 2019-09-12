@@ -416,7 +416,7 @@ class Class_sql
                     ppm.contract_id,
                     wfl_flow.flow_desc,
                     wfl_checkpoint.checkpoint_desc,
-                    sys_user.user_first_name,
+                    sys_user.user_first_name AS user_first_name,
                     ref_status.status_desc,
                     wfl_task.*
                 FROM wfl_task

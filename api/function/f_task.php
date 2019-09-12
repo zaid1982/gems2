@@ -708,7 +708,7 @@ class Class_task {
                 }
 
                 if (!empty($searchTxt)) {
-                    $arrWhere['w1'] = "(transaction_no LIKE '%".$searchTxt."%' OR asset_no LIKE '%".$searchTxt."%'  OR status_desc LIKE '%".$searchTxt."%' OR user_first_name LIKE '%".$searchTxt."%' OR checked_by.user_first_name LIKE '%".$searchTxt."%' OR verified_by.user_first_name LIKE '%".$searchTxt."%'  
+                    $arrWhere['w1'] = "(transaction_no LIKE '%".$searchTxt."%' OR asset_no LIKE '%".$searchTxt."%'  OR status_desc LIKE '%".$searchTxt."%' OR sys_user.user_first_name LIKE '%".$searchTxt."%' OR checked_by.user_first_name LIKE '%".$searchTxt."%' OR verified_by.user_first_name LIKE '%".$searchTxt."%'  
                     OR flow_desc LIKE '%".$searchTxt."%' OR checkpoint_desc LIKE '%".$searchTxt."%')";
                 }
 
