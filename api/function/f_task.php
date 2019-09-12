@@ -668,7 +668,7 @@ class Class_task {
                     if (empty($siteId)) {
                         return array();
                     }
-                    $contractId = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $siteId), 'contract_id');
+                    $contractId = Class_db::getInstance()->db_select_col('cli_contract', array('site_id' => $siteId, 'contract_status'=>'1'), 'contract_id');
                     $arrWhere['contract_id'] = $contractId;
                 } else if (in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
                     $ppmGroupFinalArr = array();
@@ -827,7 +827,7 @@ class Class_task {
                 $ppmTaskId = Class_db::getInstance()->db_select_col('ppm_task', array('transaction_id'=>$transactionId), 'ppm_task_id', null, 1);
                 $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_id', null, 1);
                 $contractId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'contract_id', null, 1);
-                $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+                $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId, 'contract_status'=>'1'), 'site_id', null, 1);
                 $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_name', null, 1);
                 $result['ppmTaskId'] = $ppmTaskId;
                 $result['siteName'] = $siteName;
