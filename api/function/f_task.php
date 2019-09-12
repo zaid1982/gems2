@@ -663,7 +663,7 @@ class Class_task {
                 if (in_array('1', $roles) || in_array('10', $roles)) {
                     //
                 }
-                else if (in_array('2', $roles)) {
+                else if (in_array('2', $roles) || in_array('6', $roles)) {
                     $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id' => $userId), 'site_id');
                     if (empty($siteId)) {
                         return array();

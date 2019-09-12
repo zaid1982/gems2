@@ -799,7 +799,7 @@ class Class_ppm {
             if (in_array('1', $roles) || in_array('10', $roles)) {
                 $restFilter = 'ppm_task.ppm_task_id > 0 ';
             }
-            else if (in_array('2', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
+            else if (in_array('2', $roles) || in_array('6', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
                 $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
                 if (empty($siteId)) {
                     return array();
@@ -880,7 +880,7 @@ class Class_ppm {
             if (in_array('1', $roles) || in_array('10', $roles)) {
                 $siteId = '';
             }
-            else if (in_array('2', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
+            else if (in_array('2', $roles) || in_array('6', $roles) || in_array('3', $roles) || in_array('4', $roles) || in_array('5', $roles)) {
                 $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id');
                 if (empty($siteId)) {
                     return array();
