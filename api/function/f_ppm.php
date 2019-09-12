@@ -844,7 +844,7 @@ class Class_ppm {
                 $row_result['frequency'] = explode(',', $arrPpmFrequency[intval($dataLocal['frequency'])]);
                 $row_result['technician'] = $arrUserFullName[intval($dataLocal['ppm_task_assigned_to'])];
                 $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
-                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
+                $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 array_push($result, $row_result);
             }
 
