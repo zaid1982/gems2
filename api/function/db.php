@@ -93,7 +93,7 @@ class Class_db{
             }
             $l1 = substr($value, 0, 1);
             $l2 = substr($value, 0, 2);
-            if ($item == 'w1') {
+            if ($item === 'w1' || $item === 'w2') {
                 $where_str .= $value." AND ";
             } 
             else if ($value == 'is NULL' || $value == 'is not NULL') {

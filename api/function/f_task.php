@@ -241,10 +241,11 @@ class Class_task {
      * @param string $groupId
      * @param string $toGroup
      * @param string $toUser
+     * @param string $skipTaskAssign
      * @return mixed
      * @throws Exception
      */
-    public function submit_task ($taskId, $userId, $status = '9', $remark = '', $next = '', $groupId = '', $toGroup = '', $toUser = '') {
+    public function submit_task ($taskId, $userId, $status = '9', $remark = '', $next = '', $groupId = '', $toGroup = '', $toUser = '', $skipTaskAssign = '') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $constant = $this->constant;
@@ -326,7 +327,10 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter nextRoleId empty');
             }
 
-            $this->check_assign($checkpoint, $transactionId, $toGroup, $toUser, $userId);
+            if ($skipTaskAssign !== 1) {
+                $this->check_assign($checkpoint, $transactionId, $toGroup, $toUser, $userId);
+            }
+
             $nextpointDueDay = !empty($nextpointDueDay) ? '|Curdate() + INTERVAL ' . $nextpointDueDay . ' DAY' : '';
             $arrInsertTask = array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId, 'task_created_user' => $userId, 'task_created_group' => $groupId,
                 'task_date_due' => $nextpointDueDay, 'task_status_previous' => $status, 'task_status' => '8');
@@ -714,7 +718,7 @@ class Class_task {
 
                 $arrWhere['task_current'] = '1';
                 $arrWhere['wfl_transaction.flow_id'] = $flowId;
-                $arrWhere['wfl_task.checkpoint_id'] = '<> 1';
+                $arrWhere['w2'] = '(wfl_task.checkpoint_id <> 1 || transaction_status = 21)';
                 $sqlText = $searchTxt === '' ? 'vw_track_monitoring_ppm_m' : 'vw_track_monitoring_ppm_search_m';
                 $arr_dataLocal = Class_db::getInstance()->db_select($sqlText, $arrWhere, 'task_id DESC', '200');
                 foreach ($arr_dataLocal as $dataLocal) {

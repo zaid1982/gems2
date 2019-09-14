@@ -272,7 +272,7 @@ try {
                 }
                 $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark, '', '', $toGroup, $nextUser);
             } else if ($result == '2') {
-                $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1');
+                $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1', '', '', '', 1);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
             }

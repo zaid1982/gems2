@@ -252,6 +252,7 @@ class Class_sql
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
+                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
                 WHERE [rest_filter] GROUP BY ppm_task.ppm_task_id";
             } else if ($title === 'mw_task_ppm_calendar_count_all') {
                 $sql = "SELECT
