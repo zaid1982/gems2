@@ -1223,9 +1223,9 @@ class Class_ppm {
                 if (!array_key_exists('remark', $ppmTaskQual)) {
                     throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[remark] not exist');
                 }
-                if (Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_qual_id'=>$ppmTaskQual['id'], 'ppm_task_qual_result'=>'2')) > 0) {
-                    throw new Exception('[' . __LINE__ . '] - Item ppm_task_qual_id = '.$ppmTaskQual['id'].' currently set as N/A');
-                }
+                //if (Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_qual_id'=>$ppmTaskQual['id'], 'ppm_task_qual_result'=>'2')) > 0) {
+                //    throw new Exception('[' . __LINE__ . '] - Item ppm_task_qual_id = '.$ppmTaskQual['id'].' currently set as N/A');
+                //}
                 Class_db::getInstance()->db_update('ppm_task_qual', array('ppm_task_qual_result'=>$ppmTaskQual['result'], 'ppm_task_qual_remark'=>$ppmTaskQual['remark']), array('ppm_task_qual_id'=>$ppmTaskQual['id']));
             }
 
@@ -1274,9 +1274,9 @@ class Class_ppm {
                 if (!array_key_exists('remark', $ppmTaskQuan)) {
                     throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[remark] not exist');
                 }
-                if (Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_quan_id'=>$ppmTaskQuan['id'], 'ppm_task_quan_result'=>'2')) > 0) {
-                    throw new Exception('[' . __LINE__ . '] - Item ppm_task_quan_id = '.$ppmTaskQuan['id'].' currently set as N/A');
-                }
+                //if (Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_quan_id'=>$ppmTaskQuan['id'], 'ppm_task_quan_result'=>'2')) > 0) {
+                //    throw new Exception('[' . __LINE__ . '] - Item ppm_task_quan_id = '.$ppmTaskQuan['id'].' currently set as N/A');
+                //}
                 Class_db::getInstance()->db_update('ppm_task_quan', array('ppm_task_quan_measured_values'=>$ppmTaskQuan['measuredValues'], 'ppm_task_quan_limit'=>$ppmTaskQuan['limit'],
                     'ppm_task_quan_result'=>$ppmTaskQuan['result'], 'ppm_task_quan_remark'=>$ppmTaskQuan['remark']), array('ppm_task_quan_id'=>$ppmTaskQuan['id']));
             }
