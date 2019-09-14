@@ -152,7 +152,7 @@ try {
         }
         else if ($action === 'submit_assign') {
             $assignedTechnician = $fn_wo->get_assigned_technician();
-            $currentTask = $fn_wo->get_current_task('24', '12');
+            $currentTask = $fn_wo->get_current_task('24', '12', '26');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
             $fn_general->save_audit('112', $jwt_data->userId, 'Work Order no. = '.$returnVal);
