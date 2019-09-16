@@ -35,6 +35,7 @@ class Class_constant {
     const ERR_USER_ACTIVATE = 'User already active';
     const ERR_USER_EXIST_IN_GROUP = 'User already registered in PPM / WO Group for current site. Please remove user from the group first to change site.';
     const ERR_TASK_ALREADY_SUBMITTED = 'This task already submitted';
+    const ERR_TASK_CLAIMED = 'This task currently processed by other user';
 
     const ERR_DESIGNATION_SIMILAR = 'Designation already exist';
     const ERR_DESIGNATION_DEACTIVATE = 'Designation already inactive';

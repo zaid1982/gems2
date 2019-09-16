@@ -213,14 +213,19 @@ class Class_task {
                 $checkDueDay = $dueDate;
             }
 
-            $this->check_next_task($checkpoint, $userId, $roleId, $groupId);
+            if ($checkpointId === '1') {
+                $claimUser = '';
+            } else {
+                $claimUser = $userId;
+                $this->check_next_task($checkpoint, $userId, $roleId, $groupId);
+            }
 
             $flowDueDay = Class_db::getInstance()->db_select_col('wfl_flow', array('flow_id'=>$flowId), 'flow_due_day', null, 1);
             $transactionId = Class_db::getInstance()->db_insert('wfl_transaction', array('transaction_no'=>$transactionNo, 'flow_id'=>$flowId, 'user_id'=>$userId, 'group_id'=>$groupId,
                 'transaction_date_due'=>'|Curdate() + INTERVAL '.$flowDueDay.' DAY', 'transaction_status'=>'5'));
 
             $taskId = Class_db::getInstance()->db_insert('wfl_task', array('transaction_id'=>$transactionId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$roleId, 'group_id'=>$groupId,
-                'task_created_user'=>$userId, 'task_created_group'=>$groupId,'task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()', 'task_date_due'=>$checkDueDay, 'task_status'=>'5'));
+                'task_created_user'=>$userId, 'task_created_group'=>$groupId,'task_claimed_user'=>$claimUser, 'task_time_claimed'=>'Now()', 'task_date_due'=>$checkDueDay, 'task_status'=>'5'));
 
             //$this->check_assign($checkpoint, $transactionId, $groupId, '', $userId);
 
@@ -334,8 +339,9 @@ class Class_task {
             $nextpointDueDay = !empty($nextpointDueDay) ? '|Curdate() + INTERVAL ' . $nextpointDueDay . ' DAY' : '';
             $arrInsertTask = array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId, 'task_created_user' => $userId, 'task_created_group' => $groupId,
                 'task_date_due' => $nextpointDueDay, 'task_status_previous' => $status, 'task_status' => '8');
+
+            $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId));
             if ($nextpointClaimType == '3') {
-                $taskAssign = Class_db::getInstance()->db_select_single('wfl_task_assign', array('transaction_id' => $transactionId, 'checkpoint_id' => $nextPointId, 'role_id' => $nextRoleId));
                 if (empty($taskAssign)) {
                     throw new Exception('[' . __LINE__ . '] - Data taskAssign empty when assigned to user');
                 } else if (empty($taskAssign['group_id']) || empty($taskAssign['user_id'])) {
@@ -351,7 +357,14 @@ class Class_task {
                 }
                 $arrInsertTask['group_id'] = $taskAssign['group_id'];
             } else {
-                $arrInsertTask['group_id'] = $nextGroupId;
+                if (!empty($taskAssign) && !empty($taskAssign['user_id'])) {
+                    $arrInsertTask['group_id'] = $taskAssign['group_id'];
+                    $arrInsertTask['task_claimed_user'] = $taskAssign['user_id'];
+                } else if (!empty($taskAssign) && !empty($taskAssign['group_id'])) {
+                    $arrInsertTask['group_id'] = $taskAssign['group_id'];
+                } else {
+                    $arrInsertTask['group_id'] = $nextGroupId;
+                }
             }
 
             $newTaskId = Class_db::getInstance()->db_insert('wfl_task', $arrInsertTask);

@@ -417,11 +417,11 @@ class Class_ppm {
                 //throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
-            $technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group.site_id'=>$siteId), 'user_id');
-            if (empty($technicians)) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
-            }
-            $technicianDays = Class_db::getInstance()->db_select('vw_technicians_ppm_monthly', array(), null, null, 0, array('technicians'=>implode(',',$technicians)));
+            //$technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group.site_id'=>$siteId), 'user_id');
+            //if (empty($technicians)) {
+            //    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
+            //}
+            //$technicianDays = Class_db::getInstance()->db_select('vw_technicians_ppm_monthly', array(), null, null, 0, array('technicians'=>implode(',',$technicians)));
 
             $isYearly = false;
             $isHalfAnnaully = false;
@@ -517,14 +517,14 @@ class Class_ppm {
             $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
                 'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
             $currentMonth = array('year'=>'', 'month'=>'');
-            $technicianKpis = array();
-            foreach ($technicians as $technician) {
-                array_push($technicianKpis, array('userId'=>$technician, 'total'=>0, 'totalPPM'=>0));
-            }
-            $lastTechnician = '';
+            //$technicianKpis = array();
+            //foreach ($technicians as $technician) {
+            //    array_push($technicianKpis, array('userId'=>$technician, 'total'=>0, 'totalPPM'=>0));
+            //}
+            //$lastTechnician = '';
 
             foreach($tempDays as $key => $dateStr){
-                $curYear = substr($dateStr, 0, 4);
+                /*$curYear = substr($dateStr, 0, 4);
                 $curMonth = strval(intval(substr($dateStr, 5, 2)));
                 if ($currentMonth['year'] != $curYear || $currentMonth['month'] != $curMonth) {
                     $currentMonth = array('year'=>$curYear, 'month'=>$curMonth);
@@ -570,18 +570,18 @@ class Class_ppm {
                 $technicianKpis[$lowestKpiIndex]['totalPPM']++;
                 //$technicianKey = $key%count($technicians);
                 //$technician = $technicians[$technicianKey];
-                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Lowest TechnicianId = ' . $technician . ', Total = ' . $technicianKpis[$lowestKpiIndex]['total']);
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Lowest TechnicianId = ' . $technician . ', Total = ' . $technicianKpis[$lowestKpiIndex]['total']);*/
 
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $ppmTaskNo = 'P'.$siteCode.substr($dateStr, 2, 2).substr($dateStr, 5, 2).substr($dateStr, 8, 2).$runningNoStr;
                 $runningNo++;
 
-                $taskId = $this->fn_task->create_new_task('1', $technician, '5', '1', $ppmTaskNo, $dateStr);
+                $taskId = $this->fn_task->create_new_task('1', $userId, '5', '1', $ppmTaskNo, $dateStr);
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
                 $checklistGuideline = !empty($checklist['checklist_guideline']) ? $checklist['checklist_guideline'] : '';
                 $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklistGuideline,
-                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId, 'ppm_task_assigned_to'=>$technician));
+                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId));  // 'ppm_task_assigned_to'=>$technician
 
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'A', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'B', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17'));
@@ -765,7 +765,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
-                $row_result['technician'] = $dataLocal['user_first_name'];
+                $row_result['technician'] = $this->fn_general->clear_null($dataLocal['user_first_name']);
                 $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 $row_result['taskDateDue'] = $row_result['taskStartDue'];
                 //$row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
@@ -842,7 +842,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $arrPpmFrequency[intval($dataLocal['frequency'])]);
-                $row_result['technician'] = $arrUserFullName[intval($dataLocal['ppm_task_assigned_to'])];
+                $row_result['technician'] = $arrUserFullName[intval($this->fn_general->clear_null($dataLocal['ppm_task_assigned_to'], '0'))];
                 $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 $row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 array_push($result, $row_result);
@@ -1609,21 +1609,63 @@ class Class_ppm {
     }
 
     /**
-     * @param $ppmTaskId
+     * @param string $ppmTaskId
+     * @param string $currentCheckpoint
+     * @param string $userId
+     * @return mixed
      * @throws Exception
      */
-    public function save_ppm_scan_start_time_m ($ppmTaskId) {
+    public function check_current_task ($ppmTaskId='', $currentCheckpoint='', $userId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $constant = $this->constant;
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($currentCheckpoint)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter currentCheckpoint empty');
+            }
+
+            $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
+            $wfTask = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
+            if ($wfTask['checkpoint_id'] !== $currentCheckpoint) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
+            }
+            if (!empty($userId) && $wfTask['task_claimed_user'] !== $userId) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
+            }
+            if (empty($userId) && $this->fn_general->clear_null($wfTask['task_claimed_user']) !== '') {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
+            }
+
+            return $wfTask;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $userId
+     * @throws Exception
+     */
+    public function save_ppm_scan_start_time_m ($ppmTaskId, $userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
 
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_assigned_to'=>$userId, 'ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
             $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status' => '13'), array('transaction_id' => $transactionId));
-            Class_db::getInstance()->db_update('wfl_task', array('task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
+            Class_db::getInstance()->db_update('wfl_transaction', array('user_id'=>$userId, 'transaction_status' => '13'), array('transaction_id' => $transactionId));
+            Class_db::getInstance()->db_update('wfl_task', array('task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
 
             $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
             $sectionStatus = $totalNull > '0' ? '18' : '19';

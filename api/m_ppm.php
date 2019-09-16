@@ -174,6 +174,7 @@ try {
         }
         else if ($action === 'save_qualitative_tasks') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $ppmTaskQuals = filter_input(INPUT_POST, 'ppmTaskQual', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $fn_ppm->save_qualitative_tasks_m($ppmTaskId, $ppmTaskQuals);
             $fn_general->save_audit('82', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
@@ -181,6 +182,7 @@ try {
         }
         else if ($action === 'save_quantitative_tasks') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $ppmTaskQuans = filter_input(INPUT_POST, 'ppmTaskQuan', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $fn_ppm->save_quantitative_tasks_m($ppmTaskId, $ppmTaskQuans);
             $fn_general->save_audit('83', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
@@ -189,6 +191,7 @@ try {
         else if ($action === 'check_ppm_parts') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checked = filter_input(INPUT_POST, 'checked');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $fn_ppm->save_ppm_check_parts_m($ppmTaskId, $checked);
             $fn_general->save_audit('102', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
             $form_data['errmsg'] = $constant::SUC_SAVE;
@@ -196,6 +199,7 @@ try {
         else if ($action === 'add_ppm_parts') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskPartsDesc = filter_input(INPUT_POST, 'ppmTaskPartsDesc');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $result = $fn_ppm->add_ppm_parts_m($ppmTaskId, $ppmTaskPartsDesc);
             $fn_general->save_audit('84', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
@@ -203,6 +207,7 @@ try {
         else if ($action === 'check_additional_report') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checked = filter_input(INPUT_POST, 'checked');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $fn_ppm->save_ppm_check_additional_report_m($ppmTaskId, $checked);
             $fn_general->save_audit('86', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
             $form_data['errmsg'] = $constant::SUC_SAVE;
@@ -210,6 +215,7 @@ try {
         else if ($action === 'upload_additional_report') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $uploadId = $fn_general->uploadDocument($fileUpload, 1, $jwt_data->userId);
             $fn_ppm->save_ppm_additional_report_m($ppmTaskId, $uploadId);
             $fn_general->save_audit('87', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
@@ -218,6 +224,7 @@ try {
         else if ($action === 'save_ppm_remark') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskRemark = filter_input(INPUT_POST, 'ppmTaskRemark');
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $fn_ppm->save_ppm_remark_m($ppmTaskId, $ppmTaskRemark);
             $fn_general->save_audit('81', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Comment = ' . $ppmTaskRemark);
             $form_data['errmsg'] = $constant::SUC_SAVE;
@@ -231,6 +238,7 @@ try {
             if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
             }
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $uploadId = $fn_general->uploadDocument($fileUpload, intval($uploadType)+2, $jwt_data->userId);
             $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude);
             $fn_general->save_audit('89', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
@@ -238,13 +246,15 @@ try {
         }
         else if ($action === 'save_scan_start_time') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
-            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId);
+            $fn_ppm->check_current_task($ppmTaskId, '1');
+            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId, $jwt_data->userId);
             $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SCAN_START_TIME;
         }
         else if ($action === 'save_image_desc') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskUploads = filter_input(INPUT_POST, 'ppmTaskUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $fn_ppm->save_image_desc_m($ppmTaskId, $ppmTaskUploads);
             $fn_general->save_audit('98', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
@@ -254,6 +264,7 @@ try {
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
+            $fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId);
             $uploadId = '';
             $nextUser = '';
             if ($result == '1') {

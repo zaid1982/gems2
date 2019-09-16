@@ -228,14 +228,15 @@ class Class_sql
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN ppm_group_user ON ppm_group_user.ppm_group_id = ppm.ppm_group_id AND ppm_group_user.user_id = [user_id]
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
-                WHERE wfl_transaction.flow_id = 1 AND ppm_task_start_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_start_date <= CURDATE() + INTERVAL 1 MONTH 
-                AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) AND wfl_task.task_current = 1 [rest_filter]";
+                WHERE wfl_transaction.flow_id = 1 AND wfl_task.task_current = 1 AND ppm_task_start_date >= CURDATE() - INTERVAL 1 MONTH AND ppm_task_start_date <= CURDATE() + INTERVAL 1 MONTH 
+                AND (task_claimed_user = [user_id] OR (task_claimed_user IS NULL AND (wfl_task.checkpoint_id <> 1 OR (wfl_task.checkpoint_id = 1 AND ppm_group_user.user_id = [user_id])) )) [rest_filter]";
             } else if ($title === 'mw_task_ppm_all') {
                 $sql = "SELECT
                     ppm_task.*,
