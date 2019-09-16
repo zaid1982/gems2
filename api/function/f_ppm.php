@@ -765,7 +765,7 @@ class Class_ppm {
                 $row_result['assetTypeName'] = $dataLocal['asset_type_name'];
                 $row_result['statusDesc'] = $dataLocal['status_desc'];
                 $row_result['frequency'] = explode(',', $dataLocal['frequency']);
-                $row_result['technician'] = $this->fn_general->clear_null($dataLocal['user_first_name']);
+                $row_result['technician'] = $this->fn_general->clear_null($dataLocal['user_first_name'], 'Not yet claimed');
                 $row_result['taskStartDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_start_date']);
                 $row_result['taskDateDue'] = $row_result['taskStartDue'];
                 //$row_result['taskDateDue'] = $this->fn_general->convertDateToDisplay($dataLocal['ppm_task_schedule_date']);
@@ -831,6 +831,7 @@ class Class_ppm {
 
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();
+            $arrUserFullName[0] = 'Not yet claimed';
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '200', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
