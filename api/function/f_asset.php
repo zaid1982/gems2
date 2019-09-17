@@ -455,8 +455,8 @@ class Class_asset {
             if (!isset($put_vars['assetLocationCode'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
             }
-            if (!isset($put_vars['txtSszAssetLocationDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter txtSszAssetLocationDesc not exist');
+            if (!isset($put_vars['assetLocationDesc'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationDesc not exist');
             }
             if (!isset($put_vars['assetCapacity'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
