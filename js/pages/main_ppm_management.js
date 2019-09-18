@@ -353,7 +353,7 @@ function MainPpmManagement() {
                     {mData: 'frequency'},
                     {mData: 'ppmTaskAssignedTo',
                         mRender: function (data) {
-                            return refUser[data]['userFullName'];
+                            return data !== '' ? refUser[data]['userFullName'] : '';
                         }
                     },
                     {mData: null,
