@@ -48,10 +48,24 @@
                             <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeClient" id="divHmeClient">
                             </div>
                         </li>
-                        <li class="nav-item dropdown active">
+                        <li class="nav-item dropdown mr-2 active">
                             <a class="nav-link dropdown-toggle" id="navHmeMonth" data-toggle="dropdown"
                                aria-haspopup="true" aria-expanded="false">Month</a>
                             <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeMonth" id="divHmeMonth">
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown mr-2 active">
+                            <a class="nav-link dropdown-toggle" id="navHmeReportType" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">Report Type</a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeReportType" id="divHmeReportType">
+                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_2">Work Order</a>
+                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_1">PPM</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown active">
+                            <a class="nav-link dropdown-toggle" id="navHmeSite" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">Site</a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeSite" id="divHmeSite">
                             </div>
                         </li>
                     </ul>
@@ -59,7 +73,7 @@
                 <a class="navbar-brand" href="#" id="lblHmeSelected"></a>
             </nav>
             <!--/.Navbar-->
-            <div class="row mt-4_5">
+            <div class="row mt-4_5" id="divHmeTopStats">
                 <!-- Intro Card: Jumlah Seminar -->
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card card-cascade cascading-admin-card">
@@ -124,6 +138,87 @@
                     </div>
                 </div>
             </div>
+            <div class="row mt-4">
+                <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartHme1" style="height: 400px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartHme2" style="height: 400px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartHme3" style="height: 350px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartHme4" style="height: 350px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartHme5" style="height: 350px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-cascade narrower mt-4">
+                <div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title=">Work Order List"
+                           data-content="All Work Order list from selected criteria."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtHmeDataWoRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">Work Order List</a>
+                    <div>
+                        <div id="btnDtHmeDataWoExport"></div>
+                    </div>
+                </div>
+                <div class="px-4 pb-4">
+                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+                        <div class="">
+                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                            <input type="text" id="txtHmeDataWoSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                            <label for="txtHmeDataWoSearch" class="ml-4">Search</label>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table id="dtHmeDataWo" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th style="width: 4%">#</th>
+                                <th style="width: 8%">Date</th>
+                                <th style="width: 10%">Work Order No.</th>
+                                <th style="width: 8%">Site</th>
+                                <th style="width: 12%">Complainant</th>
+                                <th>Complaint Description</th>
+                                <th style="width: 10%">Work Traits</th>
+                                <th style="width: 12%">PIC Name</th>
+                                <th style="width: 10%">Complaint Type</th>
+                                <th style="width: 8%">Progress</th>
+                                <th style="width: 30px"></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -153,6 +248,13 @@
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Highchart -->
+<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/themes/dark-unica.js"></script>
 <!-- Stepper JavaScript - minified -->
 <script type="text/javascript" src="js/addons-pro/stepper.min.js"></script>
 
