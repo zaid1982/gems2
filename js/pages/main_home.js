@@ -6,18 +6,22 @@ function MainHome() {
     let refSite;
     let refContract;
     let clientId = '1';
-    let siteId = '1';
+    let siteId = '0';
     let currentMonth;
     let currentYear;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
         $('#divHmeTopStats').hide();
+        refSite[0] = {clientId:'1', siteDesc:'Overall'};
+        $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
+
         $.each(refClient, function (_clientId, _client) {
             if (typeof _client !== 'undefined') {
                 $('#divHmeClient').append('<a class="dropdown-item lnkHmeClient" href="#" id="lnkHmeClient_'+_clientId+'">'+_client['clientName']+'</a>');
             }
         });
+        $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
 
         $('.lnkHmeClient').off('click').on('click', function () {
             const linkId = $(this).attr('id');
@@ -26,12 +30,16 @@ function MainHome() {
             setTimeout(function () {
                 try {
                     if (linkIndex > 0) {
+                        $('#lnkHmeClient_'+clientId).removeClass('active').removeClass('text-white');
                         clientId = linkId.substr(linkIndex + 1);
+                        $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
+                        siteId = '0';
+                        self.setOptionSite();
                         self.generateTotalAsset();
                         self.generateTotalPpmTask();
                         self.generateTotalPpmLate();
                         self.generatePercPpmDone();
-                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -63,16 +71,14 @@ function MainHome() {
                     if (linkIndex > 0) {
                         const year = linkId.substr(linkIndex + 1, 4);
                         const month = linkId.substr(linkIndex + 1 + 4);
-                        $('#lnkHmeMonth_'+currentYear+currentMonth).removeClass('active');
-                        $('#lnkHmeMonth_'+currentYear+currentMonth).removeClass('text-white');
-                        $('#lnkHmeMonth_'+year+month).addClass('active');
-                        $('#lnkHmeMonth_'+year+month).addClass('text-white');
+                        $('#lnkHmeMonth_'+currentYear+currentMonth).removeClass('active').removeClass('text-white');
+                        $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
                         currentMonth = month;
                         currentYear = year;
                         self.generateTotalPpmTask();
                         self.generateTotalPpmLate();
                         self.generatePercPpmDone();
-                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -81,7 +87,9 @@ function MainHome() {
             }, 300);
         });
 
-        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+        self.setOptionSite();
+
+        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
         //self.generateTotalAsset();
         //self.generateTotalPpmTask();
         //self.generateTotalPpmLate();
@@ -91,6 +99,19 @@ function MainHome() {
         self.generateChartHme3();
         self.generateChartHme4();
         self.generateChartHme5();
+    };
+
+    this.setOptionSite = function () {
+        siteId = '0';
+        $('#divHmeSite').html('');
+        $.each(refSite, function (_siteId, _site) {
+            if (typeof _site !== 'undefined') {
+                if (_site['clientId'] === clientId) {
+                    $('#divHmeSite').append('<a class="dropdown-item lnkHmeSite" href="#" id="lnkHmeSite_'+_siteId+'">'+_site['siteDesc']+'</a>');
+                }
+            }
+        });
+        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
     };
 
     this.generateTotalAsset = function () {
@@ -158,7 +179,7 @@ function MainHome() {
                 series: {
                     events: {
                         legendItemClick: function () {
-                            var visibility = this.visible ? 'visible' : 'hidden';
+                            const visibility = this.visible ? 'visible' : 'hidden';
                             if (!confirm('The series is currently ' +
                                 visibility + '. Do you want to change that?')) {
                                 return false;
