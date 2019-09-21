@@ -12,7 +12,7 @@ function MainHome() {
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
-        $('#divHmeTopStats').hide();
+        //$('#divHmeTopStats').hide();
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
 
@@ -90,10 +90,10 @@ function MainHome() {
         self.setOptionSite();
 
         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
-        //self.generateTotalAsset();
-        //self.generateTotalPpmTask();
-        //self.generateTotalPpmLate();
-        //self.generatePercPpmDone();
+        self.generateTotalAsset();
+        self.generateTotalPpmTask();
+        self.generateTotalPpmLate();
+        self.generatePercPpmDone();
         self.generateChartHme1();
         self.generateChartHme2();
         self.generateChartHme3();
