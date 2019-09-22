@@ -88,6 +88,13 @@ class Class_wo {
     }
 
     /**
+     * @return array
+     */
+    public function get_wo_type () {
+        return array('', 'Client Complaint', 'Self Finding', 'Request', 'Breakdown', 'Defect');
+    }
+
+    /**
      * @return mixed
      * @throws Exception
      */
@@ -1241,6 +1248,34 @@ class Class_wo {
 
             return $this->fn_general->clear_null(Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_rate', null, 1));
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    public function get_wo_task_list ($siteId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $siteId = empty($siteId) ? '' : $siteId;
+            $arrWoType = $this->get_wo_type();
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', array('site_id'=>$siteId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskType'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+
+
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

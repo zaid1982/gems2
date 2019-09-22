@@ -9,6 +9,7 @@ function MainHome() {
     let siteId = '0';
     let currentMonth;
     let currentYear;
+    let oTableWo;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
@@ -76,6 +77,7 @@ function MainHome() {
                         $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
                         currentMonth = month;
                         currentYear = year;
+                        self.generateTotalAsset();
                         self.generateTotalPpmTask();
                         self.generateTotalPpmLate();
                         self.generatePercPpmDone();
@@ -90,16 +92,53 @@ function MainHome() {
 
         self.setOptionSite();
 
+        oTableWo =  $('#dtHmeDataWo').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            "aaSorting": [2, 'asc'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableWo.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: null},
+                    {mData: 'woTaskNo'},
+                    {mData: null, mRender: function (data, type, row){
+                            return refSite[row['siteId']]['siteDesc'];
+                        }},
+                    {mData: null},
+                    {mData: 'woTaskComplaint'},
+                    {mData: null},
+                    {mData: null},
+                    {mData: 'woTaskType'},
+                    {mData: null},
+                    {mData: 'siteId', visible: false}
+                ]
+        });
+        $("#dtHmeDataWo_filter").hide();
+        $('#txtHmeDataWoSearch').on('keyup change', function () {
+            oTableWo.search($(this).val()).draw();
+        });
+
+
         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
         self.generateTotalAsset();
         self.generateTotalPpmTask();
         self.generateTotalPpmLate();
         self.generatePercPpmDone();
-        self.generateChartHme1();
-        self.generateChartHme2();
-        self.generateChartHme3();
-        self.generateChartHme4();
-        self.generateChartHme5();
+        self.generateChartWoBySite();
+        self.generateChartWoByCategory();
+        self.generateChartWoByType();
+        self.generateChartWoByProgress();
+        self.generateChartWoByTrade();
+        self.genTableHmeDataWo();
     };
 
     this.setOptionSite = function () {
@@ -136,6 +175,11 @@ function MainHome() {
                 HideLoader();
             }, 200);
         });
+    };
+
+    this.genTableHmeDataWo = function () {
+        const dataWo = mzAjaxRequest('wo.php?siteId='+siteId, 'GET');
+        oTableWo.clear().rows.add(dataWo).draw();
     };
 
     this.generateTotalAsset = function () {
@@ -195,14 +239,28 @@ function MainHome() {
     };
 
     this.generatePercPpmDone = function () {
-        const percPpmDone = mzAjaxRequest('ppm.php?type=perc_ppm_done&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
-        const percDone = mzFormatNumber(percPpmDone,2)+'%';
-        $('#lblHmePercPpmDone').html(percDone);
-        $('#divBarHmePercAttendance').css('width', percDone);
-        $('#lblHmePercPpmDoneTitle').html('PPM done for <strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+        $.ajax({
+            url: 'api/ppm.php?type=perc_ppm_done&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    const percPpmDone = resp.result;
+                    const percDone = mzFormatNumber(percPpmDone,2)+'%';
+                    $('#lblHmePercPpmDone').html(percDone);
+                    $('#divBarHmePercAttendance').css('width', percDone);
+                    $('#lblHmePercPpmDoneTitle').html('PPM done for <strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
     };
 
-    this.generateChartHme1 = function () {
+    this.generateChartWoBySite = function () {
         Highcharts.chart('chartHme1', {
             chart: {
                 type: 'column'
@@ -282,7 +340,7 @@ function MainHome() {
         });
     };
 
-    this.generateChartHme2 = function () {
+    this.generateChartWoByCategory = function () {
         Highcharts.chart('chartHme2', {
             chart: {
                 type: 'column'
@@ -349,7 +407,7 @@ function MainHome() {
         });
     };
 
-    this.generateChartHme3 = function () {
+    this.generateChartWoByType = function () {
         Highcharts.chart('chartHme3', {
             chart: {
                 type: 'pie'
@@ -405,7 +463,7 @@ function MainHome() {
         });
     };
 
-    this.generateChartHme4 = function () {
+    this.generateChartWoByProgress = function () {
         Highcharts.chart('chartHme4', {
             chart: {
                 type: 'bar'
@@ -454,7 +512,7 @@ function MainHome() {
         });
     };
 
-    this.generateChartHme5 = function () {
+    this.generateChartWoByTrade = function () {
         Highcharts.chart('chartHme5', {
             chart: {
                 type: 'pie'
