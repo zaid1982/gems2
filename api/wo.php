@@ -37,15 +37,52 @@ try {
         $type = filter_input(INPUT_GET, 'type');
         $woTaskId = filter_input(INPUT_GET, 'woTaskId');
         if (!is_null($type)) {
-            if ($type === 'total_asset') {
-                //$clientId = filter_input(INPUT_GET, 'clientId');
-                //$result = $fn_asset->get_total_asset($contractId);
+            if ($type === 'dashboard_list') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_wo_task_dashboard_list($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'total_by_site_status') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_total_wo_by_site_status($clientId, $year, $month);
+            }
+            else if ($type === 'total_by_site_type') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_total_wo_by_site_type($clientId, $year, $month);
+            }
+            else if ($type === 'total_by_type') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_total_wo_by_type($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'total_by_status') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_total_wo_by_status($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'total_by_group') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_total_wo_by_group($clientId, $siteId, $year, $month);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
         } else if (!is_null($woTaskId)) {
             $result = $fn_wo->get_asset($woTaskId);
         } else {
-            $siteId = filter_input(INPUT_GET, 'siteId');
-            $result = $fn_wo->get_wo_task_list($siteId);
+            //$result = $fn_wo->get_wo_task_list();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

@@ -555,6 +555,25 @@ class Class_sql
                     SEC_TO_TIME(SUM(TIMESTAMPDIFF(SECOND, task_time_created, task_time_submit))) as duration
                 FROM wfl_task
                 WHERE transaction_id = [transaction_id] AND task_time_submit IS NOT NULL AND checkpoint_id = 13";
+            } else if ($title === 'vg_count_wo_by_site_status') {
+                $sql = "SELECT 
+                    site_id, wo_task_status, count(*) AS total 
+                FROM wo_task 
+                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                GROUP BY site_id, wo_task_status";
+            } else if ($title === 'vg_count_wo_by_site_type') {
+                $sql = "SELECT 
+                    site_id, wo_task_type, count(*) AS total 
+                FROM wo_task 
+                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                GROUP BY site_id, wo_task_type";
+            } else if ($title === 'vg_count_wo_by_site_group') {
+                $sql = "SELECT 
+                    wo_task.site_id, wo_task.ppm_group_id, ppm_group_name, count(*) AS total 
+                FROM wo_task 
+                LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
+                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                GROUP BY wo_task.site_id, wo_task.ppm_group_id ORDER BY wo_task.ppm_group_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

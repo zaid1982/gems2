@@ -1262,27 +1262,369 @@ class Class_wo {
         }
     }
 
-    public function get_wo_task_list ($siteId='') {
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_task_dashboard_list ($clientId='', $siteId='', $year='', $month='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
-            $siteId = empty($siteId) ? '' : $siteId;
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
             $arrWoType = $this->get_wo_type();
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', array('site_id'=>$siteId));
+            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', array('site_id'=>$siteId, 'YEAR(wo_task_time_created)'=>$year, 'MONTH(wo_task_time_created)-1'=>$month));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
-                $row_result['woTaskType'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
+                $row_result['woTaskTypeDesc'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
-
-
+                $row_result['woTaskAssignedTo'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_to']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
+                $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
+                $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
                 array_push($result, $row_result);
             }
 
             return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $year
+     * @param string $month
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_total_wo_by_site_status ($clientId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+            $dataEmpty = array();
+            foreach ($siteIds as $siteId) {
+                array_push($dataEmpty, 0);
+            }
+
+            $series = array(
+                array('name'=>'Completed', 'woTaskStatus'=>'16', 'data'=>$dataEmpty),
+                array('name'=>'Responding', 'woTaskStatus'=>'24|26', 'data'=>$dataEmpty),
+                array('name'=>'In Progress', 'woTaskStatus'=>'13|21', 'data'=>$dataEmpty),
+                array('name'=>'Verify', 'woTaskStatus'=>'15', 'data'=>$dataEmpty),
+                array('name'=>'Cancelled', 'woTaskStatus'=>'25', 'data'=>$dataEmpty)
+            );
+            if (!empty($siteIds)) {
+                $siteIdStr = implode(',', $siteIds);
+                $woBySites = Class_db::getInstance()->db_select('vg_count_wo_by_site_status', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                foreach ($woBySites as $woBySite) {
+                    $status = $woBySite['wo_task_status'];
+                    $total = $woBySite['total'];
+                    $siteIndex = array_search($woBySite['site_id'], $siteIds);
+                    if ($status === '16') {
+                        $series[0]['data'][$siteIndex] = intval($total);
+                    } else if ($status === '24' || $status === '26') {
+                        $series[1]['data'][$siteIndex] += intval($total);
+                    } else if ($status === '13' || $status === '21') {
+                        $series[2]['data'][$siteIndex] += intval($total);
+                    } else if ($status === '15') {
+                        $series[3]['data'][$siteIndex] = intval($total);
+                    } else if ($status === '25') {
+                        $series[4]['data'][$siteIndex] = intval($total);
+                    }
+                }
+            }
+
+            return array('categories'=>$siteIds, 'series'=>$series);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_wo_by_site_type ($clientId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+            $dataEmpty = array();
+            foreach ($siteIds as $siteId) {
+                array_push($dataEmpty, 0);
+            }
+
+            $series = array(
+                array('name'=>'Complaint', 'woTaskType'=>'1', 'data'=>$dataEmpty),
+                array('name'=>'Finding', 'woTaskType'=>'2', 'data'=>$dataEmpty),
+                array('name'=>'Request', 'woTaskType'=>'3', 'data'=>$dataEmpty),
+                array('name'=>'Breakdown', 'woTaskType'=>'4', 'data'=>$dataEmpty),
+                array('name'=>'Defect', 'woTaskType'=>'5', 'data'=>$dataEmpty)
+            );
+            if (!empty($siteIds)) {
+                $siteIdStr = implode(',', $siteIds);
+                $woByTypes = Class_db::getInstance()->db_select('vg_count_wo_by_site_type', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                foreach ($woByTypes as $woByType) {
+                    $woType = $woByType['wo_task_type'];
+                    $total = $woByType['total'];
+                    $siteIndex = array_search($woByType['site_id'], $siteIds);
+                    if ($woType === '1') {
+                        $series[0]['data'][$siteIndex] = intval($total);
+                    } else if ($woType === '2') {
+                        $series[1]['data'][$siteIndex] += intval($total);
+                    } else if ($woType === '3') {
+                        $series[2]['data'][$siteIndex] += intval($total);
+                    } else if ($woType === '4') {
+                        $series[3]['data'][$siteIndex] = intval($total);
+                    } else if ($woType === '5') {
+                        $series[4]['data'][$siteIndex] = intval($total);
+                    }
+                }
+            }
+
+            return array('categories'=>$siteIds, 'series'=>$series);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_wo_by_type ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $series = array(
+                array('name'=>'Complaint', 'woTaskType'=>'1', 'y'=>0, 'sliced'=>true, 'selected'=>true),
+                array('name'=>'Finding', 'woTaskType'=>'2', 'y'=>0),
+                array('name'=>'Request', 'woTaskType'=>'3', 'y'=>0),
+                array('name'=>'Breakdown', 'woTaskType'=>'4', 'y'=>0),
+                array('name'=>'Defect', 'woTaskType'=>'5', 'y'=>0)
+            );
+            $woByTypes = Class_db::getInstance()->db_select('vg_count_wo_by_site_type', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($woByTypes as $woByType) {
+                $woType = $woByType['wo_task_type'];
+                $total = $woByType['total'];
+                if ($woType === '1') {
+                    $series[0]['y'] += intval($total);
+                } else if ($woType === '2') {
+                    $series[1]['y'] += intval($total);
+                } else if ($woType === '3') {
+                    $series[2]['y'] += intval($total);
+                } else if ($woType === '4') {
+                    $series[3]['y'] += intval($total);
+                } else if ($woType === '5') {
+                    $series[4]['y'] += intval($total);
+                }
+            }
+
+            return $series;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_wo_by_status ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $categories = array('Completed', 'Responding', 'In Progress', 'Verify', 'Cancelled');
+            $data = array(
+                array('y'=>0, 'woTaskStatus'=>'16'),
+                array('y'=>0, 'woTaskStatus'=>'24|26'),
+                array('y'=>0, 'woTaskStatus'=>'13|21'),
+                array('y'=>0, 'woTaskStatus'=>'15'),
+                array('y'=>0, 'woTaskStatus'=>'25')
+            );
+            $woByStatus = Class_db::getInstance()->db_select('vg_count_wo_by_site_status', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($woByStatus as $woStatus) {
+                $status = $woStatus['wo_task_status'];
+                $total = $woStatus['total'];
+                if ($status === '16') {
+                    $data[0]['y'] += intval($total);
+                } else if ($status === '24' || $status === '26') {
+                    $data[1]['y'] += intval($total);
+                } else if ($status === '13' || $status === '21') {
+                    $data[2]['y'] += intval($total);
+                } else if ($status === '15') {
+                    $data[3]['y'] += intval($total);
+                } else if ($status === '25') {
+                    $data[4]['y'] += intval($total);
+                }
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_wo_by_group ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $groups = array();
+            $series = array();
+            $woByGroups = Class_db::getInstance()->db_select('vg_count_wo_by_site_group', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($woByGroups as $woByGroup) {
+                $ppmGroupId = $woByGroup['ppm_group_id'];
+                $ppmGroupName = $woByGroup['ppm_group_name'];
+                $total = $woByGroup['total'];
+                if ($ppmGroupName !== null) {
+                    if (!in_array($ppmGroupName, $groups)) {
+                        array_push($groups, $ppmGroupName);
+                        if (count($series) === 0) {
+                            array_push($series, array('name' => $ppmGroupName, 'ppmGroupId' => $ppmGroupId, 'y' => intval($total), 'sliced' => true, 'selected' => true));
+                        } else {
+                            array_push($series, array('name' => $ppmGroupName, 'ppmGroupId' => $ppmGroupId, 'y' => intval($total)));
+                        }
+                    } else {
+                        $groupIndex = array_search($ppmGroupName, $groups);
+                        $series[$groupIndex]['ppmGroupId'] .= '|'.$ppmGroupId;
+                        $series[$groupIndex]['y'] += intval($total);
+                    }
+                }
+            }
+            return $series;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

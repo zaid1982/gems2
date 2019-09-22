@@ -5,15 +5,19 @@ function MainHome() {
     let refClient;
     let refSite;
     let refContract;
+    let refUser;
+    let refPpmGroup;
+    let refStatus;
     let clientId = '1';
     let siteId = '0';
     let currentMonth;
     let currentYear;
+    let reportType = 'Work Order';
     let oTableWo;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
-        //$('#divHmeTopStats').hide();
+        $('.divHmeTopStats').hide();
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
 
@@ -36,11 +40,17 @@ function MainHome() {
                         $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
                         siteId = '0';
                         self.setOptionSite();
-                        self.generateTotalAsset();
-                        self.generateTotalPpmTask();
-                        self.generateTotalPpmLate();
-                        self.generatePercPpmDone();
-                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                        //self.generateTotalAsset();
+                        //self.generateTotalPpmTask();
+                        //self.generateTotalPpmLate();
+                        //self.generatePercPpmDone();
+                        self.generateChartWoBySite();
+                        self.generateChartWoByCategory();
+                        self.generateChartWoByType();
+                        self.generateChartWoByProgress();
+                        self.generateChartWoByTrade();
+                        self.genTableHmeDataWo();
+                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -50,7 +60,7 @@ function MainHome() {
         });
 
         let dateEarliest = new Date();
-        dateEarliest.setFullYear(2019, 3, 1);
+        dateEarliest.setFullYear(2019, 8, 1);
         let dateCtr = new Date();
         currentMonth = dateCtr.getMonth();
         currentYear = dateCtr.getFullYear();
@@ -77,11 +87,17 @@ function MainHome() {
                         $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
                         currentMonth = month;
                         currentYear = year;
-                        self.generateTotalAsset();
-                        self.generateTotalPpmTask();
-                        self.generateTotalPpmLate();
-                        self.generatePercPpmDone();
-                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                        //self.generateTotalAsset();
+                        //self.generateTotalPpmTask();
+                        //self.generateTotalPpmLate();
+                        //self.generatePercPpmDone();
+                        self.generateChartWoBySite();
+                        self.generateChartWoByCategory();
+                        self.generateChartWoByType();
+                        self.generateChartWoByProgress();
+                        self.generateChartWoByTrade();
+                        self.genTableHmeDataWo();
+                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -95,7 +111,7 @@ function MainHome() {
         oTableWo =  $('#dtHmeDataWo').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [2, 'asc'],
+            //"aaSorting": [1, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableWo.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -108,18 +124,33 @@ function MainHome() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: null},
+                    {mData: 'woTaskTimeCreated', mRender: function (data, type, row){
+                            return data.substr(0, 10);
+                        }},
                     {mData: 'woTaskNo'},
                     {mData: null, mRender: function (data, type, row){
                             return refSite[row['siteId']]['siteDesc'];
                         }},
-                    {mData: null},
+                    {mData: null, mRender: function (data, type, row){
+                            return refUser[row['woTaskCreatedBy']]['userFirstName'];
+                        }},
                     {mData: 'woTaskComplaint'},
-                    {mData: null},
-                    {mData: null},
-                    {mData: 'woTaskType'},
-                    {mData: null},
-                    {mData: 'siteId', visible: false}
+                    {mData: null, mRender: function (data, type, row){
+                            return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
+                        }},
+                    {mData: 'woTaskTypeDesc'},
+                    {mData: null,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: 'siteId', visible: false},
+                    {mData: 'ppmGroupId', visible: false},
+                    {mData: 'woTaskStatus', visible: false},
+                    {mData: 'woTaskType', visible: false}
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -127,12 +158,70 @@ function MainHome() {
             oTableWo.search($(this).val()).draw();
         });
 
+        let cntWo;
+        let btnWoOpt = {
+            exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                format: {
+                    body: function ( data, row, column ) {
+                        if (row === 0 && column === 0) {
+                            cntWo = 1;
+                        }
+                        if (column === 9) {
+                            const n = data.search('">');
+                            const k = data.substr(n+2);
+                            return k.replace('</span></h6>','');
+                        }
+                        return column === 0 ? cntWo++ : data;
+                    }
+                }
+            }
+        };
 
-        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
-        self.generateTotalAsset();
-        self.generateTotalPpmTask();
-        self.generateTotalPpmLate();
-        self.generatePercPpmDone();
+        new $.fn.dataTable.Buttons(oTableWo, {
+            buttons: [
+                $.extend( true, {}, btnWoOpt, {
+                    extend:    'print',
+                    text:      '<i class="fas fa-print"></i>',
+                    title:     'GEMS 2.0 - Work Order List',
+                    titleAttr: 'Print',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnWoOpt, {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fas fa-file-excel"></i>',
+                    title:     'GEMS 2.0 - Work Order List',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnWoOpt, {
+                    extend:    'pdfHtml5',
+                    text:      '<i class="fas fa-file-pdf"></i>',
+                    title:     'GEMS 2.0 - Work Order List',
+                    titleAttr: 'Pdf',
+                    orientation: 'landscape',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                })
+            ]
+        }).container().appendTo($('#btnDtHmeDataWoExport'));
+
+        $('#btnDtHmeDataWoRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableHmeDataWo();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+        //self.generateTotalAsset();
+        //self.generateTotalPpmTask();
+        //self.generateTotalPpmLate();
+        //self.generatePercPpmDone();
         self.generateChartWoBySite();
         self.generateChartWoByCategory();
         self.generateChartWoByType();
@@ -163,11 +252,17 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-                        self.generateTotalAsset();
-                        self.generateTotalPpmTask();
-                        self.generateTotalPpmLate();
-                        self.generatePercPpmDone();
-                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                        //self.generateTotalAsset();
+                        //self.generateTotalPpmTask();
+                        //self.generateTotalPpmLate();
+                        //self.generatePercPpmDone();
+                        self.generateChartWoBySite();
+                        self.generateChartWoByCategory();
+                        self.generateChartWoByType();
+                        self.generateChartWoByProgress();
+                        self.generateChartWoByTrade();
+                        self.genTableHmeDataWo();
+                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -178,7 +273,7 @@ function MainHome() {
     };
 
     this.genTableHmeDataWo = function () {
-        const dataWo = mzAjaxRequest('wo.php?siteId='+siteId, 'GET');
+        const dataWo = mzAjaxRequest('wo.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth, 'GET');
         oTableWo.clear().rows.add(dataWo).draw();
     };
 
@@ -261,307 +356,397 @@ function MainHome() {
     };
 
     this.generateChartWoBySite = function () {
-        Highcharts.chart('chartHme1', {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'WO By Site'
-            },
-            subtitle: {
-                text: 'Total Work Order Status by Site'
-            },
-            xAxis: {
-                categories: ['HQ', 'Suasana Kijang', 'Tunas Kijang', 'Data Center'],
-                title: {
-                    text: ''
-                }
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Total Work Order'
-                },
-                labels: {
-                    overflow: 'justify'
-                }
-            },
-            tooltip: {
-                valueSuffix: ' millions'
-            },
-            plotOptions: {
-                column: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    borderRadius: 5,
-                    borderWidth: 0
-                },
-                series: {
-                    events: {
-                        legendItemClick: function () {
-                            const visibility = this.visible ? 'visible' : 'hidden';
-                            if (!confirm('The series is currently ' +
-                                visibility + '. Do you want to change that?')) {
-                                return false;
+        $.ajax({
+            url: 'api/wo.php?type=total_by_site_status&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    let siteDescs = [];
+                    let siteIds = resp.result.categories;
+                    siteIds.forEach(function(key){
+                        siteDescs.push(refSite[key]['siteDesc']);
+                    });
+                    Highcharts.chart('chartHme1', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'WO By Site'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order Status by Site'
+                        },
+                        xAxis: {
+                            categories: siteDescs,
+                            title: {
+                                text: ''
                             }
-                        }
-                    }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total Work Order'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        tooltip: {
+                        },
+                        plotOptions: {
+                            column: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function(event) {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(12).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                            /*series: {
+                                events: {
+                                    legendItemClick: function () {
+                                        const visibility = this.visible ? 'visible' : 'hidden';
+                                        if (!confirm('The series is currently ' +
+                                            visibility + '. Do you want to change that?')) {
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }*/
+                        },
+                        /*legend: {
+                            layout: 'vertical',
+                            align: 'right',
+                            verticalAlign: 'top',
+                            x: -10,
+                            y: 40,
+                            floating: true,
+                            borderWidth: 1,
+                            backgroundColor:
+                                Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+                            shadow: true
+                        },*/
+                        credits: {
+                            enabled: false
+                        },
+                        series: resp.result.series
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
             },
-            /*legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
-                x: -10,
-                y: 40,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor:
-                    Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
-                shadow: true
-            },*/
-            credits: {
-                enabled: false
-            },
-            series: [{
-                name: 'Completed',
-                data: [107, 31, 635, 1203]
-            }, {
-                name: 'Responding',
-                data: [133, 156, 947, 2408]
-            }, {
-                name: 'In Progress',
-                data: [814, 841, 3714, 1727]
-            }, {
-                name: 'Cancelled',
-                data: [1216, 1001, 4436, 2738]
-            }]
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
         });
     };
 
     this.generateChartWoByCategory = function () {
-        Highcharts.chart('chartHme2', {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'WO By Category'
-            },
-            subtitle: {
-                text: 'Total Work Order by Category'
-            },
-            xAxis: {
-                categories: [
-                    'HQ',
-                    'Suasana Kijang',
-                    'Tunas Kijang',
-                    'Data Center'
-                ],
-                crosshair: true
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Total Work Order'
+        $.ajax({
+            url: 'api/wo.php?type=total_by_site_type&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    let siteDescs = [];
+                    let siteIds = resp.result.categories;
+                    siteIds.forEach(function(key){
+                        siteDescs.push(refSite[key]['siteDesc']);
+                    });
+                    Highcharts.chart('chartHme2', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'WO By Category'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order by Category'
+                        },
+                        xAxis: {
+                            categories: siteDescs,
+                            crosshair: true
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total Work Order'
+                            }
+                        },
+                        tooltip: {
+                        },
+                        /*tooltip: {
+                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                            footerFormat: '</table>',
+                            shared: true,
+                            useHTML: true
+                        },*/
+                        plotOptions: {
+                            column: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderWidth: 0,
+                                borderRadius: 3
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function(event) {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(13).search(event.point.series.userOptions.woTaskType, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: resp.result.series
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
             },
-            tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                    '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    borderWidth: 0,
-                    borderRadius: 5
-                }
-            },
-            credits: {
-                enabled: false
-            },
-            series: [{
-                name: 'Complaint',
-                data: [49.9, 71.5, 106.4, 129.2]
-
-            }, {
-                name: 'Request',
-                data: [83.6, 78.8, 98.5, 93.4]
-
-            }, {
-                name: 'Pro Active',
-                data: [48.9, 38.8, 39.3, 41.4]
-
-            }, {
-                name: 'Breakdown',
-                data: [42.4, 33.2, 34.5, 39.7],
-                //pointPlacement: 0.05
-
-            }]
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
         });
     };
 
     this.generateChartWoByType = function () {
-        Highcharts.chart('chartHme3', {
-            chart: {
-                type: 'pie'
-            },
-            title: {
-                text: 'Work Order Type'
-            },
-            subtitle: {
-                text: 'Total Work Order by Type'
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        distance: -20
-                    },
-                    showInLegend: true,
-                    borderWidth: 0
+        $.ajax({
+            url: 'api/wo.php?type=total_by_type&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme3', {
+                        chart: {
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'Work Order Type'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order by Type'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function() {
+                                        if (this.y != 0) {
+                                            return this.y;
+                                        } else {
+                                            return null;
+                                        }
+                                    },
+                                    //format: '<b>{point.name}</b><br>{point.y}',
+                                    distance: -20
+                                },
+                                showInLegend: true,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(13).search(this.woTaskType, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            colorByPoint: true,
+                            innerSize: '30%',
+                            data: resp.result
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
             },
-            credits: {
-                enabled: false
-            },
-            series: [{
-                name: 'Type',
-                colorByPoint: true,
-                innerSize: '30%',
-                data: [
-                {
-                    name: 'Self Finding',
-                    y: 14,
-                    sliced: true,
-                    selected: true
-                }, {
-                    name: 'Complaint',
-                    y: 16
-                }, {
-                    name: 'Request',
-                    y: 3
-                }, {
-                    name: 'Breakdown',
-                    y: 4
-                }, {
-                    name: 'Defect',
-                    y: 1
-                }]
-            }]
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
         });
     };
 
     this.generateChartWoByProgress = function () {
-        Highcharts.chart('chartHme4', {
-            chart: {
-                type: 'bar'
-            },
-            title: {
-                text: 'Work Order Progress'
-            },
-            subtitle: {
-                text: 'Total Work Order by Current Progress'
-            },
-            xAxis: {
-                categories: ['Unassigned', 'Cancelled', 'In Progress', 'Responding', 'Completed'],
-                title: {
-                    text: null
+        $.ajax({
+            url: 'api/wo.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme4', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Work Order Progress'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order by Current Progress'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total WO',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(12).search(this.woTaskStatus, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data,
+                            color: '#f45b5b'
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
             },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Total WO',
-                    align: 'high'
-                },
-                labels: {
-                    overflow: 'justify'
-                }
-            },
-            legend: {
-                enabled: false
-            },
-            plotOptions: {
-                bar: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    borderRadius: 5,
-                    borderWidth: 0
-                }
-            },
-            credits: {
-                enabled: false
-            },
-            series: [{
-                data: [107, 31, 635, 203, 32],
-                color: '#f45b5b'
-            }]
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
         });
     };
 
     this.generateChartWoByTrade = function () {
-        Highcharts.chart('chartHme5', {
-            chart: {
-                type: 'pie'
-            },
-            title: {
-                text: 'Trade'
-            },
-            subtitle: {
-                text: 'Total Work Order by Trade'
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        distance: -25
-                    },
-                    showInLegend: true,
-                    borderWidth: 0
+        $.ajax({
+            url: 'api/wo.php?type=total_by_group&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme5', {
+                        chart: {
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'Trade'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order by Trade'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function() {
+                                        if (this.y != 0) {
+                                            return this.y;
+                                        } else {
+                                            return null;
+                                        }
+                                    },
+                                    //format: '<b>{point.name}</b><br>{point.y}',
+                                    distance: -20
+                                },
+                                showInLegend: true,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(11).search(this.ppmGroupId, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            colorByPoint: true,
+                            data: resp.result
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
             },
-            credits: {
-                enabled: false
-            },
-            series: [{
-                name: 'Type',
-                colorByPoint: true,
-                data: [
-                    {
-                        name: 'Mechanical',
-                        y: 14,
-                        sliced: true,
-                        selected: true
-                    }, {
-                        name: 'Electrical',
-                        y: 16
-                    }, {
-                        name: 'Civil',
-                        y: 3
-                    }, {
-                        name: 'Custodial',
-                        y: 4
-                    }]
-            }]
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
         });
+    };
+
+    this.getClassName = function () {
+        return className;
     };
 
     this.setRefClient = function (_refClient) {
@@ -574,6 +759,18 @@ function MainHome() {
 
     this.setRefContract = function (_refContract) {
         refContract = _refContract;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
+    };
+
+    this.setRefPpmGroup = function (_refPpmGroup) {
+        refPpmGroup = _refPpmGroup;
+    };
+
+    this.setRefStatus = function (_refStatus) {
+        refStatus = _refStatus;
     };
 
 }
