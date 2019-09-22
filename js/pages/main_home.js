@@ -63,9 +63,10 @@ function MainHome() {
             dateCtr.setMonth(dateCtr.getMonth() - 1);
         }
 
-        $('.lnkHmeMonth').off('click').on('click', function () {ShowLoader();
+        $('.lnkHmeMonth').off('click').on('click', function () {
             const linkId = $(this).attr('id');
             const linkIndex = linkId.indexOf('_');
+            ShowLoader();
             setTimeout(function () {
                 try {
                     if (linkIndex > 0) {
@@ -112,23 +113,85 @@ function MainHome() {
             }
         });
         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+
+        $('.lnkHmeSite').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (linkIndex > 0) {
+                        $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
+                        siteId = linkId.substr(linkIndex + 1);
+                        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+                        self.generateTotalAsset();
+                        self.generateTotalPpmTask();
+                        self.generateTotalPpmLate();
+                        self.generatePercPpmDone();
+                        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+'</i>');
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
     };
 
     this.generateTotalAsset = function () {
-        const totalAsset = mzAjaxRequest('asset.php?type=total_asset&clientId='+clientId, 'GET');
-        $('#lblHmeTotalAsset').html(mzFormatNumber(totalAsset));
+        $.ajax({
+            url: 'api/asset.php?type=total_asset&clientId='+clientId,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    $('#lblHmeTotalAsset').html(mzFormatNumber(resp.result));
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
     };
 
     this.generateTotalPpmTask = function () {
-        const totalppmTask = mzAjaxRequest('ppm.php?type=total_ppm_task&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
-        $('#lblHmeTotalPpm').html(mzFormatNumber(totalppmTask));
-        $('#lblHmeTotalPpmTitle').html('Total PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+        $.ajax({
+            url: 'api/ppm.php?type=total_ppm_task&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    $('#lblHmeTotalPpm').html(mzFormatNumber(resp.result));
+                    $('#lblHmeTotalPpmTitle').html('Total PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
     };
 
     this.generateTotalPpmLate = function () {
-        const totalppmLate = mzAjaxRequest('ppm.php?type=total_ppm_late&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth, 'GET');
-        $('#lblHmeTotalPpmLate').html(mzFormatNumber(totalppmLate));
-        $('#lblHmeTotalPpmLateTitle').html('Total Late PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+        $.ajax({
+            url: 'api/ppm.php?type=total_ppm_late&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    $('#lblHmeTotalPpmLate').html(mzFormatNumber(resp.result));
+                    $('#lblHmeTotalPpmLateTitle').html('Total Late PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
     };
 
     this.generatePercPpmDone = function () {
