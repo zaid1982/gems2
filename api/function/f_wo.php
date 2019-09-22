@@ -209,7 +209,7 @@ class Class_wo {
                 $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_id', null, 1);
             }
 
-            $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
+            $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24'));
             foreach ($complaintImageUploads as $complaintImageUpload) {
                 if (!array_key_exists('uploadId', $complaintImageUpload)) {
@@ -433,14 +433,14 @@ class Class_wo {
             $arrStatus = $this->fn_general->getRefStatus();
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrSiteName = $this->fn_general->getSiteName();
-            $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
+            $arrWoType = $this->get_wo_type();
 
             $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $createdBy = $dataLocal['wo_task_created_by'];
             $result['woTaskId'] = $dataLocal['wo_task_id'];
             $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)];
             $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
-            $result['woTaskCategory'] = $arrWoTaskType[intval($dataLocal['wo_task_type'])];
+            $result['woTaskCategory'] = $arrWoType[intval($dataLocal['wo_task_type'])];
             $result['woTaskClient'] = !empty($dataLocal['site_id']) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
             $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
             $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
@@ -609,10 +609,11 @@ class Class_wo {
      * @param string $userTechId
      * @param string $severityId
      * @param array $assistUserId
+     * @param string $woTaskType
      * @return array
      * @throws Exception
      */
-    public function save_assigned_technician_m ($ppmGroupId='', $userTechId='', $severityId='', $assistUserId=array()) {
+    public function save_assigned_technician_m ($ppmGroupId='', $userTechId='', $severityId='', $assistUserId=array(), $woTaskType='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -628,10 +629,14 @@ class Class_wo {
             if (empty($severityId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter severityId empty');
             }
+            if (empty($woTaskType)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskCategory empty');
+            }
 
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrSeverity = $this->get_severity();
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
+            $arrTaskType = $this->get_wo_type();
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$severityId, 'wo_task_type'=>$woTaskType), array('wo_task_id'=>$this->woTaskId));
 
             Class_db::getInstance()->db_delete('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
             if (!empty($assistUserId)) {
@@ -644,7 +649,8 @@ class Class_wo {
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
                 'userFirstName'=>$arrUserFullName[intval($userTechId)],
-                'severityName'=>$arrSeverity[intval($severityId)]
+                'severityName'=>$arrSeverity[intval($severityId)],
+                'woTaskType'=>$arrTaskType[intval($woTaskType)]
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -841,6 +847,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
             }
 
+            $arrWoType = $this->get_wo_type();
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $assistUserId = Class_db::getInstance()->db_select_colm('wo_task_assist', array('wo_task_id'=>$this->woTaskId), 'user_id');
 
@@ -848,6 +855,8 @@ class Class_wo {
                 'groupId'=>$this->fn_general->clear_null($woTask['ppm_group_id']),
                 'userId'=>$this->fn_general->clear_null($woTask['wo_task_assigned_to']),
                 'severity'=>$this->fn_general->clear_null($woTask['wo_task_severity']),
+                'userCategory'=>($woTask['wo_task_type_init']==='1'?'Client':'Internal'),
+                'woTaskCategory'=>$this->fn_general->clear_null($woTask['wo_task_type']),
                 'assistUserId'=>$assistUserId);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

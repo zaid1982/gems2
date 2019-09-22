@@ -139,9 +139,10 @@ try {
             $ppmGroupId = filter_input(INPUT_POST, 'groupId');
             $userId = filter_input(INPUT_POST, 'userId');
             $severity = filter_input(INPUT_POST, 'severity');
+            $woTaskType = filter_input(INPUT_POST, 'woTaskCategory');
             $assistUserId = filter_input(INPUT_POST, 'assistUserId', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $returnVal = $fn_wo->save_assigned_technician_m($ppmGroupId, $userId, $severity, $assistUserId);
-            $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName']);
+            $returnVal = $fn_wo->save_assigned_technician_m($ppmGroupId, $userId, $severity, $assistUserId, $woTaskType);
+            $fn_general->save_audit('110', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName'].', category = '.$returnVal['woTaskType']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
         }
         else if ($action === 'save_wo_severity') {

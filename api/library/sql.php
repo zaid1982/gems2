@@ -369,6 +369,9 @@ class Class_sql
                     wfl_transaction.flow_id,
                     CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
                      WHEN wo_task_type = 2 THEN 'Self Finding'
+                     WHEN wo_task_type = 3 THEN 'Request'
+                     WHEN wo_task_type = 4 THEN 'Breakdown'
+                     WHEN wo_task_type = 5 THEN 'Defect'
                      ELSE '' END AS wo_task_type,                     
                     CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
                      WHEN wo_task_severity = 2 THEN 'Critical'
@@ -474,6 +477,9 @@ class Class_sql
                     sys_user_assigned.user_first_name AS assigned_to,
                     CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
                         WHEN wo_task_type = 2 THEN 'Self Finding'
+                        WHEN wo_task_type = 3 THEN 'Request'
+                        WHEN wo_task_type = 4 THEN 'Breakdown'
+                        WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
                     END AS wo_task_type_desc,
                     CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
@@ -492,6 +498,9 @@ class Class_sql
                     sys_user_assigned.user_first_name AS assigned_to,
                     CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
                         WHEN wo_task_type = 2 THEN 'Self Finding'
+                        WHEN wo_task_type = 3 THEN 'Request'
+                        WHEN wo_task_type = 4 THEN 'Breakdown'
+                        WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
                     END AS wo_task_type_desc,
                     CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
