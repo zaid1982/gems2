@@ -429,7 +429,7 @@ class Class_sql
                 LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_task.transaction_id
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN wfl_flow ON wfl_flow.flow_id = wfl_transaction.flow_id
-                LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id
+                LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = checkpoint_id
                 LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
                 LEFT JOIN sys_user checked_by ON checked_by.user_id = ppm_task.ppm_task_checked_by
                 LEFT JOIN sys_user verified_by ON verified_by.user_id = ppm_task.ppm_task_verified_by

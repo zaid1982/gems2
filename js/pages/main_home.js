@@ -39,7 +39,9 @@ function MainHome() {
                         $('#lnkHmeClient_'+clientId).removeClass('active').removeClass('text-white');
                         clientId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
+                        $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = '0';
+                        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
                         self.setOptionSite();
                         if (reportId === '1') {
                             $('.divHmeTopStats_ppm').show();
@@ -125,14 +127,13 @@ function MainHome() {
                         $('#lnkHmeReportType_'+reportId).removeClass('active').removeClass('text-white');
                         reportId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
-                        siteId = '0';
                         if (reportId === '1') {
                             reportType = 'PPM';
                             $('.divHmeTopStats_ppm').show();
                             self.generateTotalAsset();
-                            //self.generateTotalPpmTask();
-                            //self.generateTotalPpmLate();
-                            //self.generatePercPpmDone();
+                            self.generateTotalPpmTask();
+                            self.generateTotalPpmLate();
+                            self.generatePercPpmDone();
                         } else if (reportId === '2') {
                             reportType = 'Work Order';
                             $('.divHmeTopStats_wo').hide();

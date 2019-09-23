@@ -59,19 +59,22 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
-                $result = $fn_ppm->get_total_ppm_task($month, $year, $clientId, $contractId);
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $result = $fn_ppm->get_total_ppm_task($month, $year, $clientId, $siteId, $contractId);
             } else if ($type === 'total_ppm_late') {
                 $month = filter_input(INPUT_GET, 'month');
                 $year = filter_input(INPUT_GET, 'year');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
-                $result = $fn_ppm->get_total_ppm_late($month, $year, $clientId, $contractId);
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $result = $fn_ppm->get_total_ppm_late($month, $year, $clientId, $siteId, $contractId);
             } else if ($type === 'perc_ppm_done') {
                 $month = filter_input(INPUT_GET, 'month');
                 $year = filter_input(INPUT_GET, 'year');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
-                $result = $fn_ppm->get_perc_ppm_done($month, $year, $clientId, $contractId);
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $result = $fn_ppm->get_perc_ppm_done($month, $year, $clientId, $siteId, $contractId);
             }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);
