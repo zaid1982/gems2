@@ -40,7 +40,8 @@ try {
         if (!is_null($type)) {
             if ($type === 'total_asset') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
-                $result = $fn_asset->get_total_asset($contractId);
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $result = $fn_asset->get_total_asset($clientId, $siteId);
             }
         } else if (!is_null($assetId)) {
             $result = $fn_asset->get_asset($assetId);

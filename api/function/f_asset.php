@@ -575,25 +575,30 @@ class Class_asset {
 
     /**
      * @param string $clientId
-     * @param string $contractId
+     * @param string $siteId
      * @return
      * @throws Exception
      */
-    public function get_total_asset ($clientId='', $contractId='') {
+    public function get_total_asset ($clientId='', $siteId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            if (!empty($clientId) && empty($contractId)) {
-                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
-                if (!empty($siteIds)) {
-                    $siteIdStr = implode(',', $siteIds);
-                    $contractIds = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>'('.$siteIdStr.')', 'contract_status'=>'1'), 'contract_id');
-                    if (!empty($contractIds)) {
-                        $contractId = '('.$contractIds.')';
-                    }
-                }
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
             }
-            return Class_db::getInstance()->db_select_col('vw_count_asset', array('contract_id'=>$contractId), 'total');
+
+            if (empty($siteId)) {
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                $siteIdStr = '('.implode(',', $siteIds).')';
+            } else {
+                $siteIdStr = $siteId;
+            }
+            $contractIds = Class_db::getInstance()->db_select_colm('cli_contract', array('site_id'=>$siteIdStr, 'contract_status'=>'1'), 'contract_id');
+            if (!empty($contractIds)) {
+                $contractId = '('.implode(',', $contractIds).')';
+                return Class_db::getInstance()->db_select_col('vw_count_asset', array('contract_id'=>$contractId), 'total');
+            }
+            return '';
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

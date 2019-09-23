@@ -12,12 +12,13 @@ function MainHome() {
     let siteId = '0';
     let currentMonth;
     let currentYear;
+    let reportId = '2';
     let reportType = 'Work Order';
     let oTableWo;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
-        $('.divHmeTopStats').hide();
+        $('.divHmeTopStats_ppm').hide();
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
 
@@ -40,16 +41,20 @@ function MainHome() {
                         $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
                         siteId = '0';
                         self.setOptionSite();
-                        //self.generateTotalAsset();
-                        //self.generateTotalPpmTask();
-                        //self.generateTotalPpmLate();
-                        //self.generatePercPpmDone();
-                        self.generateChartWoBySite();
-                        self.generateChartWoByCategory();
-                        self.generateChartWoByType();
-                        self.generateChartWoByProgress();
-                        self.generateChartWoByTrade();
-                        self.genTableHmeDataWo();
+                        if (reportId === '1') {
+                            $('.divHmeTopStats_ppm').show();
+                            self.generateTotalAsset();
+                            self.generateTotalPpmTask();
+                            self.generateTotalPpmLate();
+                            self.generatePercPpmDone();
+                        } else if (reportId === '2') {
+                            self.generateChartWoBySite();
+                            self.generateChartWoByCategory();
+                            self.generateChartWoByType();
+                            self.generateChartWoByProgress();
+                            self.generateChartWoByTrade();
+                            self.genTableHmeDataWo();
+                        }
                         $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
@@ -87,16 +92,20 @@ function MainHome() {
                         $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
                         currentMonth = month;
                         currentYear = year;
-                        //self.generateTotalAsset();
-                        //self.generateTotalPpmTask();
-                        //self.generateTotalPpmLate();
-                        //self.generatePercPpmDone();
-                        self.generateChartWoBySite();
-                        self.generateChartWoByCategory();
-                        self.generateChartWoByType();
-                        self.generateChartWoByProgress();
-                        self.generateChartWoByTrade();
-                        self.genTableHmeDataWo();
+                        if (reportId === '1') {
+                            $('.divHmeTopStats_ppm').show();
+                            self.generateTotalAsset();
+                            self.generateTotalPpmTask();
+                            self.generateTotalPpmLate();
+                            self.generatePercPpmDone();
+                        } else if (reportId === '2') {
+                            self.generateChartWoBySite();
+                            self.generateChartWoByCategory();
+                            self.generateChartWoByType();
+                            self.generateChartWoByProgress();
+                            self.generateChartWoByTrade();
+                            self.genTableHmeDataWo();
+                        }
                         $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
@@ -104,6 +113,43 @@ function MainHome() {
                 }
                 HideLoader();
             }, 300);
+        });
+
+        $('.lnkHmeReportType').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (linkIndex > 0) {
+                        $('#lnkHmeReportType_'+reportId).removeClass('active').removeClass('text-white');
+                        reportId = linkId.substr(linkIndex + 1);
+                        $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
+                        siteId = '0';
+                        if (reportId === '1') {
+                            reportType = 'PPM';
+                            $('.divHmeTopStats_ppm').show();
+                            self.generateTotalAsset();
+                            //self.generateTotalPpmTask();
+                            //self.generateTotalPpmLate();
+                            //self.generatePercPpmDone();
+                        } else if (reportId === '2') {
+                            reportType = 'Work Order';
+                            $('.divHmeTopStats_wo').hide();
+                            self.generateChartWoBySite();
+                            self.generateChartWoByCategory();
+                            self.generateChartWoByType();
+                            self.generateChartWoByProgress();
+                            self.generateChartWoByTrade();
+                            self.genTableHmeDataWo();
+                        }
+                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         self.setOptionSite();
@@ -218,16 +264,21 @@ function MainHome() {
         });
 
         $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
-        //self.generateTotalAsset();
-        //self.generateTotalPpmTask();
-        //self.generateTotalPpmLate();
-        //self.generatePercPpmDone();
-        self.generateChartWoBySite();
-        self.generateChartWoByCategory();
-        self.generateChartWoByType();
-        self.generateChartWoByProgress();
-        self.generateChartWoByTrade();
-        self.genTableHmeDataWo();
+
+        if (reportId === '1') {
+            $('.divHmeTopStats_ppm').show();
+            self.generateTotalAsset();
+            self.generateTotalPpmTask();
+            self.generateTotalPpmLate();
+            self.generatePercPpmDone();
+        } else if (reportId === '2') {
+            self.generateChartWoBySite();
+            self.generateChartWoByCategory();
+            self.generateChartWoByType();
+            self.generateChartWoByProgress();
+            self.generateChartWoByTrade();
+            self.genTableHmeDataWo();
+        }
     };
 
     this.setOptionSite = function () {
@@ -252,16 +303,21 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-                        //self.generateTotalAsset();
-                        //self.generateTotalPpmTask();
-                        //self.generateTotalPpmLate();
-                        //self.generatePercPpmDone();
-                        self.generateChartWoBySite();
-                        self.generateChartWoByCategory();
-                        self.generateChartWoByType();
-                        self.generateChartWoByProgress();
-                        self.generateChartWoByTrade();
-                        self.genTableHmeDataWo();
+
+                        if (reportId === '1') {
+                            $('.divHmeTopStats_ppm').show();
+                            self.generateTotalAsset();
+                            self.generateTotalPpmTask();
+                            self.generateTotalPpmLate();
+                            self.generatePercPpmDone();
+                        } else if (reportId === '2') {
+                            self.generateChartWoBySite();
+                            self.generateChartWoByCategory();
+                            self.generateChartWoByType();
+                            self.generateChartWoByProgress();
+                            self.generateChartWoByTrade();
+                            self.genTableHmeDataWo();
+                        }
                         $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
                     }
                 } catch (e) {
@@ -279,7 +335,7 @@ function MainHome() {
 
     this.generateTotalAsset = function () {
         $.ajax({
-            url: 'api/asset.php?type=total_asset&clientId='+clientId,
+            url: 'api/asset.php?type=total_asset&clientId='+clientId+'&siteId='+siteId,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -297,7 +353,7 @@ function MainHome() {
 
     this.generateTotalPpmTask = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_ppm_task&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_ppm_task&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -316,7 +372,7 @@ function MainHome() {
 
     this.generateTotalPpmLate = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_ppm_late&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_ppm_late&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -335,7 +391,7 @@ function MainHome() {
 
     this.generatePercPpmDone = function () {
         $.ajax({
-            url: 'api/ppm.php?type=perc_ppm_done&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=perc_ppm_done&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
