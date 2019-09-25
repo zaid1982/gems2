@@ -574,6 +574,23 @@ class Class_sql
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
                 WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
                 GROUP BY wo_task.site_id, wo_task.ppm_group_id ORDER BY wo_task.ppm_group_id";
+            } else if ($title === 'vg_count_ppm_by_site_status') {
+                $sql = "SELECT 
+                    site_id, ppm_task_status, count(*) AS total 
+                FROM ppm_task 
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                WHERE YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                GROUP BY site_id, ppm_task_status";
+            } else if ($title === 'vg_count_ppm_by_site_trade') {
+                $sql = "SELECT 
+                    site_id, asset_group_id, count(*) AS total 
+                FROM ppm_task 
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                WHERE YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                GROUP BY site_id, asset_group_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

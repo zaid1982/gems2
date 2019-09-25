@@ -15,6 +15,8 @@ function MainHome() {
     let reportId = '2';
     let reportType = 'Work Order';
     let oTableWo;
+    let totalPpm = 0;
+    let totalLate = 0;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
@@ -43,22 +45,7 @@ function MainHome() {
                         siteId = '0';
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
                         self.setOptionSite();
-                        if (reportId === '1') {
-                            $('.divHmeTopStats_ppm').show();
-                            self.generateTotalAsset();
-                            self.generateTotalPpmTask();
-                            self.generateTotalPpmLate();
-                            self.generatePercPpmDone();
-                        } else if (reportId === '2') {
-                            self.generateChartWoBySite();
-                            self.generateChartWoByCategory();
-                            self.generateChartWoByType();
-                            self.generateChartWoByProgress();
-                            self.generateChartWoByTrade();
-                            self.genTableHmeDataWo();
-                        }
-                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
-                    }
+                        self.runChart();}
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -94,21 +81,7 @@ function MainHome() {
                         $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
                         currentMonth = month;
                         currentYear = year;
-                        if (reportId === '1') {
-                            $('.divHmeTopStats_ppm').show();
-                            self.generateTotalAsset();
-                            self.generateTotalPpmTask();
-                            self.generateTotalPpmLate();
-                            self.generatePercPpmDone();
-                        } else if (reportId === '2') {
-                            self.generateChartWoBySite();
-                            self.generateChartWoByCategory();
-                            self.generateChartWoByType();
-                            self.generateChartWoByProgress();
-                            self.generateChartWoByTrade();
-                            self.genTableHmeDataWo();
-                        }
-                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+                        self.runChart();
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -129,22 +102,10 @@ function MainHome() {
                         $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
                         if (reportId === '1') {
                             reportType = 'PPM';
-                            $('.divHmeTopStats_ppm').show();
-                            self.generateTotalAsset();
-                            self.generateTotalPpmTask();
-                            self.generateTotalPpmLate();
-                            self.generatePercPpmDone();
                         } else if (reportId === '2') {
                             reportType = 'Work Order';
-                            $('.divHmeTopStats_wo').hide();
-                            self.generateChartWoBySite();
-                            self.generateChartWoByCategory();
-                            self.generateChartWoByType();
-                            self.generateChartWoByProgress();
-                            self.generateChartWoByTrade();
-                            self.genTableHmeDataWo();
                         }
-                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+                        self.runChart();
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -171,7 +132,7 @@ function MainHome() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'woTaskTimeCreated', mRender: function (data, type, row){
+                    {mData: 'woTaskTimeCreated', mRender: function (data){
                             return data.substr(0, 10);
                         }},
                     {mData: 'woTaskNo'},
@@ -264,22 +225,7 @@ function MainHome() {
             }, 300);
         });
 
-        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
-
-        if (reportId === '1') {
-            $('.divHmeTopStats_ppm').show();
-            self.generateTotalAsset();
-            self.generateTotalPpmTask();
-            self.generateTotalPpmLate();
-            self.generatePercPpmDone();
-        } else if (reportId === '2') {
-            self.generateChartWoBySite();
-            self.generateChartWoByCategory();
-            self.generateChartWoByType();
-            self.generateChartWoByProgress();
-            self.generateChartWoByTrade();
-            self.genTableHmeDataWo();
-        }
+        self.runChart();
     };
 
     this.setOptionSite = function () {
@@ -304,22 +250,7 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-
-                        if (reportId === '1') {
-                            $('.divHmeTopStats_ppm').show();
-                            self.generateTotalAsset();
-                            self.generateTotalPpmTask();
-                            self.generateTotalPpmLate();
-                            self.generatePercPpmDone();
-                        } else if (reportId === '2') {
-                            self.generateChartWoBySite();
-                            self.generateChartWoByCategory();
-                            self.generateChartWoByType();
-                            self.generateChartWoByProgress();
-                            self.generateChartWoByTrade();
-                            self.genTableHmeDataWo();
-                        }
-                        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+                        self.runChart();
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -327,6 +258,31 @@ function MainHome() {
                 HideLoader();
             }, 200);
         });
+    };
+
+    this.runChart = function () {
+        if (reportId === '1') {
+            $('.divHmeTopStats_ppm, #divHmeTable_ppm').show();
+            $('.divHmeTopStats_wo, #divHmeTable_wo').hide();
+            self.generateTotalAsset();
+            self.generateTotalPpmTask();
+            self.generateTotalPpmLate();
+            self.generatePercPpmDone();
+            self.generateChartPpmBySite();
+            self.generateChartPpmByTrade();
+            self.generateChartPpmByTradePerSite();
+            self.generateChartPpmByProgress();
+        } else if (reportId === '2') {
+            $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
+            $('.divHmeTopStats_wo, #divHmeTable_wo').show();
+            self.generateChartWoBySite();
+            self.generateChartWoByCategory();
+            self.generateChartWoByType();
+            self.generateChartWoByProgress();
+            self.generateChartWoByTrade();
+            self.genTableHmeDataWo();
+        }
+        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
     };
 
     this.genTableHmeDataWo = function () {
@@ -361,6 +317,7 @@ function MainHome() {
                 if (resp.success) {
                     $('#lblHmeTotalPpm').html(mzFormatNumber(resp.result));
                     $('#lblHmeTotalPpmTitle').html('Total PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                    totalPpm = parseInt(resp.result);
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
@@ -380,6 +337,8 @@ function MainHome() {
                 if (resp.success) {
                     $('#lblHmeTotalPpmLate').html(mzFormatNumber(resp.result));
                     $('#lblHmeTotalPpmLateTitle').html('Total Late PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                    totalLate = parseInt(resp.result);
+                    self.generateChartPpmByLateness();
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
@@ -800,6 +759,362 @@ function MainHome() {
                 throw new Error(_ALERT_MSG_ERROR_DEFAULT);
             }
         });
+    };
+
+    this.generateChartPpmBySite = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=total_by_site_status&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    let siteDescs = [];
+                    let siteIds = resp.result.categories;
+                    siteIds.forEach(function(key){
+                        siteDescs.push(refSite[key]['siteDesc']);
+                    });
+                    Highcharts.chart('chartHme1', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'PPM By Site'
+                        },
+                        subtitle: {
+                            text: 'Total PPM Status by Site'
+                        },
+                        xAxis: {
+                            categories: siteDescs,
+                            title: {
+                                text: ''
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total PPM'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        tooltip: {
+                        },
+                        plotOptions: {
+                            column: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function (event) {
+                                            //oTableWo.search('').columns().search('').draw();
+                                            //oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(12).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: resp.result.series
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmByTrade = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=total_by_site_trade&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    let siteDescs = [];
+                    let siteIds = resp.result.categories;
+                    siteIds.forEach(function(key){
+                        siteDescs.push(refSite[key]['siteDesc']);
+                    });
+                    Highcharts.chart('chartHme2', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'PPM By Trade'
+                        },
+                        subtitle: {
+                            text: 'Total PPM by Trade'
+                        },
+                        xAxis: {
+                            categories: siteDescs,
+                            crosshair: true
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total PPM'
+                            }
+                        },
+                        tooltip: {
+                        },
+                        plotOptions: {
+                            column: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderWidth: 0,
+                                borderRadius: 3
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function(event) {
+                                            //oTableWo.search('').columns().search('').draw();
+                                            //oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(13).search(event.point.series.userOptions.assetGroupId, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: resp.result.series
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmByTradePerSite = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=total_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme3', {
+                        chart: {
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'PPM Trade'
+                        },
+                        subtitle: {
+                            text: 'Total PPM by Trade'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function() {
+                                        if (this.y != 0) {
+                                            return this.y;
+                                        } else {
+                                            return null;
+                                        }
+                                    },
+                                    distance: -20
+                                },
+                                showInLegend: true,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            //oTableWo.search('').columns().search('').draw();
+                                            //oTableWo.column(13).search(this.assetGroupId, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            colorByPoint: true,
+                            innerSize: '30%',
+                            data: resp.result
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmByProgress = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme4', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'PPM Progress'
+                        },
+                        subtitle: {
+                            text: 'Total PPM by Current Progress'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total PPM',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            //oTableWo.search('').columns().search('').draw();
+                                            //oTableWo.column(12).search(this.ppmTaskStatus, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data,
+                            color: '#f45b5b'
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmByLateness = function () {
+        if (totalPpm >= totalLate) {
+            Highcharts.chart('chartHme5', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'PPM Lateness'
+                },
+                subtitle: {
+                    text: 'Total PPM Execution by Lateness Status'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function () {
+                                if (this.y != 0) {
+                                    return this.y;
+                                } else {
+                                    return null;
+                                }
+                            },
+                            //format: '<b>{point.name}</b><br>{point.y}',
+                            distance: -20
+                        },
+                        showInLegend: true,
+                        borderWidth: 0
+                    },
+                    series: {
+                        point: {
+                            events: {
+                                click: function () {
+                                    //oTableWo.search('').columns().search('').draw();
+                                    //oTableWo.column(11).search(this.ppmGroupId, true, false).draw();
+                                }
+                            }
+                        }
+                    }
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Total',
+                    colorByPoint: true,
+                    data: [
+                        {
+                            name: 'Late',
+                            y: totalLate,
+                            sliced: true,
+                            selected: true,
+                            color: '#f45b5b'
+                        }, {
+                            name: 'On-time',
+                            y: totalPpm - totalLate
+                        }]
+                }]
+            });
+        }
     };
 
     this.getClassName = function () {

@@ -76,6 +76,32 @@ try {
                 $siteId = filter_input(INPUT_GET, 'siteId');
                 $result = $fn_ppm->get_perc_ppm_done($month, $year, $clientId, $siteId, $contractId);
             }
+            else if ($type === 'total_by_site_status') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_total_ppm_by_site_status($clientId, $year, $month);
+            }
+            else if ($type === 'total_by_site_trade') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_total_ppm_by_site_trade($clientId, $year, $month);
+            }
+            else if ($type === 'total_by_trade') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_total_ppm_by_trade($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'total_by_status') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_total_ppm_by_status($clientId, $siteId, $year, $month);
+            }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);
         } else {

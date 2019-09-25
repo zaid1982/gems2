@@ -1895,8 +1895,8 @@ class Class_ppm {
                 $arrWhere['contract_id'] = $contractId;
             }
             if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
-                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
+                $arrWhere['MONTH(ppm_task_start_date)'] = intval($month)+1;
+                $arrWhere['YEAR(ppm_task_start_date)'] = $year;
             }
             return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
         }
@@ -1910,6 +1910,7 @@ class Class_ppm {
      * @param string $month
      * @param string $year
      * @param string $clientId
+     * @param string $siteId
      * @param string $contractId
      * @return mixed
      * @throws Exception
@@ -1918,7 +1919,7 @@ class Class_ppm {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            $arrWhere = array('ppm_task_status'=>'(12,13)');
+            $arrWhere = array('w1'=>'((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date)');
             if (!empty($clientId) && empty($contractId)) {
                 $contractIds = '';
                 if (empty($siteId)) {
@@ -1939,8 +1940,8 @@ class Class_ppm {
                 $arrWhere['contract_id'] = $contractId;
             }
             if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
-                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
+                $arrWhere['MONTH(ppm_task_start_date)'] = intval($month)+1;
+                $arrWhere['YEAR(ppm_task_start_date)'] = $year;
             }
             return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
         }
@@ -1954,6 +1955,7 @@ class Class_ppm {
      * @param string $month
      * @param string $year
      * @param string $clientId
+     * @param string $siteId
      * @param string $contractId
      * @return float|int
      * @throws Exception
@@ -2061,4 +2063,254 @@ class Class_ppm {
         }
     }
 
+    /**
+     * @param string $clientId
+     * @param string $year
+     * @param string $month
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_total_ppm_by_site_status ($clientId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+            $dataEmpty = array();
+            foreach ($siteIds as $siteId) {
+                array_push($dataEmpty, 0);
+            }
+
+            $series = array(
+                array('name'=>'Open', 'ppmTaskStatus'=>'12', 'data'=>$dataEmpty),
+                array('name'=>'In Progress', 'ppmTaskStatus'=>'13|21', 'data'=>$dataEmpty),
+                array('name'=>'Check', 'ppmTaskStatus'=>'14', 'data'=>$dataEmpty),
+                array('name'=>'Verify', 'ppmTaskStatus'=>'15', 'data'=>$dataEmpty),
+                array('name'=>'Completed', 'ppmTaskStatus'=>'16', 'data'=>$dataEmpty)
+            );
+            if (!empty($siteIds)) {
+                $siteIdStr = implode(',', $siteIds);
+                $ppmBySites = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                foreach ($ppmBySites as $ppmBySite) {
+                    $status = $ppmBySite['ppm_task_status'];
+                    $total = $ppmBySite['total'];
+                    $siteIndex = array_search($ppmBySite['site_id'], $siteIds);
+                    if ($status === '12') {
+                        $series[0]['data'][$siteIndex] = intval($total);
+                    } else if ($status === '13' || $status === '21') {
+                        $series[1]['data'][$siteIndex] += intval($total);
+                    } else if ($status === '14') {
+                        $series[2]['data'][$siteIndex] += intval($total);
+                    } else if ($status === '15') {
+                        $series[3]['data'][$siteIndex] = intval($total);
+                    } else if ($status === '16') {
+                        $series[4]['data'][$siteIndex] = intval($total);
+                    }
+                }
+            }
+
+            return array('categories'=>$siteIds, 'series'=>$series);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $year
+     * @param string $month
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_total_ppm_by_site_trade ($clientId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+            $dataEmpty = array();
+            foreach ($siteIds as $siteId) {
+                array_push($dataEmpty, 0);
+            }
+
+            $series = array(
+                array('name'=>'Civil', 'assetGroupId'=>'1', 'data'=>$dataEmpty),
+                array('name'=>'Electrical', 'assetGroupId'=>'2', 'data'=>$dataEmpty),
+                array('name'=>'Mechanical', 'assetGroupId'=>'3', 'data'=>$dataEmpty),
+                array('name'=>'ICT', 'assetGroupId'=>'4', 'data'=>$dataEmpty)
+            );
+            if (!empty($siteIds)) {
+                $siteIdStr = implode(',', $siteIds);
+                $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                foreach ($ppmByTrades as $ppmByTrade) {
+                    $assetGroupId = $ppmByTrade['asset_group_id'];
+                    $total = $ppmByTrade['total'];
+                    $siteIndex = array_search($ppmByTrade['site_id'], $siteIds);
+                    if ($assetGroupId === '1') {
+                        $series[0]['data'][$siteIndex] = intval($total);
+                    } else if ($assetGroupId === '2') {
+                        $series[1]['data'][$siteIndex] += intval($total);
+                    } else if ($assetGroupId === '3') {
+                        $series[2]['data'][$siteIndex] += intval($total);
+                    } else if ($assetGroupId === '4') {
+                        $series[3]['data'][$siteIndex] = intval($total);
+                    }
+                }
+            }
+
+            return array('categories'=>$siteIds, 'series'=>$series);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_ppm_by_trade ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $series = array(
+                array('name'=>'Civil', 'assetGroupId'=>'1', 'y'=>0, 'sliced'=>true, 'selected'=>true),
+                array('name'=>'Electrical', 'assetGroupId'=>'2', 'y'=>0),
+                array('name'=>'Mechanical', 'assetGroupId'=>'3', 'y'=>0),
+                array('name'=>'ICT', 'assetGroupId'=>'4', 'y'=>0)
+            );
+            $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($ppmByTrades as $ppmByTrade) {
+                $assetGroupId = $ppmByTrade['asset_group_id'];
+                $total = $ppmByTrade['total'];
+                if ($assetGroupId === '1') {
+                    $series[0]['y'] += intval($total);
+                } else if ($assetGroupId === '2') {
+                    $series[1]['y'] += intval($total);
+                } else if ($assetGroupId === '3') {
+                    $series[2]['y'] += intval($total);
+                } else if ($assetGroupId === '4') {
+                    $series[3]['y'] += intval($total);
+                }
+            }
+
+            return $series;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_total_ppm_by_status ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $categories = array('Open', 'In Progress', 'Check', 'Verify', 'Completed');
+            $data = array(
+                array('y'=>0, 'ppmTaskStatus'=>'12'),
+                array('y'=>0, 'ppmTaskStatus'=>'13|21'),
+                array('y'=>0, 'ppmTaskStatus'=>'14'),
+                array('y'=>0, 'ppmTaskStatus'=>'15'),
+                array('y'=>0, 'ppmTaskStatus'=>'16')
+            );
+            $ppmByStatus = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($ppmByStatus as $ppmStatus) {
+                $status = $ppmStatus['ppm_task_status'];
+                $total = $ppmStatus['total'];
+                if ($status === '12') {
+                    $data[0]['y'] += intval($total);
+                } else if ($status === '13' || $status === '21') {
+                    $data[1]['y'] += intval($total);
+                } else if ($status === '14') {
+                    $data[2]['y'] += intval($total);
+                } else if ($status === '15') {
+                    $data[3]['y'] += intval($total);
+                } else if ($status === '16') {
+                    $data[4]['y'] += intval($total);
+                }
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
