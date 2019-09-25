@@ -130,7 +130,7 @@ class Class_pdf_wo {
 
             $arrSiteName = $this->fn_general->getSiteName();
             $arrUserFullName = $this->fn_general->getUserFullName();
-            $arrCategory = array('', 'External Complaint', 'Internal Complaint');
+            $arrCategory = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect');
             $arrSeverity = array('', 'Non-Critical', 'Critical');
             $arrSla = array('', '4 hours', '2 hours');
             $arrDue = array('', '4', '2');
