@@ -350,7 +350,12 @@ class Class_sql
                     transaction_time_complete,
                     transaction_status,
                     flow_id,
-                    wo_task_type,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                     WHEN wo_task_type = 2 THEN 'Self Finding'
+                     WHEN wo_task_type = 3 THEN 'Request'
+                     WHEN wo_task_type = 4 THEN 'Breakdown'
+                     WHEN wo_task_type = 5 THEN 'Defect'
+                     ELSE '' END AS wo_task_type,      
                     wo_task_severity,
                     wo_task_assigned_to,
                     wo_task.site_id,
