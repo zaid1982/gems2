@@ -114,6 +114,7 @@ function ModalUser() {
 
         $('#modal_user').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
+            $('#btnMusSubmit').attr('disabled', true);
             self.defaultPageSetup();
         });
 

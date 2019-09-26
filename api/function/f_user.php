@@ -419,6 +419,31 @@ class Class_user {
     }
 
     /**
+     * @param $userId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function edit_password ($userId, $put_vars) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (!isset($put_vars['newPassword']) || empty($put_vars['newPassword'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter newPassword empty');
+            }
+
+            $newPassword = $put_vars['newPassword'];
+            Class_db::getInstance()->db_update('sys_user', array('user_password'=>md5($newPassword)), array('user_id'=>$userId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $userDetails
      * @return mixed
      * @throws Exception

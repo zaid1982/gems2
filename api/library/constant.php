@@ -8,7 +8,8 @@
 
 class Class_constant {
 
-    //const URL = '//addeen-legacy.com.my/gems/api/';
+    //const URL = '//metadatasyst.com/gems/api/';
+    //const URL = '//gems.globalfm.com.my/api/';
     const URL = '//localhost:8081/gems2/api/';
 
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
@@ -30,6 +31,7 @@ class Class_constant {
     const SUC_CHANGE_PASSWORD = 'Your password has been changed';
     const SUC_RESET_PASSWORD = 'Your password successfully updated';
     const SUC_UPDATE_PROFILE = 'Your profile successfully updated';
+    const SUC_EDIT_PASSWORD = 'Password successfully changed';
 
     const ERR_USER_DEACTIVATE = 'User already inactive';
     const ERR_USER_ACTIVATE = 'User already active';

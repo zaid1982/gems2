@@ -122,7 +122,7 @@
                                         <th width="21%">Email</th>
                                         <th width="14%">Roles</th>
                                         <th width="8%">Status</th>
-                                        <th width="55px"></th>
+                                        <th width="50px" style="min-width: 50px"></th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -136,6 +136,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_user"></div>
+    <div class="includeHtml" id="h-modal_edit_password"></div>
 
 </main>
 
@@ -176,6 +177,7 @@
     let changePasswordClass_;
     let userManagementClass_;
     let modalUserClass_;
+    let modalEditPasswordClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -187,6 +189,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 userManagementClass_ = new MainUserManagement();
                 modalUserClass_ = new ModalUser();
+                modalEditPasswordClass_ = new ModalEditPassword();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
@@ -201,12 +204,16 @@
                 modalUserClass_.setRefSite(refSite_);
                 modalUserClass_.init();
 
+                modalEditPasswordClass_.setClassFrom(userManagementClass_);
+                modalEditPasswordClass_.init();
+
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
                 userManagementClass_.setRefDesignation(refDesignation_);
                 userManagementClass_.setRefGroup(refGroup_);
                 userManagementClass_.setRefSite(refSite_);
                 userManagementClass_.setModalUserClass(modalUserClass_);
+                userManagementClass_.setModalEditPasswordClass(modalEditPasswordClass_);
                 userManagementClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -218,6 +225,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_user.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_edit_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_user_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

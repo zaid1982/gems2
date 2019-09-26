@@ -117,6 +117,11 @@ try {
             $fn_general->save_audit('6', $jwt_data->userId);
             $form_data['errmsg'] = $constant::SUC_CHANGE_PASSWORD;
         }
+        else if ($action === 'edit_password') {
+            $fn_user->edit_password($userId, $put_vars);
+            $fn_general->save_audit('6', $jwt_data->userId, 'User ID = ' . $userId);
+            $form_data['errmsg'] = $constant::SUC_EDIT_PASSWORD;
+        }
         else if ($action === 'update_user') {
             $fn_user->update_profile($userId, $put_vars);
             $fn_general->updateVersion(3);

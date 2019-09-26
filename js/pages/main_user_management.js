@@ -10,6 +10,7 @@ function MainUserManagement() {
     let oTableUser;
     let modalUserClass;
     let refUserType;
+    let modalEditPasswordClass;
 
     this.init = function () {
         mzOption('optUmnGroupId', refSite, 'All Sites', 'siteId', 'siteName', {siteStatus: '1'}, '', false);
@@ -18,8 +19,7 @@ function MainUserManagement() {
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [8, 'desc'],
-            autoWidth: false,
+            aaSorting: [9, 'desc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableUser.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -33,6 +33,15 @@ function MainUserManagement() {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableUser.row(parseInt(rowId)).data();
                         modalUserClass.edit(currentRow['userId'], rowId);
+                    }
+                });
+                $('.lnkUmnUserPassword').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableUser.row(parseInt(rowId)).data();
+                        modalEditPasswordClass.edit(currentRow['userId'], rowId);
                     }
                 });
                 $('.lnkUmnUserDeactivate').off('click').on('click', function () {
@@ -92,6 +101,7 @@ function MainUserManagement() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="fas fa-edit lnkUmnUserEdit" id="lnkUmnUserEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-unlock-alt lnkUmnUserPassword" id="lnkUmnUserPassword_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit Password"></i></a>&nbsp;&nbsp;';
                             if (row['userStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkUmnUserDeactivate" id="lnkUmnUserDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
@@ -330,5 +340,9 @@ function MainUserManagement() {
 
     this.setModalUserClass = function (_modalUserClass) {
         modalUserClass = _modalUserClass;
+    };
+
+    this.setModalEditPasswordClass = function (_modalEditPasswordClass) {
+        modalEditPasswordClass = _modalEditPasswordClass;
     };
 }
