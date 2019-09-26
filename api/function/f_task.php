@@ -561,7 +561,7 @@ class Class_task {
                 $arrWhere['flow_id'] = $flowId;
             }
             if (!empty($year)) {
-                $arrWhere['YEAR(task_time_created)'] = $year;
+                $arrWhere['w1'] = 'IF(checkpoint_id = 1, YEAR(transaction_date_due) = '.$year.', YEAR(task_time_created) = '.$year.')';
             }
 
             $arr_dataLocal = Class_db::getInstance()->db_select('vw_track_monitoring', $arrWhere);
