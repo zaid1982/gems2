@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!--Section: Notification panel-->
+        <section class="mt-2 mb-4">
+            <div class="row mt-4_5">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="rgba-light-green-strong">
+                            <div class="text-center">
+                                <h3 class="text-white mt-3">GROSS PROFIT MARGIN</h3>
+                                <h1 class="card-text text-white mb-3"><strong>28%</strong> <i class="fa fas fa-exclamation-circle"></i></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="rgba-light-blue-strong">
+                            <div class="text-center">
+                                <h3 class="text-white mt-3">OVERHEADS RATIO</h3>
+                                <h1 class="card-text text-white mb-3"><strong>16%</strong> <i class="fa fas fa-check-circle"></i></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="rgba-blue-grey-strong">
+                            <div class="text-center">
+                                <h3 class="text-white mt-3">PROFIT AFTER TAXEX</h3>
+                                <h1 class="card-text text-white mb-3"><strong>11%</strong> <i class="fa fas fa-exclamation-circle"></i></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="rgba-teal-strong">
+                            <div class="text-center">
+                                <h3 class="text-white mt-3">40% CORE PATAMI</h3>
+                                <h1 class="card-text text-white mb-3"><strong>RM 8.99 mil</strong> <i class="fa fas fa-check-circle"></i></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7 col-sm-12 mb-4">
+                    <div class="card mb-4">
+                        <div class="card-body p-0">
+                            <div id="chartFrf1" style="height: 300px; margin: 0"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="chartFrf2" style="height: 300px; margin: 0"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-3">
+                            <h3 class="font-weight-bold">INCOME STATEMENT</h3>
+                            <table class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th></th>
+                                    <th style="width: 20%">YTD</th>
+                                    <th style="width: 20%">YTD AMP</th>
+                                    <th style="width: 20%">FULL AMP</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Revenue</td>
+                                    <td class="text-center">102.0</td>
+                                    <td class="text-center">115.0</td>
+                                    <td class="text-center">115.0</td>
+                                </tr>
+                                <tr>
+                                    <td>Direct Cost</td>
+                                    <td class="text-center">91.3</td>
+                                    <td class="text-center">93.2</td>
+                                    <td class="text-center">43.5</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bolder">GROSS PROFIT</td>
+                                    <td class="text-center font-weight-bolder">30.1</td>
+                                    <td class="text-center font-weight-bolder">33.2</td>
+                                    <td class="text-center font-weight-bolder">21.3</td>
+                                </tr>
+                                <tr>
+                                    <td>Other Income</td>
+                                    <td class="text-center">2.0</td>
+                                    <td class="text-center">1.4</td>
+                                    <td class="text-center">1.7</td>
+                                </tr>
+                                <tr>
+                                    <td>Overheads</td>
+                                    <td class="text-center">14.5</td>
+                                    <td class="text-center">13.0</td>
+                                    <td class="text-center">17.0</td>
+                                </tr>
+                                <tr>
+                                    <td>Finance Costs</td>
+                                    <td class="text-center">1.4</td>
+                                    <td class="text-center">3.0</td>
+                                    <td class="text-center">3.2</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bolder">PBT</td>
+                                    <td class="text-center font-weight-bolder">13.7</td>
+                                    <td class="text-center font-weight-bolder">14.7</td>
+                                    <td class="text-center font-weight-bolder">19.3</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bolder">PAT</td>
+                                    <td class="text-center font-weight-bolder">8.3</td>
+                                    <td class="text-center font-weight-bolder">9.1</td>
+                                    <td class="text-center font-weight-bolder">12.1</td>
+                                </tr>
+                                <tr>
+                                    <td>40% PATAMI</td>
+                                    <td class="text-center">2.7</td>
+                                    <td class="text-center">3.4</td>
+                                    <td class="text-center">4.5</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Highchart -->
+<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
+<!--<script type="text/javascript" src="js/vendor/highcharts/themes/sand-signika.js"></script>-->
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal;
+    let changePasswordClass;
+    let financeClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                changePasswordClass = new ModalChangePassword();
+                financeClass_ = new MainFinanceReport1();
+
+                financeClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_finance_report1.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
