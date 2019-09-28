@@ -755,7 +755,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '200', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '500', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -833,7 +833,7 @@ class Class_ppm {
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();
             $arrUserFullName[0] = 'Not yet claimed';
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '200', null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '500', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = '';
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];

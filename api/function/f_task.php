@@ -772,7 +772,7 @@ class Class_task {
                 $arrWhere['task_current'] = '1';
                 $arrWhere['flow_id'] = $flowId;
                 $sqlText = $searchTxt === '' ? 'vw_track_monitoring_wo_m' : 'vg_track_monitoring_wo_search_m';
-                $arr_dataLocal = Class_db::getInstance()->db_select($sqlText, $arrWhere, 'task_id DESC', '200');
+                $arr_dataLocal = Class_db::getInstance()->db_select($sqlText, $arrWhere, 'task_id DESC', '500');
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
                     $row_result['transactionNo'] = $dataLocal['transaction_no'];
