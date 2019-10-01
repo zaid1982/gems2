@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!--Section: Notification panel-->
+        <section class="mt-2 mb-4">
+            <h2 class="font-weight-bolder">BUSINESS DEVELOPMENT PERFORMANCE</h2>
+            <div class="row mt-4">
+                <div class="col-xl-9 col-md-12">
+                    <div class="row">
+                        <div class="col-xl-6 col-md-12">
+                            <div class="card z-depth-4 mb-4">
+                                <h6 class="mt-2 font-weight-bold text-center">NEW REVENUE</h6>
+                                <div class="row">
+                                    <div class="col-xl-4 col-md-12">
+                                        <div class="text-center">
+                                            <h5 class="mt-4 font-weight-bold">RM 6.069ML</h5>
+                                            <h5 class="mt-4_5">RM 9.000ML</h5>
+                                            <h3 class="card-text mt-4_5"><i class="fa fas fa-exclamation-circle red-text"></i><br/>67%</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-12">
+                                        <h6 class="mt-4 font-weight-bold">ACTUAL<br/>NEW REVENUE</h6>
+                                        <h6 class="mt-3">TARGET<br/>NEW REVENUE</h6>
+                                        <h6 class="mt-5">TARGET<br/>ACHIEVEMENT</h6>
+                                    </div>
+                                    <div class="col-xl-4 col-md-12">
+                                        <div id="chartFrf1" style="height: 248px; margin: 0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-12">
+                            <div class="card z-depth-4 mb-4">
+                                <h6 class="mt-2 font-weight-bold text-center">CONTRACT RENEWAL</h6>
+                                <div class="row">
+                                    <div class="col-xl-4 col-md-12">
+                                        <div class="text-center">
+                                            <h5 class="mt-4 font-weight-bold">7</h5>
+                                            <h5 class="mt-4_5">8</h5>
+                                            <h3 class="card-text mt-4_5"><i class="fa fas fa-exclamation-circle red-text"></i><br/>88%</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-12">
+                                        <h6 class="mt-4 font-weight-bold">ACTUAL<br/>CONTRACT</h6>
+                                        <h6 class="mt-3">TARGET<br/>RENEWAL</h6>
+                                        <h6 class="mt-5">TARGET<br/>ACHIEVEMENT</h6>
+                                    </div>
+                                    <div class="col-xl-4 col-md-12">
+                                        <div id="chartFrf2" style="height: 248px; margin: 0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-12">
+                            <div class="card z-depth-4 mb-4">
+                                <div class="text-center">
+                                    <h6 class="mt-2 font-weight-bold">ORDER BOOK</h6>
+                                    <h2 class="mt-3">RM 268ML</h2>
+                                    <div id="chartFrf3" style="height: 238px; margin: 0"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-12">
+                            <div class="card z-depth-4 mb-4">
+                                <div class="row">
+                                    <div class="col-xl-8 col-md-12">
+                                        <h6 class="m-2 pl-2 pt-2 font-weight-bold">CUSTOMER ACQUISITION COST (CAC)</h6>
+                                        <div class="row">
+                                            <div class="col-xl-6 col-md-12">
+                                                <div class="text-center">
+                                                    <h5 class="mt-2 font-weight-bold">RM 2.4ML</h5>
+                                                    <h5 class="mt-4_5">RM 3.0ML</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-md-12">
+                                                <h6 class="mt-2 font-weight-bold">ACTUAL<br/>CAC</h6>
+                                                <h6 class="mt-3">TARGET<br/>CAC</h6>
+                                            </div>
+                                        </div>
+                                        <hr class="offset-1">
+                                        <h6 class="m-2 pl-2 pt-2 font-weight-bold">CUSTOMER LIFETIME VALUE (CLV)</h6>
+                                        <div class="row">
+                                            <div class="col-xl-6 col-md-12">
+                                                <div class="text-center">
+                                                    <h5 class="mt-2 font-weight-bold">RM 27.563ML</h5>
+                                                    <h5 class="mt-4_5">3</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-md-12">
+                                                <h6 class="mt-2 font-weight-bold">ACTUAL<br/>clv</h6>
+                                                <h6 class="mt-3">NUMBER OF NEW CONTRACTS</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-12 mt-4">
+                                        <div id="chartFrf4" style="height: 285px; margin: 0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-12">
+                    <div class="card z-depth-4 mb-4">
+                        <h6 class="mt-2 font-weight-bold text-center">NEW CONTRACTS</h6>
+                        <table class="table table-hover table-sm my-1 display responsive col-md-10 offset-1" cellspacing="0">
+                            <tbody>
+                            <tr>
+                                <td class="py-1">Wisma Consplant</td>
+                                <td class="py-1 text-right">2,624</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Gleneagles Hospital</td>
+                                <td class="py-1 text-right">1,183</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">University of Reading</td>
+                                <td class="py-1 text-right">115</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">SP Setia</td>
+                                <td class="py-1 text-right">48</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Menara Matrade</td>
+                                <td class="py-1 text-right">22,800</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Bukit Bintang City Centre</td>
+                                <td class="py-1 text-right">747</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">The Shore (DD)</td>
+                                <td class="py-1 text-right">45</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">One Precint (DD)</td>
+                                <td class="py-1 text-right">54</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card z-depth-4 mb-4">
+                        <h6 class="mt-2 pb-3 font-weight-bold text-center">CONTRACTS RENEWALS</h6>
+                        <table class="table table-hover table-sm my-1 display responsive col-md-10 offset-1" cellspacing="0">
+                            <tbody>
+                            <tr>
+                                <td class="py-1">Perkeso Rehabilitation Centre</td>
+                                <td class="py-1 text-right">5,856</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Spirit Aerosystem Malaysia</td>
+                                <td class="py-1 text-right">1,512</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">TRW Development Sdn Bhd (PHB)</td>
+                                <td class="py-1 text-right">1,431</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Menara British Telecoms (PHB)</td>
+                                <td class="py-1 text-right">1,192</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Prime Minister Residence (Harta)</td>
+                                <td class="py-1 text-right">1,943</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">Bank Negara Malaysia</td>
+                                <td class="py-1 text-right">126</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">1Sentrum (PHB)</td>
+                                <td class="py-1 text-right">2,849</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p class="mb-5 pb-2"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Highchart -->
+<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
+<!--<script type="text/javascript" src="js/vendor/highcharts/themes/sand-signika.js"></script>-->
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal;
+    let changePasswordClass;
+    let financeClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                changePasswordClass = new ModalChangePassword();
+                financeClass_ = new MainFinanceReport4();
+
+                financeClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_finance_report4.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
