@@ -36,9 +36,9 @@
 
 <main>
     <div class="container-fluid">
-        <section class="section mb-5 mt-lg-5 sectionPgrMain">
+        <section class="section mb-5 mt-lg-5">
             <div class="row">
-                <div class="col-md-12" id="divPgrMain">
+                <div class="col-md-12">
                     <div class="card card-cascade cascading-admin-card user-card mt-4">
                         <div class="admin-up d-flex justify-content-start">
                             <i class="fas fa-file-alt rgba-cyan-strong py-4 z-depth-3"></i>
@@ -47,17 +47,17 @@
                             </div>
                         </div>
                         <div class="card-body card-body-cascade pb-0">
-                            <form id="formPgrSearch">
+                            <form id="formRwsSearch">
                                 <h6 class="pb-3 pt-3">Filter:</h6>
                                 <div class="row">
-                                    <div class="col-md-6 select-outline">
+                                    <div class="col-md-12 select-outline">
                                         <select id="optRwsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
                                         <label for="optRwsClientId">Client</label>
                                     </div>
-                                    <div class="col-md-6 select-outline">
+                                    <!--<div class="col-md-6 select-outline">
                                         <select id="optRwsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
                                         <label for="optRwsSiteId">Site</label>
-                                    </div>
+                                    </div>-->
                                     <div class="col-lg-3 col-md-4 select-outline">
                                         <select id="optRwsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
                                         <label for="optRwsYearId">Year</label>
@@ -70,7 +70,7 @@
                             </form>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="btnPgrSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                            <button type="button" id="btnRwsSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
                                 <i class="fas fa-search mr-1"></i> View
                             </button>
                         </div>
@@ -82,30 +82,36 @@
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Report"
                                    data-content="Work Order Summary"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRwsListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                <button type="button" id="btnDtRwsWoSummaryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3 pl-5">Work Order Summary</a>
                             <div>
-                                <div id="btnDtRwsListExport"></div>
+                                <div id="btnDtRwsWoSummaryExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="p-4">
                             <div class="table-responsive">
-                                <table id="dtRwsList" class="table table-hover mb-0 display responsive">
+                                <table id="dtRwsWoSummary" class="table table-hover table-bordered mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="width: 4%">#</th>
-                                        <th style="width: 18%">Task No</th>
-                                        <th>Flow</th>
-                                        <th style="width: 10%">Checkpoint</th>
-                                        <th style="width: 15%">User</th>
-                                        <th style="width: 10%">Role</th>
-                                        <th style="width: 12%">Time Created</th>
-                                        <th style="width: 10%">Status</th>
-                                        <th style="width: 24px"></th>
+                                    <tr class="th-strong text-center rgba-blue-grey-strong">
+                                        <th rowspan="2" style="vertical-align: middle">Work Type</th>
+                                        <th colspan="2" id="thRwsSiteDesc0"></th>
+                                        <th colspan="2" id="thRwsSiteDesc1"></th>
+                                        <th colspan="2" id="thRwsSiteDesc2"></th>
+                                        <th colspan="2" id="thRwsSiteDesc3"></th>
+                                    </tr>
+                                    <tr class="th-strong rgba-blue-grey-light">
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
                                     </tr>
                                     </thead>
-                                    <tbody></tbody>
+                                    <tbody class="rgba-blue-grey-slight"></tbody>
                                 </table>
                             </div>
                         </div>

@@ -1631,4 +1631,29 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    public function get_report_wo_summary ($clientId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $result = array();
+            $reportDatas = Class_db::getInstance()->db_select('vg_report_wo_summary', null, null, null, array('client_id'=>$clientId, 'selected_year'=>$year, 'selected_month'=>$month));
+
+            return $reportDatas;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

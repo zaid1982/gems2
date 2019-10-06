@@ -76,6 +76,12 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_wo->get_total_wo_by_group($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'report_wo_summary') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_report_wo_summary($clientId, $year, $month);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }

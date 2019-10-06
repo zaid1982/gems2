@@ -596,6 +596,24 @@ class Class_sql
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 WHERE YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
                 GROUP BY site_id, asset_group_id";
+            } else if ($title === 'vg_report_wo_summary') {
+                $sql = "SELECT                     
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type = 2 THEN 'Self Finding'
+                        WHEN wo_task_type = 3 THEN 'Request'
+                        WHEN wo_task_type = 4 THEN 'Breakdown'
+                        WHEN wo_task_type = 5 THEN 'Defect'
+                        ELSE '' END AS woTaskType,
+                    SUM(IF(site_id = 1 AND wo_task_status <> 16, 1, 0)) AS open1,
+                    SUM(IF(site_id = 1 AND wo_task_status = 16, 1, 0)) AS closed1,
+                    SUM(IF(site_id = 2 AND wo_task_status <> 16, 1, 0)) AS open2,
+                    SUM(IF(site_id = 2 AND wo_task_status = 16, 1, 0)) AS closed2,
+                    SUM(IF(site_id = 3 AND wo_task_status <> 16, 1, 0)) AS open3,
+                    SUM(IF(site_id = 3 AND wo_task_status = 16, 1, 0)) AS closed3,
+                    SUM(IF(site_id = 4 AND wo_task_status <> 16, 1, 0)) AS open4,
+                    SUM(IF(site_id = 4 AND wo_task_status = 16, 1, 0)) AS closed4
+                FROM wo_task
+                GROUP BY wo_task_type";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
