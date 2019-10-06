@@ -29,7 +29,7 @@ function MainPpmGroup() {
         $('#divPgrDetails').hide();
 
         mzOption('optPgrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        mzOption('optPgrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId}, 'required');
+        mzOption('optPgrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId, siteStatus: '1'}, 'required');
 
         $('#optPgrClientId').val(clientId);
         $('#optPgrSiteId').val(siteId);

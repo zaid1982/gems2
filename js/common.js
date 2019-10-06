@@ -1243,3 +1243,35 @@ function mzDateSetMax(fieldId, dateStr) {
     const year = parseInt(dateSplit[0]);
     datePicker.set('max', new Date(year,month-1, day));
 }
+
+function mzGetMonthArray() {
+    return [
+        {monthId:1, monthName:'January'},
+        {monthId:2, monthName:'February'},
+        {monthId:3, monthName:'March'},
+        {monthId:4, monthName:'April'},
+        {monthId:5, monthName:'May'},
+        {monthId:6, monthName:'June'},
+        {monthId:7, monthName:'July'},
+        {monthId:8, monthName:'August'},
+        {monthId:9, monthName:'September'},
+        {monthId:10, monthName:'October'},
+        {monthId:11, monthName:'November'},
+        {monthId:12, monthName:'December'}
+    ];
+}
+
+function mzGetYearArray() {
+    const yearArr = [];
+
+    let dateEarliest = new Date();
+    dateEarliest.setFullYear(2012, 8, 1);
+    const earliestYear = dateEarliest.getFullYear();
+    let dateCurrent = new Date();
+    const currentMonth = dateCurrent.getMonth();
+    const currentYear = dateCurrent.getFullYear();
+    for (let i = earliestYear; i <= currentYear; i++) {
+        yearArr.push({yearId:i, yearName:i})
+    }
+    return yearArr;
+}
