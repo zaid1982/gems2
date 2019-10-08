@@ -142,12 +142,12 @@ function MainPpmManagement() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label;
-                            //if (row['assignedStatus'] === '10') {
+                            if (row['assignedStatus'] === '10') {
                                 label = '<a><i class="fas fa-list-ul lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"></i></a>&nbsp;&nbsp;';
                                 // label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
-                            if (row['assignedStatus'] === '11') {
-                                label += '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
-                            }
+                            } //else if (row['assignedStatus'] === '11') {
+                                label = '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
+                            //}
                             label += '<a><i class="fas fa-qrcode lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"></i></a>';
                             return label;
                         }
