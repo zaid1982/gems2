@@ -1,6 +1,6 @@
 function MainReportWoSummary() {
 
-    const className = 'MainTrackMonitoring';
+    const className = 'MainReportWoSummary';
     let self = this;
     let refStatus;
     let refClient;
@@ -17,8 +17,8 @@ function MainReportWoSummary() {
         mzOption('optRwsClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
         //mzOption('optRwsSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', {clientId: '1', siteStatus: '1'}, 'required');
 
-        $('#optRwsClientId').val('1');
-        $('#optRwsSiteId').val('1');
+        clientId = '1';
+        $('#optRwsClientId').val(clientId);
 
         let dateCurrent = new Date();
         selectedMonth = dateCurrent.getMonth()+1;
@@ -119,6 +119,9 @@ function MainReportWoSummary() {
             ShowLoader();
             setTimeout(function () {
                 try {
+                    clientId = $('#optRwsClientId').val();
+                    selectedYear = $('#optRwsYearId').val();
+                    selectedMonth = $('#optRwsMonthId').val();
                     self.genTableWoSummary();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -131,22 +134,22 @@ function MainReportWoSummary() {
     };
 
     this.genTableWoSummary = function () {
-        const dataWoSummary = mzAjaxRequest('wo.php?type=report_wo_summary&clientId='+clientId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
-        /*const dataWoSummary = [
-            {siteId:'22132', open1:'121', close1:'12', open2:'221', close2:'22', open3:'321', close3:'32', open4:'421', close4:'42'},
-            {siteId:'22132', open1:'121', close1:'12', open2:'221', close2:'22', open3:'321', close3:'32', open4:'421', close4:'42'},
-            {siteId:'22132', open1:'121', close1:'12', open2:'221', close2:'22', open3:'321', close3:'32', open4:'421', close4:'42'},
-            {siteId:'22132', open1:'121', close1:'12', open2:'221', close2:'22', open3:'321', close3:'32', open4:'421', close4:'42'}
-        ];*/
         siteColumns = [];
+        for (let i = 1; i <= 8; i++) {
+            oTableWoSummary.column(i).visible(false);
+        }
         $.each(refSite, function (n, u) {
-            if (typeof u !== 'undefined' && u['siteStatus'] !== '2' && u['clientId'] !== clientId) {
+            if (typeof u !== 'undefined' && u['siteStatus'] !== '2' && u['clientId'] === clientId) {
                 siteColumns.push(u);
             }
         });
         $.each(siteColumns, function (n, u) {
+            oTableWoSummary.column(n*2+1).visible(true);
+            oTableWoSummary.column(n*2+2).visible(true);
             $('#thRwsSiteDesc'+n).html(u['siteDesc']);
         });
+
+        const dataWoSummary = mzAjaxRequest('wo.php?type=report_wo_summary&clientId='+clientId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
         oTableWoSummary.clear().rows.add(dataWoSummary).draw();
     };
 

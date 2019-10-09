@@ -1632,6 +1632,13 @@ class Class_wo {
         }
     }
 
+    /**
+     * @param string $clientId
+     * @param string $year
+     * @param string $month
+     * @return mixed
+     * @throws Exception
+     */
     public function get_report_wo_summary ($clientId='', $year='', $month='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
@@ -1646,10 +1653,25 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
-            $result = array();
-            $reportDatas = Class_db::getInstance()->db_select('vg_report_wo_summary', null, null, null, array('client_id'=>$clientId, 'selected_year'=>$year, 'selected_month'=>$month));
+            $sumSiteStr = '';
+            $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+            foreach ($siteIds as $siteId) {
+                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status <> 16, 1, 0)) AS open'.$siteId;
+                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status <> 16, 1, 0)) AS closed'.$siteId;
+            }
 
-            return $reportDatas;
+            $result = array();
+            $reportDatas = Class_db::getInstance()->db_select('vg_report_wo_summary', array(), null, null, null, array('client_id'=>$clientId, 'selected_year'=>$year, 'selected_month'=>$month, 'sum_site_str'=>$sumSiteStr));
+            foreach ($reportDatas as $reportData) {
+                $row_result['woTaskType'] = $reportData['task_type'];
+                foreach ($siteIds as $siteId) {
+                    $row_result['open'.$siteId] = $reportData['open'.$siteId];
+                    $row_result['closed'.$siteId] = $reportData['closed'.$siteId];
+                }
+                array_push($result, $row_result);
+            }
+
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

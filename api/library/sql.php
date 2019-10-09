@@ -603,16 +603,11 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
-                        ELSE '' END AS woTaskType,
-                    SUM(IF(site_id = 1 AND wo_task_status <> 16, 1, 0)) AS open1,
-                    SUM(IF(site_id = 1 AND wo_task_status = 16, 1, 0)) AS closed1,
-                    SUM(IF(site_id = 2 AND wo_task_status <> 16, 1, 0)) AS open2,
-                    SUM(IF(site_id = 2 AND wo_task_status = 16, 1, 0)) AS closed2,
-                    SUM(IF(site_id = 3 AND wo_task_status <> 16, 1, 0)) AS open3,
-                    SUM(IF(site_id = 3 AND wo_task_status = 16, 1, 0)) AS closed3,
-                    SUM(IF(site_id = 4 AND wo_task_status <> 16, 1, 0)) AS open4,
-                    SUM(IF(site_id = 4 AND wo_task_status = 16, 1, 0)) AS closed4
+                        ELSE '' END AS task_type
+                        [sum_site_str]
                 FROM wo_task
+                LEFT JOIN cli_site ON cli_site.site_id = wo_task.site_id
+                WHERE cli_site.client_id = [client_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
                 GROUP BY wo_task_type";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
