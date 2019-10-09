@@ -115,6 +115,39 @@ function MainReportWoSummary() {
         });
         $("#dtRwsWoSummary_filter").hide();
 
+        let cntWoSummary;
+        let btnWoSummaryOpt = {
+            exportOptions: {
+            }
+        };
+
+        new $.fn.dataTable.Buttons(oTableWoSummary, {
+            buttons: [
+                $.extend( true, {}, btnWoSummaryOpt, {
+                    extend:    'print',
+                    text:      '<i class="fas fa-print"></i>',
+                    title:     'GEMS 2.0 - Work Order Summary',
+                    titleAttr: 'Print',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnWoSummaryOpt, {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fas fa-file-excel"></i>',
+                    title:     'GEMS 2.0 - Work Order Summary',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnWoSummaryOpt, {
+                    extend:    'pdfHtml5',
+                    text:      '<i class="fas fa-file-pdf"></i>',
+                    title:     'GEMS 2.0 - Work Order Summary',
+                    titleAttr: 'Pdf',
+                    orientation: 'landscape',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                })
+            ]
+        }).container().appendTo($('#btnDtRwsWoSummaryExport'));
+
         $('#btnRwsSearch').on('click', function () {
             ShowLoader();
             setTimeout(function () {
