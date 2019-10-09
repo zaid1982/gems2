@@ -2313,4 +2313,44 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_report_ppm_summary ($siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $result = array();
+            $reportDatas = Class_db::getInstance()->db_select('vg_report_ppm_summary', array(), null, null, null, array('site_id'=>$siteId, 'selected_year'=>$year, 'selected_month'=>$month));
+            foreach ($reportDatas as $reportData) {
+                $row_result['assetTypeId'] = $reportData['asset_type_id'];
+                $row_result['noAsset'] = $reportData['no_asset'];
+                $row_result['frequency'] = $reportData['frequency'];
+                $row_result['totalPpm'] = $reportData['total_ppm'];
+                $row_result['totalPpmDone'] = $reportData['total_ppm_done'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

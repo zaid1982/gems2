@@ -609,6 +609,24 @@ class Class_sql
                 LEFT JOIN cli_site ON cli_site.site_id = wo_task.site_id
                 WHERE cli_site.client_id = [client_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
                 GROUP BY wo_task_type";
+            } else if ($title === 'vg_report_ppm_summary') {
+                $sql = "SELECT                     
+                    asset_type_name, 
+                    task_frequency.frequency,
+                    COUNT(DISTINCT(ast_asset.asset_id)) AS no_asset,
+                    COUNT(*) AS total_ppm, 
+                    SUM(IF(ppm_task_status = 16, 1, 0)) AS total_ppm_done
+                FROM ppm_task 
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN ast_asset ON ppm.asset_id = ast_asset.asset_id
+                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id 
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
+                    FROM ppm_task_frequency
+                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
+                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                WHERE YEAR(ppm_task_schedule_date) = 2019 AND MONTH(ppm_task_schedule_date) = 9 AND cli_contract.site_id =4  
+                GROUP BY ast_asset.asset_type_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
