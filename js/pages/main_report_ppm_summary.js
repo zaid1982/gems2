@@ -9,15 +9,18 @@ function MainReportPpmSummary() {
     const monthArr = mzGetMonthArray();
     let oTablePpmSummary;
     let clientId;
+    let siteId;
     let selectedYear;
     let selectedMonth;
 
     this.init = function () {
         mzOption('optRpsClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        //mzOption('optRpsSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', {clientId: '1', siteStatus: '1'}, 'required');
+        mzOption('optRpsSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', {clientId: '1', siteStatus: '1'}, 'required');
 
         clientId = '1';
+        siteId = '1';
         $('#optRpsClientId').val(clientId);
+        $('#optRpsSiteId').val(siteId);
 
         let dateCurrent = new Date();
         selectedMonth = dateCurrent.getMonth()+1;
@@ -28,6 +31,11 @@ function MainReportPpmSummary() {
 
         mzOption('optRpsMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
         $('#optRpsMonthId').val(selectedMonth);
+
+        $('#optRpsClientId').on('change', function () {
+            clientId = $(this).val();
+            mzOptionStop('optRpsSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+        });
 
         const vData = [
             {
