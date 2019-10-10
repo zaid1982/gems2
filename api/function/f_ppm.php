@@ -2325,8 +2325,8 @@ class Class_ppm {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($clientId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
             }
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
@@ -2338,11 +2338,12 @@ class Class_ppm {
             $result = array();
             $reportDatas = Class_db::getInstance()->db_select('vg_report_ppm_summary', array(), null, null, null, array('site_id'=>$siteId, 'selected_year'=>$year, 'selected_month'=>$month));
             foreach ($reportDatas as $reportData) {
-                $row_result['assetTypeId'] = $reportData['asset_type_id'];
+                $row_result['assetTypeName'] = $reportData['asset_type_name'];
                 $row_result['noAsset'] = $reportData['no_asset'];
                 $row_result['frequency'] = $reportData['frequency'];
                 $row_result['totalPpm'] = $reportData['total_ppm'];
-                $row_result['totalPpmDone'] = $reportData['total_ppm_done'];
+                $row_result['ppmDone'] = $reportData['total_ppm_done'];
+                $row_result['totalPercDone'] = intval($reportData['total_ppm_done']) > 0 ? intval($reportData['total_ppm_done'])/intval($reportData['total_ppm'])*100 : 0;
                 array_push($result, $row_result);
             }
 

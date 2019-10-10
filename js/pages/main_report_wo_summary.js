@@ -148,6 +148,18 @@ function MainReportWoSummary() {
             ]
         }).container().appendTo($('#btnDtRwsWoSummaryExport'));
 
+        $('#btnDtRwsWoSummaryRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableWoSummary();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         $('#btnRwsSearch').on('click', function () {
             ShowLoader();
             setTimeout(function () {

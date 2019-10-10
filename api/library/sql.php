@@ -625,7 +625,7 @@ class Class_sql
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
-                WHERE YEAR(ppm_task_schedule_date) = 2019 AND MONTH(ppm_task_schedule_date) = 9 AND cli_contract.site_id =4  
+                WHERE YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month] AND cli_contract.site_id = [site_id]  
                 GROUP BY ast_asset.asset_type_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));

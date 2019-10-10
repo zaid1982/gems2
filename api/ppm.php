@@ -102,6 +102,12 @@ try {
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_ppm->get_total_ppm_by_status($clientId, $siteId, $year, $month);
             }
+            else if ($type === 'report_ppm_summary') {
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_report_ppm_summary($siteId, $year, $month);
+            }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);
         } else {

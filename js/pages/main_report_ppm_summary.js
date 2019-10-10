@@ -2,7 +2,6 @@ function MainReportPpmSummary() {
 
     const className = 'MainReportPpmSummary';
     let self = this;
-    let refStatus;
     let refClient;
     let refSite;
     const yearArr = mzGetYearArray();
@@ -78,29 +77,35 @@ function MainReportPpmSummary() {
             bInfo: false,
             bPaginate: false,
             autoWidth: false,
-            ordering: false,
+            "aaSorting": [5, 'DESC'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTablePpmSummary.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'woTaskType'},
-                    {mData: null, sClass: 'text-right',
-                        mRender: function (data, type, row) {
-                            return '1';
+                    {mData: null, bSortable: false},
+                    {mData: 'assetTypeName'},
+                    {mData: 'frequency'},
+                    {mData: 'noAsset', sClass: 'text-right',
+                        mRender: function (data) {
+                            return mzFormatNumber(data);
                         }},
-                    {mData: null, sClass: 'text-right',
-                        mRender: function (data, type, row) {
-                            return '1';
+                    {mData: 'totalPpm', sClass: 'text-right',
+                        mRender: function (data) {
+                            return mzFormatNumber(data);
                         }},
-                    {mData: null, sClass: 'text-right',
-                        mRender: function (data, type, row) {
-                            return '1';
+                    {mData: 'ppmDone', sClass: 'text-right',
+                        mRender: function (data) {
+                            return mzFormatNumber(data);
                         }},
-                    {mData: null, sClass: 'text-right',
-                        mRender: function (data, type, row) {
-                            return '1';
+                    {mData: 'totalPercDone', sClass: 'text-right',
+                        mRender: function (data) {
+                            return mzFormatNumber(data, 2)+'%';
                         }}
                 ]
         });
@@ -109,6 +114,15 @@ function MainReportPpmSummary() {
         let cntPpmSummary;
         let btnPpmSummaryOpt = {
             exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5, 6],
+                format: {
+                    body: function ( data, row, column ) {
+                        if (row === 0 && column === 0) {
+                            cntPpmSummary = 1;
+                        }
+                        return column === 0 ? cntPpmSummary++ : data;
+                    }
+                }
             }
         };
 
@@ -139,11 +153,23 @@ function MainReportPpmSummary() {
             ]
         }).container().appendTo($('#btnDtRpsPpmSummaryExport'));
 
+        $('#btnDtRpsPpmSummaryRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTablePpmSummary();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         $('#btnRpsSearch').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    clientId = $('#optRpsClientId').val();
+                    siteId = $('#optRpsSiteId').val();
                     selectedYear = $('#optRpsYearId').val();
                     selectedMonth = $('#optRpsMonthId').val();
                     self.genTablePpmSummary();
@@ -158,16 +184,12 @@ function MainReportPpmSummary() {
     };
 
     this.genTablePpmSummary = function () {
-        //const dataPpmSummary = mzAjaxRequest('ppm.php?type=report_ppm_summary&clientId='+clientId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
-        //oTablePpmSummary.clear().rows.add(dataPpmSummary).draw();
+        const dataPpmSummary = mzAjaxRequest('ppm.php?type=report_ppm_summary&siteId='+siteId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
+        oTablePpmSummary.clear().rows.add(dataPpmSummary).draw();
     };
 
     this.getClassName = function () {
         return className;
-    };
-
-    this.setRefStatus = function (_refStatus) {
-        refStatus = _refStatus;
     };
 
     this.setRefClient = function (_refClient) {

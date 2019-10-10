@@ -96,8 +96,10 @@
                                     <tr class="th-strong">
                                         <th style="width: 4%">#</th>
                                         <th>Asset Type</th>
-                                        <th style="width: 18%">Frequency</th>
-                                        <th style="width: 15%">No of Asset</th>
+                                        <th style="width: 15%">Frequency</th>
+                                        <th style="width: 10%">No of Asset</th>
+                                        <th style="width: 10%">Total PPM</th>
+                                        <th style="width: 10%">PPM Done</th>
                                         <th style="width: 10%">%</th>
                                     </tr>
                                     </thead>
@@ -160,11 +162,9 @@
                 changePasswordClass_ = new ModalChangePassword();
                 reportPpmSummary_ = new MainReportPpmSummary();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
-                reportPpmSummary_.setRefStatus(refStatus_);
                 reportPpmSummary_.setRefClient(refClient_);
                 reportPpmSummary_.setRefSite(refSite_);
                 reportPpmSummary_.init();
