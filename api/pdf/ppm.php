@@ -244,6 +244,11 @@ class Class_pdf_ppm {
             $pdf->Ln();
 
             $pdf->SetFont('helvetica', '', 9);
+            $pdf->Cell(30, 5, 'Asset No : ', 1, 0, 'R');
+            $pdf->Cell(60, 5, $asset['asset_no'], 1, 0, 'L');
+            $pdf->Cell(35, 5, 'Brand : ', 1, 0, 'R');
+            $pdf->Cell(55, 5, $asset['asset_brand_name'], 1, 0, 'L');
+            $pdf->Ln();
             $pdf->Cell(30, 5, 'Asset Group : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $asset['asset_group_name'], 1, 0, 'L');
             $pdf->Cell(35, 5, 'Model : ', 1, 0, 'R');
