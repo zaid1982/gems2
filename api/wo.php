@@ -82,6 +82,12 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_wo->get_report_wo_summary($clientId, $year, $month);
+            }
+            else if ($type === 'report_wo_pending_list') {
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_wo_task_dashboard_list('', $siteId, $year, $month, true);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }

@@ -114,7 +114,6 @@ class Class_wo {
         }
     }
 
-
     /**
      * @return mixed
      * @throws Exception
@@ -1267,10 +1266,11 @@ class Class_wo {
      * @param string $siteId
      * @param string $year
      * @param string $month
+     * @param bool $isPending
      * @return array
      * @throws Exception
      */
-    public function get_wo_task_dashboard_list ($clientId='', $siteId='', $year='', $month='') {
+    public function get_wo_task_dashboard_list ($clientId='', $siteId='', $year='', $month='', $isPending=false) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -1284,9 +1284,15 @@ class Class_wo {
                     $siteId = '('.$siteIdStr.')';
                 }
             }
+
+            $arrWhere = array('site_id'=>$siteId, 'YEAR(wo_task_time_created)'=>$year, 'MONTH(wo_task_time_created)-1'=>$month);
             $arrWoType = $this->get_wo_type();
+            if ($isPending) {
+                $arrWhere['wo_task_status'] = 'N(16. 25)';
+            }
+
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', array('site_id'=>$siteId, 'YEAR(wo_task_time_created)'=>$year, 'MONTH(wo_task_time_created)-1'=>$month));
+            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
@@ -1678,4 +1684,5 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
 }
