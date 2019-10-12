@@ -82,25 +82,30 @@
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Report"
                                    data-content="Outstanding Word Order List"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRwpPpmSummaryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                <button type="button" id="btnDtRwpWoPendingRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3 pl-5">Outstanding Word Order List</a>
                             <div>
-                                <div id="btnDtRwpPpmSummaryExport"></div>
+                                <div id="btnDtRwpWoPendingExport"></div>
                             </div>
                         </div>
-                        <div class="p-4">
+                        <div class="px-4 pb-4">
+                            <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+                                <div class="">
+                                    <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                                    <input type="text" id="txtRwpWoPendingSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                                    <label for="txtRwpWoPendingSearch" class="ml-4">Search</label>
+                                </div>
+                            </form>
                             <div class="table-responsive">
-                                <table id="dtRwpPpmSummary" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtRwpWoPending" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th style="width: 4%">#</th>
-                                        <th>Asset Type</th>
-                                        <th style="width: 15%">Frequency</th>
-                                        <th style="width: 10%">No of Asset</th>
-                                        <th style="width: 10%">Total PPM</th>
-                                        <th style="width: 10%">PPM Done</th>
-                                        <th style="width: 10%">%</th>
+                                        <th style="width: 25%">Requester</th>
+                                        <th>Problem Description</th>
+                                        <th style="width: 15%">Date Received</th>
+                                        <th style="width: 15%">Status to date</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -162,11 +167,15 @@
                 changePasswordClass_ = new ModalChangePassword();
                 reportWoPending_ = new MainReportWoPending();
 
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
+                reportWoPending_.setRefStatus(refStatus_);
                 reportWoPending_.setRefClient(refClient_);
                 reportWoPending_.setRefSite(refSite_);
+                reportWoPending_.setRefUser(refUser_);
                 reportWoPending_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

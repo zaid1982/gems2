@@ -4,9 +4,11 @@ function MainReportWoPending() {
     let self = this;
     let refClient;
     let refSite;
+    let refStatus;
+    let refUser;
     const yearArr = mzGetYearArray();
     const monthArr = mzGetMonthArray();
-    let oTablePpmSummary;
+    let oTableWoPending;
     let clientId;
     let siteId;
     let selectedYear;
@@ -71,15 +73,13 @@ function MainReportWoPending() {
             $('#btnRwpSearch').attr('disabled', !formValidate.validateForm());
         });
 
-        oTablePpmSummary = $('#dtRwpPpmSummary').DataTable({
+        oTableWoPending = $('#dtRwpWoPending').DataTable({
             bLengthChange: false,
             bFilter: true,
-            bInfo: false,
-            bPaginate: false,
             autoWidth: false,
-            "aaSorting": [6, 'DESC'],
+            "aaSorting": [3, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTablePpmSummary.page.info();
+                const info = oTableWoPending.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
@@ -89,60 +89,62 @@ function MainReportWoPending() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'assetTypeName'},
-                    {mData: 'frequency'},
-                    {mData: 'noAsset', sClass: 'text-right',
-                        mRender: function (data) {
-                            return mzFormatNumber(data);
+                    {mData: 'woTaskCreatedBy', mRender: function (data, type, row){
+                            return data !== null ? refUser[data]['userFullName'] : '';
                         }},
-                    {mData: 'totalPpm', sClass: 'text-right',
-                        mRender: function (data) {
-                            return mzFormatNumber(data);
+                    {mData: 'woTaskComplaint'},
+                    {mData: 'woTaskTimeCreated', mRender: function (data){
+                            return data.substr(0, 10);
                         }},
-                    {mData: 'ppmDone', sClass: 'text-right',
-                        mRender: function (data) {
-                            return mzFormatNumber(data);
-                        }},
-                    {mData: 'totalPercDone', sClass: 'text-right',
-                        mRender: function (data) {
-                            return mzFormatNumber(data, 2)+'%';
-                        }}
+                    {mData: null,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    }
                 ]
         });
-        $("#dtRwpPpmSummary_filter").hide();
+        $("#dtRwpWoPending_filter").hide();
+        $('#txtRwpWoPendingSearch').on('keyup change', function () {
+            oTableWoPending.search($(this).val()).draw();
+        });
 
-        let cntPpmSummary;
-        let btnPpmSummaryOpt = {
+        let cntWoPending;
+        let btnWoPendingOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6],
+                columns: [ 0, 1, 2, 3, 4],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
-                            cntPpmSummary = 1;
+                            cntWoPending = 1;
                         }
-                        return column === 0 ? cntPpmSummary++ : data;
+                        if (column === 4) {
+                            const n = data.search('">');
+                            const k = data.substr(n+2);
+                            return k.replace('</span></h6>','');
+                        }
+                        return column === 0 ? cntWoPending++ : data;
                     }
                 }
             }
         };
 
-        new $.fn.dataTable.Buttons(oTablePpmSummary, {
+        new $.fn.dataTable.Buttons(oTableWoPending, {
             buttons: [
-                $.extend( true, {}, btnPpmSummaryOpt, {
+                $.extend( true, {}, btnWoPendingOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Outstanding Word Order List',
                     titleAttr: 'Print',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
-                $.extend( true, {}, btnPpmSummaryOpt, {
+                $.extend( true, {}, btnWoPendingOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Outstanding Word Order List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 }),
-                $.extend( true, {}, btnPpmSummaryOpt, {
+                $.extend( true, {}, btnWoPendingOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
                     title:     'GEMS 2.0 - Outstanding Word Order List',
@@ -151,13 +153,13 @@ function MainReportWoPending() {
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 })
             ]
-        }).container().appendTo($('#btnDtRwpPpmSummaryExport'));
+        }).container().appendTo($('#btnDtRwpWoPendingExport'));
 
-        $('#btnDtRwpPpmSummaryRefresh').on('click', function () {
+        $('#btnDtRwpWoPendingRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    self.genTablePpmSummary();
+                    self.genTableWoPending();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -172,7 +174,7 @@ function MainReportWoPending() {
                     siteId = $('#optRwpSiteId').val();
                     selectedYear = $('#optRwpYearId').val();
                     selectedMonth = $('#optRwpMonthId').val();
-                    self.genTablePpmSummary();
+                    self.genTableWoPending();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -180,12 +182,12 @@ function MainReportWoPending() {
             }, 200);
         });
 
-        self.genTablePpmSummary();
+        self.genTableWoPending();
     };
 
-    this.genTablePpmSummary = function () {
-        const dataPpmSummary = mzAjaxRequest('ppm.php?type=report_ppm_summary&siteId='+siteId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
-        oTablePpmSummary.clear().rows.add(dataPpmSummary).draw();
+    this.genTableWoPending = function () {
+        const dataWoPending = mzAjaxRequest('wo.php?type=report_wo_pending_list&siteId='+siteId+'&year='+selectedYear+'&month='+(parseInt(selectedMonth)-1), 'GET');
+        oTableWoPending.clear().rows.add(dataWoPending).draw();
     };
 
     this.getClassName = function () {
@@ -198,5 +200,13 @@ function MainReportWoPending() {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setRefStatus = function (_refStatus) {
+        refStatus = _refStatus;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 }

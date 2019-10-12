@@ -77,7 +77,7 @@ function MainReportPpmSummary() {
             bInfo: false,
             bPaginate: false,
             autoWidth: false,
-            "aaSorting": [6, 'DESC'],
+            "aaSorting": [6, 'desc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTablePpmSummary.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));

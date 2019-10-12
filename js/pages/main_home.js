@@ -572,7 +572,7 @@ function MainHome() {
                                 dataLabels: {
                                     enabled: true,
                                     formatter: function() {
-                                        if (this.y != 0) {
+                                        if (this.y !== 0) {
                                             return this.y;
                                         } else {
                                             return null;
@@ -719,7 +719,7 @@ function MainHome() {
                                 dataLabels: {
                                     enabled: true,
                                     formatter: function() {
-                                        if (this.y != 0) {
+                                        if (this.y !== 0) {
                                             return this.y;
                                         } else {
                                             return null;
@@ -931,7 +931,7 @@ function MainHome() {
                                 dataLabels: {
                                     enabled: true,
                                     formatter: function() {
-                                        if (this.y != 0) {
+                                        if (this.y !== 0) {
                                             return this.y;
                                         } else {
                                             return null;
@@ -1072,7 +1072,7 @@ function MainHome() {
                         dataLabels: {
                             enabled: true,
                             formatter: function () {
-                                if (this.y != 0) {
+                                if (this.y !== 0) {
                                     return this.y;
                                 } else {
                                     return null;

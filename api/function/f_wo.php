@@ -1288,7 +1288,7 @@ class Class_wo {
             $arrWhere = array('site_id'=>$siteId, 'YEAR(wo_task_time_created)'=>$year, 'MONTH(wo_task_time_created)-1'=>$month);
             $arrWoType = $this->get_wo_type();
             if ($isPending) {
-                $arrWhere['wo_task_status'] = 'N(16. 25)';
+                $arrWhere['wo_task_status'] = 'N(16, 25)';
             }
 
             $result = array();
