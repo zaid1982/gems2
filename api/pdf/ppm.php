@@ -259,18 +259,35 @@ class Class_pdf_ppm {
             $pdf->Cell(35, 5, 'Capacity : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $asset['asset_capacity'], 1, 0, 'L');
             $pdf->Ln();
-            $pdf->Cell(30, 5, 'Asset Type : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, $asset['asset_type_name'], 1, 0, 'L');
-            $pdf->Cell(35, 5, 'Location Code : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $this->fn_general->clear_null($asset['location_code_id']), 1, 0, 'L');
+
+            $maxnocells = 0;
+            $startX = $pdf->GetX();
+            $startY = $pdf->GetY();
+            $cellcount = $pdf->MultiCell(30,4,'Asset Type : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(60,4, $asset['asset_type_name'],0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $pdf->MultiCell(35,4,'Location Code : ',0,'R',0,0);
+            $pdf->MultiCell(55,4,$this->fn_general->clear_null($asset['location_code_id']),0,'L',0,0);
+            $pdf->SetXY($startX,$startY);
+            $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(60, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(35, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(55, $maxnocells*4, '', 1, 'L', 0, 0);
             $pdf->Ln();
+
             $pdf->Cell(30, 5, 'Task No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppm['ppm_task_no'], 1, 0, 'L');
-            $pdf->Cell(35, 5, 'PM Start Date/Time : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_start']), 1, 0, 'L');
+            $pdf->Cell(35, 5, 'Location Description : ', 1, 0, 'R');
+            $pdf->Cell(55, 5, $asset['asset_location_desc'], 1, 0, 'L');
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Work Order No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppmTask['ppm_task_no'], 1, 0, 'L');
+            $pdf->Cell(35, 5, 'PM Start Date/Time : ', 1, 0, 'R');
+            $pdf->Cell(55, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_start']), 1, 0, 'L');
+            $pdf->Ln();
+            $pdf->Cell(30, 5, '', 1, 0, 'R');
+            $pdf->Cell(60, 5, '', 1, 0, 'L');
             $pdf->Cell(35, 5, 'PM End Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_serviced']), 1, 0, 'L');
             $pdf->Ln();
