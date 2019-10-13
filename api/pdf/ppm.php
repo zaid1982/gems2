@@ -444,10 +444,12 @@ class Class_pdf_ppm {
                     if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
                     $cellcount = $pdf->MultiCell(20,4, $quanTasks[$i]['ppm_task_quan_remark'],0,'C',0,0);
                     if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+					
                     $pdf->SetXY($startX,$startY);
                     $this->TaskQuanSetHeight($pdf, $maxnocells);
 
-                    if ($pdf->GetY() > 272) {
+                    //$this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $quanTasks[$i]['ppm_task_quan_numb'] .' - '. $pdf->GetY());
+                    if ($pdf->GetY() > 260) {
                         $pdf->AddPage();
                         $pdf->setPage($pdf->getPage());
                     }
