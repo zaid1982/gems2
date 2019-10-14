@@ -85,7 +85,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 0 ? mzFormatNumber(row['close'+siteColumns[0]['siteId']]) : '';
+                            return siteColumns.length > 0 ? mzFormatNumber(row['closed'+siteColumns[0]['siteId']]) : '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
@@ -93,7 +93,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 1 ? mzFormatNumber(row['close'+siteColumns[1]['siteId']]) : '';
+                            return siteColumns.length > 1 ? mzFormatNumber(row['closed'+siteColumns[1]['siteId']]) : '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
@@ -101,7 +101,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 2 ? mzFormatNumber(row['close'+siteColumns[2]['siteId']]) : '';
+                            return siteColumns.length > 2 ? mzFormatNumber(row['closed'+siteColumns[2]['siteId']]) : '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
@@ -109,7 +109,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 3 ? mzFormatNumber(row['close'+siteColumns[3]['siteId']]) : '';
+                            return siteColumns.length > 3 ? mzFormatNumber(row['closed'+siteColumns[3]['siteId']]) : '';
                         }},
                 ]
         });

@@ -1663,7 +1663,7 @@ class Class_wo {
             $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
             foreach ($siteIds as $siteId) {
                 $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status <> 16, 1, 0)) AS open'.$siteId;
-                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status <> 16, 1, 0)) AS closed'.$siteId;
+                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status = 16, 1, 0)) AS closed'.$siteId;
             }
 
             $result = array();
