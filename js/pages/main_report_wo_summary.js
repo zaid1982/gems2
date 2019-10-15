@@ -78,39 +78,103 @@ function MainReportWoSummary() {
             language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'woTaskType'},
+                    {mData: 'woTaskType',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 0 ? mzFormatNumber(row['open'+siteColumns[0]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['open'+siteColumns[0]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 0 ? mzFormatNumber(row['closed'+siteColumns[0]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['closed'+siteColumns[0]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 1 ? mzFormatNumber(row['open'+siteColumns[1]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['open'+siteColumns[1]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 1 ? mzFormatNumber(row['closed'+siteColumns[1]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['closed'+siteColumns[1]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 2 ? mzFormatNumber(row['open'+siteColumns[2]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['open'+siteColumns[2]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 2 ? mzFormatNumber(row['closed'+siteColumns[2]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['closed'+siteColumns[2]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 3 ? mzFormatNumber(row['open'+siteColumns[3]['siteId']]) : '';
+                            if (siteColumns.length > 0) {
+                                const val = row['open'+siteColumns[3]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            return siteColumns.length > 3 ? mzFormatNumber(row['closed'+siteColumns[3]['siteId']]) : '';
-                        }},
+                            if (siteColumns.length > 0) {
+                                const val = row['closed'+siteColumns[3]['siteId']];
+                                if (row['woTaskType'] === 'TOTAL') {
+                                    return '<strong>'+mzFormatNumber(val)+'</strong>';
+                                } else {
+                                    return mzFormatNumber(val);
+                                }
+                            }
+                            return '';
+                        }}
                 ]
         });
         $("#dtRwsWoSummary_filter").hide();

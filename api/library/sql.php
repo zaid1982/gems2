@@ -609,7 +609,15 @@ class Class_sql
                 FROM wo_task
                 LEFT JOIN cli_site ON cli_site.site_id = wo_task.site_id
                 WHERE cli_site.client_id = [client_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
-                GROUP BY wo_task_type";
+                GROUP BY wo_task_type
+                UNION
+                SELECT
+                    'TOTAL' AS task_type
+                    [sum_site_str]
+                 FROM wo_task
+                LEFT JOIN cli_site ON cli_site.site_id = wo_task.site_id
+                WHERE cli_site.client_id = [client_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
+                ";
             } else if ($title === 'vg_report_ppm_summary') {
                 $sql = "SELECT                     
                     asset_type_name, 
