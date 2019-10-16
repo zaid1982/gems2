@@ -2,6 +2,7 @@ function MainHome() {
 
     const className = 'MainHome';
     let self = this;
+    let modalConfirmDeleteClass;
     let refClient;
     let refSite;
     let refContract;
@@ -126,7 +127,15 @@ function MainHome() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-
+                $('.lnkHmeDataWoDelete').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableWo.row(parseInt(rowId)).data();
+                        modalConfirmDeleteClass.delete(currentRow['woTaskId'], self);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -155,10 +164,19 @@ function MainHome() {
                             return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            if (mzIsRoleExist('1')) {
+                                return '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            }
+                            return '';
+                        }
+                    },
                     {mData: 'siteId', visible: false},
                     {mData: 'ppmGroupId', visible: false},
                     {mData: 'woTaskStatus', visible: false},
-                    {mData: 'woTaskType', visible: false}
+                    {mData: 'woTaskType', visible: false},
+                    {mData: 'woTaskId', visible: false}
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -1117,6 +1135,20 @@ function MainHome() {
         }
     };
 
+    this.deleteWo = function (_woTaskId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_woTaskId]);
+                mzAjaxRequest('wo.php?woTaskId='+_woTaskId, 'DELETE');
+                self.genTableHmeDataWo();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
     this.getClassName = function () {
         return className;
     };
@@ -1145,4 +1177,7 @@ function MainHome() {
         refStatus = _refStatus;
     };
 
+    this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
+        modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
 }

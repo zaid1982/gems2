@@ -27,6 +27,11 @@ function ModalConfirmDelete() {
                         returnClass.delete(id);
                     }
                     break;
+                case 'MainHome':
+                    if (typeof returnClass !== 'undefined') {
+                        returnClass.deleteWo(id);
+                    }
+                    break;
                 //default:
                     //toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
             }

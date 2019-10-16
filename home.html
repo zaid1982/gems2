@@ -229,6 +229,7 @@
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -271,6 +272,7 @@
     let versionLocal;
     let changePasswordClass;
     let homeClass_;
+    let modalConfirmDelete_;
 
     $('.divHmeTopStats_ppm').hide();
 
@@ -283,6 +285,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass = new ModalChangePassword();
                 homeClass_ = new MainHome();
+                modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
@@ -297,6 +300,7 @@
                 homeClass_.setRefUser(refUser_);
                 homeClass_.setRefPpmGroup(refPpmGroup_);
                 homeClass_.setRefStatus(refStatus_);
+                homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 homeClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -307,6 +311,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_home.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

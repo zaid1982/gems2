@@ -1685,4 +1685,41 @@ class Class_wo {
         }
     }
 
+    /**
+     * @param $woTaskId
+     * @return
+     * @throws Exception
+     */
+    public function delete_wo ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            if (!empty($woTask['pdf_id'])) {
+                Class_db::getInstance()->db_update('sys_pdf', array('pdf_status'=>'6'), array('pdf_id'=>$woTask['pdf_id']));
+            }
+            $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$woTaskId));
+            foreach ($woTaskUploads as $woTaskUpload) {
+                Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$woTaskUpload['upload_id']));
+            }
+
+            Class_db::getInstance()->db_delete('wo_task_assist', array('wo_task_id'=>$woTaskId));
+            Class_db::getInstance()->db_delete('wo_task_upload', array('wo_task_id'=>$woTaskId));
+            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$woTask['transaction_id']));
+            Class_db::getInstance()->db_delete('wfl_task', array('transaction_id'=>$woTask['transaction_id']));
+            Class_db::getInstance()->db_delete('wo_task', array('wo_task_id'=>$woTaskId));
+            Class_db::getInstance()->db_delete('wfl_transaction', array('transaction_id'=>$woTask['transaction_id']));
+
+            return $woTask['wo_task_no'];
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
 }

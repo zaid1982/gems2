@@ -98,6 +98,19 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+        $woTaskId = filter_input(INPUT_GET, 'woTaskId');
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        $woTaskNo = $fn_wo->delete_wo($woTaskId);
+        $fn_general->save_audit('124', $jwt_data->userId, 'WO Task No. = ' . $woTaskNo);
+
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_WO_DELETE;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
