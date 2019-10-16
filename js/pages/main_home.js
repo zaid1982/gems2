@@ -441,8 +441,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(12).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
+                                            oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(13).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -541,8 +541,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(13).search(event.point.series.userOptions.woTaskType, true, false).draw();
+                                            oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(14).search(event.point.series.userOptions.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -607,7 +607,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(13).search(this.woTaskType, true, false).draw();
+                                            oTableWo.column(14).search(this.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -685,7 +685,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(12).search(this.woTaskStatus, true, false).draw();
+                                            oTableWo.column(13).search(this.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -754,7 +754,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(11).search(this.ppmGroupId, true, false).draw();
+                                            oTableWo.column(12).search(this.ppmGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -831,8 +831,8 @@ function MainHome() {
                                     events: {
                                         click: function (event) {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(12).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
+                                            //oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(13).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -900,8 +900,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(10).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(13).search(event.point.series.userOptions.assetGroupId, true, false).draw();
+                                            //oTableWo.column(12).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(14).search(event.point.series.userOptions.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -965,7 +965,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(13).search(this.assetGroupId, true, false).draw();
+                                            //oTableWo.column(14).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1043,7 +1043,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(12).search(this.ppmTaskStatus, true, false).draw();
+                                            //oTableWo.column(13).search(this.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1107,7 +1107,7 @@ function MainHome() {
                             events: {
                                 click: function () {
                                     //oTableWo.search('').columns().search('').draw();
-                                    //oTableWo.column(11).search(this.ppmGroupId, true, false).draw();
+                                    //oTableWo.column(12).search(this.ppmGroupId, true, false).draw();
                                 }
                             }
                         }
