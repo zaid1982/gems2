@@ -636,6 +636,23 @@ class Class_sql
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
                 WHERE YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month] AND cli_contract.site_id = [site_id]  
                 GROUP BY ast_asset.asset_type_id";
+            } else if ($title === 'vg_report_wo_total') {
+                $sql = "SELECT                     
+                    cli_site.site_name, 
+                    SUM(IF(wo_task_type = 1 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open1, 
+                    SUM(IF(wo_task_type = 1 AND wo_task_status IN (16, 25), 1, 0)) AS closed1, 
+                    SUM(IF(wo_task_type = 2 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open2, 
+                    SUM(IF(wo_task_type = 2 AND wo_task_status IN (16, 25), 1, 0)) AS closed2, 
+                    SUM(IF(wo_task_type = 3 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open3, 
+                    SUM(IF(wo_task_type = 3 AND wo_task_status IN (16, 25), 1, 0)) AS closed3, 
+                    SUM(IF(wo_task_type = 4 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open4, 
+                    SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
+                    SUM(IF(wo_task_type = 5 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open5, 
+                    SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
+                FROM cli_site 
+                LEFT JOIN wo_task ON cli_site.site_id = wo_task.site_id
+                WHERE site_status = 1 AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
+                GROUP BY cli_site.site_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

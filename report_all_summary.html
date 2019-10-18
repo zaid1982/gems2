@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.css" rel="stylesheet">
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+
+<main>
+    <div class="container-fluid">
+        <section class="section mb-5 mt-lg-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-cascade cascading-admin-card user-card mt-4">
+                        <div class="admin-up d-flex justify-content-start">
+                            <i class="fas fa-file-alt rgba-cyan-strong py-4 z-depth-3"></i>
+                            <div class="data">
+                                <h3 class="font-weight-bold dark-grey-text ml-3">Report: Total Work Order Summary</h3>
+                            </div>
+                        </div>
+                        <div class="card-body card-body-cascade pb-0">
+                            <form id="formRwtSearch">
+                                <div class="row pt-4">
+                                    <div class="col-lg-3 col-md-4 select-outline">
+                                        <select id="optRwtYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optRwtYearId">Year</label>
+                                    </div>
+                                    <div class="col-lg-5 col-md-8 select-outline">
+                                        <select id="optRwtMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optRwtMonthId">Month</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnRwtSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                                <i class="fas fa-search mr-1"></i> View
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                                   data-toggle="popover" data-trigger="focus" title="Report"
+                                   data-content="Total Work Order Summary"><i class="fas fa-info mt-0 mx-1"></i></a>
+                                <button type="button" id="btnDtRwtWoTotalRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Total Work Order Summary</a>
+                            <div>
+                                <div id="btnDtRwtWoSummaryExport"></div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="table-responsive">
+                                <table id="dtRwtWoSummary" class="table table-hover table-bordered mb-0 display responsive" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong text-center rgba-blue-grey-strong">
+                                        <th rowspan="2" style="vertical-align: middle">Site</th>
+                                        <th colspan="2">PPM</th>
+                                        <th colspan="2">Client Complaint</th>
+                                        <th colspan="2">Self Finding</th>
+                                        <th colspan="2">Request</th>
+                                        <th colspan="2">Breakdown</th>
+                                        <th colspan="2">Defect</th>
+                                    </tr>
+                                    <tr class="th-strong rgba-blue-grey-light">
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                        <th class="text-center">Open</th>
+                                        <th class="text-center">Closed</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="rgba-blue-grey-slight"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Stepper JavaScript - minified -->
+<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let reportWoTotal_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                reportWoTotal_ = new MainReportWoTotal();
+
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+
+                reportWoTotal_.setRefStatus(refStatus_);
+                reportWoTotal_.setRefClient(refClient_);
+                reportWoTotal_.setRefSite(refSite_);
+                reportWoTotal_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_report_all_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
