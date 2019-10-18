@@ -71,7 +71,7 @@ function MainReportWoTotal() {
             language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'woTaskType',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
+                    {mData: 'siteName',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
                     {mData: 'open0', sClass: 'text-right',
                         mRender: function (data, type, row) {
                             if (row['siteName'] === 'TOTAL') {
