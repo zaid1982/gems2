@@ -1771,8 +1771,8 @@ class Class_wo {
                 $row_result['siteName'] = $reportManual['site_name'];
                 $row_result['isManual'] = true;
                 for ($i=0; $i<=5; $i++) {
-                    $row_result['open'.$i] = $reportManual['site_manual_open'.$i];
-                    $row_result['closed'.$i] = $reportManual['site_manual_closed'.$i];
+                    $row_result['open'.$i] = $reportManual['total_manual_open'.$i];
+                    $row_result['closed'.$i] = $reportManual['total_manual_closed'.$i];
                 }
                 array_push($result, $row_result);
             }

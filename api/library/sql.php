@@ -668,11 +668,24 @@ class Class_sql
                 GROUP BY cli_contract.site_id";
             } else if ($title === 'vg_report_site_manual') {
                 $sql = "SELECT
+                    cli_site.site_id,
                     site_name,
-                    cli_site_manual.*
+                    SUM(site_manual_open0) AS total_manual_open0,
+                    SUM(site_manual_closed0) AS total_manual_closed0,
+                    SUM(site_manual_open1) AS total_manual_open1,
+                    SUM(site_manual_closed1) AS total_manual_closed1,
+                    SUM(site_manual_open2) AS total_manual_open2,
+                    SUM(site_manual_closed2) AS total_manual_closed2,
+                    SUM(site_manual_open3) AS total_manual_open3,
+                    SUM(site_manual_closed3) AS total_manual_closed3,
+                    SUM(site_manual_open4) AS total_manual_open4,
+                    SUM(site_manual_closed4) AS total_manual_closed4,
+                    SUM(site_manual_open5) AS total_manual_open5,
+                    SUM(site_manual_closed5) AS total_manual_closed5
                 FROM cli_site
-                LEFT JOIN cli_site_manual ON cli_site_manual.site_id = cli_site.site_id AND cli_site_manual.site_manual_year = [selected_year] AND cli_site_manual.site_manual_month = [selected_month]
-                WHERE site_is_manual = 1";
+                LEFT JOIN cli_site_manual ON cli_site_manual.site_id = cli_site.site_id AND YEAR(cli_site_manual.site_manual_date) = [selected_year] AND MONTH(cli_site_manual.site_manual_date) = [selected_month]
+                WHERE site_is_manual = 1
+                GROUP BY cli_site.site_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
