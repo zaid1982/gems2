@@ -71,7 +71,15 @@ function MainReportWoTotal() {
             language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'siteName',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
+                    {mData: 'siteName',
+                        mRender: function (data, type, row, meta) {
+                            if (data === 'TOTAL') {
+                                return '<strong>'+data+'</strong>';
+                            } else if (row['isManual']) {
+                                return data + '&nbsp;&nbsp;<a><i class="fas fa-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
+                            }
+                            return data;
+                        }},
                     {mData: 'open0', sClass: 'text-right',
                         mRender: function (data, type, row) {
                             if (row['siteName'] === 'TOTAL') {

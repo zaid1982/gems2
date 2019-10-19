@@ -650,9 +650,27 @@ class Class_sql
                     SUM(IF(wo_task_type = 5 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open5, 
                     SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
                 FROM cli_site 
-                LEFT JOIN wo_task ON cli_site.site_id = wo_task.site_id
-                WHERE site_status = 1 AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
+                LEFT JOIN wo_task ON cli_site.site_id = wo_task.site_id AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
+                WHERE site_is_launched = 1
                 GROUP BY cli_site.site_id";
+            } else if ($title === 'vg_report_ppm_total') {
+                $sql = "SELECT                     
+                    site_name, 
+                    SUM(IF(ppm_task_status <> 16, 1, 0)) AS total_ppm_not,
+                    SUM(IF(ppm_task_status = 16, 1, 0)) AS total_ppm_done
+                FROM ppm_task 
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
+                WHERE cli_site.site_is_launched = 1 AND YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month]
+                GROUP BY cli_contract.site_id";
+            } else if ($title === 'vg_report_site_manual') {
+                $sql = "SELECT
+                    site_name,
+                    cli_site_manual.*
+                FROM cli_site
+                LEFT JOIN cli_site_manual ON cli_site_manual.site_id = cli_site.site_id AND cli_site_manual.site_manual_year = [selected_year] AND cli_site_manual.site_manual_month = [selected_month]
+                WHERE site_is_manual = 1";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -1743,11 +1743,34 @@ class Class_wo {
             $reportDatas = Class_db::getInstance()->db_select('vg_report_wo_total', array(), null, null, null, array('selected_year'=>$year, 'selected_month'=>$month));
             foreach ($reportDatas as $reportData) {
                 $row_result['siteName'] = $reportData['site_name'];
-                $row_result['open0'] = '12';
-                $row_result['closed0'] = '12';
+                $row_result['isManual'] = false;
+                $row_result['open0'] = '0';
+                $row_result['closed0'] = '0';
                 for ($i=1; $i<=5; $i++) {
                     $row_result['open'.$i] = $reportData['open'.$i];
                     $row_result['closed'.$i] = $reportData['closed'.$i];
+                }
+                array_push($result, $row_result);
+            }
+
+            $reportPpms = Class_db::getInstance()->db_select('vg_report_ppm_total', array(), null, null, null, array('selected_year'=>$year, 'selected_month'=>$month));
+            foreach ($reportPpms as $reportPpm) {
+                foreach ($result as $key => $row) {
+                    if ($row['siteName'] === $reportPpm['site_name']) {
+                        $result[$key]['open0'] = $reportPpm['total_ppm_not'];
+                        $result[$key]['closed0'] = $reportPpm['total_ppm_done'];
+                        break;
+                    }
+                }
+            }
+
+            $reportManuals = Class_db::getInstance()->db_select('vg_report_site_manual', array(), null, null, null, array('selected_year'=>$year, 'selected_month'=>$month));
+            foreach ($reportManuals as $reportManual) {
+                $row_result['siteName'] = $reportManual['site_name'];
+                $row_result['isManual'] = true;
+                for ($i=0; $i<=5; $i++) {
+                    $row_result['open'.$i] = $reportManual['site_manual_open'.$i];
+                    $row_result['closed'.$i] = $reportManual['site_manual_closed'.$i];
                 }
                 array_push($result, $row_result);
             }
