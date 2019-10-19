@@ -1,0 +1,143 @@
+<div class="modal fade" id="modal_report_total_wo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-edit text-white"></i> &nbsp;Edit Manual Total WO Report</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMmt">
+                    <div class="md-form md-outline mt-4">
+                        <input type="text" id="txtMmtSiteName" class="form-control">
+                        <label for="txtMmtSiteName" id="lblMmtSiteName">Site Name</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMmtYear" class="form-control">
+                                <label for="txtMmtYear" id="lblMmtYear">Year</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMmtMonth" class="form-control">
+                                <label for="txtMmtMonth" id="lblMmtMonth">Month</label>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>PPM:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen0" class="form-control">
+                                <label for="txtMmtOpen0" id="lblMmtOpen0">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen0Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed0" class="form-control">
+                                <label for="txtMmtClosed0" id="lblMmtClosed0">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed0Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Client Complaint:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen1" class="form-control">
+                                <label for="txtMmtOpen1" id="lblMmtOpen1">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen1Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed1" class="form-control">
+                                <label for="txtMmtClosed1" id="lblMmtClosed1">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed1Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Self Finding:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen2" class="form-control">
+                                <label for="txtMmtOpen2" id="lblMmtOpen2">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen2Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed2" class="form-control">
+                                <label for="txtMmtClosed2" id="lblMmtClosed2">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed2Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Request:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen3" class="form-control">
+                                <label for="txtMmtOpen3" id="lblMmtOpen3">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen3Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed3" class="form-control">
+                                <label for="txtMmtClosed3" id="lblMmtClosed3">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed3Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Breakdown:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen4" class="form-control">
+                                <label for="txtMmtOpen4" id="lblMmtOpen4">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen4Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed4" class="form-control">
+                                <label for="txtMmtClosed4" id="lblMmtClosed4">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed4Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Defect:</h6>
+                    <div class="row">
+                        <div class="col-md-6 pr-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtOpen5" class="form-control">
+                                <label for="txtMmtOpen5" id="lblMmtOpen5">Open *</label>
+                                <p class="font-small text-danger" id="txtMmtOpen5Err"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-2">
+                            <div class="md-form md-outline mt-2">
+                                <input type="text" id="txtMmtClosed5" class="form-control">
+                                <label for="txtMmtClosed5" id="lblMmtClosed5">Closed *</label>
+                                <p class="font-small text-danger" id="txtMmtClosed5Err"></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMmtSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -637,7 +637,8 @@ class Class_sql
                 WHERE YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month] AND cli_contract.site_id = [site_id]  
                 GROUP BY ast_asset.asset_type_id";
             } else if ($title === 'vg_report_wo_total') {
-                $sql = "SELECT                     
+                $sql = "SELECT               
+                    cli_site.site_id,      
                     cli_site.site_name, 
                     SUM(IF(wo_task_type = 1 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open1, 
                     SUM(IF(wo_task_type = 1 AND wo_task_status IN (16, 25), 1, 0)) AS closed1, 
@@ -654,7 +655,8 @@ class Class_sql
                 WHERE site_is_launched = 1
                 GROUP BY cli_site.site_id";
             } else if ($title === 'vg_report_ppm_total') {
-                $sql = "SELECT                     
+                $sql = "SELECT                
+                    cli_site.site_id,     
                     site_name, 
                     SUM(IF(ppm_task_status <> 16, 1, 0)) AS total_ppm_not,
                     SUM(IF(ppm_task_status = 16, 1, 0)) AS total_ppm_done

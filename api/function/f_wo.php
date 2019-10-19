@@ -1742,6 +1742,7 @@ class Class_wo {
             $result = array();
             $reportDatas = Class_db::getInstance()->db_select('vg_report_wo_total', array(), null, null, null, array('selected_year'=>$year, 'selected_month'=>$month));
             foreach ($reportDatas as $reportData) {
+                $row_result['siteId'] = $reportData['site_id'];
                 $row_result['siteName'] = $reportData['site_name'];
                 $row_result['isManual'] = false;
                 $row_result['open0'] = '0';
@@ -1766,6 +1767,7 @@ class Class_wo {
 
             $reportManuals = Class_db::getInstance()->db_select('vg_report_site_manual', array(), null, null, null, array('selected_year'=>$year, 'selected_month'=>$month));
             foreach ($reportManuals as $reportManual) {
+                $row_result['siteId'] = $reportManual['site_id'];
                 $row_result['siteName'] = $reportManual['site_name'];
                 $row_result['isManual'] = true;
                 for ($i=0; $i<=5; $i++) {

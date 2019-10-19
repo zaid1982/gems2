@@ -120,6 +120,7 @@
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_report_total_wo"></div>
 
 </main>
 
@@ -155,7 +156,8 @@
 
     let versionLocal_;
     let changePasswordClass_;
-    let reportWoTotal_;
+    let reportWoTotalClass_;
+    let modalReportTotalWoClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -165,16 +167,14 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                reportWoTotal_ = new MainReportWoTotal();
+                reportWoTotalClass_ = new MainReportWoTotal();
+                modalReportTotalWoClass_ = new ModalReportTotalWo();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                modalReportTotalWoClass_.setClassFrom(reportWoTotalClass_);
+                modalReportTotalWoClass_.init();
 
-                reportWoTotal_.setRefStatus(refStatus_);
-                reportWoTotal_.setRefClient(refClient_);
-                reportWoTotal_.setRefSite(refSite_);
-                reportWoTotal_.init();
+                reportWoTotalClass_.setModalReportTotalWo(modalReportTotalWoClass_);
+                reportWoTotalClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -184,6 +184,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_report_total_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_report_all_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

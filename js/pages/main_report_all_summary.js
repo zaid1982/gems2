@@ -2,15 +2,12 @@ function MainReportWoTotal() {
 
     const className = 'MainReportWoTotal';
     let self = this;
-    let refStatus;
-    let refClient;
-    let refSite;
     const yearArr = mzGetYearArray();
     const monthArr = mzGetMonthArray();
     let oTableWoTotal;
     let selectedYear;
     let selectedMonth;
-    let siteColumns = [];
+    let modalReportTotalWo;
 
     this.init = function () {
         let dateCurrent = new Date();
@@ -67,6 +64,15 @@ function MainReportWoTotal() {
             ordering: false,
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkRwtManualEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableWoTotal.row(parseInt(rowId)).data();
+                        modalReportTotalWo.edit(currentRow['siteId'], rowId, selectedYear, selectedMonth);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -176,6 +182,7 @@ function MainReportWoTotal() {
                                 return mzFormatNumber(data);
                             }
                         }},
+                    {mData: 'siteId', visible: false}
                 ]
         });
         $("#dtRwtWoTotal_filter").hide();
@@ -251,15 +258,7 @@ function MainReportWoTotal() {
         return className;
     };
 
-    this.setRefStatus = function (_refStatus) {
-        refStatus = _refStatus;
-    };
-
-    this.setRefClient = function (_refClient) {
-        refClient = _refClient;
-    };
-
-    this.setRefSite = function (_refSite) {
-        refSite = _refSite;
+    this.setModalReportTotalWo = function (_modalReportTotalWo) {
+        modalReportTotalWo = _modalReportTotalWo;
     };
 }
