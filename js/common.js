@@ -1275,3 +1275,9 @@ function mzGetYearArray() {
     }
     return yearArr;
 }
+
+function mzIsValidDate(s) {  // 31/9/2011
+    const bits = s.split('/');
+    const d = new Date(bits[2] + '/' + bits[1] + '/' + bits[0]);
+    return !!(d && (d.getMonth() + 1) == bits[1] && d.getDate() == Number(bits[0]));
+}
