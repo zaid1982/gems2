@@ -1784,4 +1784,223 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $siteId
+     * @param $isManual
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_report_wo_daily ($siteId, $isManual, $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            $result = array();
+            if ($isManual == 'true') {
+                $reportManuals = Class_db::getInstance()->db_select('cli_site_manual', array('site_id'=>$siteId, 'YEAR(site_manual_date)'=>$year, 'MONTH(site_manual_date)'=>$month));
+                foreach ($reportManuals as $reportManual) {
+                    $row_result['siteManualId'] = $reportManual['site_manual_id'];
+                    $row_result['siteManualDate'] = $this->fn_general->convertDateToDisplay($reportManual['site_manual_date']);
+                    for ($i=0; $i<=5; $i++) {
+                        $row_result['open'.$i] = $reportManual['site_manual_open'.$i];
+                        $row_result['closed'.$i] = $reportManual['site_manual_closed'.$i];
+                    }
+                    array_push($result, $row_result);
+                }
+            } else {
+                $reportManuals = Class_db::getInstance()->db_select('vg_report_wo_daily', array(), null, null, null, array('site_id'=>$siteId, 'selected_year'=>$year, 'selected_month'=>$month));
+                foreach ($reportManuals as $reportManual) {
+                    $row_result['siteManualId'] = '';
+                    $row_result['siteManualDate'] = $this->fn_general->convertDateToDisplay($reportManual['dates']);
+                    for ($i=0; $i<=5; $i++) {
+                        $row_result['open'.$i] = $reportManual['combine_open'.$i];
+                        $row_result['closed'.$i] = $reportManual['combine_closed'.$i];
+                    }
+                    array_push($result, $row_result);
+                }
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $params
+     * @throws Exception
+     */
+    public function add_siteManual ($params) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($params)) {
+                throw new Exception('[' . __LINE__ . '] - Array params empty');
+            }
+
+            if (!array_key_exists('siteId', $params) || empty($params['siteId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
+            if (!array_key_exists('selectedDate', $params) || empty($params['selectedDate'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter selectedDate empty');
+            }
+            if (!array_key_exists('selectedMonth', $params) || empty($params['selectedMonth'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter selectedMonth empty');
+            }
+            if (!array_key_exists('selectedYear', $params) || empty($params['selectedYear'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter selectedYear empty');
+            }
+            if (!array_key_exists('open0', $params) || $params['open0'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open0 empty');
+            }
+            if (!array_key_exists('closed0', $params) || $params['closed0'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed0 empty');
+            }
+            if (!array_key_exists('open1', $params) || $params['open1'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open1 empty');
+            }
+            if (!array_key_exists('closed1', $params) || $params['closed1'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed1 empty');
+            }
+            if (!array_key_exists('open2', $params) || $params['open2'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open2 empty');
+            }
+            if (!array_key_exists('closed2', $params) || $params['closed2'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed2 empty');
+            }
+            if (!array_key_exists('open3', $params) || $params['open3'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open3 empty');
+            }
+            if (!array_key_exists('closed3', $params) || $params['closed3'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed3 empty');
+            }
+            if (!array_key_exists('open4', $params) || $params['open4'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open4 empty');
+            }
+            if (!array_key_exists('closed4', $params) || $params['closed4'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed4 empty');
+            }
+            if (!array_key_exists('open5', $params) || $params['open5'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open5 empty');
+            }
+            if (!array_key_exists('closed5', $params) || $params['closed5'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed5 empty');
+            }
+
+            $siteId = $params['siteId'];
+            $selectedDates = $params['selectedYear'].'-'.$params['selectedMonth'].'-'.$params['selectedDate'];
+            $open0 = $params['open0'];
+            $closed0 = $params['closed0'];
+            $open1 = $params['open1'];
+            $closed1 = $params['closed1'];
+            $open2 = $params['open2'];
+            $closed2 = $params['closed2'];
+            $open3 = $params['open3'];
+            $closed3 = $params['closed3'];
+            $open4 = $params['open4'];
+            $closed4 = $params['closed4'];
+            $open5 = $params['open5'];
+            $closed5 = $params['closed5'];
+
+            $siteManualId = '';
+            if (Class_db::getInstance()->db_count('cli_site_manual', array('site_id'=>$siteId, 'site_manual_date'=>$selectedDates)) > 0) {
+                Class_db::getInstance()->db_update('cli_site_manual', array('site_manual_open0' => $open0, 'site_manual_closed0' => $closed0, 'site_manual_open1' => $open1, 'site_manual_closed1' => $closed1, 'site_manual_open2' => $open2, 'site_manual_closed2' => $closed2,
+                    'site_manual_open3' => $open3, 'site_manual_closed3' => $closed3, 'site_manual_open4' => $open4, 'site_manual_closed4' => $closed4, 'site_manual_open5' => $open5, 'site_manual_closed5' => $closed5), array('site_id'=>$siteId, 'site_manual_date'=>$selectedDates));
+            } else {
+                $siteManualId = Class_db::getInstance()->db_insert('cli_site_manual', array('site_id'=>$siteId, 'site_manual_date'=>$selectedDates, 'site_manual_open0' => $open0, 'site_manual_closed0' => $closed0, 'site_manual_open1' => $open1, 'site_manual_closed1' => $closed1, 'site_manual_open2' => $open2, 'site_manual_closed2' => $closed2,
+                    'site_manual_open3' => $open3, 'site_manual_closed3' => $closed3, 'site_manual_open4' => $open4, 'site_manual_closed4' => $closed4, 'site_manual_open5' => $open5, 'site_manual_closed5' => $closed5));
+            }
+            return $siteManualId;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $siteManualId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function update_siteManual ($siteManualId, $put_vars) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($siteManualId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteManualId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['open0']) || $put_vars['open0'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open0 empty');
+            }
+            if (!isset($put_vars['closed0']) || $put_vars['closed0'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed0 empty');
+            }
+            if (!isset($put_vars['open1']) || $put_vars['open1'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open1 empty');
+            }
+            if (!isset($put_vars['closed1']) || $put_vars['closed1'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed1 empty');
+            }
+            if (!isset($put_vars['open2']) || $put_vars['open2'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open2 empty');
+            }
+            if (!isset($put_vars['closed2']) || $put_vars['closed2'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed2 empty');
+            }
+            if (!isset($put_vars['open3']) || $put_vars['open3'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open3 empty');
+            }
+            if (!isset($put_vars['closed3']) || $put_vars['closed3'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed3 empty');
+            }
+            if (!isset($put_vars['open4']) || $put_vars['open4'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open4 empty');
+            }
+            if (!isset($put_vars['closed4']) || $put_vars['closed4'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed4 empty');
+            }
+            if (!isset($put_vars['open5']) || $put_vars['open5'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter open5 empty');
+            }
+            if (!isset($put_vars['closed5']) || $put_vars['closed5'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter closed5 empty');
+            }
+
+            $open0 = $put_vars['open0'];
+            $closed0 = $put_vars['closed0'];
+            $open1 = $put_vars['open1'];
+            $closed1 = $put_vars['closed1'];
+            $open2 = $put_vars['open2'];
+            $closed2 = $put_vars['closed2'];
+            $open3 = $put_vars['open3'];
+            $closed3 = $put_vars['closed3'];
+            $open4 = $put_vars['open4'];
+            $closed4 = $put_vars['closed4'];
+            $open5 = $put_vars['open5'];
+            $closed5 = $put_vars['closed5'];
+
+            Class_db::getInstance()->db_update('cli_site_manual', array('site_manual_open0'=>$open0, 'site_manual_closed0'=>$closed0, 'site_manual_open1'=>$open1, 'site_manual_closed1'=>$closed1, 'site_manual_open2'=>$open2, 'site_manual_closed2'=>$closed2,
+                'site_manual_open3'=>$open3, 'site_manual_closed3'=>$closed3, 'site_manual_open4'=>$open4, 'site_manual_closed4'=>$closed4, 'site_manual_open5'=>$open5, 'site_manual_closed5'=>$closed5), array('site_manual_id'=>$siteManualId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

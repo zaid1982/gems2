@@ -93,6 +93,13 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_wo->get_report_wo_total($year, $month);
+            }
+            else if ($type === 'report_wo_daily') {
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $isManual = filter_input(INPUT_GET, 'isManual');
+                $result = $fn_wo->get_report_wo_daily($siteId, $isManual, $year, $month);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
@@ -102,6 +109,80 @@ try {
             //$result = $fn_wo->get_wo_task_list();
         }
         $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $action = filter_input(INPUT_POST, 'action');
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'insert_site_manual') {
+            $siteId = filter_input(INPUT_POST, 'siteId');
+            $siteName = filter_input(INPUT_POST, 'siteName');
+            $selectedDate = filter_input(INPUT_POST, 'selectedDate');
+            $selectedMonth = filter_input(INPUT_POST, 'selectedMonth');
+            $selectedYear = filter_input(INPUT_POST, 'selectedYear');
+            $open0 = filter_input(INPUT_POST, 'open0');
+            $closed0 = filter_input(INPUT_POST, 'closed0');
+            $open1 = filter_input(INPUT_POST, 'open1');
+            $closed1 = filter_input(INPUT_POST, 'closed1');
+            $open2 = filter_input(INPUT_POST, 'open2');
+            $closed2 = filter_input(INPUT_POST, 'closed2');
+            $open3 = filter_input(INPUT_POST, 'open3');
+            $closed3 = filter_input(INPUT_POST, 'closed3');
+            $open4 = filter_input(INPUT_POST, 'open4');
+            $closed4 = filter_input(INPUT_POST, 'closed4');
+            $open5 = filter_input(INPUT_POST, 'open5');
+            $closed5 = filter_input(INPUT_POST, 'closed5');
+
+            $params = array(
+                'siteId'=>$siteId,
+                'selectedDate'=>$selectedDate,
+                'selectedMonth'=>$selectedMonth,
+                'selectedYear'=>$selectedYear,
+                'open0'=>$open0,
+                'closed0'=>$closed0,
+                'open1'=>$open1,
+                'closed1'=>$closed1,
+                'open2'=>$open2,
+                'closed2'=>$closed2,
+                'open3'=>$open3,
+                'closed3'=>$closed3,
+                'open4'=>$open4,
+                'closed4'=>$closed4,
+                'open5'=>$open5,
+                'closed5'=>$closed5
+            );
+
+            $result = $fn_wo->add_siteManual($params);
+            $fn_general->save_audit('125', $jwt_data->userId, 'Site = '.$siteName.', date = '.$selectedDate.'/'.$selectedMonth.'/'.$selectedYear);
+            $form_data['errmsg'] = $constant::SUC_WO_MANUAL_REPORT_ADD;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $put_data = file_get_contents("php://input");
+        parse_str($put_data, $put_vars);
+        $action = $put_vars['action'];
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'update_site_manual') {
+            $siteManualId = filter_input(INPUT_GET, 'siteManualId');
+            $fn_wo->update_siteManual($siteManualId, $put_vars);
+            $fn_general->save_audit('126', $jwt_data->userId, 'Site = '.$put_vars['siteName'].', date = '.$put_vars['selectedDate'].'/'.$put_vars['selectedMonth'].'/'.$put_vars['selectedYear']);
+            $form_data['errmsg'] = $constant::SUC_WO_MANUAL_REPORT_EDIT;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {

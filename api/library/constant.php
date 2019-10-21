@@ -220,4 +220,6 @@ class Class_constant {
     const SUC_WO_SAVE_WO_REPAIR_WORK = 'Work Order repair work successfully saved';
     const SUC_WO_SAVE_WO_RATE = 'Rating successfully saved';
     const SUC_WO_DELETE = 'Work Order successfully deleted';
+    const SUC_WO_MANUAL_REPORT_ADD = 'Manual Work Order Report successfully added';
+    const SUC_WO_MANUAL_REPORT_EDIT = 'Manual Work Order Report successfully updated';
 }

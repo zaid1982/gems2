@@ -9,8 +9,12 @@ function MainReportWoTotal() {
     let selectedYear;
     let selectedMonth;
     let modalReportTotalWo;
+    let siteId;
+    let siteName;
+    let isManual;
 
     this.init = function () {
+        $('#divRwtWoDaily').hide();
         let dateCurrent = new Date();
         selectedMonth = dateCurrent.getMonth()+1;
         selectedYear = dateCurrent.getFullYear();
@@ -65,13 +69,13 @@ function MainReportWoTotal() {
             ordering: false,
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkRwtManualEdit').off('click').on('click', function () {
+                $('.lnkRwtDailyView').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableWoTotal.row(parseInt(rowId)).data();
-                        modalReportTotalWo.edit(currentRow['siteId'], rowId, selectedYear, selectedMonth, currentRow['siteName']);
+                        self.drillDaily(currentRow['siteId'], currentRow['siteName'], currentRow['isManual']);
                     }
                 });
             },
@@ -82,10 +86,9 @@ function MainReportWoTotal() {
                         mRender: function (data, type, row, meta) {
                             if (data === 'TOTAL') {
                                 return '<strong>'+data+'</strong>';
-                            } else if (row['isManual']) {
-                                return data + '&nbsp;&nbsp;<a><i class="fas fa-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
+                            } else {
+                                return data + '&nbsp;&nbsp;<a><i class="fas fa-folder-open lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Daily Summary"></i></a>';
                             }
-                            return data;
                         }},
                     {mData: 'open0', sClass: 'text-right',
                         mRender: function (data, type, row) {
@@ -191,6 +194,7 @@ function MainReportWoTotal() {
         let cntWoTotal;
         let btnWoTotalOpt = {
             exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
             }
         };
 
@@ -248,18 +252,23 @@ function MainReportWoTotal() {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableWoDaily.row(parseInt(rowId)).data();
-                        modalReportTotalWo.edit(currentRow['siteId'], rowId, selectedYear, selectedMonth, 121);
+                        const selectedDate = currentRow['siteManualDate'];
+                        const dateSplit = selectedDate.split("/");
+                        const editData = [currentRow['open0'], currentRow['closed0'], currentRow['open1'], currentRow['closed1'], currentRow['open2'], currentRow['closed2'],
+                            currentRow['open3'], currentRow['closed3'],currentRow['open4'], currentRow['closed4'], currentRow['open5'], currentRow['closed5']];
+                        modalReportTotalWo.setEditData(editData);
+                        modalReportTotalWo.edit(currentRow['siteManualId'], siteId, rowId, selectedYear, selectedMonth, siteName, dateSplit[0]);
                     }
                 });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'siteName',
+                    {mData: 'siteManualDate', sClass: 'pl-2',
                         mRender: function (data, type, row, meta) {
                             if (data === 'TOTAL') {
                                 return '<strong>'+data+'</strong>';
-                            } else if (row['isManual']) {
+                            } else if (isManual) {
                                 return data + '&nbsp;&nbsp;<a><i class="fas fa-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
                             }
                             return data;
@@ -360,7 +369,7 @@ function MainReportWoTotal() {
                                 return mzFormatNumber(data);
                             }
                         }},
-                    {mData: 'siteId', visible: false}
+                    {mData: 'siteManualId', visible: false}
                 ]
         });
         $("#dtRwtWoDaily_filter").hide();
@@ -368,6 +377,7 @@ function MainReportWoTotal() {
         let cntWoDaily;
         let btnWoDailyOpt = {
             exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
             }
         };
 
@@ -416,12 +426,17 @@ function MainReportWoTotal() {
                 try {
                     selectedYear = $('#optRwtYearId').val();
                     selectedMonth = $('#optRwtMonthId').val();
+                    $('#divRwtWoDaily').hide();
                     self.genTableWoTotal();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
             }, 200);
+        });
+
+        $('#btnDtRwtWoDailyAdd').on('click', function () {
+            modalReportTotalWo.add(siteId, selectedYear, selectedMonth, siteName);
         });
 
         self.genTableWoTotal();
@@ -433,8 +448,26 @@ function MainReportWoTotal() {
     };
 
     this.genTableWoDaily = function () {
-        //const dataWoDaily = mzAjaxRequest('wo.php?type=report_wo_total&year='+selectedYear+'&month='+selectedMonth, 'GET');
-        //oTableWoDaily.clear().rows.add(dataWoDaily).draw();
+        const dataWoDaily = mzAjaxRequest('wo.php?type=report_wo_daily&siteId='+siteId+'&year='+selectedYear+'&month='+selectedMonth+'&isManual='+isManual, 'GET');
+        oTableWoDaily.clear().rows.add(dataWoDaily).draw();
+    };
+
+    this.drillDaily = function (_siteId, _siteName, _isManual) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                siteId = _siteId;
+                siteName = _siteName;
+                isManual = _isManual;
+                $('#spanRwtWoDailySiteName').html(siteName);
+                isManual ? $('#btnDtRwtWoDailyAdd').show() : $('#btnDtRwtWoDailyAdd').hide();
+                self.genTableWoDaily();
+                $('#divRwtWoDaily').show();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
     };
 
     this.getClassName = function () {

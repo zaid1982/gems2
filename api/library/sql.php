@@ -686,6 +686,54 @@ class Class_sql
                 LEFT JOIN cli_site_manual ON cli_site_manual.site_id = cli_site.site_id AND YEAR(cli_site_manual.site_manual_date) = [selected_year] AND MONTH(cli_site_manual.site_manual_date) = [selected_month]
                 WHERE site_is_manual = 1
                 GROUP BY cli_site.site_id";
+            } else if ($title === 'vg_report_wo_daily') {
+                $sql = "SELECT 
+                    dates, 
+                    SUM(open0) AS combine_open0, 
+                    SUM(closed0) AS combine_closed0, 
+                    SUM(open1) AS combine_open1, 
+                    SUM(closed1) AS combine_closed1, 
+                    SUM(open2) AS combine_open2, 
+                    SUM(closed2) AS combine_closed2, 
+                    SUM(open3) AS combine_open3, 
+                    SUM(closed3) AS combine_closed3, 
+                    SUM(open4) AS combine_open4, 
+                    SUM(closed4) AS combine_closed4, 
+                    SUM(open5) AS combine_open5, 
+                    SUM(closed5) AS combine_closed5 
+                FROM (
+                    SELECT               
+                        date(wo_task_time_created) AS dates, 
+                        0 AS open0, 0 AS closed0,
+                        SUM(IF(wo_task_type = 1 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open1, 
+                        SUM(IF(wo_task_type = 1 AND wo_task_status IN (16, 25), 1, 0)) AS closed1, 
+                        SUM(IF(wo_task_type = 2 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open2, 
+                        SUM(IF(wo_task_type = 2 AND wo_task_status IN (16, 25), 1, 0)) AS closed2, 
+                        SUM(IF(wo_task_type = 3 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open3, 
+                        SUM(IF(wo_task_type = 3 AND wo_task_status IN (16, 25), 1, 0)) AS closed3, 
+                        SUM(IF(wo_task_type = 4 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open4, 
+                        SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
+                        SUM(IF(wo_task_type = 5 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open5, 
+                        SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
+                    FROM wo_task 
+                    WHERE site_id = [site_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
+                    GROUP BY dates
+                    UNION 
+                    SELECT                
+                        DATE(ppm_task_schedule_date) AS dates, 
+                        SUM(IF(ppm_task_status <> 16, 1, 0)) AS open0,
+                        SUM(IF(ppm_task_status = 16, 1, 0)) AS closed0,
+                        0 AS open1, 0 AS closed1,
+                        0 AS open2, 0 AS closed2,
+                        0 AS open3, 0 AS closed3,
+                        0 AS open4, 0 AS closed4,
+                        0 AS open5, 0 AS closed5
+                    FROM ppm_task 
+                    LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                    LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                    WHERE cli_contract.site_id = [site_id] AND YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month]
+                    GROUP BY dates) aa 
+                GROUP BY dates";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
