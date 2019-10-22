@@ -1771,11 +1771,26 @@ class Class_wo {
                 $row_result['siteName'] = $reportManual['site_name'];
                 $row_result['isManual'] = true;
                 for ($i=0; $i<=5; $i++) {
-                    $row_result['open'.$i] = $reportManual['total_manual_open'.$i];
-                    $row_result['closed'.$i] = $reportManual['total_manual_closed'.$i];
+                    $row_result['open'.$i] = $this->fn_general->clear_null($reportManual['total_manual_open'.$i], 0);
+                    $row_result['closed'.$i] = $this->fn_general->clear_null($reportManual['total_manual_closed'.$i], 0);
                 }
                 array_push($result, $row_result);
             }
+
+            $row_result['siteId'] = '';
+            $row_result['siteName'] = 'TOTAL';
+            $row_result['isManual'] = false;
+            for ($i=0; $i<=5; $i++) {
+                $row_result['open'.$i] = 0;
+                $row_result['closed'.$i] = 0;
+            }
+            foreach ($result as $row) {
+                for ($i=0; $i<=5; $i++) {
+                    $row_result['open'.$i] += $row['open'.$i];
+                    $row_result['closed'.$i] += $row['closed'.$i];
+                }
+            }
+            array_push($result, $row_result);
 
             return $result;
         }
@@ -1829,6 +1844,20 @@ class Class_wo {
                 }
             }
 
+            $row_result['siteManualId'] = '';
+            $row_result['siteManualDate'] = 'TOTAL';
+            for ($i=0; $i<=5; $i++) {
+                $row_result['open'.$i] = 0;
+                $row_result['closed'.$i] = 0;
+            }
+            foreach ($result as $row) {
+                for ($i=0; $i<=5; $i++) {
+                    $row_result['open'.$i] += $row['open'.$i];
+                    $row_result['closed'.$i] += $row['closed'.$i];
+                }
+            }
+            array_push($result, $row_result);
+
             return $result;
         }
         catch(Exception $ex) {
@@ -1839,6 +1868,7 @@ class Class_wo {
 
     /**
      * @param $params
+     * @return string
      * @throws Exception
      */
     public function add_siteManual ($params) {
