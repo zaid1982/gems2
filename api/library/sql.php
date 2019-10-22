@@ -634,7 +634,7 @@ class Class_sql
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
-                WHERE YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month] AND cli_contract.site_id = [site_id]  
+                WHERE YEAR(ppm_task_start_date) = [selected_year] AND MONTH(ppm_task_start_date) = [selected_month] AND cli_contract.site_id = [site_id]  
                 GROUP BY ast_asset.asset_type_id";
             } else if ($title === 'vg_report_wo_total') {
                 $sql = "SELECT               
@@ -664,7 +664,7 @@ class Class_sql
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
-                WHERE cli_site.site_is_launched = 1 AND YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month]
+                WHERE cli_site.site_is_launched = 1 AND YEAR(ppm_task_start_date) = [selected_year] AND MONTH(ppm_task_start_date) = [selected_month]
                 GROUP BY cli_contract.site_id";
             } else if ($title === 'vg_report_site_manual') {
                 $sql = "SELECT
@@ -720,7 +720,7 @@ class Class_sql
                     GROUP BY dates
                     UNION 
                     SELECT                
-                        DATE(ppm_task_schedule_date) AS dates, 
+                        DATE(ppm_task_start_date) AS dates, 
                         SUM(IF(ppm_task_status <> 16, 1, 0)) AS open0,
                         SUM(IF(ppm_task_status = 16, 1, 0)) AS closed0,
                         0 AS open1, 0 AS closed1,
@@ -731,7 +731,7 @@ class Class_sql
                     FROM ppm_task 
                     LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                     LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
-                    WHERE cli_contract.site_id = [site_id] AND YEAR(ppm_task_schedule_date) = [selected_year] AND MONTH(ppm_task_schedule_date) = [selected_month]
+                    WHERE cli_contract.site_id = [site_id] AND YEAR(ppm_task_start_date) = [selected_year] AND MONTH(ppm_task_start_date) = [selected_month]
                     GROUP BY dates) aa 
                 GROUP BY dates";
             } else {
