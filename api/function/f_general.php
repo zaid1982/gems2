@@ -254,7 +254,7 @@ class Class_general {
             $uploadExtension = $pos !== false ? substr($uploadUplname, $pos+1) : ' - '; 
             
             $uploadId = Class_db::getInstance()->db_insert('sys_upload', array('document_id'=>$documentId, 'upload_name'=>$uploadName, 'upload_uplname'=>$uploadUplname, 'upload_filesize'=>$uploadFilesize, 'upload_blob_type'=>$uploadBlobType,
-                'upload_blob_data'=>$uploadBlobData, 'upload_extension'=>$uploadExtension, 'upload_created_by'=>$userId));
+                'upload_extension'=>$uploadExtension, 'upload_created_by'=>$userId));
             $uploadFilename = 'f_'.(10000 + intval($uploadId));
             $uploadFolder = 'upload/'.$documentId.'/'.(floor(intval($uploadId)/1000));
             if (!$this->folderExist($uploadFolder)) {
