@@ -126,7 +126,6 @@ class Class_pdf_wo {
             // add a page
             $pdf->AddPage();
 
-            $pdf->Image('pdf/images/logo.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
 
             $arrSiteName = $this->fn_general->getSiteName();
             $arrUserFullName = $this->fn_general->getUserFullName();
@@ -137,6 +136,9 @@ class Class_pdf_wo {
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_created_by'], 'user_profile_status'=>'1'), null, 1);
+            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'client_id', null, 1);
+
+            $pdf->Image('pdf/images/logo_'.$clientId.'.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
 
             $pdf->SetFont('helvetica', '', 11);
             $pdf->MultiCell(60, 20, '', 0, 'L', 0, 0, '', '');

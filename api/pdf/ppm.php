@@ -210,7 +210,6 @@ class Class_pdf_ppm {
             // add a page
             $pdf->AddPage();
 
-            $pdf->Image('pdf/images/logo.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
 
             //$pdf->__set('fn_general', $this->fn_general);
             //$pdf->__set('ppmTaskId', $this->ppmTaskId);
@@ -224,6 +223,11 @@ class Class_pdf_ppm {
             $asset = Class_db::getInstance()->db_select_single('mw_ppm_section_a', array('ppm_task_id'=>$this->ppmTaskId), null, 1);
             $pdf->__set('ppmDocumentNo', $ppm['ppm_task_no']);
             $pdf->__set('ppmIssueNo', $ppm['ppm_issue_no']);
+
+            $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$ppm['contract_id']), 'site_id', null, 1);
+            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'client_id', null, 1);
+
+            $pdf->Image('pdf/images/logo_'.$clientId.'.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
 
             $pdf->SetFont('helvetica', '', 11);
             $pdf->MultiCell(60, 20, '', 0, 'L', 0, 0, '', '');
