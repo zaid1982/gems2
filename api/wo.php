@@ -5,6 +5,8 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_wo.php';
+require_once 'pdf/tcpdf_include.php';
+require_once 'pdf/wo.php';
 
 $api_name = 'api_asset';
 $is_transaction = false;
@@ -15,6 +17,7 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_wo = new Class_wo();
+$fn_pdf_wo = new Class_pdf_wo();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -22,6 +25,7 @@ try {
     $fn_login->__set('fn_general', $fn_general);
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
+    $fn_pdf_wo->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -157,6 +161,11 @@ try {
             $result = $fn_wo->add_siteManual($params);
             $fn_general->save_audit('125', $jwt_data->userId, 'Site = '.$siteName.', date = '.$selectedDate.'/'.$selectedMonth.'/'.$selectedYear);
             $form_data['errmsg'] = $constant::SUC_WO_MANUAL_REPORT_ADD;
+        }
+        else if ($action === 'generate_pdf') {
+            $woTaskId = filter_input(INPUT_POST, 'woTaskId');
+            $fn_pdf_wo->__set('woTaskId', $woTaskId);
+            $result = $fn_pdf_wo->create_pdf();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }

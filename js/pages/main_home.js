@@ -136,6 +136,30 @@ function MainHome() {
                         modalConfirmDeleteClass.delete(currentRow['woTaskId'], self);
                     }
                 });
+                $('.lnkHmeDataWoPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTableWo.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['pdfId'];
+                                if (currentRow['pdfId'] === '') {
+                                    pdfId = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:currentRow['woTaskId']});
+                                }
+                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+currentRow['woTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -167,7 +191,9 @@ function MainHome() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             if (mzIsRoleExist('1')) {
-                                return '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                                let label = '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                                label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                                return label;
                             }
                             return '';
                         }
