@@ -172,17 +172,21 @@ function MainHome() {
                     {mData: null, mRender: function (data, type, row){
                             return refSite[row['siteId']]['siteDesc'];
                         }},
+                    {mData: 'woTaskLocation'},
+                    {mData: 'woTaskTypeDesc'},
                     {mData: null, mRender: function (data, type, row){
                             return refUser[row['woTaskCreatedBy']]['userFirstName'];
                         }},
                     {mData: 'woTaskComplaint'},
+                    {mData: 'woTaskSeverity'},
                     {mData: null, mRender: function (data, type, row){
                             return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
                         }},
-                    {mData: 'woTaskTypeDesc'},
+                    {mData: 'woTaskRepairDesc'},
+                    {mData: 'woTaskRate'},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
@@ -210,16 +214,30 @@ function MainHome() {
             oTableWo.search($(this).val()).draw();
         });
 
+        oTableWo.column(4).visible(false);
+        oTableWo.column(11).visible(false);
+        oTableWo.column(12).visible(false);
+
+        $('#optHmeDataWoColumns').on('change', function () {
+            for (let i=1; i<=13; i++) {
+                oTableWo.column(i).visible(false);
+            }
+            const selectedColumns = $(this).val();
+            $.each(selectedColumns, function (n, u) {
+                oTableWo.column(parseInt(u)).visible(true);
+            });
+        });
+
         let cntWo;
         let btnWoOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntWo = 1;
                         }
-                        if (column === 9) {
+                        if (column === 14) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -467,8 +485,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(13).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
+                                            oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(17).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -567,8 +585,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(14).search(event.point.series.userOptions.woTaskType, true, false).draw();
+                                            oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(18).search(event.point.series.userOptions.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -633,7 +651,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(14).search(this.woTaskType, true, false).draw();
+                                            oTableWo.column(18).search(this.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -711,7 +729,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(13).search(this.woTaskStatus, true, false).draw();
+                                            oTableWo.column(17).search(this.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -780,7 +798,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(12).search(this.ppmGroupId, true, false).draw();
+                                            oTableWo.column(16).search(this.ppmGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -857,8 +875,8 @@ function MainHome() {
                                     events: {
                                         click: function (event) {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(11).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(13).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
+                                            //oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(17).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -926,8 +944,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(12).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(14).search(event.point.series.userOptions.assetGroupId, true, false).draw();
+                                            //oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            //oTableWo.column(18).search(event.point.series.userOptions.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -991,7 +1009,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(14).search(this.assetGroupId, true, false).draw();
+                                            //oTableWo.column(18).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1069,7 +1087,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(13).search(this.ppmTaskStatus, true, false).draw();
+                                            //oTableWo.column(17).search(this.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1133,7 +1151,7 @@ function MainHome() {
                             events: {
                                 click: function () {
                                     //oTableWo.search('').columns().search('').draw();
-                                    //oTableWo.column(12).search(this.ppmGroupId, true, false).draw();
+                                    //oTableWo.column(16).search(this.ppmGroupId, true, false).draw();
                                 }
                             }
                         }

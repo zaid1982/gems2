@@ -196,26 +196,53 @@
                     </div>
                 </div>
                 <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtHmeDataWoSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtHmeDataWoSearch" class="ml-4">Search</label>
+                    <div class="row">
+                        <div class="col-md-6 mt-4_5 select-outline">
+                            <select id="optHmeDataWoColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                <option value="" disabled>Choose Column Visibility</option>
+                                <option value="1" selected>Date</option>
+                                <option value="2" selected>Work Order No.</option>
+                                <option value="3" selected>Site</option>
+                                <option value="4">Location</option>
+                                <option value="5" selected>Complaint Type</option>
+                                <option value="6" selected>Complainant</option>
+                                <option value="7" selected>Complaint Description</option>
+                                <option value="8" selected>Severity</option>
+                                <option value="9" selected>Trade</option>
+                                <option value="10" selected>PIC Name</option>
+                                <option value="11">Repair Description</option>
+                                <option value="12">Rating</option>
+                                <option value="13" selected>Progress</option>
+                            </select>
+                            <label for="optHmeDataWoColumns">Columns Visibility</label>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+                                <div class="">
+                                    <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                                    <input type="text" id="txtHmeDataWoSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                                    <label for="txtHmeDataWoSearch" class="ml-4">Search</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table id="dtHmeDataWo" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 8%">Date</th>
-                                <th style="width: 10%">Work Order No.</th>
-                                <th style="width: 8%">Site</th>
-                                <th style="width: 12%">Complainant</th>
+                                <th>Date</th>
+                                <th>Work Order No.</th>
+                                <th>Site</th>
+                                <th>Location</th>
+                                <th>Complaint Type</th>
+                                <th>Complainant</th>
                                 <th>Complaint Description</th>
-                                <th style="width: 10%">Trade</th>
-                                <th style="width: 12%">PIC Name</th>
-                                <th style="width: 10%">Complaint Type</th>
+                                <th>Severity</th>
+                                <th>Trade</th>
+                                <th>PIC Name</th>
+                                <th>Repair Description</th>
+                                <th>Rating</th>
                                 <th style="width: 8%">Progress</th>
                                 <th style="width: 50px"></th>
                             </tr>
