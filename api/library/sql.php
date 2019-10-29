@@ -640,15 +640,15 @@ class Class_sql
                 $sql = "SELECT               
                     cli_site.site_id,      
                     cli_site.site_name, 
-                    SUM(IF(wo_task_type = 1 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open1, 
+                    SUM(IF(wo_task_type = 1, 1, 0)) AS open1, 
                     SUM(IF(wo_task_type = 1 AND wo_task_status IN (16, 25), 1, 0)) AS closed1, 
-                    SUM(IF(wo_task_type = 2 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open2, 
+                    SUM(IF(wo_task_type = 2, 1, 0)) AS open2, 
                     SUM(IF(wo_task_type = 2 AND wo_task_status IN (16, 25), 1, 0)) AS closed2, 
-                    SUM(IF(wo_task_type = 3 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open3, 
+                    SUM(IF(wo_task_type = 3, 1, 0)) AS open3, 
                     SUM(IF(wo_task_type = 3 AND wo_task_status IN (16, 25), 1, 0)) AS closed3, 
-                    SUM(IF(wo_task_type = 4 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open4, 
+                    SUM(IF(wo_task_type = 4, 1, 0)) AS open4, 
                     SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
-                    SUM(IF(wo_task_type = 5 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open5, 
+                    SUM(IF(wo_task_type = 5, 1, 0)) AS open5, 
                     SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
                 FROM cli_site 
                 LEFT JOIN wo_task ON cli_site.site_id = wo_task.site_id AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
@@ -658,7 +658,7 @@ class Class_sql
                 $sql = "SELECT                
                     cli_site.site_id,     
                     site_name, 
-                    SUM(IF(ppm_task_status <> 16, 1, 0)) AS total_ppm_not,
+                    COUNT(*) AS total_ppm_not,
                     SUM(IF(ppm_task_status = 16, 1, 0)) AS total_ppm_done
                 FROM ppm_task 
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
@@ -705,15 +705,15 @@ class Class_sql
                     SELECT               
                         date(wo_task_time_created) AS dates, 
                         0 AS open0, 0 AS closed0,
-                        SUM(IF(wo_task_type = 1 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open1, 
+                        SUM(IF(wo_task_type = 1, 1, 0)) AS open1, 
                         SUM(IF(wo_task_type = 1 AND wo_task_status IN (16, 25), 1, 0)) AS closed1, 
-                        SUM(IF(wo_task_type = 2 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open2, 
+                        SUM(IF(wo_task_type = 2, 1, 0)) AS open2, 
                         SUM(IF(wo_task_type = 2 AND wo_task_status IN (16, 25), 1, 0)) AS closed2, 
-                        SUM(IF(wo_task_type = 3 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open3, 
+                        SUM(IF(wo_task_type = 3, 1, 0)) AS open3, 
                         SUM(IF(wo_task_type = 3 AND wo_task_status IN (16, 25), 1, 0)) AS closed3, 
-                        SUM(IF(wo_task_type = 4 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open4, 
+                        SUM(IF(wo_task_type = 4, 1, 0)) AS open4, 
                         SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
-                        SUM(IF(wo_task_type = 5 AND wo_task_status NOT IN (16, 25), 1, 0)) AS open5, 
+                        SUM(IF(wo_task_type = 5, 1, 0)) AS open5, 
                         SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
                     FROM wo_task 
                     WHERE site_id = [site_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
@@ -721,7 +721,7 @@ class Class_sql
                     UNION 
                     SELECT                
                         DATE(ppm_task_start_date) AS dates, 
-                        SUM(IF(ppm_task_status <> 16, 1, 0)) AS open0,
+                        COUNT(*) AS open0,
                         SUM(IF(ppm_task_status = 16, 1, 0)) AS closed0,
                         0 AS open1, 0 AS closed1,
                         0 AS open2, 0 AS closed2,

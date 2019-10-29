@@ -1666,7 +1666,7 @@ class Class_wo {
             $sumSiteStr = '';
             $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
             foreach ($siteIds as $siteId) {
-                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status NOT IN (16, 25), 1, 0)) AS open'.$siteId;
+                $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.', 1, 0)) AS open'.$siteId;
                 $sumSiteStr .= ', SUM(IF(wo_task.site_id = '.$siteId.' AND wo_task_status IN (16, 25), 1, 0)) AS closed'.$siteId;
             }
 
@@ -1784,17 +1784,27 @@ class Class_wo {
             $row_result['siteId'] = '';
             $row_result['siteName'] = 'TOTAL';
             $row_result['isManual'] = false;
+            $row_pending['siteId'] = '';
+            $row_pending['siteName'] = 'PENDING';
+            $row_pending['isManual'] = false;
             for ($i=0; $i<=5; $i++) {
                 $row_result['open'.$i] = 0;
                 $row_result['closed'.$i] = 0;
+                $row_pending['open'.$i] = '';
+                $row_pending['closed'.$i] = 0;
             }
+
             foreach ($result as $row) {
                 for ($i=0; $i<=5; $i++) {
                     $row_result['open'.$i] += $row['open'.$i];
                     $row_result['closed'.$i] += $row['closed'.$i];
                 }
             }
+            for ($i=0; $i<=5; $i++) {
+                $row_pending['closed'.$i] = intval($row_result['open'.$i]) - intval($row_result['closed'.$i]);
+            }
             array_push($result, $row_result);
+            array_push($result, $row_pending);
 
             return $result;
         }
@@ -1850,9 +1860,13 @@ class Class_wo {
 
             $row_result['siteManualId'] = '';
             $row_result['siteManualDate'] = 'TOTAL';
+            $row_pending['siteManualId'] = '';
+            $row_pending['siteManualDate'] = 'PENDING';
             for ($i=0; $i<=5; $i++) {
                 $row_result['open'.$i] = 0;
                 $row_result['closed'.$i] = 0;
+                $row_pending['open'.$i] = '';
+                $row_pending['closed'.$i] = 0;
             }
             foreach ($result as $row) {
                 for ($i=0; $i<=5; $i++) {
@@ -1860,7 +1874,11 @@ class Class_wo {
                     $row_result['closed'.$i] += $row['closed'.$i];
                 }
             }
+            for ($i=0; $i<=5; $i++) {
+                $row_pending['closed'.$i] = intval($row_result['open'.$i]) - intval($row_result['closed'.$i]);
+            }
             array_push($result, $row_result);
+            array_push($result, $row_pending);
 
             return $result;
         }

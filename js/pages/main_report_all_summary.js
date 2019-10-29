@@ -84,7 +84,7 @@ function MainReportWoTotal() {
                 [
                     {mData: 'siteName',
                         mRender: function (data, type, row, meta) {
-                            if (data === 'TOTAL') {
+                            if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else {
                                 return data + '&nbsp;&nbsp;<a><i class="fas fa-folder-open lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Daily Summary"></i></a>';
@@ -92,15 +92,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open0', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed0', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -108,15 +108,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open1', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed1', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -124,15 +124,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open2', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed2', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -140,15 +140,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open3', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed3', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -156,15 +156,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open4', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed4', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -172,25 +172,27 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open5', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed5', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteName'] === 'TOTAL') {
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: null, sClass: 'text-right',mRender: function (data, type, row) {
-                            const total = mzFormatNumber(parseInt(row['open0'])+parseInt(row['closed0'])+parseInt(row['open1'])+parseInt(row['closed1'])+parseInt(row['open2'])+parseInt(row['closed2'])+
-                                parseInt(row['open3'])+parseInt(row['closed3'])+parseInt(row['open4'])+parseInt(row['closed4'])+parseInt(row['open5'])+parseInt(row['closed5']));
-                            if (row['siteName'] === 'TOTAL') {
-                                return '<strong>'+total+'</strong>';
+                            const total = mzFormatNumber(parseInt(row['open0'])+parseInt(row['open1'])+parseInt(row['open2'])+
+                                parseInt(row['open3'])+parseInt(row['open4'])+parseInt(row['open5']));
+                            const totalPending = mzFormatNumber(parseInt(row['closed0'])+parseInt(row['closed1'])+parseInt(row['closed2'])+
+                                parseInt(row['closed3'])+parseInt(row['closed4'])+parseInt(row['closed5']));
+                            if (row['siteName'] === 'TOTAL' || row['siteName'] === 'PENDING') {
+                                return '<strong>'+(row['siteName'] === 'TOTAL'?total:totalPending)+'</strong>';
                             } else {
                                 return total;
                             }
@@ -275,7 +277,7 @@ function MainReportWoTotal() {
                 [
                     {mData: 'siteManualDate', sClass: 'pl-2',
                         mRender: function (data, type, row, meta) {
-                            if (data === 'TOTAL') {
+                            if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else if (isManual) {
                                 return data + '&nbsp;&nbsp;<a><i class="fas fa-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
@@ -284,15 +286,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open0', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed0', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -300,15 +302,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open1', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed1', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -316,15 +318,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open2', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed2', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -332,15 +334,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open3', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed3', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -348,15 +350,15 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open4', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed4', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
@@ -364,25 +366,27 @@ function MainReportWoTotal() {
                         }},
                     {mData: 'open5', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+mzFormatNumber(data)+'</strong>';
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?mzFormatNumber(data):'')+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: 'closed5', sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (row['siteManualDate'] === 'TOTAL') {
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
                                 return '<strong>'+mzFormatNumber(data)+'</strong>';
                             } else {
                                 return mzFormatNumber(data);
                             }
                         }},
                     {mData: null, sClass: 'text-right',mRender: function (data, type, row) {
-                            const total = mzFormatNumber(parseInt(row['open0'])+parseInt(row['closed0'])+parseInt(row['open1'])+parseInt(row['closed1'])+parseInt(row['open2'])+parseInt(row['closed2'])+
-                                parseInt(row['open3'])+parseInt(row['closed3'])+parseInt(row['open4'])+parseInt(row['closed4'])+parseInt(row['open5'])+parseInt(row['closed5']));
-                            if (row['siteManualDate'] === 'TOTAL') {
-                                return '<strong>'+total+'</strong>';
+                            const total = mzFormatNumber(parseInt(row['open0'])+parseInt(row['open1'])+parseInt(row['open2'])+
+                                parseInt(row['open3'])+parseInt(row['open4'])+parseInt(row['open5']));
+                            const totalPending = mzFormatNumber(parseInt(row['closed0'])+parseInt(row['closed1'])+parseInt(row['closed2'])+
+                                parseInt(row['closed3'])+parseInt(row['closed4'])+parseInt(row['closed5']));
+                            if (row['siteManualDate'] === 'TOTAL' || row['siteManualDate'] === 'PENDING') {
+                                return '<strong>'+(row['siteManualDate'] === 'TOTAL'?total:totalPending)+'</strong>';
                             } else {
                                 return total;
                             }
