@@ -439,7 +439,7 @@ function MainPpmManagement() {
     };
 
     this.genTablePmg = function () {
-        const dataAsset = mzAjaxRequest('ppm.php?type=checklist_by_type&contractId='+contractId, 'GET');
+        const dataAsset = mzAjaxRequest('ppm.php?type=asset_with_ppm&contractId='+contractId, 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
     };
 

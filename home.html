@@ -252,6 +252,101 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card card-cascade narrower mt-4 grey lighten-4 z-depth-4" id="divHmeTable_ppm">
+                <div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title=">PPM List"
+                           data-content="All PPM list from selected criteria."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtHmeDataPpmRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">PPM List</a>
+                    <div>
+                        <div id="btnDtHmeDataPpmExport"></div>
+                    </div>
+                </div>
+                <div class="px-4 pb-4">
+                    <div class="row">
+                        <div class="col-md-6 mt-4_5 select-outline">
+                            <select id="optHmeDataPpmColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                <option value="" disabled>Choose Column Visibility</option>
+                                <option value="1" selected>PPM Task No.</option>
+                                <option value="2" selected>Site</option>
+                                <option value="3" selected>Schedule Date</option>
+                                <option value="4" selected>Frequency</option>
+                                <option value="5">Document No.</option>
+                                <option value="6" selected>Asset No.</option>
+                                <option value="7">Asset Name</option>
+                                <option value="8" selected>Asset Group</option>
+                                <option value="9" selected>Asset Category</option>
+                                <option value="10" selected>Asset Type</option>
+                                <option value="11">Location Code</option>
+                                <option value="12">Location Description</option>
+                                <option value="13">Block</option>
+                                <option value="14">Level</option>
+                                <option value="15">Remark</option>
+                                <option value="16">Trade</option>
+                                <option value="17" selected>Executor</option>
+                                <option value="18">Reviewer</option>
+                                <option value="19">Verifier</option>
+                                <option value="20">Time Scan</option>
+                                <option value="21">Time Executed</option>
+                                <option value="22">Time Reviewed</option>
+                                <option value="23">Time Verified</option>
+                                <option value="24">Lateness</option>
+                                <option value="25" selected>Progress</option>
+                            </select>
+                            <label for="optHmeDataPpmColumns">Columns Visibility</label>
+                        </div>
+                        <div class="col-md-6">
+                            <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+                                <div class="">
+                                    <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                                    <input type="text" id="txtHmeDataPpmSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                                    <label for="txtHmeDataPpmSearch" class="ml-4">Search</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dtHmeDataPpm" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th style="width: 4%">#</th>
+                                <th>PPM Task No.</th>
+                                <th>Site</th>
+                                <th>Schedule Date</th>
+                                <th>Frequency</th>
+                                <th>Document No.</th>
+                                <th>Asset No.</th>
+                                <th>Asset Name</th>
+                                <th>Asset Group</th>
+                                <th>Asset Category</th>
+                                <th>Asset Type</th>
+                                <th>Location Code</th>
+                                <th>Location Description</th>
+                                <th>Block</th>
+                                <th>Level</th>
+                                <th>Remark</th>
+                                <th>Trade</th>
+                                <th>Executor</th>
+                                <th>Reviewer</th>
+                                <th>Verifier</th>
+                                <th>Time Scan</th>
+                                <th>Time Executed</th>
+                                <th>Time Reviewed</th>
+                                <th>Time Verified</th>
+                                <th>Lateness</th>
+                                <th style="width: 8%">Progress</th>
+                                <th style="width: 24px"></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -320,6 +415,9 @@
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
 
                 homeClass_.setRefClient(refClient_);
@@ -327,6 +425,9 @@
                 homeClass_.setRefContract(refContract_);
                 homeClass_.setRefUser(refUser_);
                 homeClass_.setRefPpmGroup(refPpmGroup_);
+                homeClass_.setRefAssetGroup(refAssetGroup_);
+                homeClass_.setRefAssetCategory(refAssetCategory_);
+                homeClass_.setRefAssetType(refAssetType_);
                 homeClass_.setRefStatus(refStatus_);
                 homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 homeClass_.init();

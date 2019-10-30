@@ -49,7 +49,7 @@ try {
         $ppmId = filter_input(INPUT_GET, 'ppmId');
         $type = filter_input(INPUT_GET, 'type');
         if (!is_null($type)) {
-            if ($type === 'checklist_by_type') {
+            if ($type === 'asset_with_ppm') {
                 $contractId = filter_input(INPUT_GET, 'contractId');
                 $result = $fn_ppm->get_ppm_from_asset_list($contractId);
             } else if ($type === 'scheduled_ppm') {
@@ -107,6 +107,13 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_ppm->get_report_ppm_summary($siteId, $year, $month);
+            }
+            else if ($type === 'dashboard_list') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_ppm_list($clientId, $siteId, $year, $month);
             }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);

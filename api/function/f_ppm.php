@@ -2354,4 +2354,68 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_list ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = '('.$siteIdStr.')';
+                }
+            }
+
+            $result = array();
+            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month));
+            foreach ($dataLocals as $dataLocal) {
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['ppmTaskStartDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
+                $row_result['frequency'] = $dataLocal['frequency'];
+                $row_result['documentNo'] = $dataLocal['document_no'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                $row_result['assetGroupId'] = $dataLocal['asset_group_id'];
+                $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
+                $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
+                $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+                $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
+                $row_result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
+                $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
+                $row_result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['executor'] = $this->fn_general->clear_null($dataLocal['ppm_task_assigned_to']);
+                $row_result['reviewer'] = $this->fn_general->clear_null($dataLocal['ppm_task_checked_by']);
+                $row_result['verifier'] = $this->fn_general->clear_null($dataLocal['ppm_task_verified_by']);
+                $row_result['ppmTaskTimeStart'] = str_replace('-', '/', $dataLocal['ppm_task_time_start']);
+                $row_result['ppmTaskTimeServiced'] = str_replace('-', '/', $dataLocal['ppm_task_time_serviced']);
+                $row_result['ppmTaskTimeChecked'] = str_replace('-', '/', $dataLocal['ppm_task_time_checked']);
+                $row_result['ppmTaskTimeVerified'] = str_replace('-', '/', $dataLocal['ppm_task_time_verified']);
+                $row_result['lateness'] = $dataLocal['lateness'];
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['ppmTaskStatus'] = $dataLocal['ppm_task_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

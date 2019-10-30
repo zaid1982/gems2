@@ -734,6 +734,31 @@ class Class_sql
                     WHERE cli_contract.site_id = [site_id] AND YEAR(ppm_task_start_date) = [selected_year] AND MONTH(ppm_task_start_date) = [selected_month]
                     GROUP BY dates) aa 
                 GROUP BY dates";
+            } else if ($title === 'vw_ppm_list') {
+                $sql = "SELECT 
+                    ppm_task.*,
+                    cli_contract.site_id,
+                    ppm.ppm_task_no AS document_no,
+                    ppm.ppm_group_id,
+                    task_frequency.frequency,
+                    ast_asset.asset_no,
+                    ast_asset.asset_name,
+                    ast_asset.asset_location_code,
+                    ast_asset.asset_location_desc,
+                    ast_asset.asset_group_id,
+                    ast_asset.asset_category_id,
+                    ast_asset.asset_type_id,
+                    ast_asset.asset_block,
+                    ast_asset.asset_level,
+                    IF ((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date, 'Late', 'On-time') AS lateness
+                FROM ppm_task
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
+                    FROM ppm_task_frequency
+                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
+                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

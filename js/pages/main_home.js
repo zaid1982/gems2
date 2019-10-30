@@ -8,6 +8,9 @@ function MainHome() {
     let refContract;
     let refUser;
     let refPpmGroup;
+    let refAssetGroup;
+    let refAssetCategory;
+    let refAssetType;
     let refStatus;
     let clientId = '1';
     let siteId = '0';
@@ -16,12 +19,13 @@ function MainHome() {
     let reportId = '2';
     let reportType = 'Work Order';
     let oTableWo;
+    let oTablePpm;
     let totalPpm = 0;
     let totalLate = 0;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
-        $('.divHmeTopStats_ppm').hide();
+        $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
 
@@ -194,12 +198,15 @@ function MainHome() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
+                            let label = '';
                             if (mzIsRoleExist('1')) {
-                                let label = '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                                label += '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                                 label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                                 return label;
+                            } else {
+                                label += '<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                             }
-                            return '';
+                            return label;
                         }
                     },
                     {mData: 'siteId', visible: false},
@@ -263,14 +270,6 @@ function MainHome() {
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnWoOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Work Order List',
-                    titleAttr: 'Pdf',
-                    orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
                 })
             ]
         }).container().appendTo($('#btnDtHmeDataWoExport'));
@@ -280,6 +279,185 @@ function MainHome() {
             setTimeout(function () {
                 try {
                     self.genTableHmeDataWo();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        oTablePpm =  $('#dtHmeDataPpm').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            //"aaSorting": [1, 'asc'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTablePpm.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkHmeDataPpmPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTablePpm.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['pdfId'];
+                                if (currentRow['pdfId'] === '') {
+                                    pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
+                                }
+                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
+            },
+            language: _DATATABLE_LANGUAGE,
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'ppmTaskNo'},
+                    {mData: null, mRender: function (data, type, row){
+                            return refSite[row['siteId']]['siteDesc'];
+                        }},
+                    {mData: 'ppmTaskStartDate'},
+                    {mData: 'frequency'},
+                    {mData: 'documentNo'},
+                    {mData: 'assetNo'},
+                    {mData: 'assetName'},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetCategoryId'] !== '' ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
+                        }},
+                    {mData: 'assetLocationCode'},
+                    {mData: 'assetLocationDesc'},
+                    {mData: 'assetBlock'},
+                    {mData: 'assetLevel'},
+                    {mData: 'ppmTaskRemark'},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['executor'] !== '' ? refUser[row['executor']]['userFirstName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['reviewer'] !== '' ? refUser[row['reviewer']]['userFirstName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row){
+                            return row['verifier'] !== '' ? refUser[row['verifier']]['userFirstName'] : '';
+                        }},
+                    {mData: 'ppmTaskTimeStart'},
+                    {mData: 'ppmTaskTimeServiced'},
+                    {mData: 'ppmTaskTimeChecked'},
+                    {mData: 'ppmTaskTimeVerified'},
+                    {mData: 'lateness'},
+                    {mData: null,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: null, bSortable: false, sClass: 'text-center',
+                        mRender: function (data, type, row, meta) {
+                            return '<a><i class="far fa-file-pdf lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                        }
+                    },
+                    {mData: 'siteId', visible: false},
+                    {mData: 'ppmGroupId', visible: false},
+                    {mData: 'assetGroupId', visible: false},
+                    {mData: 'ppmTaskStatus', visible: false},
+                    {mData: 'pdfId', visible: false}
+                ]
+        });
+        $("#dtHmeDataPpm_filter").hide();
+        $('#txtHmeDataPpmSearch').on('keyup change', function () {
+            oTablePpm.search($(this).val()).draw();
+        });
+
+        oTablePpm.column(5).visible(false);
+        oTablePpm.column(7).visible(false);
+        oTablePpm.column(11).visible(false);
+        oTablePpm.column(12).visible(false);
+        oTablePpm.column(13).visible(false);
+        oTablePpm.column(14).visible(false);
+        oTablePpm.column(15).visible(false);
+        oTablePpm.column(16).visible(false);
+        oTablePpm.column(18).visible(false);
+        oTablePpm.column(19).visible(false);
+        oTablePpm.column(20).visible(false);
+        oTablePpm.column(21).visible(false);
+        oTablePpm.column(22).visible(false);
+        oTablePpm.column(23).visible(false);
+        oTablePpm.column(24).visible(false);
+        oTablePpm.column(25).visible(false);
+
+        $('#optHmeDataPpmColumns').on('change', function () {
+            for (let i=1; i<=25; i++) {
+                oTablePpm.column(i).visible(false);
+            }
+            const selectedColumns = $(this).val();
+            $.each(selectedColumns, function (n, u) {
+                oTablePpm.column(parseInt(u)).visible(true);
+            });
+        });
+
+        let cntPpm;
+        let btnPpmOpt = {
+            exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+                format: {
+                    body: function ( data, row, column ) {
+                        if (row === 0 && column === 0) {
+                            cntPpm = 1;
+                        }
+                        if (column === 25) {
+                            const n = data.search('">');
+                            const k = data.substr(n+2);
+                            return k.replace('</span></h6>','');
+                        }
+                        return column === 0 ? cntPpm++ : data;
+                    }
+                }
+            }
+        };
+
+        new $.fn.dataTable.Buttons(oTablePpm, {
+            buttons: [
+                $.extend( true, {}, btnPpmOpt, {
+                    extend:    'print',
+                    text:      '<i class="fas fa-print"></i>',
+                    title:     'GEMS 2.0 - PPM List',
+                    titleAttr: 'Print',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                }),
+                $.extend( true, {}, btnPpmOpt, {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fas fa-file-excel"></i>',
+                    title:     'GEMS 2.0 - PPM List',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                })
+            ]
+        }).container().appendTo($('#btnDtHmeDataPpmExport'));
+
+        $('#btnDtHmeDataPpmRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTableHmeDataPpm();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -334,6 +512,7 @@ function MainHome() {
             self.generateChartPpmByTrade();
             self.generateChartPpmByTradePerSite();
             self.generateChartPpmByProgress();
+            self.genTableHmeDataPpm();
         } else if (reportId === '2') {
             $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
             $('.divHmeTopStats_wo, #divHmeTable_wo').show();
@@ -350,6 +529,11 @@ function MainHome() {
     this.genTableHmeDataWo = function () {
         const dataWo = mzAjaxRequest('wo.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth, 'GET');
         oTableWo.clear().rows.add(dataWo).draw();
+    };
+
+    this.genTableHmeDataPpm = function () {
+        const dataPpm = mzAjaxRequest('ppm.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth, 'GET');
+        oTablePpm.clear().rows.add(dataPpm).draw();
     };
 
     this.generateTotalAsset = function () {
@@ -874,9 +1058,9 @@ function MainHome() {
                                 point: {
                                     events: {
                                         click: function (event) {
-                                            //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(17).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(27).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTablePpm.column(30).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -943,9 +1127,9 @@ function MainHome() {
                                 point: {
                                     events: {
                                         click: function(event) {
-                                            //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            //oTableWo.column(18).search(event.point.series.userOptions.assetGroupId, true, false).draw();
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(27).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTablePpm.column(29).search(event.point.series.userOptions.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1008,8 +1192,8 @@ function MainHome() {
                                 point: {
                                     events: {
                                         click: function() {
-                                            //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(18).search(this.assetGroupId, true, false).draw();
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(29).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1086,8 +1270,8 @@ function MainHome() {
                                 point: {
                                     events: {
                                         click: function() {
-                                            //oTableWo.search('').columns().search('').draw();
-                                            //oTableWo.column(17).search(this.ppmTaskStatus, true, false).draw();
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(30).search(this.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1150,8 +1334,8 @@ function MainHome() {
                         point: {
                             events: {
                                 click: function () {
-                                    //oTableWo.search('').columns().search('').draw();
-                                    //oTableWo.column(16).search(this.ppmGroupId, true, false).draw();
+                                    oTablePpm.search('').columns().search('').draw();
+                                    oTablePpm.column(24).search(this.name, true, false).draw();
                                 }
                             }
                         }
@@ -1215,6 +1399,18 @@ function MainHome() {
 
     this.setRefPpmGroup = function (_refPpmGroup) {
         refPpmGroup = _refPpmGroup;
+    };
+
+    this.setRefAssetGroup = function (_refAssetGroup) {
+        refAssetGroup = _refAssetGroup;
+    };
+
+    this.setRefAssetCategory = function (_refAssetCategory) {
+        refAssetCategory = _refAssetCategory;
+    };
+
+    this.setRefAssetType = function (_refAssetType) {
+        refAssetType = _refAssetType;
     };
 
     this.setRefStatus = function (_refStatus) {
