@@ -402,7 +402,6 @@ function MainHome() {
         oTablePpm.column(22).visible(false);
         oTablePpm.column(23).visible(false);
         oTablePpm.column(24).visible(false);
-        oTablePpm.column(25).visible(false);
 
         $('#optHmeDataPpmColumns').on('change', function () {
             for (let i=1; i<=25; i++) {
