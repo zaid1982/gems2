@@ -701,7 +701,7 @@ class Class_pdf_ppm {
             if (!$result) {
                 mkdir ($folder,0777, true);
             }
-            $filename = 'ppm_'.substr((10000+intval($this->ppmTaskId)),1).'.pdf';
+            $filename = 'ppm_'.substr((10000000+intval($this->ppmTaskId)),1).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
 
             $config = parse_ini_file('library/config.ini');

@@ -460,7 +460,7 @@ class Class_pdf_wo {
             if (!$result) {
                 mkdir ($folder,0777, true);
             }
-            $filename = 'wo_'.substr((10000+intval($this->woTaskId)),1).'.pdf';
+            $filename = 'wo_'.substr((10000000+intval($this->woTaskId)),1).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
 
             $config = parse_ini_file('library/config.ini');
