@@ -417,6 +417,43 @@ class Class_wo {
     }
 
     /**
+     * @param $transactionId
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_task ($transactionId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                if (!empty($transactionId)) {
+                    $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('transaction_id'=>$transactionId), null, 1);
+                } else {
+                    throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+                }
+            } else {
+                $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            }
+
+            $result = array();
+            $result['woTaskId'] = $dataLocal['wo_task_id'];
+            $result['woTaskNo'] = $dataLocal['wo_task_no'];
+            $result['siteId'] = $dataLocal['site_id'];
+            $result['woTaskReportedBy'] = $dataLocal['wo_task_created_by'];
+            $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
+            $result['woTaskType'] = $dataLocal['wo_task_type'];
+            $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+            $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+            $result['woTaskStatus'] = $dataLocal['wo_task_status'];
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @return array
      * @throws Exception
      */

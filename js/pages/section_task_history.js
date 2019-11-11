@@ -162,15 +162,43 @@ function SectionTaskHistory() {
         const dataTransaction = mzAjaxRequest('track_monitoring.php?type=transaction_history&transactionId='+transactionId, 'GET');
         oTableTransaction.clear().rows.add(dataTransaction).draw();
 
+        let woTask;
+        let holdCheckpoint = '';
+        if (taskDetails['flowId'] === '2') {
+            woTask = mzAjaxRequest('wo.php?type=wo_by_transaction&transactionId='+transactionId, 'GET');
+        }
+
         const dataLength = dataTransaction.length;
         const currentCheckpoint = dataTransaction[dataLength-1]['checkpointId'];
         let isGreen = 'green';
         $('#ulSthStep').html('');
         for (let i = 0; i < refCheckpoint.length; i++) {
-            if (typeof refCheckpoint[i] !== 'undefined') {
+            if (typeof refCheckpoint[i] !== 'undefined' && refCheckpoint[i]['flowId'] === taskDetails['flowId']) {
+                if (taskDetails['flowId'] === '2') {
+                    if (woTask['woTaskType'] === '1' && (refCheckpoint[i]['checkpointId'] === '11' || refCheckpoint[i]['checkpointId'] === '16')) {
+                        continue;
+                    }
+                    else if (woTask['woTaskType'] !== '1' && (refCheckpoint[i]['checkpointId'] === '10' || refCheckpoint[i]['checkpointId'] === '14')) {
+                        continue;
+                    }
+                }
                 const isActive = refCheckpoint[i]['checkpointId'] === currentCheckpoint ? 'active' : '';
                 if (isActive === 'active') {
                     isGreen = '';
+                }
+                if (taskDetails['flowId'] === '2' && woTask['woTaskType'] !== '1') {
+                    if (refCheckpoint[i]['checkpointId'] === '15') {
+                        holdCheckpoint = '<li class="'+isActive+'">\n' +
+                            '<a href="#!">\n' +
+                            '<span class="circle '+isGreen+'"><i class="'+refCheckpoint[i]['checkpointIcon']+'"></i></span>\n' +
+                            '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
+                            '</a>\n' +
+                            '</li>';
+                        continue;
+                    } else if (refCheckpoint[i]['checkpointId'] === '16') {
+                        $('#ulSthStep').append(holdCheckpoint);
+                        continue;
+                    }
                 }
                 $('#ulSthStep').append('<li class="'+isActive+'">\n' +
                     '<a href="#!">\n' +

@@ -104,13 +104,17 @@ try {
                 $month = filter_input(INPUT_GET, 'month');
                 $isManual = filter_input(INPUT_GET, 'isManual');
                 $result = $fn_wo->get_report_wo_daily($siteId, $isManual, $year, $month);
+            }
+            else if ($type === 'wo_by_transaction') {
+                $transactionId = filter_input(INPUT_GET, 'transactionId');
+                $result = $fn_wo->get_wo_task($transactionId);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
         } else if (!is_null($woTaskId)) {
-            $result = $fn_wo->get_asset($woTaskId);
+            $result = $fn_wo->get_wo_task();
         } else {
-            //$result = $fn_wo->get_wo_task_list();
+            throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
