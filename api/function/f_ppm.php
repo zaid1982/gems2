@@ -2315,6 +2315,184 @@ class Class_ppm {
     }
 
     /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_top5_execute ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = 'IN ('.$siteIdStr.')';
+                }
+            } else {
+                $siteId = '= '.$siteId;
+            }
+
+            $categories = array();
+            $data = array();
+            $arrColor = array('#1b5e20', '#388e3c', '#4caf50', '#81c784', '#c8e6c9');
+            $arrUserFullName = $this->fn_general->getUserFullName();
+
+            $ppmByTop5Executes = Class_db::getInstance()->db_select('vg_ppm_top5_execute', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($ppmByTop5Executes as $key => $ppmByTop5Execute) {
+                array_push($categories, $arrUserFullName[intval($ppmByTop5Execute['ppm_task_serviced_by'])]);
+                array_push($data,
+                    array(
+                        'y'=>intval($ppmByTop5Execute['total']),
+                        'ppmTaskServicedBy'=>$ppmByTop5Execute['ppm_task_serviced_by'],
+                        'color'=>$arrColor[$key]
+                    )
+                );
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_bottom5_execute ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = 'IN ('.$siteIdStr.')';
+                }
+            } else {
+                $siteId = '= '.$siteId;
+            }
+
+            $categories = array();
+            $data = array();
+            $arrColor = array('#ffccbc', '#ff8a65', '#ff5722', '#e64a19', '#bf360c');
+            $arrUserFullName = $this->fn_general->getUserFullName();
+
+            $ppmByBottom5Executes = Class_db::getInstance()->db_select('vg_ppm_bottom5_execute', array(), 'total DESC', null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($ppmByBottom5Executes as $key => $ppmByBottom5Execute) {
+                array_push($categories, $arrUserFullName[intval($ppmByBottom5Execute['ppm_task_serviced_by'])]);
+                array_push($data,
+                    array(
+                        'y'=>intval($ppmByBottom5Execute['total']),
+                        'ppmTaskServicedBy'=>$ppmByBottom5Execute['ppm_task_serviced_by'],
+                        'color'=>$arrColor[$key]
+                    )
+                );
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_average_execute_by_trade ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = 'IN ('.$siteIdStr.')';
+                }
+            } else {
+                $siteId = '= '.$siteId;
+            }
+
+            $categories = array();
+            $data = array();
+
+            $ppmByAverageExecutes = Class_db::getInstance()->db_select('vg_ppm_average_execute_by_trade', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($ppmByAverageExecutes as $ppmByAverageExecute) {
+                array_push($categories, $ppmByAverageExecute['ppm_group_name']);
+                array_push($data,
+                    array(
+                        'y'=>intval($ppmByAverageExecute['total']),
+                        'display'=>substr($ppmByAverageExecute['display'], 0, 8),
+                        'ppmGroupId'=>$ppmByAverageExecute['ppm_group_id']
+                    )
+                );
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $siteId
      * @param string $year
      * @param string $month
@@ -2399,6 +2577,7 @@ class Class_ppm {
                 $row_result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
                 $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
                 $row_result['executor'] = $this->fn_general->clear_null($dataLocal['ppm_task_assigned_to']);
+                $row_result['ppmTaskServicedBy'] = $this->fn_general->clear_null($dataLocal['ppm_task_serviced_by']);
                 $row_result['reviewer'] = $this->fn_general->clear_null($dataLocal['ppm_task_checked_by']);
                 $row_result['verifier'] = $this->fn_general->clear_null($dataLocal['ppm_task_verified_by']);
                 $row_result['ppmTaskTimeStart'] = str_replace('-', '/', $dataLocal['ppm_task_time_start']);

@@ -102,6 +102,27 @@ try {
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_ppm->get_total_ppm_by_status($clientId, $siteId, $year, $month);
             }
+            else if ($type === 'top5_execute') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_ppm_top5_execute($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'bottom5_execute') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_ppm_bottom5_execute($clientId, $siteId, $year, $month);
+            }
+            else if ($type === 'average_execute_by_trade') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_ppm->get_ppm_average_execute_by_trade($clientId, $siteId, $year, $month);
+            }
             else if ($type === 'report_ppm_summary') {
                 $siteId = filter_input(INPUT_GET, 'siteId');
                 $year = filter_input(INPUT_GET, 'year');

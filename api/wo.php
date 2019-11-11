@@ -95,6 +95,13 @@ try {
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_wo->get_wo_bottom5_execute($clientId, $siteId, $year, $month);
             }
+            else if ($type === 'average_execute_by_trade') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $result = $fn_wo->get_wo_average_execute_by_trade($clientId, $siteId, $year, $month);
+            }
             else if ($type === 'report_wo_summary') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $year = filter_input(INPUT_GET, 'year');

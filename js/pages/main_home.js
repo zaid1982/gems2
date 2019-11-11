@@ -380,7 +380,8 @@ function MainHome() {
                     {mData: 'ppmGroupId', visible: false},
                     {mData: 'assetGroupId', visible: false},
                     {mData: 'ppmTaskStatus', visible: false},
-                    {mData: 'pdfId', visible: false}
+                    {mData: 'pdfId', visible: false},
+                    {mData: 'ppmTaskServicedBy', visible: false}
                 ]
         });
         $("#dtHmeDataPpm_filter").hide();
@@ -510,16 +511,17 @@ function MainHome() {
             self.generatePercPpmDone();
             self.generateChartPpmBySite();
             self.generateChartPpmByTrade();
-            self.generateChartPpmByTradePerSite();
-            self.generateChartPpmByProgress();
+            self.generateChartPpmTop5Execute();
+            self.generateChartPpmBottom5Execute();
+            self.generateChartPpmAverageExecuteByTrade();
             self.genTableHmeDataPpm();
         } else if (reportId === '2') {
             $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
             $('.divHmeTopStats_wo, #divHmeTable_wo').show();
             self.generateChartWoBySite();
             self.generateChartWoByCategory();
-            self.generateChartWoByType();
             self.generateChartWoByTrade();
+            self.generateChartWoAverageExecuteByTrade();
             self.generateChartWoTop5Execute();
             self.generateChartWoBottom5Execute();
             self.genTableHmeDataWo();
@@ -1008,6 +1010,83 @@ function MainHome() {
         });
     };
 
+    this.generateChartWoAverageExecuteByTrade = function () {
+        $.ajax({
+            url: 'api/wo.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme4', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Execution Time'
+                        },
+                        subtitle: {
+                            text: 'Average Execution Time by Trade'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Average WO Execution Time (seconds)'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.display} ({point.y} seconds)</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.display}</b>',
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(9).search(this.ppmGroupName, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Average Time',
+                            data: resp.result.data,
+                            color: '#00b8d4'
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
     this.generateChartWoTop5Execute = function () {
         $.ajax({
             url: 'api/wo.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
@@ -1045,7 +1124,6 @@ function MainHome() {
                             enabled: false
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             bar: {
@@ -1121,12 +1199,12 @@ function MainHome() {
                             enabled: false
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             bar: {
                                 dataLabels: {
                                     enabled: true
+                                    //format: '<b>{point.woTaskFixedBy}</b>',
                                 },
                                 borderRadius: 3,
                                 borderWidth: 0
@@ -1451,7 +1529,7 @@ function MainHome() {
 
     this.generateChartPpmByLateness = function () {
         if (totalPpm >= totalLate) {
-            Highcharts.chart('chartHme5', {
+            Highcharts.chart('chartHme3', {
                 chart: {
                     type: 'pie'
                 },
@@ -1514,6 +1592,234 @@ function MainHome() {
                 }]
             });
         }
+    };
+
+    this.generateChartPpmTop5Execute = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme5', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Top 5 Executor'
+                        },
+                        subtitle: {
+                            text: 'Total PPM Executed'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total PPM Executed',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(32).search(this.ppmTaskServicedBy, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmBottom5Execute = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme6', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Bottom 5 Executor'
+                        },
+                        subtitle: {
+                            text: 'Total PPM Executed'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total PPM Executed',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                    //format: '<b>{point.woTaskFixedBy}</b>',
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(32).search(this.ppmTaskServicedBy, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartPpmAverageExecuteByTrade = function () {
+        $.ajax({
+            url: 'api/ppm.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme4', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Execution Time'
+                        },
+                        subtitle: {
+                            text: 'Average Execution Time by Trade'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Average PPM Execution Time (seconds)'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.display} ({point.y} seconds)</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.display}</b>',
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTablePpm.search('').columns().search('').draw();
+                                            oTablePpm.column(28).search(this.ppmGroupId, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Average Time',
+                            data: resp.result.data,
+                            color: '#00b8d4'
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
     };
 
     this.deleteWo = function (_woTaskId) {
