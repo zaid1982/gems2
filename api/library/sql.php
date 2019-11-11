@@ -599,7 +599,7 @@ class Class_sql
             } else if ($title === 'vg_wo_average_execute_by_trade') {
                 $sql = "SELECT 
                     ppm_group_name,
-                    AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed)) AS total, 
+                    AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed))/60 AS total, 
                     SEC_TO_TIME(AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed))) AS display
                 FROM wo_task
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
@@ -646,17 +646,18 @@ class Class_sql
                 GROUP BY ppm_task_serviced_by ORDER BY total LIMIT 5";
             } else if ($title === 'vg_ppm_average_execute_by_trade') {
                 $sql = "SELECT 
-                    ppm.ppm_group_id,
-                    ppm_group_name,
-                    AVG(TIMESTAMPDIFF(SECOND, ppm_task_time_start, ppm_task_time_serviced)) AS total, 
+                    ast_asset.asset_group_id,
+                    asset_group_name,
+                    AVG(TIMESTAMPDIFF(SECOND, ppm_task_time_start, ppm_task_time_serviced))/60 AS total, 
                     SEC_TO_TIME(AVG(TIMESTAMPDIFF(SECOND, ppm_task_time_start, ppm_task_time_serviced))) AS display
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
-                LEFT JOIN ppm_group ON ppm_group.ppm_group_id = ppm.ppm_group_id
-                WHERE ppm.ppm_group_id IS NOT NULL AND ppm_task_time_serviced IS NOT NULL AND cli_contract.site_id [site_id]
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN ast_asset_group ON ast_asset_group.asset_group_id = ast_asset.asset_group_id
+                WHERE ppm_task_time_serviced IS NOT NULL AND cli_contract.site_id [site_id]
                 AND YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
-                GROUP BY ppm.ppm_group_id
+                GROUP BY ast_asset.asset_group_id
                 ORDER BY total";
             } else if ($title === 'vg_report_wo_summary') {
                 $sql = "SELECT                     

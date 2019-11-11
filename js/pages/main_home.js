@@ -1019,7 +1019,7 @@ function MainHome() {
                 if (resp.success) {
                     Highcharts.chart('chartHme4', {
                         chart: {
-                            type: 'bar'
+                            type: 'column'
                         },
                         title: {
                             text: 'Execution Time'
@@ -1036,7 +1036,7 @@ function MainHome() {
                         yAxis: {
                             min: 0,
                             title: {
-                                text: 'Average WO Execution Time (seconds)'
+                                text: 'Average WO Execution Time (minutes)'
                             },
                             labels: {
                                 overflow: 'justify'
@@ -1046,10 +1046,10 @@ function MainHome() {
                             enabled: false
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.display} ({point.y} seconds)</b>'
+                            pointFormat: '{series.name}: <b>{point.display} ({point.y:.2f} minutes)</b>'
                         },
                         plotOptions: {
-                            bar: {
+                            column: {
                                 dataLabels: {
                                     enabled: true,
                                     format: '<b>{point.display}</b>',
@@ -1754,7 +1754,7 @@ function MainHome() {
                 if (resp.success) {
                     Highcharts.chart('chartHme4', {
                         chart: {
-                            type: 'bar'
+                            type: 'column'
                         },
                         title: {
                             text: 'Execution Time'
@@ -1771,7 +1771,7 @@ function MainHome() {
                         yAxis: {
                             min: 0,
                             title: {
-                                text: 'Average PPM Execution Time (seconds)'
+                                text: 'Average PPM Execution Time (minutes)'
                             },
                             labels: {
                                 overflow: 'justify'
@@ -1781,10 +1781,10 @@ function MainHome() {
                             enabled: false
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.display} ({point.y} seconds)</b>'
+                            pointFormat: '{series.name}: <b>{point.display} ({point.y:.2f} minutes)</b>'
                         },
                         plotOptions: {
-                            bar: {
+                            column: {
                                 dataLabels: {
                                     enabled: true,
                                     format: '<b>{point.display}</b>',
@@ -1797,7 +1797,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(28).search(this.ppmGroupId, true, false).draw();
+                                            oTablePpm.column(29).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }

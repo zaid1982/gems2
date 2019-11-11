@@ -2474,12 +2474,12 @@ class Class_ppm {
 
             $ppmByAverageExecutes = Class_db::getInstance()->db_select('vg_ppm_average_execute_by_trade', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
             foreach ($ppmByAverageExecutes as $ppmByAverageExecute) {
-                array_push($categories, $ppmByAverageExecute['ppm_group_name']);
+                array_push($categories, $ppmByAverageExecute['asset_group_name']);
                 array_push($data,
                     array(
-                        'y'=>intval($ppmByAverageExecute['total']),
+                        'y'=>doubleval($ppmByAverageExecute['total']),
                         'display'=>substr($ppmByAverageExecute['display'], 0, 8),
-                        'ppmGroupId'=>$ppmByAverageExecute['ppm_group_id']
+                        'assetGroupId'=>$ppmByAverageExecute['asset_group_id']
                     )
                 );
             }

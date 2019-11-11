@@ -1843,7 +1843,7 @@ class Class_wo {
                 array_push($categories, $woByAverageExecute['ppm_group_name']);
                 array_push($data,
                     array(
-                        'y'=>intval($woByAverageExecute['total']),
+                        'y'=>doubleval($woByAverageExecute['total']),
                         'display'=>substr($woByAverageExecute['display'], 0, 8),
                         'ppmGroupName'=>$woByAverageExecute['ppm_group_name']
                     )
