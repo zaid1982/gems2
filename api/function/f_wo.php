@@ -1346,6 +1346,7 @@ class Class_wo {
                 $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
+                $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
                 $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
                 array_push($result, $row_result);
@@ -1672,6 +1673,126 @@ class Class_wo {
                 }
             }
             return $series;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_top5_execute ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = 'IN ('.$siteIdStr.')';
+                }
+            } else {
+                $siteId = '= '.$siteId;
+            }
+
+            $categories = array();
+            $data = array();
+            $arrColor = array('#1b5e20', '#388e3c', '#4caf50', '#81c784', '#c8e6c9');
+            $arrUserFullName = $this->fn_general->getUserFullName();
+
+            $woByTop5Executes = Class_db::getInstance()->db_select('vg_wo_top5_execute', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($woByTop5Executes as $key => $woByTop5Execute) {
+                array_push($categories, $arrUserFullName[intval($woByTop5Execute['wo_task_fixed_by'])]);
+                array_push($data,
+                    array(
+                        'y'=>intval($woByTop5Execute['total']),
+                        'woTaskFixedBy'=>$woByTop5Execute['wo_task_fixed_by'],
+                        'color'=>$arrColor[$key]
+                    )
+                );
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $year
+     * @param string $month
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_bottom5_execute ($clientId='', $siteId='', $year='', $month='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($year)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            }
+            if (empty($month)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            }
+
+            if (empty($siteId)) {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $siteId = 'IN ('.$siteIdStr.')';
+                }
+            } else {
+                $siteId = '= '.$siteId;
+            }
+
+            $categories = array();
+            $data = array();
+            $arrColor = array('#ffccbc', '#ff8a65', '#ff5722', '#e64a19', '#bf360c');
+            $arrUserFullName = $this->fn_general->getUserFullName();
+
+            $woByTop5Executes = Class_db::getInstance()->db_select('vg_wo_bottom5_execute', array(), 'total DESC', null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            foreach ($woByTop5Executes as $key => $woByTop5Execute) {
+                array_push($categories, $arrUserFullName[intval($woByTop5Execute['wo_task_fixed_by'])]);
+                array_push($data,
+                    array(
+                        'y'=>intval($woByTop5Execute['total']),
+                        'woTaskFixedBy'=>$woByTop5Execute['wo_task_fixed_by'],
+                        'color'=>$arrColor[$key]
+                    )
+                );
+            }
+
+            return array('categories'=>$categories, 'data'=>$data);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

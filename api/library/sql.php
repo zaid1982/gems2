@@ -580,6 +580,22 @@ class Class_sql
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
                 WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
                 GROUP BY wo_task.site_id, wo_task.ppm_group_id ORDER BY wo_task.ppm_group_id";
+            } else if ($title === 'vg_wo_top5_execute') {
+                $sql = "SELECT
+                    wo_task_fixed_by, 
+                    COUNT(*) AS total
+                FROM wo_task 
+                WHERE wo_task_fixed_by IS NOT NULL AND site_id [site_id]
+                AND YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                GROUP BY wo_task_fixed_by ORDER BY total DESC LIMIT 5";
+            } else if ($title === 'vg_wo_bottom5_execute') {
+                $sql = "SELECT
+                    wo_task_fixed_by, 
+                    COUNT(*) AS total
+                FROM wo_task 
+                WHERE wo_task_fixed_by IS NOT NULL AND site_id [site_id]
+                AND YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                GROUP BY wo_task_fixed_by ORDER BY total LIMIT 5";
             } else if ($title === 'vg_count_ppm_by_site_status') {
                 $sql = "SELECT 
                     site_id, ppm_task_status, count(*) AS total 

@@ -213,7 +213,8 @@ function MainHome() {
                     {mData: 'ppmGroupId', visible: false},
                     {mData: 'woTaskStatus', visible: false},
                     {mData: 'woTaskType', visible: false},
-                    {mData: 'woTaskId', visible: false}
+                    {mData: 'woTaskId', visible: false},
+                    {mData: 'woTaskFixedBy', visible: false}
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -518,8 +519,9 @@ function MainHome() {
             self.generateChartWoBySite();
             self.generateChartWoByCategory();
             self.generateChartWoByType();
-            self.generateChartWoByProgress();
             self.generateChartWoByTrade();
+            self.generateChartWoTop5Execute();
+            self.generateChartWoBottom5Execute();
             self.genTableHmeDataWo();
         }
         $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
@@ -797,7 +799,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    Highcharts.chart('chartHme3', {
+                    Highcharts.chart('chartHme4', {
                         chart: {
                             type: 'pie'
                         },
@@ -867,7 +869,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    Highcharts.chart('chartHme4', {
+                    Highcharts.chart('chartHme5', {
                         chart: {
                             type: 'bar'
                         },
@@ -944,7 +946,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    Highcharts.chart('chartHme5', {
+                    Highcharts.chart('chartHme3', {
                         chart: {
                             type: 'pie'
                         },
@@ -994,6 +996,158 @@ function MainHome() {
                             name: 'Total',
                             colorByPoint: true,
                             data: resp.result
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartWoTop5Execute = function () {
+        $.ajax({
+            url: 'api/wo.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme5', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Top 5 Executor'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order Executed'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total WO Executed',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(20).search(this.woTaskFixedBy, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data
+                        }]
+                    });
+                } else {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+            },
+            error: function () {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+        });
+    };
+
+    this.generateChartWoBottom5Execute = function () {
+        $.ajax({
+            url: 'api/wo.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+            dataType: 'json', async: true,
+            success: function (resp) {
+                if (resp.success) {
+                    Highcharts.chart('chartHme6', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Bottom 5 Executor'
+                        },
+                        subtitle: {
+                            text: 'Total Work Order Executed'
+                        },
+                        xAxis: {
+                            categories: resp.result.categories,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total WO Executed',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                borderRadius: 3,
+                                borderWidth: 0
+                            },
+                            series: {
+                                point: {
+                                    events: {
+                                        click: function() {
+                                            oTableWo.search('').columns().search('').draw();
+                                            oTableWo.column(20).search(this.woTaskFixedBy, true, false).draw();
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Total',
+                            data: resp.result.data
                         }]
                     });
                 } else {
