@@ -214,7 +214,7 @@ function MainHome() {
                     {mData: 'woTaskStatus', visible: false},
                     {mData: 'woTaskType', visible: false},
                     {mData: 'woTaskId', visible: false},
-                    {mData: 'woTaskFixedBy', mRender: function (data, type, row){
+                    {mData: 'woTaskFixedBy', visible: false, mRender: function (data, type, row){
                             return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskAssignedBy', visible: false, mRender: function (data, type, row){
