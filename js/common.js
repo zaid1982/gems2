@@ -1202,6 +1202,15 @@ function mzIsRoleExist(roleIds) {
     return result;
 }
 
+function mzGetUserInfoByParam(parameter) {
+    if (typeof parameter === 'undefined' || parameter === '') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    let userInfo = sessionStorage.getItem('userInfo');
+    userInfo = JSON.parse(userInfo);
+    return userInfo[parameter];
+}
+
 function mzDisableSelect(fieldId, disable) {
     $('#'+fieldId).material_select('destroy');
     $('#'+fieldId).prop('disabled', disable);

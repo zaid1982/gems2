@@ -326,6 +326,8 @@ class Class_login {
             $result['address']['addressCity'] = $this->fn_general->clear_null($profile['address_city']);
             $result['address']['addressState'] = $this->fn_general->clear_null($profile['state_desc']);
             $result['roles'] = $arr_roles;
+            $result['siteId'] = $profile['site_id'];
+            $result['clientId'] = $upload = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$profile['site_id']), 'client_id', null, 1);
 
             $result['menu'] = $this->get_menu_list($arr_roles);
 

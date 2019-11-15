@@ -12,6 +12,7 @@ function MainHome() {
     let refAssetCategory;
     let refAssetType;
     let refStatus;
+    let userClient;
     let clientId = '1';
     let siteId = '0';
     let currentMonth;
@@ -26,12 +27,21 @@ function MainHome() {
 
     this.init = function () {
         $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
+        userClient = mzGetUserInfoByParam('clientId');
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
 
         $.each(refClient, function (_clientId, _client) {
             if (typeof _client !== 'undefined') {
-                $('#divHmeClient').append('<a class="dropdown-item lnkHmeClient" href="#" id="lnkHmeClient_'+_clientId+'">'+_client['clientName']+'</a>');
+                if (mzIsRoleExist('1,10')) {
+                    $('#divHmeClient').append('<a class="dropdown-item lnkHmeClient" href="#" id="lnkHmeClient_'+_clientId+'">'+_client['clientName']+'</a>');
+                }
+                else if (userClient == _clientId) {
+                    clientId = userClient;
+                    refSite[0] = {clientId:clientId, siteDesc:'Overall'};
+                    $('#divHmeClient').append('<a class="dropdown-item lnkHmeClient" href="#" id="lnkHmeClient_'+_clientId+'">'+_client['clientName']+'</a>');
+                    return false;
+                }
             }
         });
         $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
