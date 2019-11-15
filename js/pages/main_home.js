@@ -214,7 +214,20 @@ function MainHome() {
                     {mData: 'woTaskStatus', visible: false},
                     {mData: 'woTaskType', visible: false},
                     {mData: 'woTaskId', visible: false},
-                    {mData: 'woTaskFixedBy', visible: false}
+                    {mData: 'woTaskFixedBy', mRender: function (data, type, row){
+                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
+                        }},
+                    {mData: 'woTaskAssignedBy', visible: false, mRender: function (data, type, row){
+                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
+                        }},
+                    {mData: 'woTaskVerifiedBy', visible: false, mRender: function (data, type, row){
+                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedTo']]['userFirstName'] : '';
+                        }},
+                    {mData: 'woTaskTimeCreated', visible: false},
+                    {mData: 'woTaskTimeResponded', visible: false},
+                    {mData: 'woTaskTimeAssigned', visible: false},
+                    {mData: 'woTaskTimeExecuted', visible: false},
+                    {mData: 'woTaskTimeVerified', visible: false}
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -239,7 +252,7 @@ function MainHome() {
         let cntWo;
         let btnWoOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25, 26, 27],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {

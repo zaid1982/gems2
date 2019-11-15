@@ -1347,7 +1347,13 @@ class Class_wo {
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
                 $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
+                $row_result['woTaskAssignedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_by']);
+                $row_result['woTaskVerifiedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_verified_by']);
                 $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
+                $row_result['woTaskTimeResponded'] = str_replace('-', '/', $dataLocal['wo_task_time_responded']);
+                $row_result['woTaskTimeAssigned'] = str_replace('-', '/', $dataLocal['wo_task_time_assigned']);
+                $row_result['woTaskTimeExecuted'] = str_replace('-', '/', $dataLocal['wo_task_time_executed']);
+                $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
                 array_push($result, $row_result);
             }
