@@ -82,6 +82,9 @@ try {
             case 'gems_frequency':
                 $result = $fn_reference->get_frequency_list();
                 break;
+            case 'gems_severity':
+                $result = $fn_reference->get_severity_list();
+                break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');
         }

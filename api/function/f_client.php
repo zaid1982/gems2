@@ -98,6 +98,35 @@ class Class_client {
         }
     }
 
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_client_with_severity_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_client_with_severity');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['clientId'] = $dataLocal['client_id'];
+                $row_result['clientName'] = $dataLocal['client_name'];
+                $row_result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
+                $row_result['severities'] = $this->fn_general->clear_null($dataLocal['severities']);
+                $row_result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
+                $row_result['clientStatus'] = $dataLocal['client_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
     /**
      * @param $clientId
      * @return array
@@ -112,10 +141,11 @@ class Class_client {
             }
 
             $result = array();
-            $dataLocal = Class_db::getInstance()->db_select_single('cli_client', array('client_id'=>$clientId), null, 1);
+            $dataLocal = Class_db::getInstance()->db_select_single('vw_client_with_severity', array('cli_client.client_id'=>$clientId), null, 1);
             $result['clientId'] = $dataLocal['client_id'];
             $result['clientName'] = $dataLocal['client_name'];
             $result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
+            $result['severities'] = $this->fn_general->clear_null($dataLocal['severities']);
             $result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
             $result['clientStatus'] = $dataLocal['client_status'];
 
@@ -149,16 +179,27 @@ class Class_client {
             if (!array_key_exists('clientStatus', $params) || empty($params['clientStatus'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientStatus empty');
             }
+            if (!array_key_exists('severities', $params) || empty($params['severities'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severities empty');
+            }
 
             $clientName = $params['clientName'];
             $clientDesc = $params['clientDesc'];
             $clientStatus = $params['clientStatus'];
+            $severityStr = $params['severities'];
 
             if (Class_db::getInstance()->db_count('cli_client', array('client_name'=>$clientName)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
-            return Class_db::getInstance()->db_insert('cli_client', array('client_name'=>$clientName, 'client_desc'=>$clientDesc, 'client_status'=>$clientStatus));
+            $clientId = Class_db::getInstance()->db_insert('cli_client', array('client_name'=>$clientName, 'client_desc'=>$clientDesc, 'client_status'=>$clientStatus));
+
+            $severities = explode(',', $severityStr);
+            foreach ($severities as $severity) {
+                Class_db::getInstance()->db_insert('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$severity));
+            }
+
+            return $clientId;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -192,16 +233,35 @@ class Class_client {
             if (!isset($put_vars['clientStatus']) || empty($put_vars['clientStatus'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientStatus empty');
             }
+            if (!isset($put_vars['severities']) || empty($put_vars['severities'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severities empty');
+            }
 
             $clientName = $put_vars['clientName'];
             $clientDesc = $put_vars['clientDesc'];
             $clientStatus = $put_vars['clientStatus'];
+            $severityStr = $put_vars['severities'];
 
             if (Class_db::getInstance()->db_count('cli_client', array('client_name'=>$clientName, 'client_id'=>'<>'.$clientId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
             Class_db::getInstance()->db_update('cli_client', array('client_name'=>$clientName, 'client_desc'=>$clientDesc, 'client_status'=>$clientStatus), array('client_id'=>$clientId));
+
+            $severities = explode(',', $severityStr);
+            $dbSeverities = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
+            foreach ($dbSeverities as $dbSeverity) {
+                $curSeverity = $dbSeverity['severity_id'];
+                $key = array_search($curSeverity, $severities);
+                if ($key !== false) {
+                    array_splice($severities, $key, 1);
+                } else {
+                    Class_db::getInstance()->db_delete('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$curSeverity));
+                }
+            }
+            foreach ($severities as $severity) {
+                Class_db::getInstance()->db_insert('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$severity));
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -282,6 +342,7 @@ class Class_client {
             }
 
             $clientName = Class_db::getInstance()->db_select_col('cli_client', array('client_id'=>$clientId), 'client_name', null, 1);
+            Class_db::getInstance()->db_delete('cli_client_severity', array('client_id'=>$clientId));
             Class_db::getInstance()->db_delete('cli_client', array('client_id'=>$clientId));
 
             return $clientName;

@@ -35,7 +35,15 @@ try {
 
     if ('GET' === $request_method) {
         $clientId = filter_input(INPUT_GET, 'clientId');
-        if (!is_null($clientId)) {
+        $type = filter_input(INPUT_GET, 'type');
+        if (!is_null($type)) {
+            if ($type === 'with_severity') {
+                $result = $fn_client->get_client_with_severity_list();
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
+            }
+        }
+        else if (!is_null($clientId)) {
             $result = $fn_client->get_client($clientId);
         } else {
             $result = $fn_client->get_client_list();
@@ -47,11 +55,13 @@ try {
         $clientName = filter_input(INPUT_POST, 'clientName');
         $clientDesc = filter_input(INPUT_POST, 'clientDesc');
         $clientStatus = filter_input(INPUT_POST, 'clientStatus');
+        $severities = filter_input(INPUT_POST, 'severities');
 
         $params = array(
             'clientName'=>$clientName,
             'clientDesc'=>$clientDesc,
-            'clientStatus'=>$clientStatus
+            'clientStatus'=>$clientStatus,
+            'severities'=>$severities
         );
 
         Class_db::getInstance()->db_beginTransaction();

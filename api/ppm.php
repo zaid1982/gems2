@@ -135,6 +135,8 @@ try {
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
                 $result = $fn_ppm->get_ppm_list($clientId, $siteId, $year, $month);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
         } else if (!is_null($ppmId)) {
             //$result = $fn_asset->get_asset($ppmId);

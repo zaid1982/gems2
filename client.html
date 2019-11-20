@@ -65,6 +65,7 @@
                                 <th style="width: 4%">#</th>
                                 <th style="width: 28%">Client</th>
                                 <th>Description</th>
+                                <th>Severity</th>
                                 <th style="width: 15%">Status</th>
                                 <th style="width: 80px"></th>
                             </tr>
@@ -130,11 +131,13 @@
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId');
 
                 modalClientClass_.setClassFrom(clientClass_);
                 modalClientClass_.init();
                 clientClass_.setVersionLocal(versionLocal_);
                 clientClass_.setRefStatus(refStatus_);
+                clientClass_.setRefSeverity(refSeverity_);
                 clientClass_.setModalClientClass(modalClientClass_);
                 clientClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 clientClass_.init();

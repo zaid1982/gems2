@@ -5,6 +5,7 @@ function MainClient() {
     let versionLocal;
     let modalConfirmDeleteClass;
     let refStatus;
+    let refSeverity
     let oTableClient;
     let modalClientClass;
 
@@ -64,6 +65,21 @@ function MainClient() {
                     {mData: 'clientDesc'},
                     {mData: null,
                         mRender: function (data, type, row) {
+                            let label = '';
+                            let rowData = row['severities'];
+                            if (rowData != '') {
+                                label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
+                                const dataSplit = rowData.split(',');
+                                for (let j=0; j<dataSplit.length; j++) {
+                                    label += '<li>' + refSeverity[dataSplit[j]]['severityName'] + '</li>';
+                                }
+                                label += '</ul>';
+                            }
+                            return label;
+                        }
+                    },
+                    {mData: null,
+                        mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['clientStatus']]['statusColor']+' z-depth-2">'+refStatus[row['clientStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
@@ -90,13 +106,18 @@ function MainClient() {
         let cntClient;
         let btnClientOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3],
+                columns: [ 0, 1, 2, 3, 4],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntClient = 1;
                         }
                         if (column === 3) {
+                            const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
+                            const p = m.replace('</li></ul>', '');
+                            const q = p.split('</li><li>').join(', ');
+                            return q;
+                        } else if (column === 4) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -141,21 +162,18 @@ function MainClient() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    self.genTableCln(1);
+                    self.genTableCln();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
             }, 300);
         });
-        self.genTableCln(0);
+        self.genTableCln();
     };
 
-    this.genTableCln = function (_type) {
-        if (_type === 1) {
-            versionLocal = mzGetDataVersion();
-        }
-        const refClient = mzGetLocalRaw('gems_client', versionLocal, [], 'client');
+    this.genTableCln = function () {
+        const refClient = mzAjaxRequest('client.php?type=with_severity', 'GET');
         oTableClient.clear().rows.add(refClient).draw();
     };
 
@@ -187,6 +205,10 @@ function MainClient() {
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
+    };
+
+    this.setRefSeverity = function (_refSeverity) {
+        refSeverity = _refSeverity;
     };
 
     this.setModalClientClass = function (_modalClientClass) {

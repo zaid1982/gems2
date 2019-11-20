@@ -821,6 +821,18 @@ class Class_sql
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id";
+            } else if ($title === 'vw_client_with_severity') {
+                $sql = "SELECT
+                    cli_client.*,
+                    severity.severities
+                FROM cli_client
+                LEFT JOIN
+                (
+                    SELECT 
+                        client_id, GROUP_CONCAT(severity_id) AS severities
+                    FROM cli_client_severity
+                    GROUP BY client_id
+                ) severity ON severity.client_id = cli_client.client_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
