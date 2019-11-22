@@ -2563,6 +2563,7 @@ class Class_ppm {
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['ppmTaskStartDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
+                $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
                 $row_result['frequency'] = $dataLocal['frequency'];
                 $row_result['documentNo'] = $dataLocal['document_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
@@ -2576,6 +2577,7 @@ class Class_ppm {
                 $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
                 $row_result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
                 $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['ppmTaskIsScheduled'] = $dataLocal['ppm_task_is_scheduled'];
                 $row_result['executor'] = $this->fn_general->clear_null($dataLocal['ppm_task_assigned_to']);
                 $row_result['ppmTaskServicedBy'] = $this->fn_general->clear_null($dataLocal['ppm_task_serviced_by']);
                 $row_result['reviewer'] = $this->fn_general->clear_null($dataLocal['ppm_task_checked_by']);
