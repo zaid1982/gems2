@@ -66,8 +66,8 @@
                                         <div class="col-md-6 select-outline">
                                             <select id="optPrsRescheduleStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
                                                 <option value="" selected>All Status</option>
-                                                <option value="1">Rescheduled</option>
-                                                <option value="2">Not Yet</option>
+                                                <option value="Rescheduled">Rescheduled</option>
+                                                <option value="Not Yet">Not Yet</option>
                                             </select>
                                             <label for="optPrsRescheduleStatus">Reschedule Status</label>
                                         </div>
@@ -137,6 +137,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
+    <div class="includeHtml" id="h-modal_ppm_reschedule"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -172,6 +173,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let ppmRescheduleClass_;
+    let modalPpmRescheduleClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -182,6 +184,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 ppmRescheduleClass_ = new MainPpmReschedule();
+                modalPpmRescheduleClass_ = new ModalPpmReschedule();
 
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
@@ -190,12 +193,16 @@
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
 
+                modalPpmRescheduleClass_.setClassFrom(ppmRescheduleClass_);
+                modalPpmRescheduleClass_.init();
+
                 ppmRescheduleClass_.setRefSite(refSite_);
                 ppmRescheduleClass_.setRefPpmGroup(refPpmGroup_);
                 ppmRescheduleClass_.setRefAssetGroup(refAssetGroup_);
                 ppmRescheduleClass_.setRefAssetCategory(refAssetCategory_);
                 ppmRescheduleClass_.setRefAssetType(refAssetType_);
                 ppmRescheduleClass_.setRefStatus(refStatus_);
+                ppmRescheduleClass_.setModalPpmRescheduleClass(modalPpmRescheduleClass_);
                 ppmRescheduleClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -206,7 +213,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    //document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

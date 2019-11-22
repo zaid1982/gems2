@@ -1,0 +1,45 @@
+<div class="modal fade" id="modal_ppm_reschedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="far fa-calendar-check text-white"></i> &nbsp;Reschedule PPM Date</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMpr">
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-4">
+                            <select id="optMprAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMprAssetGroupId" id="lblMprAssetGroupId">Asset Group *</label>
+                            <p class="font-small text-danger" id="optMprAssetGroupIdErr"></p>
+                        </div>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMprName" class="form-control">
+                        <label for="txtMprName" id="lblMprName">Asset Category *</label>
+                        <p class="font-small text-danger" id="txtMprNameErr"></p>
+                    </div>
+                    <div class="md-form md-outline">
+                        <textarea id="txaMprDesc" class="md-textarea form-control" rows="3"></textarea>
+                        <label for="txaMprDesc" id="lblMprDesc" class="text-muted">Description</label>
+                        <p class="font-small text-danger" id="txaMprDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMprStatus" name="chkMprStatus" value="1">
+                        <label class="form-check-label" for="chkMprStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMprSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ function MainPpmReschedule() {
     let refAssetCategory;
     let refAssetType;
     let refStatus;
+    let modalPpmRescheduleClass;
     let yearId;
     let userClient;
     let currentRole = '';
@@ -28,7 +29,6 @@ function MainPpmReschedule() {
         let dt = new Date();
         const currentYear = dt.getFullYear();
         const currentMonth = dt.getMonth();
-        let currentSite = '';
 
         for (let year = 2019; year <= currentYear; year++) {
             arrYear.push({yearId:year.toString(), yearDesc:year.toString()});
@@ -89,6 +89,23 @@ function MainPpmReschedule() {
                         }, 200);
                     }
                 });
+                $('.lnkPrsPpmReschedule').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTablePpm.row(parseInt(rowId)).data();
+                                modalPpmRescheduleClass.edit(currentRow['ppmTaskId'], rowId);
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -122,7 +139,7 @@ function MainPpmReschedule() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="far fa-file-pdf lnkPrsPpmPdf" id="lnkPrsPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
-                            label += ' <a><i class="far fa-calendar-check lnkPrsPpmPdf" id="lnkPrsPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"></i></a>';
+                            label += '&nbsp;&nbsp;<a><i class="far fa-calendar-check lnkPrsPpmReschedule" id="lnkPrsPpmReschedule_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"></i></a>';
                             return label;
                         }
                     },
@@ -137,15 +154,9 @@ function MainPpmReschedule() {
             oTablePpm.search($(this).val()).draw();
         });
 
-        /*$('#optHmeDataPpmColumns').on('change', function () {
-            for (let i=1; i<=25; i++) {
-                oTablePpm.column(i).visible(false);
-            }
-            const selectedColumns = $(this).val();
-            $.each(selectedColumns, function (n, u) {
-                oTablePpm.column(parseInt(u)).visible(true);
-            });
-        });*/
+        $('#optPrsRescheduleStatus').on('change', function () {
+            oTablePpm.column(10).search($(this).val(), false, true, false).draw();
+        });
 
         let cntPpm;
         let btnPpmOpt = {
@@ -198,6 +209,18 @@ function MainPpmReschedule() {
             }, 300);
         });
 
+        $('#optPrsSiteId, #optPrsYear, #optPrsMonth').on('change', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTablePrsPpm();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         self.genTablePrsPpm();
     };
 
@@ -232,5 +255,9 @@ function MainPpmReschedule() {
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
+    };
+
+    this.setModalPpmRescheduleClass = function (_modalPpmRescheduleClass) {
+        modalPpmRescheduleClass = _modalPpmRescheduleClass;
     };
 }
