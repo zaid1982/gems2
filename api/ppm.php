@@ -172,6 +172,26 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $put_data = file_get_contents("php://input");
+        parse_str($put_data, $put_vars);
+        $action = $put_vars['action'];
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'reschedule_date') {
+            $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
+            //$fn_ppm->reschedule_date($ppmTaskId, $put_vars);
+            $fn_general->save_audit('127', $jwt_data->userId, 'ppmTaskId = '.$ppmTaskId.', new date = '.$put_vars['newDate']);
+            $form_data['errmsg'] = $constant::SUC_PPM_RESCHEDULE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

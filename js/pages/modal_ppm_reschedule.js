@@ -42,6 +42,31 @@ function ModalPpmReschedule() {
             $('#txtMprNewDate').val('');
             $('#lblMprNewDate').removeClass('active');
         });
+
+        $('#btnMprSubmit').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (!formValidate.validateForm()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    } else {
+                        const data = {
+                            action: 'reschedule_date',
+                            frequency: $('#optMprFrequency').val(),
+                            newDate: mzConvertDate($('#txtMprNewDate').val())
+                        };
+                        mzAjaxRequest('ppm.php?ppmTaskId=' + ppmTaskId, 'PUT', data);
+                        if (classFrom.getClassName() === 'MainPpmReschedule') {
+                            classFrom.genTablePrsPpm();
+                        }
+                        $('#modal_ppm_reschedule').modal('hide');
+                    }
+                } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 300);
+        });
     };
 
     this.edit = function (_ppmTaskId, _rowRefresh, _passParam) {

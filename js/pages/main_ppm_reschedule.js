@@ -1,6 +1,6 @@
 function MainPpmReschedule() {
 
-    const className = 'MainTrackMonitoring';
+    const className = 'MainPpmReschedule';
     let self = this;
     let refSite;
     let refPpmGroup;
