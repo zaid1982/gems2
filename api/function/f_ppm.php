@@ -2565,6 +2565,7 @@ class Class_ppm {
                 $row_result['ppmTaskStartDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
                 $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
                 $row_result['frequency'] = $dataLocal['frequency'];
+                $row_result['frequencyIds'] = $dataLocal['frequency_ids'];
                 $row_result['documentNo'] = $dataLocal['document_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
                 $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);

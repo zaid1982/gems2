@@ -98,7 +98,14 @@ function MainPpmReschedule() {
                             try {
                                 const rowId = linkId.substr(linkIndex+1);
                                 const currentRow = oTablePpm.row(parseInt(rowId)).data();
-                                modalPpmRescheduleClass.edit(currentRow['ppmTaskId'], rowId);
+                                const passParam = {
+                                    ppmTaskNo:currentRow['ppmTaskNo'],
+                                    ppmTaskStartDate:currentRow['ppmTaskStartDate'],
+                                    ppmTaskScheduleDate:currentRow['ppmTaskScheduleDate'],
+                                    frequency:currentRow['frequency'],
+                                    frequencyIds:currentRow['frequencyIds']
+                                };
+                                modalPpmRescheduleClass.edit(currentRow['ppmTaskId'], rowId, passParam);
                             } catch (e) {
                                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
                             }
@@ -128,8 +135,15 @@ function MainPpmReschedule() {
                     {mData: null, mRender: function (data, type, row){
                             return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : '';
                         }},
-                    {mData: 'ppmTaskIsScheduled', sClass: 'text-center', mRender: function (data){
-                            return data === '1' ? 'Rescheduled' : 'Not Yet';
+                    {mData: 'ppmTaskIsScheduled', sClass: 'text-center', mRender: function (data, type, row){
+                            const frequency = row['frequency'];
+                            if (data === '1') {
+                                return 'Rescheduled';
+                            } else if (frequency === 'Daily' || frequency.search(', ') !== -1) {
+                                return 'Disallowed';
+                            } else {
+                                return 'Not Yet';
+                            }
                         }},
                     {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
@@ -139,7 +153,9 @@ function MainPpmReschedule() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="far fa-file-pdf lnkPrsPpmPdf" id="lnkPrsPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
-                            label += '&nbsp;&nbsp;<a><i class="far fa-calendar-check lnkPrsPpmReschedule" id="lnkPrsPpmReschedule_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"></i></a>';
+                            if (row['frequency'] !== 'Daily') {
+                                label += '&nbsp;&nbsp;<a><i class="far fa-calendar-check lnkPrsPpmReschedule" id="lnkPrsPpmReschedule_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"></i></a>';
+                            }
                             return label;
                         }
                     },
@@ -147,6 +163,7 @@ function MainPpmReschedule() {
                     {mData: 'siteId', visible: false},
                     {mData: 'ppmTaskStatus', visible: false},
                     {mData: 'pdfId', visible: false},
+                    {mData: 'frequencyIds', visible: false}
                 ]
         });
         $("#dtPrsList_filter").hide();

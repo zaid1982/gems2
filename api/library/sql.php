@@ -802,6 +802,7 @@ class Class_sql
                     cli_contract.site_id,
                     ppm.ppm_task_no AS document_no,
                     ppm.ppm_group_id,
+                    task_frequency.frequency_ids,
                     task_frequency.frequency,
                     ast_asset.asset_no,
                     ast_asset.asset_name,
@@ -817,7 +818,7 @@ class Class_sql
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
-                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(ppm_task_frequency.frequency_id) AS frequency_ids, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id";
