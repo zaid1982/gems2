@@ -29,6 +29,7 @@ function MainPpmReschedule() {
         let dt = new Date();
         const currentYear = dt.getFullYear();
         const currentMonth = dt.getMonth();
+        let currentSite = '';
 
         for (let year = 2019; year <= currentYear+3; year++) {
             arrYear.push({yearId:year.toString(), yearDesc:year.toString()});
