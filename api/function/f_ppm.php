@@ -2640,7 +2640,7 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_UNALLOWED, 31);
             }
 
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$newDate), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$newDate, 'ppm_task_is_scheduled'=>'1'), array('ppm_task_id'=>$ppmTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$newDate), array('transaction_id'=>$ppmTask['transaction_id']));
         }
         catch(Exception $ex) {
