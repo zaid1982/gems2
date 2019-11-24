@@ -624,6 +624,13 @@ function mzDateDisable(dateId, dateStr) {
     date_picker.set('disable', [[parseInt(dateArr[0]), parseInt(dateArr[1])-1, parseInt(dateArr[2])]]);
 }
 
+function mzDateEnable(dateId, dateStr) {
+    const dateArr = dateStr.split('/');
+    const date_input = $('#'+dateId).pickadate();
+    let date_picker = date_input.pickadate('picker');
+    date_picker.set('enable', [[parseInt(dateArr[0]), parseInt(dateArr[1])-1, parseInt(dateArr[2])]]);
+}
+
 function mzConvertDate(dateInput) {
     if (typeof dateInput === 'undefined' || dateInput === '') {
         return '';

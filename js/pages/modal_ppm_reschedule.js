@@ -5,6 +5,7 @@ function ModalPpmReschedule() {
     let classFrom;
     let rowRefresh;
     let ppmTaskId;
+    let ppmTaskStartDate;
 
     this.init = function () {
         const vData = [
@@ -36,6 +37,7 @@ function ModalPpmReschedule() {
         $('#modal_ppm_reschedule').on('hidden.bs.modal', function(){
             $('#btnMprSubmit').attr('disabled', true);
             formValidate.clearValidation();
+            mzDateEnable('txtMprNewDate', ppmTaskStartDate);
         });
 
         $('#optMprFrequency').on('change', function () {
@@ -77,7 +79,7 @@ function ModalPpmReschedule() {
                 ppmTaskId = _ppmTaskId;
                 rowRefresh = _rowRefresh;
 
-                const ppmTaskStartDate = _passParam['ppmTaskStartDate'];
+                ppmTaskStartDate = _passParam['ppmTaskStartDate'];
                 const ppmTaskScheduleDate = _passParam['ppmTaskScheduleDate'];
                 const frequency = _passParam['frequency'];
                 const frequencyIds = _passParam['frequencyIds'];
