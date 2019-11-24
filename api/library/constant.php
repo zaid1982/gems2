@@ -117,6 +117,8 @@ class Class_constant {
     const ERR_PPM_GROUP_USER_SIMILAR = 'This user already in this group';
     const ERR_PPM_GROUP_SUPERVISOR_EMPTY = 'Task fail to submit because supervisor not assigned yet. Please contact system administrator.';
     const ERR_PPM_GROUP_ENGINEER_EMPTY = 'Task fail to submit because engineer not assigned yet. Please contact system administrator.';
+    const ERR_PPM_RESCHEDULE_EXIST = 'The selected date cannot be proceeded because already occupied with another PPM under same asset no';
+    const ERR_PPM_RESCHEDULE_UNALLOWED = 'This PPM is are not allowed to perform rescheduling';
 
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
     const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';
@@ -213,6 +215,7 @@ class Class_constant {
     const SUC_PPM_GROUP_DELETE = 'PPM Group successfully deleted';
     const SUC_PPM_GROUP_USER_ADD = 'PPM Group User successfully added';
     const SUC_PPM_GROUP_USER_DELETE = 'PPM Group User successfully deleted';
+    const SUC_PPM_RESCHEDULE = 'PPM Date successfully rescheduled';
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon by GFM representative. You will receive notification soon on your mobile and email.';
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';

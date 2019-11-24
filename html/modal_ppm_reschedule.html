@@ -1,0 +1,47 @@
+<div class="modal fade" id="modal_ppm_reschedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="far fa-calendar-check text-white"></i> &nbsp;Reschedule PPM Date</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMpr">
+                    <div class="md-form md-outline mt-4">
+                        <input type="text" id="txtMprPpmTaskNo" class="form-control active" disabled>
+                        <label for="txtMprPpmTaskNo" id="lblMprPpmTaskNo">PPM Task No</label>
+                    </div>
+                    <div class="md-form md-outline">
+                        <input type="text" id="txtMprPpmTaskStartDate" class="form-control active" disabled>
+                        <label for="txtMprPpmTaskStartDate" id="lblMprPpmTaskStartDate">Scheduled Date</label>
+                    </div>
+                    <div class="md-form md-outline">
+                        <input type="text" id="txtMprPpmTaskScheduleDate" class="form-control active" disabled>
+                        <label for="txtMprPpmTaskScheduleDate" id="lblMprPpmTaskScheduleDate">Final Date</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline">
+                            <select id="optMprFrequency" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMprFrequency" id="lblMprFrequency">Frequency *</label>
+                            <p class="font-small text-danger" id="optMprFrequencyErr"></p>
+                        </div>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMprNewDate" class="form-control datepicker" readonly>
+                        <label for="txtMprNewDate" id="lblMprNewDate">New Scheduled Date *</label>
+                        <p class="font-small text-danger" id="txtMprNewDateErr"></p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMprSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

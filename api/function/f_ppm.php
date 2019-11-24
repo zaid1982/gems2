@@ -2563,7 +2563,9 @@ class Class_ppm {
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['ppmTaskStartDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
+                $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
                 $row_result['frequency'] = $dataLocal['frequency'];
+                $row_result['frequencyIds'] = $dataLocal['frequency_ids'];
                 $row_result['documentNo'] = $dataLocal['document_no'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
                 $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
@@ -2576,6 +2578,7 @@ class Class_ppm {
                 $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
                 $row_result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
                 $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['ppmTaskIsScheduled'] = $dataLocal['ppm_task_is_scheduled'];
                 $row_result['executor'] = $this->fn_general->clear_null($dataLocal['ppm_task_assigned_to']);
                 $row_result['ppmTaskServicedBy'] = $this->fn_general->clear_null($dataLocal['ppm_task_serviced_by']);
                 $row_result['reviewer'] = $this->fn_general->clear_null($dataLocal['ppm_task_checked_by']);
@@ -2591,6 +2594,54 @@ class Class_ppm {
             }
 
             return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function reschedule_date ($ppmTaskId, $put_vars) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['frequency']) || $put_vars['frequency'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter frequency empty');
+            }
+            if (!isset($put_vars['newDate']) || $put_vars['newDate'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter newDate empty');
+            }
+
+            $frequency = $put_vars['frequency'];
+            $newDate = $put_vars['newDate'];
+
+            $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
+            if (Class_db::getInstance()->db_count('ppm_task', array('ppm_id'=>$ppmTask['ppm_id'], 'ppm_task_start_date'=>$newDate, 'ppm_task_id'=>'<>'.$ppmTaskId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_EXIST, 31);
+            }
+
+            $ppmTaskFrequency = Class_db::getInstance()->db_select('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId), null, null, 1);
+            if (sizeof($ppmTaskFrequency) > 1) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_UNALLOWED, 31);
+            } else if ($ppmTaskFrequency[0]['frequency_id'] !== $frequency) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_UNALLOWED, 31);
+            }
+
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$newDate), array('ppm_task_id'=>$ppmTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$newDate), array('transaction_id'=>$ppmTask['transaction_id']));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
