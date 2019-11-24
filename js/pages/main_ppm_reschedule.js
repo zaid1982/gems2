@@ -30,7 +30,7 @@ function MainPpmReschedule() {
         const currentYear = dt.getFullYear();
         const currentMonth = dt.getMonth();
 
-        for (let year = 2019; year <= currentYear; year++) {
+        for (let year = 2019; year <= currentYear+3; year++) {
             arrYear.push({yearId:year.toString(), yearDesc:year.toString()});
         }
         for (let i = 0; i <= monthFull.length; i++) {
@@ -153,7 +153,8 @@ function MainPpmReschedule() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '<a><i class="far fa-file-pdf lnkPrsPpmPdf" id="lnkPrsPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
-                            if (row['frequency'] !== 'Daily') {
+                            const frequency = row['frequencyIds'];
+                            if (frequency === '1' || frequency === '2' || frequency === '3' || frequency === '4' || frequency === '6') {
                                 label += '&nbsp;&nbsp;<a><i class="far fa-calendar-check lnkPrsPpmReschedule" id="lnkPrsPpmReschedule_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"></i></a>';
                             }
                             return label;

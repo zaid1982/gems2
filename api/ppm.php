@@ -183,7 +183,7 @@ try {
 
         if ($action === 'reschedule_date') {
             $ppmTaskId = filter_input(INPUT_GET, 'ppmTaskId');
-            //$fn_ppm->reschedule_date($ppmTaskId, $put_vars);
+            $fn_ppm->reschedule_date($ppmTaskId, $put_vars);
             $fn_general->save_audit('127', $jwt_data->userId, 'ppmTaskId = '.$ppmTaskId.', new date = '.$put_vars['newDate']);
             $form_data['errmsg'] = $constant::SUC_PPM_RESCHEDULE;
         } else {

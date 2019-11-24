@@ -105,10 +105,13 @@ function ModalPpmReschedule() {
                     mzSetFieldValue('MprFrequency', frequencyId, 'select', 'Frequency *');
                     const dateArr = ppmTaskScheduleDate.split('/');
                     const finalDate = new Date(parseInt(dateArr[0]), parseInt(dateArr[1])-1, parseInt(dateArr[2]));
-                    if (frequencyId === '4') {
-                        let minDate = finalDate;
+                    let minDate = finalDate;
+                    if (frequencyId === '4') {  // weekly
                         minDate.setDate(minDate.getDate() - 7);
                         mzDateSetMin('txtMprNewDate', minDate.getFullYear()+'/'+(minDate.getMonth()+1)+'/'+minDate.getDate());
+                    }
+                    else if (frequencyId === '3' || frequencyId === '2' || frequencyId === '1' || frequencyId === '6') {  // monthly
+                        mzDateSetMin('txtMprNewDate', minDate.getFullYear()+'/'+(minDate.getMonth()+1)+'/1');
                     }
                 }
 

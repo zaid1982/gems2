@@ -2629,11 +2629,11 @@ class Class_ppm {
             $newDate = $put_vars['newDate'];
 
             $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, 1);
-            if (Class_db::getInstance()->db_count('ppm_task', array('ppm_id'=>$ppmTask['ppm_id'], 'ppm_task_id'=>'<>'.$ppmTaskId)) > 0) {
+            if (Class_db::getInstance()->db_count('ppm_task', array('ppm_id'=>$ppmTask['ppm_id'], 'ppm_task_start_date'=>$newDate, 'ppm_task_id'=>'<>'.$ppmTaskId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_EXIST, 31);
             }
 
-            $ppmTaskFrequency = Class_db::getInstance()->db_select('ppm_task', array('ppm_task_id'=>$ppmTaskId), null, null, 1);
+            $ppmTaskFrequency = Class_db::getInstance()->db_select('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId), null, null, 1);
             if (sizeof($ppmTaskFrequency) > 1) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_RESCHEDULE_UNALLOWED, 31);
             } else if ($ppmTaskFrequency[0]['frequency_id'] !== $frequency) {
