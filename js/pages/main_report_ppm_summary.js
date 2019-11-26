@@ -46,7 +46,7 @@ function MainReportPpmSummary() {
                 }
             },
             {
-                field_id: 'optRpsMonthId',
+                field_id: 'optRpsYearId',
                 type: 'select',
                 name: 'Year',
                 validator: {
@@ -54,7 +54,7 @@ function MainReportPpmSummary() {
                 }
             },
             {
-                field_id: 'optRpsYearId',
+                field_id: 'optRpsMonthId',
                 type: 'select',
                 name: 'Month',
                 validator: {

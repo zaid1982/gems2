@@ -85,6 +85,12 @@ try {
             case 'gems_severity':
                 $result = $fn_reference->get_severity_list();
                 break;
+            case 'gems_auditModule':
+                $result = $fn_reference->get_audit_module_list();
+                break;
+            case 'gems_auditAction':
+                $result = $fn_reference->get_audit_action_list();
+                break;
             default:
                 throw new Exception('[' . __LINE__ . '] - Parameter name invalid ('.$name.')');
         }
