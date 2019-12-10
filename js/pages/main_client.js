@@ -5,9 +5,10 @@ function MainClient() {
     let versionLocal;
     let modalConfirmDeleteClass;
     let refStatus;
-    let refSeverity
+    let refSeverity;
     let oTableClient;
     let modalClientClass;
+    let modalSeverityHourClass;
 
     this.init = function () {
         oTableClient =  $('#dtClnClient').DataTable({
@@ -56,6 +57,27 @@ function MainClient() {
                         modalConfirmDeleteClass.delete(currentRow['clientId'], modalClientClass);
                     }
                 });
+                $('.lnkClnClientHourEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const linkIndex2 = rowId.indexOf('_');
+                        const linkIndex3 = rowId.indexOf('__');
+                        if (linkIndex2 > 0) {
+                            const severityId = rowId.substring(linkIndex2 + 1, linkIndex3);
+                            const severityHour = rowId.substr(linkIndex3 + 2);
+                            const currentRow = oTableClient.row(parseInt(rowId)).data();
+                            //alert(currentRow['clientId'] + ' ' + severityId + ' ' + severityHour);
+                            const passParam = {
+                                clientName:currentRow['clientName'],
+                                severityId:severityId,
+                                severityHour:severityHour
+                            };
+                            modalSeverityHourClass.edit(currentRow['clientId'], rowId, passParam);
+                        }
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -64,14 +86,16 @@ function MainClient() {
                     {mData: 'clientName'},
                     {mData: 'clientDesc'},
                     {mData: null,
-                        mRender: function (data, type, row) {
+                        mRender: function (data, type, row, meta) {
                             let label = '';
-                            let rowData = row['severities'];
-                            if (rowData != '') {
+                            let severity = row['severities'];
+                            let severityHour = row['severityHours'];
+                            if (severity !== '' && severityHour !== '') {
                                 label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
-                                const dataSplit = rowData.split(',');
-                                for (let j=0; j<dataSplit.length; j++) {
-                                    label += '<li>' + refSeverity[dataSplit[j]]['severityName'] + '</li>';
+                                const severitySplit = severity.split(',');
+                                const hourSplit = severityHour.split(',');
+                                for (let j=0; j<severitySplit.length; j++) {
+                                    label += '<li>' + refSeverity[severitySplit[j]]['severityName'] + ' - ' + hourSplit[j] + '-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="lnkClnClientHourEdit_'+meta.row+'_'+severitySplit[j]+'__'+hourSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>';
                                 }
                                 label += '</ul>';
                             }
@@ -115,7 +139,15 @@ function MainClient() {
                         if (column === 3) {
                             const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
                             const p = m.replace('</li></ul>', '');
-                            const q = p.split('</li><li>').join(', ');
+                            let r = p;
+                            let linkIndex = r.indexOf('<a>');
+                            let linkIndex2 = r.indexOf('</a>');
+                            while (linkIndex > 0) {
+                                r = r.substr(0,linkIndex - 1) + r.substr(linkIndex2 + 4);
+                                linkIndex = r.indexOf('<a>');
+                                linkIndex2 = r.indexOf('</a>');
+                            }
+                            const q = r.split('</li><li>').join(', ');
                             return q;
                         } else if (column === 4) {
                             const n = data.search('">');
@@ -213,6 +245,10 @@ function MainClient() {
 
     this.setModalClientClass = function (_modalClientClass) {
         modalClientClass = _modalClientClass;
+    };
+
+    this.setModalSeverityHourClass = function (_modalSeverityHourClass) {
+        modalSeverityHourClass = _modalSeverityHourClass;
     };
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {

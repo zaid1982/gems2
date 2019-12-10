@@ -91,6 +91,11 @@ try {
             $fn_general->save_audit('8', $jwt_data->userId, 'Client = ' . $put_vars['clientName']);
             $form_data['errmsg'] = $constant::SUC_CLIENT_EDIT;
         }
+        else if ($action === 'update_severity_hour') {
+            $fn_client->update_severity_hour($clientId, $put_vars);
+            $fn_general->save_audit('128', $jwt_data->userId, 'Client = ' . $put_vars['clientName'] . ', Severity = ' . $put_vars['severityName'] . ', Severity = ' . $put_vars['severityHour']);
+            $form_data['errmsg'] = $constant::SUC_CLIENT_SEVERITY_HOUR_EDIT;
+        }
         else if ($action === 'deactivate') {
             $clientName = $fn_client->deactivate_client($clientId);
             $fn_general->updateVersion(5);

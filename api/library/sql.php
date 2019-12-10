@@ -825,12 +825,13 @@ class Class_sql
             } else if ($title === 'vw_client_with_severity') {
                 $sql = "SELECT
                     cli_client.*,
-                    severity.severities
+                    severity.severities,
+                    severity.severity_hour
                 FROM cli_client
                 LEFT JOIN
                 (
                     SELECT 
-                        client_id, GROUP_CONCAT(severity_id) AS severities
+                        client_id, GROUP_CONCAT(severity_id) AS severities, GROUP_CONCAT(client_severity_hour) AS severity_hour
                     FROM cli_client_severity
                     GROUP BY client_id
                 ) severity ON severity.client_id = cli_client.client_id";

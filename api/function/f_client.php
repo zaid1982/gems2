@@ -114,6 +114,7 @@ class Class_client {
                 $row_result['clientName'] = $dataLocal['client_name'];
                 $row_result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
                 $row_result['severities'] = $this->fn_general->clear_null($dataLocal['severities']);
+                $row_result['severityHours'] = $this->fn_general->clear_null($dataLocal['severity_hour']);
                 $row_result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
                 $row_result['clientStatus'] = $dataLocal['client_status'];
                 array_push($result, $row_result);
@@ -346,6 +347,45 @@ class Class_client {
             Class_db::getInstance()->db_delete('cli_client', array('client_id'=>$clientId));
 
             return $clientName;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $clientId
+     * @param $put_vars
+     * @throws Exception
+     */
+    public function update_severity_hour ($clientId, $put_vars) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($clientId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+            }
+            if (empty($put_vars)) {
+                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
+            }
+
+            if (!isset($put_vars['severityId']) || empty($put_vars['severityId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severityId empty');
+            }
+            if (!isset($put_vars['severityHour']) || empty($put_vars['severityHour'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severityHour empty');
+            }
+
+            $severityId = $put_vars['severityId'];
+            $severityHour = $put_vars['severityHour'];
+
+            if (Class_db::getInstance()->db_count('cli_client_severity', array('severity_id'=>$severityId, 'client_id'=>$clientId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SEVERITY_NOT_EXIST, 31);
+            }
+
+            Class_db::getInstance()->db_update('cli_client_severity', array('client_severity_hour'=>$severityHour), array('severity_id'=>$severityId, 'client_id'=>$clientId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

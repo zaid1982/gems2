@@ -80,6 +80,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_client"></div>
+    <div class="includeHtml" id="h-modal_severity_hour"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -116,6 +117,7 @@
     let clientClass_;
     let changePasswordClass_;
     let modalClientClass_;
+    let modalSeverityHourClass_;
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -128,6 +130,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 clientClass_ = new MainClient();
                 modalClientClass_ = new ModalClient();
+                modalSeverityHourClass_ = new ModalSeverityHour();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
@@ -135,10 +138,14 @@
 
                 modalClientClass_.setClassFrom(clientClass_);
                 modalClientClass_.init();
+                modalSeverityHourClass_.setClassFrom(clientClass_);
+                modalSeverityHourClass_.setRefSeverity(refSeverity_);
+                modalSeverityHourClass_.init();
                 clientClass_.setVersionLocal(versionLocal_);
                 clientClass_.setRefStatus(refStatus_);
                 clientClass_.setRefSeverity(refSeverity_);
                 clientClass_.setModalClientClass(modalClientClass_);
+                clientClass_.setModalSeverityHourClass(modalSeverityHourClass_);
                 clientClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 clientClass_.init();
             } catch (e) {
@@ -151,6 +158,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_client.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_severity_hour.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_client.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
