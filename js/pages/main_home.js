@@ -69,7 +69,7 @@ function MainHome() {
         });
 
         let dateEarliest = new Date();
-        dateEarliest.setFullYear(2019, 8, 1);
+        dateEarliest.setFullYear(2019, 2, 1);
         let dateCtr = new Date();
         currentMonth = dateCtr.getMonth();
         currentYear = dateCtr.getFullYear();
