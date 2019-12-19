@@ -69,7 +69,7 @@ function MainHome() {
         });
 
         let dateEarliest = new Date();
-        dateEarliest.setFullYear(2019, 8, 1);
+        dateEarliest.setFullYear(2019, 2, 1);
         let dateCtr = new Date();
         currentMonth = dateCtr.getMonth();
         currentYear = dateCtr.getFullYear();
@@ -161,7 +161,8 @@ function MainHome() {
                                 const currentRow = oTableWo.row(parseInt(rowId)).data();
                                 let pdfId = currentRow['pdfId'];
                                 if (currentRow['pdfId'] === '') {
-                                    pdfId = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:currentRow['woTaskId']});
+                                    const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:currentRow['woTaskId']});
+                                    pdfId = resultRequest['pdfId'];
                                 }
                                 const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
                                 $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+currentRow['woTaskNo']);

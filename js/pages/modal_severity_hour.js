@@ -17,7 +17,7 @@ function ModalSeverityHour() {
                 validator: {
                     notEmpty: true,
                     min: 1,
-                    max: 48,
+                    max: 3000,
                     digit: true
                 }
             }
