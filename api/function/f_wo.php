@@ -2277,4 +2277,33 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_severity_list_m () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            $result = array();
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'site_id', null, 1);
+            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'client_id', null, 1);
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['severityId'] = $dataLocal['severity_id'];
+                $row_result['severityName'] = $arrSeverity[intval($dataLocal['severity_id'])];
+                array_push($result, $row_result);
+            }
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

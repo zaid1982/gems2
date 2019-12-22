@@ -88,6 +88,8 @@ try {
             $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
         } else if ($type === 'wo_rate') {
             $result = $fn_wo->get_wo_rate_m();
+        } else if ($type === 'wo_severity_list') {
+            $result = $fn_wo->get_wo_severity_list_m();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
