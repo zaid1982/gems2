@@ -567,4 +567,22 @@ class Class_general {
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getSeverityName () {
+        try {
+            $refArray = array('');
+            $arr_dataLocal = Class_db::getInstance()->db_select('ref_severity', array(), null, null, 1);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $refArray[intval($dataLocal['severity_id'])] = $dataLocal['severity_name'];
+            }
+            return $refArray;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

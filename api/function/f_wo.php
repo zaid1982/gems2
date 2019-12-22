@@ -670,7 +670,7 @@ class Class_wo {
             }
 
             $arrUserFullName = $this->fn_general->getUserFullName();
-            $arrSeverity = $this->get_severity();
+            $arrSeverity = $this->fn_general->getSeverityName();
             $arrTaskType = $this->get_wo_type();
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_to'=>$userTechId, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$severityId, 'wo_task_type'=>$woTaskType), array('wo_task_id'=>$this->woTaskId));
 
@@ -710,7 +710,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter severityId empty');
             }
 
-            $arrSeverity = $this->get_severity();
+            $arrSeverity = $this->fn_general->getSeverityName();
             Class_db::getInstance()->db_update('wo_task', array('wo_task_severity'=>$severityId), array('wo_task_id'=>$this->woTaskId));
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
@@ -1323,7 +1323,7 @@ class Class_wo {
             }
 
             $arrWhere = array('site_id'=>$siteId, 'YEAR(wo_task_time_created)'=>$year, 'MONTH(wo_task_time_created)-1'=>$month);
-            $arrSeverity = $this->get_severity();
+            $arrSeverity = $this->fn_general->getSeverityName();
             $arrWoType = $this->get_wo_type();
             if ($isPending) {
                 $arrWhere['wo_task_status'] = 'N(16, 25)';
