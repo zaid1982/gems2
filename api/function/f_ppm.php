@@ -356,7 +356,8 @@ class Class_ppm {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
-                $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
+                //$row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
+                $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
                 $row_result['ppmTaskAssignedTo'] = $dataLocal['ppm_task_assigned_to'];
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['frequency'] = $this->fn_general->clear_null($dataLocal['frequency']);
