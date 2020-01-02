@@ -871,7 +871,7 @@ class Class_ppm {
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
             if (empty($year)) {
@@ -2081,7 +2081,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2144,7 +2144,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2205,7 +2205,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2267,7 +2267,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2333,7 +2333,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2393,7 +2393,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2453,7 +2453,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
@@ -2510,7 +2510,7 @@ class Class_ppm {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter month empty');
             }
 
