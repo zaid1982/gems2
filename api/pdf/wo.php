@@ -130,9 +130,9 @@ class Class_pdf_wo {
             $arrSiteName = $this->fn_general->getSiteName();
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrCategory = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect');
-            //$arrSeverity = $this->fn_general->getSeverityName(); //array('', 'Non-Critical', 'Critical');
+            $arrSeverity = $this->fn_general->getSeverityName(); //array('', 'Non-Critical', 'Critical');
 
-			$arrSeverity = array('', 'Non-Critical', 'Critical');
+			//$arrSeverity = array('', 'Non-Critical', 'Critical');
             $arrSla = array('', '4 hours', '2 hours');
             $arrDue = array('', '4', '2');
 
@@ -140,7 +140,14 @@ class Class_pdf_wo {
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_created_by'], 'user_profile_status'=>'1'), null, 1);
             $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'client_id', null, 1);
 
-            
+            $arrSla = array('');
+            $arrDue = array('');
+            $arrClientSeverity = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
+            foreach ($arrClientSeverity as $clientSeverity) {
+                $severityKey = intval($clientSeverity['severity_id']);
+                $arrSla[$severityKey] = $clientSeverity['client_severity_hour'].' hours';
+                $arrDue[$severityKey] = $clientSeverity['client_severity_hour'];
+            }
 
             $pdf->Image('pdf/images/logo_'.$clientId.'.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
 
