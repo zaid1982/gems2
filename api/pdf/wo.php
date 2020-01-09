@@ -140,8 +140,8 @@ class Class_pdf_wo {
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_created_by'], 'user_profile_status'=>'1'), null, 1);
             $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'client_id', null, 1);
 
-            $arrSla = array('');
-            $arrDue = array('');
+            //$arrSla = array('');
+            //$arrDue = array('');
             $arrClientSeverity = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
             foreach ($arrClientSeverity as $clientSeverity) {
                 $severityKey = intval($clientSeverity['severity_id']);
