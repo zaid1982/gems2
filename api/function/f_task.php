@@ -672,8 +672,8 @@ class Class_task {
                 $arrUserFullName = $this->fn_general->getUserFullName();
                 $arrFlowName = $this->fn_general->getFlowName();
                 $arrCheckPointName = $this->fn_general->getCheckPointName();
-                $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
-                $arrWoTaskSeverity = array('', 'Non-Critical', 'Critical');
+                $arrWoTaskType = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect'); // $arrWoTaskType = array('', 'Client Complaint', 'Self Finding');
+                $arrWoTaskSeverity = $this->fn_general->getSeverityName(); //$arrWoTaskSeverity = array('', 'Non-Critical', 'Critical');
             }
 
             if ($flowId == '1') {
