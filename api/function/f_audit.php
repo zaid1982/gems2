@@ -86,7 +86,7 @@ class Class_audit {
             if (empty($year)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
-            if (empty($month)) {
+            if ($month == '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter year empty');
             }
 
