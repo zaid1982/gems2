@@ -153,19 +153,22 @@ function MainAsset() {
             mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optAszTypeId', 'All Asset Type');
             //mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
-            oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+            //oTableAsset.column(14).search($(this).val(), false, true, false).draw();
+			oTableAsset.column(14).search("^" + $(this).val() + "$", true, false, true).draw();
             oTableAsset.column(15).search('', false, true, false).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
         });
 
         $('#optAszCategoryId').on('change', function () {
             mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
+            //oTableAsset.column(15).search($(this).val(), false, true, false).draw();			
+			oTableAsset.column(15).search("^" + $(this).val() + "$", true, false, true).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
         });
 
         $('#optAszTypeId').on('change', function () {
-            oTableAsset.column(16).search($(this).val(), false, true, false).draw();
+            //oTableAsset.column(16).search($(this).val(), false, true, false).draw();			
+			oTableAsset.column(16).search("^" + $(this).val() + "$", true, false, true).draw();
         });
 
         let cntAsset;
@@ -231,17 +234,25 @@ function MainAsset() {
         });
 
         $('#optAszContractId').on('change', function () {
-            $('#optAszGroupId').val(null);
-            mzOptionStopClear('optAszGroupId', 'All Asset Group');
-            mzOptionStopClear('optAszCategoryId', 'All Asset Category');
-            mzOptionStopClear('optAszTypeId', 'All Asset Type');
-            oTableAsset.column(14).search('', false, true, false).draw();
-            oTableAsset.column(15).search('', false, true, false).draw();
-            oTableAsset.column(16).search('', false, true, false).draw();
-            contractId = $(this).val();
-            self.genTableAsz();
-            self.displayStats();
-            self.displayChart();
+			contractId = $(this).val();
+            ShowLoader();
+            setTimeout(function () {
+                try {
+					$('#optAszGroupId').val(null);
+					//mzOptionStopClear('optAszGroupId', 'All Asset Group');
+					//mzOptionStopClear('optAszCategoryId', 'All Asset Category');
+					//mzOptionStopClear('optAszTypeId', 'All Asset Type');
+					oTableAsset.column(14).search('', false, true, false).draw();
+					oTableAsset.column(15).search('', false, true, false).draw();
+					oTableAsset.column(16).search('', false, true, false).draw();
+                    self.genTableAsz();
+                    self.displayStats();
+                    self.displayChart();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         $('#btnAszAssetAdd').on('click', function () {
@@ -259,7 +270,7 @@ function MainAsset() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
 
         self.genTableAsz();

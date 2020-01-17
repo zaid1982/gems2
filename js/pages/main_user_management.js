@@ -123,7 +123,7 @@ function MainUserManagement() {
             oTableUser.search($(this).val()).draw();
         });
         $('#optUmnGroupId').on('change', function () {
-            oTableUser.column(12).search($(this).val(), false, true, false).draw();
+            oTableUser.column(14).search("^" + $(this).val() + "$", true, false, true).draw();
         });
         $('#linkUmn0').on('click', function () {
             oTableUser.column(11).search('').draw();

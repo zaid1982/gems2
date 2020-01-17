@@ -6,12 +6,9 @@ function MainAuditTrail() {
     let refAuditModule;
     let refAuditAction;
     let oTableAdt;
-    let yearId;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.init = function () {
-        yearId = '2019';
-
         let arrYear = [];
         let arrMonth = [];
         let dt = new Date();
@@ -30,7 +27,7 @@ function MainAuditTrail() {
         mzOption('optAdtModule', refAuditModule, 'All Module', 'auditModuleId', 'auditModuleDesc', {}, '', false);
         mzOption('optAdtAction', refAuditAction, 'All Action', 'auditActionId', 'auditActionDesc', {auditModuleId: '0'}, '', false);
 
-        $('#optAdtYear').val(yearId);
+        $('#optAdtYear').val(currentYear);
         $('#optAdtMonth').val(currentMonth);
 
         $('#optAdtModule').on('change', function () {
