@@ -226,13 +226,13 @@ function MainHome() {
                     {mData: 'woTaskType', visible: false},
                     {mData: 'woTaskId', visible: false},
                     {mData: 'woTaskFixedBy', visible: false, mRender: function (data, type, row){
-                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskFixedBy']]['userFirstName'] : '';
+                            return row['woTaskFixedBy'] !== '' ? refUser[row['woTaskFixedBy']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskAssignedBy', visible: false, mRender: function (data, type, row){
-                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskAssignedBy']]['userFirstName'] : '';
+                            return row['woTaskAssignedBy'] !== '' ? refUser[row['woTaskAssignedBy']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskVerifiedBy', visible: false, mRender: function (data, type, row){
-                            return row['woTaskAssignedTo'] !== '' ? refUser[row['woTaskVerifiedBy']]['userFirstName'] : '';
+                            return row['woTaskVerifiedBy'] !== '' ? refUser[row['woTaskVerifiedBy']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskTimeCreated', visible: false},
                     {mData: 'woTaskTimeResponded', visible: false},
