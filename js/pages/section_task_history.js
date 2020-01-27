@@ -163,47 +163,58 @@ function SectionTaskHistory() {
         oTableTransaction.clear().rows.add(dataTransaction).draw();
 
         let woTask;
-        let holdCheckpoint = '';
+        let trainStationFlag = '';
         if (taskDetails['flowId'] === '2') {
             woTask = mzAjaxRequest('wo.php?type=wo_by_transaction&transactionId='+transactionId, 'GET');
+            if (woTask['woTaskTypeInit'] === '1') {
+                if (woTask['woTaskIsWr'] === '1') {
+                    trainStationFlag = '3';
+                } else {
+                    trainStationFlag = '1';
+                }
+            } else {
+                trainStationFlag = '2';
+            }
         }
 
         const dataLength = dataTransaction.length;
         const currentCheckpoint = dataTransaction[dataLength-1]['checkpointId'];
         let isGreen = 'green';
         $('#ulSthStep').html('');
-        for (let i = 0; i < refCheckpoint.length; i++) {
-            if (typeof refCheckpoint[i] !== 'undefined' && refCheckpoint[i]['flowId'] === taskDetails['flowId']) {
-                if (taskDetails['flowId'] === '2') {
-                    if (woTask['woTaskType'] === '1' && (refCheckpoint[i]['checkpointId'] === '11' || refCheckpoint[i]['checkpointId'] === '16')) {
+        const trainStations = mzAjaxRequest('track_monitoring.php?type=transaction_history_train_station&transactionId='+transactionId+'&flag='+trainStationFlag, 'GET');
+        for (let i = 0; i < trainStations.length; i++) {
+            if (typeof trainStations[i] !== 'undefined' && trainStations[i]['flowId'] === taskDetails['flowId']) {
+                const checkpointId = trainStations[i]['checkpointId'];
+                /*if (taskDetails['flowId'] === '2') {
+                    if (woTask['woTaskType'] === '1' && (checkpointId === '11' || checkpointId === '16')) {
                         continue;
                     }
-                    else if (woTask['woTaskType'] !== '1' && (refCheckpoint[i]['checkpointId'] === '10' || refCheckpoint[i]['checkpointId'] === '14')) {
+                    else if (woTask['woTaskType'] !== '1' && (checkpointId === '10' || checkpointId === '14')) {
                         continue;
                     }
-                }
-                const isActive = refCheckpoint[i]['checkpointId'] === currentCheckpoint ? 'active' : '';
+                }*/
+                const isActive = checkpointId === currentCheckpoint ? 'active' : '';
                 if (isActive === 'active') {
                     isGreen = '';
                 }
-                if (taskDetails['flowId'] === '2' && woTask['woTaskType'] !== '1') {
-                    if (refCheckpoint[i]['checkpointId'] === '15') {
+                /*if (taskDetails['flowId'] === '2' && woTask['woTaskType'] !== '1') {
+                    if (checkpointId === '15') {
                         holdCheckpoint = '<li class="'+isActive+'">\n' +
                             '<a href="#!">\n' +
-                            '<span class="circle '+isGreen+'"><i class="'+refCheckpoint[i]['checkpointIcon']+'"></i></span>\n' +
-                            '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
+                            '<span class="circle '+isGreen+'"><i class="'+trainStations[i]['checkpointIcon']+'"></i></span>\n' +
+                            '<span class="label">' + trainStations[i]['checkpointDesc'] + '</span>\n' +
                             '</a>\n' +
                             '</li>';
                         continue;
-                    } else if (refCheckpoint[i]['checkpointId'] === '16') {
+                    } else if (checkpointId === '16') {
                         $('#ulSthStep').append(holdCheckpoint);
                         continue;
                     }
-                }
+                }*/
                 $('#ulSthStep').append('<li class="'+isActive+'">\n' +
                     '<a href="#!">\n' +
-                    '<span class="circle '+isGreen+'"><i class="'+refCheckpoint[i]['checkpointIcon']+'"></i></span>\n' +
-                    '<span class="label">' + refCheckpoint[i]['checkpointDesc'] + '</span>\n' +
+                    '<span class="circle '+isGreen+'"><i class="'+trainStations[i]['checkpointIcon']+'"></i></span>\n' +
+                    '<span class="label">' + trainStations[i]['checkpointDesc'] + '</span>\n' +
                     '</a>\n' +
                     '</li>');
             }

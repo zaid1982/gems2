@@ -879,4 +879,52 @@ class Class_task {
         }
     }
 
+    /**
+     * @param $transactionId
+     * @param string $flag
+     * @return array
+     * @throws Exception
+     */
+    public function get_transaction_history_train_station ($transactionId, $flag='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $flowId = Class_db::getInstance()->db_select_col('wfl_transaction', array('transaction_id'=>$transactionId), 'flow_id', null, 1);
+            $arrWhere = array('flow_id'=>$flowId);
+
+            if ($flag === '1') {
+                $arrWhere['checkpoint_id'] = '(11, 12, 13, 14, 15)';
+            } else if ($flag === '2') {
+                $arrWhere['checkpoint_id'] = '(10, 12, 13, 16, 15)';
+            } else if ($flag === '3') {
+                $arrWhere['checkpoint_id'] = '(11, 17, 18, 19, 13, 14, 15)';
+            }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wfl_checkpoint', $arrWhere, 'checkpoint_order');
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['checkpointId'] = $dataLocal['checkpoint_id'];
+                $row_result['flowId'] = $dataLocal['flow_id'];
+                $row_result['checkpointDesc'] = $dataLocal['checkpoint_desc'];
+                $row_result['checkpointType'] = $dataLocal['checkpoint_type'];
+                $row_result['checkpointClaimType'] = $dataLocal['checkpoint_claim_type'];
+                $row_result['checkpointDueDay'] = $dataLocal['checkpoint_due_day'];
+                $row_result['roleId'] = $dataLocal['role_id'];
+                $row_result['groupId'] = $dataLocal['group_id'];
+                $row_result['checkpointIcon'] = $dataLocal['checkpoint_icon'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
 }

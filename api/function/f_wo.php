@@ -155,15 +155,26 @@ class Class_wo {
                 $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
                 $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
             }
-            $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_code', null, 1);
-            $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_running_no_wo', null, 1);
-            $runningNo = intval($runningNo);
-            $runningNoTemp = 100000 + $runningNo;
-            $runningNoStr = substr(strval($runningNoTemp), 1);
-            $runningNo++;
-            Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNo)), array('group_id'=>$groupId));
-
-            return 'W'.$siteCode.$curDates->format("ymd").$runningNoStr;
+            $site = Class_db::getInstance()->db_select_single('cli_site', array('group_id'=>$groupId), null, 1);
+            $siteId = $site['site_id'];
+            $siteCode = $site['site_code'];
+            if ($site['site_is_wr'] === '1') {
+                $runningNoWr = $site['site_running_no_wr'];
+                $runningNoWr = intval($runningNoWr);
+                $runningNoWrTemp = 100000 + $runningNoWr;
+                $runningNoWrStr = substr(strval($runningNoWrTemp), 1);
+                $runningNoWr++;
+                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNoWr)), array('site_id'=>$siteId));
+                return 'R'.$siteCode.$curDates->format("ymd").$runningNoWrStr;
+            } else {
+                $runningNo = $site['site_running_no_wo'];
+                $runningNo = intval($runningNo);
+                $runningNoTemp = 100000 + $runningNo;
+                $runningNoStr = substr(strval($runningNoTemp), 1);
+                $runningNo++;
+                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNo)), array('site_id'=>$siteId));
+                return 'W'.$siteCode.$curDates->format("ymd").$runningNoStr;
+            }
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -208,8 +219,15 @@ class Class_wo {
                 $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_id', null, 1);
             }
 
-            $woTaskId = Class_db::getInstance()->db_insert('wo_task', array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
-                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24'));
+            $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
+                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24');
+            if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
+                $arrWhere['wo_task_is_wr'] = '1';
+                $arrWhere['wo_task_request_no'] = $woTaskNo;
+            }
+
+
+            $woTaskId = Class_db::getInstance()->db_insert('wo_task', $arrWhere);
             foreach ($complaintImageUploads as $complaintImageUpload) {
                 if (!array_key_exists('uploadId', $complaintImageUpload)) {
                     throw new Exception('[' . __LINE__ . '] - Index uploadId not exist in complaintImageUpload');
@@ -438,10 +456,13 @@ class Class_wo {
             $result = array();
             $result['woTaskId'] = $dataLocal['wo_task_id'];
             $result['woTaskNo'] = $dataLocal['wo_task_no'];
+            $result['woTaskRequestNo'] = $dataLocal['wo_task_request_no'];
             $result['siteId'] = $dataLocal['site_id'];
             $result['woTaskReportedBy'] = $dataLocal['wo_task_created_by'];
             $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
             $result['woTaskType'] = $dataLocal['wo_task_type'];
+            $result['woTaskTypeInit'] = $dataLocal['wo_task_type_init'];
+            $result['woTaskIsWr'] = $dataLocal['wo_task_is_wr'];
             $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
             $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
             $result['woTaskStatus'] = $dataLocal['wo_task_status'];
@@ -2301,6 +2322,25 @@ class Class_wo {
                 array_push($result, $row_result);
             }
             return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wo_is_wr () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_is_wr', null, 1);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

@@ -44,6 +44,10 @@ try {
         } else if ($type === 'transaction_history') {
             $transactionId = filter_input(INPUT_GET, 'transactionId');
             $result = $fn_task->get_task_history('', $transactionId);
+        } else if ($type === 'transaction_history_train_station') {
+            $transactionId = filter_input(INPUT_GET, 'transactionId');
+            $flag = filter_input(INPUT_GET, 'flag');
+            $result = $fn_task->get_transaction_history_train_station($transactionId, $flag);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

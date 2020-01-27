@@ -9,6 +9,7 @@ require_once 'function/f_email.php';
 require_once 'function/f_wo.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/wo.php';
+require_once 'pdf/wr.php';
 
 $api_name = 'api_m_wo';
 $is_transaction = false;
@@ -22,6 +23,7 @@ $fn_task = new Class_task();
 $fn_email = new Class_email();
 $fn_wo = new Class_wo();
 $fn_pdf_wo = new Class_pdf_wo();
+$fn_pdf_wr = new Class_pdf_wr();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -33,6 +35,7 @@ try {
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
     $fn_pdf_wo->__set('fn_general', $fn_general);
+    $fn_pdf_wr->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -82,8 +85,13 @@ try {
         } else if ($type === 'wo_repair_images') {
             $result = $fn_wo->get_wo_repair_images_m();
         } else if ($type === 'preview_pdf') {
-            $fn_pdf_wo->__set('woTaskId', $woTaskId);
-            $returnVal = $fn_pdf_wo->create_pdf();
+            if ($fn_wo->get_wo_is_wr() === '1') {
+                $fn_pdf_wr->__set('woTaskId', $woTaskId);
+                $returnVal = $fn_pdf_wr->create_pdf();
+            } else {
+                $fn_pdf_wo->__set('woTaskId', $woTaskId);
+                $returnVal = $fn_pdf_wo->create_pdf();
+            }
             $result = $fn_general->getPdf($returnVal['pdfId']);
             $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
         } else if ($type === 'wo_rate') {
@@ -125,7 +133,12 @@ try {
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
-            $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
+            $woType = $fn_wo->get_wo_task_type();
+            if ($woType === '1' && $fn_wo->get_wo_is_wr() === '1') {
+                $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '1', '', $groupId);
+            } else {
+                $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
+            }
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
