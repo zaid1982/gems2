@@ -81,7 +81,7 @@ function MainReportWoSummary() {
                     {mData: 'woTaskType',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof row['open'+siteColumns[0]['siteId']] !== 'undefined') {
                                 const val = row['open'+siteColumns[0]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -93,7 +93,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof row['closed'+siteColumns[0]['siteId']] !== 'undefined') {
                                 const val = row['closed'+siteColumns[0]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -105,7 +105,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[1] !== 'undefined') {
                                 const val = row['open'+siteColumns[1]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -117,7 +117,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[1] !== 'undefined') {
                                 const val = row['closed'+siteColumns[1]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -129,7 +129,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[2] !== 'undefined') {
                                 const val = row['open'+siteColumns[2]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -141,7 +141,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[2] !== 'undefined') {
                                 const val = row['closed'+siteColumns[2]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -153,7 +153,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[3] !== 'undefined') {
                                 const val = row['open'+siteColumns[3]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
@@ -165,7 +165,7 @@ function MainReportWoSummary() {
                         }},
                     {mData: null, sClass: 'text-right',
                         mRender: function (data, type, row) {
-                            if (siteColumns.length > 0) {
+                            if (siteColumns.length > 0 && typeof siteColumns[3] !== 'undefined') {
                                 const val = row['closed'+siteColumns[3]['siteId']];
                                 if (row['woTaskType'] === 'TOTAL') {
                                     return '<strong>'+mzFormatNumber(val)+'</strong>';
