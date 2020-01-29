@@ -13,11 +13,13 @@ function MainTrackMonitoring() {
     let siteCode;
     let flowId;
     let yearId;
+    let userSite;
 
     this.init = function () {
-        siteCode = 'BNMDC';
         flowId = '1';
-        yearId = '2019';
+        let dateCtr = new Date();
+        yearId = dateCtr.getFullYear();
+        userSite = mzGetUserInfoByParam('siteId');
 
         let arrYear = [];
         let dt = new Date();
@@ -29,6 +31,13 @@ function MainTrackMonitoring() {
         mzOption('optTnmSiteCode', refSite, 'Select Site', 'siteCode', 'siteName', {}, 'required');
         mzOption('optTnmFlowId', refFlow, 'Select Flow', 'flowId', 'flowDesc', {}, 'required');
         mzOption('optTnmCheckpointId', refCheckpoint, 'All Checkpoint', 'checkpointId', 'checkpointDesc', {flowId: flowId});
+
+        if (mzIsRoleExist('1,10')) {
+            siteCode = 'BNMDC';
+        } else {
+            siteCode = refSite[userSite]['siteCode'];
+            $('#optTnmSiteCode').prop('disabled', true);
+        }
 
         $('#optTnmYear').val(yearId);
         $('#optTnmSiteCode').val(siteCode);
