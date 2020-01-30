@@ -133,8 +133,7 @@ try {
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
-            $woType = $fn_wo->get_wo_task_type();
-            if ($woType === '1' && $fn_wo->get_wo_is_wr() === '1') {
+            if ($roleId === '6' && $fn_wo->get_wo_is_wr() === '1') {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '1', '', $groupId);
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
