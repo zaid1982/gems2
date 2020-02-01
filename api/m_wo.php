@@ -133,14 +133,14 @@ try {
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
-            if ($roleId === '6' && $fn_wo->get_wo_is_wr() === '1') {
+            $isWr = $fn_wo->get_wo_is_wr($groupId);
+            if ($roleId === '6' && $isWr === '1') {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '1', '', $groupId);
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
             }
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
             $fn_wo->__set('woTaskId', $woTaskId);
-            $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
             foreach ($nextUsers as $userId) {
                 $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
@@ -148,6 +148,11 @@ try {
             }
             $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
+            if ($isWr === '1') {
+                $fn_general->save_audit('104', $jwt_data->userId, 'Work Request no. = '.$woTaskNo);
+            } else {
+                $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
+            }
         }
         else if ($action === 'save_assigned_technician') {
             $ppmGroupId = filter_input(INPUT_POST, 'groupId');
@@ -167,13 +172,22 @@ try {
         }
         else if ($action === 'submit_assign') {
             $assignedTechnician = $fn_wo->get_assigned_technician();
-            $currentTask = $fn_wo->get_current_task('24', '12', '26');
+            $isWr = $fn_wo->get_wo_is_wr();
+            $currentCheckpoint = $isWr === '1' ? '12' : '17';
+            $currentTask = $fn_wo->get_current_task('24', $currentCheckpoint, '26');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
-            $fn_general->save_audit('112', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
+            $fn_general->save_audit('129', $jwt_data->userId, $auditLabel.$returnVal);
             $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
             $fn_email->setup_mobile_notification($assignedTechnician, 6, array('task_no' => $returnVal));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+        }
+        else if ($action === 'submit_wr_check') {
+
+        }
+        else if ($action === 'submit_wr_verified') {
+
         }
         else if ($action === 'reject_complaint') {
             $remark = filter_input(INPUT_POST, 'remark');

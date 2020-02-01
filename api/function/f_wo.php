@@ -221,11 +221,10 @@ class Class_wo {
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24');
-            if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
+            if ($woTaskType === '1' && $this->get_wo_is_wr($groupId) === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
                 $arrWhere['wo_task_request_no'] = $woTaskNo;
             }
-
 
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', $arrWhere);
             foreach ($complaintImageUploads as $complaintImageUpload) {
@@ -849,8 +848,10 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>'13'), array('wo_task_id'=>$this->woTaskId));
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'13'), array('transaction_id'=>$transactionId));
+            $woStatus = $this->get_wo_is_wr() === '1' ? '27' : '13';
+
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>$woStatus), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$woStatus), array('transaction_id'=>$transactionId));
 
             return $woTask['wo_task_no'];
         } catch (Exception $ex) {
@@ -2329,18 +2330,23 @@ class Class_wo {
     }
 
     /**
+     * @param $groupId
      * @return mixed
      * @throws Exception
      */
-    public function get_wo_is_wr () {
+    public function get_wo_is_wr ($groupId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            if (empty($this->woTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            if (empty($this->woTaskId) && empty($groupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId and groupId empty');
             }
 
-            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_is_wr', null, 1);
+            if (!empty($this->woTaskId)) {
+                return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_is_wr', null, 1);
+            } else {
+                return Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_is_wr', null, 1);
+            }
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

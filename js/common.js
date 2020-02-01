@@ -485,6 +485,7 @@ function initiatePages() {
         '<div class="tooltip-arrow md-arrow"></div>' +
         '<div class="tooltip-inner md-inner"></div>' +
     '</div>'});
+    $('[data-toggle="tooltip"]').tooltip();
     
     // Dismissible Popover
     $('[data-toggle="popover"]').popover();

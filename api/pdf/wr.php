@@ -301,16 +301,6 @@ class Class_pdf_wr {
             $pdf->Cell(35, 5, 'Due Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, !empty($dueTime)?$dueTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
             $pdf->Ln();
-            $pdf->Cell(30, 5, 'Work Completed : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, $fixedTime, 1, 0, 'L');
-            $pdf->Cell(35, 5, 'Work Duration : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $duration, 1, 0, 'L');
-            $pdf->Ln();
-            $pdf->Cell(30, 5, 'Rating : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, !empty($woTask['wo_task_rate'])?$woTask['wo_task_rate'].' / 5':'', 1, 0, 'L');
-            $pdf->Cell(35, 5, '', 1, 0, 'R');
-            $pdf->Cell(55, 5, '', 1, 0, 'L');
-            $pdf->Ln();
 
             if ($pdf->GetY() > 250) {
                 $pdf->AddPage();
@@ -319,7 +309,7 @@ class Class_pdf_wr {
 
             $pdf->SetFont('helvetica', '', 11);
             $pdf->Cell(8, 6, 'D', 1, 0, 'C', 1);
-            $pdf->Cell(172, 6, ' Description of Repair Work', 1, 0, 'L', 1);
+            $pdf->Cell(172, 6, ' Description of Work Request Checking', 1, 0, 'L', 1);
             $pdf->Ln();
             $pdf->SetFont('helvetica', '', 9);
             $maxnocells = 0;
@@ -330,48 +320,29 @@ class Class_pdf_wr {
             $pdf->Ln();
             $cellcount = $pdf->MultiCell(8,4,'',0,'L',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
-            $cellcount = $pdf->MultiCell(172,4, $this->fn_general->clear_null($woTask['wo_task_repair_desc']),0,'L',0,0);
+            $cellcount = $pdf->MultiCell(172,4, $this->fn_general->clear_null($woTask['wo_task_wr_check']),0,'L',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $pdf->SetXY($startX,$startY);
             $pdf->MultiCell(8, ($maxnocells*4)+8, '', 1, 'L', 0, 0);
             $pdf->MultiCell(172, ($maxnocells*4)+8, '', 1, 'L', 0, 0);
             $pdf->Ln();
 
-            if ($pdf->GetY() > 250) {
-                $pdf->AddPage();
-                $pdf->setPage($pdf->getPage());
-            }
-
-            $pdf->SetFont('helvetica', '', 11);
-            $pdf->Cell(8, 6, 'E', 1, 0, 'C', 1);
-            $pdf->Cell(172, 6, ' List of Assisted Technician', 1, 0, 'L', 1);
-            $pdf->Ln();
-
-            $pdf->SetFont('helvetica', '', 9);
-            $woAssists = Class_db::getInstance()->db_select('wo_task_assist', array('wo_task_id'=>$this->woTaskId));
-            for ($i=0; $i<count($woAssists);$i++) {
-                $assistName = $arrUserFullName[intval($woAssists[$i]['user_id'])];
-                $pdf->Cell(8, 5, ($i+1), 1, 0, 'R');
-                $pdf->Cell(172, 5, $assistName, 1, 0, 'L');
-                $pdf->Ln();
-            }
-
             if ($pdf->GetY() > 240) {
                 $pdf->AddPage();
                 $pdf->setPage($pdf->getPage());
             }
 
-            $servicedBy = '';
+            $checkedBy = '';
             $verifyBy = '';
-            if (!empty($woTask['wo_task_fixed_by'])) {
-                $servicedBy = $arrUserFullName[intval($woTask['wo_task_fixed_by'])];
+            if (!empty($woTask['wo_task_wr_checked_by'])) {
+                $checkedBy = $arrUserFullName[intval($woTask['wo_task_wr_checked_by'])];
             }
-            if (!empty($woTask['wo_task_verified_by'])) {
-                $verifyBy = $arrUserFullName[intval($woTask['wo_task_verified_by'])];
+            if (!empty($woTask['wo_task_wr_verified_by'])) {
+                $verifyBy = $arrUserFullName[intval($woTask['wo_task_wr_verified_by'])];
             }
 
-            $pdf->MultiCell(90, 18, "Service By\n\n\n....................................................................\nName : ".$servicedBy."\nDate : ".$this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed']), 1, 'L', 0, 0);
-            $pdf->MultiCell(90, 18, "Verified By\n\n\n....................................................................\nName : ".$verifyBy."\nDate : ".$this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified']), 1, 'L', 0, 0);
+            $pdf->MultiCell(90, 18, "Checked By\n\n\n....................................................................\nName : ".$checkedBy."\nDate : ".$this->fn_general->convertDateToDisplay($woTask['wo_task_time_wr_checked']), 1, 'L', 0, 0);
+            $pdf->MultiCell(90, 18, "Verified By\n\n\n....................................................................\nName : ".$verifyBy."\nDate : ".$this->fn_general->convertDateToDisplay($woTask['wo_task_time_wr_verified']), 1, 'L', 0, 0);
             $pdf->Ln();
 
             $signService = false;
@@ -381,85 +352,13 @@ class Class_pdf_wr {
                 if ($woUpload['upload_extension'] === 'png') {
                     $fileDir = $woUpload['upload_folder'].'/'.$woUpload['upload_filename'].'.'.$woUpload['upload_extension'];
                     $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sign : '.$fileDir);
-                    if ($uploadType === '7' && $signService === false) {
+                    if ($uploadType === '9' && $signService === false) {
                         $pdf->Image($fileDir, 20, $pdf->GetY()-30, 40, 30, 'PNG', '', '', false, 300);
                         $signService = true;
-                    } else if ($uploadType === '8' && $signVerified === false) {
+                    } else if ($uploadType === '10' && $signVerified === false) {
                         $pdf->Image($fileDir, 110, $pdf->GetY()-30, 40, 30, 'PNG', '', '', false, 300);
                         $signVerified = true;
                     }
-                }
-            }
-
-
-            if (!empty($img_before) || !empty($img_during) || !empty($img_after)) {
-                $pdf->AddPage();
-                $pdf->setPage($pdf->getPage());
-
-                $pdf->writeHTML("<br/><br/>", true, false, true, false);
-                $pdf->SetFont('helvetica', '', 11);
-                $pdf->writeHTMLCell(180, 6, '', '', ' Work Order Image : Before', 1, 0, 1);
-                $pdf->Ln();
-
-                if (!empty($img_before)) {
-                    $pdf->SetFont('helvetica', '', 9);
-                    $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_before['upload_folder'] . '/' . $img_before['upload_filename'] . '.' . $img_before['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
-                    $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_before['wo_task_upload_desc']) .
-                        "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_before['wo_task_upload_timestamp']) .
-                        "<br/>Longitude : " . $this->fn_general->clear_null($img_before['wo_task_upload_longitude']) .
-                        "<br/>Latitude : " . $this->fn_general->clear_null($img_before['wo_task_upload_latitude']), 1);
-                    $pdf->Ln();
-                } else {
-                    $pdf->writeHTMLCell(180, 12, '', '', '', 1, 0, 0);
-                    $pdf->Ln();
-                }
-
-                $pdf->writeHTML("<br/><br/>", true, false, true, false);
-                $pdf->SetFont('helvetica', '', 11);
-                $pdf->writeHTMLCell(180, 6, '', '', ' Work Order Image : During', 1, 0, 1);
-                $pdf->Ln();
-
-                if (!empty($img_during)) {
-                    $pdf->SetFont('helvetica', '', 9);
-                    foreach ($img_during as $key => $img_display) {
-                        $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_display['upload_folder'] . '/' . $img_display['upload_filename'] . '.' . $img_display['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
-                        $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_display['wo_task_upload_desc']) .
-                            "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_display['wo_task_upload_timestamp']) .
-                            "<br/>Longitude : " . $this->fn_general->clear_null($img_display['wo_task_upload_longitude']) .
-                            "<br/>Latitude : " . $this->fn_general->clear_null($img_display['wo_task_upload_latitude']), 1);
-                        $pdf->Ln();
-
-                        if ($pdf->GetY() > 200) {
-                            $pdf->AddPage();
-                            $pdf->setPage($pdf->getPage());
-                        }
-                    }
-                } else {
-                    $pdf->writeHTMLCell(180, 12, '', '', '', 1, 0, 0);
-                    $pdf->Ln();
-                }
-
-                if ($pdf->GetY() > 200) {
-                    $pdf->AddPage();
-                    $pdf->setPage($pdf->getPage());
-                }
-
-                $pdf->writeHTML("<br/><br/>", true, false, true, false);
-                $pdf->SetFont('helvetica', '', 11);
-                $pdf->writeHTMLCell(180, 6, '', '', ' Work Order Image : After', 1, 0, 1);
-                $pdf->Ln();
-
-                if (!empty($img_after)) {
-                    $pdf->SetFont('helvetica', '', 9);
-                    $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_after['upload_folder'] . '/' . $img_after['upload_filename'] . '.' . $img_after['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
-                    $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_after['wo_task_upload_desc']) .
-                        "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_after['wo_task_upload_timestamp']) .
-                        "<br/>Longitude : " . $this->fn_general->clear_null($img_after['wo_task_upload_longitude']) .
-                        "<br/>Latitude : " . $this->fn_general->clear_null($img_after['wo_task_upload_latitude']), 1);
-                    $pdf->Ln();
-                } else {
-                    $pdf->writeHTMLCell(180, 12, '', '', '', 1, 0, 0);
-                    $pdf->Ln();
                 }
             }
 
@@ -493,7 +392,7 @@ class Class_pdf_wr {
             if (empty($pdfId)) {
                 $pdfId = Class_db::getInstance()->db_insert('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'wr', 'pdf_folder'=>$folder));
             } else {
-                Class_db::getInstance()->db_update('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'wr', 'pdf_folder'=>$folder, 'pdf_timeCreated'=>'Now()'), array('pdf_id_wr'=>$pdfId));
+                Class_db::getInstance()->db_update('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'wr', 'pdf_folder'=>$folder, 'pdf_timeCreated'=>'Now()'), array('pdf_id'=>$pdfId));
             }
             Class_db::getInstance()->db_update('wo_task', array('pdf_id_wr'=>$pdfId), array('wo_task_id'=>$this->woTaskId));
 
