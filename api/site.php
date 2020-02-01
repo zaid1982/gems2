@@ -46,6 +46,7 @@ try {
         $siteCode = filter_input(INPUT_POST, 'siteCode');
         $siteDesc = filter_input(INPUT_POST, 'siteDesc');
         $clientId = filter_input(INPUT_POST, 'clientId');
+        $siteIsWr = filter_input(INPUT_POST, 'siteIsWr');
         $siteStatus = filter_input(INPUT_POST, 'siteStatus');
 
         $params = array(
@@ -53,6 +54,7 @@ try {
             'siteCode' => $siteCode,
             'siteDesc' => $siteDesc,
             'clientId' => $clientId,
+            'siteIsWr' => $siteIsWr,
             'siteStatus' => $siteStatus
         );
 

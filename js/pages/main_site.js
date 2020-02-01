@@ -67,6 +67,9 @@ function MainSite() {
                     {mData: 'siteName'},
                     {mData: 'siteCode'},
                     {mData: 'siteDesc'},
+                    {mData: 'siteIsWr', mRender: function (data){
+                            return data === '1' ? 'Yes' : 'No';
+                        }},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['siteStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteStatus']]['statusDesc']+'</span></h6>';
@@ -95,13 +98,13 @@ function MainSite() {
         let cntSite;
         let btnSiteOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5],
+                columns: [ 0, 1, 2, 3, 4, 5, 6],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntSite = 1;
                         }
-                        if (column === 5) {
+                        if (column === 6) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -178,6 +181,9 @@ function MainSite() {
         }
         if (typeof _dataEdit['siteDesc'] !== 'undefined') {
             currentRow['siteDesc'] = _dataEdit['siteDesc'];
+        }
+        if (typeof _dataEdit['siteIsWr'] !== 'undefined') {
+            currentRow['siteIsWr'] = _dataEdit['siteIsWr'];
         }
         if (typeof _dataEdit['siteStatus'] !== 'undefined') {
             currentRow['siteStatus'] = _dataEdit['siteStatus'];

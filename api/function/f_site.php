@@ -88,6 +88,7 @@ class Class_site {
                 $row_result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
                 $row_result['clientId'] = $dataLocal['client_id'];
                 $row_result['groupId'] = $dataLocal['group_id'];
+                $row_result['siteIsWr'] = $dataLocal['site_is_wr'];
                 $row_result['siteTimeCreated'] = str_replace('-', '/', $dataLocal['site_time_created']);
                 $row_result['siteStatus'] = $dataLocal['site_status'];
                 array_push($result, $row_result);
@@ -122,6 +123,7 @@ class Class_site {
             $result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
             $result['clientId'] = $dataLocal['client_id'];
             $result['groupId'] = $dataLocal['group_id'];
+            $result['siteIsWr'] = $dataLocal['site_is_wr'];
             $result['siteTimeCreated'] = str_replace('-', '/', $dataLocal['site_time_created']);
             $result['siteStatus'] = $dataLocal['site_status'];
 
@@ -158,6 +160,9 @@ class Class_site {
             if (!array_key_exists('clientId', $params) || empty($params['clientId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
+            if (!array_key_exists('siteIsWr', $params) || $params['siteIsWr'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
+            }
             if (!array_key_exists('siteStatus', $params) || empty($params['siteStatus'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
             }
@@ -166,6 +171,7 @@ class Class_site {
             $siteCode = $params['siteCode'];
             $siteDesc = $params['siteDesc'];
             $clientId = $params['clientId'];
+            $siteIsWr = $params['siteIsWr'];
             $siteStatus = $params['siteStatus'];
 
             if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'client_id'=>$clientId)) > 0) {
@@ -176,7 +182,7 @@ class Class_site {
             }
 
             $groupId = Class_db::getInstance()->db_insert('sys_group', array('group_name'=>$siteName, 'group_type'=>'2', 'group_status'=>$siteStatus));
-            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_code'=>$siteCode, 'site_desc'=>$siteDesc, 'client_id'=>$clientId, 'group_id'=>$groupId, 'site_status'=>$siteStatus));
+            return Class_db::getInstance()->db_insert('cli_site', array('site_name'=>$siteName, 'site_code'=>$siteCode, 'site_desc'=>$siteDesc, 'client_id'=>$clientId, 'group_id'=>$groupId, 'site_is_wr'=>$siteIsWr, 'site_status'=>$siteStatus));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -213,6 +219,9 @@ class Class_site {
             if (!isset($put_vars['clientId']) || empty($put_vars['clientId'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId not exist');
             }
+            if (!isset($put_vars['siteIsWr']) || $put_vars['siteIsWr'] === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
+            }
             if (!isset($put_vars['siteStatus']) || empty($put_vars['siteStatus'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter siteStatus empty');
             }
@@ -221,6 +230,7 @@ class Class_site {
             $siteCode = $put_vars['siteCode'];
             $siteDesc = $put_vars['siteDesc'];
             $clientId = $put_vars['clientId'];
+            $siteIsWr = $put_vars['siteIsWr'];
             $siteStatus = $put_vars['siteStatus'];
 
             if (Class_db::getInstance()->db_count('cli_site', array('site_name'=>$siteName, 'client_id'=>$clientId, 'site_id'=>'<>'.$siteId)) > 0) {
@@ -231,7 +241,7 @@ class Class_site {
             }
 
             $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
-            Class_db::getInstance()->db_update('cli_site', array('site_name'=>$siteName, 'site_code'=>$siteCode, 'site_desc'=>$siteDesc, 'site_status'=>$siteStatus), array('site_id'=>$siteId));
+            Class_db::getInstance()->db_update('cli_site', array('site_name'=>$siteName, 'site_code'=>$siteCode, 'site_desc'=>$siteDesc, 'site_is_wr'=>$siteIsWr, 'site_status'=>$siteStatus), array('site_id'=>$siteId));
             Class_db::getInstance()->db_update('sys_group', array('group_name'=>$siteName, 'group_status'=>'2'), array('group_id'=>$groupId));
         }
         catch(Exception $ex) {

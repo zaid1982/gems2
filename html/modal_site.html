@@ -14,7 +14,7 @@
                 <form id="formMst">
                     <div class="row">
                         <div class="col-md-12 select-outline mt-4">
-                            <select id="optMstClientId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <select id="optMstClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                             <label for="optMstClientId" id="lblMstClientId">Client *</label>
                             <p class="font-small text-danger" id="optMstClientIdErr"></p>
                         </div>
@@ -33,6 +33,11 @@
                         <textarea id="txaMstDesc" class="md-textarea form-control" rows="3"></textarea>
                         <label for="txaMstDesc" id="lblMstDesc" class="text-muted">Description</label>
                         <p class="font-small text-danger" id="txaMstDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Has Work Request:</h6>
+                    <div class="form-check pl-0 ml-3 mb-3">
+                        <input type="checkbox" class="form-check-input" id="chkMstWorkRequest" name="chkMstWorkRequest" value="1">
+                        <label class="form-check-label" for="chkMstWorkRequest">Yes</label>
                     </div>
                     <h6 class="font-small">Status:</h6>
                     <div class="form-check pl-0 ml-3">
