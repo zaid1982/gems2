@@ -178,16 +178,53 @@ try {
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
             $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
+            $emailTemplateId = $isWr === '1' ? 11 : 5;
+            $notiTextId = $isWr === '1' ? 12 : 6;
             $fn_general->save_audit('129', $jwt_data->userId, $auditLabel.$returnVal);
-            $fn_email->setup_email($assignedTechnician, 5, array('task_no' => $returnVal));
-            $fn_email->setup_mobile_notification($assignedTechnician, 6, array('task_no' => $returnVal));
+            $fn_email->setup_email($assignedTechnician, $emailTemplateId, array('task_no' => $returnVal));
+            $fn_email->setup_mobile_notification($assignedTechnician, $notiTextId, array('task_no' => $returnVal));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'submit_wr_check') {
-
+            $currentTask = $fn_wo->get_current_task('27', '18');
+            $isVerified = filter_input(INPUT_POST, 'isVerified');
+            $remark = filter_input(INPUT_POST, 'remark');
+            $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $signatureId = $fn_general->uploadDocument($signature, 17, $jwt_data->userId);
+            if ($isVerified === '1') {
+                $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark);
+                $returnValCheck = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId);
+                $signatureVerifier = filter_input(INPUT_POST, 'signatureVerifier', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+                $signatureVerifierId = $fn_general->uploadDocument($signature, 18, $returnValCheck['woTaskCreatedBy']);
+                $roleId = $fn_wo->get_role_id_from_user();
+                $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
+                $woTaskNo = $fn_wo->create_wo_no($groupId);
+                $returnVal = $fn_wo->submit_wr_verify($currentTask['transactionId'], $signatureVerifierId, $woTaskNo, $returnValCheck['woTaskCreatedBy']);
+                $fn_general->save_audit('130', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
+                $fn_email->setup_email($returnVal['woTaskAssignedTo'], 5, array('task_no'=>$returnVal['woTaskNo']));
+                $fn_email->setup_mobile_notification($returnVal['woTaskAssignedTo'], 6, array('task_no'=>$returnVal['woTaskNo']));
+            } else {
+                $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
+                $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId);
+                $fn_general->save_audit('131', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
+                $fn_email->setup_email($returnVal['woTaskCreatedBy'], 12, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark));
+                $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 13, array('task_no'=>$returnVal['woTaskNo']));
+            }
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'submit_wr_verified') {
-
+            $currentTask = $fn_wo->get_current_task('28', '19');
+            $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $signatureId = $fn_general->uploadDocument($signature, 18, $jwt_data->userId);
+            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
+            $roleId = $fn_wo->get_role_id_from_user();
+            $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
+            $woTaskNo = $fn_wo->create_wo_no($groupId);
+            $returnVal = $fn_wo->submit_wr_verify($currentTask['transactionId'], $signatureId, $woTaskNo);
+            $fn_general->save_audit('132', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
+            $fn_email->setup_email($returnVal['woTaskAssignedTo'], 12, array('task_no'=>$returnVal['woTaskNo']));
+            $fn_email->setup_mobile_notification($returnVal['woTaskAssignedTo'], 13, array('task_no'=>$returnVal['woTaskNo']));
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'reject_complaint') {
             $remark = filter_input(INPUT_POST, 'remark');

@@ -1150,6 +1150,102 @@ class Class_wo {
 
     /**
      * @param string $transactionId
+     * @param string $signatureId
+     * @return array
+     * @throws Exception
+     */
+    public function submit_wr_check ($transactionId='', $signatureId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+            if (empty($signatureId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'9', 'upload_id'=>$signatureId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'28'), array('transaction_id'=>$transactionId));
+
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'woTaskCreatedBy'=>$woTask['wo_task_created_by']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
+     * @param string $signatureId
+     * @param $woTaskNo
+     * @param string $verifier
+     * @return mixed
+     * @throws Exception
+     */
+    public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo, $verifier='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+            if (empty($signatureId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
+            }
+            if (empty($woTaskNo)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskNo empty');
+            }
+
+            $isWr = $this->get_wo_is_wr();
+            if ($isWr === '1') {
+                if (empty($verifier)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter verifier empty');
+                }
+            } else {
+                $verifier = $this->userId;
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'10', 'upload_id'=>$signatureId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>'13'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'13'), array('transaction_id'=>$transactionId));
+
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'woTaskAssignedTo'=>$woTask['wo_task_assigned_to']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
      * @param $signatureId
      * @return mixed
      * @throws Exception
