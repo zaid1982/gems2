@@ -67,6 +67,8 @@ try {
             $result = $fn_wo->get_section_status_m();
         } else if ($type === 'section_status_assign') {
             $result = $fn_wo->get_section_status_assign_m();
+        } else if ($type === 'section_status_wr') {
+            $result = $fn_wo->get_section_status_wr_m();
         } else if ($type === 'complaint_details') {
             $result = $fn_wo->get_complaint_details_m();
         } else if ($type === 'wo_group_list') {
