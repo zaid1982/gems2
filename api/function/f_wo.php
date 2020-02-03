@@ -2463,7 +2463,10 @@ class Class_wo {
             }
 
             if (!empty($this->woTaskId)) {
-                return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_is_wr', null, 1);
+                $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+                $transactionId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'transaction_id', null, 1);
+                $checkpointId = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'1'), 'checkpoint_id', null, 1);
+                return $woTask['wo_task_is_wr'] === '1' && ($checkpointId === '11' || $checkpointId === '17' || $checkpointId === '18' || $checkpointId === '19') ? '1' : '0';
             } else {
                 return Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_is_wr', null, 1);
             }
