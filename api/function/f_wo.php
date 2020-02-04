@@ -164,7 +164,7 @@ class Class_wo {
                 $runningNoWrTemp = 100000 + $runningNoWr;
                 $runningNoWrStr = substr(strval($runningNoWrTemp), 1);
                 $runningNoWr++;
-                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNoWr)), array('site_id'=>$siteId));
+                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wr'=>strval($runningNoWr)), array('site_id'=>$siteId));
                 return 'R'.$siteCode.$curDates->format("ymd").$runningNoWrStr;
             } else {
                 $runningNo = $site['site_running_no_wo'];
