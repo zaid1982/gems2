@@ -432,6 +432,12 @@ class Class_wo {
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17])
             );
 
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
+            if (!empty($remark)) {
+                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
+            }
+
             return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
