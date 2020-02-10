@@ -133,7 +133,7 @@ try {
             $roleId = $fn_wo->get_role_id_from_user();
             $checkpointId = $roleId==='6'?'11':'10';
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
-            $woTaskNo = $fn_wo->create_wo_no($groupId);
+            $woTaskNo = $fn_wo->create_wo_no($groupId, false);
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
             $isWr = $fn_wo->get_wo_is_wr($groupId);
             if ($roleId === '6' && $isWr === '1') {

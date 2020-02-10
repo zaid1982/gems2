@@ -136,10 +136,11 @@ class Class_wo {
 
     /**
      * @param $groupId
+     * @param bool $isWo
      * @return string
      * @throws Exception
      */
-    public function create_wo_no ($groupId) {
+    public function create_wo_no ($groupId, $isWo=true) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -158,15 +159,7 @@ class Class_wo {
             $site = Class_db::getInstance()->db_select_single('cli_site', array('group_id'=>$groupId), null, 1);
             $siteId = $site['site_id'];
             $siteCode = $site['site_code'];
-            if ($site['site_is_wr'] === '1') {
-                $runningNoWr = $site['site_running_no_wr'];
-                $runningNoWr = intval($runningNoWr);
-                $runningNoWrTemp = 100000 + $runningNoWr;
-                $runningNoWrStr = substr(strval($runningNoWrTemp), 1);
-                $runningNoWr++;
-                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wr'=>strval($runningNoWr)), array('site_id'=>$siteId));
-                return 'WR'.$siteCode.$curDates->format("ymd").$runningNoWrStr;
-            } else {
+            if ($isWo === true || $site['site_is_wr'] !== '1') {
                 $runningNo = $site['site_running_no_wo'];
                 $runningNo = intval($runningNo);
                 $runningNoTemp = 100000 + $runningNo;
@@ -174,6 +167,14 @@ class Class_wo {
                 $runningNo++;
                 Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNo)), array('site_id'=>$siteId));
                 return 'W'.$siteCode.$curDates->format("ymd").$runningNoStr;
+            } else {
+                $runningNoWr = $site['site_running_no_wr'];
+                $runningNoWr = intval($runningNoWr);
+                $runningNoWrTemp = 100000 + $runningNoWr;
+                $runningNoWrStr = substr(strval($runningNoWrTemp), 1);
+                $runningNoWr++;
+                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wr'=>strval($runningNoWr)), array('site_id'=>$siteId));
+                return 'WR'.$siteCode.$curDates->format("ymd").$runningNoWrStr;
             }
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
