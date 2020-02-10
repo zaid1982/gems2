@@ -195,7 +195,7 @@ try {
             $signatureId = $fn_general->uploadDocument($signature, 17, $jwt_data->userId);
             if ($isVerified === '1') {
                 $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark);
-                $returnValCheck = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId);
+                $returnValCheck = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId, $remark);
                 $signatureVerifier = filter_input(INPUT_POST, 'signatureVerifier', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $signatureVerifierId = $fn_general->uploadDocument($signature, 18, $returnValCheck['woTaskCreatedBy']);
                 $roleId = $fn_wo->get_role_id_from_user();
@@ -207,7 +207,7 @@ try {
                 $fn_email->setup_mobile_notification($returnVal['woTaskAssignedTo'], 6, array('task_no'=>$returnVal['woTaskNo']));
             } else {
                 $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
-                $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId);
+                $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId, '$remark');
                 $fn_general->save_audit('131', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
                 $fn_email->setup_email($returnVal['woTaskCreatedBy'], 12, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark));
                 $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 13, array('task_no'=>$returnVal['woTaskNo']));

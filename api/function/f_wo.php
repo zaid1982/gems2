@@ -1182,10 +1182,11 @@ class Class_wo {
     /**
      * @param string $transactionId
      * @param string $signatureId
+     * @param $remark
      * @return array
      * @throws Exception
      */
-    public function submit_wr_check ($transactionId='', $signatureId='') {
+    public function submit_wr_check ($transactionId='', $signatureId='', $remark='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -1207,7 +1208,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'9', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_wr_check'=>$remark, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'28'), array('transaction_id'=>$transactionId));
 
             return array(
