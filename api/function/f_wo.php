@@ -1182,11 +1182,12 @@ class Class_wo {
     /**
      * @param string $transactionId
      * @param string $signatureId
-     * @param $remark
+     * @param string $remark
+     * @param $isVerified
      * @return array
      * @throws Exception
      */
-    public function submit_wr_check ($transactionId='', $signatureId='', $remark='') {
+    public function submit_wr_check ($transactionId='', $signatureId='', $remark='', $isVerified='0') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -1208,7 +1209,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'9', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_wr_check'=>$remark, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_wr_check'=>$remark, 'wo_task_is_wr_verified_together'=>$isVerified, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'28'), array('transaction_id'=>$transactionId));
 
             return array(
@@ -1486,6 +1487,7 @@ class Class_wo {
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
                 $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
                 $row_result['woTaskTypeDesc'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['woTaskIsWr'] = $dataLocal['wo_task_is_wr'];
                 $row_result['siteId'] = $dataLocal['site_id'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
@@ -1495,6 +1497,7 @@ class Class_wo {
                 $row_result['woTaskRepairDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_repair_desc']);
                 $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['pdfIdWr'] = $this->fn_general->clear_null($dataLocal['pdf_id_wr']);
                 $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
                 $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
                 $row_result['woTaskAssignedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_by']);
@@ -1502,6 +1505,8 @@ class Class_wo {
                 $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
                 $row_result['woTaskTimeResponded'] = str_replace('-', '/', $dataLocal['wo_task_time_responded']);
                 $row_result['woTaskTimeAssigned'] = str_replace('-', '/', $dataLocal['wo_task_time_assigned']);
+                $row_result['woTaskTimeWrChecked'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_checked']);
+                $row_result['woTaskTimeWrVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_verified']);
                 $row_result['woTaskTimeExecuted'] = str_replace('-', '/', $dataLocal['wo_task_time_executed']);
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];

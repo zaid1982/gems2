@@ -175,6 +175,31 @@ function MainHome() {
                         }, 200);
                     }
                 });
+                $('.lnkHmeDataWoPdfWr').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTableWo.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['pdfIdWr'];
+                                //if (currentRow['pdfId'] === '') {
+                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf_wr', woTaskId:currentRow['woTaskId']});
+                                pdfId = resultRequest['pdfId'];
+                                //}
+                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Request Report: '+currentRow['woTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -211,11 +236,13 @@ function MainHome() {
                         mRender: function (data, type, row, meta) {
                             let label = '';
                             if (mzIsRoleExist('1')) {
-                                label += '<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
-                                label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
-                                return label;
-                            } else {
-                                label += '<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                                label += '&nbsp;<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>&nbsp;';
+                            }
+                            if (row['woTaskIsWr'] === '1') {
+                                label += '&nbsp;<a><i class="fas fa-file-signature lnkHmeDataWoPdfWr" id="lnkHmeDataWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            }
+                            if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
+                                label += '&nbsp;<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
                             }
                             return label;
                         }

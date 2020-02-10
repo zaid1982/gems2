@@ -7,6 +7,7 @@ require_once 'function/f_login.php';
 require_once 'function/f_wo.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/wo.php';
+require_once 'pdf/wr.php';
 
 $api_name = 'api_asset';
 $is_transaction = false;
@@ -18,6 +19,7 @@ $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_wo = new Class_wo();
 $fn_pdf_wo = new Class_pdf_wo();
+$fn_pdf_wr = new Class_pdf_wr();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -26,6 +28,7 @@ try {
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
     $fn_pdf_wo->__set('fn_general', $fn_general);
+    $fn_pdf_wr->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -191,6 +194,11 @@ try {
             $woTaskId = filter_input(INPUT_POST, 'woTaskId');
             $fn_pdf_wo->__set('woTaskId', $woTaskId);
             $result = $fn_pdf_wo->create_pdf();
+        }
+        else if ($action === 'generate_pdf_wr') {
+            $woTaskId = filter_input(INPUT_POST, 'woTaskId');
+            $fn_pdf_wr->__set('woTaskId', $woTaskId);
+            $result = $fn_pdf_wr->create_pdf();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
