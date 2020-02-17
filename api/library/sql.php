@@ -514,7 +514,7 @@ class Class_sql
                         ELSE ''
                     END AS wo_task_severity_desc,
                     wfl_task.checkpoint_id,
-                    IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'Work Request', 'Work Order') AS wo_type
+                    IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'WR', 'WO') AS wo_type
                 FROM wfl_task
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
