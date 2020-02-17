@@ -255,10 +255,11 @@ class Class_wo {
 
     /**
      * @param string $searchText
+     * @param string $woType
      * @return array
      * @throws Exception
      */
-    public function get_submitted_wo_m ($searchText='') {
+    public function get_submitted_wo_m ($searchText='', $woType='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -269,9 +270,10 @@ class Class_wo {
             $statusArr = $this->fn_general->getRefStatus ();
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted_m', array(), 'wo_task_time_created DESC', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_wo_submitted_m', array(), 'wo_task_time_created DESC', '100', null, array('user_id'=>$this->userId, 'search_text'=>$searchText, 'wo_type'=>$woType));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woType'] = $dataLocal['wo_type'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
                 $row_result['woTaskType'] = $dataLocal['wo_task_type_desc'];
                 $row_result['woTaskSeverity'] = $dataLocal['wo_task_severity_desc'];

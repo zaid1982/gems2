@@ -491,12 +491,13 @@ class Class_sql
                     CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
                         WHEN wo_task_severity = 2 THEN 'Critical'
                         ELSE ''
-                    END AS wo_task_severity_desc
+                    END AS wo_task_severity_desc,
+                    IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'WR', 'WO') AS wo_type
                 FROM wo_task 
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
                 WHERE wo_task_created_by = [user_id] 
-                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%')";
+                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%') AND wo_type LIKE '%[wo_type]%'";
             } else if ($title === 'mw_wo_pending_m') {
                 $sql = "SELECT
                     wo_task.*,
