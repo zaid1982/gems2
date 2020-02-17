@@ -134,7 +134,7 @@ function MainHome() {
         oTableWo =  $('#dtHmeDataWo').DataTable({
             bLengthChange: false,
             bFilter: true,
-            //"aaSorting": [1, 'asc'],
+            "aaSorting": [1, 'desc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableWo.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -208,6 +208,7 @@ function MainHome() {
                     {mData: 'woTaskTimeCreated', mRender: function (data){
                             return data.substr(0, 10);
                         }},
+                    {mData: 'woTaskRequestNo'},
                     {mData: 'woTaskNo'},
                     {mData: null, mRender: function (data, type, row){
                             return refSite[row['siteId']]['siteDesc'];
@@ -278,7 +279,7 @@ function MainHome() {
         oTableWo.column(12).visible(false);
 
         $('#optHmeDataWoColumns').on('change', function () {
-            for (let i=1; i<=13; i++) {
+            for (let i=1; i<=14; i++) {
                 oTableWo.column(i).visible(false);
             }
             const selectedColumns = $(this).val();
@@ -290,13 +291,13 @@ function MainHome() {
         let cntWo;
         let btnWoOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25, 26, 27],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25, 26, 27, 28],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntWo = 1;
                         }
-                        if (column === 13) {
+                        if (column === 14) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
