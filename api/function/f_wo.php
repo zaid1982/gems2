@@ -1168,6 +1168,7 @@ class Class_wo {
             }
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'26'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'26'), array('transaction_id'=>$transactionId));
+            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13'));
 
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
