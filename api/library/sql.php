@@ -513,7 +513,8 @@ class Class_sql
                         WHEN wo_task_severity = 2 THEN 'Critical'
                         ELSE ''
                     END AS wo_task_severity_desc,
-                    wfl_task.checkpoint_id
+                    wfl_task.checkpoint_id,
+                    IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'Work Request', 'Work Order') AS wo_type
                 FROM wfl_task
                 INNER JOIN wo_task ON wo_task.transaction_id = wfl_task.transaction_id
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
@@ -521,7 +522,7 @@ class Class_sql
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wfl_checkpoint_user.user_id
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
                 AND (wfl_task.checkpoint_id <> 12 OR (wfl_task.checkpoint_id = 12 AND wo_task.site_id = sys_user_assigned.site_id))
-                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%')";
+                HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%') AND wo_type LIKE '%[wo_type]%'";
             } else if ($title === 'mw_wo_upload') {
                 $sql = "SELECT 
                     wo_task_upload_id,

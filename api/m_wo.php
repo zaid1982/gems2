@@ -62,7 +62,8 @@ try {
             $result = $fn_wo->get_submitted_wo_m($searchTxt);
         } else if ($type === 'pending_task') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
-            $result = $fn_wo->get_pending_task_m($searchTxt);
+            $woType = filter_input(INPUT_GET, 'woType');
+            $result = $fn_wo->get_pending_task_m($searchTxt, $woType);
         } else if ($type === 'section_status') {
             $result = $fn_wo->get_section_status_m();
         } else if ($type === 'section_status_assign') {
