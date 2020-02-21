@@ -2154,12 +2154,12 @@ class Class_ppm {
                 array_push($dataEmpty, 0);
             }
 
-            $series = array(
-                array('name'=>'Civil', 'assetGroupId'=>'1', 'data'=>$dataEmpty),
-                array('name'=>'Electrical', 'assetGroupId'=>'2', 'data'=>$dataEmpty),
-                array('name'=>'Mechanical', 'assetGroupId'=>'3', 'data'=>$dataEmpty),
-                array('name'=>'ICT', 'assetGroupId'=>'4', 'data'=>$dataEmpty)
-            );
+            $series = array();
+            $assetGroups = Class_db::getInstance()->db_select('ast_asset_group', array('asset_group_status'=>'1'), 'asset_group_id');
+            foreach ($assetGroups as $assetGroup) {
+                array_push($series, array('name'=>$assetGroup['asset_group_name'], 'assetGroupId'=>$assetGroup['asset_group_id'], 'data'=>$dataEmpty));
+            }
+
             if (!empty($siteIds)) {
                 $siteIdStr = implode(',', $siteIds);
                 $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
@@ -2167,14 +2167,11 @@ class Class_ppm {
                     $assetGroupId = $ppmByTrade['asset_group_id'];
                     $total = $ppmByTrade['total'];
                     $siteIndex = array_search($ppmByTrade['site_id'], $siteIds);
-                    if ($assetGroupId === '1') {
-                        $series[0]['data'][$siteIndex] = intval($total);
-                    } else if ($assetGroupId === '2') {
-                        $series[1]['data'][$siteIndex] += intval($total);
-                    } else if ($assetGroupId === '3') {
-                        $series[2]['data'][$siteIndex] += intval($total);
-                    } else if ($assetGroupId === '4') {
-                        $series[3]['data'][$siteIndex] = intval($total);
+                    for ($i=0; $i<count($series); $i++) {
+                        if ($series[$i]['assetGroupId'] === $assetGroupId) {
+                            $series[$i]['data'][$siteIndex] = intval($total);
+                            break;
+                        }
                     }
                 }
             }
