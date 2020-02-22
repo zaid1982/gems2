@@ -253,7 +253,7 @@ function MainHome() {
                     {mData: 'woTaskStatus', visible: false},
                     {mData: 'woTaskType', visible: false},
                     {mData: 'woTaskId', visible: false},
-                    {mData: 'woTaskFixedBy', visible: false, mRender: function (data, type, row){
+                    {mData: null, visible: false, mRender: function (data, type, row){
                             return row['woTaskFixedBy'] !== '' ? refUser[row['woTaskFixedBy']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskAssignedBy', visible: false, mRender: function (data, type, row){
@@ -266,7 +266,8 @@ function MainHome() {
                     {mData: 'woTaskTimeResponded', visible: false},
                     {mData: 'woTaskTimeAssigned', visible: false},
                     {mData: 'woTaskTimeExecuted', visible: false},
-                    {mData: 'woTaskTimeVerified', visible: false}
+                    {mData: 'woTaskTimeVerified', visible: false},
+                    {mData: 'woTaskFixedBy', visible: false}
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -724,8 +725,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(17).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
+                                            oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(18).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -824,8 +825,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(15).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(18).search(event.point.series.userOptions.woTaskType, true, false).draw();
+                                            oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(19).search(event.point.series.userOptions.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -890,7 +891,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(18).search(this.woTaskType, true, false).draw();
+                                            oTableWo.column(19).search(this.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -968,7 +969,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(17).search(this.woTaskStatus, true, false).draw();
+                                            oTableWo.column(18).search(this.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1037,7 +1038,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(16).search(this.ppmGroupId, true, false).draw();
+                                            oTableWo.column(17).search(this.ppmGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1114,7 +1115,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(9).search(this.ppmGroupName, true, false).draw();
+                                            oTableWo.column(10).search(this.ppmGroupName, true, false).draw();
                                         }
                                     }
                                 }
@@ -1190,7 +1191,8 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(20).search(this.woTaskFixedBy, true, false).draw();
+                                            alert(this.woTaskFixedBy);
+                                            oTableWo.column(29).search(this.woTaskFixedBy, true, false).draw();
                                         }
                                     }
                                 }
@@ -1266,7 +1268,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(20).search(this.woTaskFixedBy, true, false).draw();
+                                            oTableWo.column(29).search(this.woTaskFixedBy, true, false).draw();
                                         }
                                     }
                                 }
