@@ -1191,7 +1191,6 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            alert(this.woTaskFixedBy);
                                             oTableWo.column(29).search(this.woTaskFixedBy, true, false).draw();
                                         }
                                     }
