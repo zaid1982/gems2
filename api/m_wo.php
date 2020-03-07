@@ -178,8 +178,7 @@ try {
         else if ($action === 'submit_assign') {
             $assignedTechnician = $fn_wo->get_assigned_technician();
             $isWr = $fn_wo->get_wo_is_wr();
-            $currentCheckpoint = $isWr === '1' ? '17' : '12';
-            $currentTask = $fn_wo->get_current_task('24', $currentCheckpoint, '26');
+            $currentTask = $fn_wo->get_current_task('24', '12', '26', '17', '29');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
             $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
@@ -270,12 +269,20 @@ try {
         }
         else if ($action === 'return_by_technician') {
             $remark = filter_input(INPUT_POST, 'remark');
-            $currentTask = $fn_wo->get_current_task('13', '13', '21');
-            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
-            $returnVal = $fn_wo->return_by_technician($currentTask['transactionId']);
-            $fn_general->save_audit('117', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
-            $fn_email->setup_email($returnVal['woTaskAssignedBy'], 6, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
-            $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 7, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $currentTask = $fn_wo->get_current_task('13', '13', '21', '18', '27');
+            if ($currentTask['checkpointId'] === '13') {
+                $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '1');
+                $returnVal = $fn_wo->return_by_technician($currentTask['transactionId']);
+                $fn_general->save_audit('117', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+                $fn_email->setup_email($returnVal['woTaskAssignedBy'], 6, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+                $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 7, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            }
+            else if ($currentTask['checkpointId'] === '18') {
+                $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '2');
+
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter checkpointId invalid');
+            }
             $form_data['errmsg'] = $constant::SUC_RETURNED;
         }
         else if ($action === 'submit_repair') {

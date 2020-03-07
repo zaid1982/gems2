@@ -823,10 +823,12 @@ class Class_wo {
      * @param string $currentStatus
      * @param string $currentCheckpoint
      * @param string $currentStatus2
+     * @param string $currentCheckpoint2
+     * @param string $currentStatus3
      * @return array
      * @throws Exception
      */
-    public function get_current_task ($currentStatus='', $currentCheckpoint='', $currentStatus2='') {
+    public function get_current_task ($currentStatus='', $currentCheckpoint='', $currentStatus2='', $currentCheckpoint2='', $currentStatus3='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -843,18 +845,20 @@ class Class_wo {
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $transactionId = $woTask['transaction_id'];
-            if ($woTask['wo_task_status'] !== $currentStatus && $woTask['wo_task_status'] !== $currentStatus2) {
+            if ($woTask['wo_task_status'] !== $currentStatus && $woTask['wo_task_status'] !== $currentStatus2 && $woTask['wo_task_status'] !== $currentStatus3) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
 
             $wfTask = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
-            if ($wfTask['checkpoint_id'] !== $currentCheckpoint) {
+            if ($wfTask['checkpoint_id'] !== $currentCheckpoint && $wfTask['checkpoint_id'] !== $currentCheckpoint2) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
 
             return array(
                 'transactionId'=>$transactionId,
-                'taskId'=>$wfTask['task_id']
+                'taskId'=>$wfTask['task_id'],
+                'checkpointId'=>$wfTask['checkpoint_id'],
+                'taskStatus'=>$woTask['wo_task_status']
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -1188,6 +1192,40 @@ class Class_wo {
 
     /**
      * @param string $transactionId
+     * @return mixed
+     * @throws Exception
+     */
+    public function return_wr_by_technician ($transactionId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'29'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'29'), array('transaction_id'=>$transactionId));
+            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13'));
+
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'woTaskAssignedBy'=>$woTask['wo_task_assigned_by']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
      * @param string $signatureId
      * @param string $remark
      * @param $isVerified
@@ -1237,7 +1275,7 @@ class Class_wo {
      * @return mixed
      * @throws Exception
      */
-    public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo, $verifier='') {
+    public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo='', $verifier='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
