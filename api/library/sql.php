@@ -828,12 +828,13 @@ class Class_sql
                 $sql = "SELECT
                     cli_client.*,
                     severity.severities,
-                    severity.severity_hour
+                    severity.severity_hour,
+                    severity.severity_respond_time
                 FROM cli_client
                 LEFT JOIN
                 (
                     SELECT 
-                        client_id, GROUP_CONCAT(severity_id) AS severities, GROUP_CONCAT(client_severity_hour) AS severity_hour
+                        client_id, GROUP_CONCAT(severity_id) AS severities, GROUP_CONCAT(client_severity_hour) AS severity_hour, GROUP_CONCAT(client_severity_respond_time) AS severity_respond_time
                     FROM cli_client_severity
                     GROUP BY client_id
                 ) severity ON severity.client_id = cli_client.client_id";

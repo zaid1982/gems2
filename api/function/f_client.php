@@ -114,6 +114,7 @@ class Class_client {
                 $row_result['clientName'] = $dataLocal['client_name'];
                 $row_result['clientDesc'] = $this->fn_general->clear_null($dataLocal['client_desc']);
                 $row_result['severities'] = $this->fn_general->clear_null($dataLocal['severities']);
+                $row_result['severityRespondTime'] = $this->fn_general->clear_null($dataLocal['severity_respond_time']);
                 $row_result['severityHours'] = $this->fn_general->clear_null($dataLocal['severity_hour']);
                 $row_result['clientTimeCreated'] = str_replace('-', '/', $dataLocal['client_time_created']);
                 $row_result['clientStatus'] = $dataLocal['client_status'];
@@ -377,15 +378,19 @@ class Class_client {
             if (!isset($put_vars['severityHour']) || empty($put_vars['severityHour'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter severityHour empty');
             }
+            if (!isset($put_vars['severityRespondTime']) || empty($put_vars['severityRespondTime'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter severityRespondTime empty');
+            }
 
             $severityId = $put_vars['severityId'];
             $severityHour = $put_vars['severityHour'];
+            $severityRespondTime = $put_vars['severityRespondTime'];
 
             if (Class_db::getInstance()->db_count('cli_client_severity', array('severity_id'=>$severityId, 'client_id'=>$clientId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SEVERITY_NOT_EXIST, 31);
             }
 
-            Class_db::getInstance()->db_update('cli_client_severity', array('client_severity_hour'=>$severityHour), array('severity_id'=>$severityId, 'client_id'=>$clientId));
+            Class_db::getInstance()->db_update('cli_client_severity', array('client_severity_hour'=>$severityHour, 'client_severity_respond_time'=>$severityRespondTime), array('severity_id'=>$severityId, 'client_id'=>$clientId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
