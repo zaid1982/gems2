@@ -209,7 +209,7 @@ try {
                 $fn_email->setup_mobile_notification($returnVal['woTaskAssignedTo'], 6, array('task_no' => $returnVal['woTaskNo']));
             }
             else if ($isVerified === '2') {
-                $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '3');
+                $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '30', $remark, '3');
                 $returnValCheck = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId, $remark);
                 $signatureVerifier = filter_input(INPUT_POST, 'signatureVerifier', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $signatureVerifierId = $fn_general->uploadDocument($signature, 18, $returnValCheck['woTaskCreatedBy']);
@@ -236,7 +236,7 @@ try {
             $remark = filter_input(INPUT_POST, 'remark');
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 18, $jwt_data->userId);
-            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9');
+            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
             $roleId = $fn_wo->get_role_id_from_user();
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
@@ -303,7 +303,7 @@ try {
                 $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 7, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
             }
             else if ($currentTask['checkpointId'] === '18') {
-                $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '2');
+                $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '29', $remark, '2');
                 $returnVal = $fn_wo->return_wr_by_technician($currentTask['transactionId']);
                 $fn_general->save_audit('133', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
                 $fn_email->setup_email($returnVal['woTaskAssignedBy'], 13, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
