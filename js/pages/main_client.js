@@ -64,14 +64,17 @@ function MainClient() {
                         const rowId = linkId.substr(linkIndex+1);
                         const linkIndex2 = rowId.indexOf('_');
                         const linkIndex3 = rowId.indexOf('__');
+                        const linkIndex4 = rowId.indexOf('___');
                         if (linkIndex2 > 0) {
                             const severityId = rowId.substring(linkIndex2 + 1, linkIndex3);
-                            const severityHour = rowId.substr(linkIndex3 + 2);
+                            const severityHour = rowId.substring(linkIndex3 + 2, linkIndex4);
+                            const severityRespondTime = rowId.substr(linkIndex4 + 3);
                             const currentRow = oTableClient.row(parseInt(rowId)).data();
-                            //alert(currentRow['clientId'] + ' ' + severityId + ' ' + severityHour);
+                            //alert(currentRow['clientId'] + ' ' + severityId + ' ' + severityHour + ' ' + severityRespondTime);
                             const passParam = {
                                 clientName:currentRow['clientName'],
                                 severityId:severityId,
+                                severityRespondTime:severityRespondTime,
                                 severityHour:severityHour
                             };
                             modalSeverityHourClass.edit(currentRow['clientId'], rowId, passParam);
@@ -89,13 +92,15 @@ function MainClient() {
                         mRender: function (data, type, row, meta) {
                             let label = '';
                             let severity = row['severities'];
+                            let severityRespondTime = row['severityRespondTime'];
                             let severityHour = row['severityHours'];
                             if (severity !== '' && severityHour !== '') {
                                 label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
                                 const severitySplit = severity.split(',');
                                 const hourSplit = severityHour.split(',');
+                                const respondSplit = severityRespondTime.split(',');
                                 for (let j=0; j<severitySplit.length; j++) {
-                                    label += '<li>' + refSeverity[severitySplit[j]]['severityName'] + ' - ' + hourSplit[j] + '-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="lnkClnClientHourEdit_'+meta.row+'_'+severitySplit[j]+'__'+hourSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>';
+                                    label += '<li>' + refSeverity[severitySplit[j]]['severityName'] + ' - ' + respondSplit[j] + '-hour/' + hourSplit[j] + '-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="lnkClnClientHourEdit_'+meta.row+'_'+severitySplit[j]+'__'+hourSplit[j]+'___'+respondSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>';
                                 }
                                 label += '</ul>';
                             }

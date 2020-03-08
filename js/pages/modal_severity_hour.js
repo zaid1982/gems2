@@ -11,9 +11,20 @@ function ModalSeverityHour() {
     this.init = function () {
         const vData = [
             {
+                field_id: 'txtMvhRespondTime',
+                type: 'text',
+                name: 'KPI Respond Hours',
+                validator: {
+                    notEmpty: true,
+                    min: 1,
+                    max: 3000,
+                    digit: true
+                }
+            },
+            {
                 field_id: 'txtMvhHour',
                 type: 'text',
-                name: 'KPI Hour',
+                name: 'KPI Completed Hours',
                 validator: {
                     notEmpty: true,
                     min: 1,
@@ -48,6 +59,7 @@ function ModalSeverityHour() {
                             clientName: $('#txtMvhClient').val(),
                             severityId: severityId,
                             severityName: $('#txtMvhSeverity').val(),
+                            severityRespondTime: $('#txtMvhRespondTime').val(),
                             severityHour: $('#txtMvhHour').val()
                         };
                         mzAjaxRequest('client.php?clientId=' + clientId, 'PUT', data);
@@ -75,10 +87,12 @@ function ModalSeverityHour() {
                 severityId = _passParam['severityId'];
                 const clientName = _passParam['clientName'];
                 const severityHour = _passParam['severityHour'];
+                const severityRespondTime = _passParam['severityRespondTime'];
 
                 mzSetFieldValue('MvhClient', clientName, 'text');
                 mzSetFieldValue('MvhSeverity', refSeverity[severityId]['severityName'], 'text');
                 mzSetFieldValue('MvhHour', severityHour, 'text');
+                mzSetFieldValue('MvhRespondTime', severityRespondTime, 'text');
 
                 $('#modal_severity_hour').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
