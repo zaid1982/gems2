@@ -1572,6 +1572,139 @@ class Class_wo {
     }
 
     /**
+     * @param $siteId
+     * @return array
+     * @throws Exception
+     */
+    public function get_severity_list_by_site ($siteId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
+
+            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'client_id', null, 1);
+            $arrSeverity = $this->fn_general->getSeverityName();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['clientSeverityId'] = $dataLocal['client_severity_id'];
+                $row_result['clientId'] = $dataLocal['client_id'];
+                $row_result['severityId'] = $dataLocal['severity_id'];
+                $row_result['severityName'] = $arrSeverity[intval($dataLocal['severity_id'])];
+                $row_result['severityHour'] = $dataLocal['client_severity_hour'];
+                $row_result['severityRespondTime'] = $dataLocal['client_severity_respond_time'];
+                array_push($result, $row_result);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmGroupId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_group_user_list ($ppmGroupId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
+
+            $arrUser = $this->fn_general->getUserFullName();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group_user', array('ppm_group_id'=>$ppmGroupId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmGroupUserId'] = $dataLocal['ppm_group_user_id'];
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['userId'] = $dataLocal['user_id'];
+                $row_result['userFirstName'] = $arrUser[intval($dataLocal['user_id'])];
+                array_push($result, $row_result);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param bool $isPending
+     * @return array
+     * @throws Exception
+     */
+    public function get_helpdesk_list ($isPending) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+            $arrWhere = array('site_id'=>$siteId);
+            if ($isPending === '1') {
+                $arrWhere['wo_task_status'] = 'N(16, 25, 30)';
+            } else if ($isPending === '2') {
+                $arrWhere['wo_task_status'] = '(16, 25, 30)';
+            }
+
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $arrWoType = $this->get_wo_type();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' && $dataLocal['wo_task_wr_confirm'] !== '1' ? '-' : $dataLocal['wo_task_no'];
+                $row_result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
+                $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
+                $row_result['woTaskTypeDesc'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['woTaskIsWr'] = $dataLocal['wo_task_is_wr'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+                $row_result['woTaskAssignedTo'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_to']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['woTaskSeverity'] = $arrSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity'], '0'))];
+                $row_result['woTaskRepairDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_repair_desc']);
+                $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['pdfIdWr'] = $this->fn_general->clear_null($dataLocal['pdf_id_wr']);
+                $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
+                $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
+                $row_result['woTaskAssignedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_by']);
+                $row_result['woTaskVerifiedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_verified_by']);
+                $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
+                $row_result['woTaskTimeResponded'] = str_replace('-', '/', $dataLocal['wo_task_time_responded']);
+                $row_result['woTaskTimeAssigned'] = str_replace('-', '/', $dataLocal['wo_task_time_assigned']);
+                $row_result['woTaskTimeWrChecked'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_checked']);
+                $row_result['woTaskTimeWrVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_verified']);
+                $row_result['woTaskTimeExecuted'] = str_replace('-', '/', $dataLocal['wo_task_time_executed']);
+                $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
+                $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $clientId
      * @param string $year
      * @param string $month

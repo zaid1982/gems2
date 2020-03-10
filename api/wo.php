@@ -132,7 +132,21 @@ try {
             else if ($type === 'wo_by_transaction') {
                 $transactionId = filter_input(INPUT_GET, 'transactionId');
                 $result = $fn_wo->get_wo_task($transactionId);
-            } else {
+            }
+            else if ($type === 'helpdesk_list') {
+                $isPending = filter_input(INPUT_GET, 'isPending');
+                $fn_wo->__set('userId', $jwt_data->userId);
+                $result = $fn_wo->get_helpdesk_list($isPending);
+            }
+            else if ($type === 'severity_list_by_site') {
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $result = $fn_wo->get_severity_list_by_site($siteId);
+            }
+            else if ($type === 'ppm_group_user_list') {
+                $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
+                $result = $fn_wo->get_ppm_group_user_list($ppmGroupId);
+            }
+            else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
         } else if (!is_null($woTaskId)) {
