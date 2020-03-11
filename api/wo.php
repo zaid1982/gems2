@@ -204,6 +204,27 @@ try {
             $fn_general->save_audit('125', $jwt_data->userId, 'Site = '.$siteName.', date = '.$selectedDate.'/'.$selectedMonth.'/'.$selectedYear);
             $form_data['errmsg'] = $constant::SUC_WO_MANUAL_REPORT_ADD;
         }
+        else if ($action === 'submit_helpdesk_complaint') {
+            $siteId = filter_input(INPUT_POST, 'siteId');
+            $createdBy = filter_input(INPUT_POST, 'createdBy');
+            $complaint = filter_input(INPUT_POST, 'complaint');
+            $taskType = filter_input(INPUT_POST, 'taskType');
+            $severity = filter_input(INPUT_POST, 'severity');
+            $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
+            $assignedTo = filter_input(INPUT_POST, 'assignedTo');
+            $taskAssist = filter_input(INPUT_POST, 'taskAssist', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+
+            $groupId = $fn_task->get_group_id_from_user($assignedTo, '6');
+            $woTaskNo = $fn_wo->create_wo_no($groupId, false);
+            $taskId = $fn_task->create_new_task('2', $assignedTo, '6', $groupId, $woTaskNo, '', '11');
+            $fn_wo->__set('userId', $assignedTo);
+            $isWr = $fn_wo->get_wo_is_wr();
+            if ($isWr === '1') {
+                $newTaskId = $fn_task->submit_task($taskId, $assignedTo, '9', '', '1', '', $groupId);
+            } else {
+                $newTaskId = $fn_task->submit_task($taskId, $assignedTo, '9', '', '', '', $groupId);
+            }
+        }
         else if ($action === 'generate_pdf') {
             $woTaskId = filter_input(INPUT_POST, 'woTaskId');
             $fn_pdf_wo->__set('woTaskId', $woTaskId);

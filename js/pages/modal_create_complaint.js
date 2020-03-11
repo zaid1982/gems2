@@ -128,22 +128,28 @@ function ModalCreateComplaint() {
             ShowLoader();
             setTimeout(function () {
                 try {
+                    console.log($('#optMccAssist').val());
                     if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
                         const txtName = $('#txtMccName').val();
                         const data = {
+                            action: 'submit_helpdesk_complaint',
                             siteId: siteId,
-                            roleId: roleId,
-                            ppmGroupName: txtName,
-                            reportTo: reportTo
+                            createdBy: $('#optMccCreatedBy').val(),
+                            complaint: $('#txaMccComplaint').val(),
+                            taskType: $('#optMccType').val(),
+                            severity: $('#optMccSeverity').val(),
+                            ppmGroupId: $('#optMccPpmGroupId').val(),
+                            assignedTo: $('#optMccAssignedTo').val(),
+                            taskAssist: $('#optMccAssist').val()
                         };
 
-                        //mzAjaxRequest('ppm_group.php', 'POST', data);
-                        //if (classFrom.getClassName() === 'MainPpmGroup') {
-                        //    classFrom.genTableHdkWo();
-                        //}
+                        mzAjaxRequest('wo.php', 'POST', data);
+                        if (classFrom.getClassName() === 'MainHelpdesk') {
+                            classFrom.genTableHdkWo();
+                        }
                         $('#modal_create_complaint').modal('hide');
                     }
                 } catch (e) {
@@ -163,14 +169,6 @@ function ModalCreateComplaint() {
             try {
                 $('.divMccView').hide();
                 mzSetFieldValue('MccSiteName', refSite[siteId]['siteName'], 'text');
-
-                /*const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
-                mzOptionStop('optMccReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
-
-                const clientId = refSite[siteId]['clientId'];
-                mzSetFieldValue('MccSite', refSite[siteId]['siteName'], 'text');
-                mzSetFieldValue('MccRole', refUser[roleId]['roleDesc'], 'text');*/
-
                 $('#modal_create_complaint').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

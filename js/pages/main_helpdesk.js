@@ -208,6 +208,16 @@ function MainHelpdesk() {
             ]
         }).container().appendTo($('#btnDtHdkWoExport'));
 
+        $('.linkHdkStatus').on('click', function () {
+            const linkId = $(this).attr('id');
+            const statusId = linkId.substr(7);
+            if (statusId === 'All') {
+                oTableWo.column(18).search('', false, true, false).draw();
+            } else {
+                oTableWo.column(18).search(statusId, false, true, false).draw();
+            }
+        });
+
         $('#btnDtHdkWoRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -241,6 +251,75 @@ function MainHelpdesk() {
         if (refSite[userSite]['siteIsWr'] !== '1') {
             oTableWo.column(2).visible(false);
         }
+        self.displayStatsChart();
+    };
+
+    this.displayStatsChart = function () {
+        let totalAll = 0;
+        let arrTotal = [];
+
+        for (let i=0; i<31; i++) {
+            arrTotal[i] = 0;
+        }
+
+        const tableData = oTableWo.data();
+        $.each(tableData, function (n, u) {
+            const status = parseInt(u['woTaskStatus']);
+            arrTotal[status]++;
+            totalAll++;
+        });
+
+        $('#linkHdkAll').html('<span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
+        $('#linkHdk24').html('<span class="bullet orange z-depth-2"></span> '+refStatus[24]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[24])+'</span>');
+        $('#linkHdk27').html('<span class="bullet orange z-depth-2"></span> '+refStatus[27]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[27])+'</span>');
+        $('#linkHdk28').html('<span class="bullet orange z-depth-2"></span> '+refStatus[28]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[28])+'</span>');
+        $('#linkHdk29').html('<span class="bullet orange z-depth-2"></span> '+refStatus[29]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[29])+'</span>');
+        $('#linkHdk13').html('<span class="bullet orange z-depth-2"></span> '+refStatus[13]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[13])+'</span>');
+        $('#linkHdk15').html('<span class="bullet orange z-depth-2"></span> '+refStatus[15]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[15])+'</span>');
+        $('#linkHdk26').html('<span class="bullet orange z-depth-2"></span> '+refStatus[26]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[26])+'</span>');
+        $('#linkHdk16').html('<span class="bullet green z-depth-2"></span> '+refStatus[16]['statusDesc']+' <span class="badge green float-right">'+mzFormatNumber(arrTotal[16])+'</span>');
+        $('#linkHdk25').html('<span class="bullet red z-depth-2"></span> '+refStatus[25]['statusDesc']+' <span class="badge red float-right">'+mzFormatNumber(arrTotal[25])+'</span>');
+        $('#linkHdk30').html('<span class="bullet red z-depth-2"></span> '+refStatus[30]['statusDesc']+' <span class="badge red float-right">'+mzFormatNumber(arrTotal[30])+'</span>');
+
+        const chartData = [
+            {name:refStatus[24]['statusDesc'], y:arrTotal[24]},
+            {name:refStatus[27]['statusDesc'], y:arrTotal[27]},
+            {name:refStatus[28]['statusDesc'], y:arrTotal[28]},
+            {name:refStatus[29]['statusDesc'], y:arrTotal[29]},
+            {name:refStatus[13]['statusDesc'], y:arrTotal[13]},
+            {name:refStatus[15]['statusDesc'], y:arrTotal[15]},
+            {name:refStatus[26]['statusDesc'], y:arrTotal[26]}
+        ];
+
+        Highcharts.chart('chartHdkWoByStatus', {
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Total Pending Complaint Status'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
+            },
+            credits:{
+                enabled:false
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y}',
+                        color: 'white'
+                    }
+                }
+            },
+            series: [{
+                name: 'Status',
+                data: chartData
+            }]
+        });
     };
 
     this.getClassName = function () {

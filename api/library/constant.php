@@ -219,7 +219,7 @@ class Class_constant {
     const SUC_PPM_GROUP_USER_DELETE = 'PPM Group User successfully deleted';
     const SUC_PPM_RESCHEDULE = 'PPM Date successfully rescheduled';
 
-    const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon by GFM representative. You will receive notification soon on your mobile and email.';
+    const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your mobile and email.';
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';
     const SUC_WO_SAVE_WO_SEVERITY = 'Work Order severity successfully saved';
     const SUC_WO_SAVE_WO_REPAIR_WORK = 'Work Order repair work successfully saved';
