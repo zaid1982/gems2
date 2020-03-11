@@ -100,7 +100,7 @@ function MainClient() {
                                 const hourSplit = severityHour.split(',');
                                 const respondSplit = severityRespondTime.split(',');
                                 for (let j=0; j<severitySplit.length; j++) {
-                                    label += '<li>' + refSeverity[severitySplit[j]]['severityName'] + ' - ' + respondSplit[j] + '-hour/' + hourSplit[j] + '-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="lnkClnClientHourEdit_'+meta.row+'_'+severitySplit[j]+'__'+hourSplit[j]+'___'+respondSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>';
+                                    label += '<li>' + refSeverity[severitySplit[j]]['severityName'] + ' - ' + respondSplit[j] + '-minute/' + hourSplit[j] + '-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="lnkClnClientHourEdit_'+meta.row+'_'+severitySplit[j]+'__'+hourSplit[j]+'___'+respondSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>';
                                 }
                                 label += '</ul>';
                             }
