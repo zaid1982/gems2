@@ -175,6 +175,13 @@ try {
             $fn_general->save_audit('111', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', severity = '.$returnVal['severityName']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_SEVERITY;
         }
+        else if ($action === 'save_asset_no') {
+            $assetNo = filter_input(INPUT_POST, 'assetNo');
+            $fn_wo->__set('userId', $jwt_data->userId);
+            $fn_wo->save_asset_no_m($assetNo);
+            $fn_general->save_audit('135', $jwt_data->userId, 'Work Order ID = '.$woTaskId.', Asset No. = '.$assetNo);
+            $form_data['errmsg'] = 'Asset No successfully saved';
+        }
         else if ($action === 'submit_assign') {
             $assignedTechnician = $fn_wo->get_assigned_technician();
             $isWr = $fn_wo->get_wo_is_wr();
