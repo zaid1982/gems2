@@ -145,8 +145,8 @@ class Class_pdf_wr {
             $arrClientSeverity = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
             foreach ($arrClientSeverity as $clientSeverity) {
                 $severityKey = intval($clientSeverity['severity_id']);
-                $arrSla[$severityKey] = $clientSeverity['client_severity_hour'].' hours';
-                $arrDue[$severityKey] = $clientSeverity['client_severity_hour'];
+                $arrSla[$severityKey] = $clientSeverity['client_severity_respond_time'].'-minute';
+                $arrDue[$severityKey] = $clientSeverity['client_severity_respond_time'];
             }
 
             $pdf->Image('pdf/images/logo_'.$clientId.'.png', 15, 15, 50, 20, 'PNG', 'http://www.tcpdf.org', '', true, 150, '', false, false, 0, false, false, false);
@@ -268,13 +268,17 @@ class Class_pdf_wr {
             $picEmail = '';
             $dueTime = '';
             $fixedTime = '';
+            $respondTime = '';
             if (!empty($woTask['wo_task_assigned_to'])) {
                 $picName = $arrUserFullName[intval($woTask['wo_task_assigned_to'])];
                 $userProfileTech = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_assigned_to'], 'user_profile_status'=>'1'), null, 1);
                 $picEmail = $this->fn_general->clear_null($userProfileTech['user_email']);
                 $createdTime = new DateTime($woTask['wo_task_time_created']);
+                if (!empty($woTask['wo_task_time_wr_verified'])) {
+                    $respondTime = new DateTime($woTask['wo_task_time_wr_verified']);
+                }
                 if (!empty($woTask['wo_task_severity'])) {
-                    $dueTime = $createdTime->modify('+'.$arrDue[intval($woTask['wo_task_severity'])].' hour');
+                    $dueTime = $createdTime->modify('+'.$arrDue[intval($woTask['wo_task_severity'])].' minute');
                 }
                 if (!empty($woTask['wo_task_time_executed'])) {
                     $assignedTime = new DateTime($woTask['wo_task_time_assigned']);
@@ -293,13 +297,18 @@ class Class_pdf_wr {
             $pdf->SetFont('helvetica', '', 9);
             $pdf->Cell(30, 5, 'Person In Charged : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $picName, 1, 0, 'L');
-            $pdf->Cell(35, 5, 'SLA : ', 1, 0, 'R');
+            $pdf->Cell(35, 5, 'SLA Respond Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))], 1, 0, 'L');
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Email : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $picEmail, 1, 0, 'L');
             $pdf->Cell(35, 5, 'Due Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, !empty($dueTime)?$dueTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
+            $pdf->Ln();
+            $pdf->Cell(30, 5, '', 1, 0, 'R');
+            $pdf->Cell(60, 5, '', 1, 0, 'L');
+            $pdf->Cell(35, 5, 'Respond Time : ', 1, 0, 'R');
+            $pdf->Cell(55, 5, !empty($respondTime)?$respondTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
             $pdf->Ln();
 
             if ($pdf->GetY() > 250) {
