@@ -26,6 +26,7 @@ function ModalCreateComplaint() {
                     arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId='+$('#optMccPpmGroupId').val(), 'GET');
                     mzOptionStop('optMccAssignedTo', arrPpmGroupUser, 'Select Executor *', 'userId', 'userFirstName', {}, 'required');
                     $('#divMccExecutor').show();
+                    $('#divMccAssist, .divMccExecutorDetails').hide();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -37,9 +38,18 @@ function ModalCreateComplaint() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    const arrAssistant = arrPpmGroupUser;
-                    mzOptionStop('optMccAssist', arrAssistant, 'Select Technician Assistant', 'userId', 'userFirstName');
-                    $('#divMccExecutor').show();
+                    const assignedTo = $('#optMccAssignedTo').val();
+                    let arrAssistant = [];
+                    for (let i=0; i<arrPpmGroupUser.length; i++) {
+                        if (arrPpmGroupUser[i]['userId'] !== assignedTo) {
+                            arrAssistant.push(arrPpmGroupUser[i]);
+                        }
+                    }
+                    mzOptionStop('optMccAssist', arrAssistant, 'Select Technician Assistant', 'userId', 'userFirstName', {}, 'required');
+                    mzSetFieldValue('MccUserName', refUser[assignedTo]['userFirstName'], 'text');
+                    mzSetFieldValue('MccUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
+                    mzSetFieldValue('MccUserEmail', refUser[assignedTo]['userEmail'], 'text');
+                    $('#divMccAssist, .divMccExecutorDetails').show();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }

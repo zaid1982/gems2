@@ -13,7 +13,7 @@
             <div class="modal-body">
                 <form id="formMcc">
                     <h6 class="mb-3">Complaint forms :</h6>
-                    <div class="row">
+                    <div class="row ml-1">
                         <div class="col-md-6 divMccView">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMccClient" class="form-control" disabled>
@@ -46,7 +46,7 @@
                         </div>
                         <div class="col-md-6 select-outline mt-0">
                             <select id="optMccType" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
-                                <option value="" disabled>Select Category *</option>
+                                <option value="" selected disabled>Select Category *</option>
                                 <option value="1">Client Complaint</option>
                                 <option value="3">Request</option>
                                 <option value="4">Breakdown</option>
@@ -60,6 +60,53 @@
                             <label for="optMccSeverity" id="lblMccSeverity">Severity *</label>
                             <p class="font-small text-danger" id="optMccSeverityErr"></p>
                         </div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Complaint Images :</h6>
+                    <div class="row ml-1 mb-3">
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Assign Executor :</h6>
+                    <div class="row ml-1">
                         <div class="col-md-12 select-outline mt-2">
                             <select id="optMccPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
                             <label for="optMccPpmGroupId" id="lblMccPpmGroupId">Executor Group *</label>
@@ -71,45 +118,54 @@
                             <p class="font-small text-danger" id="optMccAssignedToErr"></p>
                         </div>
                         <div class="col-md-12 select-outline mt-2 divMccHideInitial" id="divMccAssist">
-                            <select id="optMccAssist" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
+                            <select id="optMccAssist" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" multiple data-stop-refresh="true"></select>
                             <label for="optMccAssist" id="lblMccAssist">Technician Assistant</label>
                             <p class="font-small text-danger" id="optMccAssistErr"></p>
                         </div>
                     </div>
-                    <hr class="divMccHideInitial">
-                    <h6 class="mb-3 divMccHideInitial">Executor Details :</h6>
-                    <div class="row divMccHideInitial">
+                    <hr class="divMccHideInitial divMccExecutorDetails">
+                    <h6 class="mb-3 divMccHideInitial divMccExecutorDetails">Executor Details :</h6>
+                    <div class="row ml-1 divMccHideInitial divMccExecutorDetails">
                         <div class="col-md-12">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMccSite" class="form-control" disabled>
-                                <label for="txtMccSite" id="lblMccSite">Name</label>
+                                <input type="text" id="txtMccUserName" class="form-control" disabled>
+                                <label for="txtMccUserName" id="lblMccUserName">Name</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMccSite" class="form-control" disabled>
-                                <label for="txtMccSite" id="lblMccSite">Phone No.</label>
+                                <input type="text" id="txtMccUserContactNo" class="form-control" disabled>
+                                <label for="txtMccUserContactNo" id="lblMccUserContactNo">Phone No.</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMccSite" class="form-control" disabled>
-                                <label for="txtMccSite" id="lblMccSite">Email</label>
+                                <input type="text" id="txtMccUserEmail" class="form-control" disabled>
+                                <label for="txtMccUserEmail" id="lblMccUserEmail">Email</label>
                             </div>
                         </div>
                     </div>
-                    <h6 class="divMccHideInitial">Current Task in Hands :</h6>
-                    <div class="divMccHideInitial">
+                    <div class="ml-3 divMccHideInitial divMccExecutorDetails">
                         <div class="table-responsive">
-                            <table id="dtHdkssssWo" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <table id="dtHdkssssWo" class="table table-hover table-sm table-bordered mb-0 display responsive" cellspacing="0" width="100%">
                                 <thead>
-                                <tr class="th-strong">
+                                <tr class="th-strong blue-grey lighten-1 text-white">
                                     <th style="width: 4%">#</th>
-                                    <th>Complaint Time</th>
-                                    <th>Request No.</th>
+                                    <th>Current Task in Hands</th>
+                                    <th>Date Received</th>
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>WR20103920012901</td>
+                                    <td>2002/02/01 12:21:22</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>WR20103920012901</td>
+                                    <td>2002/02/01 12:21:22</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
