@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+
+<main>
+    <div class="container-fluid">
+        <!--Section: Main panel-->
+        <section class="mb-5 mt-lg-5 sectionHdkMain">
+            <div class="card card-cascade narrower">
+                <!--Section: Search Function & Chart-->
+                <section>
+                    <div class="row">
+                        <!--Search Function-->
+                        <div class="col-xl-5 col-lg-12 mr-0">
+                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                                <h2 class="h2-responsive mb-0">Helpdesk</h2>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <div class="px-3 pt-3">
+                                    <h6 id="lblHdkSiteName"></h6>
+                                    <h6 class="mt-3">Status:</h6>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!--Chart-->
+                        <div class="col-xl-7 col-lg-12">
+                            <div class="view view-cascade z-depth-3">
+                                <div id="chartHdkWoByStatus" style="height: 517px; margin: 0"></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="px-3 mt-4_5">
+                                    <div class="row">
+                                        <div class="col-md-7 select-outline">
+                                            <select id="optHdkColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                                <option value="" disabled>Choose Column Visibility</option>
+                                                <option value="1" selected>Date</option>
+                                                <option value="2" selected>Request No.</option>
+                                                <option value="3" selected>Work Order No.</option>
+                                                <option value="4">Site</option>
+                                                <option value="5">Location</option>
+                                                <option value="6" selected>Complaint Type</option>
+                                                <option value="7" selected>Complainant</option>
+                                                <option value="8">Complaint Description</option>
+                                                <option value="9" selected>Severity</option>
+                                                <option value="10" selected>Trade</option>
+                                                <option value="11" selected>PIC Name</option>
+                                                <option value="12">Repair Description</option>
+                                                <option value="13">Rating</option>
+                                                <option value="14" selected>Progress</option>
+                                                <option value="21">Fixed By</option>
+                                                <option value="22">Assigned By</option>
+                                                <option value="23">Verified By</option>
+                                                <option value="24">Responded Time</option>
+                                                <option value="25">Assigned Time</option>
+                                                <option value="26">Executed Time</option>
+                                                <option value="27">Verified Time</option>
+                                            </select>
+                                            <label for="optHdkColumns">Columns Visibility</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtHdkWoSearch" class="form-control">
+                                                <label for="txtHdkWoSearch" class="active">Keyword Search</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!--Section: Table-->
+                <section>
+                    <div class="card card-cascade narrower z-depth-0">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnHdkWoAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add New Complaint"><i class="fas fa-plus mt-0"></i></button>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                                   data-toggle="popover" data-trigger="focus" title="Complaint List"
+                                   data-content="Complaint List for all complaints filtered by selection."><i class="fas fa-info mt-0 mx-1"></i></a>
+                                <button type="button" id="btnDtHdkWoRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Complaint List</a>
+                            <div>
+                                <div id="btnDtHdkWoExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <div class="table-responsive">
+                                <table id="dtHdkWo" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th style="width: 4%">#</th>
+                                        <th>Complaint Time</th>
+                                        <th>Request No.</th>
+                                        <th>Work Order No.</th>
+                                        <th>Site</th>
+                                        <th>Location</th>
+                                        <th>Complaint Type</th>
+                                        <th>Complainant</th>
+                                        <th>Complaint Description</th>
+                                        <th>Severity</th>
+                                        <th>Trade</th>
+                                        <th>PIC Name</th>
+                                        <th>Repair Description</th>
+                                        <th>Rating</th>
+                                        <th style="width: 8%">Progress</th>
+                                        <th style="width: 90px; min-width: 90px"></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Fixed By</th>
+                                        <th>Assigned By</th>
+                                        <th>Verified By</th>
+                                        <th>Responded Time</th>
+                                        <th>Assigned Time</th>
+                                        <th>Executed Time</th>
+                                        <th>Verified Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
+    <div class="includeHtml" id="h-modal_create_complaint"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Highchart -->
+<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/themes/dark-unica.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal;
+    let changePasswordClass;
+    let helpdeskClass_;
+    let modalCreateComplaint_;
+
+    $('.divHmeTopStats_ppm').hide();
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass = new ModalChangePassword();
+                helpdeskClass_ = new MainHelpdesk();
+                modalCreateComplaint_= new ModalCreateComplaint();
+
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const userSite = mzGetUserInfoByParam('siteId');
+
+                modalCreateComplaint_.setClassFrom(helpdeskClass_);
+                modalCreateComplaint_.setSiteId(userSite);
+                modalCreateComplaint_.setRefSite(refSite_);
+                modalCreateComplaint_.setRefUser(refUser_);
+                modalCreateComplaint_.setRefPpmGroup(refPpmGroup_);
+                modalCreateComplaint_.init();
+
+                helpdeskClass_.setUserSite(userSite);
+                helpdeskClass_.setRefSite(refSite_);
+                helpdeskClass_.setRefUser(refUser_);
+                helpdeskClass_.setRefPpmGroup(refPpmGroup_);
+                helpdeskClass_.setRefStatus(refStatus_);
+                helpdeskClass_.setModalCreateComplaint(modalCreateComplaint_);
+                helpdeskClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_create_complaint.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_helpdesk.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+
+</body>
+</html>
