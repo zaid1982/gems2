@@ -11,6 +11,7 @@ function ModalCreateComplaint() {
     let refPpmGroup;
     let formValidate;
     let arrPpmGroupUser;
+    let oTableCurrentTask;
 
     this.init = function () {
         $('.divMccHideInitial').hide();
@@ -49,6 +50,9 @@ function ModalCreateComplaint() {
                     mzSetFieldValue('MccUserName', refUser[assignedTo]['userFirstName'], 'text');
                     mzSetFieldValue('MccUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
                     mzSetFieldValue('MccUserEmail', refUser[assignedTo]['userEmail'], 'text');
+
+                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId='+$('#optMccAssignedTo').val(), 'GET');
+                    oTableCurrentTask.clear().rows.add(dataResult).draw();
                     $('#divMccAssist, .divMccExecutorDetails').show();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -64,6 +68,15 @@ function ModalCreateComplaint() {
                 name: 'Complainer',
                 validator: {
                     notEmpty: true
+                }
+            },
+            {
+                field_id: 'txtMccLocation',
+                type: 'text',
+                name: 'Location',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 150
                 }
             },
             {
@@ -128,16 +141,15 @@ function ModalCreateComplaint() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    console.log($('#optMccAssist').val());
                     if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const txtName = $('#txtMccName').val();
                         const data = {
                             action: 'submit_helpdesk_complaint',
                             siteId: siteId,
                             createdBy: $('#optMccCreatedBy').val(),
+                            location: $('#txtMccLocation').val(),
                             complaint: $('#txaMccComplaint').val(),
                             taskType: $('#optMccType').val(),
                             severity: $('#optMccSeverity').val(),
@@ -158,6 +170,26 @@ function ModalCreateComplaint() {
                 HideLoader();
             }, 300);
         });
+
+        oTableCurrentTask =  $('#dtMccCurrentTask').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            bInfo: false,
+            ordering: false,
+            bPaginate: false,
+            language: _DATATABLE_LANGUAGE,
+            aaSorting: [2, 'asc'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                $('td', nRow).eq(0).html(iDisplayIndex + 1);
+            },
+            aoColumns:
+                [
+                    {mData: null, sClass: 'text-center'},
+                    {mData: 'woTaskNo', sClass: 'text-center'},
+                    {mData: 'dateReceived', sClass: 'text-center'}
+                ]
+        });
+        $("#dtMccCurrentTask_filter").hide();
     };
 
     this.add = function () {

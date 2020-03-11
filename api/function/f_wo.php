@@ -190,10 +190,11 @@ class Class_wo {
      * @param array $complaintImageUploads
      * @param string $woTaskLongitude
      * @param string $woTaskLatitude
+     * @param string $isHelpdesk
      * @return mixed
      * @throws Exception
      */
-    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='') {
+    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='', $isHelpdesk='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -221,7 +222,7 @@ class Class_wo {
             }
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
-                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24');
+                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
             if ($woTaskType === '1' && $this->get_wo_is_wr($groupId) === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
                 $arrWhere['wo_task_request_no'] = $woTaskNo;
@@ -683,7 +684,7 @@ class Class_wo {
             $result['email'] = $this->fn_general->clear_null($userProfile['user_email']);
             $result['group'] = $arrPpmGroupName[$ppmGroupId];
 
-            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'13'));
+            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'(13, 27)'));
             $result['totalCurrentTask'] = sizeof($woTasks);
             $result['currentTask'] = array();
             foreach ($woTasks as $woTask) {
@@ -2706,6 +2707,37 @@ class Class_wo {
             }
 
             Class_db::getInstance()->db_update('wo_task', array('asset_id'=>$asset['asset_id']), array('wo_task_id'=>$this->woTaskId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $userTechId
+     * @return array
+     * @throws Exception
+     */
+    public function get_technician_current_task ($userTechId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userTechId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
+            }
+
+            $result = array();
+
+            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'(13, 27)'));
+            foreach ($woTasks as $woTask) {
+                $row_result['woTaskNo'] = $woTask['wo_task_no'];
+                $row_result['dateReceived'] = str_replace('-', '/', $this->fn_general->clear_null($woTask['wo_task_time_assigned']));
+                if (!empty($row_result['dateReceived'])) {
+                    $row_result['dateReceived'] = substr($row_result['dateReceived'], 0, 10);
+                }
+                array_push($result, $row_result);
+            }
+            return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

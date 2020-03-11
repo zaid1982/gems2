@@ -5,11 +5,13 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_wo.php';
+require_once 'function/f_task.php';
+require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/wo.php';
 require_once 'pdf/wr.php';
 
-$api_name = 'api_asset';
+$api_name = 'api_wo';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -18,8 +20,10 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_wo = new Class_wo();
+$fn_task = new Class_task();
 $fn_pdf_wo = new Class_pdf_wo();
 $fn_pdf_wr = new Class_pdf_wr();
+$fn_email = new Class_email();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -29,6 +33,9 @@ try {
     $fn_wo->__set('fn_general', $fn_general);
     $fn_pdf_wo->__set('fn_general', $fn_general);
     $fn_pdf_wr->__set('fn_general', $fn_general);
+    $fn_task->__set('constant', $constant);
+    $fn_task->__set('fn_general', $fn_general);
+    $fn_email->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -146,6 +153,10 @@ try {
                 $ppmGroupId = filter_input(INPUT_GET, 'ppmGroupId');
                 $result = $fn_wo->get_ppm_group_user_list($ppmGroupId);
             }
+            else if ($type === 'technician_current_task') {
+                $userTechId = filter_input(INPUT_GET, 'userId');
+                $result = $fn_wo->get_technician_current_task($userTechId);
+            }
             else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
@@ -207,6 +218,7 @@ try {
         else if ($action === 'submit_helpdesk_complaint') {
             $siteId = filter_input(INPUT_POST, 'siteId');
             $createdBy = filter_input(INPUT_POST, 'createdBy');
+            $location = filter_input(INPUT_POST, 'location');
             $complaint = filter_input(INPUT_POST, 'complaint');
             $taskType = filter_input(INPUT_POST, 'taskType');
             $severity = filter_input(INPUT_POST, 'severity');
@@ -214,16 +226,31 @@ try {
             $assignedTo = filter_input(INPUT_POST, 'assignedTo');
             $taskAssist = filter_input(INPUT_POST, 'taskAssist', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
-            $groupId = $fn_task->get_group_id_from_user($assignedTo, '6');
+            $groupId = $fn_task->get_group_id_from_user($createdBy, '6');
+            $fn_wo->__set('userId', $createdBy);
             $woTaskNo = $fn_wo->create_wo_no($groupId, false);
-            $taskId = $fn_task->create_new_task('2', $assignedTo, '6', $groupId, $woTaskNo, '', '11');
-            $fn_wo->__set('userId', $assignedTo);
+            $taskId = $fn_task->create_new_task('2', $createdBy, '6', $groupId, $woTaskNo, '', '11');
             $isWr = $fn_wo->get_wo_is_wr();
             if ($isWr === '1') {
-                $newTaskId = $fn_task->submit_task($taskId, $assignedTo, '9', '', '1', '', $groupId);
+                $newTaskId = $fn_task->submit_task($taskId, $createdBy, '9', '', '1', '', $groupId);
             } else {
-                $newTaskId = $fn_task->submit_task($taskId, $assignedTo, '9', '', '', '', $groupId);
+                $newTaskId = $fn_task->submit_task($taskId, $createdBy, '9', '', '', '', $groupId);
             }
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $location, $complaint, '', '', '', '1');
+            $fn_wo->__set('woTaskId', $woTaskId);
+            $fn_wo->save_respond_time_m();
+            $fn_wo->save_assigned_technician_m($ppmGroupId, $assignedTo, $severity, $taskAssist, $taskType);
+
+            $currentTask = $fn_wo->get_current_task('24', '12', '26', '17', '29');
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTo);
+            $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
+            $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
+            $emailTemplateId = $isWr === '1' ? 11 : 5;
+            $notiTextId = $isWr === '1' ? 12 : 6;
+            $fn_general->save_audit('136', $jwt_data->userId, $auditLabel.$returnVal);
+            $fn_email->setup_email($assignedTo, $emailTemplateId, array('task_no' => $returnVal));
+            $fn_email->setup_mobile_notification($assignedTo, $notiTextId, array('task_no' => $returnVal));
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'generate_pdf') {
             $woTaskId = filter_input(INPUT_POST, 'woTaskId');
