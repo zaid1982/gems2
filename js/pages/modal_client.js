@@ -5,8 +5,23 @@ function ModalClient() {
     let clientId = '';
     let rowRefresh = '';
     let classFrom;
+    let refSeverity;
 
     this.init = function () {
+        for (let i=0; i<refSeverity.length; i++) {
+            if (typeof refSeverity[i] !== 'undefined') {
+                const severityId = refSeverity[i]['severityId'];
+                const severityName = refSeverity[i]['severityName'];
+                if (refSeverity[i]['severityStatus'] === '1') {
+                    let severityHtml = '<div class="form-check pl-0 ml-3">';
+                    severityHtml += '<input type="checkbox" class="form-check-input" id="chkMclSeverity'+severityId+'" name="chkMclSeverity[]" value="'+severityId+'">';
+                    severityHtml += '<label class="form-check-label" for="chkMclSeverity'+severityId+'">'+severityName+'</label>';
+                    severityHtml += '</div>';
+                    $('#divMclSeverity').append(severityHtml);
+                }
+            }
+        }
+
         const vData = [
             {
                 field_id: 'txtMclName',
@@ -189,5 +204,9 @@ function ModalClient() {
 
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
+    };
+
+    this.setRefSeverity = function (_refSeverity) {
+        refSeverity = _refSeverity;
     };
 }

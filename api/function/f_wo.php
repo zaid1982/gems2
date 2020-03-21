@@ -2471,7 +2471,6 @@ class Class_wo {
     }
 
     /**
-     * @param $groupId
      * @return mixed
      * @throws Exception
      */

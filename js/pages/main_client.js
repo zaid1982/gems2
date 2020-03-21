@@ -107,7 +107,7 @@ function MainClient() {
                             return label;
                         }
                     },
-                    {mData: null,
+                    {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['clientStatus']]['statusColor']+' z-depth-2">'+refStatus[row['clientStatus']]['statusDesc']+'</span></h6>';
                         }

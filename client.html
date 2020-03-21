@@ -63,10 +63,10 @@
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 28%">Client</th>
+                                <th style="width: 20%">Client</th>
                                 <th>Description</th>
                                 <th>Severity</th>
-                                <th style="width: 15%">Status</th>
+                                <th style="width: 10%">Status</th>
                                 <th style="width: 80px"></th>
                             </tr>
                             </thead>
@@ -136,10 +136,11 @@
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId');
 
+                modalClientClass_.setRefSeverity(refSeverity_);
                 modalClientClass_.setClassFrom(clientClass_);
                 modalClientClass_.init();
-                modalSeverityHourClass_.setClassFrom(clientClass_);
                 modalSeverityHourClass_.setRefSeverity(refSeverity_);
+                modalSeverityHourClass_.setClassFrom(clientClass_);
                 modalSeverityHourClass_.init();
                 clientClass_.setVersionLocal(versionLocal_);
                 clientClass_.setRefStatus(refStatus_);
