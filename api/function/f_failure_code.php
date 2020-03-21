@@ -1,6 +1,6 @@
 <?php
 
-class Class_failure_code {
+class Class_failureCode {
 
     private $fn_general;
 
@@ -74,7 +74,7 @@ class Class_failure_code {
      * @return array
      * @throws Exception
      */
-    public function get_failure_code_list () {
+    public function get_failureCode_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -100,7 +100,7 @@ class Class_failure_code {
      * @return array
      * @throws Exception
      */
-    public function get_failure_code ($failureCodeId) {
+    public function get_failureCode ($failureCodeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -127,7 +127,7 @@ class Class_failure_code {
      * @return mixed
      * @throws Exception
      */
-    public function add_failure_code ($params) {
+    public function add_failureCode ($params) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -161,7 +161,7 @@ class Class_failure_code {
      * @param $put_vars
      * @throws Exception
      */
-    public function update_failure_code ($failureCodeId, $put_vars) {
+    public function update_failureCode ($failureCodeId, $put_vars) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -199,7 +199,7 @@ class Class_failure_code {
      * @return mixed
      * @throws Exception
      */
-    public function deactivate_failure_code ($failureCodeId) {
+    public function deactivate_failureCode ($failureCodeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -224,7 +224,7 @@ class Class_failure_code {
      * @return mixed
      * @throws Exception
      */
-    public function activate_failure_code ($failureCodeId) {
+    public function activate_failureCode ($failureCodeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -249,7 +249,7 @@ class Class_failure_code {
      * @return mixed
      * @throws Exception
      */
-    public function delete_failure_code ($failureCodeId) {
+    public function delete_failureCode ($failureCodeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 

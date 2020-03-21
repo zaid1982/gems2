@@ -82,9 +82,6 @@ try {
             case 'gems_frequency':
                 $result = $fn_reference->get_frequency_list();
                 break;
-            case 'gems_severity':
-                $result = $fn_reference->get_severity_list();
-                break;
             case 'gems_auditModule':
                 $result = $fn_reference->get_audit_module_list();
                 break;

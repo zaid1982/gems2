@@ -14,7 +14,7 @@
                 <form id="formMcl">
                     <div class="md-form md-outline mt-4">
                         <input type="text" id="txtMclName" class="form-control">
-                        <label for="txtMclName" id="lblMclName">Client *</label>
+                        <label for="txtMclName" id="lblMclName">Client Name *</label>
                         <p class="font-small text-danger" id="txtMclNameErr"></p>
                     </div>
                     <div class="md-form md-outline">
@@ -24,19 +24,19 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
+                            <h6 class="font-small">Work Order Severity:</h6>
+                            <div id="divMclSeverity"></div>s
+                            <p class="font-small text-danger mt-1" id="chkMclSeverityErr"></p>
+                        </div>
+                        <div class="col-md-6">
                             <h6 class="font-small">Failure Code:</h6>
                             <div id="divMclFailureCode"></div>
-                            <p class="font-small text-danger mt-3" id="chkMclFailureCodeErr"></p>
+                            <p class="font-small text-danger mt-1" id="chkMclFailureCodeErr"></p>
                             <h6 class="font-small mt-4">Status:</h6>
                             <div class="form-check pl-0 ml-3">
                                 <input type="checkbox" class="form-check-input" id="chkMclStatus" name="chkMclStatus" value="1">
                                 <label class="form-check-label" for="chkMclStatus">Active</label>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="font-small">Work Order Severity:</h6>
-                            <div id="divMclSeverity"></div>
-                            <p class="font-small text-danger mt-3" id="chkMclSeverityErr"></p>
                         </div>
                     </div>
                 </form>

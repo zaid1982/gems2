@@ -829,7 +829,8 @@ class Class_sql
                     cli_client.*,
                     severity.severities,
                     severity.severity_hour,
-                    severity.severity_respond_time
+                    severity.severity_respond_time,
+                    failure_code.failure_codes
                 FROM cli_client
                 LEFT JOIN
                 (
@@ -837,7 +838,14 @@ class Class_sql
                         client_id, GROUP_CONCAT(severity_id) AS severities, GROUP_CONCAT(client_severity_hour) AS severity_hour, GROUP_CONCAT(client_severity_respond_time) AS severity_respond_time
                     FROM cli_client_severity
                     GROUP BY client_id
-                ) severity ON severity.client_id = cli_client.client_id";
+                ) severity ON severity.client_id = cli_client.client_id
+                LEFT JOIN
+                (
+                    SELECT 
+                        client_id, GROUP_CONCAT(failure_code_id) AS failure_codes
+                    FROM cli_client_failure_code
+                    GROUP BY client_id
+                ) failure_code ON failure_code.client_id = cli_client.client_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

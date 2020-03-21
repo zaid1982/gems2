@@ -63,9 +63,10 @@
                             <thead>
                             <tr class="th-strong">
                                 <th style="width: 4%">#</th>
-                                <th style="width: 20%">Client</th>
-                                <th>Description</th>
+                                <th style="width: 15%">Client Name</th>
+                                <th style="width: 20%">Description</th>
                                 <th>Severity</th>
+                                <th style="width: 15%">Failure Code</th>
                                 <th style="width: 10%">Status</th>
                                 <th style="width: 80px"></th>
                             </tr>
@@ -134,9 +135,11 @@
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId');
+                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
+                const refFailureCode_ = mzGetLocalArray('gems_failureCode', versionLocal_, 'failureCodeId', [], 'failure_code');
 
                 modalClientClass_.setRefSeverity(refSeverity_);
+                modalClientClass_.setRefFailureCode(refFailureCode_);
                 modalClientClass_.setClassFrom(clientClass_);
                 modalClientClass_.init();
                 modalSeverityHourClass_.setRefSeverity(refSeverity_);
@@ -145,6 +148,7 @@
                 clientClass_.setVersionLocal(versionLocal_);
                 clientClass_.setRefStatus(refStatus_);
                 clientClass_.setRefSeverity(refSeverity_);
+                clientClass_.setRefFailureCode(refFailureCode_);
                 clientClass_.setModalClientClass(modalClientClass_);
                 clientClass_.setModalSeverityHourClass(modalSeverityHourClass_);
                 clientClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
