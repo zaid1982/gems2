@@ -82,7 +82,7 @@ class Class_general {
      */
     public function log_debug ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
     }
 
     /**
@@ -93,9 +93,9 @@ class Class_general {
      */
     public function log_error ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - (ERROR) ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/error/error_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, $this->log_dir.'/error/error_'.date("Ymd").'.log');
     }
 
     /**

@@ -496,31 +496,6 @@ class Class_reference {
      * @return array
      * @throws Exception
      */
-    public function get_severity_list () {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-
-            $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ref_severity');
-            foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['severityId'] = $dataLocal['severity_id'];
-                $row_result['severityName'] = $dataLocal['severity_name'];
-                $row_result['severityStatus'] = $dataLocal['severity_status'];
-                array_push($result, $row_result);
-            }
-
-            return $result;
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     */
     public function get_audit_module_list () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);

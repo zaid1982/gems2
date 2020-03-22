@@ -56,12 +56,14 @@ try {
         $clientDesc = filter_input(INPUT_POST, 'clientDesc');
         $clientStatus = filter_input(INPUT_POST, 'clientStatus');
         $severities = filter_input(INPUT_POST, 'severities');
+        $failureCodes = filter_input(INPUT_POST, 'failureCodes');
 
         $params = array(
             'clientName'=>$clientName,
             'clientDesc'=>$clientDesc,
             'clientStatus'=>$clientStatus,
-            'severities'=>$severities
+            'severities'=>$severities,
+            'failureCodes'=>$failureCodes
         );
 
         Class_db::getInstance()->db_beginTransaction();

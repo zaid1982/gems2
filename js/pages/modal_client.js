@@ -5,8 +5,39 @@ function ModalClient() {
     let clientId = '';
     let rowRefresh = '';
     let classFrom;
+    let refSeverity;
+    let refFailureCode;
 
     this.init = function () {
+        for (let i=0; i<refSeverity.length; i++) {
+            if (typeof refSeverity[i] !== 'undefined') {
+                const severityId = refSeverity[i]['severityId'];
+                const severityName = refSeverity[i]['severityName'];
+                if (refSeverity[i]['severityStatus'] === '1') {
+                    let severityHtml = '<div class="form-check pl-0 ml-3">';
+                    severityHtml += '<input type="checkbox" class="form-check-input" id="chkMclSeverity'+severityId+'" name="chkMclSeverity[]" value="'+severityId+'">';
+                    severityHtml += '<label class="form-check-label" for="chkMclSeverity'+severityId+'">'+severityName+'</label>';
+                    severityHtml += '</div>';
+                    $('#divMclSeverity').append(severityHtml);
+                }
+            }
+        }
+
+
+        for (let i=0; i<refFailureCode.length; i++) {
+            if (typeof refFailureCode[i] !== 'undefined') {
+                const failureCodeId = refFailureCode[i]['failureCodeId'];
+                const failureCodeName = refFailureCode[i]['failureCodeName'];
+                if (refFailureCode[i]['failureCodeStatus'] === '1') {
+                    let failureCodeHtml = '<div class="form-check pl-0 ml-3">';
+                    failureCodeHtml += '<input type="checkbox" class="form-check-input" id="chkMclFailureCode'+failureCodeId+'" name="chkMclFailureCode[]" value="'+failureCodeId+'">';
+                    failureCodeHtml += '<label class="form-check-label" for="chkMclFailureCode'+failureCodeId+'">'+failureCodeName+'</label>';
+                    failureCodeHtml += '</div>';
+                    $('#divMclFailureCode').append(failureCodeHtml);
+                }
+            }
+        }
+
         const vData = [
             {
                 field_id: 'txtMclName',
@@ -39,6 +70,14 @@ function ModalClient() {
                 validator: {
                     notEmptyCheck: true
                 }
+            },
+            {
+                field_id: 'chkMclFailureCode[]',
+                type: 'check',
+                name: 'Failure Code',
+                validator: {
+                    notEmptyCheck: true
+                }
             }
         ];
 
@@ -68,6 +107,13 @@ function ModalClient() {
                         });
                         severityStr = severityStr.substr(1);
 
+
+                        let failureCodeStr = '';
+                        $("input[name='chkMclFailureCode[]']:checked").map(function(){
+                            failureCodeStr += ','+$(this).val();
+                        });
+                        failureCodeStr = failureCodeStr.substr(1);
+
                         const txtName = $('#txtMclName').val();
                         const txtDesc = $('#txaMclDesc').val();
                         const statusVal = $("input[name='chkMclStatus']").is(":checked") ? '1' : '2';
@@ -75,7 +121,8 @@ function ModalClient() {
                             clientName: txtName,
                             clientDesc: txtDesc,
                             clientStatus: statusVal,
-                            severities: severityStr
+                            severities: severityStr,
+                            failureCodes: failureCodeStr
                         };
 
                         if (clientId === '') {
@@ -119,10 +166,12 @@ function ModalClient() {
 
                 const dataMcl = mzAjaxRequest('client.php?clientId='+clientId, 'GET');
                 const severities = dataMcl['severities'];
+                const failureCodes = dataMcl['failureCodes'];
                 mzSetFieldValue('MclName', dataMcl['clientName'], 'text');
                 mzSetFieldValue('MclDesc', dataMcl['clientDesc'], 'textarea');
                 mzSetFieldValue('MclStatus', dataMcl['clientStatus'], 'checkSingle', '1');
                 mzSetFieldValue('MclSeverity', severities.split(','), 'check');
+                mzSetFieldValue('MclFailureCode', failureCodes.split(','), 'check');
 
                 $('#lblMclTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Client');
                 $('#modal_client').modal({backdrop: 'static', keyboard: false});
@@ -189,5 +238,13 @@ function ModalClient() {
 
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
+    };
+
+    this.setRefSeverity = function (_refSeverity) {
+        refSeverity = _refSeverity;
+    };
+
+    this.setRefFailureCode = function (_refFailureCode) {
+        refFailureCode = _refFailureCode;
     };
 }

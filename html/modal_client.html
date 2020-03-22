@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal_client" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
         <!--Content-->
         <div class="modal-content">
             <!--Header-->
@@ -14,7 +14,7 @@
                 <form id="formMcl">
                     <div class="md-form md-outline mt-4">
                         <input type="text" id="txtMclName" class="form-control">
-                        <label for="txtMclName" id="lblMclName">Client *</label>
+                        <label for="txtMclName" id="lblMclName">Client Name *</label>
                         <p class="font-small text-danger" id="txtMclNameErr"></p>
                     </div>
                     <div class="md-form md-outline">
@@ -22,73 +22,23 @@
                         <label for="txaMclDesc" id="lblMclDesc" class="text-muted">Description</label>
                         <p class="font-small text-danger" id="txaMclDescErr"></p>
                     </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclStatus" name="chkMclStatus" value="1">
-                        <label class="form-check-label" for="chkMclStatus">Active</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="font-small">Work Order Severity:</h6>
+                            <div id="divMclSeverity"></div>s
+                            <p class="font-small text-danger mt-1" id="chkMclSeverityErr"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="font-small">Failure Code:</h6>
+                            <div id="divMclFailureCode"></div>
+                            <p class="font-small text-danger mt-1" id="chkMclFailureCodeErr"></p>
+                            <h6 class="font-small mt-4">Status:</h6>
+                            <div class="form-check pl-0 ml-3">
+                                <input type="checkbox" class="form-check-input" id="chkMclStatus" name="chkMclStatus" value="1">
+                                <label class="form-check-label" for="chkMclStatus">Active</label>
+                            </div>
+                        </div>
                     </div>
-                    <h6 class="font-small mt-4">Work Order Severity:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity1" name="chkMclSeverity[]" value="1">
-                        <label class="form-check-label" for="chkMclSeverity1">Non-Critical</label>
-                    </div>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity2" name="chkMclSeverity[]" value="2">
-                        <label class="form-check-label" for="chkMclSeverity2">Critical</label>
-                    </div>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity3" name="chkMclSeverity[]" value="3">
-                        <label class="form-check-label" for="chkMclSeverity3">Normal</label>
-                    </div>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity4" name="chkMclSeverity[]" value="4">
-                        <label class="form-check-label" for="chkMclSeverity4">Urgent</label>
-                    </div>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity5" name="chkMclSeverity[]" value="5">
-                        <label class="form-check-label" for="chkMclSeverity5">Emergency</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity6" name="chkMclSeverity[]" value="6">
-                        <label class="form-check-label" for="chkMclSeverity6">Regular Priority</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity7" name="chkMclSeverity[]" value="7">
-                        <label class="form-check-label" for="chkMclSeverity7">Low Priority</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity8" name="chkMclSeverity[]" value="8">
-                        <label class="form-check-label" for="chkMclSeverity8">Execution 1Day</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity9" name="chkMclSeverity[]" value="9">
-                        <label class="form-check-label" for="chkMclSeverity9">Execution 1Month</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity10" name="chkMclSeverity[]" value="10">
-                        <label class="form-check-label" for="chkMclSeverity10">Execution 100Days</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity11" name="chkMclSeverity[]" value="11">
-                        <label class="form-check-label" for="chkMclSeverity11">General</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity12" name="chkMclSeverity[]" value="12">
-                        <label class="form-check-label" for="chkMclSeverity12">Most-Critical</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity13" name="chkMclSeverity[]" value="13">
-                        <label class="form-check-label" for="chkMclSeverity13">Less-Critical</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity14" name="chkMclSeverity[]" value="14">
-                        <label class="form-check-label" for="chkMclSeverity14">Routine</label>
-                    </div>
-					<div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMclSeverity15" name="chkMclSeverity[]" value="15">
-                        <label class="form-check-label" for="chkMclSeverity15">Scheduled</label>
-                    </div>
-                    <p class="font-small text-danger mt-3" id="chkMclSeverityErr"></p>
                 </form>
             </div>
             <div class="modal-footer p-2">

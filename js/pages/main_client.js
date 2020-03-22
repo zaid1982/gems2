@@ -6,6 +6,7 @@ function MainClient() {
     let modalConfirmDeleteClass;
     let refStatus;
     let refSeverity;
+    let refFailureCode;
     let oTableClient;
     let modalClientClass;
     let modalSeverityHourClass;
@@ -109,6 +110,21 @@ function MainClient() {
                     },
                     {mData: null,
                         mRender: function (data, type, row) {
+                            let label = '';
+                            let failureCode = row['failureCodes'];
+                            if (failureCode !== '') {
+                                label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
+                                const failureCodeSplit = failureCode.split(',');
+                                for (let j=0; j<failureCodeSplit.length; j++) {
+                                    label += '<li>' + refFailureCode[failureCodeSplit[j]]['failureCodeName'] + '</li>';
+                                }
+                                label += '</ul>';
+                            }
+                            return label;
+                        }
+                    },
+                    {mData: null, sClass: 'text-center',
+                        mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['clientStatus']]['statusColor']+' z-depth-2">'+refStatus[row['clientStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
@@ -135,13 +151,13 @@ function MainClient() {
         let cntClient;
         let btnClientOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
+                columns: [ 0, 1, 2, 3, 4, 5],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntClient = 1;
                         }
-                        if (column === 3) {
+                        if (column === 3 || column === 4) {
                             const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
                             const p = m.replace('</li></ul>', '');
                             let r = p;
@@ -154,7 +170,7 @@ function MainClient() {
                             }
                             const q = r.split('</li><li>').join(', ');
                             return q;
-                        } else if (column === 4) {
+                        } else if (column === 5) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -246,6 +262,10 @@ function MainClient() {
 
     this.setRefSeverity = function (_refSeverity) {
         refSeverity = _refSeverity;
+    };
+
+    this.setRefFailureCode = function (_refFailureCode) {
+        refFailureCode = _refFailureCode;
     };
 
     this.setModalClientClass = function (_modalClientClass) {
