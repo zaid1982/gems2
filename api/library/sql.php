@@ -216,7 +216,7 @@ class Class_sql
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    ppm_task_frequency.frequency_name AS frequency,
+                    ppm_frequency.frequency_name AS frequency,
                     sys_user.user_first_name
                 FROM wfl_task
                 INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
