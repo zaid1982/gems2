@@ -368,10 +368,9 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
         mzSetFieldValue('SszAssetBlock', dataSsz['assetBlock'], 'text');
         mzSetFieldValue('SszAssetLevel', dataSsz['assetLevel'], 'text');
-
-        $('#lblSszContactName').html(refContract[contractId]['contractName']);
-        $('#lblSszSiteName').html(refSite[siteId]['siteName']);
-        $('#lblSszClientName').html(refClient[clientId]['clientName']);
+        mzSetFieldValue('SszContactName', refContract[contractId]['contractName'], 'text');
+        mzSetFieldValue('SszSiteName', refSite[siteId]['siteName'], 'text');
+        mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
         return assetStatus;
