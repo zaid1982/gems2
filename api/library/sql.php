@@ -216,17 +216,15 @@ class Class_sql
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    task_frequency.frequency,
+                    ppm_frequency.frequency_name AS frequency,
                     sys_user.user_first_name
                 FROM wfl_task
                 INNER JOIN wfl_checkpoint_user ON wfl_task.checkpoint_id = wfl_checkpoint_user.checkpoint_id
                     AND wfl_task.role_id = wfl_checkpoint_user.role_id AND wfl_task.group_id = wfl_checkpoint_user.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
-                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id
-                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name) AS frequency
-                    FROM ppm_task_frequency
-                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
-                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                LEFT JOIN ppm_task ON ppm_task.transaction_id = wfl_transaction.transaction_id                
+                LEFT JOIN ppm_task_frequency ON ppm_task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id               
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN ppm_group_user ON ppm_group_user.ppm_group_id = ppm.ppm_group_id AND ppm_group_user.user_id = [user_id]
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
