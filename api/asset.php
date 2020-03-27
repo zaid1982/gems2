@@ -54,24 +54,12 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $contractId = filter_input(INPUT_POST, 'contractId');
-        $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
-        $assetCategoryId = filter_input(INPUT_POST, 'assetCategoryId');
-        $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
-        $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
-
-        $params = array(
-            'contractId'=>$contractId,
-            'assetGroupId'=>$assetGroupId,
-            'assetCategoryId'=>$assetCategoryId,
-            'assetTypeId'=>$assetTypeId,
-            'ppmGroupId'=>$ppmGroupId
-        );
-
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
-        $result = $fn_asset->create_asset($params);
+        $result = $fn_asset->create_asset();
+        $fn_asset->__set('assetId', $result);
+        $fn_asset->update_asset($_POST);
         $fn_general->save_audit('56', $jwt_data->userId, 'Asset Id = ' . $result);
 
         Class_db::getInstance()->db_commit();
@@ -89,7 +77,7 @@ try {
 
         $fn_asset->__set('assetId', $assetId);
         if ($action === 'save') {
-            $fn_asset->save_asset($assetId, $put_vars);
+            $fn_asset->update_asset($put_vars);
             $fn_general->save_audit('57', $jwt_data->userId, 'Asset Id = ' . $assetId);
             $form_data['errmsg'] = $constant::SUC_ASSET_SAVE;
         }

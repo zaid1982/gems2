@@ -164,148 +164,20 @@ class Class_asset {
     }
 
     /**
-     * @param $params
      * @return mixed
      * @throws Exception
      */
-    public function create_asset ($params) {
+    public function create_asset () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            if (empty($params)) {
-                throw new Exception('[' . __LINE__ . '] - Array params empty');
-            }
-            if (!array_key_exists('contractId', $params) || empty($params['contractId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter contractId empty');
-            }
-            if (!array_key_exists('assetGroupId', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId not exist');
-            }
-            if (!array_key_exists('assetCategoryId', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId empty');
-            }
-            if (!array_key_exists('assetTypeId', $params)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
-            }
-
-            $contractId = $params['contractId'];
-            $assetGroupId = $params['assetGroupId'];
-            $assetCategoryId = $params['assetCategoryId'];
-            $assetTypeId = $params['assetTypeId'];
-
-            return Class_db::getInstance()->db_insert('ast_asset', array('contract_id'=>$contractId, 'asset_group_id'=>$assetGroupId, 'asset_category_id'=>$assetCategoryId,
-                'asset_type_id'=>$assetTypeId, 'asset_status'=>'5'));
+            return Class_db::getInstance()->db_insert('ast_asset', array('asset_status'=>'5'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
-
-    /**
-     * @param $assetId
-     * @param $put_vars
-     * @throws Exception
-     */
-    public function save_asset ($assetId, $put_vars) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $constant = $this->constant;
-
-            if (empty($assetId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetId empty');
-            }
-            if (empty($put_vars)) {
-                throw new Exception('[' . __LINE__ . '] - Array put_vars empty');
-            }
-
-            if (!isset($put_vars['assetName'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetName not exist');
-            }
-            if (!isset($put_vars['assetNo'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetNo not exist');
-            }
-            if (!isset($put_vars['assetSerialNo'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetSerialNo not exist');
-            }
-            if (!isset($put_vars['assetDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetDesc not exist');
-            }
-            if (!isset($put_vars['assetGroupId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetGroupId not exist');
-            }
-            if (!isset($put_vars['assetCategoryId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetCategoryId not exist');
-            }
-            if (!isset($put_vars['assetTypeId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId not exist');
-            }
-            if (!isset($put_vars['assetBrandId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetBrandId not exist');
-            }
-            if (!isset($put_vars['assetModelId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetModelId not exist');
-            }
-            if (!isset($put_vars['assetLocationCode'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationCode not exist');
-            }
-            if (!isset($put_vars['assetLocationDesc'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLocationDesc not exist');
-            }
-            if (!isset($put_vars['ppmGroupId'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId not exist');
-            }
-            if (!isset($put_vars['assetCapacity'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetCapacity not exist');
-            }
-            if (!isset($put_vars['assetBlock'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetBlock not exist');
-            }
-            if (!isset($put_vars['assetLevel'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetLevel not exist');
-            }
-
-            $assetNo = $put_vars['assetNo'];
-            $assetSerialNo = $put_vars['assetSerialNo'];
-            $updateArr = array(
-                'asset_name'=>$put_vars['assetName'],
-                'asset_no'=>$assetNo,
-                'asset_serial_no'=>$assetSerialNo,
-                'asset_desc'=>$put_vars['assetDesc'],
-                'asset_group_id'=>$put_vars['assetGroupId'],
-                'asset_category_id'=>$put_vars['assetCategoryId'],
-                'asset_type_id'=>$put_vars['assetTypeId'],
-                'asset_brand_id'=>$put_vars['assetBrandId'],
-                'asset_model_id'=>$put_vars['assetModelId'],
-                'asset_location_code'=>$put_vars['assetLocationCode'],
-                'asset_location_desc'=>$put_vars['assetLocationDesc'],
-                'ppm_group_id'=>$put_vars['ppmGroupId'],
-                'asset_capacity'=>$put_vars['assetCapacity'],
-                'asset_block'=>$put_vars['assetBlock'],
-                'asset_level'=>$put_vars['assetLevel']
-            );
-
-            $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
-            $contractId = $asset['contract_id'];
-
-            if ($asset['asset_status'] != '5') {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SUBMITTED, 31);
-            }
-            if (!empty($put_vars['assetNo']) && Class_db::getInstance()->db_count('ast_asset', array('asset_no'=>$assetNo, 'contract_id'=>$contractId, 'asset_id'=>'<>'.$assetId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR, 31);
-            }
-            if (!empty($put_vars['assetSerialNo']) && Class_db::getInstance()->db_count('ast_asset', array('asset_serial_no'=>$assetSerialNo, 'contract_id'=>$contractId, 'asset_id'=>'<>'.$assetId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR_SERIAL_NO, 31);
-            }
-
-            Class_db::getInstance()->db_update('ast_asset', $updateArr, array('asset_id'=>$assetId));
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
 
     /**
      * @param $userId
@@ -349,25 +221,10 @@ class Class_asset {
 
             $contractId = Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$this->assetId), 'contract_id', null, 1);
             $params = array();
-            if (isset($putVars['assetNo'])) {
-                if (empty($putVars['assetNo'])) { throw new Exception('[' . __LINE__ . '] - Parameter assetNo empty'); }
-                if (Class_db::getInstance()->db_count('ast_asset', array('asset_no'=>$putVars['assetNo'], 'contract_id'=>$contractId, 'asset_id'=>'<>'.$this->assetId)) > 0) {
-                    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR, 31);
-                }
-                $params['asset_no'] = $putVars['assetNo'];
-            }
-            if (isset($putVars['assetName'])) {
-                if (empty($putVars['assetName'])) { throw new Exception('[' . __LINE__ . '] - Parameter assetName empty'); }
-                $params['asset_name'] = $putVars['assetName'];
-            }
-            if (isset($putVars['assetSerialNo'])) {
-                if (!empty($putVars['assetSerialNo'])) {
-                    if (Class_db::getInstance()->db_count('ast_asset', array('asset_serial_no'=>$putVars['assetSerialNo'], 'contract_id'=>$contractId, 'asset_id'=>'<>'.$this->assetId)) > 0) {
-                        throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR_SERIAL_NO, 31);
-                    }
-                }
-                $params['asset_serial_no'] = $putVars['assetSerialNo'];
-            }
+            if (isset($putVars['assetNo'])) {               $params['asset_no'] = $putVars['assetNo']; }
+            if (isset($putVars['assetSerialNo'])) {         $params['asset_serial_no'] = $putVars['assetSerialNo']; }
+            if (isset($putVars['contractId'])) {            $params['contract_id'] = $putVars['contractId']; }
+            if (isset($putVars['assetName'])) {             $params['asset_name'] = $putVars['assetName']; }
             if (isset($putVars['assetDesc'])) {             $params['asset_desc'] = $putVars['assetDesc']; }
             if (isset($putVars['assetGroupId'])) {          $params['asset_group_id'] = $putVars['assetGroupId']; }
             if (isset($putVars['assetCategoryId'])) {       $params['asset_category_id'] = $putVars['assetCategoryId']; }
@@ -381,6 +238,14 @@ class Class_asset {
             if (isset($putVars['assetBlock'])) {            $params['asset_block'] = $putVars['assetBlock']; }
             if (isset($putVars['assetLevel'])) {            $params['asset_level'] = $putVars['assetLevel']; }
 
+            if (isset($params['asset_no']) && !empty($params['asset_no'])
+                && Class_db::getInstance()->db_count('ast_asset', array('asset_no'=>$params['asset_no'], 'contract_id'=>$contractId, 'asset_id'=>'<>'.$this->assetId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR, 31);
+            }
+            if (isset($params['asset_serial_no']) && !empty($params['asset_serial_no'])
+                && Class_db::getInstance()->db_count('ast_asset', array('asset_serial_no'=>$params['asset_serial_no'], 'contract_id'=>$contractId, 'asset_id'=>'<>'.$this->assetId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR_SERIAL_NO, 31);
+            }
             Class_db::getInstance()->db_update('ast_asset', $params, array('asset_id'=>$this->assetId));
         }
         catch(Exception $ex) {

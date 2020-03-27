@@ -19,6 +19,7 @@ function SectionAssetDetails() {
     let formValidate;
     let versionLocal;
     let qrCodeImg;
+    let assetStatus;
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -195,31 +196,8 @@ function SectionAssetDetails() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    const assetGroupId = $('#optSszAssetGroupId').val();
-                    const assetCategoryId = $('#optSszAssetCategoryId').val();
-                    const assetTypeId = $('#optSszAssetTypeId').val();
-                    const assetBrandId = $('#optSszAssetBrandId').val();
-                    const assetModelId = $('#optSszAssetModelId').val();
-                    const ppmGroupId = $('#optSszPpmGroupId').val();
-                    const data = {
-                        action: 'save',
-                        assetName: $('#txtSszAssetName').val(),
-                        assetNo: $('#txtSszAssetNo').val(),
-                        assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                        assetDesc: $('#txtSszAssetDesc').val(),
-                        assetGroupId: assetGroupId !== null ? assetGroupId : '',
-                        assetCategoryId: assetCategoryId !== null ? assetCategoryId : '',
-                        assetTypeId: assetTypeId !== null ? assetTypeId : '',
-                        assetBrandId: assetBrandId !== null ? assetBrandId : '',
-                        assetModelId: assetModelId !== null ? assetModelId : '',
-                        assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                        assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                        ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
-                        assetCapacity: $('#txtSszAssetCapacity').val(),
-                        assetBlock: $('#txtSszAssetBlock').val(),
-                        assetLevel: $('#txtSszAssetLevel').val()
-                    };
-
+                    const data = self.setFieldData();
+                    data['action'] = 'save';
                     mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                     if (classFrom.getClassName() === 'MainAsset') {
                         classFrom.updateTableAsz(data, rowRefresh);
@@ -231,7 +209,7 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
 
         $('#btnSszSubmit').on('click', function () {
@@ -242,25 +220,8 @@ function SectionAssetDetails() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const data = {
-                            action: 'submit',
-                            assetName: $('#txtSszAssetName').val(),
-                            assetNo: $('#txtSszAssetNo').val(),
-                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val(),
-                            assetGroupId: $('#optSszAssetGroupId').val(),
-                            assetCategoryId: $('#optSszAssetCategoryId').val(),
-                            assetTypeId: $('#optSszAssetTypeId').val(),
-                            assetBrandId: $('#optSszAssetBrandId').val(),
-                            assetModelId: $('#optSszAssetModelId').val(),
-                            ppmGroupId: $('#optSszPpmGroupId').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val(),
-                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                            assetBlock: $('#txtSszAssetBlock').val(),
-                            assetLevel: $('#txtSszAssetLevel').val()
-                        };
-
+                        const data = self.setFieldData();
+                        data['action'] = 'submit';
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                         if (classFrom.getClassName() === 'MainAsset') {
                             classFrom.updateTableAsz(data, rowRefresh);
@@ -273,7 +234,7 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
 
         $('#btnSszUpdate').on('click', function () {
@@ -284,25 +245,8 @@ function SectionAssetDetails() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const data = {
-                            action: 'update',
-                            assetName: $('#txtSszAssetName').val(),
-                            assetNo: $('#txtSszAssetNo').val(),
-                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val(),
-                            assetGroupId: $('#optSszAssetGroupId').val(),
-                            assetCategoryId: $('#optSszAssetCategoryId').val(),
-                            assetTypeId: $('#optSszAssetTypeId').val(),
-                            assetBrandId: $('#optSszAssetBrandId').val(),
-                            assetModelId: $('#optSszAssetModelId').val(),
-                            ppmGroupId: $('#optSszPpmGroupId').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val(),
-                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                            assetBlock: $('#txtSszAssetBlock').val(),
-                            assetLevel: $('#txtSszAssetLevel').val()
-                        };
-
+                        const data = self.setFieldData();
+                        data['action'] = 'update';
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                         if (classFrom.getClassName() === 'MainAsset') {
                             classFrom.updateTableAsz(data, rowRefresh);
@@ -316,8 +260,37 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
+    };
+
+    this.setFieldData = function () {
+        const assetGroupId = $('#optSszAssetGroupId').val();
+        const assetCategoryId = $('#optSszAssetCategoryId').val();
+        const assetTypeId = $('#optSszAssetTypeId').val();
+        const assetBrandId = $('#optSszAssetBrandId').val();
+        const assetModelId = $('#optSszAssetModelId').val();
+        const ppmGroupId = $('#optSszPpmGroupId').val();
+        return {
+            action: '',
+            assetId: assetId,
+            assetName: $('#txtSszAssetName').val(),
+            assetNo: $('#txtSszAssetNo').val(),
+            assetSerialNo: $('#txtSszAssetSerialNo').val(),
+            assetDesc: $('#txtSszAssetDesc').val(),
+            assetGroupId: assetGroupId !== null ? assetGroupId : '',
+            assetCategoryId: assetCategoryId !== null ? assetCategoryId : '',
+            assetTypeId: assetTypeId !== null ? assetTypeId : '',
+            assetBrandId: assetBrandId !== null ? assetBrandId : '',
+            assetModelId: assetModelId !== null ? assetModelId : '',
+            ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
+            assetCapacity: $('#txtSszAssetCapacity').val(),
+            assetLocationCode: $('#txtSszAssetLocationCode').val(),
+            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
+            assetBlock: $('#txtSszAssetBlock').val(),
+            assetLevel: $('#txtSszAssetLevel').val(),
+            assetStatus: assetStatus
+        };
     };
 
     this.getDetails = function () {
@@ -330,7 +303,7 @@ function SectionAssetDetails() {
         const assetModelId = dataSsz['assetModelId'];
         const ppmGroupId = dataSsz['ppmGroupId'];
         const contractId = dataSsz['contractId'];
-        const assetStatus = dataSsz['assetStatus'];
+        assetStatus = dataSsz['assetStatus'];
         const siteId = refContract[contractId]['siteId'];
         const clientId = refSite[siteId]['clientId'];
 
@@ -377,7 +350,6 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
-        return assetStatus;
     };
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
@@ -393,17 +365,6 @@ function SectionAssetDetails() {
                     assetTypeId: _assetTypeId
                 };
                 assetId = mzAjaxRequest('asset.php', 'POST', data);
-                const tempRow = {
-                    assetId: assetId,
-                    assetGroupId: '',
-                    assetCategoryId: '',
-                    assetTypeId: '',
-                    assetStatus: '5',
-                    ppmGroupId: '',
-                    assetLocationCode: '',
-                    assetLocationDesc: ''
-                };
-                rowRefresh = classFrom.addTableAsz(tempRow);
 
                 formValidate.clearValidation();
                 self.getDetails();
@@ -416,13 +377,15 @@ function SectionAssetDetails() {
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
+                    const tempRow = self.setFieldData();
+                    rowRefresh = classFrom.addTableAsz(tempRow);
                 }
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.edit = function (_assetId, _rowRefresh) {
@@ -434,7 +397,7 @@ function SectionAssetDetails() {
                 rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
-                const assetStatus = self.getDetails();
+                self.getDetails();
                 if (assetStatus === '5') {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').hide();
                     $('#btnSszSave, #btnSszSubmit').show();
@@ -464,7 +427,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.view = function (_assetId) {
@@ -498,7 +461,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.deactivate = function (_assetId, _rowRefresh) {
@@ -515,7 +478,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.activate = function (_assetId, _rowRefresh) {
@@ -532,7 +495,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.delete = function (_assetId) {
@@ -548,7 +511,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.getClassName = function () {
