@@ -66,7 +66,7 @@ function SectionAssetDetails() {
                 type: 'text',
                 name: 'Asset Description',
                 validator: {
-                    maxLength: 255
+                    maxLength: 1000
                 }
             },
             {
@@ -151,6 +151,185 @@ function SectionAssetDetails() {
                 field_id: 'txtSszAssetLevel',
                 type: 'text',
                 name: 'Asset Level',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetManufacturer',
+                type: 'text',
+                name: 'Manufacturer',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetSupplier',
+                type: 'text',
+                name: 'Supplier',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetAgency',
+                type: 'text',
+                name: 'Agency',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetDepartment',
+                type: 'text',
+                name: 'Department',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetConstructionZone',
+                type: 'text',
+                name: 'Construction Zone',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetOperationZone',
+                type: 'text',
+                name: 'Operation Zone',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetRoom',
+                type: 'text',
+                name: 'Room',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetCompartment',
+                type: 'text',
+                name: 'Compartment',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetAuthEmployee',
+                type: 'text',
+                name: 'Authentication Employee',
+                validator: {
+                    maxLength: 150
+                }
+            },
+            {
+                field_id: 'txtSszAssetCriticality',
+                type: 'text',
+                name: 'Asset Criticality',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetContractor',
+                type: 'text',
+                name: 'Contractor',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarranty',
+                type: 'text',
+                name: 'Warranty / Contract',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarrantyExpDate',
+                type: 'text',
+                name: 'Warranty Expired Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetLifeCycle',
+                type: 'text',
+                name: 'Life Cycle',
+                validator: {
+                    numeric: true,
+                    maxLength: 3
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarrantyNotes',
+                type: 'text',
+                name: 'Warranty / Contract Notes',
+                validator: {
+                    maxLength: 1000
+                }
+            },
+            {
+                field_id: 'txtSszAssetTechnicianNotes',
+                type: 'text',
+                name: 'Note to Technician',
+                validator: {
+                    maxLength: 1000
+                }
+            },
+            {
+                field_id: 'txtSszAssetPurchasePrice',
+                type: 'text',
+                name: 'Purchase Price (RM)',
+                validator: {
+                    numeric: true,
+                    maxLength: 12
+                }
+            },
+            {
+                field_id: 'txtSszAssetCommissionedDate',
+                type: 'text',
+                name: 'Commissioned Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetDisposedDate',
+                type: 'text',
+                name: 'Disposed Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetCurrentValue',
+                type: 'text',
+                name: 'Current Value (RM)',
+                validator: {
+                    numeric: true,
+                    maxLength: 12
+                }
+            },
+            {
+                field_id: 'txtSszAssetEstimatedLife',
+                type: 'text',
+                name: 'Estimated Life',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetLifetimeDate',
+                type: 'text',
+                name: 'Lifetime Date',
                 validator: {
                     maxLength: 30
                 }
@@ -289,6 +468,28 @@ function SectionAssetDetails() {
             assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
             assetBlock: $('#txtSszAssetBlock').val(),
             assetLevel: $('#txtSszAssetLevel').val(),
+            assetManufacturer: $('#txtSszAssetManufacturer').val(),
+            assetSupplier: $('#txtSszAssetSupplier').val(),
+            assetAgency: $('#txtSszAssetAgency').val(),
+            assetDepartment: $('#txtSszAssetDepartment').val(),
+            assetConstructionZone: $('#txtSszAssetConstructionZone').val(),
+            assetOperationZone: $('#txtSszAssetOperationZone').val(),
+            assetRoom: $('#txtSszAssetRoom').val(),
+            assetCompartment: $('#txtSszAssetCompartment').val(),
+            assetAuthEmployee: $('#txtSszAssetAuthEmployee').val(),
+            assetCriticality: $('#txtSszAssetCriticality').val(),
+            assetContractor: $('#txtSszAssetContractor').val(),
+            assetWarranty: $('#txtSszAssetWarranty').val(),
+            assetWarrantyExpDate: mzConvertDate($('#txtSszAssetWarrantyExpDate').val()),
+            assetLifeCycle: $('#txtSszAssetLifeCycle').val(),
+            assetWarrantyNotes: $('#txtSszAssetWarrantyNotes').val(),
+            assetTechnicianNotes: $('#txtSszAssetTechnicianNotes').val(),
+            assetPurchasePrice: $('#txtSszAssetPurchasePrice').val(),
+            assetCommissionedDate: mzConvertDate($('#txtSszAssetCommissionedDate').val()),
+            assetDisposedDate: mzConvertDate($('#txtSszAssetDisposedDate').val()),
+            assetCurrentValue: $('#txtSszAssetCurrentValue').val(),
+            assetEstimatedLife: $('#txtSszAssetEstimatedLife').val(),
+            assetLifetimeDate: mzConvertDate($('#txtSszAssetLifetimeDate').val()),
             assetStatus: assetStatus
         };
     };
@@ -343,8 +544,28 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
         mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
         mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
-        mzSetFieldValue('SszAssetBlock', dataSsz['assetBlock'], 'text');
-        mzSetFieldValue('SszAssetLevel', dataSsz['assetLevel'], 'text');
+        mzSetFieldValue('SszAssetManufacturer', dataSsz['assetManufacturer'], 'text');
+        mzSetFieldValue('SszAssetSupplier', dataSsz['assetSupplier'], 'text');
+        mzSetFieldValue('SszAssetAgency', dataSsz['assetAgency'], 'text');
+        mzSetFieldValue('SszAssetDepartment', dataSsz['assetDepartment'], 'text');
+        mzSetFieldValue('SszAssetConstructionZone', dataSsz['assetConstructionZone'], 'text');
+        mzSetFieldValue('SszAssetOperationZone', dataSsz['assetOperationZone'], 'text');
+        mzSetFieldValue('SszAssetRoom', dataSsz['assetRoom'], 'text');
+        mzSetFieldValue('SszAssetCompartment', dataSsz['assetCompartment'], 'text');
+        mzSetFieldValue('SszAssetAuthEmployee', dataSsz['assetAuthEmployee'], 'text');
+        mzSetFieldValue('SszAssetCriticality', dataSsz['assetCriticality'], 'text');
+        mzSetFieldValue('SszAssetContractor', dataSsz['assetContractor'], 'text');
+        mzSetFieldValue('SszAssetWarranty', dataSsz['assetWarranty'], 'text');
+        mzSetFieldValue('SszAssetWarrantyExpDate', mzConvertDateDisplay(dataSsz['assetWarrantyExpDate']), 'text');
+        mzSetFieldValue('SszAssetLifeCycle', dataSsz['assetLifeCycle'], 'text');
+        mzSetFieldValue('SszAssetWarrantyNotes', dataSsz['assetWarrantyNotes'], 'text');
+        mzSetFieldValue('SszAssetTechnicianNotes', dataSsz['assetTechnicianNotes'], 'text');
+        mzSetFieldValue('SszAssetPurchasePrice', dataSsz['assetPurchasePrice'], 'text');
+        mzSetFieldValue('SszAssetCommissionedDate', mzConvertDateDisplay(dataSsz['assetCommissionedDate']), 'text');
+        mzSetFieldValue('SszAssetDisposedDate', mzConvertDateDisplay(dataSsz['assetDisposedDate']), 'text');
+        mzSetFieldValue('SszAssetCurrentValue', dataSsz['assetCurrentValue'], 'text');
+        mzSetFieldValue('SszAssetEstimatedLife', dataSsz['assetEstimatedLife'], 'text');
+        mzSetFieldValue('SszAssetLifetimeDate', mzConvertDateDisplay(dataSsz['assetLifetimeDate']), 'text');
         mzSetFieldValue('SszContactName', refContract[contractId]['contractName'], 'text');
         mzSetFieldValue('SszSiteName', refSite[siteId]['siteName'], 'text');
         mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
