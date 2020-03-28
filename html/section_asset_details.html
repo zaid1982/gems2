@@ -7,10 +7,10 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-8">
             <div class="card card-cascade cascading-admin-card user-card mt-4">
                 <div class="admin-up d-flex justify-content-start">
-                    <i class="fa fas fa-qrcode rgba-cyan-strong py-4 z-depth-4"></i>
+                    <i class="fa fas fa-qrcode rgba-cyan-strong py-4 z-depth-3"></i>
                     <div class="data">
                         <h3 class="font-weight-bold dark-grey-text ml-3">Asset Details</h3>
                     </div>
@@ -39,6 +39,20 @@
                                     <p class="font-small text-danger" id="txtSszAssetSerialNoErr"></p>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetManufacturer" class="form-control">
+                                    <label for="txtSszAssetManufacturer" id="lblSszAssetManufacturer">Manufacturer</label>
+                                    <p class="font-small text-danger" id="txtSszAssetManufacturerErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetSupplier" class="form-control">
+                                    <label for="txtSszAssetSupplier" id="lblSszAssetSupplier">Supplier</label>
+                                    <p class="font-small text-danger" id="txtSszAssetSupplierErr"></p>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetDesc" class="form-control">
@@ -46,32 +60,32 @@
                                     <p class="font-small text-danger" id="txtSszAssetDescErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-12 select-outline">
+                            <div class="col-md-6 select-outline">
                                 <select id="optSszAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetGroupId" id="lblAssetGroupId">Asset Group *</label>
                                 <p class="font-small text-danger" id="optSszAssetGroupIdErr"></p>
                             </div>
-                            <div class="col-md-12 select-outline">
+                            <div class="col-md-6 select-outline">
                                 <select id="optSszAssetCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetCategoryId" id="lblAssetCategoryId">Asset Category *</label>
                                 <p class="font-small text-danger" id="optSszAssetCategoryIdErr"></p>
                             </div>
-                            <div class="col-md-12 select-outline">
+                            <div class="col-md-6 select-outline">
                                 <select id="optSszAssetTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetTypeId" id="lblAssetTypeId">Asset Type *</label>
                                 <p class="font-small text-danger" id="optSszAssetTypeIdErr"></p>
                             </div>
-                            <div class="col-lg-4 select-outline">
+                            <div class="col-md-6 select-outline">
                                 <select id="optSszAssetBrandId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetBrandId" id="lblAssetBrandId">Brand *</label>
                                 <p class="font-small text-danger" id="optSszAssetBrandIdErr"></p>
                             </div>
-                            <div class="col-lg-5 select-outline">
+                            <div class="col-md-6 select-outline">
                                 <select id="optSszAssetModelId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetModelId" id="lblAssetModelId">Model *</label>
                                 <p class="font-small text-danger" id="optSszAssetModelIdErr"></p>
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-md-6">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetCapacity" class="form-control">
                                     <label for="txtSszAssetCapacity" id="lblSszAssetCapacity">Capacity</label>
@@ -106,12 +120,152 @@
                                     <p class="font-small text-danger" id="txtSszAssetLocationDescErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-12 select-outline">
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetAgency" class="form-control">
+                                    <label for="txtSszAssetAgency" id="lblSszAssetAgency">Agency</label>
+                                    <p class="font-small text-danger" id="txtSszAssetAgencyErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetDepartment" class="form-control">
+                                    <label for="txtSszAssetDepartment" id="lblSszAssetDepartment">Department</label>
+                                    <p class="font-small text-danger" id="txtSszAssetDepartmentErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetConstructionZone" class="form-control">
+                                    <label for="txtSszAssetConstructionZone" id="lblSszAssetConstructionZone">Construction Zone</label>
+                                    <p class="font-small text-danger" id="txtSszAssetConstructionZoneErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetOperationZone" class="form-control">
+                                    <label for="txtSszAssetOperationZone" id="lblSszAssetOperationZone">Operation Zone</label>
+                                    <p class="font-small text-danger" id="txtSszAssetOperationZoneErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetRoom" class="form-control">
+                                    <label for="txtSszAssetRoom" id="lblSszAssetRoom">Room</label>
+                                    <p class="font-small text-danger" id="txtSszAssetRoomErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCompartment" class="form-control">
+                                    <label for="txtSszAssetCompartment" id="lblSszAssetCompartment">Compartment</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCompartmentErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 select-outline">
                                 <select id="optSszPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszPpmGroupId" id="lblSszPpmGroupId">PPM Group</label>
                                 <p class="font-small text-danger" id="optSszPpmGroupIdErr"></p>
                             </div>
-                            <div class="col-md-12 divSszRegisterInfo">
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetAuthEmployee" class="form-control">
+                                    <label for="txtSszAssetAuthEmployee" id="lblSszAssetAuthEmployee">Authentication Employee</label>
+                                    <p class="font-small text-danger" id="txtSszAssetAuthEmployeeErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCriticality" class="form-control">
+                                    <label for="txtSszAssetCriticality" id="lblSszAssetCriticality">Asset Criticality</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCriticalityErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetContractor" class="form-control">
+                                    <label for="txtSszAssetContractor" id="lblSszAssetContractor">Contractor</label>
+                                    <p class="font-small text-danger" id="txtSszAssetContractorErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetWarranty" class="form-control">
+                                    <label for="txtSszAssetWarranty" id="lblSszAssetWarranty">Warranty / Contract</label>
+                                    <p class="font-small text-danger" id="txtSszAssetWarrantyErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetWarrantyExpDate" class="form-control datepicker">
+                                    <label for="txtSszAssetWarrantyExpDate" id="lblSszAssetWarrantyExpDate">Warranty Expired Date</label>
+                                    <p class="font-small text-danger" id="txtSszAssetWarrantyExpDateErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetLifeCycle" class="form-control">
+                                    <label for="txtSszAssetLifeCycle" id="lblSszAssetLifeCycle">Life Cycle</label>
+                                    <p class="font-small text-danger" id="txtSszAssetLifeCycleErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetWarrantyNotes" class="form-control">
+                                    <label for="txtSszAssetWarrantyNotes" id="lblSszAssetWarrantyNotes">Warranty / Contract Notes</label>
+                                    <p class="font-small text-danger" id="txtSszAssetWarrantyNotesErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetTechnicianNotes" class="form-control">
+                                    <label for="txtSszAssetTechnicianNotes" id="lblSszAssetTechnicianNotes">Note to Technician</label>
+                                    <p class="font-small text-danger" id="txtSszAssetTechnicianNotesErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetPurchasePrice" class="form-control">
+                                    <label for="txtSszAssetPurchasePrice" id="lblSszAssetPurchasePrice">Purchase Price (RM)</label>
+                                    <p class="font-small text-danger" id="txtSszAssetPurchasePriceErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCommissionedDate" class="form-control datepicker">
+                                    <label for="txtSszAssetCommissionedDate" id="lblSszAssetCommissionedDate">Commissioned Date</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCommissionedDateErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetDisposedDate" class="form-control datepicker">
+                                    <label for="txtSszAssetDisposedDate" id="lblSszAssetDisposedDate">Disposed Date</label>
+                                    <p class="font-small text-danger" id="txtSszAssetDisposedDateErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetCurrentValue" class="form-control">
+                                    <label for="txtSszAssetCurrentValue" id="lblSszAssetCurrentValue">Current Value (RM)</label>
+                                    <p class="font-small text-danger" id="txtSszAssetCurrentValueErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetEstimatedLife" class="form-control">
+                                    <label for="txtSszAssetEstimatedLife" id="lblSszAssetEstimatedLife">Estimated Life</label>
+                                    <p class="font-small text-danger" id="txtSszAssetEstimatedLifeErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSszAssetLifetimeDate" class="form-control datepicker">
+                                    <label for="txtSszAssetLifetimeDate" id="lblSszAssetLifetimeDate">Lifetime Date</label>
+                                    <p class="font-small text-danger" id="txtSszAssetLifetimeDateErr"></p>
+                                </div>
+                            </div>
+                           <!-- <div class="col-md-12 divSszRegisterInfo">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
                                     <label for="txtSszAssetRegisteredBy" id="lblSszAssetRegisteredBy">Registered By</label>
@@ -128,7 +282,7 @@
                                     <input type="text" id="txtSszAssetStatus" class="form-control" disabled>
                                     <label for="txtSszAssetStatus" id="lblSszAssetStatus">Status</label>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                     </form>
                 </div>
@@ -151,31 +305,67 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-5">
-            <div class="card profile-card mt-4">
-                <div class="card-header teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Contract Information</h5>
-                </div>
-                <div class="card-body mt-3 pb-0">
-                    <dl class="row">
-                        <dt class="col-sm-4">Contract Name</dt>
-                        <dd class="col-sm-8" id="lblSszContactName"></dd>
-                        <dt class="col-sm-4">Site</dt>
-                        <dd class="col-sm-8" id="lblSszSiteName"></dd>
-                        <dt class="col-sm-4">Client</dt>
-                        <dd class="col-sm-8" id="lblSszClientName"></dd>
-                    </dl>
-                </div>
-            </div>
+        <div class="col-md-4">
             <div class="card profile-card mt-4" id="divSszQrCode">
                 <div class="card-header teal lighten-4">
                     <h5 class="font-weight-bold text-center mt-2"> Asset QR Code</h5>
                 </div>
                 <div class="card-body">
+                    <div class="flex-center flex-column">
+                        <div id="divSszQrCodeImg" style="margin:10px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">Contract Information</h5>
+                </div>
+                <div class="card-body mt-2 pb-0 px-3">
                     <div class="row">
-                        <div class="col-md-12 col-lg-10 offset-lg-1 text-center">
-                            <div id="divSszQrCodeImg" style="margin:10px;"></div>
-                            <!--<img src="img/icon/qr_code.png" width="60%">-->
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszContactName" class="form-control" disabled>
+                                <label for="txtSszContactName" id="lblSszContactName">Contact Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszSiteName" class="form-control" disabled>
+                                <label for="txtSszSiteName" id="lblSszSiteName">Site Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszClientName" class="form-control" disabled>
+                                <label for="txtSszClientName" id="lblSszClientName">Client Name</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">Asset Information</h5>
+                </div>
+                <div class="card-body mt-2 pb-0 px-3">
+                    <div class="row">
+                        <div class="col-md-12 divSszRegisterInfo">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
+                                <label for="txtSszAssetRegisteredBy" id="lblSszAssetRegisteredBy">Registered By</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 divSszRegisterInfo">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszAssetTimeRegistered" class="form-control" disabled>
+                                <label for="txtSszAssetTimeRegistered" id="lblSszAssetTimeRegistered">Time Registered</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszAssetStatus" class="form-control" disabled>
+                                <label for="txtSszAssetStatus" id="lblSszAssetStatus">Status</label>
+                            </div>
                         </div>
                     </div>
                 </div>

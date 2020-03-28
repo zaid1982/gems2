@@ -19,6 +19,7 @@ function SectionAssetDetails() {
     let formValidate;
     let versionLocal;
     let qrCodeImg;
+    let assetStatus;
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -65,7 +66,7 @@ function SectionAssetDetails() {
                 type: 'text',
                 name: 'Asset Description',
                 validator: {
-                    maxLength: 255
+                    maxLength: 1000
                 }
             },
             {
@@ -153,6 +154,185 @@ function SectionAssetDetails() {
                 validator: {
                     maxLength: 30
                 }
+            },
+            {
+                field_id: 'txtSszAssetManufacturer',
+                type: 'text',
+                name: 'Manufacturer',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetSupplier',
+                type: 'text',
+                name: 'Supplier',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetAgency',
+                type: 'text',
+                name: 'Agency',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetDepartment',
+                type: 'text',
+                name: 'Department',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetConstructionZone',
+                type: 'text',
+                name: 'Construction Zone',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetOperationZone',
+                type: 'text',
+                name: 'Operation Zone',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetRoom',
+                type: 'text',
+                name: 'Room',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetCompartment',
+                type: 'text',
+                name: 'Compartment',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetAuthEmployee',
+                type: 'text',
+                name: 'Authentication Employee',
+                validator: {
+                    maxLength: 150
+                }
+            },
+            {
+                field_id: 'txtSszAssetCriticality',
+                type: 'text',
+                name: 'Asset Criticality',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetContractor',
+                type: 'text',
+                name: 'Contractor',
+                validator: {
+                    maxLength: 100
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarranty',
+                type: 'text',
+                name: 'Warranty / Contract',
+                validator: {
+                    maxLength: 50
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarrantyExpDate',
+                type: 'text',
+                name: 'Warranty Expired Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetLifeCycle',
+                type: 'text',
+                name: 'Life Cycle',
+                validator: {
+                    numeric: true,
+                    maxLength: 3
+                }
+            },
+            {
+                field_id: 'txtSszAssetWarrantyNotes',
+                type: 'text',
+                name: 'Warranty / Contract Notes',
+                validator: {
+                    maxLength: 1000
+                }
+            },
+            {
+                field_id: 'txtSszAssetTechnicianNotes',
+                type: 'text',
+                name: 'Note to Technician',
+                validator: {
+                    maxLength: 1000
+                }
+            },
+            {
+                field_id: 'txtSszAssetPurchasePrice',
+                type: 'text',
+                name: 'Purchase Price (RM)',
+                validator: {
+                    numeric: true,
+                    maxLength: 12
+                }
+            },
+            {
+                field_id: 'txtSszAssetCommissionedDate',
+                type: 'text',
+                name: 'Commissioned Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetDisposedDate',
+                type: 'text',
+                name: 'Disposed Date',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetCurrentValue',
+                type: 'text',
+                name: 'Current Value (RM)',
+                validator: {
+                    numeric: true,
+                    maxLength: 12
+                }
+            },
+            {
+                field_id: 'txtSszAssetEstimatedLife',
+                type: 'text',
+                name: 'Estimated Life',
+                validator: {
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszAssetLifetimeDate',
+                type: 'text',
+                name: 'Lifetime Date',
+                validator: {
+                    maxLength: 30
+                }
             }
         ];
 
@@ -195,31 +375,8 @@ function SectionAssetDetails() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    const assetGroupId = $('#optSszAssetGroupId').val();
-                    const assetCategoryId = $('#optSszAssetCategoryId').val();
-                    const assetTypeId = $('#optSszAssetTypeId').val();
-                    const assetBrandId = $('#optSszAssetBrandId').val();
-                    const assetModelId = $('#optSszAssetModelId').val();
-                    const ppmGroupId = $('#optSszPpmGroupId').val();
-                    const data = {
-                        action: 'save',
-                        assetName: $('#txtSszAssetName').val(),
-                        assetNo: $('#txtSszAssetNo').val(),
-                        assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                        assetDesc: $('#txtSszAssetDesc').val(),
-                        assetGroupId: assetGroupId !== null ? assetGroupId : '',
-                        assetCategoryId: assetCategoryId !== null ? assetCategoryId : '',
-                        assetTypeId: assetTypeId !== null ? assetTypeId : '',
-                        assetBrandId: assetBrandId !== null ? assetBrandId : '',
-                        assetModelId: assetModelId !== null ? assetModelId : '',
-                        assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                        assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                        ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
-                        assetCapacity: $('#txtSszAssetCapacity').val(),
-                        assetBlock: $('#txtSszAssetBlock').val(),
-                        assetLevel: $('#txtSszAssetLevel').val()
-                    };
-
+                    const data = self.setFieldData();
+                    data['action'] = 'save';
                     mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                     if (classFrom.getClassName() === 'MainAsset') {
                         classFrom.updateTableAsz(data, rowRefresh);
@@ -231,7 +388,7 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
 
         $('#btnSszSubmit').on('click', function () {
@@ -242,25 +399,8 @@ function SectionAssetDetails() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const data = {
-                            action: 'submit',
-                            assetName: $('#txtSszAssetName').val(),
-                            assetNo: $('#txtSszAssetNo').val(),
-                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val(),
-                            assetGroupId: $('#optSszAssetGroupId').val(),
-                            assetCategoryId: $('#optSszAssetCategoryId').val(),
-                            assetTypeId: $('#optSszAssetTypeId').val(),
-                            assetBrandId: $('#optSszAssetBrandId').val(),
-                            assetModelId: $('#optSszAssetModelId').val(),
-                            ppmGroupId: $('#optSszPpmGroupId').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val(),
-                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                            assetBlock: $('#txtSszAssetBlock').val(),
-                            assetLevel: $('#txtSszAssetLevel').val()
-                        };
-
+                        const data = self.setFieldData();
+                        data['action'] = 'submit';
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                         if (classFrom.getClassName() === 'MainAsset') {
                             classFrom.updateTableAsz(data, rowRefresh);
@@ -273,7 +413,7 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
 
         $('#btnSszUpdate').on('click', function () {
@@ -284,21 +424,8 @@ function SectionAssetDetails() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
-                        const data = {
-                            action: 'update',
-                            assetName: $('#txtSszAssetName').val(),
-                            assetSerialNo: $('#txtSszAssetSerialNo').val(),
-                            assetDesc: $('#txtSszAssetDesc').val(),
-                            assetBrandId: $('#optSszAssetBrandId').val(),
-                            assetModelId: $('#optSszAssetModelId').val(),
-                            assetCapacity: $('#txtSszAssetCapacity').val(),
-                            ppmGroupId: $('#optSszPpmGroupId').val(),
-                            assetLocationCode: $('#txtSszAssetLocationCode').val(),
-                            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
-                            assetBlock: $('#txtSszAssetBlock').val(),
-                            assetLevel: $('#txtSszAssetLevel').val()
-                        };
-
+                        const data = self.setFieldData();
+                        data['action'] = 'update';
                         mzAjaxRequest('asset.php?assetId='+assetId, 'PUT', data);
                         if (classFrom.getClassName() === 'MainAsset') {
                             classFrom.updateTableAsz(data, rowRefresh);
@@ -312,8 +439,59 @@ function SectionAssetDetails() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
+    };
+
+    this.setFieldData = function () {
+        const assetGroupId = $('#optSszAssetGroupId').val();
+        const assetCategoryId = $('#optSszAssetCategoryId').val();
+        const assetTypeId = $('#optSszAssetTypeId').val();
+        const assetBrandId = $('#optSszAssetBrandId').val();
+        const assetModelId = $('#optSszAssetModelId').val();
+        const ppmGroupId = $('#optSszPpmGroupId').val();
+        return {
+            action: '',
+            assetId: assetId,
+            assetName: $('#txtSszAssetName').val(),
+            assetNo: $('#txtSszAssetNo').val(),
+            assetSerialNo: $('#txtSszAssetSerialNo').val(),
+            assetDesc: $('#txtSszAssetDesc').val(),
+            assetGroupId: assetGroupId !== null ? assetGroupId : '',
+            assetCategoryId: assetCategoryId !== null ? assetCategoryId : '',
+            assetTypeId: assetTypeId !== null ? assetTypeId : '',
+            assetBrandId: assetBrandId !== null ? assetBrandId : '',
+            assetModelId: assetModelId !== null ? assetModelId : '',
+            ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
+            assetCapacity: $('#txtSszAssetCapacity').val(),
+            assetLocationCode: $('#txtSszAssetLocationCode').val(),
+            assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
+            assetBlock: $('#txtSszAssetBlock').val(),
+            assetLevel: $('#txtSszAssetLevel').val(),
+            assetManufacturer: $('#txtSszAssetManufacturer').val(),
+            assetSupplier: $('#txtSszAssetSupplier').val(),
+            assetAgency: $('#txtSszAssetAgency').val(),
+            assetDepartment: $('#txtSszAssetDepartment').val(),
+            assetConstructionZone: $('#txtSszAssetConstructionZone').val(),
+            assetOperationZone: $('#txtSszAssetOperationZone').val(),
+            assetRoom: $('#txtSszAssetRoom').val(),
+            assetCompartment: $('#txtSszAssetCompartment').val(),
+            assetAuthEmployee: $('#txtSszAssetAuthEmployee').val(),
+            assetCriticality: $('#txtSszAssetCriticality').val(),
+            assetContractor: $('#txtSszAssetContractor').val(),
+            assetWarranty: $('#txtSszAssetWarranty').val(),
+            assetWarrantyExpDate: mzConvertDate($('#txtSszAssetWarrantyExpDate').val()),
+            assetLifeCycle: $('#txtSszAssetLifeCycle').val(),
+            assetWarrantyNotes: $('#txtSszAssetWarrantyNotes').val(),
+            assetTechnicianNotes: $('#txtSszAssetTechnicianNotes').val(),
+            assetPurchasePrice: $('#txtSszAssetPurchasePrice').val(),
+            assetCommissionedDate: mzConvertDate($('#txtSszAssetCommissionedDate').val()),
+            assetDisposedDate: mzConvertDate($('#txtSszAssetDisposedDate').val()),
+            assetCurrentValue: $('#txtSszAssetCurrentValue').val(),
+            assetEstimatedLife: $('#txtSszAssetEstimatedLife').val(),
+            assetLifetimeDate: mzConvertDate($('#txtSszAssetLifetimeDate').val()),
+            assetStatus: assetStatus
+        };
     };
 
     this.getDetails = function () {
@@ -326,7 +504,7 @@ function SectionAssetDetails() {
         const assetModelId = dataSsz['assetModelId'];
         const ppmGroupId = dataSsz['ppmGroupId'];
         const contractId = dataSsz['contractId'];
-        const assetStatus = dataSsz['assetStatus'];
+        assetStatus = dataSsz['assetStatus'];
         const siteId = refContract[contractId]['siteId'];
         const clientId = refSite[siteId]['clientId'];
 
@@ -366,15 +544,33 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
         mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
         mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
-        mzSetFieldValue('SszAssetBlock', dataSsz['assetBlock'], 'text');
-        mzSetFieldValue('SszAssetLevel', dataSsz['assetLevel'], 'text');
-
-        $('#lblSszContactName').html(refContract[contractId]['contractName']);
-        $('#lblSszSiteName').html(refSite[siteId]['siteName']);
-        $('#lblSszClientName').html(refClient[clientId]['clientName']);
+        mzSetFieldValue('SszAssetManufacturer', dataSsz['assetManufacturer'], 'text');
+        mzSetFieldValue('SszAssetSupplier', dataSsz['assetSupplier'], 'text');
+        mzSetFieldValue('SszAssetAgency', dataSsz['assetAgency'], 'text');
+        mzSetFieldValue('SszAssetDepartment', dataSsz['assetDepartment'], 'text');
+        mzSetFieldValue('SszAssetConstructionZone', dataSsz['assetConstructionZone'], 'text');
+        mzSetFieldValue('SszAssetOperationZone', dataSsz['assetOperationZone'], 'text');
+        mzSetFieldValue('SszAssetRoom', dataSsz['assetRoom'], 'text');
+        mzSetFieldValue('SszAssetCompartment', dataSsz['assetCompartment'], 'text');
+        mzSetFieldValue('SszAssetAuthEmployee', dataSsz['assetAuthEmployee'], 'text');
+        mzSetFieldValue('SszAssetCriticality', dataSsz['assetCriticality'], 'text');
+        mzSetFieldValue('SszAssetContractor', dataSsz['assetContractor'], 'text');
+        mzSetFieldValue('SszAssetWarranty', dataSsz['assetWarranty'], 'text');
+        mzSetFieldValue('SszAssetWarrantyExpDate', mzConvertDateDisplay(dataSsz['assetWarrantyExpDate']), 'text');
+        mzSetFieldValue('SszAssetLifeCycle', dataSsz['assetLifeCycle'], 'text');
+        mzSetFieldValue('SszAssetWarrantyNotes', dataSsz['assetWarrantyNotes'], 'text');
+        mzSetFieldValue('SszAssetTechnicianNotes', dataSsz['assetTechnicianNotes'], 'text');
+        mzSetFieldValue('SszAssetPurchasePrice', dataSsz['assetPurchasePrice'], 'text');
+        mzSetFieldValue('SszAssetCommissionedDate', mzConvertDateDisplay(dataSsz['assetCommissionedDate']), 'text');
+        mzSetFieldValue('SszAssetDisposedDate', mzConvertDateDisplay(dataSsz['assetDisposedDate']), 'text');
+        mzSetFieldValue('SszAssetCurrentValue', dataSsz['assetCurrentValue'], 'text');
+        mzSetFieldValue('SszAssetEstimatedLife', dataSsz['assetEstimatedLife'], 'text');
+        mzSetFieldValue('SszAssetLifetimeDate', mzConvertDateDisplay(dataSsz['assetLifetimeDate']), 'text');
+        mzSetFieldValue('SszContactName', refContract[contractId]['contractName'], 'text');
+        mzSetFieldValue('SszSiteName', refSite[siteId]['siteName'], 'text');
+        mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
-        return assetStatus;
     };
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
@@ -390,17 +586,6 @@ function SectionAssetDetails() {
                     assetTypeId: _assetTypeId
                 };
                 assetId = mzAjaxRequest('asset.php', 'POST', data);
-                const tempRow = {
-                    assetId: assetId,
-                    assetGroupId: '',
-                    assetCategoryId: '',
-                    assetTypeId: '',
-                    assetStatus: '5',
-                    ppmGroupId: '',
-                    assetLocationCode: '',
-                    assetLocationDesc: ''
-                };
-                rowRefresh = classFrom.addTableAsz(tempRow);
 
                 formValidate.clearValidation();
                 self.getDetails();
@@ -413,13 +598,15 @@ function SectionAssetDetails() {
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
+                    const tempRow = self.setFieldData();
+                    rowRefresh = classFrom.addTableAsz(tempRow);
                 }
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.edit = function (_assetId, _rowRefresh) {
@@ -431,7 +618,7 @@ function SectionAssetDetails() {
                 rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
-                const assetStatus = self.getDetails();
+                self.getDetails();
                 if (assetStatus === '5') {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').hide();
                     $('#btnSszSave, #btnSszSubmit').show();
@@ -461,7 +648,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.view = function (_assetId) {
@@ -495,7 +682,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.deactivate = function (_assetId, _rowRefresh) {
@@ -512,7 +699,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.activate = function (_assetId, _rowRefresh) {
@@ -529,7 +716,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.delete = function (_assetId) {
@@ -545,7 +732,7 @@ function SectionAssetDetails() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.getClassName = function () {
