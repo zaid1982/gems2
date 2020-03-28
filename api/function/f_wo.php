@@ -356,7 +356,7 @@ class Class_wo {
             if (!empty($woTask['wo_task_repair_desc'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
             }
-            if (!empty($woTask['asset_id'])) {
+            if ($woTask['wo_task_done_asset'] === '1') {
                 $result[3]['sectionStatus'] = $arr_status[19];
             }
 
@@ -2692,21 +2692,22 @@ class Class_wo {
             if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
-            if (empty($assetNo)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetNo empty');
+
+            $assetId = '';
+            if (!empty($assetNo)) {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+                $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_no'=>$assetNo));
+                if (empty($asset)) {
+                    throw new Exception('[' . __LINE__ . '] - Asset No not exist', 31);
+                }
+                $contractId = Class_db::getInstance()->db_select_col('cli_contract', array('site_id'=>$siteId), 'contract_id', null, 1);
+                if ($contractId !== $asset['contract_id']) {
+                    throw new Exception('[' . __LINE__ . '] - Asset No not exist in your site', 31);
+                }
+                $assetId = $asset['asset_id'];
             }
 
-            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
-            $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_no'=>$assetNo));
-            if (empty($asset)) {
-                throw new Exception('[' . __LINE__ . '] - Asset No not exist', 31);
-            }
-            $contractId = Class_db::getInstance()->db_select_col('cli_contract', array('site_id'=>$siteId), 'contract_id', null, 1);
-            if ($contractId !== $asset['contract_id']) {
-                throw new Exception('[' . __LINE__ . '] - Asset No not exist in your site', 31);
-            }
-
-            Class_db::getInstance()->db_update('wo_task', array('asset_id'=>$asset['asset_id']), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('asset_id'=>$assetId, 'wo_task_done_asset'=>'1'), array('wo_task_id'=>$this->woTaskId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
