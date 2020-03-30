@@ -138,7 +138,8 @@ function ModalSite() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                console.log(refClient);
+                mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
                 mzSetFieldValue('MstStatus', '1', 'checkSingle', '1');
                 $('#lblMstTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Site');
@@ -147,14 +148,14 @@ function ModalSite() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.edit = function (_siteId, _rowRefresh) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName');
+                mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName');
                 mzCheckFuncParam([_siteId, _rowRefresh]);
                 siteId = _siteId;
                 rowRefresh = _rowRefresh;
@@ -175,7 +176,7 @@ function ModalSite() {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
-        }, 300);
+        }, 200);
     };
 
     this.deactivate = function (_siteId, _rowRefresh) {
