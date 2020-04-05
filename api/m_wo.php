@@ -269,7 +269,7 @@ try {
             $fn_email->setup_mobile_notification($jwt_data->userId, $notiTextId, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
-        else if ($action === 'return_wr_by_verifier') {
+        else if ($action === 'return_by_verifier') {
             $remark = filter_input(INPUT_POST, 'remark');
             $currentTask = $fn_wo->get_current_task('28', '19');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '31', $remark, '2');
