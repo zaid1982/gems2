@@ -148,12 +148,18 @@ function ModalUser() {
                         let rolesStr = '';
                         let isClient = false;
                         let isInternalComplainer = false;
+                        let isWoAssigner = false;
+                        let isWoHelpdesk = false;
                         $("input[name='chkMusRole[]']:checked").map(function(){
                             rolesStr += ','+$(this).val();
                             if ($(this).val() === '6') {
                                 isClient = true;
                             } else if ($(this).val() === '9') {
                                 isInternalComplainer = true;
+                            } else if ($(this).val() === '7') {
+                                isWoAssigner = true;
+                            } else if ($(this).val() === '11') {
+                                isWoHelpdesk = true;
                             }
                         });
                         rolesStr = rolesStr.substr(1);
@@ -163,6 +169,9 @@ function ModalUser() {
                             toastr['error']('User must have WO Complainer roles. Please check on WO Complainer roles.', _ALERT_TITLE_ERROR);
                         } else if (userType === '2' && isClient === false) {
                             toastr['error']('Client type must have Client/Complainer roles. Please check on Client/Complainer roles.', _ALERT_TITLE_ERROR);
+                        }
+                        if (isWoHelpdesk === true && isWoAssigner === false) {
+                            toastr['error']('WO Helpdesk must have WO Assigner roles. Please check on WO Assigner roles.', _ALERT_TITLE_ERROR);
                         }
                         else {
                             const data = {

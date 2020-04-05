@@ -161,7 +161,11 @@ function MzValidate(name) {
             if (!checkField(field_id, n2, u2)) {
                 switch (n2) {
                     case 'notEmpty':
-                        msg += '<br>Please fill in '+name;
+                        if (type === 'text') {
+                            msg += '<br>Please fill in '+name;
+                        } else {
+                            msg += '<br>Please select '+name;
+                        }
                         return false;
                     case 'eqLength':
                         msg += '<br>Length must equal to ' + u2 + ' letters';

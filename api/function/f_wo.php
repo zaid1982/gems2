@@ -166,7 +166,7 @@ class Class_wo {
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $runningNo++;
                 Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNo)), array('site_id'=>$siteId));
-                return 'W'.$siteCode.$curDates->format("ymd").$runningNoStr;
+                return 'WO'.$siteCode.$curDates->format("ymd").$runningNoStr;
             } else {
                 $runningNoWr = $site['site_running_no_wr'];
                 $runningNoWr = intval($runningNoWr);
@@ -190,10 +190,11 @@ class Class_wo {
      * @param array $complaintImageUploads
      * @param string $woTaskLongitude
      * @param string $woTaskLatitude
+     * @param string $isHelpdesk
      * @return mixed
      * @throws Exception
      */
-    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='') {
+    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='', $isHelpdesk='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -221,7 +222,7 @@ class Class_wo {
             }
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
-                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_status'=>'24');
+                'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
             if ($woTaskType === '1' && $this->get_wo_is_wr($groupId) === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
                 $arrWhere['wo_task_request_no'] = $woTaskNo;
@@ -347,12 +348,16 @@ class Class_wo {
             $result = array(
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17]),
                 array('sectionName'=>'B', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$arr_status[18]),
-                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$arr_status[18])
+                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$arr_status[18]),
+                array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$arr_status[18])
             );
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             if (!empty($woTask['wo_task_repair_desc'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
+            }
+            if ($woTask['wo_task_done_asset'] === '1') {
+                $result[3]['sectionStatus'] = $arr_status[19];
             }
 
             $imgBefore = false;
@@ -375,7 +380,7 @@ class Class_wo {
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
             if (!empty($remark)) {
-                array_push($result, array('sectionName'=>'D', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
+                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
             }
 
             return $result;
@@ -439,8 +444,9 @@ class Class_wo {
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
-            if (!empty($remark)) {
-                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
+            if ($woTask['wo_task_status'] === '28' || $woTask['wo_task_status'] === '30' || $woTask['wo_task_status'] === '31') {
+                $validStatus = $woTask['wo_task_is_invalid'] === '1' ? 'Invalid' : 'Valid';
+                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Comment', 'sectionStatus'=>$validStatus, 'comment'=>$remark));
             }
 
             return $result;
@@ -679,7 +685,7 @@ class Class_wo {
             $result['email'] = $this->fn_general->clear_null($userProfile['user_email']);
             $result['group'] = $arrPpmGroupName[$ppmGroupId];
 
-            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'13'));
+            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'(13, 27)'));
             $result['totalCurrentTask'] = sizeof($woTasks);
             $result['currentTask'] = array();
             foreach ($woTasks as $woTask) {
@@ -820,13 +826,34 @@ class Class_wo {
     }
 
     /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_wr_validity () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+
+            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_is_invalid', null, 1);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $currentStatus
      * @param string $currentCheckpoint
      * @param string $currentStatus2
+     * @param string $currentCheckpoint2
+     * @param string $currentStatus3
      * @return array
      * @throws Exception
      */
-    public function get_current_task ($currentStatus='', $currentCheckpoint='', $currentStatus2='') {
+    public function get_current_task ($currentStatus='', $currentCheckpoint='', $currentStatus2='', $currentCheckpoint2='', $currentStatus3='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             $constant = $this->constant;
@@ -843,18 +870,20 @@ class Class_wo {
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $transactionId = $woTask['transaction_id'];
-            if ($woTask['wo_task_status'] !== $currentStatus && $woTask['wo_task_status'] !== $currentStatus2) {
+            if ($woTask['wo_task_status'] !== $currentStatus && $woTask['wo_task_status'] !== $currentStatus2 && $woTask['wo_task_status'] !== $currentStatus3) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
 
             $wfTask = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
-            if ($wfTask['checkpoint_id'] !== $currentCheckpoint) {
+            if ($wfTask['checkpoint_id'] !== $currentCheckpoint && $wfTask['checkpoint_id'] !== $currentCheckpoint2) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
 
             return array(
                 'transactionId'=>$transactionId,
-                'taskId'=>$wfTask['task_id']
+                'taskId'=>$wfTask['task_id'],
+                'checkpointId'=>$wfTask['checkpoint_id'],
+                'taskStatus'=>$woTask['wo_task_status']
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -1174,7 +1203,41 @@ class Class_wo {
             }
             Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'26'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'26'), array('transaction_id'=>$transactionId));
-            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13'));
+            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'(13, 16)'));
+
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'woTaskAssignedBy'=>$woTask['wo_task_assigned_by']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
+     * @return mixed
+     * @throws Exception
+     */
+    public function return_wr_by_technician ($transactionId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'29'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'29'), array('transaction_id'=>$transactionId));
+            Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'(13, 18)'));
 
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
@@ -1190,11 +1253,12 @@ class Class_wo {
      * @param string $transactionId
      * @param string $signatureId
      * @param string $remark
-     * @param $isVerified
+     * @param string $isVerified
+     * @param string $isRejected
      * @return array
      * @throws Exception
      */
-    public function submit_wr_check ($transactionId='', $signatureId='', $remark='', $isVerified='0') {
+    public function submit_wr_check ($transactionId='', $signatureId='', $remark='', $isVerified='0', $isRejected='0') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -1212,11 +1276,13 @@ class Class_wo {
             }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            //$status = $isVerified === '2' ? '30' : '28';
+            $isRejected = $isRejected === '1' ? '1' : '0';
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'9', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_wr_check'=>$remark, 'wo_task_is_wr_verified_together'=>$isVerified, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_is_invalid'=>$isRejected, 'wo_task_wr_check'=>$remark, 'wo_task_is_wr_verified_together'=>$isVerified, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'28'), array('transaction_id'=>$transactionId));
 
             return array(
@@ -1232,12 +1298,13 @@ class Class_wo {
     /**
      * @param string $transactionId
      * @param string $signatureId
-     * @param $woTaskNo
+     * @param string $woTaskNo
      * @param string $verifier
+     * @param string $isRejected
      * @return mixed
      * @throws Exception
      */
-    public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo, $verifier='') {
+    public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo='', $verifier='', $isRejected='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -1265,18 +1332,57 @@ class Class_wo {
             } else {
                 $verifier = $this->userId;
             }
+            $status = $isRejected === '1' ? '30' : '13';
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'10', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>'13'), array('wo_task_id'=>$this->woTaskId));
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'13'), array('transaction_id'=>$transactionId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$status), array('transaction_id'=>$transactionId));
 
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
-                'woTaskAssignedTo'=>$woTask['wo_task_assigned_to']
+                'woTaskAssignedTo'=>$woTask['wo_task_assigned_to'],
+                'woTaskCreatedBy'=>$woTask['wo_task_created_by']
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
+     * @return mixed
+     * @throws Exception
+     */
+    public function return_wr_verify ($transactionId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'31'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'31'), array('transaction_id'=>$transactionId));
+
+            $technician = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId), 'user_id', null, 1);
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'technician'=>$technician
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -1486,6 +1592,139 @@ class Class_wo {
             if ($isPending) {
                 $arrWhere['wo_task_status'] = 'N(16, 25)';
             }
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' && $dataLocal['wo_task_wr_confirm'] !== '1' ? '-' : $dataLocal['wo_task_no'];
+                $row_result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
+                $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
+                $row_result['woTaskTypeDesc'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['woTaskIsWr'] = $dataLocal['wo_task_is_wr'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+                $row_result['woTaskAssignedTo'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_to']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['woTaskSeverity'] = $arrSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity'], '0'))];
+                $row_result['woTaskRepairDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_repair_desc']);
+                $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['pdfIdWr'] = $this->fn_general->clear_null($dataLocal['pdf_id_wr']);
+                $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
+                $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
+                $row_result['woTaskAssignedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_by']);
+                $row_result['woTaskVerifiedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_verified_by']);
+                $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
+                $row_result['woTaskTimeResponded'] = str_replace('-', '/', $dataLocal['wo_task_time_responded']);
+                $row_result['woTaskTimeAssigned'] = str_replace('-', '/', $dataLocal['wo_task_time_assigned']);
+                $row_result['woTaskTimeWrChecked'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_checked']);
+                $row_result['woTaskTimeWrVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_verified']);
+                $row_result['woTaskTimeExecuted'] = str_replace('-', '/', $dataLocal['wo_task_time_executed']);
+                $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
+                $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $siteId
+     * @return array
+     * @throws Exception
+     */
+    public function get_severity_list_by_site ($siteId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($siteId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+            }
+
+            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'client_id', null, 1);
+            $arrSeverity = $this->fn_general->getSeverityName();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['clientSeverityId'] = $dataLocal['client_severity_id'];
+                $row_result['clientId'] = $dataLocal['client_id'];
+                $row_result['severityId'] = $dataLocal['severity_id'];
+                $row_result['severityName'] = $arrSeverity[intval($dataLocal['severity_id'])];
+                $row_result['severityHour'] = $dataLocal['client_severity_hour'];
+                $row_result['severityRespondTime'] = $dataLocal['client_severity_respond_time'];
+                array_push($result, $row_result);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmGroupId
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_group_user_list ($ppmGroupId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
+
+            $arrUser = $this->fn_general->getUserFullName();
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('ppm_group_user', array('ppm_group_id'=>$ppmGroupId));
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmGroupUserId'] = $dataLocal['ppm_group_user_id'];
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['userId'] = $dataLocal['user_id'];
+                $row_result['userFirstName'] = $arrUser[intval($dataLocal['user_id'])];
+                array_push($result, $row_result);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param bool $isPending
+     * @return array
+     * @throws Exception
+     */
+    public function get_helpdesk_list ($isPending) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+            $arrWhere = array('site_id'=>$siteId);
+            if ($isPending === '1') {
+                $arrWhere['wo_task_status'] = 'N(16, 25, 30)';
+            } else if ($isPending === '2') {
+                $arrWhere['wo_task_status'] = '(16, 25, 30)';
+            }
+
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $arrWoType = $this->get_wo_type();
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
@@ -2479,18 +2718,85 @@ class Class_wo {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
             if (empty($this->woTaskId) && empty($this->userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId and groupId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId and userId empty');
             }
 
             if (!empty($this->woTaskId)) {
                 $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
-                $transactionId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'transaction_id', null, 1);
                 $checkpointId = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'1'), 'checkpoint_id', null, 1);
                 return $woTask['wo_task_is_wr'] === '1' && ($checkpointId === '11' || $checkpointId === '17' || $checkpointId === '18' || $checkpointId === '19') ? '1' : '0';
             } else {
 				$siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
                 return Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_is_wr', null, 1);
             }
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $assetNo
+     * @return mixed
+     * @throws Exception
+     */
+    public function save_asset_no_m ($assetNo) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($this->userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $assetId = '';
+            if (!empty($assetNo)) {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+                $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_no'=>$assetNo));
+                if (empty($asset)) {
+                    throw new Exception('[' . __LINE__ . '] - Asset No not exist', 31);
+                }
+                $contractId = Class_db::getInstance()->db_select_col('cli_contract', array('site_id'=>$siteId), 'contract_id', null, 1);
+                if ($contractId !== $asset['contract_id']) {
+                    throw new Exception('[' . __LINE__ . '] - Asset No not exist in your site', 31);
+                }
+                $assetId = $asset['asset_id'];
+            }
+
+            Class_db::getInstance()->db_update('wo_task', array('asset_id'=>$assetId, 'wo_task_done_asset'=>'1'), array('wo_task_id'=>$this->woTaskId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $userTechId
+     * @return array
+     * @throws Exception
+     */
+    public function get_technician_current_task ($userTechId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+
+            if (empty($userTechId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
+            }
+
+            $result = array();
+
+            $woTasks = Class_db::getInstance()->db_select('wo_task', array('wo_task_assigned_to'=>$userTechId, 'wo_task_status'=>'(13, 27)'));
+            foreach ($woTasks as $woTask) {
+                $row_result['woTaskNo'] = $woTask['wo_task_no'];
+                $row_result['dateReceived'] = str_replace('-', '/', $this->fn_general->clear_null($woTask['wo_task_time_assigned']));
+                if (!empty($row_result['dateReceived'])) {
+                    $row_result['dateReceived'] = substr($row_result['dateReceived'], 0, 10);
+                }
+                array_push($result, $row_result);
+            }
+            return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

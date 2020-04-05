@@ -1,0 +1,177 @@
+<div class="modal fade" id="modal_create_complaint" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-headset text-white"></i> &nbsp;Create New Complaint</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <form id="formMcc">
+                    <h6 class="mb-3">Complaint forms :</h6>
+                    <div class="row ml-1">
+                        <div class="col-md-6 divMccView">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccClient" class="form-control" disabled>
+                                <label for="txtMccClient" id="lblMccClient">Request No</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 divMccView">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccRole" class="form-control" disabled>
+                                <label for="txtMccRole" id="lblMccRole">Work Order No</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccSiteName" class="form-control" disabled>
+                                <label for="txtMccSiteName" id="lblMccSiteName">Site</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMccCreatedBy" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" searchable="Filter Complainer"></select>
+                            <label for="optMccCreatedBy" id="lblMccCreatedBy">Complainer *</label>
+                            <p class="font-small text-danger" id="optMccCreatedByErr"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccLocation" class="form-control">
+                                <label for="txtMccLocation" id="lblMccLocation">Location *</label>
+                                <p class="font-small text-danger" id="txtMccLocationErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-2">
+                                <textarea id="txaMccComplaint" class="md-textarea form-control" rows="3"></textarea>
+                                <label for="txaMccComplaint" id="lblMccComplaint" class="text-muted">Complaint Details</label>
+                                <p class="font-small text-danger" id="txaMccComplaintErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 select-outline mt-0">
+                            <select id="optMccType" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
+                                <option value="" selected disabled>Select Category *</option>
+                                <option value="1">Client Complaint</option>
+                                <option value="3">Request</option>
+                                <option value="4">Breakdown</option>
+                                <option value="5">Defect</option>
+                            </select>
+                            <label for="optMccType" id="lblMccType">Category *</label>
+                            <p class="font-small text-danger" id="optMccTypeErr"></p>
+                        </div>
+                        <div class="col-md-6 select-outline mt-md-2 mt-lg-0">
+                            <select id="optMccSeverity" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
+                            <label for="optMccSeverity" id="lblMccSeverity">Severity *</label>
+                            <p class="font-small text-danger" id="optMccSeverityErr"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Complaint Images :</h6>
+                    <div class="row ml-1 mb-3">
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="file-field">
+                                <div class="z-depth-1-half mb-2">
+                                    <img src="img/background/upload_placeholder.png" class="img-fluid" alt="example placeholder">
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                        <input type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Assign Executor :</h6>
+                    <div class="row ml-1">
+                        <div class="col-md-12 select-outline mt-2">
+                            <select id="optMccPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
+                            <label for="optMccPpmGroupId" id="lblMccPpmGroupId">Executor Group *</label>
+                            <p class="font-small text-danger" id="optMccPpmGroupIdErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mt-2 divMccHideInitial" id="divMccExecutor">
+                            <select id="optMccAssignedTo" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
+                            <label for="optMccAssignedTo" id="lblMccAssignedTo">Executor *</label>
+                            <p class="font-small text-danger" id="optMccAssignedToErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mt-2 divMccHideInitial" id="divMccAssist">
+                            <select id="optMccAssist" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" multiple data-stop-refresh="true"></select>
+                            <label for="optMccAssist" id="lblMccAssist">Technician Assistant</label>
+                            <p class="font-small text-danger" id="optMccAssistErr"></p>
+                        </div>
+                    </div>
+                    <hr class="divMccHideInitial divMccExecutorDetails">
+                    <h6 class="mb-3 divMccHideInitial divMccExecutorDetails">Executor Details :</h6>
+                    <div class="row ml-1 divMccHideInitial divMccExecutorDetails">
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccUserName" class="form-control" disabled>
+                                <label for="txtMccUserName" id="lblMccUserName">Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccUserContactNo" class="form-control" disabled>
+                                <label for="txtMccUserContactNo" id="lblMccUserContactNo">Phone No.</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMccUserEmail" class="form-control" disabled>
+                                <label for="txtMccUserEmail" id="lblMccUserEmail">Email</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ml-3 divMccHideInitial divMccExecutorDetails">
+                        <div class="table-responsive">
+                            <table id="dtMccCurrentTask" class="table table-hover table-sm table-bordered mb-0 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong blue-grey lighten-1 text-white">
+                                    <th style="width: 4%">#</th>
+                                    <th>Current Task in Hands</th>
+                                    <th>Date Received</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMccSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
