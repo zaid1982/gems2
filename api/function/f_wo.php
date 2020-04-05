@@ -166,7 +166,7 @@ class Class_wo {
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $runningNo++;
                 Class_db::getInstance()->db_update('cli_site', array('site_running_no_wo'=>strval($runningNo)), array('site_id'=>$siteId));
-                return 'W'.$siteCode.$curDates->format("ymd").$runningNoStr;
+                return 'WO'.$siteCode.$curDates->format("ymd").$runningNoStr;
             } else {
                 $runningNoWr = $site['site_running_no_wr'];
                 $runningNoWr = intval($runningNoWr);
@@ -442,10 +442,17 @@ class Class_wo {
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17])
             );
 
+            $commentName = 'B';
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['wo_task_status'] === '28' || $woTask['wo_task_status'] === '30' || $woTask['wo_task_status'] === '31') {
+                $validStatus = $woTask['wo_task_is_invalid'] === '1' ? 'Invalid' : 'Valid';
+                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Complaint Validity', 'sectionStatus'=>$validStatus));
+                $commentName = 'C';
+            }
+
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
             if (!empty($remark)) {
-                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
+                array_push($result, array('sectionName'=>$commentName, 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
             }
 
             return $result;
