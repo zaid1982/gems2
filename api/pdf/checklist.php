@@ -190,7 +190,7 @@ class MYPDF_checklist extends TCPDF {
             $this->SetXY($startX, $startY);
             $this->TaskQualSetHeight($maxnocells);
 
-            $qualTasks = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$this->checklistId), 'ABS(checklist_qual_numb)');
+            $qualTasks = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$this->checklistId), 'checklist_qual_numb');
             if (!empty($qualTasks)) {
                 for ($i = 0; $i<(count($qualTasks)<=2?3:count($qualTasks)+1); $i++) {
                     if ($i >= count($qualTasks)) {
@@ -263,7 +263,7 @@ class MYPDF_checklist extends TCPDF {
             $this->SetXY($startX,$startY);
             $this->TaskQuanSetHeight($maxnocells);
 
-            $quanTasks = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$this->checklistId), 'ABS(checklist_quan_numb)');
+            $quanTasks = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$this->checklistId), 'checklist_quan_numb');
             if (!empty($quanTasks)) {
                 for ($i = 0; $i<(count($quanTasks)<=2?3:count($quanTasks)+1); $i++) {
                     if ($i >= count($quanTasks)) {
