@@ -700,7 +700,7 @@ class Class_ppm {
                 $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '2') {    // quarterly
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-3 month');
+                $ppmDate->modify('-1 month');
                 //$ppmDate->modify('+1 day');
                 //$ppmDate->modify('-3 month');
                 $ppmStartDate = $ppmDate->format("Y-m-d");
