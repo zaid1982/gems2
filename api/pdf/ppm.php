@@ -340,7 +340,9 @@ class Class_pdf_ppm {
             $pdf->SetXY($startX, $startY);
             $this->TaskQualSetHeight($pdf, $maxnocells);
 
-            $qualTasks = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId), 'ppm_task_qual_numb');
+            $cntNonNumeric = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId, 'w1'=>'ppm_task_qual_numb<>concat(\'\',ppm_task_qual_numb * 1)'));
+            $ordering = $cntNonNumeric > 0 ? 'ppm_task_qual_numb' : 'ABS(ppm_task_qual_numb)';
+            $qualTasks = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
             if (!empty($qualTasks)) {
                 for ($i = 0; $i<(count($qualTasks)<=2?3:count($qualTasks)+1); $i++) {
                     if ($i >= count($qualTasks)) {
@@ -414,7 +416,9 @@ class Class_pdf_ppm {
             $pdf->SetXY($startX,$startY);
             $this->TaskQuanSetHeight($pdf, $maxnocells);
 
-            $quanTasks = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$this->ppmTaskId), 'ppm_task_quan_numb');
+            $cntNonNumeric = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$this->ppmTaskId, 'w1'=>'ppm_task_quan_numb<>concat(\'\',ppm_task_quan_numb * 1)'));
+            $ordering = $cntNonNumeric > 0 ? 'ppm_task_quan_numb' : 'ABS(ppm_task_quan_numb)';
+            $quanTasks = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
             if (!empty($quanTasks)) {
                 for ($i = 0; $i<(count($quanTasks)<=2?3:count($quanTasks)+1); $i++) {
                     if ($i >= count($quanTasks)) {
