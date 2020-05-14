@@ -236,7 +236,7 @@ try {
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $createdBy, '9', '', '', '', $groupId);
             }
-            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $location, $complaint, '', '', '', '1');
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $location, $complaint, array(), '', '', '1');
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_wo->save_respond_time_m();
             $fn_wo->save_assigned_technician_m($ppmGroupId, $assignedTo, $severity, $taskAssist, $taskType);
