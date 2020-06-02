@@ -16,50 +16,20 @@ function ModalCreateComplaint() {
     this.init = function () {
         $('.divMccHideInitial').hide();
         const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId='+siteId, 'GET');
-        mzOption('optMccCreatedBy', refUser, 'Select Complainer *', 'userId', 'userFirstName', {userStatus: '1', siteId: siteId}, 'required');
+        let arrComplainer = [];
+        $.each(refUser, function (n, user) {
+            if (typeof user !== 'undefined') {
+                const roles = user['roles'];
+                const arrRoles = roles.split(',');
+                if (jQuery.inArray('6', arrRoles) >= 0) {
+                    arrComplainer.push(user);
+                }
+            }
+        });
+
+        mzOption('optMccCreatedBy', arrComplainer, 'Select Complainer *', 'userId', 'userFirstName', {userStatus: '1', siteId: siteId}, 'required');
         mzOption('optMccSeverity', arrSeverity, 'Select Severity *', 'severityId', 'severityName', {}, 'required');
         mzOption('optMccPpmGroupId', refPpmGroup, 'Select Executor Group *', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: siteId, roleId:'8'}, 'required');
-
-        $('#optMccPpmGroupId').on('change', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId='+$('#optMccPpmGroupId').val(), 'GET');
-                    mzOptionStop('optMccAssignedTo', arrPpmGroupUser, 'Select Executor *', 'userId', 'userFirstName', {}, 'required');
-                    $('#divMccExecutor').show();
-                    $('#divMccAssist, .divMccExecutorDetails').hide();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
-        });
-
-        $('#optMccAssignedTo').on('change', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    const assignedTo = $('#optMccAssignedTo').val();
-                    let arrAssistant = [];
-                    for (let i=0; i<arrPpmGroupUser.length; i++) {
-                        if (arrPpmGroupUser[i]['userId'] !== assignedTo) {
-                            arrAssistant.push(arrPpmGroupUser[i]);
-                        }
-                    }
-                    mzOptionStop('optMccAssist', arrAssistant, 'Select Technician Assistant', 'userId', 'userFirstName', {}, 'required');
-                    mzSetFieldValue('MccUserName', refUser[assignedTo]['userFirstName'], 'text');
-                    mzSetFieldValue('MccUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
-                    mzSetFieldValue('MccUserEmail', refUser[assignedTo]['userEmail'], 'text');
-
-                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId='+$('#optMccAssignedTo').val(), 'GET');
-                    oTableCurrentTask.clear().rows.add(dataResult).draw();
-                    $('#divMccAssist, .divMccExecutorDetails').show();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
-        });
 
         const vData = [
             {
@@ -126,6 +96,28 @@ function ModalCreateComplaint() {
                 name: 'Technician Assistant',
                 validator: {
                 }
+            },
+            {
+                field_id: 'uplMccImage1',
+                type: 'file',
+                name: 'Image 1',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'uplMccImage2',
+                type: 'file',
+                name: 'Image 2',
+                validator: {
+                }
+            },
+            {
+                field_id: 'uplMccImage3',
+                type: 'file',
+                name: 'Image 3',
+                validator: {
+                }
             }
         ];
 
@@ -135,6 +127,60 @@ function ModalCreateComplaint() {
         $('#modal_create_complaint').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('.divMccHideInitial').hide();
+            $('#imgMccImage1, #imgMccImage2, #imgMccImage3').attr('src', 'img/background/upload_placeholder.png');
+        });
+
+        $('#optMccPpmGroupId').on('change', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId='+$('#optMccPpmGroupId').val(), 'GET');
+                    mzOptionStop('optMccAssignedTo', arrPpmGroupUser, 'Select Executor *', 'userId', 'userFirstName', {}, 'required');
+                    $('#divMccExecutor').show();
+                    $('#divMccAssist, .divMccExecutorDetails').hide();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        $('#optMccAssignedTo').on('change', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const assignedTo = $('#optMccAssignedTo').val();
+                    let arrAssistant = [];
+                    for (let i=0; i<arrPpmGroupUser.length; i++) {
+                        if (arrPpmGroupUser[i]['userId'] !== assignedTo) {
+                            arrAssistant.push(arrPpmGroupUser[i]);
+                        }
+                    }
+                    mzOptionStop('optMccAssist', arrAssistant, 'Select Technician Assistant', 'userId', 'userFirstName', {}, 'required');
+                    mzSetFieldValue('MccUserName', refUser[assignedTo]['userFirstName'], 'text');
+                    mzSetFieldValue('MccUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
+                    mzSetFieldValue('MccUserEmail', refUser[assignedTo]['userEmail'], 'text');
+
+                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId='+$('#optMccAssignedTo').val(), 'GET');
+                    oTableCurrentTask.clear().rows.add(dataResult).draw();
+                    $('#divMccAssist, .divMccExecutorDetails').show();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        $('#uplMccImage1').on('change', function () {
+            mzDisplayImageFileInput(this, 'imgMccImage1');
+        });
+
+        $('#uplMccImage2').on('change', function () {
+            mzDisplayImageFileInput(this, 'imgMccImage2');
+        });
+
+        $('#uplMccImage3').on('change', function () {
+            mzDisplayImageFileInput(this, 'imgMccImage3');
         });
 
         $('#btnMccSubmit').on('click', function () {
@@ -190,6 +236,7 @@ function ModalCreateComplaint() {
                 ]
         });
         $("#dtMccCurrentTask_filter").hide();
+
     };
 
     this.add = function () {

@@ -1309,3 +1309,13 @@ function mzIsValidDate(s) {  // 31/9/2011
     const d = new Date(bits[2] + '/' + bits[1] + '/' + bits[0]);
     return !!(d && (d.getMonth() + 1) == bits[1] && d.getDate() == Number(bits[0]));
 }
+
+function mzDisplayImageFileInput(input, targetId) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            $('#'+targetId).attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]); // convert to base64 string
+    }
+}
