@@ -1,5 +1,6 @@
 <?php
 require_once 'function/db.php';
+require_once 'function/f_general.php';
 
 function download_blob($file, $blob) {    
     file_put_contents($file, base64_decode($blob));
@@ -12,7 +13,7 @@ function download_blob($file, $blob) {
         header('Pragma: public');
         header('Content-Length: ' . filesize($file));
         readfile($file);
-        unlink($file);
+        //unlink($file);
     }
 }
 
@@ -26,33 +27,28 @@ function download($file) {
         header('Pragma: public');
         header('Content-Length: ' . filesize($file));
         readfile($file);
-        unlink($file);
+        //unlink($file);
     }
 }
 
 $request_method = $_SERVER['REQUEST_METHOD'];
-if ('GET' === $request_method) {    // get aduan details 
-    $type = filter_input(INPUT_GET, 't');
+if ('GET' === $request_method) {    // get aduan details
     $docId = filter_input(INPUT_GET, 'docId');
-    if (!empty($type) && !empty($docId)) { 
-        Class_db::getInstance()->db_connect(); 
-        if ($type == '1') {
-            $result = Class_db::getInstance()->db_select_single('sys_upload', array('upload_id'=>$docId));
-            if (!empty($result)) { 
+    if (!empty($docId)) {
+        Class_db::getInstance()->db_connect();
+        $result = Class_db::getInstance()->db_select_single('sys_upload', array('upload_id'=>$docId));
+        if (!empty($result)) {
+            if ($result['upload_blob_data'] !== null) {
                 download_blob($result['upload_uplname'], $result['upload_blob_data']);
+            } else {
+                download('upload/17/2/f_12336.png');
+                download('upload/17/2/f_12337.png');
+                //download($result['upload_folder'].'/'.$result['upload_filename'].'.'.$result['upload_extension']);
             }
-        } else if ($type == '2') {
-            $pdfId = Class_db::getInstance()->db_select_col('sem_certificate', array('certificate_id'=>$docId), 'pdf_id');
-            if (!empty($pdfId)) { 
-                $result = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$pdfId));
-                if (!empty($result)) { 
-                    download($result['pdf_folder'].'/'.$result['pdf_filename']);
-                }
-            }            
         }
-        Class_db::getInstance()->db_close();     
+        Class_db::getInstance()->db_close();
     }
-} 
+}
 exit;
 
 ?>

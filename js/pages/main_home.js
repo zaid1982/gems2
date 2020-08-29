@@ -426,7 +426,23 @@ function MainHome() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            return '<a><i class="far fa-file-pdf lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                            let uploadNames = row['uploadNames'];
+                            let uploadIds = row['uploadIds'];
+                            if (uploadNames.length > 0 && uploadIds.length > 0 && uploadNames[0] !== '') {
+                                let htmlDropdown = '<div class="btn-group" role="group">\n' +
+                                    '                <i class="fas fa-download  dropdown-toggle" data-toggle="dropdown"\n' +
+                                    '                   aria-haspopup="true" aria-expanded="false"></i>\n' +
+                                    '                <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">\n' +
+                                    '                    <a class="dropdown-item lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '">PPM Form</a>\n';
+                                for (let i=0; i<uploadNames.length; i++) {
+                                    htmlDropdown += '<a class="dropdown-item" href="api/download.php?docId='+uploadIds[i]+'">'+uploadNames[i]+'</a>\n';
+                                }
+                                htmlDropdown += '</div>\n' +
+                                    '            </div>';
+                                return htmlDropdown;
+                            } else {
+                                return '<a><i class="far fa-file-pdf lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                            }
                         }
                     },
                     {mData: 'siteId', visible: false},
