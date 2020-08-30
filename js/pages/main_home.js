@@ -435,7 +435,7 @@ function MainHome() {
                                     '                <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">\n' +
                                     '                    <a class="dropdown-item lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '">PPM Form</a>\n';
                                 for (let i=0; i<uploadNames.length; i++) {
-                                    htmlDropdown += '<a class="dropdown-item" href="api/download.php?docId='+uploadIds[i]+'">'+uploadNames[i]+'</a>\n';
+                                    htmlDropdown += '<a class="dropdown-item" href="api/download.php?docId='+uploadIds[i]+'">Attachment '+i+'</a>\n';
                                 }
                                 htmlDropdown += '</div>\n' +
                                     '            </div>';

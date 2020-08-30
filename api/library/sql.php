@@ -813,8 +813,7 @@ class Class_sql
                     ast_asset.asset_type_id,
                     ast_asset.asset_block,
                     ast_asset.asset_level,
-                    task_upload.upload_ids,   
-                    task_upload.upload_names,                    
+                    task_upload.upload_ids,                     
                     IF ((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date, 'Late', 'On-time') AS lateness
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
@@ -824,9 +823,8 @@ class Class_sql
                     FROM ppm_task_frequency
                     LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
                     GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
-                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(ppm_task_upload.upload_id SEPARATOR '||') AS upload_ids, GROUP_CONCAT(sys_upload.upload_uplname SEPARATOR '||') AS upload_names 
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(ppm_task_upload.upload_id SEPARATOR '||') AS upload_ids 
                     FROM ppm_task_upload
-                    LEFT JOIN sys_upload ON sys_upload.upload_id = ppm_task_upload.upload_id
                     WHERE ppm_task_upload_type = 3
                     GROUP BY ppm_task_id) task_upload ON task_upload.ppm_task_id = ppm_task.ppm_task_id";
             } else if ($title === 'vw_client_with_severity') {
