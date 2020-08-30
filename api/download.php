@@ -41,9 +41,7 @@ if ('GET' === $request_method) {    // get aduan details
             if ($result['upload_blob_data'] !== null) {
                 download_blob($result['upload_uplname'], $result['upload_blob_data']);
             } else {
-                download('upload/17/2/f_12336.png');
-                download('upload/17/2/f_12337.png');
-                //download($result['upload_folder'].'/'.$result['upload_filename'].'.'.$result['upload_extension']);
+                download($result['upload_folder'].'/'.$result['upload_filename'].'.'.$result['upload_extension']);
             }
         }
         Class_db::getInstance()->db_close();
