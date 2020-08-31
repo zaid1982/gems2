@@ -98,25 +98,52 @@ function ModalCreateComplaint() {
                 }
             },
             {
-                field_id: 'uplMccImage1',
+                field_id: 'txfMccImage1',
                 type: 'file',
                 name: 'Image 1',
                 validator: {
-                    notEmpty: true
+                    notEmptyFile: true
                 }
             },
             {
-                field_id: 'uplMccImage2',
+                field_id: 'txfMccImage2',
                 type: 'file',
                 name: 'Image 2',
                 validator: {
                 }
             },
             {
-                field_id: 'uplMccImage3',
+                field_id: 'txfMccImage3',
                 type: 'file',
                 name: 'Image 3',
                 validator: {
+                }
+            },
+            {
+                field_id: 'txaMccImgDesc1',
+                type: 'text',
+                name: 'Image Description',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 500
+                }
+            },
+            {
+                field_id: 'txaMccImgDesc2',
+                type: 'text',
+                name: 'Image Description',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 500
+                }
+            },
+            {
+                field_id: 'txaMccImgDesc3',
+                type: 'text',
+                name: 'Image Description',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 500
                 }
             }
         ];
@@ -171,17 +198,54 @@ function ModalCreateComplaint() {
             }, 200);
         });
 
-        $('#uplMccImage1').on('change', function () {
+        $('#txfMccImage1').on('change', function () {
+            $('#imgMccImage1').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage1');
+            if ($('#txfMccImage1').val() !== '') {
+                formValidate.enableField('txaMccImgDesc1');
+                $('#divMccImgDesc1').show();
+            } else {
+                formValidate.disableField('txaMccImgDesc1');
+                $('#txaMccImgDesc1').val('').removeClass('invalid');
+                $('#lblMccImgDesc1').removeClass('active');
+                $('#txaMccImgDesc1Err').html('');
+                $('#divMccImgDesc1').hide();
+            }
         });
 
-        $('#uplMccImage2').on('change', function () {
+        $('#txfMccImage2').on('change', function () {
+            $('#imgMccImage2').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage2');
+            if ($('#txfMccImage2').val() !== '') {
+                formValidate.enableField('txaMccImgDesc2');
+                $('#divMccImgDesc2').show();
+            } else {
+                formValidate.disableField('txaMccImgDesc2');
+                $('#txaMccImgDesc2').val('').removeClass('invalid');
+                $('#lblMccImgDesc2').removeClass('active');
+                $('#txaMccImgDesc2Err').html('');
+                $('#divMccImgDesc2').hide();
+            }
         });
 
-        $('#uplMccImage3').on('change', function () {
+        $('#txfMccImage3').on('change', function () {
+            $('#imgMccImage3').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage3');
+            if ($('#txfMccImage3').val() !== '') {
+                formValidate.enableField('txaMccImgDesc3');
+                $('#divMccImgDesc3').show();
+            } else {
+                formValidate.disableField('txaMccImgDesc3');
+                $('#txaMccImgDesc3').val('').removeClass('invalid');
+                $('#lblMccImgDesc3').removeClass('active');
+                $('#txaMccImgDesc3Err').html('');
+                $('#divMccImgDesc3').hide();
+            }
         });
+
+        document.getElementById('txfMccImage1').addEventListener('change', mzHandleFileSelect, false);
+        document.getElementById('txfMccImage2').addEventListener('change', mzHandleFileSelect, false);
+        document.getElementById('txfMccImage3').addEventListener('change', mzHandleFileSelect, false);
 
         $('#btnMccSubmit').on('click', function () {
             ShowLoader();
@@ -191,19 +255,51 @@ function ModalCreateComplaint() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
+                        let fileUpload = [];
+                        if ($('#txfMccImage1').val() !== '') {
+                            fileUpload.push({
+                                name: 'Complaint Image',
+                                filename: $('#txfMccImage1').prop('files')[0].name,
+                                size: $('#txfMccImage1').prop('files')[0].size,
+                                type: $('#txfMccImage1').prop('files')[0].type,
+                                data: $('#txfMccImage1Blob').val(),
+                                description: $('#txaMccImgDesc1').val()
+                            });
+                        }
+                        if ($('#txfMccImage2').val() !== '') {
+                            fileUpload.push({
+                                name: 'Complaint Image',
+                                filename: $('#txfMccImage2').prop('files')[0].name,
+                                size: $('#txfMccImage2').prop('files')[0].size,
+                                type: $('#txfMccImage2').prop('files')[0].type,
+                                data: $('#txfMccImage2Blob').val(),
+                                description: $('#txaMccImgDesc2').val()
+                            });
+                        }
+                        if ($('#txfMccImage3').val() !== '') {
+                            fileUpload.push({
+                                name: 'Complaint Image',
+                                filename: $('#txfMccImage3').prop('files')[0].name,
+                                size: $('#txfMccImage3').prop('files')[0].size,
+                                type: $('#txfMccImage3').prop('files')[0].type,
+                                data: $('#txfMccImage3Blob').val(),
+                                description: $('#txaMccImgDesc3').val()
+                            });
+                        }
                         const data = {
                             action: 'submit_helpdesk_complaint',
                             siteId: siteId,
                             createdBy: $('#optMccCreatedBy').val(),
                             location: $('#txtMccLocation').val(),
                             complaint: $('#txaMccComplaint').val(),
+                            complaintImages: fileUpload,
                             taskType: $('#optMccType').val(),
                             severity: $('#optMccSeverity').val(),
                             ppmGroupId: $('#optMccPpmGroupId').val(),
                             assignedTo: $('#optMccAssignedTo').val(),
                             taskAssist: $('#optMccAssist').val()
                         };
-
+                        console.log(data);
                         mzAjaxRequest('wo.php', 'POST', data);
                         if (classFrom.getClassName() === 'MainHelpdesk') {
                             classFrom.genTableHdkWo();
@@ -249,6 +345,10 @@ function ModalCreateComplaint() {
                 $('.divMccView').hide();
                 mzSetFieldValue('MccSiteName', refSite[siteId]['siteName'], 'text');
                 $('#modal_create_complaint').modal({backdrop: 'static', keyboard: false});
+                formValidate.disableField('txaMccImgDesc1');
+                formValidate.disableField('txaMccImgDesc2');
+                formValidate.disableField('txaMccImgDesc3');
+                $('#divMccImgDesc1, #divMccImgDesc2, #divMccImgDesc3').hide();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }

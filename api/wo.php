@@ -226,6 +226,16 @@ try {
             $assignedTo = filter_input(INPUT_POST, 'assignedTo');
             $taskAssist = filter_input(INPUT_POST, 'taskAssist', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
+            $complaintImageUploads = array();
+            $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            if (!empty($complaintImages)) {
+                foreach ($complaintImages as $complaintImage) {
+                    $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
+                    $complaintImageUpload = array('uploadId' => $uploadId, 'description' => $complaintImage['description'], 'longitude' => '', 'latitude' => '');
+                    array_push($complaintImageUploads, $complaintImageUpload);
+                }
+            }
+
             $groupId = $fn_task->get_group_id_from_user($createdBy, '6');
             $fn_wo->__set('userId', $createdBy);
             $woTaskNo = $fn_wo->create_wo_no($groupId, false);
@@ -236,7 +246,7 @@ try {
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $createdBy, '9', '', '', '', $groupId);
             }
-            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $location, $complaint, array(), '', '', '1');
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $location, $complaint, $complaintImageUploads, '', '', '1');
             $fn_wo->__set('woTaskId', $woTaskId);
             $fn_wo->save_respond_time_m();
             $fn_wo->save_assigned_technician_m($ppmGroupId, $assignedTo, $severity, $taskAssist, $taskType);
