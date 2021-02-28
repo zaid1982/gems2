@@ -295,7 +295,7 @@ class Class_pdf_wr {
             $duration = !empty($totalExecTime) ? $totalExecTime : '';
 
             $pdf->SetFont('helvetica', '', 9);
-            $pdf->Cell(30, 5, 'Person In Charged : ', 1, 0, 'R');
+            $pdf->Cell(30, 5, 'Person In Charge : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $picName, 1, 0, 'L');
             $pdf->Cell(35, 5, 'SLA Respond Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))], 1, 0, 'L');
@@ -305,10 +305,9 @@ class Class_pdf_wr {
             $pdf->Cell(35, 5, 'Due Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, !empty($dueTime)?$dueTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
             $pdf->Ln();
-            $pdf->Cell(30, 5, '', 1, 0, 'R');
-            $pdf->Cell(60, 5, '', 1, 0, 'L');
-            $pdf->Cell(35, 5, 'Respond Time : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, !empty($respondTime)?$respondTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
+            $respondDuration = $this->fn_general->timeDiff($woTask['wo_task_time_created'], $woTask['wo_task_time_wr_checked']);
+            $pdf->Cell(30, 5, 'Respond Duration : ', 1, 0, 'R');
+            $pdf->Cell(150, 5, $respondDuration, 1, 0, 'L');
             $pdf->Ln();
 
             if ($pdf->GetY() > 250) {

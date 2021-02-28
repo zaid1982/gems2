@@ -267,6 +267,8 @@ class Class_pdf_wo {
             $picName = '';
             $picEmail = '';
             $dueTime = '';
+            $assignTime = '';
+            $wrVerifyTime = '';
             $fixedTime = '';
             if (!empty($woTask['wo_task_assigned_to'])) {
                 $picName = $arrUserFullName[intval($woTask['wo_task_assigned_to'])];
@@ -276,8 +278,15 @@ class Class_pdf_wo {
                 if (!empty($woTask['wo_task_severity'])) {
                     $dueTime = $createdTime->modify('+'.$arrDue[intval($woTask['wo_task_severity'])].' hour');
                 }
-                if (!empty($woTask['wo_task_time_executed'])) {
+                if (!empty($woTask['wo_task_time_assigned'])) {
                     $assignedTime = new DateTime($woTask['wo_task_time_assigned']);
+                    $assignTime = $assignedTime->format('j/n/Y g:i:sa');
+                }
+                if (!empty($woTask['wo_task_time_wr_verified'])) {
+                    $wrVerifiedTime = new DateTime($woTask['wo_task_time_wr_verified']);
+                    $wrVerifyTime = $wrVerifiedTime->format('j/n/Y g:i:sa');
+                }
+                if (!empty($woTask['wo_task_time_executed'])) {
                     $executedTime = new DateTime($woTask['wo_task_time_executed']);
                     $fixedTime = $executedTime->format('j/n/Y g:i:sa');
                     //$interval = $assignedTime->diff($executedTime);
@@ -291,7 +300,7 @@ class Class_pdf_wo {
             $duration = !empty($totalExecTime) ? $totalExecTime : '';
 
             $pdf->SetFont('helvetica', '', 9);
-            $pdf->Cell(30, 5, 'Person In Charged : ', 1, 0, 'R');
+            $pdf->Cell(30, 5, 'Person In Charge : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $picName, 1, 0, 'L');
             $pdf->Cell(35, 5, 'SLA : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))], 1, 0, 'L');
@@ -301,10 +310,24 @@ class Class_pdf_wo {
             $pdf->Cell(35, 5, 'Due Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, !empty($dueTime)?$dueTime->format('j/n/Y g:i:sa'):'', 1, 0, 'L');
             $pdf->Ln();
+            if ($woTask['wo_task_is_wr'] === '1') {
+                $respondDuration = $this->fn_general->timeDiff($woTask['wo_task_time_created'], $woTask['wo_task_time_assigned']);
+                $pdf->Cell(30, 5, 'Time Respond : ', 1, 0, 'R');
+                $pdf->Cell(60, 5, $assignTime, 1, 0, 'L');
+                $pdf->Cell(35, 5, 'Respond Duration : ', 1, 0, 'R');
+                $pdf->Cell(55, 5, $respondDuration, 1, 0, 'L');
+                $pdf->Ln();
+            }
+            $workDuration = '';
+            if ($woTask['wo_task_is_wr'] === '1' && !empty($wrVerifyTime)) {
+                $workDuration = $this->fn_general->timeDiff($woTask['wo_task_time_wr_verified'], $woTask['wo_task_time_executed']);
+            } else if ($woTask['wo_task_is_wr'] === '0' && !empty($assignTime)) {
+                $workDuration = $this->fn_general->timeDiff($woTask['wo_task_time_assigned'], $woTask['wo_task_time_executed']);
+            }
             $pdf->Cell(30, 5, 'Work Completed : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $fixedTime, 1, 0, 'L');
             $pdf->Cell(35, 5, 'Work Duration : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $duration, 1, 0, 'L');
+            $pdf->Cell(55, 5, $workDuration, 1, 0, 'L');
             $pdf->Ln();
             $pdf->Cell(30, 5, 'Rating : ', 1, 0, 'R');
             $pdf->Cell(60, 5, !empty($woTask['wo_task_rate'])?$woTask['wo_task_rate'].' / 5':'', 1, 0, 'L');

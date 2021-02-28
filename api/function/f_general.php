@@ -83,6 +83,7 @@ class Class_general {
     public function log_debug ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\debug\debug_'.date("Ymd").'.log');
     }
 
     /**
@@ -585,4 +586,55 @@ class Class_general {
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $firstTime
+     * @param $lastTime
+     * @return string
+     * @throws Exception
+     */
+    public function timeDiff ($firstTime, $lastTime){
+        try {
+            if (empty($firstTime) || empty($lastTime)) {
+                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$lastTime '.$lastTime);
+                return '';
+            }
+
+            $firstTime = strtotime($firstTime);
+            $lastTime = strtotime($lastTime);
+            $difference = $lastTime-$firstTime;
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$difference '.$difference);
+            $days = abs(floor($difference / 86400));
+            $hours = abs(floor(($difference-($days * 86400))/3600));
+            $mins = abs(floor(($difference-($days * 86400)-($hours * 3600))/60));
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$mins '.$mins);
+            $secs = abs(floor($difference-($days * 86400)-($hours * 3600)-($mins * 60)));
+            $returnStr = '';
+            if ($days == 1) {
+                $returnStr .= $days." day, ";
+            } else if ($days > 1) {
+                $returnStr .= $days." days, ";
+            }
+            if ($hours == 1) {
+                $returnStr .= $hours." hour, ";
+            } else if ($hours > 1) {
+                $returnStr .= $hours." hours, ";
+            }
+            if ($mins == 1) {
+                $returnStr .= $mins." minute, ";
+            } else if ($mins > 1) {
+                $returnStr .= $mins." minutes, ";
+            }
+            if ($secs == 1) {
+                $returnStr .= $secs." second";
+            } else if ($secs > 1) {
+                $returnStr .= $secs." seconds";
+            }
+            return $returnStr;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
 }

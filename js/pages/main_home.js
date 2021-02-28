@@ -263,7 +263,7 @@ function MainHome() {
                             return row['woTaskVerifiedBy'] !== '' ? refUser[row['woTaskVerifiedBy']]['userFirstName'] : '';
                         }},
                     {mData: 'woTaskTimeCreated', visible: false},
-                    {mData: 'woTaskTimeResponded', visible: false},
+                    {mData: 'durationResponded', visible: false},
                     {mData: 'woTaskTimeAssigned', visible: false},
                     {mData: 'woTaskTimeExecuted', visible: false},
                     {mData: 'woTaskTimeVerified', visible: false},
