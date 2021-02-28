@@ -102,6 +102,8 @@ try {
             $result = $fn_wo->get_wo_rate_m();
         } else if ($type === 'wo_severity_list') {
             $result = $fn_wo->get_wo_severity_list_m();
+        } else if ($type === 'wr_rectification_time') {
+            $result = $fn_wo->get_wr_rectification_time_m();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
@@ -174,6 +176,12 @@ try {
             $returnVal = $fn_wo->save_wo_severity_m($severity);
             $fn_general->save_audit('111', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', severity = '.$returnVal['severityName']);
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_SEVERITY;
+        }
+        else if ($action === 'save_wr_rectification_time') {
+            $rectificationTime = filter_input(INPUT_POST, 'rectificationTime');
+            $returnVal = $fn_wo->save_wr_rectification_time_m($rectificationTime);
+            $fn_general->save_audit('111', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].', rectification time = '.$returnVal['timeRectified']);
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_WO_RECTIFICATION_TIME;
         }
         else if ($action === 'save_asset_no') {
             $assetNo = filter_input(INPUT_POST, 'assetNo');
