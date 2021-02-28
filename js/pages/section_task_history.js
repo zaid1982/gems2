@@ -6,7 +6,7 @@ function SectionTaskHistory() {
     let classFrom;
     let refStatus;
     let refRole;
-    let refGroup;
+    //let refGroup;//
     let refUser;
     let refFlow;
     let refCheckpoint;
@@ -51,9 +51,9 @@ function SectionTaskHistory() {
                     {mData: 'roleId', mRender: function (data){
                             return data !== '' ? refRole[data]['roleDesc'] : '';
                         }},
-                    {mData: 'groupId', mRender: function (data){
-                            return data !== '' ? refGroup[data]['groupName'] : '';
-                        }},
+                    //{mData: 'groupId', mRender: function (data){
+                      //      return data !== '' ? refGroup[data]['groupName'] : '';
+                        //}},
                     {mData: 'taskDateDue'},
                     {mData: 'taskTimeCreated'},
                     {mData: 'taskTimeSubmit'},
@@ -137,7 +137,7 @@ function SectionTaskHistory() {
                 mzSetFieldValue('SthTransactionNo', taskDetails['transactionNo'], 'text');
                 mzSetFieldValue('SthCheckpointDesc', taskDetails['checkpointId'] !== '' ? refCheckpoint[taskDetails['checkpointId']]['checkpointDesc'] : '', 'text');
                 mzSetFieldValue('SthTransUser', taskDetails['transUser'] !== '' ? refUser[taskDetails['transUser']]['userFullName'] : '', 'text');
-                mzSetFieldValue('SthTransGroup', taskDetails['transGroup'] !== '' ? refGroup[taskDetails['transGroup']]['groupName'] : '', 'text');
+                //mzSetFieldValue('SthTransGroup', taskDetails['transGroup'] !== '' ? refGroup[taskDetails['transGroup']]['groupName'] : '', 'text');
                 mzSetFieldValue('SthTransactionTimeCreated', taskDetails['transactionTimeCreated'], 'text');
                 mzSetFieldValue('SthTaskStatus', refStatus[taskDetails['taskStatus']]['statusDesc'], 'text');
                 mzSetFieldValue('SthUserFullName', taskDetails['userId'] !== '' ? refUser[taskDetails['userId']]['userFullName'] : '', 'text');
@@ -237,9 +237,9 @@ function SectionTaskHistory() {
         refRole = _refRole;
     };
 
-    this.setRefGroup = function (_refGroup) {
-        refGroup = _refGroup;
-    };
+    //this.setRefGroup = function (_refGroup) {
+       // refGroup = _refGroup;
+    //};
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
