@@ -74,10 +74,10 @@ class Class_email {
      * @param string $userId
      * @param int $emailTemplateId
      * @param array $emailParam
+     * @param bool $isExpress
      * @return bool
-     * @throws Exception
      */
-    public function setup_email ($userId='', $emailTemplateId=0, $emailParam=array()) {
+    public function setup_email ($userId='', $emailTemplateId=0, $emailParam=array(), $isExpress=false) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -112,8 +112,12 @@ class Class_email {
             }
             $emailHtml = str_replace ("[fullName]", $sys_user['user_first_name'], $emailHtml);
 
-            Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$sys_profile['user_email'], 'email_title'=>$emailTitle,
-                'email_html'=>$emailHtml, 'user_id'=>$userId));
+            if ($isExpress) {
+                $this->send_email_express($sys_profile['user_email'], $emailTitle, $emailHtml);
+            } else {
+                Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$sys_profile['user_email'], 'email_title'=>$emailTitle,
+                    'email_html'=>$emailHtml, 'user_id'=>$userId));
+            }
             return true;
         }
         catch(Exception $ex) {
