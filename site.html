@@ -14,7 +14,7 @@
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?rnd=2" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
 
@@ -69,7 +69,7 @@
                                 <th>Description</th>
                                 <th style="width: 12%">Has Work Request</th>
                                 <th style="width: 12%">Status</th>
-                                <th style="width: 80px"></th>
+                                <th style="width: 60px; min-width: 60px"></th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -136,6 +136,7 @@
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
 
                 modalSiteClass_.setRefClient(refClient_);
+                modalSiteClass_.setRefStatus(refStatus_);
                 modalSiteClass_.setClassFrom(siteClass_);
                 modalSiteClass_.init();
                 siteClass_.setVersionLocal(versionLocal_);

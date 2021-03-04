@@ -5,7 +5,10 @@ function ModalSite() {
     let siteId = '';
     let rowRefresh = '';
     let classFrom;
+    let refStatus;
     let refClient;
+    let oTableProblemType;
+    let oTableSiteLocation;
 
     this.init = function () {
         const vData = [
@@ -129,6 +132,80 @@ function ModalSite() {
                 HideLoader();
             }, 300);
         });
+
+        oTableProblemType =  $('#dtMstProblemType').DataTable({
+            bLengthChange: false,
+            autoWidth: false,
+            bFilter: false,
+            aaSorting: [1, 'asc'],
+            language: _DATATABLE_LANGUAGE,
+            dom: "<'row'<'col-sm-12'B>>" +
+                "<'row'<'col-sm-12'tr>>"+
+                "<'row'<'col-sm-12 col-md-5 d-none d-md-block'i><'col-sm-12 col-md-7'p>>",
+            buttons: [
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-print text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Cetak', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-copy text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-excel text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-pdf text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'PDF', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            aoColumns:
+                [
+                    {mData: null, bSortable: false, sClass: 'text-center'},
+                    {mData: 'siteProblemTypeName'},
+                    {mData: null, sClass: 'text-center',
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['siteProblemTypeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteProblemTypeStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: 'siteProblemTypeStatus', visible: false,
+                        mRender: function (data, type, row) {
+                            return refStatus[row['siteProblemTypeStatus']]['statusDesc'];
+                        }
+                    }
+                ]
+        });
+
+        oTableSiteLocation =  $('#dtMstSiteLocation').DataTable({
+            bLengthChange: false,
+            autoWidth: false,
+            bFilter: false,
+            aaSorting: [1, 'asc'],
+            language: _DATATABLE_LANGUAGE,
+            dom: "<'row'<'col-sm-12'B>>" +
+                "<'row'<'col-sm-12'tr>>"+
+                "<'row'<'col-sm-12 col-md-5 d-none d-md-block'i><'col-sm-12 col-md-7'p>>",
+            buttons: [
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-print text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Cetak', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-copy text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-excel text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-pdf text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'PDF', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = oTableSite.page.info();
+                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            },
+            aoColumns:
+                [
+                    {mData: null, bSortable: false},
+                    {mData: 'siteLocationName'},
+                    {mData: null,
+                        mRender: function (data, type, row) {
+                            return '<h6><span class="badge badge-pill '+refStatus[row['siteLocationStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteLocationStatus']]['statusDesc']+'</span></h6>';
+                        }
+                    },
+                    {mData: 'siteLocationStatus', visible: false,
+                        mRender: function (data, type, row) {
+                            return refStatus[row['siteLocationStatus']]['statusDesc'];
+                        }
+                    }
+                ]
+        });
+
+
     };
 
     this.add = function () {
@@ -138,6 +215,7 @@ function ModalSite() {
         ShowLoader();
         setTimeout(function () {
             try {
+                $('.isMstWorkRequest').hide();
                 console.log(refClient);
                 mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
 
@@ -155,6 +233,7 @@ function ModalSite() {
         ShowLoader();
         setTimeout(function () {
             try {
+                $('.isMstWorkRequest').hide();
                 mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName');
                 mzCheckFuncParam([_siteId, _rowRefresh]);
                 siteId = _siteId;
@@ -169,6 +248,10 @@ function ModalSite() {
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
                 mzDisableSelect('optMstClientId', true);
+                if (dataMst['siteIsWr'] === '1') {
+                    $('.isMstWorkRequest').show();
+                    self.genTableProblemType();
+                }
 
                 $('#lblMstTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Site');
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
@@ -229,12 +312,26 @@ function ModalSite() {
         }, 300);
     };
 
+    this.genTableProblemType = function () {
+        const dataDb = mzAjaxRequest('site_problem_type.php?siteId='+siteId, 'GET');
+        oTableProblemType.clear().rows.add(dataDb).draw();
+    };
+
+    this.genTableLocation = function () {
+        const dataDb = mzAjaxRequest('site.php?type=problemType&siteId='+siteId, 'GET');
+        oTableSiteLocation.clear().rows.add(dataDb).draw();
+    };
+
     this.getClassName = function () {
         return className;
     };
 
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
+    };
+
+    this.setRefStatus = function (_refStatus) {
+        refStatus = _refStatus;
     };
 
     this.setRefClient = function (_refClient) {

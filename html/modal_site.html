@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal_site" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
         <!--Content-->
         <div class="modal-content">
             <!--Header-->
@@ -34,15 +34,67 @@
                         <label for="txaMstDesc" id="lblMstDesc" class="text-muted">Description</label>
                         <p class="font-small text-danger" id="txaMstDescErr"></p>
                     </div>
-                    <h6 class="font-small">Has Work Request:</h6>
-                    <div class="form-check pl-0 ml-3 mb-3">
-                        <input type="checkbox" class="form-check-input" id="chkMstWorkRequest" name="chkMstWorkRequest" value="1">
-                        <label class="form-check-label" for="chkMstWorkRequest">Yes</label>
+                    <div class="row mb-3">
+                        <div class="col-4 col-lg-3">
+                            <h6 class="font-small">Has Work Request:</h6>
+                            <div class="form-check pl-0 ml-3 mb-3">
+                                <input type="checkbox" class="form-check-input" id="chkMstWorkRequest" name="chkMstWorkRequest" value="1">
+                                <label class="form-check-label" for="chkMstWorkRequest">Yes</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-lg-3">
+                            <h6 class="font-small">Status:</h6>
+                            <div class="form-check pl-0 ml-3">
+                                <input type="checkbox" class="form-check-input" id="chkMstStatus" name="chkMstStatus" value="1">
+                                <label class="form-check-label" for="chkMstStatus">Active</label>
+                            </div>
+                        </div>
                     </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMstStatus" name="chkMstStatus" value="1">
-                        <label class="form-check-label" for="chkMstStatus">Active</label>
+                    <div class="row mb-2 isMstWorkRequest">
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-pink btn-sm float-right" id="btnSccLetterAdd" data-toggle="tooltip" data-placement="top" title="Tambah Surat-surat Siasat dan Lain-lain"><i class="fas fa-plus mr-1"></i> Add Problem Type</button>
+                                    <h6 class="text-muted font-weight-bold ml-2 mt-2">Problem Type : &nbsp;</h6>
+                                    <div class="table-responsive">
+                                        <table id="dtMstProblemType" class="table table-hover table-sm mb-0 display responsive">
+                                            <thead>
+                                            <tr class="th-strong">
+                                                <th style="width: 10%">#</th>
+                                                <th>Problem Type</th>
+                                                <th style="width: 20%">Status</th>
+                                                <th>Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row isMstWorkRequest">
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-amber btn-sm float-right" id="btnSccLetterAdd" data-toggle="tooltip" data-placement="top" title="Tambah Surat-surat Siasat dan Lain-lain"><i class="fas fa-plus mr-1"></i> Add Site Location</button>
+                                    <h6 class="text-muted font-weight-bold ml-2 mt-2">Site Location : &nbsp;</h6>
+                                    <div class="table-responsive">
+                                        <table id="dtMstSiteLocation" class="table table-hover mb-0 display responsive">
+                                            <thead>
+                                            <tr class="th-strong">
+                                                <th style="width: 10%">#</th>
+                                                <th>Location Name</th>
+                                                <th style="width: 20%">Status</th>
+                                                <th>Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -18,6 +18,7 @@ function MainSite() {
                 const info = oTableSite.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
+            autoWidth: false,
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkSteSiteEdit').off('click').on('click', function () {
