@@ -841,7 +841,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     return returnVal;
 }
 
-function mzGetLocalArray(name, version, id, filters, api) {
+function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
     if (typeof name === 'undefined' || typeof version === 'undefined' || typeof id === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -872,6 +872,8 @@ function mzGetLocalArray(name, version, id, filters, api) {
     if (getNew) {
         if (typeof api === 'undefined') {
             rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name});
+		} else if (typeof apiBeautify !== 'undefined' && apiBeautify === true) {
+			rawData = mzAjaxRequest(api, 'GET');
         } else {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
