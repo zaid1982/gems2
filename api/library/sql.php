@@ -849,6 +849,14 @@ class Class_sql
                     FROM cli_client_failure_code
                     GROUP BY client_id
                 ) failure_code ON failure_code.client_id = cli_client.client_id";
+            } else if ($title === 'vw_drawing') {
+                $sql = "SELECT
+                    drawing.*,
+                    user_publish.user_first_name AS published_by,
+                    user_create.user_first_name AS upload_by
+                FROM drawing
+                LEFT JOIN sys_user user_publish ON user_publish.user_id = drawing.drawing_published_by
+                LEFT JOIN sys_user user_create ON user_create.user_id = drawing.drawing_created_by";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

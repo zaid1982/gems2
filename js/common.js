@@ -32,6 +32,7 @@ const _DATATABLE_LANGUAGE =  {
     }*/
 };
 
+const mzUrlDownload = '//localhost:8081/gems2/api/';
 let mzCnt;
 let mzExportOpt = {
     format: {
@@ -140,6 +141,21 @@ function MzValidate(name) {
                 if (val === true && fieldSelector.summernote('isEmpty'))
                     return false;
                 break;
+            case 'pdfType':
+                if (val === true && fieldSelector.prop('files').length > 0 && fieldSelector.prop('files')[0].type !== 'application/pdf') {
+                    return false;
+                }
+                break;
+            case 'imageType':
+                if (val === true && fieldSelector.prop('files').length > 0 && fieldSelector.prop('files')[0].type !== 'image/jpg' && fieldSelector.prop('files')[0].type !== 'image/jpeg' && fieldSelector.prop('files')[0].type !== 'image/png') {
+                    return false;
+                }
+                break;
+            case 'dwgType':
+                const filename = fieldSelector.prop('files')[0].name;
+                if (val === true && fieldSelector.prop('files').length > 0 && filename.substr(-4) !== '.dwg')
+                    return false;
+                break;
         }
         return true;
     };
@@ -217,6 +233,15 @@ function MzValidate(name) {
                         return false;
                     case 'notEmptySummernote':
                         msg += '<br>Please fill in '+name;
+                        return false;
+                    case 'pdfType':
+                        msg += '<br>Please make sure the uploaded file is in PDF type';
+                        return false;
+                    case 'imageType':
+                        msg += '<br>Please make sure the uploaded file is in JPG, JPEG, PNG type';
+                        return false;
+                    case 'dwgType':
+                        msg += '<br>Please make sure the uploaded file is in DWG format';
                         return false;
                 }
             }
@@ -347,7 +372,8 @@ function MzValidate(name) {
             }
             else if (u.type === 'file') {
                 fieldSelector.val('');
-                fieldLblSelector.html('').removeClass('active');
+                $('#txt' + fieldId.substring(3)).val('');
+                fieldLblSelector.removeClass('active');
             }
             else if (u.type === 'summernote') {
                 fieldSelector.summernote('code', '');
@@ -393,7 +419,7 @@ function MzValidate(name) {
     }
 }
 
-function mzAjaxRequest(url, type, data, functionStr) {
+function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
     let returnVal = '';
     if (typeof url === 'undefined' || typeof type === 'undefined' || url === '' || type === '') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -402,7 +428,8 @@ function mzAjaxRequest(url, type, data, functionStr) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     data = typeof data === 'undefined' ? '' : data; // JSON.stringify(data)
-    const async = typeof functionStr !== 'undefined';
+    apiBeautify = typeof apiBeautify === 'undefined' ? false : apiBeautify; // JSON.stringify(data)
+    const async = (typeof functionStr !== 'undefined' && functionStr !== '');
 
     let header = {};
     if (sessionStorage.getItem('token') !== null) {
@@ -412,10 +439,10 @@ function mzAjaxRequest(url, type, data, functionStr) {
         jQuery.extend(header, data);
         data = '';
     }
-
+    
     let errMsg = '';
     $.ajax({
-        url: 'api/'+url,
+        url: apiBeautify ? url : 'api/'+url,
         type: type,
         //contentType: 'application/json',
         headers: header,
@@ -425,7 +452,66 @@ function mzAjaxRequest(url, type, data, functionStr) {
         success: function (resp) {
             if (resp.success) {
                 returnVal = resp.result;
-                if (typeof functionStr !== 'undefined') {
+                if (typeof functionStr !== 'undefined' && functionStr !== '') {
+                    if (functionStr.slice(-2) === '()') {
+                        eval(functionStr.slice(0, -1) + '\'' + JSON.stringify(returnVal) + '\');');
+                    } else {
+                        eval(functionStr.slice(0, -1) + ',\'' + JSON.stringify(returnVal) + '\');');
+                    }                    
+                }
+                if (resp['errmsg'] !== '') {
+                    toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
+                }
+            } else if (resp.error === 'Expired token') {
+                window.location.href = 'login.html?f=2';
+            } else {
+                errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
+            }
+        },
+        error: function () {
+            errMsg = _ALERT_MSG_ERROR_DEFAULT;
+        }
+    });
+
+    if (errMsg !== '') {
+        throw new Error(errMsg);
+    }
+    return returnVal;
+}
+
+function mzAjaxRequest2(url, type, data, functionStr) {
+    let returnVal = '';
+    if (typeof url === 'undefined' || typeof type === 'undefined' || url === '' || type === '') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (type !== 'GET' && type !== 'POST' && type !== 'PUT' && type !== 'DELETE') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    data = typeof data === 'undefined' ? '' : data; // JSON.stringify(data)
+    const async = (typeof functionStr !== 'undefined' && functionStr !== '');
+
+    let header = {};
+    if (sessionStorage.getItem('token') !== null) {
+        header = {'Authorization': 'Bearer ' + sessionStorage.getItem('token')};
+    }
+    if (type === 'GET' && data !== '') {
+        jQuery.extend(header, data);
+        data = '';
+    }
+    
+    let errMsg = '';
+    $.ajax({
+        url: url,
+        type: type,
+        //contentType: 'application/json',
+        headers: header,
+        data: data,
+        dataType: 'json',
+        async: async,
+        success: function (resp) {
+            if (resp.success) {
+                returnVal = resp.result;
+                if (typeof functionStr !== 'undefined' && functionStr !== '') {
                     if (functionStr.slice(-2) === '()') {
                         eval(functionStr.slice(0, -1) + '\'' + JSON.stringify(returnVal) + '\');');
                     } else {
@@ -1332,4 +1418,56 @@ function mzDisplayImageFileInput(input, targetId) {
         }
         reader.readAsDataURL(input.files[0]); // convert to base64 string
     }
+}
+
+function mzIsObject ( obj ) {
+    return obj && (typeof obj  === "object");
+}
+
+function mzIsArray ( obj ) {
+    return mzIsObject(obj) && (obj instanceof Array);
+}
+
+function mzOpenPdf (pdfId, pdfTitle) {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            const pdfSrc = mzAjaxRequest('pdf/'+pdfId, 'GET');
+            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfTitle);
+            $('#mpdf_iframe').attr('src', pdfSrc);
+            $('#modal_pdf').modal('show');
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+}
+
+function mzOpenUpload (uploadId) {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            const pdfSrc = mzAjaxRequest('pdf/upload/'+uploadId, 'GET');
+            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfSrc['title']);
+            $('#mpdf_iframe').attr('src', pdfSrc['src']);
+            $('#modal_pdf').modal('show');
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+}
+
+function mzOpenPdfUpload (uploadFolder, uploadFilename, pdfTitle) {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfTitle);
+            $('#mpdf_iframe').attr('src', mzUrlDownload+uploadFolder+'/'+uploadFilename+'.pdf');
+            $('#modal_pdf').modal('show');
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
 }

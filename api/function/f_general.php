@@ -95,8 +95,10 @@ class Class_general {
     public function log_error ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - (ERROR) ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\debug\debug_'.date("Ymd").'.log');
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
         error_log($debugMsg, 3, $this->log_dir.'/error/error_'.date("Ymd").'.log');
+        //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\error\error_'.date("Ymd").'.log');
     }
 
     /**
@@ -637,4 +639,189 @@ class Class_general {
         }
     }
 
+    /**
+     * @param $dataInputs
+     * @return array
+     * @throws Exception
+     */
+    public function convertDbIndexs ($dataInputs) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $dataOutputs = array();
+            $newIndexs = array();
+            $cnt = 0;
+            foreach ($dataInputs as $dataInput) {
+                if ($cnt === 0) {
+                    foreach ($dataInput as $key=>$value) {
+                        $keyTemps = explode('_', $key);
+                        foreach ($keyTemps as $j=>$keyTemp) {
+                            if ($j > 0) {
+                                $keyTemps[$j] = ucfirst($keyTemp);
+                            }
+                        }
+                        $newIndex = implode('', $keyTemps);
+                        $newIndexs[$key] = $newIndex;
+                    }
+                    $cnt++;
+                }
+                $newData = array();
+                foreach ($dataInput as $key=>$value) {
+                    $newData[$newIndexs[$key]] = is_null($value) ? '' : $value;
+                }
+                array_push($dataOutputs, $newData);
+            }
+            return $dataOutputs;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $dataInput
+     * @return array
+     * @throws Exception
+     */
+    public function convertDbIndex ($dataInput) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $dataOutput = array();
+            foreach ($dataInput as $key=>$value) {
+                $keyTemps = explode('_', $key);
+                foreach ($keyTemps as $j=>$keyTemp) {
+                    if ($j > 0) {
+                        $keyTemps[$j] = ucfirst($keyTemp);
+                    }
+                }
+                $newIndex = implode('', $keyTemps);
+                $dataOutput[$newIndex] = is_null($value) ? '' : $value;
+            }
+
+            return $dataOutput;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $dataInputs
+     * @param $indexs
+     * @return array
+     * @throws Exception
+     */
+    public function convertToMysqlArr ($dataInputs, $indexs) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($dataInputs)) {
+                throw new Exception('[' . __LINE__ . '] - Array dataInputs empty');
+            }
+
+            $dataOutputs = array();
+            foreach ($indexs as $index) {
+                if (!array_key_exists($index, $dataInputs)) {
+                    throw new Exception('[' . __LINE__ . '] - '.$index.' not exist');
+                }
+
+                $newIndexs = '';
+                for ($i = 0; $i < strlen($index); $i++){
+                    if (ctype_digit($index[$i])) {
+                        $newIndexs .= '_' . $index[$i];
+                    } else if (ctype_upper($index[$i])) {
+                        $newIndexs .= '_' . strtolower($index[$i]);
+                    } else {
+                        $newIndexs .= $index[$i];
+                    }
+                }
+
+                $dataOutputs[$newIndexs] = $dataInputs[$index];
+            }
+            return $dataOutputs;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $dataInputs
+     * @return array
+     * @throws Exception
+     */
+    public function convertToMysqlArrAll ($dataInputs) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $dataOutputs = array();
+            if (!empty($dataInputs)) {
+                foreach ($dataInputs as $index => $dataInput) {
+                    $newIndexs = '';
+                    for ($i = 0; $i < strlen($index); $i++) {
+                        if (ctype_digit($index[$i])) {
+                            $newIndexs .= '_' . $index[$i];
+                        } else if (ctype_upper($index[$i])) {
+                            $newIndexs .= '_' . strtolower($index[$i]);
+                        } else {
+                            $newIndexs .= $index[$i];
+                        }
+                    }
+                    $dataOutputs[$newIndexs] = $dataInput;
+                }
+            }
+            return $dataOutputs;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $params
+     * @return void
+     * @throws Exception
+     */
+    public function checkEmptyParams ($params) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            foreach ($params as $key=>$param) {
+                if (isset($param)) {
+                    if ($param === '') {
+                        throw new Exception('[' . __LINE__ . '] - Parameter '.$key.' empty');
+                    } else if (is_array($param) && empty($param)) {
+                        throw new Exception('[' . __LINE__ . '] - Array '.$key.' empty');
+                    }
+                } else {
+                    throw new Exception('[' . __LINE__ . '] - Parameter '.$key.' not available');
+                }
+            }
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $indexs
+     * @param array $params
+     * @return void
+     * @throws Exception
+     */
+    public function checkEmptyParamsArray ($params , $indexs) {
+        try {
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            foreach ($indexs as $index) {
+                if (!array_key_exists($index, $params)) {
+                    throw new Exception('[' . __LINE__ . '] - '.$index.' not exist');
+                }
+                if ($params[$index] === '') {
+                    throw new Exception('[' . __LINE__ . '] - Parameter '.$index.' empty');
+                }
+            }
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
