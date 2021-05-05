@@ -4,7 +4,7 @@
         <div class="modal-content">
             <!--Header-->
             <div class="modal-header d-flex justify-content-center">
-                <h4 class="text-white mt-2 ml-2"><i class="fas fa-upload text-white"></i> Upload Drawing File</h4>
+                <h4 class="text-white mt-2 ml-2" id="lblMdwModalTitle"><i class="fas fa-upload text-white"></i> Upload Drawing File</h4>
                 <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -61,6 +61,20 @@
 								<p class="font-small text-danger" id="txtMdwPublishedDateErr"></p>
 							</div>
 						</div>
+						<div class="col-md-7">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMdwBlock" class="form-control">
+								<label for="txtMdwBlock" id="lblMdwBlock">Building Block</label>
+								<p class="font-small text-danger" id="txtMdwBlockErr"></p>
+							</div>
+						</div>
+						<div class="col-md-5">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMdwLevel" class="form-control">
+								<label for="txtMdwLevel" id="lblMdwLevel">Building Level</label>
+								<p class="font-small text-danger" id="txtMdwLevelErr"></p>
+							</div>
+						</div>
 						<div class="col-md-7 select-outline mt-2 mb-2" id="optMdwGroup_1">
 							<select id="optMdwGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 								<option selected value="" disabled>Please Select *</option>
@@ -91,7 +105,7 @@
 									</div>
 									<div class="file-path-wrapper pl-0 pr-1">
 										<input class="file-path form-control" type="text" id="txtMdwFile" readonly>
-										<label for="txtMdwFile" id="lblMdwFile">Drawing DWG File</label>
+										<label for="txtMdwFile" id="lblMdwFile">Drawing DWG File *</label>
 									</div>
 									<p class="font-small text-danger" id="txfMdwFileErr"></p>
 								</div>
@@ -126,6 +140,7 @@
             <div class="modal-footer p-2">
                 <button class="btn btn-outline-info waves-effect btnMdwClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMdwSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMdwSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
             </div>
         </div>
     </div>

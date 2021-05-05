@@ -4,6 +4,7 @@ function MainDrawingRecords () {
     let self = this;
 	let oTableDwr;
 	let modalDrawingClass;
+    let refAssetGroup;
 	
 	this.init = function () {
 		oTableDwr = $('#dtDwrData').DataTable({
@@ -18,6 +19,15 @@ function MainDrawingRecords () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkDwrEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableDwr.row(parseInt(rowId)).data();
+                        modalDrawingClass.edit(currentRow['drawingId']);
+                    }
+                });
             },				
             dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
@@ -37,16 +47,26 @@ function MainDrawingRecords () {
             ],
 			aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'drawingId'},
+                {mData: 'drawingIdNo'},
                 {mData: 'drawingTitle'},
                 {mData: 'drawingVersion'},
-                {mData: 'publishedBy'},
-                {mData: 'publishedDate', width: '10%'},
-                {mData: 'assetGroupId'},
+                {mData: 'drawingPublishedBy'},
+                {mData: 'drawingPublishedDate', width: '10%'},
+                {mData: 'assetGroupId', mRender: function (data){
+                    return data !== '' ? refAssetGroup[data]['assetGroupName'] : '';
+                }},
                 {mData: 'drawingRemark'},
                 {mData: 'uploadBy'},
-                {mData: 'uploadTime'},
-                {mData: 'drawingStatus', width: '96px'}
+                {mData: 'drawingTimeCreated'},
+                {mData: null, width: '96px',
+                    mRender: function (data, type, row, meta) {
+                        let label = '<a onclick="mzOpenUpload('+row['drawingDwg']+')"><i class="fas fa-download" data-toggle="tooltip" data-placement="top" title="Download DWG File"></i></a>&nbsp;';
+                        label += '<a onclick="mzOpenPdfUpload('+row['drawingPdf']+')"><i class="fas fa-file-pdf" data-toggle="tooltip" data-placement="top" title="View PDF"></i></a>&nbsp;';
+                        label += '<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrShare_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;';
+                        label += '<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;';
+                        label += '<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        return label;
+                    }}
 			]				
         });			
 		
@@ -76,7 +96,7 @@ function MainDrawingRecords () {
 		$('#btnDwrDataAdd').on('click', function () {
             modalDrawingClass.add();
         });
-
+       
         self.genTable();
 	};
 	
@@ -95,5 +115,9 @@ function MainDrawingRecords () {
 	
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+
+    this.setRefAssetGroup = function (_refAssetGroup) {
+        refAssetGroup = _refAssetGroup;
     };
 }

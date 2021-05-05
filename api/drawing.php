@@ -49,10 +49,67 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            // single
+            $result = $fn_drawing->getDrawing($urlArr[1]);
         } else {
             $result = $fn_drawing->getDrawingList();
         }
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $param = $_POST;
+
+        if (isset ($urlArr[1])) {
+            if ($urlArr[1] === 'upload_dwg_drawing') {
+                $result = $fn_general->uploadDocument($param, 19, $userId);
+            }
+            else if ($urlArr[1] === 'upload_pdf_drawing') {
+                $result = $fn_general->uploadDocument($param, 20, $userId);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            }
+        } else {
+            $param['drawingCreatedBy'] = $userId;
+            $fn_drawing->addDrawing($param);
+            $fn_general->save_audit('148', $userId, 'Drawing Title = '.$param['drawingTitle'].', Id No = '.$param['drawingIdNo'].', version = '.$param['drawingVersion']);
+            $form_data['errmsg'] = $constant::SUC_SUBMITTED; 
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $putData = file_get_contents("php://input");
+        parse_str($putData, $params);
+
+        if (isset ($urlArr[1])) {
+            if ($urlArr[1] === 'update_dwg_drawing') {
+                $drawing = $fn_drawing->getDrawing($urlArr[2]);
+                $drawingDwg = $fn_general->uploadDocument($param, 19, $userId);
+                $fn_drawing->updateDrawing($urlArr[2], array('drawingDwg'=>$drawingDwg));
+                $fn_general->deleteDocument($drawing['drawingDwg']);
+            }
+            else if ($urlArr[1] === 'update_pdf_drawing') {
+                $drawing = $fn_drawing->getDrawing($urlArr[2]);
+                $drawingPdf = $fn_general->uploadDocument($param, 20, $userId);
+                $fn_drawing->updateDrawing($urlArr[2], array('drawingPdf'=>$drawingPdf));
+                $fn_general->deleteDocument($drawing['drawingPdf']);
+            }
+            else {
+                $fn_inspectionPengguna->updateDrawing($urlArr[1], $params);
+                $form_data['errmsg'] = $constant::SUC_SAVE;
+                $fn_general->save_audit('149', $userId, 'Drawing Title = '.$param['drawingTitle'].', Id No = '.$param['drawingIdNo'].', version = '.$param['drawingVersion']);
+            }
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {

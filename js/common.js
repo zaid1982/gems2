@@ -32,7 +32,8 @@ const _DATATABLE_LANGUAGE =  {
     }*/
 };
 
-const mzUrlDownload = '//localhost:8081/gems2/api/';
+const mzUrlDownload = '//gems.globalfm.com.my/api/';
+//const mzUrlDownload = '//localhost:8081/gems2/api/';
 let mzCnt;
 let mzExportOpt = {
     format: {
@@ -151,10 +152,13 @@ function MzValidate(name) {
                     return false;
                 }
                 break;
-            case 'dwgType':
-                const filename = fieldSelector.prop('files')[0].name;
-                if (val === true && fieldSelector.prop('files').length > 0 && filename.substr(-4) !== '.dwg')
-                    return false;
+            case 'dwgType':                
+                if (val === true && fieldSelector.prop('files').length > 0) {
+                    const filename = fieldSelector.prop('files')[0].name;
+                    if (filename.substr(-4) !== '.dwg') {
+                        return false;
+                    }
+                }
                 break;
         }
         return true;
@@ -1230,7 +1234,10 @@ function mzSetFieldValue(name, value, type, label) {
             }
         }
         else if (type === 'date') {
-            const dateSplit = value.split("/");
+            let dateSplit = value.split("/");
+            if (dateSplit.length !== 3) {
+                dateSplit = value.split("-");
+            }
             if (dateSplit.length !== 3) {
                 return '';
             }
@@ -1432,7 +1439,7 @@ function mzOpenPdf (pdfId, pdfTitle) {
     ShowLoader();
     setTimeout(function () {
         try {
-            const pdfSrc = mzAjaxRequest('pdf/'+pdfId, 'GET');
+            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
             $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfTitle);
             $('#mpdf_iframe').attr('src', pdfSrc);
             $('#modal_pdf').modal('show');
@@ -1447,10 +1454,14 @@ function mzOpenUpload (uploadId) {
     ShowLoader();
     setTimeout(function () {
         try {
-            const pdfSrc = mzAjaxRequest('pdf/upload/'+uploadId, 'GET');
-            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfSrc['title']);
-            $('#mpdf_iframe').attr('src', pdfSrc['src']);
-            $('#modal_pdf').modal('show');
+            const updloadSrc = mzAjaxRequest('pdf.php?uploadId='+uploadId, 'GET');
+            let link = document.createElement("a");
+            link.download = updloadSrc['filename'];
+            link.href = updloadSrc['src'];
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            delete link;
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -1458,12 +1469,13 @@ function mzOpenUpload (uploadId) {
     }, 200);
 }
 
-function mzOpenPdfUpload (uploadFolder, uploadFilename, pdfTitle) {
+function mzOpenPdfUpload (uploadId) {
     ShowLoader();
     setTimeout(function () {
         try {
-            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+pdfTitle);
-            $('#mpdf_iframe').attr('src', mzUrlDownload+uploadFolder+'/'+uploadFilename+'.pdf');
+            const updloadSrc = mzAjaxRequest('pdf.php?uploadId='+uploadId, 'GET');
+            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+updloadSrc['title']);
+            $('#mpdf_iframe').attr('src', updloadSrc['src']);
             $('#modal_pdf').modal('show');
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);

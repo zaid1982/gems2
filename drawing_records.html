@@ -69,7 +69,7 @@
                             </tr>
                             </thead>
                             <tbody>
-								<td>1</td>
+								<!-- <td>1</td>
 								<td>DR-320480322</td>
 								<td>3rd Floor HQ Building</td>
 								<td>1.1</td>
@@ -85,7 +85,7 @@
 									<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrDownload_1" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;
 									<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_1" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;
 									<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_1" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>
-								</td>
+								</td> -->
 							</tbody>
                         </table>
                     </div>
@@ -97,6 +97,7 @@
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
     <div class="includeHtml" id="h-modal_drawing"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
 
 </main>
 
@@ -152,6 +153,7 @@
 				modalDrawingClass_.setClassFrom(drawingRecordsClass_);
 				modalDrawingClass_.init();
 
+                drawingRecordsClass_.setRefAssetGroup(refAssetGroup_);
 				drawingRecordsClass_.setModalDrawingClass(modalDrawingClass_);
                 drawingRecordsClass_.init();				
             } catch (e) {

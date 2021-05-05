@@ -241,7 +241,7 @@ class Class_general {
             if (!array_key_exists('size', $uploadDetails) || empty($uploadDetails['size'])) {
                 throw new Exception('(ErrCode:0059) [' . __LINE__ . '] - Parameter upload size empty');
             }
-            if (!array_key_exists('type', $uploadDetails) || empty($uploadDetails['type'])) {
+            if (!array_key_exists('type', $uploadDetails)) {
                 throw new Exception('(ErrCode:0060) [' . __LINE__ . '] - Parameter upload type empty');
             }
             if (!array_key_exists('data', $uploadDetails) || empty($uploadDetails['data'])) {
@@ -267,6 +267,27 @@ class Class_general {
             Class_db::getInstance()->db_update('sys_upload', array('upload_filename'=>$uploadFilename, 'upload_folder'=>$uploadFolder), array('upload_id'=>$uploadId));
                         
             return $uploadId;            
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    public function deleteDocument ($uploadId='') {
+        try {
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+
+            $this->checkEmptyParams(array($uploadId));
+            $sysUpload = $this->convertDbIndex(Class_db::getInstance()->db_select_single('sys_upload', array('upload_id'=>$uploadId), null, 1));
+            $filePath = $sysUpload['uploadFolder'].'/'.$sysUpload['uploadFilename'].'.'.$sysUpload['uploadExtension'];
+            $deleted = unlink($filePath);
+            if ($deleted){
+                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'File '.$filePath.' successfully deleted.');
+            } else{
+                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'File '.$filePath.' could not be deleted.');
+                $this->log_error(__CLASS__, __FUNCTION__, __LINE__, 'File '.$filePath.' could not be deleted.');
+            }
+            Class_db::getInstance()->db_delete('sys_upload', array('upload_id'=>$uploadId));
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -318,6 +339,30 @@ class Class_general {
 
             $pdf = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$pdfId), null, 1);
             return $constant::URL.$pdf['pdf_folder'].'/'.$pdf['pdf_filename'].'?t='.time();
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $uploadId
+     * @return array
+     * @throws Exception
+     */
+    public function getUpload ($uploadId='') {
+        try {
+            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $constant = $this->constant;
+
+            $this->checkEmptyParams(array($uploadId));
+            $upload = $this->convertDbIndex(Class_db::getInstance()->db_select_single('sys_upload', array('upload_id'=>$uploadId), null, 1));
+            return
+                array(
+                    'title'=>$upload['uploadName'],
+                    'filename'=>$upload['uploadUplname'],
+                    'src'=>$constant::URL.$upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'].'?t='.time()
+                );
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

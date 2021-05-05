@@ -31,7 +31,12 @@ try {
 
     if ('GET' === $request_method) {
         $pdfId = filter_input(INPUT_GET, 'pdfId');
-        $result = $fn_general->getPdf($pdfId);
+        $uploadId = filter_input(INPUT_GET, 'uploadId');
+        if (!is_null($pdfId)) {
+            $result = $fn_general->getPdf($pdfId);
+        } else if (!is_null($uploadId)) {
+            $result = $fn_general->getUpload($uploadId);
+        }
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
