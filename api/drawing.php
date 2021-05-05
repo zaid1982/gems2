@@ -90,20 +90,20 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'update_dwg_drawing') {
                 $drawing = $fn_drawing->getDrawing($urlArr[2]);
-                $drawingDwg = $fn_general->uploadDocument($param, 19, $userId);
+                $drawingDwg = $fn_general->uploadDocument($params, 19, $userId);
                 $fn_drawing->updateDrawing($urlArr[2], array('drawingDwg'=>$drawingDwg));
                 $fn_general->deleteDocument($drawing['drawingDwg']);
             }
             else if ($urlArr[1] === 'update_pdf_drawing') {
                 $drawing = $fn_drawing->getDrawing($urlArr[2]);
-                $drawingPdf = $fn_general->uploadDocument($param, 20, $userId);
+                $drawingPdf = $fn_general->uploadDocument($params, 20, $userId);
                 $fn_drawing->updateDrawing($urlArr[2], array('drawingPdf'=>$drawingPdf));
                 $fn_general->deleteDocument($drawing['drawingPdf']);
             }
             else {
-                $fn_inspectionPengguna->updateDrawing($urlArr[1], $params);
+                $fn_drawing->updateDrawing($urlArr[1], $params);
                 $form_data['errmsg'] = $constant::SUC_SAVE;
-                $fn_general->save_audit('149', $userId, 'Drawing Title = '.$param['drawingTitle'].', Id No = '.$param['drawingIdNo'].', version = '.$param['drawingVersion']);
+                $fn_general->save_audit('149', $userId, 'Drawing Title = '.$params['drawingTitle'].', Id No = '.$params['drawingIdNo'].', version = '.$params['drawingVersion']);
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

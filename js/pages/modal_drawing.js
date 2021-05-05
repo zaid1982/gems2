@@ -196,7 +196,7 @@ function ModalDrawing () {
                             drawingRemark: $('#txaMdwRemark').val()
                         };
                         const fileDwg = $('#txfMdwFile').prop('files');
-                        if (filePdf.length > 0) {
+                        if (fileDwg.length > 0) {
                             const dataDwgUpload = {
                                 name: $('#txtMdwTitle').val(),
                                 filename: fileDwg[0].name,
