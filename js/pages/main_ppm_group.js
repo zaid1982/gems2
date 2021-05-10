@@ -492,6 +492,7 @@ function MainPpmGroup() {
                     self.genTableTechnician();
                     self.genTableSupervisor();
                     self.genTableEngineer();
+                    self.genTableWoTechnician();
                     $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
                     $('#divPgrDetails').hide();
                 } catch (e) {

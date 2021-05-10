@@ -352,7 +352,16 @@ class Class_wo {
                 array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$arr_status[18])
             );
 
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);            
+            $isMaterial = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'site_is_material');
+            if ($isMaterial === '1') {
+                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$arr_status[18]));
+                if ($woTask['wo_task_has_parts'] === '0') {
+                    $result[5]['sectionStatus'] = $arr_status[19];
+                } else if ($woTask['wo_task_has_parts'] === '1') {
+                    //
+                }
+            }
             if (!empty($woTask['wo_task_repair_desc'])) {
                 $result[1]['sectionStatus'] = $arr_status[19];
             }
@@ -371,16 +380,16 @@ class Class_wo {
                 } else if ($uploadType === '3') {
                     $imgDuring = true;
                 } else if ($uploadType === '4') {
-                    $imfAfter = true;
+                    $imgAfter = true;
                 }
             }
-            if ($imgBefore && $imgDuring && $imfAfter) {
+            if ($imgBefore && $imgDuring && $imgAfter) {
                 $result[2]['sectionStatus'] = $arr_status[19];
             }
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
             if (!empty($remark)) {
-                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
+                array_push($result, array('sectionName'=>($isMaterial === '1'?'F':'E'), 'sectionDesc'=>'Comment', 'sectionStatus'=>$arr_status[17], 'comment'=>$remark));
             }
 
             return $result;

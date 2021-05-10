@@ -7,6 +7,10 @@ function MainDrawingRecords () {
     let refAssetGroup;
 	
 	this.init = function () {
+        let exportOpt = Object.assign({}, mzExportOpt);
+        exportOpt['columns'] = [0, 1, 2, 3, 4, 5, 6, 7];
+        let exportExcel = Object.assign({}, mzExportOpt);
+        exportExcel['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 		oTableDwr = $('#dtDwrData').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -40,10 +44,10 @@ function MainDrawingRecords () {
             ],
 			buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Print', exportOptions: exportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Copy', exportOptions: exportExcel},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Excel', exportOptions: exportExcel},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt}
             ],
 			aoColumns: [
                 {mData: null, bSortable: false},

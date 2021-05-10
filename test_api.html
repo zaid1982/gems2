@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+
+<script type="text/javascript">
+
+$.ajax({
+    url: 'api/m_wo.php?type=section_status&woTaskId=84',
+    type: 'GET',
+    //contentType: 'application/json',
+    headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJpbnZlbnRvcnlfc2FtcGxlMVwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2MjA1ODMwMjYsImV4cCI6MTYyMDU4MzAzNn0.EhimmuxXyXnvDozJKPiLTUk0L9wtUT_ggP7edEVf-gE',
+        deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+    data: '',
+    dataType: 'json',
+    success: function (resp) {
+        console.log(resp);
+    },
+    error: function () {
+        errMsg = _ALERT_MSG_ERROR_DEFAULT;
+    }
+});
+
+
+/* $.ajax({
+    url: 'api/m_login.php',
+    type: 'POST',
+    //contentType: 'application/json',
+    headers: '',
+    data: {action:'login', username:'admin', password:'password', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+    dataType: 'json',
+    success: function (resp) {
+        console.log(resp);
+    },
+    error: function () {
+        errMsg = _ALERT_MSG_ERROR_DEFAULT;
+    }
+});  */
+
+
+</script>

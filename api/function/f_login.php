@@ -268,7 +268,7 @@ class Class_login {
             }
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
 
-            $arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'');
+            $arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token);
             if ($deviceId !== '') {
                 $arrUpdate['user_device_id'] = $deviceId;
             }
