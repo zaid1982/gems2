@@ -857,6 +857,18 @@ class Class_sql
                 FROM drawing
                 LEFT JOIN sys_user user_publish ON user_publish.user_id = drawing.drawing_published_by
                 LEFT JOIN sys_user user_create ON user_create.user_id = drawing.drawing_created_by";
+            } else if ($title === 'vw_part_mobile') {
+                $sql = "SELECT
+                    ast_part.part_id,
+                    ref_item_type.item_type_desc,
+                    ref_item.item_description,
+                    SUM(part_count) AS part_counts
+                FROM ast_part
+                LEFT JOIN ref_item_type ON ref_item_type.item_type_id = ast_part.item_type_id  
+                LEFT JOIN ref_item ON ref_item.item_id = ast_part.item_id  
+                WHERE ast_part.site_id = [siteId] AND ast_part.item_type_id = [itemTypeId] AND item_status = 1
+                GROUP BY ast_part.item_id
+                ORDER BY item_turn";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
