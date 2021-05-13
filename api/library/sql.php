@@ -869,6 +869,20 @@ class Class_sql
                 WHERE ast_part.site_id = [siteId] AND ast_part.item_type_id = [itemTypeId] AND item_status = 1
                 GROUP BY ast_part.item_id
                 ORDER BY item_turn";
+            } else if ($title === 'vw_wo_task_parts') {
+                $sql = "SELECT 
+                    a.*,
+                    c.item_description,
+                    d.item_type_desc,
+                    e.asset_group_name,
+                    b.part_unit,
+                    f.status_desc
+                FROM wo_task_parts a
+                LEFT JOIN ast_part b ON b.part_id = a.part_id
+                LEFT JOIN ref_item c ON c.item_id = b.item_id
+                LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
+                LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id
+                LEFT JOIN ref_status f ON f.status_id = a.wo_task_parts_status";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -7,6 +7,7 @@ require_once 'function/f_login.php';
 require_once 'function/f_asset_group.php';
 require_once 'function/f_item_type.php';
 require_once 'function/f_part.php';
+require_once 'function/f_wo_parts.php';
 require_once 'pdf/tcpdf_include.php';
 
 $api_name = 'api_m_wo';
@@ -21,6 +22,7 @@ $fn_login = new Class_login();
 $fn_assetGroup = new Class_assetGroup();
 $fn_itemType = new Class_item_type();
 $fn_part = new Class_part();
+$fn_woParts = new Class_wo_parts();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -30,6 +32,7 @@ try {
     $fn_assetGroup->__set('fn_general', $fn_general);
     $fn_itemType->__set('fn_general', $fn_general);
     $fn_part->__set('fn_general', $fn_general);
+    $fn_woParts->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -72,6 +75,8 @@ try {
             $woTaskId = isset ($urlArr[2]) ? $urlArr[2] : '';
             $itemTypeId = isset ($urlArr[3]) ? $urlArr[3] : '';
             $result = $fn_part->getPartListMobile($woTaskId, $itemTypeId);
+        } else if ($urlArr[1] === 'wo_parts_list') {
+            $result = $fn_woParts->getWoPartsList($urlArr[2]);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }

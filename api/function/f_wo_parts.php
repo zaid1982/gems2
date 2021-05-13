@@ -1,6 +1,6 @@
 <?php
 
-class Class_part {
+class Class_wo_parts {
 
     private $constant;
     private $fn_general;
@@ -52,13 +52,11 @@ class Class_part {
         }
     }
 
-    public function getPartListMobile ($woTaskId='', $itemTypeId='') {
+    public function getWoPartsList ($woTaskId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            
-            $this->fn_general->checkEmptyParams(array($woTaskId, $itemTypeId));
-            $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', null, 1);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_part_mobile', array(), null, null, 0, array('siteId'=>$siteId, 'itemTypeId'=>$itemTypeId)));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);            
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('wo_task_id'=>$woTaskId)));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
