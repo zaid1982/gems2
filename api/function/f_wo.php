@@ -338,7 +338,7 @@ class Class_wo {
      */
     public function get_section_status_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
