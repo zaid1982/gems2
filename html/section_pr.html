@@ -1,0 +1,170 @@
+<section class="section mb-5 mt-lg-3 sectionPr">
+    <div class="row mb-0 pb-0">
+        <div class="col-md-12">
+            <button type="button" class="btn aqua-gradient btn-rounded float-right text-white" id="btnSprSubmit">
+                <i class="fas fa-hand-point-right"></i> Submit
+            </button>
+            <button type="button" class="btn peach-gradient btn-rounded float-right text-white" id="btnSprBack">
+                <i class="fas fa-arrow-left"></i> Back to Main Page
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-cascade cascading-admin-card user-card mt-4">
+                <div class="admin-up d-flex justify-content-start">
+                    <i class="fa fas fa-qrcode rgba-blue-strong py-4 z-depth-3"></i>
+                    <div class="data">
+                        <h3 class="font-weight-bold dark-grey-text ml-3">Purchase Request Details</h3>
+                    </div>
+                </div>
+                <div class="card-body card-body-cascade">
+                    <form id="formSpr">
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Purchase Request No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Site</label>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Requested By</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request Time</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Status</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center my-1"> Quotation Information</h5>
+                </div>
+                <div class="card-body mt-2 pb-0">
+                    <form id="formSprQuotation">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" readonly value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" readonly value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Supplier Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <div class="file-field">
+                                        <div class="btn btn-outline-indigo btn-sm float-right mr-0 mt-1">
+                                            <span><i class="fas fa-building mr-2" aria-hidden="true"></i>Select Supplier</span>
+                                        </div>
+                                        <div class="file-path-wrapper pl-0 pr-2">
+                                            <input class="form-control" type="text" id="txtMudFilerr" readonly>
+                                            <label for="txtMudFilerr" id="lblMudFilerr">Supplier Name</label>
+                                        </div>
+                                        <p class="font-small text-danger" id="txfMudFileErr"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <div class="file-field">
+                                        <div class="btn btn-outline-red btn-sm float-right mr-0 mt-1">
+                                            <span><i class="fas fa-upload mr-2" aria-hidden="true"></i>Upload file</span>
+                                            <input type="file" id="txfMudFile">
+                                            <input type="hidden" id="txfMudFileBlob">
+                                        </div>
+                                        <div class="file-path-wrapper pl-0 pr-2">
+                                            <input class="file-path form-control" type="text" id="txtMudFile" readonly>
+                                            <label for="txtMudFile" id="lblMudFile">Upload Quotation</label>
+                                        </div>
+                                        <p class="font-small text-danger" id="txfMudFileErr"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" value="0">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Other Cost (eg. SST)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" value="dv" readonly>
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Total Cost</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center my-1"> Item List</h5>
+                </div>
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-danger z-depth-4 btn-block mt-4 mb-3 py-3" id="btnSprPrPdf"><i class="fas fa-file-pdf mr-2"></i> Purchase Request PDF</button>
+            <button type="button" class="btn btn-success z-depth-4 btn-block mt-4 mb-3 py-3" id="btnSprQuotationPdf"><i class="fas fa-file-pdf mr-2"></i> Quotation PDF</button>
+            <div class="card profile-card mt-4">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center my-1">Transaction History</h5>
+                </div>
+                <div class="card-body mt-2 pb-0">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszContactName" class="form-control grey lighten-4" disabled>
+                                <label for="txtSszContactName" id="lblSszContactName">Contact Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszSiteName" class="form-control" readonly>
+                                <label for="txtSszSiteName" id="lblSszSiteName">Site Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszClientName" class="form-control" disabled>
+                                <label for="txtSszClientName" id="lblSszClientName">Client Name</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

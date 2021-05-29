@@ -5,6 +5,7 @@ function ModalDrawing () {
     let formValidate;
     let drawingId;
     let vData;
+    let classFrom;
 	
 	this.init = function () {
 		vData = [

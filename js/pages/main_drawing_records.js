@@ -5,6 +5,7 @@ function MainDrawingRecords () {
 	let oTableDwr;
 	let modalDrawingClass;
     let refAssetGroup;
+    let modalConfirmDeleteClass;
 	
 	this.init = function () {
         let exportOpt = Object.assign({}, mzExportOpt);
@@ -45,9 +46,9 @@ function MainDrawingRecords () {
 			buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Print', exportOptions: exportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Copy', exportOptions: exportExcel},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'Excel', exportOptions: exportExcel},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records Lis', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt}
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Copy', exportOptions: exportExcel},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Excel', exportOptions: exportExcel},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt}
             ],
 			aoColumns: [
                 {mData: null, bSortable: false},

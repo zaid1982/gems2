@@ -883,6 +883,12 @@ class Class_sql
                 LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
                 LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id
                 LEFT JOIN ref_status f ON f.status_id = a.wo_task_parts_status";
+            } else if ($title === 'vw_pr_current') {
+                $sql = "SELECT
+                    t.task_id,
+                    p.*
+                FROM wfl_task t 
+                INNER JOIN pr p ON p.transaction_id = t.transaction_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

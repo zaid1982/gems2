@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!--Section: Main panel-->
+        <section class="mb-5 mt-lg-3 sectionPcrMain">
+            <nav class="navbar navbar-dark blue-grey darken-2 z-depth-4 rounded mt-2 mb-4">
+                <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
+                    Purchase Request (Site = BNMHQ)
+                </h5>
+            </nav>
+            <div class="row">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
+                        <div class="rgba-stylish-strong">
+                            <div class="admin-up">
+                                <i class="fa fas fa-clipboard red accent-2"></i>
+                                <div class="data white-text">
+                                    <h6 class="font-weight-bold font-small">NEW REQUEST</h6>
+                                    <h4 class="font-weight-bold" id="lblPcrTotalCompany">5</h4>
+                                </div>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <p class="card-text white-text font-weight-bold mb-0">Total Ner Request</p>
+                                <p class="white-text font-weight-bold mb-0">Current</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
+                        <div class="rgba-stylish-strong">
+                            <div class="admin-up">
+                                <i class="fa fas fa-pen-fancy warning-color lighten-1"></i>
+                                <div class="data white-text">
+                                    <h6 class="font-weight-bold font-small">APPROVAL</h6>
+                                    <h4 class="font-weight-bold" id="lblPcrTotalNew">10</h4>
+                                </div>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <p class="card-text white-text font-weight-bold mb-0">Total Approval PR</p>
+                                <p class="white-text font-weight-bold mb-0">Current</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
+                        <div class="rgba-stylish-strong">
+                            <div class="admin-up">
+                                <i class="fa fas fa-clipboard-check success-color"></i>
+                                <div class="data white-text">
+                                    <h6 class="font-weight-bold font-small">APPROVED PR</h6>
+                                    <h4 class="font-weight-bold" id="lblPcrTotalRenewal">100</h4>
+                                </div>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <p class="card-text white-text font-weight-bold mb-0">Total Approved PR</p>
+                                <p class="white-text font-weight-bold mb-0 lblPcrSelected">2021</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
+                        <div class="rgba-stylish-strong">
+                            <div class="admin-up">
+                                <i class="fa fas fa-clipboard-list info-color"></i>
+                                <div class="data white-text">
+                                    <h6 class="font-weight-bold font-small">TOTAL REQUEST</h6>
+                                    <h4 class="font-weight-bold" id="lblPcrTotalAll">1,122</h4>
+                                </div>
+                            </div>
+                            <div class="card-body card-body-cascade">
+                                <p class="card-text white-text font-weight-bold mb-0">Total Request</p>
+                                <p class="white-text font-weight-bold mb-0 lblPcrSelected">Overall</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <ul class="nav nav-tabs md-tabs blue-grey lighten-1 mx-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tabPcrNewJust" data-toggle="tab" href="#tabPcrNew" role="tab" aria-controls="tabPcrNew"
+                           aria-selected="true"><i class="fas fa-clipboard-list pr-2"></i>Prepare PR</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabPcrApprovalJust" data-toggle="tab" href="#tabPcrApproval" role="tab" aria-controls="tabPcrApproval"
+                           aria-selected="true"><i class="fas fa-user-check pr-2"></i>Approval</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabPcrApprovedJust" data-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrApproved"
+                           aria-selected="true"><i class="fas fa-clipboard-check pr-2"></i>Approved</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabPcrAllJust" data-toggle="tab" href="#tabPcrAll" role="tab" aria-controls="tabPcrAll"
+                           aria-selected="true"><i class="fas fa-file-invoice-dollar pr-2"></i>All Request</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content rounded-bottom card z-depth-4 pt-5" id="myTabPcr">
+                <div class="tab-pane fade show active" id="tabPcrNew" role="tabpanel" aria-labelledby="tabPcrNewJust">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtPcrNew" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Request No.</th>
+                                        <th>Quotation No.</th>
+                                        <th>Supplier</th>
+                                        <th>Total Price</th>
+                                        <th>Requested By</th>
+                                        <th>Request Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tabPcrApproval" role="tabpanel" aria-labelledby="tabPcrApprovalJust">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtPcrApproval" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>PR No.</th>
+                                        <th>Request No.</th>
+                                        <th>Quotation No.</th>
+                                        <th>Supplier</th>
+                                        <th>Total Price</th>
+                                        <th>Request By</th>
+                                        <th>Prepared By</th>
+                                        <th>PR Created Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tabPcrApproved" role="tabpanel" aria-labelledby="tabPcrApprovedJust">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtPcrApproved" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>PR No.</th>
+                                        <th>Request No.</th>
+                                        <th>Quotation No.</th>
+                                        <th>Supplier</th>
+                                        <th>Total Price</th>
+                                        <th>Request By</th>
+                                        <th>Approval Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tabPcrAll" role="tabpanel" aria-labelledby="tabPcrAllJust">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtPcrAll" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>PR No.</th>
+                                        <th>Request No.</th>
+                                        <th>Quotation No.</th>
+                                        <th>Supplier</th>
+                                        <th>Total Price</th>
+                                        <th>Request By</th>
+                                        <th>Request Time</th>
+                                        <th>PR Created Time</th>
+                                        <th>Approval Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="includeHtml" id="h-section_pr"></div>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalConfirmDelete_;
+    let sectionPrClass_;
+    let purchaseRequestClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalConfirmDelete_ = new ModalConfirmDelete();
+                sectionPrClass_ = new SectionPr();
+                purchaseRequestClass_ = new MainPurchaseRequest();
+
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+
+                sectionPrClass_.setClassFrom(purchaseRequestClass_);
+                sectionPrClass_.init();
+
+                purchaseRequestClass_.setRefUser(refUser_);
+                purchaseRequestClass_.setSectionPrClass(sectionPrClass_);
+                purchaseRequestClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_pr.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_purchase_request.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+
+</body>
+</html>
