@@ -37,8 +37,8 @@ function MainPurchaseRequest () {
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { visible: false, targets: [] },
-                { className: 'text-right', targets: [4] },
-                { className: 'text-center', targets: [0, 1, 2, 6] },
+                { className: 'text-right', targets: [5] },
+                { className: 'text-center', targets: [0, 2, 3, 7] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -51,6 +51,9 @@ function MainPurchaseRequest () {
             aoColumns: [
                 {mData: null, bSortable: false},
                 {mData: 'prRequestNo'},
+                {mData: null , mRender: function (data){
+                    return 'PPNS';
+                }},
                 {mData: 'prQuotationNo'},
                 {mData: 'supplierId'},
                 {mData: 'prTotalCost'},
@@ -66,10 +69,8 @@ function MainPurchaseRequest () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    const cell = $(evt.target).closest('td');
-                    if (cell.index() === 1) {
-                        sectionPrClass.load(false, data['prId']);
-                    }
+                    // const cell = $(evt.target).closest('td'); //if (cell.index() === 1) {
+                    sectionPrClass.load(false, data['prId']);
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -78,7 +79,7 @@ function MainPurchaseRequest () {
         });
         oTablePcrNewTbody.delegate('tr', 'mouseenter', function (evt) {
             const cell = $(evt.target).closest('td');
-            cell.css( 'cursor', 'pointer' );
+            cell.css('cursor', 'pointer');
         });
 
         self.genTablePcrNew();

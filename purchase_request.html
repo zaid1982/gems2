@@ -35,11 +35,12 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
+        <div id="mdb-lightbox-ui"></div>
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-3 sectionPcrMain">
             <nav class="navbar navbar-dark blue-grey darken-2 z-depth-4 rounded mt-2 mb-4">
                 <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                    Purchase Request (Site = BNMHQ)
+                    Purchase Request
                 </h5>
             </nav>
             <div class="row">
@@ -124,7 +125,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabPcrApprovedJust" data-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrApproved"
-                           aria-selected="true"><i class="fas fa-clipboard-check pr-2"></i>Approved</a>
+                           aria-selected="true"><i class="fas fa-print pr-2"></i>Send PR to SAP</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabPcrAllJust" data-toggle="tab" href="#tabPcrAll" role="tab" aria-controls="tabPcrAll"
@@ -135,13 +136,14 @@
             <div class="tab-content rounded-bottom card z-depth-4 pt-5" id="myTabPcr">
                 <div class="tab-pane fade show active" id="tabPcrNew" role="tabpanel" aria-labelledby="tabPcrNewJust">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 px-0">
                             <div class="table-responsive">
                                 <table id="dtPcrNew" class="table table-hover table-sm mb-0 display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
                                         <th>Request No.</th>
+                                        <th>Site</th>
                                         <th>Quotation No.</th>
                                         <th>Supplier</th>
                                         <th>Total Price</th>
@@ -256,7 +258,9 @@
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 <!-- DataTables.net -->
 <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
@@ -270,6 +274,10 @@
 
 <!--Custom scripts-->
 <script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal_;
@@ -284,6 +292,8 @@
         setTimeout(function () {
             try {
                 initiatePages();
+                moment.locale('ms');
+
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
