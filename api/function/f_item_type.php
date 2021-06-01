@@ -2,7 +2,6 @@
 
 class Class_item_type {
 
-    private $constant;
     private $fn_general;
 
     function __construct() {
@@ -20,6 +19,11 @@ class Class_item_type {
         }
     }
 
+    /**
+     * @param $property
+     * @return mixed
+     * @throws Exception
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;
@@ -28,6 +32,11 @@ class Class_item_type {
         }
     }
 
+    /**
+     * @param $property
+     * @param $value
+     * @throws Exception
+     */
     public function __set($property, $value ) {
         if (property_exists($this, $property)) {
             $this->$property = $value;
@@ -36,6 +45,11 @@ class Class_item_type {
         }
     }
 
+    /**
+     * @param $property
+     * @return bool
+     * @throws Exception
+     */
     public function __isset($property ) {
         if (property_exists($this, $property)) {
             return isset($this->$property);
@@ -44,6 +58,10 @@ class Class_item_type {
         }
     }
 
+    /**
+     * @param $property
+     * @throws Exception
+     */
     public function __unset($property ) {
         if (property_exists($this, $property)) {
             unset($this->$property);
@@ -52,10 +70,85 @@ class Class_item_type {
         }
     }
 
+    /**
+     * @param string $assetGroupId
+     * @return mixed
+     * @throws Exception
+     */
     public function getItemTypeList ($assetGroupId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('ref_item_type', array('asset_group_id'=>$assetGroupId)));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $itemTypeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getItemType ($itemTypeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($itemTypeId));
+            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ref_item_type', array('item_type_id'=>$itemTypeId), null, 1));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $params
+     * @throws Exception
+     */
+    public function addItemType ($params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($params));
+            $this->fn_general->checkEmptyParamsArray($params, array('assetGroupId', 'itemTypeDesc'));
+            return Class_db::getInstance()->db_insert('ref_item_type', $this->fn_general->convertToMysqlArrAll($params));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $itemTypeId
+     * @param array $params
+     * @throws Exception
+     */
+    public function updateItemType ($itemTypeId, $params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($itemTypeId, $params));
+            Class_db::getInstance()->db_update('ref_item_type', $this->fn_general->convertToMysqlArrAll($params), array('item_type_id'=>$itemTypeId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $itemTypeId
+     * @throws Exception
+     */
+    public function deleteItemType ($itemTypeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($itemTypeId));
+            if (Class_db::getInstance()->db_count('ref_item', array('item_type_id'=>$itemTypeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - This item type cannot be deleted because it\'s already being used in item list', 31);
+            }
+            Class_db::getInstance()->db_delete('ref_item_type', array('item_type_id'=>$itemTypeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

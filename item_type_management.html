@@ -36,57 +36,39 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionDwrMain">
+        <section class="mb-5 mt-lg-5 sectionItmMain">
             <div class="card card-cascade narrower">
                 <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
-                        <button type="button" id="btnDwrDataAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Drawing"><i class="fas fa-plus mt-0"></i></button>
+                        <button type="button" id="btnItmDataAdd"
+                                class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
+                                data-toggle="tooltip" data-placement="top" title="Add Item Type"><i
+                                class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Drawing Records List"
-                           data-content="All records of available drawing."><i class="fas fa-info mt-0 mx-1"></i></a>
+                           data-toggle="popover" data-trigger="focus" title="Item Type List"
+                           data-content="All records of available Item Type to be used as Item / Material category."><i
+                                class="fas fa-info mt-0 mx-1"></i></a>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Drawing Records</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Item Type List</a>
                     <div>
-                        <button type="button" id="btnDtDwrDataRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        <button type="button" id="btnDtItmDataRefresh"
+                                class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
+                                data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                     </div>
                 </div>
                 <div class="m-2 py-3">
                     <div class="table-responsive">
-                        <table id="dtDwrData" class="table table-hover table-sm mb-0 display responsive">
+                        <table id="dtItmData" class="table table-hover mb-0 display responsive">
                             <thead>
                             <tr class="th-strong">
                                 <th>#</th>
-                                <th>Drawing ID No.</th>
-                                <th>Drawing Title</th>
-                                <th>Drawing Version</th>
-                                <th>Published By</th>
-                                <th>Published Date</th>
-                                <th>Group</th>
-                                <th>Remarks</th>
-                                <th>Uploaded By</th>
-                                <th>Uploaded Time</th>
+                                <th>Asset Group</th>
+                                <th>Item Type</th>
+                                <th>Status</th>
                                 <th>&nbsp;</th>
                             </tr>
                             </thead>
-                            <tbody>
-								<!-- <td>1</td>
-								<td>DR-320480322</td>
-								<td>3rd Floor HQ Building</td>
-								<td>1.1</td>
-								<td>Muhammad Zaid Shaharil</td>
-								<td>2021-04-23</td>
-								<td>Mechanical</td>
-								<td>This is drawing for 3rd Floor HQ Building</td>
-								<td>Muhammad Zaid Shaharil</td>
-								<td>2021-04-23</td>
-								<td style="min-width: 96px">
-									<a><i class="fas fa-download lnkDwrDownload" id="lnkDwrDownload_1" data-toggle="tooltip" data-placement="top" title="Download"></i></a>&nbsp;
-									<a><i class="fas fa-file-pdf lnkDwrPdf" id="lnkDwrPdf_1" data-toggle="tooltip" data-placement="top" title="View PDF"></i></a>&nbsp;
-									<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrDownload_1" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;
-									<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_1" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;
-									<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_1" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>
-								</td> -->
-							</tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -96,8 +78,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_drawing"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
+    <div class="includeHtml" id="h-modal_item_type"></div>
 
 </main>
 
@@ -105,7 +86,7 @@
 <script type="text/javascript">
     $('.includeHtml').each(function () {
         const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
     });
 </script>
 
@@ -133,8 +114,8 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
-	let modalDrawingClass_;
-	let drawingRecordsClass_;
+    let modalItemTypeClass_;
+    let itemTypeManagementClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -145,17 +126,21 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
-				modalDrawingClass_ = new ModalDrawing();
-                drawingRecordsClass_ = new MainDrawingRecords();
+                modalItemTypeClass_ = new ModalItemType();
+                itemTypeManagementClass_ = new MainItemTypeManagement();
 
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                
-				modalDrawingClass_.setClassFrom(drawingRecordsClass_);
-				modalDrawingClass_.init();
 
-                drawingRecordsClass_.setRefAssetGroup(refAssetGroup_);
-				drawingRecordsClass_.setModalDrawingClass(modalDrawingClass_);
-                drawingRecordsClass_.init();				
+                modalItemTypeClass_.setRefAssetGroup(refAssetGroup_);
+                modalItemTypeClass_.setClassFrom(itemTypeManagementClass_);
+                modalItemTypeClass_.init();
+
+                itemTypeManagementClass_.setRefStatus(refStatus_);
+                itemTypeManagementClass_.setRefAssetGroup(refAssetGroup_);
+                itemTypeManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                itemTypeManagementClass_.setModalItemTypeClass(modalItemTypeClass_);
+                itemTypeManagementClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -166,8 +151,8 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_drawing.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_drawing_records.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_item_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_item_type_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
 

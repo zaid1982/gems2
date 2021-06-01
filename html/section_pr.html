@@ -65,39 +65,43 @@
                                             <label for="txtSprRequestNo" id="lblSprRequestNo">Expected Delivery Date</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 mb-4 ml-2"><!-- Group of material radios - option 1 -->
-                                        <p class="mb-2">Payment Term :</p>
+                                    <div class="col-md-12"><!-- Group of material radios - option 1 -->
+                                        <p class="mb-2 ml-2">Payment Term :</p>
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample1">Option 1</label>
+                                            <label class="form-check-label" for="materialGroupExample1">Cash on Delivery</label>
                                         </div>
 
                                         <!-- Group of material radios - option 2 -->
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample2" name="groupOfMaterialRadios" checked>
-                                            <label class="form-check-label" for="materialGroupExample2">option 2</label>
+                                            <label class="form-check-label" for="materialGroupExample2">30 Days</label>
                                         </div>
 
                                         <!-- Group of material radios - option 3 -->
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">option 3</label>
+                                            <label class="form-check-label" for="materialGroupExample3">60 Days</label>
                                         </div>
 
                                         <!-- Group of material radios - option 3 -->
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">option 3</label>
+                                            <label class="form-check-label" for="materialGroupExample3">90 Days</label>
                                         </div>
 
                                         <!-- Group of material radios - option 3 -->
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">option 3</label>
+                                            <label class="form-check-label" for="materialGroupExample3">Others</label>
+                                        </div>
+                                        <div class="md-form md-outline mt-3 ml-4">
+                                            <input type="text" id="txtSprRequestNo" class="form-control">
+                                            <label for="txtSprRequestNo" id="lblSprRequestNo">Other term</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 mb-4 ml-2"><!-- Group of material radios - option 1 -->
-                                        <p class="mb-2">Item available in Supplier's Price List :</p>
+                                    <div class="col-md-12 mb-4"><!-- Group of material radios - option 1 -->
+                                        <p class="mb-2 ml-2">Item available in Supplier's Price List :</p>
                                         <div class="form-check">
                                             <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
                                             <label class="form-check-label" for="materialGroupExample1">Yes</label>
@@ -145,6 +149,16 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="md-form md-outline mt-0">
+                                            <input type="text" id="txtSprRequestNo" class="form-control" readonly value="dv">
+                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mb-2 ml-2"><!-- Group of material radios - option 1 -->
+                                        <p class="mb-2">Quotation Attachment : <a class="ml-2" onclick="alert(0)"><i class="fas fa-upload"></i></a></p>
+                                        <p class="mb-1 ml-2"><a class="blue-text" onclick="alert(0)">adfadsf.pdf</a><a class="ml-2" onclick="alert(0)"><i class="fas fa-trash"></i></a></p>
+                                    </div>
+                                    <!--<div class="col-md-12">
+                                        <div class="md-form md-outline mt-0">
                                             <div class="file-field">
                                                 <div class="btn btn-outline-red btn-sm float-right mr-0 mt-0 py-2 z-depth-2">
                                                     <span><i class="fas fa-upload" aria-hidden="true"></i></span>
@@ -158,12 +172,9 @@
                                                 <p class="font-small text-danger" id="txfMudFileErr"></p>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                 </div>
                             </form>
-                        </div>
-                        <div class="card-footer py-1 pr-2 text-right bg-white">
-                            <button type="button" class="btn btn-outline-elegant z-depth-2" id="btnSprQuotationPdf"><i class="fas fa-file-pdf mr-2"></i> Quotation PDF</button>
                         </div>
                     </div>
                 </div>
@@ -234,7 +245,65 @@
                 </div>
             </div>
             <div class="mz-iframe z-depth-3 mb-4_5">
-                <iframe type="application/pdf" id="sda_iframe" name="saa_iframe_<?=time()?>" src="//localhost:8081/gems2/api/pdf/ppm/1/ppm_0001134.pdf" height="966px" width="100%"></iframe>
+                <iframe type="application/pdf" id="sda_iframe" name="saa_iframe_<?=time()?>" src="//localhost:8081/gems2/api/pdf/ppm/1/ppm_0001134.pdf" height="956px" width="100%"></iframe>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card z-depth-3 mb-4_5">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center mt-1 mb-0"> PO and DO</h5>
+                </div>
+                <div class="card-body mt-3" style="padding-bottom: 8px">
+                    <form id="formSprQuotation">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p class="mb-4">PO Information :</p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="md-form md-outline mt-0">
+                                            <input type="text" id="txtSprRequestNo" class="form-control" readonly value="dv">
+                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">PO No</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="md-form md-outline mt-0">
+                                            <input type="text" id="txtSprRequestNo" class="form-control" readonly value="dv">
+                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">PO Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mb-4 ml-2"><!-- Group of material radios - option 1 -->
+                                        <p class="mb-2">PO Attachment : <a class="ml-2" onclick="alert(0)"><i class="fas fa-upload"></i></a></p>
+                                        <p class="mb-1 ml-2"><a class="blue-text" onclick="alert(0)">adfadsf.pdf</a><a class="ml-2" onclick="alert(0)"><i class="fas fa-trash"></i></a></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p class="mb-4">DO Information :<a class="ml-2" onclick="alert(0)"><i class="fas fa-upload"></i></a></p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <table id="dtSprDo" class="table table-hover table-sm mb-0 display responsive">
+                                                <thead>
+                                                <tr class="th-strong">
+                                                    <th>#</th>
+                                                    <th>DO Number</th>
+                                                    <th>DO Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
         <div class="col-md-12">

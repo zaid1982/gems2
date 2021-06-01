@@ -34,8 +34,10 @@ function ModalConfirmDelete() {
                         returnClass.deleteWo(id);
                     }
                     break;
-                //default:
-                    //toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+                default:
+                    if (typeof returnClass !== 'undefined') {
+                        returnClass.delete(id);
+                    }
             }
             $('#modal_confirm_delete').modal('hide');
         });

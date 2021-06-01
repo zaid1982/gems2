@@ -234,10 +234,6 @@ function ModalDrawing () {
         });
 	};
 	
-	this.getClassName = function () {
-        return className;
-    };
-	
 	this.add = function () {
 		ShowLoader();
         setTimeout(function () {

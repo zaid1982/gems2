@@ -1,0 +1,41 @@
+<div class="modal fade" id="modal_item_type" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMitModalTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMit" class="mt-2" autocomplete="off">
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMitAssetGroup" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                            <label for="optMitAssetGroup" id="lblMitAssetGroup">Asset Group *</label>
+                            <p class="font-small text-danger" id="optMitAssetGroupErr"></p>
+                        </div>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <textarea id="txaMitDesc" class="md-textarea form-control" rows="2"></textarea>
+                        <label for="txaMitDesc" id="lblMitDesc" class="text-muted">Item Type</label>
+                        <p class="font-small text-danger" id="txaMitDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMitStatus" name="chkMitStatus" value="1">
+                        <label class="form-check-label" for="chkMitStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMitClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMitSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMitSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>
