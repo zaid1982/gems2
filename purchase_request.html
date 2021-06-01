@@ -43,102 +43,36 @@
                     Purchase Request
                 </h5>
             </nav>
-            <div class="row">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-stylish-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-clipboard red accent-2"></i>
-                                <div class="data white-text">
-                                    <h6 class="font-weight-bold font-small">NEW REQUEST</h6>
-                                    <h4 class="font-weight-bold" id="lblPcrTotalCompany">5</h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text white-text font-weight-bold mb-0">Total Ner Request</p>
-                                <p class="white-text font-weight-bold mb-0">Current</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-stylish-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-pen-fancy warning-color lighten-1"></i>
-                                <div class="data white-text">
-                                    <h6 class="font-weight-bold font-small">APPROVAL</h6>
-                                    <h4 class="font-weight-bold" id="lblPcrTotalNew">10</h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text white-text font-weight-bold mb-0">Total Approval PR</p>
-                                <p class="white-text font-weight-bold mb-0">Current</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-stylish-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-clipboard-check success-color"></i>
-                                <div class="data white-text">
-                                    <h6 class="font-weight-bold font-small">APPROVED PR</h6>
-                                    <h4 class="font-weight-bold" id="lblPcrTotalRenewal">100</h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text white-text font-weight-bold mb-0">Total Approved PR</p>
-                                <p class="white-text font-weight-bold mb-0 lblPcrSelected">2021</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-stylish-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-clipboard-list info-color"></i>
-                                <div class="data white-text">
-                                    <h6 class="font-weight-bold font-small">TOTAL REQUEST</h6>
-                                    <h4 class="font-weight-bold" id="lblPcrTotalAll">1,122</h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text white-text font-weight-bold mb-0">Total Request</p>
-                                <p class="white-text font-weight-bold mb-0 lblPcrSelected">Overall</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-3">
+            <div class="mt-4_5">
                 <ul class="nav nav-tabs md-tabs blue-grey lighten-1 mx-0">
                     <li class="nav-item">
                         <a class="nav-link active" id="tabPcrNewJust" data-toggle="tab" href="#tabPcrNew" role="tab" aria-controls="tabPcrNew"
-                           aria-selected="true"><i class="fas fa-clipboard-list pr-2"></i>Prepare PR</a>
+                           aria-selected="true"><i class="fas fa-clipboard-list px-2"></i>Prepare PR<span class="badge badge-danger mx-2">4</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabPcrApprovalJust" data-toggle="tab" href="#tabPcrApproval" role="tab" aria-controls="tabPcrApproval"
-                           aria-selected="true"><i class="fas fa-user-check pr-2"></i>Approval</a>
+                           aria-selected="true"><i class="fas fa-user-check px-2"></i>Approval<span class="badge badge-danger mx-2">0</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabPcrApprovedJust" data-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrApproved"
-                           aria-selected="true"><i class="fas fa-print pr-2"></i>Send PR to SAP</a>
+                           aria-selected="true"><i class="fas fa-print px-2"></i>Send PR to SAP<span class="badge badge-danger mx-2">12</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabPcrPoJust" data-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrPo"
+                           aria-selected="true"><i class="fas fa-print px-2"></i>Register PO & DO<span class="badge badge-danger mx-2">13</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabPcrAllJust" data-toggle="tab" href="#tabPcrAll" role="tab" aria-controls="tabPcrAll"
-                           aria-selected="true"><i class="fas fa-file-invoice-dollar pr-2"></i>All Request</a>
+                           aria-selected="true"><i class="fas fa-file-invoice-dollar px-2"></i>All Request<span class="badge badge-danger mx-2">1,233</span></a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content rounded-bottom card z-depth-4 pt-5" id="myTabPcr">
                 <div class="tab-pane fade show active" id="tabPcrNew" role="tabpanel" aria-labelledby="tabPcrNewJust">
                     <div class="row">
-                        <div class="col-md-12 px-0">
+                        <div class="col-md-12 px-1 py-2">
                             <div class="table-responsive">
-                                <table id="dtPcrNew" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtPcrNew" class="table table-hover display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
@@ -160,9 +94,9 @@
                 </div>
                 <div class="tab-pane fade" id="tabPcrApproval" role="tabpanel" aria-labelledby="tabPcrApprovalJust">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 px-1 py-2">
                             <div class="table-responsive">
-                                <table id="dtPcrApproval" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtPcrApproval" class="table table-hover display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
@@ -185,9 +119,33 @@
                 </div>
                 <div class="tab-pane fade" id="tabPcrApproved" role="tabpanel" aria-labelledby="tabPcrApprovedJust">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 px-1 py-2">
                             <div class="table-responsive">
-                                <table id="dtPcrApproved" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtPcrApproved" class="table table-hover display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>PR No.</th>
+                                        <th>Request No.</th>
+                                        <th>Quotation No.</th>
+                                        <th>Supplier</th>
+                                        <th>Total Price</th>
+                                        <th>Request By</th>
+                                        <th>Approval Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tabPcrPo" role="tabpanel" aria-labelledby="tabPcrPoJust">
+                    <div class="row">
+                        <div class="col-md-12 px-1 py-2">
+                            <div class="table-responsive">
+                                <table id="dtPcrPo" class="table table-hover display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
@@ -209,9 +167,9 @@
                 </div>
                 <div class="tab-pane fade" id="tabPcrAll" role="tabpanel" aria-labelledby="tabPcrAllJust">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 px-1 py-2">
                             <div class="table-responsive">
-                                <table id="dtPcrAll" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtPcrAll" class="table table-hover display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>

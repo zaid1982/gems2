@@ -33,8 +33,8 @@ function SectionPr() {
             dom: "<'row'<'col-sm-12'B>>" +
                 "<'row'<'col-sm-12'tr>>",
             columnDefs: [
-                { className: 'text-center', targets: [0, 6, 9] },
-                { className: 'text-right', targets: [3, 4, 5, 7, 8] }
+                { className: 'text-center', targets: [0, 5, 8] },
+                { className: 'text-right', targets: [2, 3, 4, 6, 7] }
             ],
             buttons: [
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-print"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - ', titleAttr: 'Cetak', exportOptions: exportOptSprItem},
@@ -54,7 +54,6 @@ function SectionPr() {
             aoColumns: [
                 {mData: null, bSortable: false},
                 {mData: 'a1'},
-                {mData: 'g1', width: '5%'},
                 {mData: 'b1', width: '8%'},
                 {mData: 'c1', width: '8%'},
                 {mData: 'd1', width: '8%'},
@@ -90,12 +89,23 @@ function SectionPr() {
         });
 
         const dataItems = [
-            {a1: 'LSP 4"x12" SS Push Plate with "PUSH" Sign<br/>(Door Accessories - Civil)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'},
-            {a1: 'Indicator Lamp - Yellow/Amber<br/>(Indicator Lamp - Electrical)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'},
-            {a1: 'Insulation Foam Sheet – 1 1/2 X 4 X 3<br/>(Aircond Insulation / Gas / Ventilation Fan - Mechanical)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'}
+            {a1: 'LSP 4"x12" SS Push Plate with "PUSH" Sign<br/>(Civil - Door Accessories)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'},
+            {a1: 'Indicator Lamp - Yellow/Amber<br/>(Electrical - Indicator Lamp)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'},
+            {a1: 'Insulation Foam Sheet – 1 1/2 X 4 X 3<br/>(Mechanical - Aircond Insulation / Gas / Ventilation Fan)', b1: '4', c1: '10', d1: '25', d2: '1', e1: '15.00',f1: '1,250.00', g1: 'box', h1: '2'}
         ];
         oTableItem.clear().rows.add(dataItems).draw();
 
+        $('#btnSprSaveItems').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const result = mzAjaxRequest2('pr/refresh_pdf/1', 'PUT');
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
     };
 
     this.load = function (_isEdit, _prId) {
