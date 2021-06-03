@@ -889,6 +889,13 @@ class Class_sql
                     p.*
                 FROM wfl_task t 
                 INNER JOIN pr p ON p.transaction_id = t.transaction_id";
+            } else if ($title === 'vw_store') {
+                $sql = "SELECT 
+                    s.*,
+                    t.total_item_desc,
+                    t.total_item
+                FROM cli_store s
+                LEFT JOIN (SELECT store_id, COUNT(*) AS total_item_desc, SUM(part_count) AS total_item FROM ast_part GROUP BY store_id) AS t ON t.store_id = s.store_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

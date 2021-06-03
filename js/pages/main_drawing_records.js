@@ -73,8 +73,8 @@ function MainDrawingRecords () {
                         return label;
                     }}
 			]				
-        });			
-		
+        });
+
 		if ($('#dtDwrData').width() < 952) {
 			oTableDwr.column(4).visible(false);
 		} 

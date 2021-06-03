@@ -1,6 +1,6 @@
 <?php
 
-class Class_item_type {
+class Class_store {
 
     private $fn_general;
 
@@ -71,14 +71,13 @@ class Class_item_type {
     }
 
     /**
-     * @param string $assetGroupId
      * @return mixed
      * @throws Exception
      */
-    public function getItemTypeList ($assetGroupId='') {
+    public function getStoreList () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('ref_item_type', array('asset_group_id'=>$assetGroupId)));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_store'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -87,15 +86,15 @@ class Class_item_type {
     }
 
     /**
-     * @param $itemTypeId
+     * @param $storeId
      * @return mixed
      * @throws Exception
      */
-    public function getItemType ($itemTypeId) {
+    public function getStore ($storeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($itemTypeId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ref_item_type', array('item_type_id'=>$itemTypeId), null, 1));
+            $this->fn_general->checkEmptyParams(array($storeId));
+            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('cli_store', array('store_id'=>$storeId), null, 1));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -107,15 +106,15 @@ class Class_item_type {
      * @param array $params
      * @throws Exception
      */
-    public function addItemType ($params=array()) {
+    public function addStore ($params=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($params));
-            $this->fn_general->checkEmptyParamsArray($params, array('assetGroupId', 'itemTypeDesc'));
-            if (Class_db::getInstance()->db_count('ref_item_type', array('item_type_desc'=>$params['itemTypeDesc'])) > 0) {
-                throw new Exception('[' . __LINE__ . '] - This item type name already exist. Please used another name.', 31);
+            $this->fn_general->checkEmptyParamsArray($params, array('siteId', 'storeName'));
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$params['siteId'], 'store_name'=>$params['storeName'])) > 0) {
+                throw new Exception('[' . __LINE__ . '] - This inventory store name already exist. Please used another name.', 31);
             }
-            return Class_db::getInstance()->db_insert('ref_item_type', $this->fn_general->convertToMysqlArrAll($params));
+            return Class_db::getInstance()->db_insert('cli_store', $this->fn_general->convertToMysqlArrAll($params));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -124,18 +123,18 @@ class Class_item_type {
     }
 
     /**
-     * @param $itemTypeId
+     * @param $storeId
      * @param array $params
      * @throws Exception
      */
-    public function updateItemType ($itemTypeId, $params=array()) {
+    public function updateStore ($storeId, $params=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($itemTypeId, $params));
-            if (Class_db::getInstance()->db_count('ref_item_type', array('item_type_desc'=>$params['itemTypeDesc'], 'item_type_id'=>'<>'.$itemTypeId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - This item type name already exist. Please used another name.', 31);
+            $this->fn_general->checkEmptyParams(array($storeId, $params));
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$params['siteId'], 'store_name'=>$params['storeName'], 'store_id'=>'<>'.$storeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - This inventory store name already exist. Please used another name.', 31);
             }
-            Class_db::getInstance()->db_update('ref_item_type', $this->fn_general->convertToMysqlArrAll($params), array('item_type_id'=>$itemTypeId));
+            Class_db::getInstance()->db_update('cli_store', $this->fn_general->convertToMysqlArrAll($params), array('store_id'=>$storeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -144,17 +143,17 @@ class Class_item_type {
     }
 
     /**
-     * @param $itemTypeId
+     * @param $storeId
      * @throws Exception
      */
-    public function deleteItemType ($itemTypeId) {
+    public function deleteStore ($storeId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($itemTypeId));
-            if (Class_db::getInstance()->db_count('ref_item', array('item_type_id'=>$itemTypeId)) > 0) {
-                throw new Exception('[' . __LINE__ . '] - This item type cannot be deleted because it\'s already being used in item list', 31);
+            $this->fn_general->checkEmptyParams(array($storeId));
+            if (Class_db::getInstance()->db_count('ast_part', array('store_id'=>$storeId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - This inventory store cannot be deleted because it\'s already being used in inventory', 31);
             }
-            Class_db::getInstance()->db_delete('ref_item_type', array('item_type_id'=>$itemTypeId));
+            Class_db::getInstance()->db_delete('cli_store', array('store_id'=>$storeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

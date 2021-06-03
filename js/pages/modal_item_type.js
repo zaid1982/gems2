@@ -9,7 +9,7 @@ function ModalItemType () {
     let refAssetGroup;
 
     this.init = function () {
-        const vData = [
+        vData = [
             {
                 field_id: 'optMitAssetGroup',
                 type: 'select',
@@ -135,12 +135,12 @@ function ModalItemType () {
         }, 200);
     };
 
-    this.delete = function (_itemTypeIdId) {
+    this.delete = function (_itemTypeId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_itemTypeIdId]);
-                mzAjaxRequest2('item_type/'+_itemTypeIdId, 'DELETE');
+                mzCheckFuncParam([_itemTypeId]);
+                mzAjaxRequest2('item_type/'+_itemTypeId, 'DELETE');
                 classFrom.genTable();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

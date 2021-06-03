@@ -1,0 +1,53 @@
+<div class="modal fade" id="modal_store" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMsrModalTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMsr" class="mt-2" autocomplete="off">
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMsrClient" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <label for="optMsrClient" id="lblMsrClient">Client *</label>
+                            <p class="font-small text-danger" id="optMsrClientErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0">
+                            <select id="optMsrSite" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" data-visible-options="30"></select>
+                            <label for="optMsrSite" id="lblMsrSite">Site *</label>
+                            <p class="font-small text-danger" id="optMsrSiteErr"></p>
+                        </div>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMsrName" class="form-control">
+                        <label for="txtMsrName" id="lblMsrName">Store Name *</label>
+                        <p class="font-small text-danger" id="txtMsrNameErr"></p>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <textarea id="txaMsrDesc" class="md-textarea form-control" rows="4"></textarea>
+                        <label for="txaMsrDesc" id="lblMsrDesc" class="text-muted">Store Description</label>
+                        <p class="font-small text-danger" id="txaMsrDescErr"></p>
+                    </div>
+                    <h6 class="font-small">Status:</h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="checkbox" class="form-check-input" id="chkMsrStatus" name="chkMsrStatus" value="1">
+                        <label class="form-check-label" for="chkMsrStatus">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMsrClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMsrSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMsrSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>

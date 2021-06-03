@@ -56,7 +56,7 @@ function HideLoader() {
 }
 
 function mzFormatNumber(num, fix) {
-    if (num == null) 	num = 0;
+    if (num === null || num === '') 	num = 0;
     num = parseFloat(num);
     let p = num.toFixed(fix).split(".");
     return p[0].split("").reduceRight(function(acc, num, i, orig) {
@@ -354,13 +354,13 @@ function MzValidate(name) {
                 fieldLblSelector.removeClass('active');
             }
             else if (u.type === 'select') {
-                fieldSelector.material_select('destroy');
+                fieldSelector.materialSelect('destroy');
                 fieldSelector.val(null);
                 fieldLblSelector.removeClass('active');
-                fieldSelector.material_select();
-                //$('.mdb-select').material_select('destroy');
+                fieldSelector.materialSelect();
+                //$('.mdb-select').materialSelect('destroy');
                 //$('#' + fieldId).val(null).trigger( 'click');
-                //$('.mdb-select').material_select();
+                //$('.mdb-select').materialSelect();
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
             }
             else if (u.type === 'selectMultiple') {
@@ -1058,7 +1058,7 @@ function mzCmp(a, b) {
 }
 
 function mzOptionStopClear(name, defaultText, type) {
-    $('#'+name).material_select('destroy');
+    $('#'+name).materialSelect('destroy');
     if (name === '' || typeof name === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -1068,13 +1068,15 @@ function mzOptionStopClear(name, defaultText, type) {
         document.getElementById(name).options[0].disabled = true;
     }
     $('#'+name).val(null);
-    $('#'+name).material_select();
+    $('#'+name).materialSelect();
+    $('#'+name).removeClass('invalid');
+    $('#'+name+'Err').html('');
 }
 
 function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
-    $('#'+name).material_select('destroy');
+    $('#'+name).materialSelect({'destroy': true});
     mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort);
-    $('#'+name).material_select();
+    $('#'+name).materialSelect();
 }
 
 function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
@@ -1215,11 +1217,11 @@ function mzSetFieldValue(name, value, type, label) {
             $('#lbl'+name).addClass('active');
         }
         else if (type === 'select') {
-            $('#opt'+name).material_select('destroy');
+            $('#opt'+name).materialSelect('destroy');
             $('#opt'+name).val(value);
             //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
             $('#lbl'+name).html(label).addClass('active');
-            $('#opt'+name).material_select();
+            $('#opt'+name).materialSelect();
         }
         else if (type === 'textarea') {
             $('#txa'+name).val(value);
@@ -1338,9 +1340,9 @@ function mzGetUserInfoByParam(parameter) {
 }
 
 function mzDisableSelect(fieldId, disable) {
-    $('#'+fieldId).material_select('destroy');
+    $('#'+fieldId).materialSelect('destroy');
     $('#'+fieldId).prop('disabled', disable);
-    $('#'+fieldId).material_select();
+    $('#'+fieldId).materialSelect();
 }
 
 function mzCheckFuncParam (arrParam) {

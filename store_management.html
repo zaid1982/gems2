@@ -36,34 +36,37 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionItmMain">
+        <section class="mb-5 mt-lg-5 sectionStmMain">
             <div class="card card-cascade narrower">
                 <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
-                        <button type="button" id="btnItmDataAdd"
+                        <button type="button" id="btnStmDataAdd"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Item Type"><i
+                                data-toggle="tooltip" data-placement="top" title="Add Inventory Store"><i
                                 class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Item Type List"
-                           data-content="All records of available Item Type to be used as Item / Material category."><i
+                           data-toggle="popover" data-trigger="focus" title="Inventory Store Management"
+                           data-content="List of Inventory Store in all sites"><i
                                 class="fas fa-info mt-0 mx-1"></i></a>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Item Type List</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Store Management</a>
                     <div>
-                        <button type="button" id="btnDtItmDataRefresh"
+                        <button type="button" id="btnDtStmDataRefresh"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
                                 data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                     </div>
                 </div>
                 <div class="m-2 py-3">
                     <div class="table-responsive">
-                        <table id="dtItmData" class="table table-hover table-sm mb-0 display responsive">
+                        <table id="dtStmData" class="table table-hover table-sm mb-0 display responsive">
                             <thead>
                             <tr class="th-strong">
                                 <th>#</th>
-                                <th>Asset Group</th>
-                                <th>Item Type</th>
+                                <th>Client</th>
+                                <th>Store Name</th>
+                                <th>Store Description</th>
+                                <th>Total Item Descriptions</th>
+                                <th>Total Items</th>
                                 <th>Status</th>
                                 <th>&nbsp;</th>
                             </tr>
@@ -78,7 +81,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_item_type"></div>
+    <div class="includeHtml" id="h-modal_store"></div>
 
 </main>
 
@@ -114,8 +117,8 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
-    let modalItemTypeClass_;
-    let itemTypeManagementClass_;
+    let modalStoreClass_;
+    let storeManagementClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -126,21 +129,23 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
-                modalItemTypeClass_ = new ModalItemType();
-                itemTypeManagementClass_ = new MainItemTypeManagement();
+                modalStoreClass_ = new ModalStore();
+                storeManagementClass_ = new MainStoreManagement();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
-                modalItemTypeClass_.setRefAssetGroup(refAssetGroup_);
-                modalItemTypeClass_.setClassFrom(itemTypeManagementClass_);
-                modalItemTypeClass_.init();
+                modalStoreClass_.setRefClient(refClient_);
+                modalStoreClass_.setRefSite(refSite_);
+                modalStoreClass_.setClassFrom(storeManagementClass_);
+                modalStoreClass_.init();
 
-                itemTypeManagementClass_.setRefStatus(refStatus_);
-                itemTypeManagementClass_.setRefAssetGroup(refAssetGroup_);
-                itemTypeManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                itemTypeManagementClass_.setModalItemTypeClass(modalItemTypeClass_);
-                itemTypeManagementClass_.init();
+                storeManagementClass_.setRefStatus(refStatus_);
+                storeManagementClass_.setRefSite(refSite_);
+                storeManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                storeManagementClass_.setModalStoreClass(modalStoreClass_);
+                storeManagementClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -151,8 +156,8 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_item_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_item_type_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_store.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_store_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
 
