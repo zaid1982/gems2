@@ -1,0 +1,28 @@
+RewriteEngine On
+
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
+RewriteRule ^p_drawing_records/?$ drawing_records.html
+RewriteRule ^p_drawing_deleted/?$ drawing_deleted.html
+RewriteRule ^p_inventory/?$ inventory.html
+RewriteRule ^p_purchase_request/?$ purchase_request.html
+RewriteRule ^p_supplier_management/?$ supplier_management.html
+RewriteRule ^p_item_management/?$ item_management.html
+RewriteRule ^p_item_type_management/?$ item_type_management.html
+RewriteRule ^p_store_management/?$ store_management.html
+
+RewriteRule ^drawing/?$ api/drawing.php
+RewriteRule ^drawing/(.+)/?$ api/drawing.php
+RewriteRule ^m_inventory/?$ api/m_inventory.php
+RewriteRule ^m_inventory/(.+)/?$ api/m_inventory.php
+RewriteRule ^pr/?$ api/pr.php
+RewriteRule ^pr/(.+)/?$ api/pr.php
+RewriteRule ^item_type/?$ api/item_type.php
+RewriteRule ^item_type/(.+)/?$ api/item_type.php
+RewriteRule ^store/?$ api/store.php
+RewriteRule ^store/(.+)/?$ api/store.php
+RewriteRule ^item/?$ api/item.php
+RewriteRule ^item/(.+)/?$ api/item.php
+RewriteRule ^item_image/?$ api/item_image.php
+RewriteRule ^item_image/(.+)/?$ api/item_image.php
