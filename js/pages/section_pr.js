@@ -13,6 +13,7 @@ function SectionPr() {
         $('#btnSprBack').on('click', function () {
             $('.sectionPr').hide();
             classFrom.showMain();
+            $(window).scrollTop(0);
         });
 
         $('#txtSprSupplier').on('click', function () {

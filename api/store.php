@@ -61,7 +61,7 @@ try {
         $param = $_POST;
 
         $storeId = $fn_store->addStore($param);
-        $fn_general->updateVersion(25);
+        $fn_general->updateVersion(26);
         $fn_general->save_audit('153', $userId, 'Store ID = '.$storeId.', Store name = '.$param['storeName']);
         $form_data['errmsg'] = $constant::SUC_SUBMITTED;
 
@@ -82,7 +82,7 @@ try {
 
         $fn_store->updateStore($urlArr[1], $params);
         $form_data['errmsg'] = $constant::SUC_SAVE;
-        $fn_general->updateVersion(25);
+        $fn_general->updateVersion(26);
         $fn_general->save_audit('154', $userId, 'Store ID = '.$urlArr[1].', Store name = '.$params['storeName']);
 
         Class_db::getInstance()->db_commit();
@@ -99,7 +99,7 @@ try {
 
         $store = $fn_store->getStore($urlArr[1]);
         $fn_store->deleteStore($urlArr[1]);
-        $fn_general->updateVersion(25);
+        $fn_general->updateVersion(26);
         $fn_general->save_audit('155', $userId, 'Store ID = '.$store['storeId'].', Store name = '.$store['storeName']);
 
         Class_db::getInstance()->db_commit();

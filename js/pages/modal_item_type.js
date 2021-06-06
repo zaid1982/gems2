@@ -28,6 +28,17 @@ function ModalItemType () {
                 }
             },
             {
+                field_id: 'txtMitTurn',
+                type: 'text',
+                name: 'Option Turn',
+                validator: {
+                    maxLength: 3,
+                    notEmpty: true,
+                    digit: true,
+                    numeric: true
+                }
+            },
+            {
                 field_id: 'chkMitStatus',
                 type: 'checkSingle',
                 name: 'Status',
@@ -50,6 +61,7 @@ function ModalItemType () {
                         let data = {
                             itemTypeDesc: $('#txaMitDesc').val(),
                             assetGroupId: $('#optMitAssetGroup').val(),
+                            itemTypeTurn: $('#txtMitTurn').val(),
                             itemTypeStatus: $("input[name='chkMitStatus']").is(":checked") ? '1' : '2'
                         };
                         mzAjaxRequest2('item_type/'+itemTypeId, 'PUT', data);
@@ -74,6 +86,7 @@ function ModalItemType () {
                         let data = {
                             itemTypeDesc: $('#txaMitDesc').val(),
                             assetGroupId: $('#optMitAssetGroup').val(),
+                            itemTypeTurn: $('#txtMitTurn').val(),
                             itemTypeStatus: $("input[name='chkMitStatus']").is(":checked") ? '1' : '2'
                         };
                         mzAjaxRequest2('item_type', 'POST', data);
@@ -121,6 +134,7 @@ function ModalItemType () {
                 const itemType = mzAjaxRequest2('item_type/'+itemTypeId, 'GET');
                 mzSetFieldValue('MitDesc', itemType['itemTypeDesc'], 'textarea');
                 mzSetFieldValue('MitAssetGroup', itemType['assetGroupId'], 'select');
+                mzSetFieldValue('MitTurn', itemType['itemTypeTurn'], 'text');
                 mzSetFieldValue('MitStatus', itemType['itemTypeStatus'], 'checkSingle', '1');
 
                 $('#lblMitModalTitle').html('<i class="fas fa-edit text-white"></i> Edit Item Type');

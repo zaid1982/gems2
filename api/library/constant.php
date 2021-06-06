@@ -134,6 +134,8 @@ class Class_constant {
     const SUC_VERIFIED_AND_CLOSED = 'Successfully verified and closed!';
     const SUC_SCAN_START_TIME = 'Start Time successfully set!';
     const SUC_DELETE = 'Successfully removed!';
+    const SUC_UPLOADED_IMAGE = 'Image Successfully uploaded!';
+
     const SUC_USER_ADD = 'User successfully added';
     const SUC_USER_UPDATE = 'User successfully updated';
     const SUC_USER_DEACTIVATE = 'User successfully deactivated';

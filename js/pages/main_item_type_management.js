@@ -10,12 +10,12 @@ function MainItemTypeManagement () {
 
     this.init = function () {
         let exportOpt = Object.assign({}, mzExportOpt);
-        exportOpt['columns'] = [0, 1, 2, 3];
+        exportOpt['columns'] = [0, 1, 2, 3, 4];
 
         oTableItm = $('#dtItmData').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[1, 'asc'], [2, 'asc']],
+            aaSorting: [[1, 'asc'], [3, 'asc']],
             language: _DATATABLE_LANGUAGE,
             pageLength: 50,
             autoWidth: false,
@@ -48,10 +48,13 @@ function MainItemTypeManagement () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0, 4] },
-                { className: 'text-center', targets: [0, 3, 4] },
+                { bSortable: false, targets: [0, 5] },
+                { className: 'text-center', targets: [0, 4, 5] },
+                { className: 'text-right', targets: [3] },
+                { className: 'noVis', targets: [0, 5] }
             ],
             buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Item Type List', titleAttr: 'Print', exportOptions: exportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Item Type List', titleAttr: 'Copy', exportOptions: exportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Item Type List', titleAttr: 'Excel', exportOptions: exportOpt},
@@ -63,6 +66,7 @@ function MainItemTypeManagement () {
                         return data !== '' ? refAssetGroup[data]['assetGroupName'] : '';
                     }},
                 {mData: 'itemTypeDesc'},
+                {mData: 'itemTypeTurn'},
                 {mData: 'itemTypeStatus', mRender: function (data){
                         return data !== '' ? refStatus[data]['statusDesc'] : '';
                     }},
@@ -74,6 +78,11 @@ function MainItemTypeManagement () {
                     }}
             ]
         });
+
+        if ($('#dtItmData').width() < 520) {
+            oTableItm.column(3).visible(false);
+            oTableItm.column(4).visible(false);
+        }
 
         $('#btnDtItmDataRefresh').on('click', function () {
             ShowLoader();

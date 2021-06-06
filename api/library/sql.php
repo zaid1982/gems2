@@ -896,6 +896,32 @@ class Class_sql
                     t.total_item
                 FROM cli_store s
                 LEFT JOIN (SELECT store_id, COUNT(*) AS total_item_desc, SUM(part_count) AS total_item FROM ast_part GROUP BY store_id) AS t ON t.store_id = s.store_id";
+            } else if ($title === 'vw_item_image') {
+                $sql = "SELECT 
+                     u.*,
+                     g.item_image_id,
+                     g.item_id
+                FROM ref_item_image g
+                LEFT JOIN sys_upload u ON u.upload_id = g.upload_id";
+            } else if ($title === 'vw_item_with_image') {
+                $sql = "SELECT 
+                    i.*,
+                    docs.upload_list,
+                    docs.title_list,
+                    docs.width_list,
+                    docs.height_list 
+                FROM ref_item i
+                LEFT JOIN (
+                        SELECT 
+                            g.item_id, 
+                            GROUP_CONCAT(CONCAT(u.upload_folder,'/',u.upload_filename,'.',u.upload_extension) SEPARATOR '||') AS upload_list, 
+                            GROUP_CONCAT(u.upload_name SEPARATOR '||') AS title_list, 
+                            GROUP_CONCAT(u.upload_file_width SEPARATOR '||') AS width_list, 
+                            GROUP_CONCAT(u.upload_file_height SEPARATOR '||') AS height_list
+                        FROM ref_item_image g
+                        LEFT JOIN sys_upload u ON u.upload_id = g.upload_id
+                        GROUP BY g.item_id
+                ) docs ON docs.item_id = i.item_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -13,16 +13,21 @@
             <div class="modal-body mb-0">
                 <form id="formMit" class="mt-2" autocomplete="off">
                     <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMitAssetGroup" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMitAssetGroup_">
+                            <select id="optMitAssetGroup" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
                             <label for="optMitAssetGroup" id="lblMitAssetGroup">Asset Group *</label>
                             <p class="font-small text-danger" id="optMitAssetGroupErr"></p>
                         </div>
                     </div>
                     <div class="md-form md-outline mt-0">
                         <textarea id="txaMitDesc" class="md-textarea form-control" rows="2"></textarea>
-                        <label for="txaMitDesc" id="lblMitDesc" class="text-muted">Item Type</label>
+                        <label for="txaMitDesc" id="lblMitDesc" class="text-muted">Item Type *</label>
                         <p class="font-small text-danger" id="txaMitDescErr"></p>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMitTurn" class="form-control">
+                        <label for="txtMitTurn" id="lblMitTurn">Option Turn *</label>
+                        <p class="font-small text-danger" id="txtMitTurnErr"></p>
                     </div>
                     <h6 class="font-small">Status:</h6>
                     <div class="form-check pl-0 ml-3">
@@ -32,9 +37,9 @@
                 </form>
             </div>
             <div class="modal-footer p-2">
-                <button class="btn btn-outline-info waves-effect btnMitClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMitSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
-                <button id="btnMitSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+                <button class="btn btn-outline-info waves-effect btnMitClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMitSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Item Type"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMitSave" class="btn btn-info waves-effect" data-toggle="tooltip" title="Save Item Type"><i class="far fa-save ml-1"></i> Save</button>
             </div>
         </div>
     </div>

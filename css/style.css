@@ -82,6 +82,10 @@ ul.striped li:last-child {
     margin-bottom: 0px;
 }
 
+.select-wrapper.md-form input.select-dropdown {
+    margin-bottom: 0px;
+}
+
 @-webkit-keyframes autofill {
     to {
         color: #666;

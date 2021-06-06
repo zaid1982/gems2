@@ -1,0 +1,116 @@
+<section class="section mb-5 mt-lg-3 sectionItem">
+    <div class="row mb-4 pb-0">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-blue-grey btn-rounded float-right text-white z-depth-3 px-4" id="btnSiySave" data-toggle="tooltip" title="Save Item Description">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button type="button" class="btn btn-danger btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyDelete" data-toggle="tooltip" title="Delete Item Description">
+                <i class="fas fa-trash-alt"></i> Delete
+            </button>
+            <button type="button" class="btn btn-deep-orange btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyDisable" data-toggle="tooltip" title="Disable Item Description">
+                <i class="fas fa-ban"></i> Disable
+            </button>
+            <button type="button" class="btn btn-dark-green btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyEnable" data-toggle="tooltip" title="Enable Item Description">
+                <i class="fas fa-check"></i> Enable
+            </button>
+            <button type="button" class="btn btn-warning btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyBack" data-toggle="tooltip" title="Back to Main Page">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card card-cascade cascading-admin-card user-card z-depth-3 mt-0 mb-4_5">
+                <div class="admin-up d-flex justify-content-start">
+                    <i class="fa fas fa-toolbox rgba-blue-strong py-4 z-depth-3"></i>
+                    <div class="data">
+                        <h3 class="font-weight-bold dark-grey-text ml-3">Item Description</h3>
+                    </div>
+                </div>
+                <div class="card-body card-body-cascade">
+                    <form id="formSiy" autocomplete="off">
+                        <div class="md-form">
+                            <i class="fas fa-tag prefix" id="optSiyAssetGroupPre"></i>
+                            <select id="optSiyAssetGroup" class="mdb-select md-form colorful-select ml-4 pl-3" data-stop-refresh="true"></select>
+                            <label for="optSiyAssetGroup" id="lblSiyAssetGroup" class="mt-1">Asset Group *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="optSiyAssetGroupErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-tools prefix" id="optSiyItemTypePre"></i>
+                            <select id="optSiyItemType" class="mdb-select md-form colorful-select ml-4 pl-3" data-stop-refresh="true"></select>
+                            <label for="optSiyItemType" id="lblSiyItemType" class="mt-1">Item Type *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="optSiyItemTypeErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-hammer prefix" id="txtSiyDescriptionPre"></i>
+                            <input type="text" id="txtSiyDescription" class="form-control">
+                            <label for="txtSiyDescription" id="lblSiyDescription">Item Description *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyDescriptionErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-tachometer-alt prefix" id="txtSiyThresholdPre"></i>
+                            <input type="text" id="txtSiyThreshold" class="form-control">
+                            <label for="txtSiyThreshold" id="lblSiyThreshold">Default Threshold *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyThresholdErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-shopping-cart prefix" id="txtSiyMinOrderPre"></i>
+                            <input type="text" id="txtSiyMinOrder" class="form-control">
+                            <label for="txtSiyMinOrder" id="lblSiyMinOrder">Minimum Order *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyMinOrderErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-luggage-cart prefix" id="txtSiyMaxOrderPre"></i>
+                            <input type="text" id="txtSiyMaxOrder" class="form-control">
+                            <label for="txtSiyMaxOrder" id="lblSiyMaxOrder">Maximum Order *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyMaxOrderErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-pencil-alt prefix" id="txaSiyRemarkPre"></i>
+                            <textarea id="txaSiyRemark" class="md-textarea md-textarea-auto form-control" rows="2"></textarea>
+                            <label for="txaSiyRemark" id="lblSiyRemark" class="text-muted">Remark</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txaSiyRemarkErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-sort-numeric-up prefix" id="txtSiyTurnPre"></i>
+                            <input type="text" id="txtSiyTurn" class="form-control">
+                            <label for="txtSiyTurn" id="lblSiyTurn">Option Turn *</label>
+                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyTurnErr"></p>
+                        </div>
+                        <div class="md-form">
+                            <i class="fas fa-exclamation-triangle prefix active"></i>
+                            <input type="text" id="txtSiyStatus" class="form-control" readonly>
+                            <label for="txtSiyStatus" id="lblSiyStatus" class="text-muted active">Status</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card z-depth-3 mb-4_5">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Item Images <a class="ml-2" id="btnSiyUpload"><i class="fas fa-upload" data-toggle="tooltip" data-placement="top" title="Upload Item Images"></i></a></h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 px-0">
+                            <div class="table-responsive">
+                                <table id="dtSiyPicture" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th >#</th>
+                                        <th>Title</th>
+                                        <th>Picture</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_item_type.php';
+require_once 'function/f_item_image.php';
 
-$api_name = 'api_item_type';
+$api_name = 'api_item_image';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,13 +15,13 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_item_type = new Class_item_type();
+$fn_item_image = new Class_item_image();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_item_type->__set('fn_general', $fn_general);
+    $fn_item_image->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -29,7 +29,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'item_type') {
+        if ($param === 'item_image') {
             break;
         }
         array_shift($urlArr);
@@ -47,43 +47,25 @@ try {
     }
 
     if ('GET' === $request_method) {
-        if (isset ($urlArr[1])) {
-            $result = $fn_item_type->getItemType($urlArr[1]);
-        } else {
-            $result = $fn_item_type->getItemTypeList();
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+        $result = $fn_item_image->getItemImageList($urlArr[1]);
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
         $param = $_POST;
-
-        $itemTypeId = $fn_item_type->addItemType($param);
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('150', $userId, 'Item Type ID = '.$itemTypeId.', Item Type description = '.$param['itemTypeDesc']);
-        $form_data['errmsg'] = $constant::SUC_SUBMITTED;
-
-        Class_db::getInstance()->db_commit();
-        $form_data['result'] = $result;
-        $form_data['success'] = true;
-    }
-    else if ('PUT' === $request_method) {
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-        $putData = file_get_contents("php://input");
-        $params = array();
-        parse_str($putData, $params);
 
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
-
-        $fn_item_type->updateItemType($urlArr[1], $params);
-        $form_data['errmsg'] = $constant::SUC_SAVE;
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('151', $userId, 'Item Type ID = '.$urlArr[1].', Item Type description = '.$params['itemTypeDesc']);
+        $uploadId = $fn_general->uploadDocument($param, '21', $userId);
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $itemImageId = $fn_item_image->addItemImage($urlArr[1], $uploadId);
+        $fn_general->save_audit('161', $userId, 'Item Image ID = '.$itemImageId.', Image title = '.$param['name']);
+        $form_data['errmsg'] = $constant::SUC_UPLOADED_IMAGE;
 
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
@@ -97,10 +79,10 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        $itemType = $fn_item_type->getItemType($urlArr[1]);
-        $fn_item_type->deleteItemType($urlArr[1]);
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('152', $userId, 'Item Type ID = '.$urlArr[1].', Item Type description = '.$itemType['itemTypeDesc']);
+        $itemImageId = $fn_item_image->getItemImage($urlArr[1]);
+        $fn_item_image->deleteItemImage($urlArr[1]);
+        $fn_general->deleteDocument($itemImageId['uploadId']);
+        $fn_general->save_audit('162', $userId, 'Item ID = '.$urlArr[1]);
 
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_DELETE;
@@ -124,3 +106,5 @@ try {
 }
 
 echo json_encode($form_data);
+
+

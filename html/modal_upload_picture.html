@@ -1,0 +1,46 @@
+<div class="modal fade" id="modal_upload_picture" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-camera text-white"></i> Upload Image</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMup" class="mt-2" autocomplete="off">
+                    <div class="md-form md-outline mt-3">
+                        <input type="text" id="txtMupTitle" class="form-control">
+                        <label for="txtMupTitle" id="lblMupTitle">Image Title *</label>
+                        <p class="font-small text-danger" id="txtMupTitleErr"></p>
+                    </div>
+                    <div class="md-form md-outline my-0">
+                        <div class="file-field">
+                            <a class="btn-floating btn-sm purple-gradient mt-0 float-right" data-toggle="tooltip" title="Choose File to Upload">
+                                <i class="fas fa-cloud-upload-alt text-white" aria-hidden="true"></i>
+                                <input type="file" id="txfMupFile">
+                                <input type="hidden" id="txfMupFileBlob">
+                                <input type="hidden" id="txfMupFileWidth">
+                                <input type="hidden" id="txfMupFileHeight">
+                            </a>
+                            <div class="file-path-wrapper pl-0 pr-2">
+                                <input class="file-path form-control" type="text" id="txtMupFile" readonly>
+                                <label for="txtMupFile" id="lblMupFile">Image File (JPEG, JPG, PNG)</label>
+                            </div>
+                            <p class="font-small text-danger" id="txfMupFileErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMupClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMupSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Image Upload"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

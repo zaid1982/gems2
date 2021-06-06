@@ -87,8 +87,7 @@ function MainStoreManagement () {
         }
         if ($('#dtStmData').width() < 520) {
             oTableStm.column(3).visible(false);
-            oTableStm.column(4).visible(false);
-            oTableStm.column(5).visible(false);
+            oTableStm.column(6).visible(false);
         }
 
         $('#btnDtStmDataRefresh').on('click', function () {

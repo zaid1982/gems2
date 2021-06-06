@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_item_type.php';
+require_once 'function/f_item.php';
 
-$api_name = 'api_item_type';
+$api_name = 'api_item';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,13 +15,13 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_item_type = new Class_item_type();
+$fn_item = new Class_item();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_item_type->__set('fn_general', $fn_general);
+    $fn_item->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -29,7 +29,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'item_type') {
+        if ($param === 'item') {
             break;
         }
         array_shift($urlArr);
@@ -48,9 +48,13 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            $result = $fn_item_type->getItemType($urlArr[1]);
+            if ($urlArr[1] === 'list_with_image') {
+                $result = $fn_item->getItemListWithImage();
+            } else {
+                $result = $fn_item->getItem($urlArr[1]);
+            }
         } else {
-            $result = $fn_item_type->getItemTypeList();
+            $result = $fn_item->getItemList();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
@@ -60,9 +64,9 @@ try {
         $is_transaction = true;
         $param = $_POST;
 
-        $itemTypeId = $fn_item_type->addItemType($param);
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('150', $userId, 'Item Type ID = '.$itemTypeId.', Item Type description = '.$param['itemTypeDesc']);
+        $itemTypeId = $fn_item->addItem($param);
+        $fn_general->updateVersion(25);
+        $fn_general->save_audit('156', $userId, 'Item ID = '.$itemTypeId.', Item description = '.$param['itemDescription']);
         $form_data['errmsg'] = $constant::SUC_SUBMITTED;
 
         Class_db::getInstance()->db_commit();
@@ -80,10 +84,26 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        $fn_item_type->updateItemType($urlArr[1], $params);
-        $form_data['errmsg'] = $constant::SUC_SAVE;
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('151', $userId, 'Item Type ID = '.$urlArr[1].', Item Type description = '.$params['itemTypeDesc']);
+        if ($urlArr[1] === 'disable') {
+            $fn_item->deactivateItem($urlArr[2]);
+            $form_data['errmsg'] = $constant::SUC_DEACTIVATED;
+            $fn_general->updateVersion(25);
+            $item = $fn_item->getItem($urlArr[2]);
+            $fn_general->save_audit('159', $userId, 'Item ID = '.$urlArr[2].', Item description = '.$item['itemDescription']);
+        }
+        else if ($urlArr[1] === 'enable') {
+            $fn_item->activateItem($urlArr[2]);
+            $form_data['errmsg'] = $constant::SUC_ACTIVATED;
+            $fn_general->updateVersion(25);
+            $item = $fn_item->getItem($urlArr[2]);
+            $fn_general->save_audit('160', $userId, 'Item ID = '.$urlArr[2].', Item description = '.$item['itemDescription']);
+        }
+        else {
+            $fn_item->updateItem($urlArr[1], $params);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+            $fn_general->updateVersion(25);
+            $fn_general->save_audit('157', $userId, 'Item ID = '.$urlArr[1].', Item description = '.$params['itemDescription']);
+        }
 
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
@@ -97,10 +117,10 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        $itemType = $fn_item_type->getItemType($urlArr[1]);
-        $fn_item_type->deleteItemType($urlArr[1]);
-        $fn_general->updateVersion(24);
-        $fn_general->save_audit('152', $userId, 'Item Type ID = '.$urlArr[1].', Item Type description = '.$itemType['itemTypeDesc']);
+        $item = $fn_item->getItem($urlArr[1]);
+        $fn_item->deleteItem($urlArr[1]);
+        $fn_general->updateVersion(25);
+        $fn_general->save_audit('158', $userId, 'Item ID = '.$urlArr[1].', Item description = '.$item['itemDescription']);
 
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_DELETE;

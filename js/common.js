@@ -118,6 +118,14 @@ function MzValidate(name) {
                 if (val !== '' && fieldVal !== $('#' + val.id).val() && fieldVal !== '')
                     return false;
                 break;
+            case 'lower':
+                if (val !== '' && fieldVal > $('#' + val.id).val() && fieldVal !== '')
+                    return false;
+                break;
+            case 'higher':
+                if (val !== '' && fieldVal < $('#' + val.id).val() && fieldVal !== '')
+                    return false;
+                break;
             case 'max':
                 if (fieldVal > val && fieldVal !== '')
                     return false;
@@ -180,6 +188,9 @@ function MzValidate(name) {
             fieldSelector = $('#' + field_id);
             fieldErrSelector = $('#' +field_id + 'Err');
         }
+        if (type === 'select') {
+            $('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').removeClass('invalid');
+        }
         fieldSelector.removeClass('invalid');
         fieldErrSelector.html('');
 
@@ -219,6 +230,11 @@ function MzValidate(name) {
                         break;
                     case 'similar':
                         msg += '<br>' + name + ' must equal to ' + u2.label;
+                    case 'lower':
+                        msg += '<br>' + name + ' must not higher than ' + u2.label;
+                        break;
+                    case 'higher':
+                        msg += '<br>' + name + ' must not less than ' + u2.label;
                         break;
                     case 'max':
                         msg += '<br>' + name + ' must not higher than ' + u2;
@@ -251,6 +267,9 @@ function MzValidate(name) {
             }
         });
         if (msg !== '') {
+            if (type === 'select') {
+                $('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').addClass('invalid');
+            }
             fieldSelector.addClass('invalid');
             fieldErrSelector.html(msg.substring(4));
             return false;
@@ -286,11 +305,21 @@ function MzValidate(name) {
                 fieldSelector = $('#' + u.field_id);
                 fieldErrSelector = $('#' + u.field_id + 'Err');
             }
+            if (u.type === 'select') {
+                $('#' + u.field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').removeClass('invalid');
+            }
             fieldSelector.removeClass('invalid');
             fieldErrSelector.html('');
             fieldSelector.on('keyup change', function () {
                 if (u.enabled) {
-                    validateFields(u.field_id, u.validator, u.name, u.type);
+                    if (u.type === 'select') {
+                        $('#' + u.field_id + 'Pre').removeClass('active');
+                    }
+                    if (validateFields(u.field_id, u.validator, u.name, u.type)) {
+                        if (u.type === 'select') {
+                            $('#' + u.field_id + 'Pre').addClass('active');
+                        }
+                    }
                 }
             });
             u.enabled = true;
@@ -1071,15 +1100,17 @@ function mzOptionStopClear(name, defaultText, type) {
     $('#'+name).materialSelect();
     $('#'+name).removeClass('invalid');
     $('#'+name+'Err').html('');
+    $('#lbl' + name.substr(3)).removeClass('active');
+    $('#lbl' + name.substr(3)).addClass('active');
 }
 
-function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
+function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex) {
     $('#'+name).materialSelect({'destroy': true});
-    mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort);
+    mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex);
     $('#'+name).materialSelect();
 }
 
-function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort) {
+function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex) {
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -1110,9 +1141,15 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     }); 
 
     if (isSort) {
-        dataSort.sort(function(a, b){
-            return a[valIndex].localeCompare(b[valIndex]);
-        });
+        if (typeof sortIndex !== 'undefined' && sortIndex !== '') {
+            dataSort.sort(function(a, b){
+                return a[sortIndex].localeCompare(b[sortIndex], 'en', {numeric: true});
+            });
+        } else {
+            dataSort.sort(function(a, b){
+                return a[valIndex].localeCompare(b[valIndex]);
+            });
+        }
     }
 
     $.each(dataSort, function (n, u) {
@@ -1153,6 +1190,8 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     //document.getElementById(name).innerHTML = htmlStr.join('');
     //$('#' + name).html(htmlStr.join(''));
     $('#' + name).val(null);
+    $('#lbl' + name.substr(3)).removeClass('active');
+    $('#lbl' + name.substr(3)).addClass('active');
     //document.getElementById(name).setAttribute('data-stop-refresh', 'true');
     //$('#'+name).prevAll('.select-dropdown').children('li:eq()').trigger('click');
 }
@@ -1211,10 +1250,28 @@ function mzChartOption() {
 }
 
 function mzSetFieldValue(name, value, type, label) {
+    if (type === 'text') {
+        $('#txt'+name).val('');
+        $('#lbl'+name).removeClass('active');
+        $('#txt'+name+'Pre').removeClass('active');
+    }
+    else if (type === 'select') {
+        $('#opt'+name+'Pre').removeClass('active');
+    }
+    else if (type === 'textarea') {
+        $('#txa'+name).val('');
+        $('#lbl'+name).removeClass('active');
+        $('#txa'+name+'Pre').removeClass('active');
+    }
+    else if (type === 'summernote') {
+        $('#txa'+name).summernote('code', '');
+    }
+
     if (value !== '' && value.length !== 0) {
         if (type === 'text') {
             $('#txt'+name).val(value);
             $('#lbl'+name).addClass('active');
+            $('#txt' + name + 'Pre').addClass('active');
         }
         else if (type === 'select') {
             $('#opt'+name).materialSelect('destroy');
@@ -1222,13 +1279,15 @@ function mzSetFieldValue(name, value, type, label) {
             //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
             $('#lbl'+name).html(label).addClass('active');
             $('#opt'+name).materialSelect();
+            $('#opt' + name + 'Pre').addClass('active');
         }
         else if (type === 'textarea') {
             $('#txa'+name).val(value);
             $('#lbl'+name).addClass('active');
+            $('#txa'+name+'Pre').addClass('active');
         }
         else if (type === 'checkSingle') {
-            $('#chk' + name).prop('checked', value === label);
+            $('#chk'+name).prop('checked', value === label);
         }
         else if (type === 'check') {
             for (let i = 0; i < value.length; i++) {
@@ -1251,18 +1310,6 @@ function mzSetFieldValue(name, value, type, label) {
         else if (type === 'summernote') {
             $('#txa'+name).summernote('code', value);
         }
-    } else {
-        if (type === 'text') {
-            $('#txt'+name).val('');
-            $('#lbl'+name).removeClass('active');
-        }
-        else if (type === 'textarea') {
-            $('#txa'+name).val('');
-            $('#lbl'+name).removeClass('active');
-        }
-        else if (type === 'summernote') {
-            $('#txa'+name).summernote('code', '');
-        }
     }
 }
 
@@ -1281,6 +1328,28 @@ function mzHandleFileSelect(evt) {
         reader.readAsBinaryString(f);
     } else {
         $('#'+id+'Blob').val('');
+    }
+}
+
+function mzHandleFileDimension(evt) {
+    let id = evt.target.id;
+    let f = evt.target.files[0];
+    if (typeof f !== 'undefined') {
+        let reader = new FileReader();
+        reader.readAsDataURL(f);
+        reader.onload = function(e) {
+            let image = new Image();
+            image.src = e.target.result;
+            image.onload = function () {
+                $('#'+id+'Width').val(this.width);
+                $('#'+id+'Height').val(this.height);
+                return true;
+            };
+            return true;
+        };
+    } else {
+        $('#'+id+'Width').val('');
+        $('#'+id+'Height').val('');
     }
 }
 

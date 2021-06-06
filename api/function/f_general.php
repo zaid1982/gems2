@@ -254,10 +254,12 @@ class Class_general {
             $uploadBlobType = $uploadDetails['type']; 
             $uploadBlobData = $uploadDetails['data'];             
             $pos = strrpos($uploadUplname,'.');
-            $uploadExtension = $pos !== false ? substr($uploadUplname, $pos+1) : ' - '; 
+            $uploadExtension = $pos !== false ? substr($uploadUplname, $pos+1) : ' - ';
+            $uploadFileWidth = array_key_exists('width', $uploadDetails) ? $uploadDetails['width'] : '';
+            $uploadFileHeight = array_key_exists('height', $uploadDetails) ? $uploadDetails['height'] : '';
             
             $uploadId = Class_db::getInstance()->db_insert('sys_upload', array('document_id'=>$documentId, 'upload_name'=>$uploadName, 'upload_uplname'=>$uploadUplname, 'upload_filesize'=>$uploadFilesize, 'upload_blob_type'=>$uploadBlobType,
-                'upload_extension'=>$uploadExtension, 'upload_created_by'=>$userId));
+                'upload_extension'=>$uploadExtension, 'upload_created_by'=>$userId, 'upload_file_width'=>$uploadFileWidth, 'upload_file_height'=>$uploadFileHeight));
             $uploadFilename = 'f_'.(10000 + intval($uploadId));
             $uploadFolder = 'upload/'.$documentId.'/'.(floor(intval($uploadId)/1000));
             if (!$this->folderExist($uploadFolder)) {
@@ -273,6 +275,9 @@ class Class_general {
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function deleteDocument ($uploadId='') {
         try {
             $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);

@@ -11,130 +11,126 @@
     </div>
     <div class="row">
         <div class="col-lg-5 col-xl-4">
-            <div class="row">
-                <div class="col-md-6 col-lg-12">
-                    <div class="card card-cascade cascading-admin-card user-card z-depth-3 mt-0 mb-4_5">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fa fas fa-file-invoice rgba-blue-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">PR Information</h3>
+            <div class="card card-cascade cascading-admin-card user-card z-depth-3 mt-0 mb-4_5">
+                <div class="admin-up d-flex justify-content-start">
+                    <i class="fa fas fa-file-invoice rgba-blue-strong py-4 z-depth-3"></i>
+                    <div class="data">
+                        <h3 class="font-weight-bold dark-grey-text ml-3">PR Information</h3>
+                    </div>
+                </div>
+                <div class="card-body card-body-cascade pb-0">
+                    <form id="formSpr">
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Site</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Requested By</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="23 May, 2012 12:21pm">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request Time</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Status</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo">PR Ref. No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo">Supplier Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0 mb-3">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo">Expected Delivery Date</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation Date</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-4 ml-2"><!-- Group of material radios - option 1 -->
+                                <p class="mb-2">Quotation Attachment : <a class="ml-2" onclick="alert(0)"><i class="fas fa-upload"></i></a></p>
+                                <p class="mb-1 ml-2"><a class="blue-text" onclick="alert(0)">adfadsf.pdf</a><a class="ml-2" onclick="alert(0)"><i class="fas fa-trash"></i></a></p>
+                            </div>
+                            <div class="col-md-12 ml-2"><!-- Group of material radios - option 1 -->
+                                <p class="mb-2">Payment Term :</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
+                                    <label class="form-check-label" for="materialGroupExample1">Cash on Delivery</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample2" name="groupOfMaterialRadios" checked>
+                                    <label class="form-check-label" for="materialGroupExample2">30 Days</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
+                                    <label class="form-check-label" for="materialGroupExample3">60 Days</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
+                                    <label class="form-check-label" for="materialGroupExample3">90 Days</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
+                                    <label class="form-check-label" for="materialGroupExample3">Others</label>
+                                </div>
+                                <div class="md-form md-outline mt-3 ml-4">
+                                    <input type="text" id="txtSprRequestNo" class="form-control">
+                                    <label for="txtSprRequestNo" id="lblSprRequestNo">Other term</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-4"><!-- Group of material radios - option 1 -->
+                                <p class="mb-2 ml-2">Item available in Supplier's Price List :</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
+                                    <label class="form-check-label" for="materialGroupExample1">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="materialGroupExample2" name="groupOfMaterialRadios" checked>
+                                    <label class="form-check-label" for="materialGroupExample2">No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <textarea id="txaSprRemark" class="md-textarea form-control" rows="3"></textarea>
+                                    <label for="txaSprRemark" id="lblSprRemark" class="text-muted">Remark</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formSpr">
-                                <div class="row mt-4">
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Site</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request No</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Requested By</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control" disabled value="23 May, 2012 12:21pm">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request Time</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Status</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo">PR Ref. No</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo">Supplier Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0 mb-3">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo">Expected Delivery Date</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation No</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Quotation Date</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mb-4 ml-2"><!-- Group of material radios - option 1 -->
-                                        <p class="mb-2">Quotation Attachment : <a class="ml-2" onclick="alert(0)"><i class="fas fa-upload"></i></a></p>
-                                        <p class="mb-1 ml-2"><a class="blue-text" onclick="alert(0)">adfadsf.pdf</a><a class="ml-2" onclick="alert(0)"><i class="fas fa-trash"></i></a></p>
-                                    </div>
-                                    <div class="col-md-12 ml-2"><!-- Group of material radios - option 1 -->
-                                        <p class="mb-2">Payment Term :</p>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample1">Cash on Delivery</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample2" name="groupOfMaterialRadios" checked>
-                                            <label class="form-check-label" for="materialGroupExample2">30 Days</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">60 Days</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">90 Days</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample3" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample3">Others</label>
-                                        </div>
-                                        <div class="md-form md-outline mt-3 ml-4">
-                                            <input type="text" id="txtSprRequestNo" class="form-control">
-                                            <label for="txtSprRequestNo" id="lblSprRequestNo">Other term</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mb-4"><!-- Group of material radios - option 1 -->
-                                        <p class="mb-2 ml-2">Item available in Supplier's Price List :</p>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample1" name="groupOfMaterialRadios">
-                                            <label class="form-check-label" for="materialGroupExample1">Yes</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="materialGroupExample2" name="groupOfMaterialRadios" checked>
-                                            <label class="form-check-label" for="materialGroupExample2">No</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <textarea id="txaSprRemark" class="md-textarea form-control" rows="3"></textarea>
-                                            <label for="txaSprRemark" id="lblSprRemark" class="text-muted">Remark</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

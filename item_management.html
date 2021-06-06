@@ -1,10 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
 </head>
-<body>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <div id="mdb-lightbox-ui"></div>
+        <!--Section: Main panel-->
+        <section class="mb-5 mt-lg-5 sectionItyMain">
+            <div class="card card-cascade narrower">
+                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div>
+                        <button type="button" id="btnItyDataAdd"
+                                class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
+                                data-toggle="tooltip" data-placement="top" title="Add Item Type"><i
+                                class="fas fa-plus mt-0"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                           data-toggle="popover" data-trigger="focus" title="Item Description List"
+                           data-content="All records of available Item Description to be used as Inventry."><i
+                                class="fas fa-info mt-0 mx-1"></i></a>
+                    </div>
+                    <a href="javascript:void(0);" class="text-white mx-3">Item Description List</a>
+                    <div>
+                        <button type="button" id="btnDtItyDataRefresh"
+                                class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
+                                data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    </div>
+                </div>
+                <div class="m-2 py-3">
+                    <div class="table-responsive">
+                        <table id="dtItyData" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>Asset Group</th>
+                                <th>Item Type</th>
+                                <th>Item Description</th>
+                                <th>Default Threshold</th>
+                                <th>Minimum Order</th>
+                                <th>Maximum Order</th>
+                                <th>Remark</th>
+                                <th>Option Turn</th>
+                                <th>Status</th>
+                                <th>&nbsp;</th>
+                                <th>Image</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="includeHtml" id="h-section_item"></div>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_upload_picture"></div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalConfirmDelete_;
+    let modalUploadPicture_;
+    let sectionItemClass_;
+    let itemManagementClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalConfirmDelete_ = new ModalConfirmDelete();
+                modalUploadPicture_ = new ModalUploadPicture();
+                sectionItemClass_ = new SectionItem();
+                itemManagementClass_ = new MainItemManagement();
+
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
+
+                modalUploadPicture_.setClassFrom(sectionItemClass_);
+                modalUploadPicture_.init();
+
+                sectionItemClass_.setRefStatus(refStatus_);
+                sectionItemClass_.setRefAssetGroup(refAssetGroup_);
+                sectionItemClass_.setRefItemType(refItemType_);
+                sectionItemClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                sectionItemClass_.setModalUploadPictureClass(modalUploadPicture_);
+                sectionItemClass_.setClassFrom(itemManagementClass_);
+                sectionItemClass_.init();
+
+                itemManagementClass_.setRefStatus(refStatus_);
+                itemManagementClass_.setRefAssetGroup(refAssetGroup_);
+                itemManagementClass_.setRefItemType(refItemType_);
+                itemManagementClass_.setSectionItemClass(sectionItemClass_);
+                itemManagementClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_upload_picture.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_item.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_item_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
 
 </body>
 </html>
