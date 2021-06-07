@@ -186,7 +186,6 @@ function SectionItem () {
                 setTimeout(function () {
                     try {
                         let data = {
-                            itemTypeId: $('#optSiyItemType').val(),
                             itemDescription: $('#txtSiyDescription').val(),
                             itemThreshold: $('#txtSiyThreshold').val(),
                             itemMinOrder: $('#txtSiyMinOrder').val(),
@@ -195,6 +194,7 @@ function SectionItem () {
                             itemTurn: $('#txtSiyTurn').val()
                         };
                         if (itemId === '') {
+                            data['itemTypeId'] = $('#optSiyItemType').val();
                             itemId = mzAjaxRequest2('item', 'POST', data);
                             mzSetFieldValue('SiyStatus', refStatus[1]['statusDesc'], 'text');
                             $('#btnSiyDisable').show();
@@ -285,8 +285,9 @@ function SectionItem () {
                 mzOptionStop('optSiyAssetGroup', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
                 mzSetFieldValue('SiyStatus', 'Draft', 'text');
+                mzDisableSelect('optSiyAssetGroup', false);
+                mzDisableSelect('optSiyItemType', false);
                 self.setOptionItemType('');
-                self.genTablePicture();
 
                 $('#btnSiyDisable, #btnSiyEnable').hide();
                 $('.sectionItem').show();
@@ -331,6 +332,8 @@ function SectionItem () {
                 mzSetFieldValue('SiyTurn', item['itemTurn'], 'text');
                 mzSetFieldValue('SiyRemark', item['itemRemark'], 'textarea');
                 mzSetFieldValue('SiyStatus', refStatus[item['itemStatus']]['statusDesc'], 'text');
+                mzDisableSelect('optSiyAssetGroup', true);
+                mzDisableSelect('optSiyItemType', true);
                 self.genTablePicture();
 
                 $('#btnSiyDisable, #btnSiyEnable').hide();

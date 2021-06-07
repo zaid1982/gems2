@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
 </head>
 
+
 <body class="fixed-sn light-blue-skin">
 <!--Main Navigation-->
 <header>
@@ -36,42 +37,86 @@
 <main>
     <div class="container-fluid">
         <div id="mdb-lightbox-ui"></div>
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionItyMain">
+
+        <section class="section mb-5 mt-lg-5 sectionInvMain">
+            <div class="row">
+                <div class="col-lg-10 col-xl-8">
+                    <div class="card card-cascade cascading-admin-card user-card mt-4">
+                        <div class="admin-up d-flex justify-content-start">
+                            <i class="fas fa-warehouse rgba-cyan-strong py-4 z-depth-3"></i>
+                            <div class="data">
+                                <h3 class="font-weight-bold dark-grey-text ml-3">Inventory Management</h3>
+                            </div>
+                        </div>
+                        <div class="card-body card-body-cascade pb-0">
+                            <form id="formInvSearch">
+                                <h6 class="pb-3 pt-2">Select Store:</h6>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvClient_">
+                                        <select id="optInvClient" class="mdb-select md-form md-outline colorful-select my-0"></select>
+                                        <label for="optInvClient" id="lblInvClient">Client *</label>
+                                        <p class="font-small text-danger" id="optInvClientErr"></p>
+                                    </div>
+                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvSite_">
+                                        <select id="optInvSite" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
+                                        <label for="optInvSite" id="lblInvSite">Site *</label>
+                                        <p class="font-small text-danger" id="optInvSiteErr"></p>
+                                    </div>
+                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvStore_">
+                                        <select id="optInvStore" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
+                                        <label for="optInvStore" id="lblInvStore">Store *</label>
+                                        <p class="font-small text-danger" id="optInvStoreErr"></p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnInvSearch" class="btn btn-outline-success btn-rounded waves-effect float-right" data-toggle="tooltip" title="View Inventory">
+                                <i class="fas fa-search mr-1"></i> View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section mb-5 mt-lg-5 sectionInvMain" id="sectionInvResult">
             <div class="card card-cascade narrower">
                 <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                     <div>
-                        <button type="button" id="btnItyDataAdd"
+                        <button type="button" id="btnInvDataAdd"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Item Type"><i
+                                data-toggle="tooltip" data-placement="top" title="Add Item Part"><i
                                 class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Item Description List"
-                           data-content="All records of available Item Description to be used as Inventory."><i
+                           data-toggle="popover" data-trigger="focus" title="Inventory Part List"
+                           data-content="All records of registered Parts in the Inventory."><i
                                 class="fas fa-info mt-0 mx-1"></i></a>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Item Description List</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Part List</a>
                     <div>
-                        <button type="button" id="btnDtItyDataRefresh"
+                        <button type="button" id="btnDtInvDataRefresh"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
                                 data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                     </div>
                 </div>
                 <div class="m-2 py-3">
                     <div class="table-responsive">
-                        <table id="dtItyData" class="table table-hover table-sm mb-0 display responsive">
+                        <table id="dtInvData" class="table table-hover table-sm mb-0 display responsive">
                             <thead>
                             <tr class="th-strong">
                                 <th>#</th>
                                 <th>Asset Group</th>
                                 <th>Item Type</th>
                                 <th>Item Description</th>
-                                <th>Default Threshold</th>
+                                <th>Total in Store</th>
+                                <th>Total Available</th>
+                                <th>Total Locked</th>
+                                <th>Threshold</th>
                                 <th>Minimum Order</th>
                                 <th>Maximum Order</th>
                                 <th>Remark</th>
-                                <th>Option Turn</th>
                                 <th>Status</th>
+                                <th>&nbsp;</th>
                                 <th>&nbsp;</th>
                                 <th>Image</th>
                             </tr>
@@ -82,13 +127,10 @@
                 </div>
             </div>
         </section>
-        <div class="includeHtml" id="h-section_item"></div>
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_upload_picture"></div>
-
 </main>
 
 <!-- SCRIPTS -->
@@ -127,9 +169,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
-    let modalUploadPicture_;
-    let sectionItemClass_;
-    let itemManagementClass_;
+    let inventoryClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -140,30 +180,24 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
-                modalUploadPicture_ = new ModalUploadPicture();
-                sectionItemClass_ = new SectionItem();
-                itemManagementClass_ = new MainItemManagement();
+                inventoryClass_ = new MainInventory();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refStore_ = mzGetLocalArray('gems_store', versionLocal_, 'storeId', [], 'store');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
+                const refItem_ = mzGetLocalArray('gems_item', versionLocal_, 'itemId', [], 'item');
 
-                modalUploadPicture_.setClassFrom(sectionItemClass_);
-                modalUploadPicture_.init();
-
-                sectionItemClass_.setRefStatus(refStatus_);
-                sectionItemClass_.setRefAssetGroup(refAssetGroup_);
-                sectionItemClass_.setRefItemType(refItemType_);
-                sectionItemClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                sectionItemClass_.setModalUploadPictureClass(modalUploadPicture_);
-                sectionItemClass_.setClassFrom(itemManagementClass_);
-                sectionItemClass_.init();
-
-                itemManagementClass_.setRefStatus(refStatus_);
-                itemManagementClass_.setRefAssetGroup(refAssetGroup_);
-                itemManagementClass_.setRefItemType(refItemType_);
-                itemManagementClass_.setSectionItemClass(sectionItemClass_);
-                itemManagementClass_.init();
+                inventoryClass_.setRefStatus(refStatus_);
+                inventoryClass_.setRefClient(refClient_);
+                inventoryClass_.setRefSite(refSite_);
+                inventoryClass_.setRefStore(refStore_);
+                inventoryClass_.setRefAssetGroup(refAssetGroup_);
+                inventoryClass_.setRefItemType(refItemType_);
+                inventoryClass_.setRefItem(refItem_);
+                inventoryClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -173,9 +207,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_upload_picture.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_item.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_item_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_inventory.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
 

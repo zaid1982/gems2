@@ -1249,7 +1249,7 @@ function mzChartOption() {
     });
 }
 
-function mzSetFieldValue(name, value, type, label) {
+function mzSetFieldValue(name, value, type, label, isInit) {
     if (type === 'text') {
         $('#txt'+name).val('');
         $('#lbl'+name).removeClass('active');
@@ -1274,11 +1274,15 @@ function mzSetFieldValue(name, value, type, label) {
             $('#txt' + name + 'Pre').addClass('active');
         }
         else if (type === 'select') {
-            $('#opt'+name).materialSelect('destroy');
+            if (typeof isInit === 'undefined') {
+                $('#opt'+name).materialSelect('destroy');
+            }
             $('#opt'+name).val(value);
             //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
-            $('#lbl'+name).html(label).addClass('active');
-            $('#opt'+name).materialSelect();
+            $('#lbl'+name).addClass('active');
+            if (typeof isInit === 'undefined') {
+                $('#opt'+name).materialSelect();
+            }
             $('#opt' + name + 'Pre').addClass('active');
         }
         else if (type === 'textarea') {
