@@ -11,6 +11,7 @@ function MainInventory () {
     let refItemType;
     let refItem;
     let storeId;
+    let sectionPartClass;
 
     this.init = function () {
         $('#sectionInvResult').hide();
@@ -186,7 +187,7 @@ function MainInventory () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        //sectionItemClass.load(false, data['partId']);
+                        sectionPartClass.load(false, data['partId']);
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
                     }
@@ -278,5 +279,9 @@ function MainInventory () {
 
     this.setRefStore = function (_refStore) {
         refStore = _refStore;
+    };
+
+    this.setSectionPartClass = function (_sectionPartClass) {
+        sectionPartClass = _sectionPartClass;
     };
 }

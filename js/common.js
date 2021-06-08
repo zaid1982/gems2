@@ -32,8 +32,8 @@ const _DATATABLE_LANGUAGE =  {
     }*/
 };
 
-const mzUrlDownload = '//gems.globalfm.com.my/api/';
-//const mzUrlDownload = '//localhost:8081/gems2/api/';
+//const mzUrlDownload = '//gems.globalfm.com.my/api/';
+const mzUrlDownload = '//localhost:8081/gems2/api/';
 let mzCnt;
 let mzExportOpt = {
     format: {

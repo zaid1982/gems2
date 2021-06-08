@@ -10,7 +10,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?2">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
@@ -127,6 +127,7 @@
                 </div>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_part"></div>
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
@@ -169,6 +170,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
+    let sectionPartClass_;
     let inventoryClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -180,6 +182,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
+                sectionPartClass_ = new SectionPart();
                 inventoryClass_ = new MainInventory();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
@@ -190,6 +193,9 @@
                 const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
                 const refItem_ = mzGetLocalArray('gems_item', versionLocal_, 'itemId', [], 'item');
 
+                sectionPartClass_.setClassFrom(inventoryClass_);
+                sectionPartClass_.init();
+
                 inventoryClass_.setRefStatus(refStatus_);
                 inventoryClass_.setRefClient(refClient_);
                 inventoryClass_.setRefSite(refSite_);
@@ -197,6 +203,7 @@
                 inventoryClass_.setRefAssetGroup(refAssetGroup_);
                 inventoryClass_.setRefItemType(refItemType_);
                 inventoryClass_.setRefItem(refItem_);
+                inventoryClass_.setSectionPartClass(sectionPartClass_);
                 inventoryClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -207,6 +214,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_part.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_inventory.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

@@ -7760,8 +7760,8 @@ body.scrollable {
       margin-left: 2rem; }
   .md-form textarea.md-textarea {
     overflow-y: hidden;
-    padding: 1.5rem 0;
-    resize: none; }
+    padding: 0.9rem 0;
+    resize: vertical; }
   .md-form textarea.md-textarea-auto {
     padding: 0;
     padding-top: 1.5rem; }
