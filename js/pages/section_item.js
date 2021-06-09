@@ -197,7 +197,7 @@ function SectionItem () {
                             data['itemTypeId'] = $('#optSiyItemType').val();
                             itemId = mzAjaxRequest2('item', 'POST', data);
                             mzSetFieldValue('SiyStatus', refStatus[1]['statusDesc'], 'text');
-                            $('#btnSiyDisable').show();
+                            self.setEditable('1');
                         } else {
                             mzAjaxRequest2('item/'+itemId, 'PUT', data);
                         }
@@ -283,13 +283,13 @@ function SectionItem () {
                 formValidate.clearValidation();
 
                 mzOptionStop('optSiyAssetGroup', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
-
                 mzSetFieldValue('SiyStatus', 'Draft', 'text');
                 mzDisableSelect('optSiyAssetGroup', false);
                 mzDisableSelect('optSiyItemType', false);
+                oTableSiyPicture.clear().draw();
                 self.setOptionItemType('');
+                self.setEditable('2');
 
-                $('#btnSiyDisable, #btnSiyEnable').hide();
                 $('.sectionItem').show();
                 classFrom.hideMain();
                 $(window).scrollTop(0);
@@ -335,13 +335,8 @@ function SectionItem () {
                 mzDisableSelect('optSiyAssetGroup', true);
                 mzDisableSelect('optSiyItemType', true);
                 self.genTablePicture();
+                self.setEditable(item['itemStatus']);
 
-                $('#btnSiyDisable, #btnSiyEnable').hide();
-                if (item['itemStatus'] === '1') {
-                    $('#btnSiyDisable').show();
-                } else {
-                    $('#btnSiyEnable').show();
-                }
                 $('.sectionItem').show();
                 classFrom.hideMain();
                 $(window).scrollTop(0);
@@ -350,6 +345,35 @@ function SectionItem () {
             }
             HideLoader();
         }, 200);
+    };
+
+    this.setEditable = function (_itemStatus) {
+        $('#btnSiyDisable, #btnSiyEnable, #btnSiyDelete, #btnSiySave, #btnSiyUpload').hide();
+        if (isEdit) {
+            if (itemId !== '') {
+                if (_itemStatus === '1') {
+                    $('#btnSiyDisable').show();
+                } else {
+                    $('#btnSiyEnable').show();
+                }
+            }
+            $('#btnSiySave, #btnSiyUpload').show();
+            $('#txtSiyDescription').prop('disabled', false);
+            $('#txtSiyThreshold').prop('disabled', false);
+            $('#txtSiyMinOrder').prop('disabled', false);
+            $('#txtSiyMaxOrder').prop('disabled', false);
+            $('#txaSiyRemark').prop('disabled', false);
+            $('#txtSiyTurn').prop('disabled', false);
+            oTableSiyPicture.column(3).visible(true);
+        } else {
+            $('#txtSiyDescription').prop('disabled', true);
+            $('#txtSiyThreshold').prop('disabled', true);
+            $('#txtSiyMinOrder').prop('disabled', true);
+            $('#txtSiyMaxOrder').prop('disabled', true);
+            $('#txaSiyRemark').prop('disabled', true);
+            $('#txtSiyTurn').prop('disabled', true);
+            oTableSiyPicture.column(3).visible(false);
+        }
     };
 
     this.delete = function (_itemId) {

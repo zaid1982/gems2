@@ -381,12 +381,14 @@ function MzValidate(name) {
             if (u.type === 'text' || u.type === 'textarea') {
                 fieldSelector.val('');
                 fieldLblSelector.removeClass('active');
+                $('#' + fieldId + 'Pre').removeClass('active');
             }
             else if (u.type === 'select') {
                 fieldSelector.materialSelect('destroy');
                 fieldSelector.val(null);
                 fieldLblSelector.removeClass('active');
                 fieldSelector.materialSelect();
+                $('#' + fieldId + 'Pre').removeClass('active');
                 //$('.mdb-select').materialSelect('destroy');
                 //$('#' + fieldId).val(null).trigger( 'click');
                 //$('.mdb-select').materialSelect();

@@ -95,7 +95,7 @@ function MainItemManagement () {
                                 label += '<a href="'+mzUrlDownload+pictureUrls[i]+'" data-size="'+dataSize+'">\n' +
                                     '<img src="'+mzUrlDownload+pictureUrls[i]+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
                                     '</a>\n' +
-                                    '<p class="mb-0 font-small">'+pictureTitles[i]+'</p>\n' +
+                                    '<p class="mb-0 font-small divItyImageHide">'+pictureTitles[i]+'</p>\n' +
                                     '</figure>\n';
                             }
                             label += '</div>\n';
@@ -113,7 +113,7 @@ function MainItemManagement () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        sectionItemClass.load(false, data['itemId']);
+                        sectionItemClass.load(true, data['itemId']);
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
                     }

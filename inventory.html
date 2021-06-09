@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?2" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
 
@@ -193,6 +193,12 @@
                 const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
                 const refItem_ = mzGetLocalArray('gems_item', versionLocal_, 'itemId', [], 'item');
 
+                sectionPartClass_.setRefStatus(refStatus_);
+                sectionPartClass_.setRefSite(refSite_);
+                sectionPartClass_.setRefStore(refStore_);
+                sectionPartClass_.setRefAssetGroup(refAssetGroup_);
+                sectionPartClass_.setRefItemType(refItemType_);
+                sectionPartClass_.setRefItem(refItem_);
                 sectionPartClass_.setClassFrom(inventoryClass_);
                 sectionPartClass_.init();
 
