@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_part.php';
+require_once 'function/f_wo_parts.php';
 
-$api_name = 'api_part';
+$api_name = 'api_wo_parts';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,13 +15,13 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_part = new Class_part();
+$fn_wo_part = new Class_wo_parts();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_part->__set('fn_general', $fn_general);
+    $fn_wo_part->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -29,7 +29,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'part') {
+        if ($param === 'wo_parts') {
             break;
         }
         array_shift($urlArr);
@@ -55,15 +55,13 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'list_by_store') {
-                $result = $fn_part->getPartList($urlArr[2]);
-            } else if ($urlArr[1] === 'list_with_image') {
-                $result = $fn_part->getPartListWithImage($urlArr[2]);
+            if ($urlArr[1] === 'list_by_pending') {
+                $result = $fn_wo_part->getWoPartsByStatusList($urlArr[2], '(34, 38)');
             } else {
-                $result = $fn_part->getPart($urlArr[1]);
+                $result = $fn_wo_part->getWoPartsList($urlArr[1]);
             }
         } else {
-            $result = $fn_part->getItemList();
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

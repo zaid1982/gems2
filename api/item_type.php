@@ -39,10 +39,17 @@ try {
         array_shift($urlArr);
     } else {
         $headers = apache_request_headers();
-        if (!isset($headers['Authorization'])) {
+        if (isset($headers['Authorization'])) {
+            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+        } else if (isset($headers['authorization'])) {
+            $jwt_data = $fn_login->check_jwt($headers['authorization']);
+            if (!isset($headers['deviceid'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
+            }
+            $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+        } else {
             throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
         }
-        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
         $userId = $jwt_data->userId;
     }
 

@@ -60,7 +60,7 @@ try {
     if (!isset($headers['deviceid'])) {
         throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
     }
-    $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+    $fn_login->check_device_id($userId, $headers['deviceid']);
     
     if ('GET' === $request_method) {
         if (!isset ($urlArr[1])) {
@@ -76,7 +76,7 @@ try {
             $itemTypeId = isset ($urlArr[3]) ? $urlArr[3] : '';
             $result = $fn_part->getPartListMobile($woTaskId, $itemTypeId);
         } else if ($urlArr[1] === 'wo_parts_list') {
-            $result = $fn_woParts->getWoPartsList($urlArr[2]);
+            $result = $fn_woParts->getWoPartsMobileList($urlArr[2]);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }

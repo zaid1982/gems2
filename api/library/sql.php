@@ -869,7 +869,7 @@ class Class_sql
                 WHERE ast_part.site_id = [siteId] AND ast_part.item_type_id = [itemTypeId] AND item_status = 1
                 GROUP BY ast_part.item_id
                 ORDER BY item_turn";
-            } else if ($title === 'vw_wo_task_parts') {
+            } else if ($title === 'vw_wo_task_parts_mobile') {
                 $sql = "SELECT 
                     a.*,
                     c.item_description,
@@ -883,6 +883,12 @@ class Class_sql
                 LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
                 LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id
                 LEFT JOIN ref_status f ON f.status_id = a.wo_task_parts_status";
+            } else if ($title === 'vw_wo_task_parts') {
+                $sql = "SELECT 
+                    a.*,
+                    w.wo_task_no
+                FROM wo_task_parts a
+                LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id";
             } else if ($title === 'vw_pr_current') {
                 $sql = "SELECT
                     t.task_id,

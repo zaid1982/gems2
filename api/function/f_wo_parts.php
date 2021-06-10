@@ -2,7 +2,6 @@
 
 class Class_wo_parts {
 
-    private $constant;
     private $fn_general;
 
     function __construct() {
@@ -20,6 +19,11 @@ class Class_wo_parts {
         }
     }
 
+    /**
+     * @param $property
+     * @return mixed
+     * @throws Exception
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;
@@ -28,6 +32,11 @@ class Class_wo_parts {
         }
     }
 
+    /**
+     * @param $property
+     * @param $value
+     * @throws Exception
+     */
     public function __set($property, $value ) {
         if (property_exists($this, $property)) {
             $this->$property = $value;
@@ -36,6 +45,11 @@ class Class_wo_parts {
         }
     }
 
+    /**
+     * @param $property
+     * @return bool
+     * @throws Exception
+     */
     public function __isset($property ) {
         if (property_exists($this, $property)) {
             return isset($this->$property);
@@ -44,6 +58,10 @@ class Class_wo_parts {
         }
     }
 
+    /**
+     * @param $property
+     * @throws Exception
+     */
     public function __unset($property ) {
         if (property_exists($this, $property)) {
             unset($this->$property);
@@ -52,11 +70,51 @@ class Class_wo_parts {
         }
     }
 
-    public function getWoPartsList ($woTaskId) {
+    /**
+     * @param $woTaskId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getWoPartsMobileList ($woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);            
             $this->fn_general->checkEmptyParams(array($woTaskId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('wo_task_id'=>$woTaskId)));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('wo_task_id'=>$woTaskId)));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $partId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getWoPartsList ($partId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId)));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $partId
+     * @param $statusId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getWoPartsByStatusList ($partId, $statusId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId, 'wo_task_parts_status'=>$statusId)));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

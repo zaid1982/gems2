@@ -10,7 +10,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?2">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
@@ -109,8 +109,8 @@
                                 <th>Item Type</th>
                                 <th>Item Description</th>
                                 <th>Total in Store</th>
-                                <th>Total Available</th>
                                 <th>Total Locked</th>
+                                <th>Total Available</th>
                                 <th>Threshold</th>
                                 <th>Minimum Order</th>
                                 <th>Maximum Order</th>
@@ -179,6 +179,7 @@
         setTimeout(function () {
             try {
                 initiatePages();
+                initPhotoSwipeFromDOM('.mdb-lightbox');
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
@@ -192,6 +193,7 @@
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
                 const refItem_ = mzGetLocalArray('gems_item', versionLocal_, 'itemId', [], 'item');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
                 sectionPartClass_.setRefStatus(refStatus_);
                 sectionPartClass_.setRefSite(refSite_);
@@ -199,6 +201,7 @@
                 sectionPartClass_.setRefAssetGroup(refAssetGroup_);
                 sectionPartClass_.setRefItemType(refItemType_);
                 sectionPartClass_.setRefItem(refItem_);
+                sectionPartClass_.setRefUser(refUser_);
                 sectionPartClass_.setClassFrom(inventoryClass_);
                 sectionPartClass_.init();
 

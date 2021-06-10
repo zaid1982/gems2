@@ -48,6 +48,10 @@ try {
             $jwt_data = $fn_login->check_jwt($headers['Authorization']);
         } else if (isset($headers['authorization'])) {
             $jwt_data = $fn_login->check_jwt($headers['authorization']);
+            if (!isset($headers['deviceid'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
+            }
+            $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
         }

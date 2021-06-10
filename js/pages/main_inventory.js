@@ -130,8 +130,8 @@ function MainInventory () {
                         return data !== '' ? refItem[data]['itemDescription'] : '';
                     }},
                 {mData: 'partCount', mRender: function (data){ return mzFormatNumber(data)}},
-                {mData: 'partAvailable', mRender: function (data){ return mzFormatNumber(data)}},
-                {mData: null, mRender: function (data, type, row){ return mzFormatNumber(parseInt(row['partCount']) - parseInt(row['partAvailable']))}},
+                {mData: 'partLocked', mRender: function (data){ return mzFormatNumber(data)}},
+                {mData: null, mRender: function (data, type, row){ return mzFormatNumber(parseInt(row['partCount']) - parseInt(row['partLocked']))}},
                 {mData: 'partThreshold', mRender: function (data){ return mzFormatNumber(data)}},
                 {mData: 'partMinOrder', visible: false, mRender: function (data){ return mzFormatNumber(data)}},
                 {mData: 'partMaxOrder', visible: false, mRender: function (data){ return mzFormatNumber(data)}},
