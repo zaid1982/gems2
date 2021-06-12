@@ -1,0 +1,54 @@
+<div class="modal fade" id="modal_part_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-plus text-white"></i> Add Inventory Item</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMpa" class="mt-2" autocomplete="off">
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMpaSite" class="form-control grey lighten-4" disabled>
+                        <label for="txtMpaSite" id="lblMpaSite">Site</label>
+                    </div>
+                    <div class="md-form md-outline mt-0">
+                        <input type="text" id="txtMpaStore" class="form-control grey lighten-4" disabled>
+                        <label for="txtMpaStore" id="lblMpaStore">Store</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaAssetGroup_">
+                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group *</label>
+                            <p class="font-small text-danger" id="optMpaAssetGroupErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaItemType_">
+                            <select id="optMpaItemType" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaItemType" id="lblMpaItemType">Item Type *</label>
+                            <p class="font-small text-danger" id="optMpaItemTypeErr"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaItem_">
+                            <select id="optMpaItem" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaItem" id="lblMpaItem">Item Description *</label>
+                            <p class="font-small text-danger" id="optMpaItemErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMpaClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMpaSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Inventory Part"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+                    
+                    

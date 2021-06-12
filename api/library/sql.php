@@ -947,6 +947,26 @@ class Class_sql
                     LEFT JOIN sys_upload u ON u.upload_id = g.upload_id
                     GROUP BY g.item_id
                 ) docs ON docs.item_id = p.item_id";
+            } else if ($title === 'vw_part_left_asset_group') {
+                $sql = "SELECT 
+                    DISTINCT(t.asset_group_id) AS asset_group_list
+                FROM ref_item i
+                LEFT JOIN ast_part p ON p.item_id = i.item_id AND p.store_id = [storeId]
+                LEFT JOIN ref_item_type t ON t.item_type_id = i.item_type_id 
+                WHERE i.item_status = 1 AND p.part_id IS NULL";
+            } else if ($title === 'vw_part_left_item_type') {
+                $sql = "SELECT 
+                    DISTINCT(i.item_type_id) AS item_type_list
+                FROM ref_item i
+                LEFT JOIN ast_part p ON p.item_id = i.item_id AND p.store_id = [storeId]
+                LEFT JOIN ref_item_type t ON t.item_type_id = i.item_type_id 
+                WHERE i.item_status = 1 AND p.part_id IS NULL AND t.asset_group_id = [assetGroupId]";
+            } else if ($title === 'vw_part_left_item') {
+                $sql = "SELECT 
+                    i.item_id AS item_list
+                FROM ref_item i
+                LEFT JOIN ast_part p ON p.item_id = i.item_id AND p.store_id = [storeId]
+                WHERE i.item_status = 1 AND p.part_id IS NULL AND i.item_type_id = [itemTypeId]";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

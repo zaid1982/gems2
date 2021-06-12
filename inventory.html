@@ -85,14 +85,14 @@
                     <div>
                         <button type="button" id="btnInvDataAdd"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Item Part"><i
+                                data-toggle="tooltip" data-placement="top" title="Add Item"><i
                                 class="fas fa-plus mt-0"></i></button>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Inventory Part List"
+                           data-toggle="popover" data-trigger="focus" title="Inventory Item List"
                            data-content="All records of registered Parts in the Inventory."><i
                                 class="fas fa-info mt-0 mx-1"></i></a>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Part List</a>
+                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Item List</a>
                     <div>
                         <button type="button" id="btnDtInvDataRefresh"
                                 class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
@@ -132,6 +132,7 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_part_add"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -170,6 +171,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
+    let modalPartAdd_;
     let sectionPartClass_;
     let inventoryClass_;
 
@@ -183,6 +185,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
+                modalPartAdd_ = new ModalPartAdd();
                 sectionPartClass_ = new SectionPart();
                 inventoryClass_ = new MainInventory();
 
@@ -194,6 +197,12 @@
                 const refItemType_ = mzGetLocalArray('gems_itemType', versionLocal_, 'itemTypeId', [], 'item_type');
                 const refItem_ = mzGetLocalArray('gems_item', versionLocal_, 'itemId', [], 'item');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+
+                modalPartAdd_.setRefAssetGroup(refAssetGroup_);
+                modalPartAdd_.setRefItemType(refItemType_);
+                modalPartAdd_.setRefItem(refItem_);
+                modalPartAdd_.setClassFrom(inventoryClass_);
+                modalPartAdd_.init();
 
                 sectionPartClass_.setRefStatus(refStatus_);
                 sectionPartClass_.setRefSite(refSite_);
@@ -213,6 +222,7 @@
                 inventoryClass_.setRefItemType(refItemType_);
                 inventoryClass_.setRefItem(refItem_);
                 inventoryClass_.setSectionPartClass(sectionPartClass_);
+                inventoryClass_.setModalPartAddClass(modalPartAdd_);
                 inventoryClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -223,6 +233,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_part_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_part.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_inventory.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

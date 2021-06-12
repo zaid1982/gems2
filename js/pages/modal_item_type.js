@@ -83,7 +83,7 @@ function ModalItemType () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        let data = {
+                        const data = {
                             itemTypeDesc: $('#txaMitDesc').val(),
                             assetGroupId: $('#optMitAssetGroup').val(),
                             itemTypeTurn: $('#txtMitTurn').val(),

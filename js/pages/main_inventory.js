@@ -12,6 +12,7 @@ function MainInventory () {
     let refItem;
     let storeId;
     let sectionPartClass;
+    let modalPartAddClass;
 
     this.init = function () {
         $('#sectionInvResult').hide();
@@ -187,7 +188,7 @@ function MainInventory () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        sectionPartClass.load(true, data['partId']);
+                        self.loadSectionPart(true, data['partId'])
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
                     }
@@ -230,7 +231,15 @@ function MainInventory () {
         });
 
         $('#btnInvDataAdd').on('click', function () {
-            sectionItemClass.add();
+            try {
+                mzCheckFuncParam([storeId]);
+                const siteId = refStore[storeId]['siteId'];
+                modalPartAddClass.setStoreName(refStore[storeId]['storeName']);
+                modalPartAddClass.setSiteName(refSite[siteId]['siteName'])
+                modalPartAddClass.add(storeId);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         self.genTable();
@@ -239,6 +248,10 @@ function MainInventory () {
     this.genTable = function () {
         const dataDb = mzAjaxRequest2('part/list_with_image/'+storeId, 'GET');
         oTableInv.clear().rows.add(dataDb).draw();
+    };
+
+    this.loadSectionPart = function (_isEdit, _partId) {
+        sectionPartClass.load(_isEdit, _partId);
     };
 
     this.showMain = function () {
@@ -283,5 +296,9 @@ function MainInventory () {
 
     this.setSectionPartClass = function (_sectionPartClass) {
         sectionPartClass = _sectionPartClass;
+    };
+
+    this.setModalPartAddClass = function (_modalPartAddClass) {
+        modalPartAddClass = _modalPartAddClass;
     };
 }

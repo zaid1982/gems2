@@ -4,7 +4,7 @@
             <button type="button" class="btn btn-blue-grey btn-rounded float-right text-white z-depth-3 px-4" id="btnSptSave" data-toggle="tooltip" title="Save Item Description">
                 <i class="fas fa-save"></i> Save
             </button>
-            <button type="button" class="btn btn-dark-green btn-rounded float-right text-white z-depth-3 px-4" id="btnSptTransfer" data-toggle="tooltip" title="Save Item Description">
+            <button type="button" class="btn btn-teal btn-rounded float-right text-white z-depth-3 px-4" id="btnSptTransfer" data-toggle="tooltip" title="Save Item Description">
                 <i class="fas fa-exchange-alt"></i> Transfer
             </button>
             <button type="button" class="btn btn-danger btn-rounded float-right text-white z-depth-3 px-4" id="btnSptDelete" data-toggle="tooltip" title="Delete Item Description">
@@ -158,6 +158,47 @@
                 <div class="col-md-12">
                     <div class="card z-depth-3 mb-4_5">
                         <div class="card-header blue lighten-3">
+                            <h5 class="font-weight-bold text-center mt-1 mb-0"> Part in Store list</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 px-0">
+                                    <div class="table-responsive">
+                                        <table id="dtSptPartList" class="table table-hover table-sm mb-0 display responsive">
+                                            <thead>
+                                            <tr class="th-strong">
+                                                <th>#</th>
+                                                <th width="12%">Part No.</th>
+                                                <th>Location</th>
+                                                <th width="14%">Check In Date</th>
+                                                <th width="12%">DO No.</th>
+                                                <th width="14%">Warranty</th>
+                                                <th width="14%">Expiration Date</th>
+                                                <th width="12%">Price per unit</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td class="text-center">AKA2109000001</td>
+                                                <td>Rack A - 1</td>
+                                                <td class="text-center">12/5/2021</td>
+                                                <td class="text-center">DO21091301</td>
+                                                <td class="text-center">1 year</td>
+                                                <td class="text-center">12/5/2021</td>
+                                                <td class="text-right">20.20</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-header blue lighten-3">
                             <h5 class="font-weight-bold text-center mt-1 mb-0"> Check In History</h5>
                         </div>
                         <div class="card-body">
@@ -167,6 +208,7 @@
                                         <table id="dtSptCheckIn" class="table table-hover table-sm mb-0 display responsive">
                                             <thead>
                                             <tr class="th-strong">
+                                                <th>#</th>
                                                 <th width="14%">Check In Date</th>
                                                 <th>DO No.</th>
                                                 <th width="14%">Warranty</th>
@@ -178,6 +220,7 @@
                                             </thead>
                                             <tbody>
                                             <tr>
+                                                <td>1</td>
                                                 <td class="text-center">12/5/2021</td>
                                                 <td>PO0000001</td>
                                                 <td class="text-center">2 years</td>
@@ -206,23 +249,19 @@
                                         <table id="dtSptCheckOut" class="table table-hover table-sm mb-0 display responsive">
                                             <thead>
                                             <tr class="th-strong">
+                                                <th>#</th>
                                                 <th width="14%">Check Out Date</th>
                                                 <th width="">Work Order No.</th>
                                                 <th>Technician</th>
-                                                <th width="14%">Warranty</th>
-                                                <th width="14%">Expiration Date</th>
-                                                <th width="12%">Price per unit</th>
                                                 <th width="12%">Total</th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
+                                                <td>1</td>
                                                 <td class="text-center">12/5/2021</td>
                                                 <td class="text-center">WOBNMHQ21091301</td>
                                                 <td>Razif bin Ahmad</td>
-                                                <td class="text-center">2 years</td>
-                                                <td class="text-center">30/4/2023</td>
-                                                <td class="text-right">RM 12.00</td>
                                                 <td class="text-right">2</td>
                                             </tr>
                                             </tbody>

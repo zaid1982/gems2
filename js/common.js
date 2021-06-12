@@ -1174,6 +1174,15 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
                                     break;
                                 }
                             }
+                        } else if (filterVal !== null && filterVal.substr(0,1) === '(') {
+                            let filterVal2 = filterVal.substr(1,filterVal.length-2);
+                            const filterSplit2 = filterVal2.split(',');
+                            for (let j=0; j<filterSplit2.length; j++) {
+                                if (filterSplit2[j] === dataValue) {
+                                    filterCnt++;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
