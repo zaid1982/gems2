@@ -141,6 +141,80 @@ class Class_part {
     }
 
     /**
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPartAssetGroupOption ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $assetGroups = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $storeIds = Class_db::getInstance()->db_select_colm('cli_store', array('site_id'=>$siteId), 'store_id');
+            if (!empty($storeIds)) {
+                $assetGroups =  Class_db::getInstance()->db_select('vw_part_asset_group', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds)));
+            }
+            return $assetGroups;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $assetGroupId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPartItemTypeOption ($userId, $assetGroupId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $assetGroupId));
+
+            $assetGroups = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $storeIds = Class_db::getInstance()->db_select_colm('cli_store', array('site_id'=>$siteId), 'store_id');
+            if (!empty($storeIds)) {
+                $assetGroups =  Class_db::getInstance()->db_select('vw_part_item_type', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'assetGroupId'=>$assetGroupId));
+            }
+            return $assetGroups;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $itemTypeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPartItemOption ($userId, $itemTypeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $itemTypeId));
+
+            $assetGroups = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $storeIds = Class_db::getInstance()->db_select_colm('cli_store', array('site_id'=>$siteId), 'store_id');
+            if (!empty($storeIds)) {
+                $assetGroups =  Class_db::getInstance()->db_select('vw_part_item', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'itemTypeId'=>$itemTypeId));
+            }
+            return $assetGroups;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $storeId
      * @return mixed
      * @throws Exception
@@ -242,6 +316,55 @@ class Class_part {
                     'part_status'=>'2'
                 )
             );
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $partId
+     * @param array $params
+     * @throws Exception
+     */
+    public function updatePart ($partId, $params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId, $params));
+            Class_db::getInstance()->db_update('ast_part', $this->fn_general->convertToMysqlArrAll($params), array('part_id'=>$partId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $partId
+     * @throws Exception
+     */
+    public function deactivatePart ($partId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId));
+            Class_db::getInstance()->db_update('ast_part', array('part_status'=>'2'), array('part_id'=>$partId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $partId
+     * @throws Exception
+     */
+    public function activatePart ($partId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId));
+            Class_db::getInstance()->db_update('ast_part', array('part_status'=>'1'), array('part_id'=>$partId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

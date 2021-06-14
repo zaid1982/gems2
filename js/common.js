@@ -32,8 +32,8 @@ const _DATATABLE_LANGUAGE =  {
     }*/
 };
 
-//const mzUrlDownload = '//gems.globalfm.com.my/api/';
-const mzUrlDownload = '//localhost:8081/gems2/api/';
+const mzUrlDownload = '//gems.globalfm.com.my/api/';
+//const mzUrlDownload = '//localhost:8081/gems2/api/';
 let mzCnt;
 let mzExportOpt = {
     format: {
@@ -119,11 +119,11 @@ function MzValidate(name) {
                     return false;
                 break;
             case 'lower':
-                if (val !== '' && fieldVal > $('#' + val.id).val() && fieldVal !== '')
+                if (val !== '' && parseInt(fieldVal) > parseInt($('#' + val.id).val()) && fieldVal !== '')
                     return false;
                 break;
             case 'higher':
-                if (val !== '' && fieldVal < $('#' + val.id).val() && fieldVal !== '')
+                if (val !== '' && parseInt(fieldVal) < parseInt($('#' + val.id).val()) && fieldVal !== '')
                     return false;
                 break;
             case 'max':

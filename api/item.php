@@ -35,23 +35,19 @@ try {
         array_shift($urlArr);
     }
 
-    if (isset($urlArr[1]) && $urlArr[1] === 'external') {
-        array_shift($urlArr);
-    } else {
-        $headers = apache_request_headers();
-        if (isset($headers['Authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
-        } else if (isset($headers['authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['authorization']);
-            if (!isset($headers['deviceid'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
-            }
-            $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+    $headers = apache_request_headers();
+    if (isset($headers['Authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    } else if (isset($headers['authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['authorization']);
+        if (!isset($headers['deviceid'])) {
+            throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
         }
-        $userId = $jwt_data->userId;
+        $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+    } else {
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
+    $userId = $jwt_data->userId;
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
@@ -81,35 +77,34 @@ try {
         $form_data['success'] = true;
     }
     else if ('PUT' === $request_method) {
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
         $putData = file_get_contents("php://input");
         $params = array();
         parse_str($putData, $params);
-
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
 
         if ($urlArr[1] === 'disable') {
             $fn_item->deactivateItem($urlArr[2]);
-            $form_data['errmsg'] = $constant::SUC_DEACTIVATED;
             $fn_general->updateVersion(25);
             $item = $fn_item->getItem($urlArr[2]);
             $fn_general->save_audit('159', $userId, 'Item ID = '.$urlArr[2].', Item description = '.$item['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_DEACTIVATED;
         }
         else if ($urlArr[1] === 'enable') {
             $fn_item->activateItem($urlArr[2]);
-            $form_data['errmsg'] = $constant::SUC_ACTIVATED;
             $fn_general->updateVersion(25);
             $item = $fn_item->getItem($urlArr[2]);
             $fn_general->save_audit('160', $userId, 'Item ID = '.$urlArr[2].', Item description = '.$item['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_ACTIVATED;
         }
         else {
             $fn_item->updateItem($urlArr[1], $params);
-            $form_data['errmsg'] = $constant::SUC_SAVE;
             $fn_general->updateVersion(25);
             $fn_general->save_audit('157', $userId, 'Item ID = '.$urlArr[1].', Item description = '.$params['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
         }
 
         Class_db::getInstance()->db_commit();

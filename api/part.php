@@ -41,23 +41,19 @@ try {
         array_shift($urlArr);
     }
 
-    if (isset($urlArr[1]) && $urlArr[1] === 'external') {
-        array_shift($urlArr);
-    } else {
-        $headers = apache_request_headers();
-        if (isset($headers['Authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
-        } else if (isset($headers['authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['authorization']);
-            if (!isset($headers['deviceid'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
-            }
-            $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+    $headers = apache_request_headers();
+    if (isset($headers['Authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    } else if (isset($headers['authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['authorization']);
+        if (!isset($headers['deviceid'])) {
+            throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
         }
-        $userId = $jwt_data->userId;
+        $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+    } else {
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
+    $userId = $jwt_data->userId;
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
@@ -65,6 +61,12 @@ try {
                 $result = $fn_part->getPartList($urlArr[2]);
             } else if ($urlArr[1] === 'list_with_image') {
                 $result = $fn_part->getPartListWithImage($urlArr[2]);
+            } else if ($urlArr[1] === 'option_asset_group') {
+                $result = $fn_part->getPartAssetGroupOption($userId);
+            } else if ($urlArr[1] === 'option_item_type') {
+                $result = $fn_part->getPartItemTypeOption($userId, $urlArr[2]);
+            } else if ($urlArr[1] === 'option_item') {
+                $result = $fn_part->getPartItemOption($userId, $urlArr[2]);
             } else if ($urlArr[1] === 'add_option_asset_group') {
                 $result = $fn_part->getPartAddAssetGroupOption($urlArr[2]);
             } else if ($urlArr[1] === 'add_option_item_type') {
@@ -81,9 +83,9 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
+        $param = $_POST;
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        $param = $_POST;
 
         $result = $fn_part->addPart($param);
         $store = $fn_store->getStore($param['storeId']);
@@ -94,9 +96,49 @@ try {
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($urlArr[1] === 'disable') {
+            $fn_part->deactivatePart($urlArr[2]);
+            $part = $fn_part->getPart($urlArr[2]);
+            $item = $fn_item->getItem($part['itemId']);
+            $store = $fn_store->getStore($part['storeId']);
+            $fn_general->save_audit('165', $userId, 'Part ID = '.$urlArr[2].', Store Name = '.$store['storeName'].', Item description = '.$item['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_DEACTIVATED;
+        }
+        else if ($urlArr[1] === 'enable') {
+            $fn_part->activatePart($urlArr[2]);
+            $part = $fn_part->getPart($urlArr[2]);
+            $item = $fn_item->getItem($part['itemId']);
+            $store = $fn_store->getStore($part['storeId']);
+            $fn_general->save_audit('166', $userId, 'Part ID = '.$urlArr[2].', Store Name = '.$store['storeName'].', Item description = '.$item['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_DEACTIVATED;
+        }
+        else {
+            $fn_part->updatePart($urlArr[1], $params);
+            $part = $fn_part->getPart($urlArr[1]);
+            $item = $fn_item->getItem($part['itemId']);
+            $store = $fn_store->getStore($part['storeId']);
+            $fn_general->save_audit('164', $userId, 'Part ID = '.$urlArr[1].', Store Name = '.$store['storeName'].', Item description = '.$item['itemDescription']);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
+
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
     if ($is_transaction) {

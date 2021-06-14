@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_wo_parts.php';
+require_once 'function/f_part_sub.php';
 
-$api_name = 'api_wo_parts';
+$api_name = 'api_part_sub';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,14 +15,13 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_wo_part = new Class_wo_parts();
+$fn_part_sub = new Class_part_sub();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_wo_part->__set('fn_general', $fn_general);
-    $fn_wo_part->__set('constant', $constant);
+    $fn_part_sub->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -30,7 +29,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'wo_parts') {
+        if ($param === 'part_sub') {
             break;
         }
         array_shift($urlArr);
@@ -56,21 +55,18 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'list_by_pending') {
-                $result = $fn_wo_part->getWoPartsByStatusList($urlArr[2], '(34, 38)');
-            } else if ($urlArr[1] === 'wo_parts_mobile_list') {
-                $result = $fn_wo_part->getWoPartsMobileList($urlArr[2]);
-            } else {
-                $result = $fn_wo_part->getWoPartsList($urlArr[1]);
+            if ($urlArr[1] === 'list_available') {
+                $result = $fn_part_sub->getPartSubList('(46,38)', $urlArr[2]);
             }
         } else {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            $result = $fn_part_sub->getPartSubList();
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
+
     Class_db::getInstance()->db_close();
 } catch (Exception $ex) {
     if ($is_transaction) {
@@ -87,6 +83,4 @@ try {
 }
 
 echo json_encode($form_data);
-
-
 

@@ -35,23 +35,19 @@ try {
         array_shift($urlArr);
     }
 
-    if (isset($urlArr[1]) && $urlArr[1] === 'external') {
-        array_shift($urlArr);
-    } else {
-        $headers = apache_request_headers();
-        if (isset($headers['Authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
-        } else if (isset($headers['authorization'])) {
-            $jwt_data = $fn_login->check_jwt($headers['authorization']);
-            if (!isset($headers['deviceid'])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
-            }
-            $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+    $headers = apache_request_headers();
+    if (isset($headers['Authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    } else if (isset($headers['authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['authorization']);
+        if (!isset($headers['deviceid'])) {
+            throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
         }
-        $userId = $jwt_data->userId;
+        $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+    } else {
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
+    $userId = $jwt_data->userId;
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
@@ -88,9 +84,9 @@ try {
         }
 
         $fn_store->updateStore($urlArr[1], $params);
-        $form_data['errmsg'] = $constant::SUC_SAVE;
         $fn_general->updateVersion(26);
         $fn_general->save_audit('154', $userId, 'Store ID = '.$urlArr[1].', Store name = '.$params['storeName']);
+        $form_data['errmsg'] = $constant::SUC_SAVE;
 
         Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;

@@ -3,6 +3,7 @@
 class Class_wo_parts {
 
     private $fn_general;
+    private $constant;
 
     function __construct() {
     }
@@ -77,9 +78,26 @@ class Class_wo_parts {
      */
     public function getWoPartsMobileList ($woTaskId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
             $this->fn_general->checkEmptyParams(array($woTaskId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('wo_task_id'=>$woTaskId)));
+
+            $result = array();
+            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('wo_task_id'=>$woTaskId)));
+            foreach ($woTaskParts as $woTaskPart) {
+                $woTaskPartSliced = array_slice($woTaskPart, 4);
+                $imageUploads = explode('||', $woTaskPart['uploadList']);
+                $imageTitles = explode('||', $woTaskPart['titleList']);
+                $imageWidths = explode('||', $woTaskPart['widthList']);
+                $imageHeights = explode('||', $woTaskPart['heightList']);
+                $images = array();
+                foreach ($imageUploads as $n => $imageUpload) {
+                    array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                }
+                $woTaskPartSliced['images'] = $images;
+                array_push($result, $woTaskPartSliced);
+            }
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

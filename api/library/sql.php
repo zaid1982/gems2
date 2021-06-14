@@ -870,19 +870,33 @@ class Class_sql
                 GROUP BY ast_part.item_id
                 ORDER BY item_turn";
             } else if ($title === 'vw_wo_task_parts_mobile') {
-                $sql = "SELECT 
-                    a.*,
+                $sql = "SELECT  
+                    docs.upload_list,
+                    docs.title_list,
+                    docs.width_list,
+                    docs.height_list, 
+                    a.*,             
                     c.item_description,
                     d.item_type_desc,
                     e.asset_group_name,
-                    b.part_unit,
-                    f.status_desc
+                    f.status_desc        
                 FROM wo_task_parts a
                 LEFT JOIN ast_part b ON b.part_id = a.part_id
                 LEFT JOIN ref_item c ON c.item_id = b.item_id
                 LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
                 LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id
-                LEFT JOIN ref_status f ON f.status_id = a.wo_task_parts_status";
+                LEFT JOIN ref_status f ON f.status_id = a.wo_task_parts_status
+                LEFT JOIN (
+                    SELECT 
+                        g.item_id, 
+                        GROUP_CONCAT(CONCAT(u.upload_folder,'/',u.upload_filename,'.',u.upload_extension) SEPARATOR '||') AS upload_list, 
+                        GROUP_CONCAT(u.upload_name SEPARATOR '||') AS title_list, 
+                        GROUP_CONCAT(u.upload_file_width SEPARATOR '||') AS width_list, 
+                        GROUP_CONCAT(u.upload_file_height SEPARATOR '||') AS height_list
+                    FROM ref_item_image g
+                    LEFT JOIN sys_upload u ON u.upload_id = g.upload_id
+                    GROUP BY g.item_id
+                ) docs ON docs.item_id = c.item_id";
             } else if ($title === 'vw_wo_task_parts') {
                 $sql = "SELECT 
                     a.*,
@@ -967,6 +981,32 @@ class Class_sql
                 FROM ref_item i
                 LEFT JOIN ast_part p ON p.item_id = i.item_id AND p.store_id = [storeId]
                 WHERE i.item_status = 1 AND p.part_id IS NULL AND i.item_type_id = [itemTypeId]";
+            } else if ($title === 'vw_part_asset_group') {
+                $sql = "SELECT 
+                    p.asset_group_id,
+                    a.asset_group_name
+                FROM ast_part p
+                LEFT JOIN ast_asset_group a ON a.asset_group_id = p.asset_group_id
+                WHERE p.store_id IN ([storeIds]) AND a.asset_group_status = 1
+                GROUP BY p.asset_group_id";
+            } else if ($title === 'vw_part_item_type') {
+                $sql = "SELECT 
+                    p.item_type_id,
+                    i.item_type_desc
+                FROM ast_part p
+                LEFT JOIN ref_item_type i ON i.item_type_id = p.item_type_id
+                WHERE p.store_id IN ([storeIds]) AND p.asset_group_id = [assetGroupId] AND i.item_type_status = 1
+                GROUP BY p.item_type_id
+                ORDER BY i.item_type_turn";
+            } else if ($title === 'vw_part_item') {
+                $sql = "SELECT 
+                    p.item_id,
+                    i.item_description
+                FROM ast_part p
+                LEFT JOIN ref_item i ON i.item_id = p.item_id
+                WHERE p.store_id IN ([storeIds]) AND i.item_type_id = [itemTypeId] AND i.item_status = 1
+                GROUP BY p.item_id
+                ORDER BY i.item_turn";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

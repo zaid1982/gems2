@@ -216,6 +216,7 @@ function SectionItem () {
                 try {
                     mzAjaxRequest2('item/disable/'+itemId, 'PUT');
                     mzSetFieldValue('SiyStatus', refStatus[2]['statusDesc'], 'text');
+                    classFrom.genTable();
                     $('#btnSiyDisable').hide();
                     $('#btnSiyEnable').show();
                 } catch (e) {
@@ -231,6 +232,7 @@ function SectionItem () {
                 try {
                     mzAjaxRequest2('item/enable/'+itemId, 'PUT');
                     mzSetFieldValue('SiyStatus', refStatus[1]['statusDesc'], 'text');
+                    classFrom.genTable();
                     $('#btnSiyEnable').hide();
                     $('#btnSiyDisable').show();
                 } catch (e) {
