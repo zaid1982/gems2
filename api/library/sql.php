@@ -1007,6 +1007,17 @@ class Class_sql
                 WHERE p.store_id IN ([storeIds]) AND i.item_type_id = [itemTypeId] AND i.item_status = 1
                 GROUP BY p.item_id
                 ORDER BY i.item_turn";
+            } else if ($title === 'vw_do_item') {
+                $sql = "SELECT 
+                    pdi.do_item_timestamp,
+                    pdo.do_no,
+                    pdo.do_date,
+                    pdi.do_item_warranty,
+                    pdi.do_item_validity,
+                    pdi.do_item_cost,
+                    pdi.do_item_total
+                FROM pr_do_item pdi
+                LEFT JOIN pr_do pdo ON pdo.do_id = pdi.do_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

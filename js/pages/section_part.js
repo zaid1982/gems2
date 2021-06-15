@@ -14,8 +14,10 @@ function SectionPart () {
     let refItemType;
     let refItem;
     let refUser;
-    let oTableSptPending;
     let oTableSptPartList;
+    let oTableSptPending;
+    let oTableSptCheckIn;
+    let oTableSptCheckOut;
 
     this.init = function () {
         $('.sectionPart').hide();
@@ -141,45 +143,6 @@ function SectionPart () {
             }, 200);
         });
 
-        oTableSptPending = $('#dtSptPending').DataTable({
-            bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[0, 'desc']],
-            language: _DATATABLE_LANGUAGE,
-            ordering: false,
-            pageLength: 10,
-            autoWidth: false,
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = $(this).DataTable().page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-            },
-            dom: "<'row'<'col-12 px-0'B>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
-            columnDefs: [
-                { className: 'text-center', targets: [0, 1, 2, 5] },
-                { className: 'text-right', targets: [4] }
-            ],
-            buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
-            ],
-            aoColumns: [
-                {mData: null, bSortable: false},
-                {mData: 'woTaskPartsTimeOrder'},
-                {mData: 'woTaskNo'},
-                {mData: 'woTaskPartsOrderBy', mRender: function (data){
-                        return data !== '' ? refUser[data]['userFirstName'] : '';
-                    }},
-                {mData: 'woTaskPartsQuantity'},
-                {mData: 'woTaskPartsStatus', mRender: function (data){
-                        return data !== '' ? refStatus[data]['statusDesc'] : '';
-                    }}
-            ]
-        });
-
         oTableSptPartList = $('#dtSptPartList').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -230,6 +193,128 @@ function SectionPart () {
                     }}
             ]
         });
+
+        oTableSptPending = $('#dtSptPending').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'desc']],
+            language: _DATATABLE_LANGUAGE,
+            ordering: false,
+            pageLength: 10,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { className: 'text-center', targets: [0, 1, 2, 6] },
+                { className: 'text-right', targets: [4] },
+                { className: 'noVis', targets: [0] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Pending Request Part List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'woTaskPartsTimeOrdered'},
+                {mData: 'woTaskNo'},
+                {mData: 'woTaskPartsOrderBy', mRender: function (data){
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskPartsQuantity'},
+                {mData: 'woTaskPartsRemark', visible: false},
+                {mData: 'woTaskPartsStatus', mRender: function (data){
+                        return data !== '' ? refStatus[data]['statusDesc'] : '';
+                    }}
+            ]
+        });
+
+        oTableSptCheckIn = $('#dtSptCheckIn').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'desc']],
+            language: _DATATABLE_LANGUAGE,
+            ordering: false,
+            pageLength: 10,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { className: 'text-center', targets: [0, 1, 2, 3, 4] },
+                { className: 'text-right', targets: [5, 6] },
+                { className: 'noVis', targets: [0] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Part Check In History', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Part Check In History', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Part Check In History', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Part Check In History', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'doItemTimestamp'},
+                {mData: 'doNo'},
+                {mData: 'doDate'},
+                {mData: 'doItemWarranty', mRender: function (data){
+                        return data !== '' ? data + ' year' + (data !== '1' ? 's' : '') : '';
+                    }},
+                {mData: 'doItemValidity'},
+                {mData: 'doItemCost'},
+                {mData: 'doItemTotal'}
+            ]
+        });
+
+        oTableSptCheckOut = $('#dtSptCheckOut').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'desc']],
+            language: _DATATABLE_LANGUAGE,
+            ordering: false,
+            pageLength: 10,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { className: 'text-center', targets: [0, 1, 2] },
+                { className: 'text-right', targets: [5] },
+                { className: 'noVis', targets: [0] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Part Check Out History', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Part Check Out History', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Part Check Out History', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Part Check Out History', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'woTaskPartsTimeCollected'},
+                {mData: 'woTaskNo'},
+                {mData: 'woTaskPartsOrderBy', mRender: function (data){
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskPartsRemark'},
+                {mData: 'woTaskPartsQuantity'}
+            ]
+        });
     };
 
     this.load = function (_isEdit, _partId) {
@@ -275,6 +360,7 @@ function SectionPart () {
 
                 self.genTablePending();
                 self.genTablePartList();
+                self.genTableCheckIn();
 
                 $('.sectionPart').show();
                 classFrom.hideMain();
@@ -307,14 +393,24 @@ function SectionPart () {
         }
     };
 
+    this.genTablePartList = function () {
+        const dataDb = mzAjaxRequest2('part_sub/list_available/'+partId, 'GET');
+        oTableSptPartList.clear().rows.add(dataDb).draw();
+    };
+
     this.genTablePending = function () {
         const dataDb = mzAjaxRequest2('wo_parts/list_by_pending/'+partId, 'GET');
         oTableSptPending.clear().rows.add(dataDb).draw();
     };
 
-    this.genTablePartList = function () {
-        const dataDb = mzAjaxRequest2('part_sub/list_available/'+partId, 'GET');
-        oTableSptPartList.clear().rows.add(dataDb).draw();
+    this.genTableCheckIn = function () {
+        const dataDb = mzAjaxRequest2('do_item/'+partId, 'GET');
+        oTableSptCheckIn.clear().rows.add(dataDb).draw();
+    };
+
+    this.genTableCheckOut = function () {
+        const dataDb = mzAjaxRequest2('wo_parts/list_check_out/'+partId, 'GET');
+        oTableSptCheckOut.clear().rows.add(dataDb).draw();
     };
 
     this.getClassName = function () {

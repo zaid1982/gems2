@@ -488,7 +488,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function get_wo_task ($transactionId) {
+    public function get_wo_task ($transactionId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
