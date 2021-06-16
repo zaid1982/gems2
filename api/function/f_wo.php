@@ -371,7 +371,7 @@ class Class_wo {
 
             $imgBefore = false;
             $imgDuring = false;
-            $imfAfter = false;
+            $imgAfter = false;
             $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId));
             foreach ($woTaskUploads as $woTaskUpload) {
                 $uploadType = $woTaskUpload['wo_task_upload_type'];
