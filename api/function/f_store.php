@@ -114,6 +114,7 @@ class Class_store {
             if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$params['siteId'], 'store_name'=>$params['storeName'])) > 0) {
                 throw new Exception('[' . __LINE__ . '] - This inventory store name already exist. Please used another name.', 31);
             }
+            Class_db::getInstance()->db_update('cli_site', array('site_is_material'=>'1'), array('site_id'=>$params['siteId']));
             return Class_db::getInstance()->db_insert('cli_store', $this->fn_general->convertToMysqlArrAll($params));
         }
         catch(Exception $ex) {
@@ -153,7 +154,11 @@ class Class_store {
             if (Class_db::getInstance()->db_count('ast_part', array('store_id'=>$storeId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - This inventory store cannot be deleted because it\'s already being used in inventory', 31);
             }
+            $siteId = Class_db::getInstance()->db_select_col('cli_store', array('store_id'=>$storeId), 'site_id', null, 1);
             Class_db::getInstance()->db_delete('cli_store', array('store_id'=>$storeId));
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId)) == 0) {
+                Class_db::getInstance()->db_update('cli_site', array('site_is_material'=>'0'), array('site_id'=>$siteId));
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
