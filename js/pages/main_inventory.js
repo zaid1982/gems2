@@ -241,8 +241,6 @@ function MainInventory () {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
         });
-
-        self.genTable();
     };
 
     this.genTable = function () {
