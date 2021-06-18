@@ -72,6 +72,40 @@ class Class_wo_parts {
     }
 
     /**
+     * @param $partId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getWoPartsList ($partId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($partId));
+            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId)));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskPartsId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getWoParts ($woTaskPartsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskPartsId));
+            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsId), null, 1));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $woTaskId
      * @return array
      * @throws Exception
@@ -83,7 +117,7 @@ class Class_wo_parts {
             $this->fn_general->checkEmptyParams(array($woTaskId));
 
             $result = array();
-            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('wo_task_id'=>$woTaskId)));
+            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('r.wo_task_id'=>$woTaskId)));
             foreach ($woTaskParts as $woTaskPart) {
                 $woTaskPartSliced = array_slice($woTaskPart, 4);
                 $imageUploads = explode('||', $woTaskPart['uploadList']);
@@ -106,15 +140,28 @@ class Class_wo_parts {
     }
 
     /**
-     * @param $partId
-     * @return mixed
+     * @param $woTaskPartsId
+     * @return array
      * @throws Exception
      */
-    public function getWoPartsList ($partId) {
+    public function getWoPartsMobileDetail ($woTaskPartsId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($partId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId)));
+            $constant = $this->constant;
+            $this->fn_general->checkEmptyParams(array($woTaskPartsId));
+
+            $woTaskPart = $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('vw_wo_task_parts_mobile', array('a.wo_task_parts_id'=>$woTaskPartsId)));
+            $result = array_slice($woTaskPart, 4);
+            $imageUploads = explode('||', $woTaskPart['uploadList']);
+            $imageTitles = explode('||', $woTaskPart['titleList']);
+            $imageWidths = explode('||', $woTaskPart['widthList']);
+            $imageHeights = explode('||', $woTaskPart['heightList']);
+            $images = array();
+            foreach ($imageUploads as $n => $imageUpload) {
+                array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+            }
+            $result['images'] = $images;
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -151,15 +198,62 @@ class Class_wo_parts {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $this->fn_general->checkEmptyParams(array($params, $userId));
-            $this->fn_general->checkEmptyParamsArray($params, array('woTaskId', 'itemId', 'quantity', 'remark'));
+            $this->fn_general->checkEmptyParamsArray($params, array('woTaskId', 'itemId', 'quantity'));
 
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_status'=>'32'), 'wo_task_request_id');
+            if (empty($woRequestId)) {
+                $woRequestId = Class_db::getInstance()->db_insert('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'));
+            }
             $partId = Class_db::getInstance()->db_select_col('ast_part', array('item_id'=>$params['itemId'], 'site_id'=>$siteId), 'part_id', 'part_count DESC', 1);
-            if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_id'=>$params['woTaskId'], 'part_id'=>$partId)) > 0) {
+            if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woRequestId, 'part_id'=>$partId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - This item description already exist in this Request List.', 31);
             }
-            return Class_db::getInstance()->db_insert('wo_task_parts', array('wo_task_id'=>$params['woTaskId'], 'part_id'=>$partId, 'wo_task_parts_quantity'=>$params['quantity'], 'wo_task_parts_remark'=>$params['remark'], 'wo_task_parts_order_by'=>$userId,
-                'wo_task_parts_time_ordered'=>'Now()'));
+            return Class_db::getInstance()->db_insert('wo_task_parts', array('wo_task_request_id'=>$woRequestId, 'part_id'=>$partId, 'wo_task_parts_quantity'=>$params['quantity'], 'wo_task_parts_remark'=>$params['remark'], 'wo_task_parts_status'=>'32'));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskPartsId
+     * @param array $params
+     * @throws Exception
+     */
+    public function updateWoParts ($woTaskPartsId, $params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskPartsId, $params));
+            $this->fn_general->checkEmptyParamsArray($params, array('quantity'));
+
+            $woParts = $this->getWoParts($woTaskPartsId);
+            if ($woParts['woTaskPartsStatus'] <> '32') {
+                throw new Exception('[' . __LINE__ . '] - This Item Requisition already submitted and cannot be updated.', 31);
+            }
+            Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_quantity'=>$params['quantity'], 'wo_task_parts_remark'=>$params['remark']), array('wo_task_parts_id'=>$woTaskPartsId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskPartsId
+     * @throws Exception
+     */
+    public function deleteWoParts ($woTaskPartsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskPartsId));
+
+            $woParts = $this->getWoParts($woTaskPartsId);
+            if ($woParts['woTaskPartsStatus'] <> '32') {
+                throw new Exception('[' . __LINE__ . '] - This Item Requisition already submitted and cannot be deleted.', 31);
+            }
+            Class_db::getInstance()->db_delete('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

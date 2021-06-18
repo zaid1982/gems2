@@ -223,9 +223,9 @@ function SectionPart () {
             ],
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'woTaskPartsTimeOrdered'},
+                {mData: 'woTaskRequestTimeOrdered'},
                 {mData: 'woTaskNo'},
-                {mData: 'woTaskPartsOrderBy', mRender: function (data){
+                {mData: 'woTaskRequestOrderBy', mRender: function (data){
                         return data !== '' ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'woTaskPartsQuantity'},
@@ -306,9 +306,9 @@ function SectionPart () {
             ],
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'woTaskPartsTimeCollected'},
+                {mData: 'woTaskRequestTimeCollected'},
                 {mData: 'woTaskNo'},
-                {mData: 'woTaskPartsOrderBy', mRender: function (data){
+                {mData: 'woTaskRequestOrderBy', mRender: function (data){
                         return data !== '' ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'woTaskPartsRemark'},

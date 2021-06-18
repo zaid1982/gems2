@@ -112,20 +112,19 @@ try {
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
 
         $item = $fn_item->getItem($urlArr[1]);
         $fn_item->deleteItem($urlArr[1]);
         $fn_general->updateVersion(25);
         $fn_general->save_audit('158', $userId, 'Item ID = '.$urlArr[1].', Item description = '.$item['itemDescription']);
+        $form_data['errmsg'] = $constant::SUC_DELETE;
 
         Class_db::getInstance()->db_commit();
-        $form_data['errmsg'] = $constant::SUC_DELETE;
         $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

@@ -881,6 +881,7 @@ class Class_sql
                     e.asset_group_name,
                     f.status_desc        
                 FROM wo_task_parts a
+                LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
                 LEFT JOIN ast_part b ON b.part_id = a.part_id
                 LEFT JOIN ref_item c ON c.item_id = b.item_id
                 LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
@@ -900,9 +901,13 @@ class Class_sql
             } else if ($title === 'vw_wo_task_parts') {
                 $sql = "SELECT 
                     a.*,
-                    w.wo_task_no
+                    w.wo_task_no,
+                    r.wo_task_request_order_by,
+                    r.wo_task_request_time_ordered,
+                    r.wo_task_request_time_collected
                 FROM wo_task_parts a
-                LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id";
+                LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
+                LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id";
             } else if ($title === 'vw_pr_current') {
                 $sql = "SELECT
                     t.task_id,
