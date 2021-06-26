@@ -174,6 +174,7 @@ class Class_wo_request {
     public function getPendingTask ($userId, $searchText='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
 
             $checkpoints = array();
             if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'42', 'role_id'=>'17', 'group_id'=>'1')) > 0) {
@@ -190,6 +191,22 @@ class Class_wo_request {
             return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_request_task_m', array(), 'task_received_time DESC', '100', 0,
                 array('taskCurrent'=>'task_current = 1', 'siteId'=>$siteId, 'checkpoints'=>implode(',', $checkpoints), 'search_text'=>$searchText)));
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskRequestId
+     * @return array
+     * @throws Exception
+     */
+    public function getWoRequestDetails ($woTaskRequestId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId));
+            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('vw_wo_request_task_detail_m', array('wo_task_request_id'=>$woTaskRequestId), '', 1));
+         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

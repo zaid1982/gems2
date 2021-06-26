@@ -1028,6 +1028,7 @@ class Class_sql
                     r.wo_task_request_id,
                     r.wo_task_request_no,
                     w.wo_task_no,
+                    l.site_name,
                     u.user_first_name AS task_from,
                     t.task_time_created AS task_received_time,
                     u2.user_first_name AS request_by,
@@ -1051,8 +1052,36 @@ class Class_sql
                 LEFT JOIN sys_user u ON u.user_id = t.task_created_user
                 LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
+                LEFT JOIN cli_site l ON l.site_id = w.site_id
                 WHERE checkpoint_id IN ([checkpoints]) AND w.site_id = [siteId] AND [taskCurrent] 
                 HAVING (wo_task_request_no LIKE '%[search_text]%' OR wo_task_no LIKE '%[search_text]%' OR task_from LIKE '%[search_text]%' OR wo_type_desc LIKE '%[search_text]%' OR wo_severity_desc LIKE '%[search_text]%' OR status_desc LIKE '%[search_text]%')";
+            } else if ($title === 'vw_wo_request_task_detail_m') {
+                $sql = "SELECT
+                    r.wo_task_request_id,
+                    r.wo_task_request_no AS wo_request_no,
+                    w.wo_task_no,
+                    l.site_name,
+                    u2.user_first_name AS request_by,
+                    r.wo_task_request_time_ordered AS request_time,
+                    r.wo_task_request_time_collected AS collect_time,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type = 2 THEN 'Self Finding'
+                        WHEN wo_task_type = 3 THEN 'Request'
+                        WHEN wo_task_type = 4 THEN 'Breakdown'
+                        WHEN wo_task_type = 5 THEN 'Defect'
+                        ELSE ''
+                    END AS wo_type_desc,
+                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
+                        WHEN wo_task_severity = 2 THEN 'Critical'
+                        ELSE ''
+                    END AS wo_severity_desc,
+                    s.status_id,
+                    s.status_desc
+                FROM wo_task_request r 
+                LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
+                LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
+                LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
+                LEFT JOIN cli_site l ON l.site_id = w.site_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

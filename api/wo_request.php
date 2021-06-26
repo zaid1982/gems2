@@ -69,6 +69,8 @@ try {
             if ($urlArr[1] === 'pending_task') {
                 $searchText = isset ($urlArr[2]) ? $urlArr[2] : '';
                 $result = $fn_wo_request->getPendingTask($userId, $searchText);
+            } else if ($urlArr[1] === 'request_details') {
+                $result = $fn_wo_request->getWoRequestDetails($urlArr[2]);
             } else {
                 $result = $fn_wo_request->getWoRequest($urlArr[1]);
             }
