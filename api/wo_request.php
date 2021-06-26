@@ -66,7 +66,12 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            $result = $fn_wo_request->getWoRequest($urlArr[1]);
+            if ($urlArr[1] === 'pending_task') {
+                $searchText = isset ($urlArr[2]) ? $urlArr[2] : '';
+                $result = $fn_wo_request->getPendingTask($userId, $searchText);
+            } else {
+                $result = $fn_wo_request->getWoRequest($urlArr[1]);
+            }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }

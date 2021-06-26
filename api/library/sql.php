@@ -1023,6 +1023,36 @@ class Class_sql
                     pdi.do_item_total
                 FROM pr_do_item pdi
                 LEFT JOIN pr_do pdo ON pdo.do_id = pdi.do_id";
+            } else if ($title === 'vw_wo_request_task_m') {
+                $sql = "SELECT
+                    r.wo_task_request_id,
+                    r.wo_task_request_no,
+                    w.wo_task_no,
+                    u.user_first_name AS task_from,
+                    t.task_time_created AS task_received_time,
+                    u2.user_first_name AS request_by,
+                    r.wo_task_request_time_ordered AS request_time,
+                    CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type = 2 THEN 'Self Finding'
+                        WHEN wo_task_type = 3 THEN 'Request'
+                        WHEN wo_task_type = 4 THEN 'Breakdown'
+                        WHEN wo_task_type = 5 THEN 'Defect'
+                        ELSE ''
+                    END AS wo_type_desc,
+                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
+                        WHEN wo_task_severity = 2 THEN 'Critical'
+                        ELSE ''
+                    END AS wo_severity_desc,
+                    s.status_id,
+                    s.status_desc
+                FROM wfl_task t
+                LEFT JOIN wo_task_request r ON r.transaction_id = t.transaction_id
+                LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
+                LEFT JOIN sys_user u ON u.user_id = t.task_created_user
+                LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
+                LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
+                WHERE checkpoint_id IN ([checkpoints]) AND w.site_id = [siteId] AND [taskCurrent] 
+                HAVING (wo_task_request_no LIKE '%[search_text]%' OR wo_task_no LIKE '%[search_text]%' OR task_from LIKE '%[search_text]%' OR wo_type_desc LIKE '%[search_text]%' OR wo_severity_desc LIKE '%[search_text]%' OR status_desc LIKE '%[search_text]%')";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
