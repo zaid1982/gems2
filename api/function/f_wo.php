@@ -380,12 +380,20 @@ class Class_wo {
 
             $isMaterial = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'site_is_material');
             if ($isMaterial === '1') {
-                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$arr_status[18]));
+                $sectionStatus = $arr_status[18];
+                $materialStatus = '';
                 if ($woTask['wo_task_has_parts'] === '0') {
-                    $result[4]['sectionStatus'] = $arr_status[19];
+                    $sectionStatus = $arr_status[19];
                 } else if ($woTask['wo_task_has_parts'] === '1') {
-                    //
+                    $statusPartId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$this->woTaskId), 'wo_task_request_status', 'wo_task_request_id DESC');
+                    if (!empty($statusPartId)) {
+                        if ($statusPartId === '36') {
+                            $sectionStatus = $arr_status[19];
+                        }
+                        $materialStatus = $arr_status[$statusPartId];
+                    }
                 }
+                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$sectionStatus, 'sectionStatusMaterial'=>$materialStatus));
             }
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
