@@ -78,6 +78,23 @@ class Class_task {
     }
 
     /**
+     * @param $taskId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getTransactionId ($taskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($taskId));
+            return Class_db::getInstance()->db_select_col('wfl_task', array('task_id'=>$taskId), 'transaction_id', null, 1);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $checkpoint
      * @param $userId
      * @param $roleId
@@ -526,7 +543,7 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter checkpointId empty');
             }
 
-            if ($checkpointId === '12') {
+            if ($checkpointId === '12' || $checkpointId === '42' || $checkpointId === '43') {
                 if (empty($woTaskId)) {
                     throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
                 }
