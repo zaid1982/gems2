@@ -140,6 +140,42 @@ class Class_wo_parts {
     }
 
     /**
+     * @param $woTaskRequestId
+     * @return array
+     * @throws Exception
+     */
+    public function getWoPartsMobileList2 ($woTaskRequestId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId));
+
+            $result = array();
+            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('a.wo_task_request_id'=>$woTaskRequestId)));
+            foreach ($woTaskParts as $woTaskPart) {
+                $woTaskPartSliced = array_slice($woTaskPart, 4);
+                $imageUploads = explode('||', $woTaskPart['uploadList']);
+                $imageTitles = explode('||', $woTaskPart['titleList']);
+                $imageWidths = explode('||', $woTaskPart['widthList']);
+                $imageHeights = explode('||', $woTaskPart['heightList']);
+                $images = array();
+                foreach ($imageUploads as $n => $imageUpload) {
+                    if ($imageUpload !== '') {
+                        array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                    }
+                }
+                $woTaskPartSliced['images'] = $images;
+                array_push($result, $woTaskPartSliced);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $woTaskPartsId
      * @return array
      * @throws Exception

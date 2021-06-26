@@ -73,6 +73,8 @@ try {
                 $result = $fn_wo_part->getWoPartsByStatusList($urlArr[2], '(34, 38)');
             } else if ($urlArr[1] === 'list_check_out') {
                 $result = $fn_wo_part->getWoPartsByStatusList($urlArr[2], '36');
+            } else if ($urlArr[1] === 'wo_parts_list') {
+                $result = $fn_wo_part->getWoPartsMobileList2($urlArr[2]);
             } else if ($urlArr[1] === 'wo_parts_mobile_list') {
                 $result = $fn_wo_part->getWoPartsMobileList($urlArr[2]);
             } else if ($urlArr[1] === 'wo_parts_mobile_detail') {
