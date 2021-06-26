@@ -194,7 +194,9 @@ class Class_wo_parts {
             $imageHeights = explode('||', $woTaskPart['heightList']);
             $images = array();
             foreach ($imageUploads as $n => $imageUpload) {
-                array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                if ($imageUpload !== '') {
+                    array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                }
             }
             $result['images'] = $images;
             return $result;
