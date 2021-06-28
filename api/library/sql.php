@@ -870,15 +870,20 @@ class Class_sql
                 GROUP BY ast_part.item_id
                 ORDER BY item_turn";
             } else if ($title === 'vw_wo_task_parts_mobile') {
-                $sql = "SELECT  
-                    docs.upload_list,
-                    docs.title_list,
-                    docs.width_list,
-                    docs.height_list, 
+                $sql = "SELECT   
                     a.*,             
+                    b.item_id,
                     c.item_description,
                     d.item_type_desc,
                     e.asset_group_name,
+                    b.part_count,
+                    b.part_locked,
+                    b.part_count-b.part_locked AS part_available,
+                    b.part_threshold,
+                    docs.upload_list,
+                    docs.title_list,
+                    docs.width_list,
+                    docs.height_list,
                     f.status_desc        
                 FROM wo_task_parts a
                 LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
