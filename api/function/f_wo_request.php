@@ -88,6 +88,26 @@ class Class_wo_request {
     }
 
     /**
+     * @param $woTaskRequestId
+     * @return array
+     * @throws Exception
+     */
+    public function getCurrentTask ($woTaskRequestId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId));
+
+            $transactionId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId), 'transaction_id', '', 1);
+            $taskId = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), 'task_id', '', 1);
+            return array('transactionId'=>$transactionId, 'taskId'=>$taskId);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $userId
      * @return string
      * @throws Exception
@@ -117,26 +137,68 @@ class Class_wo_request {
 
     /**
      * @param $submitType
-     * @param $woTaskId
      * @param $userId
+     * @param string $woTaskRequestId
+     * @param $transactionId
+     * @param string $taskId
+     * @param string $woTaskId
+     * @return string
      * @throws Exception
      */
-    public function checkRequestTask ($submitType, $woTaskId, $userId) {
+    public function checkRequestTask ($submitType, $userId, $woTaskRequestId, $transactionId, $taskId, $woTaskId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($submitType, $woTaskId));
+            $this->fn_general->checkEmptyParams(array($submitType, $userId));
 
             if ($submitType === 'submit_request') {
-                $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id');
-                if (empty($woRequestId) || Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woRequestId)) == 0) {
-                    throw new Exception('[' . __LINE__ . '] - Requested Material list empty', 31);
+                // ********** submit request checking ********** \\
+                $this->fn_general->checkEmptyParams(array($woTaskId));
+                $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id');
+                if (empty($woTaskRequestId)) {
+                    Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'0'), array('wo_task_id'=>$woTaskId));
+                    return 'noPart';
                 }
-                if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woRequestId)) == 0) {
+                if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
+                    Class_db::getInstance()->db_delete('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId));
+                    Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'0'), array('wo_task_id'=>$woTaskId));
+                    return 'noPart';
+                } else if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
                     throw new Exception('[' . __LINE__ . '] - Total Requested Material empty', 31);
                 }
             } else {
-                throw new Exception('[' . __LINE__ . '] - Invalid submitType');
+                // ********** standard checking ********** \\
+                $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId, $taskId));
+                $woTaskId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId), 'wo_task_id', '', 1);
+                $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id' => $woTaskId), 'site_id', '', 1);
+                if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$userId, 'site_id'=>$siteId)) == 0) {
+                    throw new Exception('[' . __LINE__ . '] - Invalid site');
+                }
+
+                // ********** checking for every submit type ********** \\
+                if ($submitType === 'approve_request' || $submitType === 'reject_request') {
+                    if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id'=>$transactionId, 'transaction_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
+                    }
+                    if (Class_db::getInstance()->db_count('wfl_task', array('task_id'=>$taskId, 'task_current'=>'1', 'checkpoint_id'=>'42')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid task request');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_request_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid request status');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Request part empty');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'<>33')) > 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid request part status');
+                    }
+                    if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Total Requested Material empty', 31);
+                    }
+                } else {
+                    throw new Exception('[' . __LINE__ . '] - Invalid submitType');
+                }
             }
+            return '1';
        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -152,12 +214,13 @@ class Class_wo_request {
     public function submitRequest ($woTaskId, $transactionId, $woTaskRequestNo) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($woTaskId, $woTaskRequestNo));
+            $this->fn_general->checkEmptyParams(array($woTaskId, $transactionId, $woTaskRequestNo));
 
             $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id');
             Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_no'=>$woTaskRequestNo, 'transaction_id'=>$transactionId, 'wo_task_request_time_ordered'=>'Now()', 'wo_task_request_status'=>'33'),
                 array('wo_task_request_id'=>$woRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'33'), array('wo_task_request_id'=>$woRequestId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'33'), array('transaction_id'=>$transactionId));
             Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'1'), array('wo_task_id'=>$woTaskId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -207,6 +270,25 @@ class Class_wo_request {
             $this->fn_general->checkEmptyParams(array($woTaskRequestId));
             return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('vw_wo_request_task_detail_m', array('wo_task_request_id'=>$woTaskRequestId), '', 1));
          } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskRequestId
+     * @param $transactionId
+     * @throws Exception
+     */
+    public function submitApprove ($woTaskRequestId, $transactionId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId));
+
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'34'), array('transaction_id'=>$transactionId));
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

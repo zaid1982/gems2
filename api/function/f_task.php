@@ -529,7 +529,7 @@ class Class_task {
      * @param $roleId
      * @param $checkpointId
      * @param $woTaskId
-     * @return
+     * @return mixed
      * @throws Exception
      */
     public function get_checkpoints_users ($roleId, $checkpointId, $woTaskId) {
