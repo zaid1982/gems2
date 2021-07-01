@@ -130,6 +130,7 @@ try {
         if (!isset ($urlArr[2])) {
             throw new Exception('[' . __LINE__ . '] - woTaskRequestId empty');
         }
+
         $woTaskRequestId = $urlArr[2];
         $currentTask = $fn_wo_request->getCurrentTask($woTaskRequestId);
         $transactionId = $currentTask['transactionId'];
@@ -139,6 +140,7 @@ try {
         $woTaskId = $woTaskRequest['woTaskId'];
         $fn_wo->__set('woTaskId', $woTaskId);
         $wo = $fn_wo->get_wo_task();
+
         if ($urlArr[1] === 'approve_request') {
             // ********** approve request ********** \\
             Class_db::getInstance()->db_beginTransaction();
@@ -178,6 +180,23 @@ try {
             // ********** audit trail ********** \\
             $fn_general->save_audit('174', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
             $form_data['errmsg'] = 'Request Parts successfully reserved and technician is being notified to collect the parts';
+        } else if ($urlArr[1] === 'check_out_request') {
+            // ********** check out request ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_task->submit_task($taskId, $userId, '36');
+            $fn_wo_request->submitCheckOutRequest($woTaskRequestId, $transactionId, $userId);
+            Class_db::getInstance()->db_commit();
+
+            // ********** email & notification ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $fn_email->setup_email($woTaskRequest['woTaskRequestOrderBy'], 19, array('request_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo']));
+            $fn_email->setup_mobile_notification($woTaskRequest['woTaskRequestOrderBy'], 20, array('task_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo']));
+            Class_db::getInstance()->db_commit();
+
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('175', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
+            $form_data['errmsg'] = 'Request Parts successfully collected';
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
