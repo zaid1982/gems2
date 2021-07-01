@@ -78,7 +78,7 @@ class Class_item_type {
     public function getItemTypeList ($assetGroupId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('ref_item_type', array('asset_group_id'=>$assetGroupId)));
+            return Class_db::getInstance()->db_select2('ref_item_type', array('asset_group_id'=>$assetGroupId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -95,7 +95,7 @@ class Class_item_type {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($itemTypeId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ref_item_type', array('item_type_id'=>$itemTypeId), null, 1));
+            return Class_db::getInstance()->db_select_single2('ref_item_type', array('item_type_id'=>$itemTypeId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

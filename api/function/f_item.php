@@ -78,7 +78,7 @@ class Class_item {
     public function getItemList ($itemTypeId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('ref_item', array('item_type_id'=>$itemTypeId)));
+            return Class_db::getInstance()->db_select2('ref_item', array('item_type_id'=>$itemTypeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -93,7 +93,7 @@ class Class_item {
     public function getItemListWithImage () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_item_with_image'));
+            return Class_db::getInstance()->db_select2('vw_item_with_image');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -110,7 +110,7 @@ class Class_item {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($itemId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ref_item', array('item_id'=>$itemId), null, 1));
+            return Class_db::getInstance()->db_select_single2('ref_item', array('item_id'=>$itemId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

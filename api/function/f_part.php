@@ -82,7 +82,7 @@ class Class_part {
             
             $this->fn_general->checkEmptyParams(array($woTaskId, $itemTypeId));
             $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', null, 1);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_part_mobile', array(), null, null, 0, array('siteId'=>$siteId, 'itemTypeId'=>$itemTypeId)));
+            return Class_db::getInstance()->db_select2('vw_part_mobile', array(), null, null, 0, array('siteId'=>$siteId, 'itemTypeId'=>$itemTypeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -98,7 +98,7 @@ class Class_part {
     public function getPartList ($storeId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('ast_part', array('store_id'=>$storeId)));
+            return Class_db::getInstance()->db_select2('ast_part', array('store_id'=>$storeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -115,7 +115,7 @@ class Class_part {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($storeId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_part_with_image', array('store_id'=>$storeId)));
+            return Class_db::getInstance()->db_select2('vw_part_with_image', array('store_id'=>$storeId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -132,7 +132,7 @@ class Class_part {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($partId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ast_part', array('part_id'=>$partId), null, 1));
+            return Class_db::getInstance()->db_select_single2('ast_part', array('part_id'=>$partId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -297,7 +297,7 @@ class Class_part {
                 throw new Exception('[' . __LINE__ . '] - This item description already exist in this store inventory.', 31);
             }
 
-            $item = $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('ref_item', array('item_id'=>$params['itemId']), null, 1));
+            $item = Class_db::getInstance()->db_select_single2('ref_item', array('item_id'=>$params['itemId']), null, 1);
             $assetGroupId = Class_db::getInstance()->db_select_col('ref_item_type', array('item_type_id'=>$item['itemTypeId']), 'asset_group_id', null, 1);
             $siteId = Class_db::getInstance()->db_select_col('cli_store', array('store_id'=>$params['storeId']), 'site_id', null, 1);
             return Class_db::getInstance()->db_insert('ast_part',

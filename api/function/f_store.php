@@ -77,7 +77,7 @@ class Class_store {
     public function getStoreList () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_store'));
+            return Class_db::getInstance()->db_select2('vw_store');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -94,7 +94,7 @@ class Class_store {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($storeId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('cli_store', array('store_id'=>$storeId), null, 1));
+            return Class_db::getInstance()->db_select_single2('cli_store', array('store_id'=>$storeId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

@@ -36,3 +36,5 @@ RewriteRule ^wo_parts/?$ api/wo_parts.php
 RewriteRule ^wo_parts/(.+)/?$ api/wo_parts.php
 RewriteRule ^do_item/?$ api/do_item.php
 RewriteRule ^do_item/(.+)/?$ api/do_item.php
+RewriteRule ^user_signature/?$ api/user_signature.php
+RewriteRule ^user_signature/(.+)/?$ api/user_signature.php

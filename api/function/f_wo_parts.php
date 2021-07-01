@@ -80,7 +80,7 @@ class Class_wo_parts {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($partId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId)));
+            return Class_db::getInstance()->db_select2('vw_wo_task_parts', array('part_id'=>$partId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -97,7 +97,7 @@ class Class_wo_parts {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskPartsId));
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsId), null, 1));
+            return Class_db::getInstance()->db_select_single2('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -117,7 +117,7 @@ class Class_wo_parts {
             $this->fn_general->checkEmptyParams(array($woTaskId));
 
             $result = array();
-            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('r.wo_task_id'=>$woTaskId)));
+            $woTaskParts = Class_db::getInstance()->db_select2('vw_wo_task_parts_mobile', array('r.wo_task_id'=>$woTaskId));
             foreach ($woTaskParts as $woTaskPart) {
                 $woTaskPartSliced = array_slice($woTaskPart, 4);
                 $imageUploads = explode('||', $woTaskPart['uploadList']);
@@ -151,7 +151,7 @@ class Class_wo_parts {
             $this->fn_general->checkEmptyParams(array($woTaskRequestId));
 
             $result = array();
-            $woTaskParts = $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts_mobile', array('a.wo_task_request_id'=>$woTaskRequestId)));
+            $woTaskParts = Class_db::getInstance()->db_select2('vw_wo_task_parts_mobile', array('a.wo_task_request_id'=>$woTaskRequestId));
             foreach ($woTaskParts as $woTaskPart) {
                 $woTaskPartSliced = array_slice($woTaskPart, 4);
                 $imageUploads = explode('||', $woTaskPart['uploadList']);
@@ -186,7 +186,7 @@ class Class_wo_parts {
             $constant = $this->constant;
             $this->fn_general->checkEmptyParams(array($woTaskPartsId));
 
-            $woTaskPart = $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('vw_wo_task_parts_mobile', array('a.wo_task_parts_id'=>$woTaskPartsId)));
+            $woTaskPart = Class_db::getInstance()->db_select_single2('vw_wo_task_parts_mobile', array('a.wo_task_parts_id'=>$woTaskPartsId));
             $result = array_slice($woTaskPart, 4);
             $imageUploads = explode('||', $woTaskPart['uploadList']);
             $imageTitles = explode('||', $woTaskPart['titleList']);
@@ -217,7 +217,7 @@ class Class_wo_parts {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($partId));
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_wo_task_parts', array('part_id'=>$partId, 'wo_task_parts_status'=>$statusId)));
+            return Class_db::getInstance()->db_select2('vw_wo_task_parts', array('part_id'=>$partId, 'wo_task_parts_status'=>$statusId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

@@ -71,7 +71,7 @@ class Class_pr {
     public function getPrList () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('pr'));
+            return Class_db::getInstance()->db_select2('pr');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -95,7 +95,7 @@ class Class_pr {
                 return array();
             }
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_pr_current', array('t.checkpoint_id'=>$checkpointId, 'p.site_id'=>$siteId)));
+            return Class_db::getInstance()->db_select2('vw_pr_current', array('t.checkpoint_id'=>$checkpointId, 'p.site_id'=>$siteId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -113,7 +113,7 @@ class Class_pr {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($prId));
             $this->prId = $prId;
-            return $this->fn_general->convertDbIndex(Class_db::getInstance()->db_select_single('pr', array('pr_id'=>$prId), null, 1));
+            return Class_db::getInstance()->db_select_single2('pr', array('pr_id'=>$prId), null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

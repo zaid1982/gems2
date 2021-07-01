@@ -78,7 +78,7 @@ class Class_do_item {
     public function getDoItemList ($partId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return $this->fn_general->convertDbIndexs(Class_db::getInstance()->db_select('vw_do_item', array('pdi.part_id'=>$partId)));
+            return Class_db::getInstance()->db_select2('vw_do_item', array('pdi.part_id'=>$partId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

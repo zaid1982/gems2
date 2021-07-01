@@ -348,6 +348,51 @@ class Class_db{
      * @param $tablename
      * @param array $columns
      * @param string $orderby
+     * @param string $limit
+     * @param int $throwEmpty
+     * @param array $sqlParam
+     * @return mixed
+     * @throws Exception
+     */
+    public function db_select2($tablename, $columns=array(), $orderby='', $limit='', $throwEmpty=0, $sqlParam=array())
+    {
+        try {
+            if (empty($this->DBH)) {
+                throw new Exception($this->get_exception('0006', __FUNCTION__, __LINE__, 'Connection lost'));
+            }
+            $where_str = '';
+            if (!empty($columns)) {
+                $where_str = $this->get_whereAnd_str($columns);
+            }
+            if ($orderby != '') {
+                $orderby = ' ORDER BY '.$orderby;
+            }
+            $limits = $limit != '' ? $limit = ' LIMIT '.$limit : ' ';
+            $sql = $this->get_sql($tablename, $sqlParam).$where_str.$orderby.$limits;
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
+            $stmt = $this->DBH->query($sql);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($result)){
+                if ($throwEmpty == 1) {
+                    throw new Exception($this->get_exception('0010', __FUNCTION__, __LINE__, 'Select query result empty'));
+                }
+                elseif ($throwEmpty == 2) {
+                    throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Select query result empty'), 30);
+                }
+            } else {
+                $result = $this->fn_general->convertDbIndexs($result);
+            }
+            return $result;
+        }
+        catch(PDOException $e) {
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
+        }
+    }
+
+    /**
+     * @param $tablename
+     * @param array $columns
+     * @param string $orderby
      * @param int $throwEmpty
      * @param array $sqlParam
      * @return mixed
@@ -378,6 +423,49 @@ class Class_db{
                     throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Select query result empty'), 30); 
                 }
             } 
+            return $result;
+        }
+        catch(PDOException $e) {
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
+        }
+    }
+
+    /**
+     * @param $tablename
+     * @param array $columns
+     * @param string $orderby
+     * @param int $throwEmpty
+     * @param array $sqlParam
+     * @return mixed
+     * @throws Exception
+     */
+    public function db_select_single2($tablename, $columns=array(), $orderby='', $throwEmpty=0, $sqlParam=array())
+    {
+        try {
+            if (empty($this->DBH)) {
+                throw new Exception($this->get_exception('0006', __FUNCTION__, __LINE__, 'Connection lost'));
+            }
+            $where_str = '';
+            if (!empty($columns)) {
+                $where_str = $this->get_whereAnd_str($columns);
+            }
+            if (!empty($orderby)) {
+                $orderby = ' ORDER BY '.$orderby;
+            }
+            $sql = $this->get_sql($tablename, $sqlParam).$where_str.$orderby." LIMIT 1";
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $sql);
+            $stmt = $this->DBH->query($sql);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (empty($result)){
+                if ($throwEmpty == 1) {
+                    throw new Exception($this->get_exception('0010', __FUNCTION__, __LINE__, 'Select query result empty'));
+                }
+                elseif ($throwEmpty == 2) {
+                    throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Select query result empty'), 30);
+                }
+            } else {
+                $result = $this->fn_general->convertDbIndex($result);
+            }
             return $result;
         }
         catch(PDOException $e) {

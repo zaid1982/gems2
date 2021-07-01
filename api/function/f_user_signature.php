@@ -1,10 +1,9 @@
 <?php
 
-class Class_drawing {
+class Class_user_signature {
 
-    private $constant;
     private $fn_general;
-    private $drawingId;
+    private $constant;
 
     function __construct() {
     }
@@ -73,63 +72,30 @@ class Class_drawing {
     }
 
     /**
-     * @return mixed
+     * @param $userId
+     * @return array
      * @throws Exception
      */
-    public function getDrawingList () {
+    public function getUserSignature ($userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return Class_db::getInstance()->db_select2('vw_drawing');
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
+            $this->fn_general->checkEmptyParams(array($userId));
+            $constant = $this->constant;
 
-    /**
-     * @param $drawingId
-     * @return mixed
-     * @throws Exception
-     */
-    public function getDrawing ($drawingId) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($drawingId));
-            return Class_db::getInstance()->db_select_single2('drawing', array('drawing_id'=>$drawingId), null, 1);
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param array $params
-     * @throws Exception
-     */
-    public function addDrawing ($params=array()) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($params));
-            return Class_db::getInstance()->db_insert('drawing', $this->fn_general->convertToMysqlArrAll($params));
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param $drawingId
-     * @param array $params
-     * @throws Exception
-     */
-    public function updateDrawing ($drawingId, $params=array()) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($drawingId, $params));
-            Class_db::getInstance()->db_update('drawing', $this->fn_general->convertToMysqlArrAll($params), array('drawing_id'=>$drawingId));
+            $result = array();
+            $userSignatureId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'user_signature');
+            if (!empty($userSignatureId)) {
+                $upload = Class_db::getInstance()->db_select_single2('sys_upload', array('upload_id'=>$userSignatureId));
+                if (!empty($upload)) {
+                    $result['file'] = $constant::URL.$upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'];
+                    $result['title'] = $upload['uploadName'];
+                    $result['type'] = $upload['uploadBlobType'];
+                    $result['size'] = $upload['uploadFilesize'];
+                    $result['width'] = $upload['uploadFileWidth'];
+                    $result['height'] = $upload['uploadFileHeight'];
+                }
+            }
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
