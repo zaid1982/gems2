@@ -161,6 +161,23 @@ try {
             $form_data['errmsg'] = 'Request Parts successfully approved';
         } else if ($urlArr[1] === 'reject_request') {
 
+        } else if ($urlArr[1] === 'reserve_request') {
+            // ********** reserve request ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_task->submit_task($taskId, $userId, '51', '', '1');
+            $fn_wo_request->submitReserve($woTaskRequestId, $transactionId);
+            Class_db::getInstance()->db_commit();
+
+            // ********** email & notification ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $fn_email->setup_email($woTaskRequest['woTaskRequestOrderBy'], 18, array('request_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo']));
+            $fn_email->setup_mobile_notification($woTaskRequest['woTaskRequestOrderBy'], 19, array('task_no'=>$woTaskRequest['woTaskRequestNo']));
+            Class_db::getInstance()->db_commit();
+
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('174', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
+            $form_data['errmsg'] = 'Request Parts successfully reserved and technician is being notified to collect the parts';
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }

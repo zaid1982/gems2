@@ -176,23 +176,50 @@ class Class_wo_request {
 
                 // ********** checking for every submit type ********** \\
                 if ($submitType === 'approve_request' || $submitType === 'reject_request') {
-                    if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id'=>$transactionId, 'transaction_status'=>'33')) == 0) {
+                    if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id' => $transactionId, 'transaction_status' => '33')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
                     }
-                    if (Class_db::getInstance()->db_count('wfl_task', array('task_id'=>$taskId, 'task_current'=>'1', 'checkpoint_id'=>'42')) == 0) {
+                    if (Class_db::getInstance()->db_count('wfl_task', array('task_id' => $taskId, 'task_current' => '1', 'checkpoint_id' => '42')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid task request');
                     }
-                    if (Class_db::getInstance()->db_count('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_request_status'=>'33')) == 0) {
+                    if (Class_db::getInstance()->db_count('wo_task_request', array('wo_task_request_id' => $woTaskRequestId, 'wo_task_request_status' => '33')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid request status');
                     }
-                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'33')) == 0) {
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id' => $woTaskRequestId, 'wo_task_parts_status' => '33')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Request part empty');
                     }
-                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'<>33')) > 0) {
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id' => $woTaskRequestId, 'wo_task_parts_status' => '<>33')) > 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid request part status');
                     }
-                    if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
+                    if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id' => $woTaskRequestId)) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Total Requested Material empty', 31);
+                    }
+                } else if ($submitType === 'reserve_request') {
+                    if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id' => $transactionId, 'transaction_status' => '34')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
+                    }
+                    if (Class_db::getInstance()->db_count('wfl_task', array('task_id' => $taskId, 'task_current' => '1', 'checkpoint_id' => '43')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid task request');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_request', array('wo_task_request_id' => $woTaskRequestId, 'wo_task_request_status' => '34')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid request status');
+                    }
+                    $requestParts = Class_db::getInstance()->db_select2('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId));
+                    if (empty($requestParts)) {
+                        throw new Exception('[' . __LINE__ . '] - Request part empty');
+                    }
+                    foreach ($requestParts as $requestPart) {
+                        if ($requestPart['woTaskPartsStatus'] !== '34') {
+                            throw new Exception('[' . __LINE__ . '] - Invalid request part status');
+                        }
+                        $part = Class_db::getInstance()->db_select_single2('ast_part', array('part_id'=>$requestPart['partId']), '', 1);
+                        $partAvailable = intval($part['partCount']) - intval($part['partLocked']);
+                        if ($partAvailable < intval($requestPart['woTaskPartsQuantity'])) {
+                            throw new Exception('[' . __LINE__ . '] - Please make sure all the requested parts available. If not, please perform the stock order for the insufficient part.', 31);
+                        }
+                        if (Class_db::getInstance()->db_count('ast_part_sub', array('part_id'=>$requestPart['partId'], 'part_sub_status' => '46')) != $partAvailable) {
+                            throw new Exception('[' . __LINE__ . '] - Invalid total parts available in inventory');
+                        }
                     }
                 } else {
                     throw new Exception('[' . __LINE__ . '] - Invalid submitType');
@@ -288,6 +315,35 @@ class Class_wo_request {
             Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'34'), array('transaction_id'=>$transactionId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskRequestId
+     * @param $transactionId
+     * @throws Exception
+     */
+    public function submitReserve ($woTaskRequestId, $transactionId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId));
+
+            $requestParts = Class_db::getInstance()->db_select2('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId));
+            foreach ($requestParts as $requestPart) {
+                $part = Class_db::getInstance()->db_select_single2('ast_part', array('part_id' => $requestPart['partId']), '', 1);
+                $partLocked = intval($part['partLocked'] + intval($requestPart['woTaskPartsQuantity']));
+                Class_db::getInstance()->db_update('ast_part', array('part_locked'=>strval($partLocked)), array('part_id'=>$requestPart['partId']));
+                $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array('part_id'=>$requestPart['partId'], 'part_sub_status'=>'46'), 'part_sub_validity, part_sub_id', $requestPart['woTaskPartsQuantity']);
+                foreach ($partSubs as $partSub) {
+                    Class_db::getInstance()->db_update('ast_part_sub', array('part_sub_status'=>'51'), array('part_sub_id'=>$partSub['partSubId']));
+                }
+            }
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'38'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'38'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'38'), array('transaction_id'=>$transactionId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

@@ -1036,8 +1036,8 @@ class Class_sql
                     pdi.do_item_validity,
                     pdi.do_item_cost,
                     pdi.do_item_total
-                FROM pr_do_item pdi
-                LEFT JOIN pr_do pdo ON pdo.do_id = pdi.do_id";
+                FROM do_item pdi
+                LEFT JOIN do pdo ON pdo.do_id = pdi.do_id";
             } else if ($title === 'vw_wo_request_task_m') {
                 $sql = "SELECT
                     r.wo_task_request_id,
