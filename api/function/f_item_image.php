@@ -129,7 +129,10 @@ class Class_item_image {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($itemImageId));
+
+            $uploadId = Class_db::getInstance()->db_select_col('ref_item_image', array('item_image_id'=>$itemImageId), 'upload_id', '', 1);
             Class_db::getInstance()->db_delete('ref_item_image', array('item_image_id'=>$itemImageId));
+            $this->fn_general->deleteDocument($uploadId);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

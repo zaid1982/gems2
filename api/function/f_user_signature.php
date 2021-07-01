@@ -102,4 +102,26 @@ class Class_user_signature {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $userId
+     * @param $userSignature
+     * @throws Exception
+     */
+    public function updateUserSignature ($userId, $userSignature) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $userSignature));
+
+            $currentSignature = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'user_signature');
+            Class_db::getInstance()->db_update('sys_user', array('user_signature'=>$userSignature), array('user_id'=>$userId));
+            if (!empty($currentSignature)) {
+                $this->fn_general->deleteDocument($currentSignature);
+            }
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

@@ -5,6 +5,7 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_user_signature.php';
+require_once 'function/f_user.php';
 
 $api_name = 'api_user_signature';
 $is_transaction = false;
@@ -16,6 +17,7 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_user_signature = new Class_user_signature();
+$fn_user = new Class_user();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -23,6 +25,7 @@ try {
     $fn_login->__set('fn_general', $fn_general);
     $fn_user_signature->__set('constant', $constant);
     $fn_user_signature->__set('fn_general', $fn_general);
+    $fn_user->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -60,6 +63,22 @@ try {
         }
         $form_data['result'] = $fn_user_signature->getUserSignature($userId);
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $param = $_POST;
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        // ********** audit trail ********** \\
+        $userId = $urlArr[1];
+        $signatureId = $fn_general->uploadDocument($param, 22, $userId);
+        $fn_user_signature->updateUserSignature($userId, $signatureId);
+
+        // ********** audit trail ********** \\
+        $user = $fn_user->getUserDao($userId);
+        $fn_general->save_audit('173', $userId, 'Save signature for userId = '.$userId.', User Name = '.$user['userName'].', Full Name = '.$user['userFirstName']);
+        $form_data['errmsg'] = 'Your Signature successfully saved';
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
