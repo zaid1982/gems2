@@ -324,21 +324,24 @@ class Class_wo_request {
     /**
      * @param $woTaskRequestId
      * @param $transactionId
+     * @param $woTaskNo
+     * @param $woTaskRequestNo
      * @throws Exception
      */
-    public function submitReserve ($woTaskRequestId, $transactionId) {
+    public function submitReserve ($woTaskRequestId, $transactionId, $woTaskNo, $woTaskRequestNo) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId));
 
             $requestParts = Class_db::getInstance()->db_select2('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId));
             foreach ($requestParts as $requestPart) {
-                $part = Class_db::getInstance()->db_select_single2('ast_part', array('part_id' => $requestPart['partId']), '', 1);
+                $part = Class_db::getInstance()->db_select_single2('ast_part', array('part_id'=>$requestPart['partId']), '', 1);
                 $partLocked = intval($part['partLocked'] + intval($requestPart['woTaskPartsQuantity']));
                 Class_db::getInstance()->db_update('ast_part', array('part_locked'=>strval($partLocked)), array('part_id'=>$requestPart['partId']));
                 $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array('part_id'=>$requestPart['partId'], 'part_sub_status'=>'46'), 'part_sub_validity, part_sub_id', $requestPart['woTaskPartsQuantity']);
                 foreach ($partSubs as $partSub) {
-                    Class_db::getInstance()->db_update('ast_part_sub', array('part_sub_status'=>'51'), array('part_sub_id'=>$partSub['partSubId']));
+                    Class_db::getInstance()->db_update('ast_part_sub', array('wo_task_parts_id'=>$requestPart['wo_task_parts_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_request_no'=>$woTaskRequestNo,
+                        'part_sub_time_reserved'=>'Now()', 'part_sub_status'=>'51'), array('part_sub_id'=>$partSub['partSubId']));
                 }
             }
             Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'38'), array('wo_task_request_id'=>$woTaskRequestId));

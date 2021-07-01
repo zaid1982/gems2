@@ -166,7 +166,7 @@ try {
             Class_db::getInstance()->db_beginTransaction();
             $is_transaction = true;
             $fn_task->submit_task($taskId, $userId, '51', '', '1');
-            $fn_wo_request->submitReserve($woTaskRequestId, $transactionId);
+            $fn_wo_request->submitReserve($woTaskRequestId, $transactionId, $wo['woTaskNo'], $woTaskRequest['woTaskRequestNo']);
             Class_db::getInstance()->db_commit();
 
             // ********** email & notification ********** \\
