@@ -1007,7 +1007,7 @@ class Class_sql
                     a.asset_group_name
                 FROM ast_part p
                 LEFT JOIN ast_asset_group a ON a.asset_group_id = p.asset_group_id
-                WHERE p.store_id IN ([storeIds]) AND a.asset_group_status = 1
+                WHERE p.store_id IN ([storeIds]) AND p.part_status = 1
                 GROUP BY p.asset_group_id";
             } else if ($title === 'vw_part_item_type') {
                 $sql = "SELECT 
@@ -1015,7 +1015,7 @@ class Class_sql
                     i.item_type_desc
                 FROM ast_part p
                 LEFT JOIN ref_item_type i ON i.item_type_id = p.item_type_id
-                WHERE p.store_id IN ([storeIds]) AND p.asset_group_id = [assetGroupId] AND i.item_type_status = 1
+                WHERE p.store_id IN ([storeIds]) AND p.asset_group_id = [assetGroupId] AND p.part_status = 1
                 GROUP BY p.item_type_id
                 ORDER BY i.item_type_turn";
             } else if ($title === 'vw_part_item') {
@@ -1024,7 +1024,33 @@ class Class_sql
                     i.item_description
                 FROM ast_part p
                 LEFT JOIN ref_item i ON i.item_id = p.item_id
-                WHERE p.store_id IN ([storeIds]) AND i.item_type_id = [itemTypeId] AND i.item_status = 1
+                WHERE p.store_id IN ([storeIds]) AND i.item_type_id = [itemTypeId] AND p.part_status = 1
+                GROUP BY p.item_id
+                ORDER BY i.item_turn";
+            } else if ($title === 'vw_purchase_asset_group_option') {
+                $sql = "SELECT 
+                    p.asset_group_id,
+                    a.asset_group_name
+                FROM ast_part p
+                LEFT JOIN ast_asset_group a ON a.asset_group_id = p.asset_group_id
+                WHERE p.store_id = [storeId] AND p.part_status = 1
+                GROUP BY p.asset_group_id";
+            } else if ($title === 'vw_purchase_item_type_option') {
+                $sql = "SELECT 
+                    p.item_type_id,
+                    i.item_type_desc
+                FROM ast_part p
+                LEFT JOIN ref_item_type i ON i.item_type_id = p.item_type_id
+                WHERE p.store_id = [storeId] AND p.asset_group_id = [assetGroupId] AND p.part_status = 1
+                GROUP BY p.item_type_id
+                ORDER BY i.item_type_turn";
+            } else if ($title === 'vw_purchase_part_option') {
+                $sql = "SELECT 
+                    p.part_id,
+                    i.item_description
+                FROM ast_part p
+                LEFT JOIN ref_item i ON i.item_id = p.item_id
+                WHERE p.store_id = [storeId] AND i.item_type_id = [itemTypeId] AND p.part_status = 1
                 GROUP BY p.item_id
                 ORDER BY i.item_turn";
             } else if ($title === 'vw_do_item') {

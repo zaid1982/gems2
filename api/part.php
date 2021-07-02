@@ -73,6 +73,12 @@ try {
                 $result = $fn_part->getPartAddItemTypeOption($urlArr[2], $urlArr[3]);
             } else if ($urlArr[1] === 'add_option_item') {
                 $result = $fn_part->getPartAddItemOption($urlArr[2], $urlArr[3]);
+            } else if ($urlArr[1] === 'purchase_option_asset_group') {
+                $result = $fn_part->getPurchaseAssetGroupOption($userId, $urlArr[2]);
+            } else if ($urlArr[1] === 'purchase_option_item_type') {
+                $result = $fn_part->getPurchaseItemTypeOption($userId, $urlArr[2], $urlArr[3]);
+            } else if ($urlArr[1] === 'purchase_option_part') {
+                $result = $fn_part->getPurchasePartOption($userId, $urlArr[2], $urlArr[3]);
             } else {
                 $result = $fn_part->getPart($urlArr[1]);
             }

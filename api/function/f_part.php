@@ -175,13 +175,13 @@ class Class_part {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId, $assetGroupId));
 
-            $assetGroups = array();
+            $itemTypes = array();
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             $storeIds = Class_db::getInstance()->db_select_colm('cli_store', array('site_id'=>$siteId), 'store_id');
             if (!empty($storeIds)) {
-                $assetGroups =  Class_db::getInstance()->db_select('vw_part_item_type', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'assetGroupId'=>$assetGroupId));
+                $itemTypes =  Class_db::getInstance()->db_select('vw_part_item_type', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'assetGroupId'=>$assetGroupId));
             }
-            return $assetGroups;
+            return $itemTypes;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -200,13 +200,87 @@ class Class_part {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId, $itemTypeId));
 
-            $assetGroups = array();
+            $items = array();
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             $storeIds = Class_db::getInstance()->db_select_colm('cli_store', array('site_id'=>$siteId), 'store_id');
             if (!empty($storeIds)) {
-                $assetGroups =  Class_db::getInstance()->db_select('vw_part_item', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'itemTypeId'=>$itemTypeId));
+                $items =  Class_db::getInstance()->db_select('vw_part_item', array(), '', '', 0, array('storeIds'=>implode(',', $storeIds), 'itemTypeId'=>$itemTypeId));
+            }
+            return $items;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $storeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPurchaseAssetGroupOption ($userId, $storeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $storeId));
+
+            $assetGroups = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId, 'store_id'=>$storeId)) == 1) {
+                $assetGroups =  Class_db::getInstance()->db_select2('vw_purchase_asset_group_option', array(), '', '', 0, array('storeId'=>$storeId));
             }
             return $assetGroups;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $storeId
+     * @param $assetGroupId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPurchaseItemTypeOption ($userId, $storeId, $assetGroupId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $storeId, $assetGroupId));
+
+            $itemTypes = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId, 'store_id'=>$storeId)) == 1) {
+                $itemTypes =  Class_db::getInstance()->db_select2('vw_purchase_item_type_option', array(), '', '', 0, array('storeId'=>$storeId, 'assetGroupId'=>$assetGroupId));
+            }
+            return $itemTypes;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $storeId
+     * @param $itemTypeId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPurchasePartOption ($userId, $storeId, $itemTypeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $storeId, $itemTypeId));
+
+            $parts = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId, 'store_id'=>$storeId)) == 1) {
+                $parts =  Class_db::getInstance()->db_select2('vw_purchase_part_option', array(), '', '', 0, array('storeId'=>$storeId, 'itemTypeId'=>$itemTypeId));
+            }
+            return $parts;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

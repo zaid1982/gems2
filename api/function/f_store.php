@@ -103,6 +103,31 @@ class Class_store {
     }
 
     /**
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function getPurchaseStoreOption ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $result = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $stores = Class_db::getInstance()->db_select2('cli_store', array('site_id'=>$siteId, 'store_status'=>'1'));
+            foreach ($stores as $store) {
+                $storeOption = array('storeId'=>$store['storeId'], 'storeName'=>$store['storeName']);
+                array_push($result, $storeOption);
+            }
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $params
      * @throws Exception
      */

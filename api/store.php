@@ -51,7 +51,11 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            $result = $fn_store->getStore($urlArr[1]);
+            if ($urlArr[1] === 'purchase_option_store') {
+                $result = $fn_store->getPurchaseStoreOption($userId);
+            } else {
+                $result = $fn_store->getStore($urlArr[1]);
+            }
         } else {
             $result = $fn_store->getStoreList();
         }
