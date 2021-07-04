@@ -1047,7 +1047,13 @@ class Class_sql
             } else if ($title === 'vw_purchase_part_option') {
                 $sql = "SELECT 
                     p.part_id,
-                    i.item_description
+                    i.item_description,
+                    p.part_count,
+                    p.part_locked,
+                    p.part_count-p.part_locked AS part_available,
+                    p.part_min_order,
+                    p.part_max_order,
+                    p.part_remark
                 FROM ast_part p
                 LEFT JOIN ref_item i ON i.item_id = p.item_id
                 WHERE p.store_id = [storeId] AND i.item_type_id = [itemTypeId] AND p.part_status = 1

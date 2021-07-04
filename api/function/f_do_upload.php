@@ -1,6 +1,6 @@
 <?php
 
-class Class_do_item {
+class Class_do_upload {
 
     private $fn_general;
 
@@ -71,38 +71,17 @@ class Class_do_item {
     }
 
     /**
-     * @param string $partId
+     * @param string $doId
      * @return mixed
      * @throws Exception
      */
-    public function getDoItemList ($partId='') {
+    public function addDoUpload ($doId, $uploadId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return Class_db::getInstance()->db_select2('vw_do_item', array('pdi.part_id'=>$partId));
+            $this->fn_general->checkEmptyParams(array($doId, $uploadId));
+            return Class_db::getInstance()->db_insert('do_upload', array('do_id'=>$doId, 'upload_id'=>$uploadId));
         }
         catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param array $params
-     * @return string
-     * @throws Exception
-     */
-    public function addDoItemMobile ($doId, $params=array()) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($doId, $params));
-            $this->fn_general->checkEmptyParamsArray($params, array('partId', 'doItemTotal', 'doItemCost'));
-
-            $insertParams = array_merge(
-                $this->fn_general->convertToMysqlArr($params, array('partId', 'doItemTotal', 'doItemWarranty', 'doItemValidity', 'doItemCost')),
-                array('doId'=>$doId, 'doItemTotalCost'=>strval(floatval($params['doItemTotal'])*intval($params['doItemCost'])))
-            );
-            return Class_db::getInstance()->db_insert('do_item', $this->fn_general->convertToMysqlArrAll($insertParams));
-        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
