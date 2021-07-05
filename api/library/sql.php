@@ -1067,7 +1067,8 @@ class Class_sql
                     pdi.do_item_warranty,
                     pdi.do_item_validity,
                     pdi.do_item_cost,
-                    pdi.do_item_total
+                    pdi.do_item_total,
+                    pdi.do_item_total_cost
                 FROM do_item pdi
                 LEFT JOIN do pdo ON pdo.do_id = pdi.do_id";
             } else if ($title === 'vw_wo_request_task_m') {
@@ -1157,6 +1158,29 @@ class Class_sql
                 LEFT JOIN `do` ON `do`.do_id = do_item.do_id
                 WHERE ast_part_sub.part_id = [partId]
                 GROUP BY ast_part_sub.do_no, `do`.supplier_name, part_sub_location, part_sub_cost, part_sub_validity, part_sub_warranty, date_check_in";
+            } else if ($title === 'vw_check_in_mobile_list') {
+                $sql = "SELECT
+                    d.do_id,
+                    d.do_no,
+                    d.do_date,
+                    d.do_timestamp,
+                    d.supplier_name,
+                    u.user_first_name,
+                    i.total_cost
+                FROM `do` d
+                LEFT JOIN sys_user u ON u.user_id = d.do_created_by
+                LEFT JOIN (
+                    SELECT do_id, SUM(do_item_total_cost) AS total_cost
+                    FROM do_item
+                    GROUP BY do_id
+                ) i ON i.do_id = d.do_id";
+            } else if ($title === 'vw_do_upload') {
+                $sql = "SELECT 
+                     u.*,
+                     d.do_upload_id,
+                     d.do_id
+                FROM do_upload d
+                LEFT JOIN sys_upload u ON u.upload_id = d.upload_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

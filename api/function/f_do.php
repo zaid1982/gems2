@@ -3,6 +3,7 @@
 class Class_do {
 
     private $fn_general;
+    private $constant;
 
     function __construct() {
     }
@@ -72,6 +73,52 @@ class Class_do {
 
     /**
      * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getCheckInMobileList ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            return Class_db::getInstance()->db_select2('vw_check_in_mobile_list', array('d.site_id'=>$siteId));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $doId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getCheckInMobileDetails ($doId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($doId));
+            $constant = $this->constant;
+
+            $checkInDetails = Class_db::getInstance()->db_select_single2('vw_check_in_mobile_list', array('d.do_id'=>$doId), '', 1);
+            $checkInDetails['doItems'] = Class_db::getInstance()->db_select2('vw_do_item', array('pdi.do_id'=>$doId));
+            $images = array();
+            $items = Class_db::getInstance()->db_select2('vw_do_upload', array('d.do_id'=>$doId));
+            foreach ($items as $item) {
+                array_push($images, array('file'=>$constant::URL_FULL.$item['uploadFolder'].'/'.$item['uploadFilename'].'.'.$item['uploadExtension'], 'title'=>$item['uploadName'], 'width'=>$item['uploadFileWidth'], 'height'=>$item['uploadFileHeight']));
+            }
+            $checkInDetails['doUploads'] = $images;
+            return $checkInDetails;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
      * @param $storeId
      * @return void
      * @throws Exception
@@ -106,9 +153,10 @@ class Class_do {
             $this->fn_general->checkEmptyParams(array($userId, $params));
             $this->fn_general->checkEmptyParamsArray($params, array('doNo', 'doDate', 'supplierName'));
 
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             $insertParams = array_merge(
                 $this->fn_general->convertToMysqlArr($params, array('doNo', 'doDate', 'supplierName')),
-                array('doType'=>'Normal', 'doCreatedBy'=>$userId, 'doStatus'=>'45')
+                array('siteId'=>$siteId, 'doType'=>'Normal', 'doCreatedBy'=>$userId, 'doReceivedBy'=>$userId, 'doStatus'=>'45')
             );
             return Class_db::getInstance()->db_insert('do', $this->fn_general->convertToMysqlArrAll($insertParams));
         } catch (Exception $ex) {

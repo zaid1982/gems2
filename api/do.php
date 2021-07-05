@@ -28,6 +28,7 @@ try {
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
     $fn_do->__set('fn_general', $fn_general);
+    $fn_do->__set('constant', $constant);
     $fn_do_item->__set('fn_general', $fn_general);
     $fn_do_upload->__set('fn_general', $fn_general);
     $fn_part_sub->__set('fn_general', $fn_general);
@@ -62,7 +63,22 @@ try {
         $userId = $jwt_data->userId;
     }
 
-    if ('POST' === $request_method) {
+    if ('GET' === $request_method) {
+        if (isset ($urlArr[1])) {
+            if ($urlArr[1] === 'list_mobile_check_in') {
+                $result = $fn_do->getCheckInMobileList($userId);
+            } else if ($urlArr[1] === 'check_in_mobile_details') {
+                $result = $fn_do->getCheckInMobileDetails($urlArr[2]);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            }
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
         $params = $_POST;
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
