@@ -1141,6 +1141,7 @@ class Class_sql
                     p.part_count,
                     p.part_locked,
                     p.part_count-p.part_locked AS part_available,
+                    p.part_threshold,
                     p.part_min_order,
                     p.part_max_order,
                     p.part_remark

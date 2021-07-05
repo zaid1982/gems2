@@ -169,6 +169,30 @@ class Class_part {
 
     /**
      * @param $userId
+     * @param $storeId
+     * @return array
+     * @throws Exception
+     */
+    public function getPartListMobileThreshold ($userId, $storeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $storeId));
+
+            $parts = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId, 'store_id'=>$storeId)) == 1) {
+                $parts =  Class_db::getInstance()->db_select2('vw_part_tree_category_m', array('p.store_id'=>$storeId, 'w1'=>'p.part_threshold >= (p.part_count-p.part_locked)'));
+            }
+            return $parts;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
      * @return mixed
      * @throws Exception
      */

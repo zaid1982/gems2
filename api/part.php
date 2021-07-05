@@ -84,6 +84,8 @@ try {
                 $result = $fn_part->getPartTreeCategory($userId, $urlArr[2]);
             } else if ($urlArr[1] === 'part_mobile_details') {
                 $result = $fn_part->getPartMobile($urlArr[2]);
+            } else if ($urlArr[1] === 'list_mobile_threshold') {
+                $result = $fn_part->getPartListMobileThreshold($userId, $urlArr[2]);
             } else {
                 $result = $fn_part->getPart($urlArr[1]);
             }
