@@ -86,6 +86,8 @@ try {
                 $result = $fn_part->getPartMobile($urlArr[2]);
             } else if ($urlArr[1] === 'list_mobile_threshold') {
                 $result = $fn_part->getPartListMobileThreshold($userId, $urlArr[2]);
+            } else if ($urlArr[1] === 'mobile_dashboard') {
+                $result = $fn_part->getMobileDashboard($userId);
             } else {
                 $result = $fn_part->getPart($urlArr[1]);
             }

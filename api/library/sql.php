@@ -1197,6 +1197,11 @@ class Class_sql
                         FROM wo_task_parts
                         GROUP BY wo_task_request_id
                 ) p ON p.wo_task_request_id = r.wo_task_request_id";
+            } else if ($title === 'vw_parts_value') {
+                $sql = "SELECT
+                    SUM(s.part_sub_cost) AS total_value
+                FROM ast_part_sub s
+                LEFT JOIN ast_part p ON p.part_id = s.part_id ";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

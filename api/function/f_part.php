@@ -553,4 +553,31 @@ class Class_part {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function getMobileDashboard ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $result = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            $result['totalStore'] = Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId));
+            $result['totalItem'] = Class_db::getInstance()->db_count('ast_part', array('site_id'=>$siteId));
+            $result['totalPartQuantity'] = Class_db::getInstance()->db_sum('ast_part', 'part_count', array('site_id'=>$siteId));
+            $result['totalPartLocked'] = Class_db::getInstance()->db_sum('ast_part', 'part_locked', array('site_id'=>$siteId));
+            $result['totalPartAvailable'] = strval(intval($result['totalPartQuantity']) - intval($result['totalPartLocked']));
+            $result['totalValue'] = Class_db::getInstance()->db_select_col('vw_parts_value', array('p.site_id'=>$siteId), 'total_value');
+            $result['totalLow'] = Class_db::getInstance()->db_count('ast_part', array('site_id'=>$siteId, 'w1'=>'part_count-part_locked <= part_threshold'));
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
