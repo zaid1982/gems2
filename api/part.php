@@ -79,6 +79,8 @@ try {
                 $result = $fn_part->getPurchaseItemTypeOption($userId, $urlArr[2], $urlArr[3]);
             } else if ($urlArr[1] === 'purchase_option_part') {
                 $result = $fn_part->getPurchasePartOption($userId, $urlArr[2], $urlArr[3]);
+            } else if ($urlArr[1] === 'part_tree_category') {
+                $result = $fn_part->getPartTreeCategory($userId, $urlArr[2]);
             } else {
                 $result = $fn_part->getPart($urlArr[1]);
             }

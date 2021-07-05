@@ -1129,6 +1129,25 @@ class Class_sql
                 LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
                 LEFT JOIN cli_site l ON l.site_id = w.site_id";
+            } else if ($title === 'vw_part_tree_category_m') {
+                $sql = "SELECT 
+                    p.part_id,
+                    p.asset_group_id,
+                    a.asset_group_name,
+                    p.item_type_id,
+                    t.item_type_desc,
+                    p.item_id,
+                    i.item_description,
+                    p.part_count,
+                    p.part_locked,
+                    p.part_count-p.part_locked AS part_available,
+                    p.part_min_order,
+                    p.part_max_order,
+                    p.part_remark
+                FROM ast_part p
+                LEFT JOIN ref_item i ON i.item_id = p.item_id
+                LEFT JOIN ref_item_type t ON t.item_type_id = p.item_type_id
+                LEFT JOIN ast_asset_group a ON a.asset_group_id = p.asset_group_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

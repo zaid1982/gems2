@@ -356,6 +356,63 @@ class Class_part {
         }
     }
 
+
+    /**
+     * @param $userId
+     * @param $storeId
+     * @return array
+     * @throws Exception
+     */
+    public function getPartTreeCategory ($userId, $storeId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $storeId));
+
+            $treeCategories = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if (Class_db::getInstance()->db_count('cli_store', array('site_id'=>$siteId, 'store_id'=>$storeId)) == 1) {
+                $parts =  Class_db::getInstance()->db_select2('vw_part_tree_category_m', array('p.store_id'=>$storeId, 'p.part_status'=>'1'), 'p.asset_group_id, t.item_type_turn, i.item_turn');
+                $assetGroupId = '';
+                $assetGroupName = '';
+                $itemTypeId = '';
+                $itemTypeDesc = '';
+                $itemTypeArr = array();
+                $partArr = array();
+                foreach ($parts as $i=>$part) {
+                    if ($i === 0) {
+                        $assetGroupId = $part['assetGroupId'];
+                        $assetGroupName = $part['assetGroupName'];
+                        $itemTypeId = $part['itemTypeId'];
+                        $itemTypeDesc = $part['itemTypeDesc'];
+                    }
+                    if ($itemTypeId !== $part['itemTypeId']) {
+                        array_push($itemTypeArr, array('itemTypeId'=>$itemTypeId, 'itemTypeDesc'=>$itemTypeDesc, 'parts'=>$partArr));
+                        $itemTypeId = $part['itemTypeId'];
+                        $itemTypeDesc = $part['itemTypeDesc'];
+                        $partArr = array();
+                    }
+                    if ($assetGroupId !== $part['assetGroupId']) {
+                        array_push($treeCategories, array('assetGroupId'=>$assetGroupId, 'assetGroupName'=>$assetGroupName, 'itemTypes'=>$itemTypeArr));
+                        $itemTypeArr = array();
+                        $assetGroupId = $part['assetGroupId'];
+                        $assetGroupName = $part['assetGroupName'];
+                    }
+                    array_push($partArr, array('partId'=>$part['partId'], 'itemId'=>$part['itemId'], 'itemDescription'=>$part['itemDescription'], 'partCount'=>$part['partCount'], 'partLocked'=>$part['partLocked'],
+                        'partAvailable'=>$part['partAvailable'], 'partMinOrder'=>$part['partMinOrder'], 'partMaxOrder'=>$part['partMaxOrder'], 'partRemark'=>$part['partRemark']));
+                    if ($i === count($parts) - 1) {
+                        array_push($itemTypeArr, array('itemTypeId'=>$itemTypeId, 'itemTypeDesc'=>$part['itemTypeDesc'], 'parts'=>$partArr));
+                        array_push($treeCategories, array('assetGroupId'=>$assetGroupId, 'assetGroupName'=>$part['assetGroupName'], 'itemTypes'=>$itemTypeArr));
+                    }
+                }
+            }
+            return $treeCategories;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
     /**
      * @param array $params
      * @return mixed
