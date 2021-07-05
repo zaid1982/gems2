@@ -1148,6 +1148,14 @@ class Class_sql
                 LEFT JOIN ref_item i ON i.item_id = p.item_id
                 LEFT JOIN ref_item_type t ON t.item_type_id = p.item_type_id
                 LEFT JOIN ast_asset_group a ON a.asset_group_id = p.asset_group_id";
+            } else if ($title === 'vw_part_sub_grouped') {
+                $sql = "SELECT
+                    ast_part_sub.do_no, `do`.supplier_name, part_sub_location, part_sub_cost, part_sub_validity, part_sub_warranty, DATE(do_item.do_item_timestamp) AS date_check_in, COUNT(*) AS total
+                FROM ast_part_sub
+                LEFT JOIN do_item ON do_item.do_item_id = ast_part_sub.do_item_id
+                LEFT JOIN `do` ON `do`.do_id = do_item.do_id
+                WHERE ast_part_sub.part_id = [partId]
+                GROUP BY ast_part_sub.do_no, `do`.supplier_name, part_sub_location, part_sub_cost, part_sub_validity, part_sub_warranty, date_check_in";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

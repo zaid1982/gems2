@@ -26,6 +26,7 @@ try {
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
     $fn_part->__set('fn_general', $fn_general);
+    $fn_part->__set('constant', $constant);
     $fn_store->__set('fn_general', $fn_general);
     $fn_item->__set('fn_general', $fn_general);
 
@@ -81,6 +82,8 @@ try {
                 $result = $fn_part->getPurchasePartOption($userId, $urlArr[2], $urlArr[3]);
             } else if ($urlArr[1] === 'part_tree_category') {
                 $result = $fn_part->getPartTreeCategory($userId, $urlArr[2]);
+            } else if ($urlArr[1] === 'part_mobile_details') {
+                $result = $fn_part->getPartMobile($urlArr[2]);
             } else {
                 $result = $fn_part->getPart($urlArr[1]);
             }
