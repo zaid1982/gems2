@@ -1181,6 +1181,22 @@ class Class_sql
                      d.do_id
                 FROM do_upload d
                 LEFT JOIN sys_upload u ON u.upload_id = d.upload_id";
+            } else if ($title === 'vw_check_out_mobile_list') {
+                $sql = "SELECT
+                    r.wo_task_request_id,
+                    r.wo_task_request_no,
+                    r.wo_task_request_time_collected AS check_out_time,
+                    u.user_first_name AS check_out_by,
+                    w.wo_task_no,
+                    p.total
+                FROM wo_task_request r
+                LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
+                LEFT JOIN sys_user u ON u.user_id = r.wo_task_request_order_by
+                LEFT JOIN (
+                        SELECT wo_task_request_id, SUM(wo_task_parts_quantity) AS total
+                        FROM wo_task_parts
+                        GROUP BY wo_task_request_id
+                ) p ON p.wo_task_request_id = r.wo_task_request_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -71,6 +71,8 @@ try {
                 $result = $fn_wo_request->getPendingTask($userId, $searchText);
             } else if ($urlArr[1] === 'request_details') {
                 $result = $fn_wo_request->getWoRequestDetails($urlArr[2]);
+            } else if ($urlArr[1] === 'list_mobile_check_out') {
+                $result = $fn_wo_request->getCheckOutMobileList($userId);
             } else {
                 $result = $fn_wo_request->getWoRequest($urlArr[1]);
             }
