@@ -1202,6 +1202,24 @@ class Class_sql
                     SUM(s.part_sub_cost) AS total_value
                 FROM ast_part_sub s
                 LEFT JOIN ast_part p ON p.part_id = s.part_id ";
+            } else if ($title === 'vw_utility_mobile_list') {
+                $sql = "SELECT
+                    u.utility_id,
+                    u.utility_type,
+                    u.utility_reading_type,
+                    u.utility_reading,
+                    u.utility_date,
+                    u.utility_total_rm,
+                    u.utility_max_demand,
+                    u.utility_timestamp,
+                    m.meter_name,
+                    m.meter_location,
+                    s.user_first_name AS utility_recorded_by,
+                    CONCAT('https://gems.globalfm.com.my/gems2/api/', p.upload_folder,'/',p.upload_filename,'.',p.upload_extension) AS utility_image
+                FROM utl_utility u
+                LEFT JOIN utl_meter m ON m.meter_id = u.meter_id 
+                LEFT JOIN sys_user s ON s.user_id = u.utility_recorded_by
+                LEFT JOIN sys_upload p ON p.upload_id = u.utility_image";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

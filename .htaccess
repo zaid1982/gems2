@@ -40,3 +40,7 @@ RewriteRule ^do_item/?$ api/do_item.php
 RewriteRule ^do_item/(.+)/?$ api/do_item.php
 RewriteRule ^user_signature/?$ api/user_signature.php
 RewriteRule ^user_signature/(.+)/?$ api/user_signature.php
+RewriteRule ^utility/?$ api/utility.php
+RewriteRule ^utility/(.+)/?$ api/utility.php
+RewriteRule ^utility_meter/?$ api/utility_meter.php
+RewriteRule ^utility_meter/(.+)/?$ api/utility_meter.php

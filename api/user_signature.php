@@ -70,7 +70,7 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        // ********** audit trail ********** \\
+        // ********** upload signature ********** \\
         $userId = $urlArr[1];
         $signatureId = $fn_general->uploadDocument($param, 22, $userId);
         $fn_user_signature->updateUserSignature($userId, $signatureId);
