@@ -89,7 +89,7 @@ try {
         }
 
         $woTaskId = $urlArr[1];
-        $checkResult = $fn_wo_request->checkRequestTask('submit_request', $userId, '', '', $woTaskId);
+        $checkResult = $fn_wo_request->checkRequestTask('submit_request', $userId, '', '', '', $woTaskId);
         if ($checkResult === 'noPart') {
             $form_data['errmsg'] = 'This work order has been set to No Material/Part Requested.';
         } else {
