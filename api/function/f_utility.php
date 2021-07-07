@@ -120,19 +120,16 @@ class Class_utility {
             }
 
             $unit = '';
-            $totalRm = 0.0;
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
             if ($type === 'Electricity') {
                 $unit = 'kWh';
-                $totalRm = floatval($params['utilityReading']) * 0.365;
             }
             if ($type === 'Water') {
                 $unit = 'm^3';
-                $totalRm = floatval($params['utilityReading']) * 2.07;
             }
             $insertParams = array_merge(
-                $this->fn_general->convertToMysqlArr($params, array('meterId', 'utilityDate', 'utilityReading', 'utilityMaxDemand')),
-                array('siteId'=>$siteId, 'utilityType'=>$type, 'utilityReadingType'=>$readingType, 'utilityUnit'=>$unit, 'utilityTotalRm'=>strval($totalRm), 'utilityImage'=>$uploadId, 'utilityRecordedBy'=>$userId)
+                $this->fn_general->convertToMysqlArr($params, array('meterId', 'utilityDate', 'utilityReading', 'utilityMaxDemand', 'utilityTotalRm')),
+                array('siteId'=>$siteId, 'utilityType'=>$type, 'utilityReadingType'=>$readingType, 'utilityUnit'=>$unit, 'utilityImage'=>$uploadId, 'utilityRecordedBy'=>$userId)
             );
             return Class_db::getInstance()->db_insert('utl_utility', $this->fn_general->convertToMysqlArrAll($insertParams));
         }
