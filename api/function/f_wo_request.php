@@ -365,7 +365,7 @@ class Class_wo_request {
                 Class_db::getInstance()->db_update('ast_part', array('part_locked'=>strval($partLocked)), array('part_id'=>$requestPart['partId']));
                 $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array('part_id'=>$requestPart['partId'], 'part_sub_status'=>'46'), 'part_sub_validity, part_sub_id', $requestPart['woTaskPartsQuantity']);
                 foreach ($partSubs as $partSub) {
-                    Class_db::getInstance()->db_update('ast_part_sub', array('wo_task_parts_id'=>$requestPart['wo_task_parts_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_request_no'=>$woTaskRequestNo,
+                    Class_db::getInstance()->db_update('ast_part_sub', array('wo_task_parts_id'=>$requestPart['woTaskPartsId'], 'wo_task_no'=>$woTaskNo, 'wo_task_request_no'=>$woTaskRequestNo,
                         'part_sub_time_reserved'=>'Now()', 'part_sub_status'=>'51'), array('part_sub_id'=>$partSub['partSubId']));
                 }
             }
