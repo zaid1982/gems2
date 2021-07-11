@@ -101,14 +101,35 @@ class Class_do {
             $this->fn_general->checkEmptyParams(array($doId));
             $constant = $this->constant;
 
+            // ********** do items ********** \\
+            $doItemsResult = array();
+            $doItems = Class_db::getInstance()->db_select2('vw_do_item_mobile', array('pdi.do_id'=>$doId));
+            foreach ($doItems as $doItem) {
+                $doItemsSliced = array_slice($doItem, 4);
+                $imageUploads = explode('||', $doItem['uploadList']);
+                $imageTitles = explode('||', $doItem['titleList']);
+                $imageWidths = explode('||', $doItem['widthList']);
+                $imageHeights = explode('||', $doItem['heightList']);
+                $images = array();
+                foreach ($imageUploads as $n => $imageUpload) {
+                    array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                }
+                $doItemsSliced['images'] = $images;
+                array_push($doItemsResult, $doItemsSliced);
+            }
+
+            // ********** do ********** \\
             $checkInDetails = Class_db::getInstance()->db_select_single2('vw_check_in_mobile_list', array('d.do_id'=>$doId), '', 1);
-            $checkInDetails['doItems'] = Class_db::getInstance()->db_select2('vw_do_item', array('pdi.do_id'=>$doId));
+            $checkInDetails['doItems'] = $doItemsResult;
+
+            // ********** do uploads ********** \\
             $images = array();
             $items = Class_db::getInstance()->db_select2('vw_do_upload', array('d.do_id'=>$doId));
             foreach ($items as $item) {
                 array_push($images, array('file'=>$constant::URL_FULL.$item['uploadFolder'].'/'.$item['uploadFilename'].'.'.$item['uploadExtension'], 'title'=>$item['uploadName'], 'width'=>$item['uploadFileWidth'], 'height'=>$item['uploadFileHeight']));
             }
             $checkInDetails['doUploads'] = $images;
+
             return $checkInDetails;
         }
         catch(Exception $ex) {

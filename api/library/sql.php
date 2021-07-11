@@ -1071,6 +1071,38 @@ class Class_sql
                     pdi.do_item_total_cost
                 FROM do_item pdi
                 LEFT JOIN do pdo ON pdo.do_id = pdi.do_id";
+            } else if ($title === 'vw_do_item_mobile') {
+                $sql = "SELECT 
+                    docs.upload_list,
+                    docs.title_list,
+                    docs.width_list,
+                    docs.height_list,
+                    pdi.do_item_warranty,
+                    pdi.do_item_validity,
+                    pdi.do_item_cost,
+                    pdi.do_item_total,
+                    pdi.do_item_total_cost,
+                    p.part_id,
+                    i.item_description,
+                    d.item_type_desc,
+                    e.asset_group_name
+                FROM do_item pdi
+                LEFT JOIN ast_part p ON p.part_id = pdi.part_id
+                LEFT JOIN cli_store s ON s.store_id = p.store_id
+                LEFT JOIN ref_item i ON i.item_id = p.item_id
+                LEFT JOIN ref_item_type d ON d.item_type_id = i.item_type_id
+                LEFT JOIN ast_asset_group e ON e.asset_group_id = d.asset_group_id
+                LEFT JOIN (
+                    SELECT 
+                        g.item_id, 
+                        GROUP_CONCAT(CONCAT(u.upload_folder,'/',u.upload_filename,'.',u.upload_extension) SEPARATOR '||') AS upload_list, 
+                        GROUP_CONCAT(u.upload_name SEPARATOR '||') AS title_list, 
+                        GROUP_CONCAT(u.upload_file_width SEPARATOR '||') AS width_list, 
+                        GROUP_CONCAT(u.upload_file_height SEPARATOR '||') AS height_list
+                    FROM ref_item_image g
+                    LEFT JOIN sys_upload u ON u.upload_id = g.upload_id
+                    GROUP BY g.item_id
+                ) docs ON docs.item_id = i.item_id";
             } else if ($title === 'vw_wo_request_task_m') {
                 $sql = "SELECT
                     r.wo_task_request_id,
