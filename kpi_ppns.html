@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionKppMain">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
+                KPI / APD - PPNS
+            </h5>
+        </nav>
+
+        <section class="mb-4 sectionKppMain">
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card z-depth-4">
+                        <div class="card-body pb-1 px-1">
+                            <!--<div class="row">
+                                <div class="col-md-5">
+                                    <div class="mb-4" id="chartKppDepartment" style="height: 266px; margin: 0;"></div>
+                                    <div class="mb-4" id="chartKppStatus" style="height: 160px; margin: 0;"></div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="mb-4" id="chartKppRole" style="height: 450px; margin: 0;"></div>
+                                </div>
+                            </div>-->
+                            <div class="table-responsive">
+                                <table id="dtKppData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
+                                    <thead class="bg-light">
+                                    <tr class="th-strong">
+                                        <th rowspan="2" class="px-0">Year</th>
+                                        <th rowspan="2" class="px-0">Month</th>
+                                        <th colspan="13" class="px-0">Service Description</th>
+                                        <th rowspan="2" class="px-0">Total Deduction</th>
+                                    </tr>
+                                    <tr class="th-strong">
+                                        <th class="px-0">Report Availability</th>
+                                        <th class="px-0">User General Complaint</th>
+                                        <th class="px-0">Turnaround Time</th>
+                                        <th class="px-0">Recurring Complaint</th>
+                                        <th class="px-0">Response Time</th>
+                                        <th class="px-0">Service Uptime</th>
+                                        <th class="px-0">Comfort Availability</th>
+                                        <th class="px-0">PPM Execution</th>
+                                        <th class="px-0">CM Execution</th>
+                                        <th class="px-0">Service Quality</th>
+                                        <th class="px-0">Statutory Requirement</th>
+                                        <th class="px-0">Security Patrols</th>
+                                        <th class="px-0">Security Personnel</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let kpiPpnsClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                kpiPpnsClass_ = new MainKpiPpns();
+
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+
+                kpiPpnsClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_kpi_ppns.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+
+</body>
+</html>

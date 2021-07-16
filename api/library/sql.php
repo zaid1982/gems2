@@ -1252,6 +1252,29 @@ class Class_sql
                 LEFT JOIN utl_meter m ON m.meter_id = u.meter_id 
                 LEFT JOIN sys_user s ON s.user_id = u.utility_recorded_by
                 LEFT JOIN sys_upload p ON p.upload_id = u.utility_image";
+            } else if ($title === 'vw_kpi_ppns') {
+                $sql = "SELECT 
+                    k.kpi_id,
+                    kpi_year,
+                    kpi_month,
+                    SUM(IF(kpi_ppns_category = 2, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_2,
+                    SUM(IF(kpi_ppns_category = 3, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_3,
+                    SUM(IF(kpi_ppns_category = 4, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_4,
+                    SUM(IF(kpi_ppns_category = 5, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_5,
+                    SUM(IF(kpi_ppns_category = 6, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_6,
+                    SUM(IF(kpi_ppns_category = 7, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_7,
+                    SUM(IF(kpi_ppns_category = 8, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_8,
+                    SUM(IF(kpi_ppns_category = 9, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_9,
+                    SUM(IF(kpi_ppns_category = 10, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_10,
+                    SUM(IF(kpi_ppns_category = 11, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_11,
+                    SUM(IF(kpi_ppns_category = 12, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_12,
+                    SUM(IF(kpi_ppns_category = 13, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_13,
+                    SUM(IF(kpi_ppns_category = 14, ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2), 0)) AS kpi_cate_14,
+                    SUM(ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2)) AS kpi_cate_all
+                FROM kpi k
+                LEFT JOIN kpi_ppns p ON p.kpi_id = k.kpi_id
+                WHERE site_id = 1
+                GROUP BY k.kpi_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

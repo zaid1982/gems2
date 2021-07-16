@@ -11,6 +11,7 @@ RewriteRule ^p_supplier_management/?$ supplier_management.html
 RewriteRule ^p_item_management/?$ item_management.html
 RewriteRule ^p_item_type_management/?$ item_type_management.html
 RewriteRule ^p_store_management/?$ store_management.html
+RewriteRule ^p_kpi_ppns/?$ kpi_ppns.html
 
 RewriteRule ^drawing/?$ api/drawing.php
 RewriteRule ^drawing/(.+)/?$ api/drawing.php
@@ -44,3 +45,5 @@ RewriteRule ^utility/?$ api/utility.php
 RewriteRule ^utility/(.+)/?$ api/utility.php
 RewriteRule ^utility_meter/?$ api/utility_meter.php
 RewriteRule ^utility_meter/(.+)/?$ api/utility_meter.php
+RewriteRule ^kpi/?$ api/kpi.php
+RewriteRule ^kpi/(.+)/?$ api/kpi.php
