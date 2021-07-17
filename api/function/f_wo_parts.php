@@ -117,19 +117,22 @@ class Class_wo_parts {
             $this->fn_general->checkEmptyParams(array($woTaskId));
 
             $result = array();
-            $woTaskParts = Class_db::getInstance()->db_select2('vw_wo_task_parts_mobile', array('r.wo_task_id'=>$woTaskId));
-            foreach ($woTaskParts as $woTaskPart) {
-                $woTaskPartSliced = array_slice($woTaskPart, 4);
-                $imageUploads = explode('||', $woTaskPart['uploadList']);
-                $imageTitles = explode('||', $woTaskPart['titleList']);
-                $imageWidths = explode('||', $woTaskPart['widthList']);
-                $imageHeights = explode('||', $woTaskPart['heightList']);
-                $images = array();
-                foreach ($imageUploads as $n => $imageUpload) {
-                    array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId), 'wo_task_request_id', 'wo_task_request_id DESC');
+            if (!empty($woRequestId)) {
+                $woTaskParts = Class_db::getInstance()->db_select2('vw_wo_task_parts_mobile', array('a.wo_task_request_id'=>$woRequestId));
+                foreach ($woTaskParts as $woTaskPart) {
+                    $woTaskPartSliced = array_slice($woTaskPart, 4);
+                    $imageUploads = explode('||', $woTaskPart['uploadList']);
+                    $imageTitles = explode('||', $woTaskPart['titleList']);
+                    $imageWidths = explode('||', $woTaskPart['widthList']);
+                    $imageHeights = explode('||', $woTaskPart['heightList']);
+                    $images = array();
+                    foreach ($imageUploads as $n => $imageUpload) {
+                        array_push($images, array('file'=>$constant::URL_FULL.$imageUpload, 'title'=>$imageTitles[$n], 'width'=>$imageWidths[$n], 'height'=>$imageHeights[$n]));
+                    }
+                    $woTaskPartSliced['images'] = $images;
+                    array_push($result, $woTaskPartSliced);
                 }
-                $woTaskPartSliced['images'] = $images;
-                array_push($result, $woTaskPartSliced);
             }
             return $result;
         }
@@ -239,7 +242,7 @@ class Class_wo_parts {
             $this->fn_general->checkEmptyParamsArray($params, array('woTaskId', 'itemId', 'quantity'));
 
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
-            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_status'=>'32'), 'wo_task_request_id');
+            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_status'=>'32'), 'wo_task_request_id DESC');
             if (empty($woRequestId)) {
                 $woRequestId = Class_db::getInstance()->db_insert('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'));
             }

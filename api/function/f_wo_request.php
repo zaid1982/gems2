@@ -142,10 +142,11 @@ class Class_wo_request {
      * @param $transactionId
      * @param string $taskId
      * @param string $woTaskId
+     * @param string $comment
      * @return string
      * @throws Exception
      */
-    public function checkRequestTask ($submitType, $userId, $woTaskRequestId, $transactionId, $taskId, $woTaskId='') {
+    public function checkRequestTask ($submitType, $userId, $woTaskRequestId, $transactionId, $taskId, $woTaskId='', $comment='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($submitType, $userId));
@@ -153,7 +154,7 @@ class Class_wo_request {
             if ($submitType === 'submit_request') {
                 // ********** submit request checking ********** \\
                 $this->fn_general->checkEmptyParams(array($woTaskId));
-                $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id');
+                $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id DESC');
                 if (empty($woTaskRequestId)) {
                     Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'0'), array('wo_task_id'=>$woTaskId));
                     return 'noPart';
@@ -179,6 +180,9 @@ class Class_wo_request {
 
                 // ********** checking for every submit type ********** \\
                 if ($submitType === 'approve_request' || $submitType === 'reject_request') {
+                    if ($submitType === 'reject_request' && empty($comment)) {
+                        throw new Exception('[' . __LINE__ . '] - Reject Comment is empty', 31);
+                    }
                     if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id'=>$transactionId, 'transaction_status'=>'33')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
                     }
@@ -268,7 +272,7 @@ class Class_wo_request {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskId, $transactionId, $woTaskRequestNo));
 
-            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id');
+            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id DESC');
             Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_no'=>$woTaskRequestNo, 'transaction_id'=>$transactionId, 'wo_task_request_time_ordered'=>'Now()', 'wo_task_request_status'=>'33'),
                 array('wo_task_request_id'=>$woRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'33'), array('wo_task_request_id'=>$woRequestId));
@@ -349,6 +353,26 @@ class Class_wo_request {
     /**
      * @param $woTaskRequestId
      * @param $transactionId
+     * @param $remark
+     * @throws Exception
+     */
+    public function submitReject ($woTaskRequestId, $transactionId, $remark) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId, $remark));
+
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'50', 'wo_task_request_remark'=>$remark, 'wo_task_request_time_rejected'=>'Now()'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'50'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'50'), array('transaction_id'=>$transactionId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskRequestId
+     * @param $transactionId
      * @param $woTaskNo
      * @param $woTaskRequestNo
      * @throws Exception
@@ -418,6 +442,27 @@ class Class_wo_request {
 
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             return Class_db::getInstance()->db_select2('vw_check_out_mobile_list', array('r.wo_task_request_status'=>'36', 'w.site_id'=>$siteId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskId
+     * @param $userId
+     * @throws Exception
+     */
+    public function resetRequest ($woTaskId, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+
+            $woRequestId = Class_db::getInstance()->db_select_single('wo_task_request', array('wo_task_id'=>$woTaskId), 'wo_task_request_id DESC');
+            if ($woRequestId['wo_task_request_status'] !== '50') {
+                throw new Exception('[' . __LINE__ . '] - Invalid request status');
+            }
+            Class_db::getInstance()->db_insert('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

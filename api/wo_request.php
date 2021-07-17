@@ -88,35 +88,46 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        $woTaskId = $urlArr[1];
-        $checkResult = $fn_wo_request->checkRequestTask('submit_request', $userId, '', '', '', $woTaskId);
-        if ($checkResult === 'noPart') {
-            $form_data['errmsg'] = 'This work order has been set to No Material/Part Requested.';
-        } else {
-            // ********** submit request ********** \\
-            Class_db::getInstance()->db_beginTransaction();
-            $is_transaction = true;
-            $woTaskRequestNo = $fn_wo_request->createRequestNo($userId);
-            $taskId = $fn_task->create_new_task('4', $userId, '8', '1', $woTaskRequestNo);
-            $fn_task->submit_task($taskId, $userId);
-            $transactionId = $fn_task->getTransactionId($taskId);
-            $fn_wo_request->submitRequest($woTaskId, $transactionId, $woTaskRequestNo);
-            Class_db::getInstance()->db_commit();
-
-            // ********** email & notification ********** \\
-            $fn_wo->__set('woTaskId', $woTaskId);
-            $wo = $fn_wo->get_wo_task();
-            $nextUsers = $fn_task->get_checkpoints_users('17', '42', $woTaskId);
-            Class_db::getInstance()->db_beginTransaction();
-            foreach ($nextUsers as $nextUser) {
-                $fn_email->setup_email($nextUser, 16, array('request_no'=>$woTaskRequestNo, 'wo_no'=>$wo['woTaskNo']));
-                $fn_email->setup_mobile_notification($nextUser, 17, array('task_no'=>$woTaskRequestNo));
-            }
-            Class_db::getInstance()->db_commit();
+        if ($urlArr[1] === 'reset') {
+            $fn_wo_request->resetRequest($urlArr[2], $userId);
 
             // ********** audit trail ********** \\
-            $fn_general->save_audit('171', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequestNo);
-            $form_data['errmsg'] = 'Request Parts successfully submitted for approval';
+            $fn_wo->__set('woTaskId', $urlArr[2]);
+            $wo = $fn_wo->get_wo_task();
+            $fn_general->save_audit('179', $userId, 'Work Order No. = '.$wo['woTaskNo']);
+            $form_data['errmsg'] = 'Request Parts successfully reset for reapply / resume';
+        }
+        else {
+            $woTaskId = $urlArr[1];
+            $checkResult = $fn_wo_request->checkRequestTask('submit_request', $userId, '', '', '', $woTaskId);
+            if ($checkResult === 'noPart') {
+                $form_data['errmsg'] = 'This work order has been set to No Material/Part Requested.';
+            } else {
+                // ********** submit request ********** \\
+                Class_db::getInstance()->db_beginTransaction();
+                $is_transaction = true;
+                $woTaskRequestNo = $fn_wo_request->createRequestNo($userId);
+                $taskId = $fn_task->create_new_task('4', $userId, '8', '1', $woTaskRequestNo);
+                $fn_task->submit_task($taskId, $userId);
+                $transactionId = $fn_task->getTransactionId($taskId);
+                $fn_wo_request->submitRequest($woTaskId, $transactionId, $woTaskRequestNo);
+                Class_db::getInstance()->db_commit();
+
+                // ********** email & notification ********** \\
+                $fn_wo->__set('woTaskId', $woTaskId);
+                $wo = $fn_wo->get_wo_task();
+                $nextUsers = $fn_task->get_checkpoints_users('17', '42', $woTaskId);
+                Class_db::getInstance()->db_beginTransaction();
+                foreach ($nextUsers as $nextUser) {
+                    $fn_email->setup_email($nextUser, 16, array('request_no'=>$woTaskRequestNo, 'wo_no'=>$wo['woTaskNo']));
+                    $fn_email->setup_mobile_notification($nextUser, 17, array('task_no'=>$woTaskRequestNo));
+                }
+                Class_db::getInstance()->db_commit();
+
+                // ********** audit trail ********** \\
+                $fn_general->save_audit('171', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequestNo);
+                $form_data['errmsg'] = 'Request Parts successfully submitted for approval';
+            }
         }
 
         $form_data['result'] = $result;
@@ -137,7 +148,7 @@ try {
         $currentTask = $fn_wo_request->getCurrentTask($woTaskRequestId);
         $transactionId = $currentTask['transactionId'];
         $taskId = $currentTask['taskId'];
-        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId);
+        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId, $params['comment']);
         $woTaskRequest = $fn_wo_request->getWoRequest($woTaskRequestId);
         $woTaskId = $woTaskRequest['woTaskId'];
         $fn_wo->__set('woTaskId', $woTaskId);
@@ -164,7 +175,22 @@ try {
             $fn_general->save_audit('172', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
             $form_data['errmsg'] = 'Request Parts successfully approved';
         } else if ($urlArr[1] === 'reject_request') {
+            // ********** reject request ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_task->submit_task($taskId, $userId, '50', $params['comment'], '1');
+            $fn_wo_request->submitReject($woTaskRequestId, $transactionId, $params['comment']);
+            Class_db::getInstance()->db_commit();
 
+            // ********** email & notification ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $fn_email->setup_email($woTaskRequest['woTaskRequestOrderBy'], 20, array('request_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo'], 'comment'=>$params['comment']));
+            $fn_email->setup_mobile_notification($woTaskRequest['woTaskRequestOrderBy'], 21, array('task_no'=>$woTaskRequest['woTaskRequestNo'], 'comment'=>$params['comment']));
+            Class_db::getInstance()->db_commit();
+
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('173', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
+            $form_data['errmsg'] = 'Request Parts successfully rejected';
         } else if ($urlArr[1] === 'reserve_request') {
             // ********** reserve request ********** \\
             Class_db::getInstance()->db_beginTransaction();

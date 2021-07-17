@@ -383,6 +383,7 @@ class Class_wo {
                 $sectionStatus = $arr_status[18];
                 $materialStatusId = '';
                 $materialStatus = '';
+                $sectionComment = '';
                 if ($woTask['wo_task_has_parts'] === '0') {
                     $sectionStatus = $arr_status[19];
                 } else if ($woTask['wo_task_has_parts'] === '1') {
@@ -390,12 +391,14 @@ class Class_wo {
                     if (!empty($statusPartId)) {
                         if ($statusPartId === '36') {
                             $sectionStatus = $arr_status[19];
+                        } else if ($statusPartId === '50') {
+                            $sectionComment = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$this->woTaskId), 'wo_task_request_remark', 'wo_task_request_id DESC');
                         }
                         $materialStatus = $arr_status[$statusPartId];
                         $materialStatusId = $statusPartId;
                     }
                 }
-                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$sectionStatus, 'sectionStatusMaterialId'=>$materialStatusId, 'sectionStatusMaterial'=>$materialStatus));
+                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$sectionStatus, 'sectionStatusMaterialId'=>$materialStatusId, 'sectionStatusMaterial'=>$materialStatus, 'sectionComment'=>$sectionComment));
             }
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
