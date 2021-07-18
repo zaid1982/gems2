@@ -1244,6 +1244,7 @@ class Class_sql
                     u.utility_total_rm,
                     u.utility_max_demand,
                     u.utility_timestamp,
+                    m.meter_id,
                     m.meter_name,
                     m.meter_location,
                     s.user_first_name AS utility_recorded_by,

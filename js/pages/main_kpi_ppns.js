@@ -3,6 +3,7 @@ function MainKpiPpns () {
     const className = 'MainStoreManagement';
     let self = this;
     let oTableKpp;
+    let sectionKpiPpnsClass;
 
     this.init = function () {
         const monthFulls = mzGetMonthArray();
@@ -36,9 +37,7 @@ function MainKpiPpns () {
                         const rowId = linkId.substr(linkIndex2+1);
                         const currentRow = oTableKpp.row(parseInt(rowId)).data();
                         const category = linkId.substring(linkIndex+1, linkIndex2);
-                        alert(currentRow['kpiId']);
-                        alert(category);
-                        //modalStoreClass.edit(currentRow['storeId']);
+                        sectionKpiPpnsClass.load(true, currentRow['kpiId'], category);
                     }
                 });
             },
@@ -93,6 +92,14 @@ function MainKpiPpns () {
         self.genTable();
     };
 
+    this.showMain = function () {
+        $('.sectionKppMain').show();
+    };
+
+    this.hideMain = function () {
+        $('.sectionKppMain').hide();
+    };
+
     this.genTable = function () {
         const dataDb = mzAjaxRequest2('kpi/ppns_list', 'GET');
         oTableKpp.clear().rows.add(dataDb).draw();
@@ -100,5 +107,9 @@ function MainKpiPpns () {
 
     this.getClassName = function () {
         return className;
+    };
+
+    this.setSectionKpiPpnsClass = function (_sectionKpiPpnsClass) {
+        sectionKpiPpnsClass = _sectionKpiPpnsClass;
     };
 }

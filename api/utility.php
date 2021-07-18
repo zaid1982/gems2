@@ -55,7 +55,8 @@ try {
             if ($urlArr[1] === 'list_utility_mobile') {
                 $type = isset ($urlArr[2]) ? $urlArr[2] : '';
                 $readingType = isset ($urlArr[3]) ? $urlArr[3] : '';
-                $result = $fn_utility->getUtilityMobileList($userId, $type, $readingType);
+                $meterId = isset ($urlArr[4]) ? $urlArr[4] : '';
+                $result = $fn_utility->getUtilityMobileList($userId, $type, $readingType, $meterId);
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
