@@ -71,14 +71,37 @@ class Class_utility_meter {
     }
 
     /**
+     * @param string $userId
      * @param string $meterType
      * @return string
      * @throws Exception
      */
-    public function getUtilityMeterList($meterType = '') {
+    public function getUtilityMeterList($userId='', $meterType='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            return Class_db::getInstance()->db_select2('utl_meter', array('meter_type'=>$meterType));
+
+            $siteId = '';
+            if ($userId !== '') {
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+            }
+            return Class_db::getInstance()->db_select2('utl_meter', array('meter_type'=>$meterType, 'site_id'=>$siteId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $meterType
+     * @return string
+     * @throws Exception
+     */
+    public function getUtilityMeterMobileList($userId, $meterType = '') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+            return Class_db::getInstance()->db_select2('vw_meter_mobile', array('m.meter_type'=>$meterType, 'm.site_id'=>$siteId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

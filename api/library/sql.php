@@ -1276,6 +1276,23 @@ class Class_sql
                 LEFT JOIN kpi_ppns p ON p.kpi_id = k.kpi_id
                 WHERE site_id = 1
                 GROUP BY k.kpi_id";
+            } else if ($title === 'vw_meter_mobile') {
+                $sql = "SELECT 
+                    m.*,
+                    d.daily_total,
+                    d.daily_latest_date,
+                    l.utility_reading AS daily_latest_reading,
+                    n.utility_total_rm AS monthly_total_rm
+                FROM utl_meter m
+                LEFT JOIN (
+                    SELECT 
+                        meter_id, SUM(utility_reading) AS daily_total, MAX(utility_date) AS daily_latest_date
+                    FROM utl_utility
+                    WHERE MONTH(utility_date) = MONTH(CURDATE())  AND utility_reading_type = 'Daily'
+                    GROUP BY meter_id
+                ) d ON d.meter_id = m.meter_id 
+                LEFT JOIN utl_utility l ON l.meter_id = m.meter_id AND l.utility_reading_type = 'Daily' AND l.utility_date = d.daily_latest_date
+                LEFT JOIN utl_utility n ON n.meter_id = m.meter_id AND n.utility_reading_type = 'Monthly'";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -52,11 +52,11 @@ try {
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'Electricity') {
-                $result = $fn_utility_meter->getUtilityMeterList('Electricity');
+                $result = $fn_utility_meter->getUtilityMeterMobileList($userId,'Electricity');
             } else if ($urlArr[1] === 'Water') {
-                $result = $fn_utility_meter->getUtilityMeterList('Water');
+                $result = $fn_utility_meter->getUtilityMeterMobileList($userId,'Water');
             } else {
-                throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+                $result = $fn_utility_meter->getUtilityMeterList();
             }
         } else {
             $result = $fn_utility_meter->getUtilityMeterList();
