@@ -148,7 +148,7 @@ try {
         $currentTask = $fn_wo_request->getCurrentTask($woTaskRequestId);
         $transactionId = $currentTask['transactionId'];
         $taskId = $currentTask['taskId'];
-        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId, '', $params['comment']);
+        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId, '', ($urlArr[1] === 'reject_request' ? $params['comment'] : ''));
         $woTaskRequest = $fn_wo_request->getWoRequest($woTaskRequestId);
         $woTaskId = $woTaskRequest['woTaskId'];
         $fn_wo->__set('woTaskId', $woTaskId);
