@@ -154,7 +154,7 @@ class Class_wo_request {
             if ($submitType === 'submit_request') {
                 // ********** submit request checking ********** \\
                 $this->fn_general->checkEmptyParams(array($woTaskId));
-                $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id DESC');
+                $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'), 'wo_task_request_id', 'wo_task_request_id DESC');
                 if (empty($woTaskRequestId)) {
                     Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'0'), array('wo_task_id'=>$woTaskId));
                     return 'noPart';
@@ -272,7 +272,7 @@ class Class_wo_request {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskId, $transactionId, $woTaskRequestNo));
 
-            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id DESC');
+            $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id', 'wo_task_request_id DESC');
             Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_no'=>$woTaskRequestNo, 'transaction_id'=>$transactionId, 'wo_task_request_time_ordered'=>'Now()', 'wo_task_request_status'=>'33'),
                 array('wo_task_request_id'=>$woRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'33'), array('wo_task_request_id'=>$woRequestId));

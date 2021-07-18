@@ -398,7 +398,12 @@ class Class_wo {
                         $materialStatusId = $statusPartId;
                     }
                 }
-                array_push($result, array('sectionName'=>'E', 'sectionDesc'=>'Material / Spare Parts', 'sectionStatus'=>$sectionStatus, 'sectionStatusMaterialId'=>$materialStatusId, 'sectionStatusMaterial'=>$materialStatus, 'sectionComment'=>$sectionComment));
+                array_push($result, array('sectionName'=>'E',
+                    'sectionDesc'=>'Material / Spare Parts',
+                    'sectionStatus'=>$sectionStatus,
+                    'sectionStatusMaterialId'=>$materialStatusId,
+                    'sectionStatusMaterial'=>$materialStatus,
+                    'sectionComment'=>$sectionComment));
             }
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
