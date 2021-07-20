@@ -648,7 +648,6 @@ class Class_general {
     public function timeDiff ($firstTime, $lastTime){
         try {
             if (empty($firstTime) || empty($lastTime)) {
-                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$lastTime '.$lastTime);
                 return '';
             }
 
@@ -693,10 +692,31 @@ class Class_general {
      * @return string
      * @throws Exception
      */
+    public function timeDiffHour ($firstTime, $lastTime){
+        try {
+            if (empty($firstTime) || empty($lastTime)) {
+                return '';
+            }
+
+            $firstTime = strtotime($firstTime);
+            $lastTime = strtotime($lastTime);
+            $difference = $lastTime-$firstTime;
+            return $difference/3600;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $firstTime
+     * @param $lastTime
+     * @return string
+     * @throws Exception
+     */
     public function timeDiffMinute ($firstTime, $lastTime){
         try {
             if (empty($firstTime) || empty($lastTime)) {
-                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$lastTime '.$lastTime);
                 return '';
             }
 

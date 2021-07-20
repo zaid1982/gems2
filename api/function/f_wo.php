@@ -1642,7 +1642,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function get_wo_task_dashboard_list ($clientId='', $siteId='', $year='', $month='', $isPending=false) {
+    public function get_wo_task_dashboard_list ($clientId='', $siteId='', $year='', $month='', $isPending=false, $kpiType='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -1662,6 +1662,11 @@ class Class_wo {
             $arrWoType = $this->get_wo_type();
             if ($isPending) {
                 $arrWhere['wo_task_status'] = 'N(16, 25)';
+            }
+            if ($kpiType === 'responseTime') {
+                $arrWhere['wo_task_status'] = 'N(25)';
+            } else if ($kpiType === 'mitigateTime') {
+                $arrWhere['wo_task_time_executed'] = 'is not NULL';
             }
 
             $result = array();
@@ -1697,15 +1702,27 @@ class Class_wo {
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
-                $row_result['durationKpi'] = '';
+                $row_result['kpiResponseResult'] = '';
                 $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 if ($durationResponded !== '') {
                     if ($dataLocal['wo_task_severity'] === '5') {
-                        $row_result['durationKpi'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded < 15 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '4') {
-                        $row_result['durationKpi'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded < 15 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '3') {
-                        $row_result['durationKpi'] = $durationResponded < 30 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded < 30 ? 'Success' : 'Fail';
+                    }
+                }
+                $row_result['durationMitigated'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
+                $row_result['kpiMitigateResult'] = '';
+                $durationMitigated = $this->fn_general->timeDiffHour($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
+                if ($durationMitigated !== '') {
+                    if ($dataLocal['wo_task_severity'] === '5') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated < 3 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '4') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated < 24 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '3') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated < 168 ? 'Success' : 'Fail';
                     }
                 }
                 array_push($result, $row_result);

@@ -56,7 +56,8 @@ try {
                 $siteId = filter_input(INPUT_GET, 'siteId');
                 $year = filter_input(INPUT_GET, 'year');
                 $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_wo_task_dashboard_list($clientId, $siteId, $year, $month);
+                $kpiType = filter_input(INPUT_GET, 'kpiType');
+                $result = $fn_wo->get_wo_task_dashboard_list($clientId, $siteId, $year, $month, '', $kpiType);
             }
             else if ($type === 'total_by_site_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
