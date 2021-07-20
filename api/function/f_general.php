@@ -655,11 +655,9 @@ class Class_general {
             $firstTime = strtotime($firstTime);
             $lastTime = strtotime($lastTime);
             $difference = $lastTime-$firstTime;
-            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$difference '.$difference);
             $days = abs(floor($difference / 86400));
             $hours = abs(floor(($difference-($days * 86400))/3600));
             $mins = abs(floor(($difference-($days * 86400)-($hours * 3600))/60));
-            $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$mins '.$mins);
             $secs = abs(floor($difference-($days * 86400)-($hours * 3600)-($mins * 60)));
             $returnStr = '';
             if ($days == 1) {
@@ -683,6 +681,29 @@ class Class_general {
                 $returnStr .= $secs." seconds";
             }
             return $returnStr;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $firstTime
+     * @param $lastTime
+     * @return string
+     * @throws Exception
+     */
+    public function timeDiffMinute ($firstTime, $lastTime){
+        try {
+            if (empty($firstTime) || empty($lastTime)) {
+                $this->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$lastTime '.$lastTime);
+                return '';
+            }
+
+            $firstTime = strtotime($firstTime);
+            $lastTime = strtotime($lastTime);
+            $difference = $lastTime-$firstTime;
+            return $difference/60;
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

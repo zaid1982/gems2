@@ -2,7 +2,7 @@
     <div class="row mb-4 pb-0">
         <div class="col-md-12">
             <button type="button" class="btn aqua-gradient btn-rounded float-right text-white z-depth-3" id="btnSkpSubmit">
-                <i class="fas fa-hand-point-right"></i> Submit
+                <i class="fas fa-hand-point-right"></i> Update Calculation
             </button>
             <button type="button" class="btn peach-gradient btn-rounded float-right text-white z-depth-3" id="btnSkpBack">
                 <i class="fas fa-arrow-left"></i> Back to Main Page
@@ -22,43 +22,51 @@
                     <form id="formSkp" autocomplete="off">
                         <div class="md-form">
                             <i class="fas fa-building prefix"></i>
-                            <input type="text" id="txtSkpDescription" class="form-control" disabled value="dsvsdvsd">
-                            <label for="txtSkpDescription" id="lblSkpDescription" class="active">Site</label>
+                            <label class="active">Site</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpSiteName"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form">
                             <i class="fas fa-info-circle prefix"></i>
-                            <input type="text" id="txtSkpThreshold" class="form-control" disabled>
-                            <label for="txtSkpThreshold" id="lblSkpThreshold" class="active">Service Description</label>
+                            <label class="active">Service Description</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpServiceDescription"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form">
                             <i class="fas fa-calculator prefix"></i>
-                            <input type="text" id="txtSkpMinOrder" class="form-control" disabled>
-                            <label for="txtSkpMinOrder" id="lblSkpMinOrder" class="active">Performance Measure</label>
+                            <label class="active">Performance Measure</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpPerformanceMeasure"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form mb-0">
                             <i class="fas fa-tachometer-alt prefix"></i>
-                            <textarea id="txaSkpRemark" class="md-textarea form-control" disabled rows="1">vsasvassa</textarea>
-                            <label for="txaSkpRemark" id="lblSkpRemark" class="active text-muted">Target Value</label>
+                            <label class="active">Target Value</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpTargetValue"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form">
                             <i class="fas fa-database prefix"></i>
-                            <input type="text" id="txtSkpMaxOrder" class="form-control" disabled>
-                            <label for="txtSkpMaxOrder" id="lblSkpMaxOrder" class="active">Source of Data</label>
+                            <label class="active">Source of Data</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpSourceOfData"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form">
                             <i class="fas fa-balance-scale prefix"></i>
-                            <input type="text" id="txtSkpTurn" class="form-control">
-                            <label for="txtSkpTurn" id="lblSkpTurn" class="active">Weightage</label>
+                            <label class="active">Weightage</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpWeightage"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form">
                             <i class="fas fa-percent prefix"></i>
-                            <input type="text" id="txtSkpStatus" class="form-control" disabled value="dsvsd">
-                            <label for="txtSkpStatus" id="lblSkpStatus" class="active">Non-Compliance Portion</label>
+                            <label class="active">Non-Compliance Portion</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpNcp"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form mb-0">
                             <i class="fas fa-comment-dots prefix"></i>
-                            <textarea id="txaSkpRemark" class="md-textarea form-control" disabled rows="1">vsasvassa</textarea>
-                            <label for="txaSkpRemark" id="lblSkpRemark" class="active text-muted">Remark</label>
+                            <label class="active text-muted">Remark</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSkpRemark"></p>
+                            <hr class="grey lighten-1 mt-2 ml-4_5" style="margin-left: 40px">
                         </div>
                     </form>
                 </div>
@@ -69,38 +77,162 @@
                 <div class="card-header blue lighten-3">
                     <h5 class="font-weight-bold text-center mt-1 mb-0"> Deduction Calculation</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row mt-3">
-                        <div class="col-md-12">
+                <div class="card-body mt-3">
+                    <div class="row divSkpCategory" id="divSkpData6">
+                        <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Site</label>
+                                <input type="text" id="txtSkpEmergencyTotal" class="form-control" disabled>
+                                <label for="txtSkpEmergencyTotal" id="lblSkpEmergencyTotal" class="active">EMERGENCY Complaint</label>
                             </div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSprRequestNo" class="form-control" disabled value="dv">
-                                <label for="txtSprRequestNo" id="lblSprRequestNo" class="active">Request No</label>
+                                <input type="text" id="txtSkpEmergencyNonComply" class="form-control" disabled>
+                                <label for="txtSkpEmergencyNonComply" id="lblSkpEmergencyNonComply" class="active">EMERGENCY Non-Comply</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpEmergencyNonComplyPerc" class="form-control" disabled>
+                                <label for="txtSkpEmergencyNonComplyPerc" id="lblSkpEmergencyNonComplyPerc" class="active">EMERGENCY Non-Comply Perc</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpEmergencyTargetPerc" class="form-control" disabled value="100%">
+                                <label for="txtSkpEmergencyTargetPerc" id="lblSkpEmergencyTargetPerc" class="active">EMERGENCY Target</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpUrgentTotal" class="form-control" disabled>
+                                <label for="txtSkpUrgentTotal" id="lblSkpUrgentTotal" class="active">URGENT Complaint</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpUrgentNonComply" class="form-control" disabled>
+                                <label for="txtSkpUrgentNonComply" id="lblSkpUrgentNonComply" class="active">URGENT Non-Comply</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpUrgentNonComplyPerc" class="form-control" disabled>
+                                <label for="txtSkpUrgentNonComplyPerc" id="lblSkpUrgentNonComplyPerc" class="active">URGENT Non-Comply Perc</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpUrgentTargetPerc" class="form-control" disabled value="75%">
+                                <label for="txtSkpUrgentTargetPerc" id="lblSkpUrgentTargetPerc" class="active">URGENT Target</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpNormalTotal" class="form-control" disabled>
+                                <label for="txtSkpNormalTotal" id="lblSkpNormalTotal" class="active">NORMAL Complaint</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpNormalNonComply" class="form-control" disabled>
+                                <label for="txtSkpNormalNonComply" id="lblSkpNormalNonComply" class="active">NORMAL Non-Comply</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpNormalNonComplyPerc" class="form-control" disabled>
+                                <label for="txtSkpNormalNonComplyPerc" id="lblSkpNormalNonComplyPerc" class="active">NORMAL Non-Comply Perc</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpNormalTargetPerc" class="form-control" disabled value="70%">
+                                <label for="txtSkpNormalTargetPerc" id="lblSkpNormalTargetPerc" class="active">NORMAL Target</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mt-0">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="font-weight-bolder pb-2">Total Monthly Deduction Calculation</p>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpAllTotal" class="form-control" disabled>
+                                <label for="txtSkpAllTotal" id="lblSkpAllTotal" class="active">Total Incidences</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpAllNonComply" class="form-control" disabled>
+                                <label for="txtSkpAllNonComply" id="lblSkpAllNonComply" class="active">Incidences of Non-Compliance</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpNfp" class="form-control" disabled>
+                                <label for="txtSkpNfp" id="lblSkpNfp" class="active">Non-Compliance Portion (NFP)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpWeightage" class="form-control" disabled>
+                                <label for="txtSkpWeightage" id="lblSkpWeightage" class="active">Weightage</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpMonthlyFee" class="form-control" disabled>
+                                <label for="txtSkpMonthlyFee" id="lblSkpMonthlyFee" class="active">Total Monthly Fee</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpPtf" class="form-control" disabled>
+                                <label for="txtSkpPtf" id="lblSkpPtf" class="active">Portion of Total Fee (5%)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12 col-xl-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkpTmd" class="form-control" disabled>
+                                <label for="txtSkpTmd" id="lblSkpTmd" class="active">Total Monthly Deduction</label>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-4_5">
+            <div class="card z-depth-3 mb-4_5 divSkpCategory" id="divSkpCategory6">
                 <div class="card-header blue lighten-3">
-                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Deductible Complaint List</h5>
+                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Complaint List</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 px-0">
                             <div class="table-responsive">
-                                <table id="dtSkpPicture" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtSkpCategory6" class="table table-hover table-sm mb-0 display responsive">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th >#</th>
-                                        <th>Title</th>
-                                        <th>Picture</th>
-                                        <th>&nbsp;</th>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Work Order No.</th>
+                                        <th>Site</th>
+                                        <th>Location</th>
+                                        <th>Complaint Type</th>
+                                        <th>Complainant</th>
+                                        <th>Complaint Description</th>
+                                        <th>Severity</th>
+                                        <th>Trade</th>
+                                        <th>PIC Name</th>
+                                        <th>Repair Description</th>
+                                        <th>Rating</th>
+                                        <th>Progress</th>
+                                        <th>Assigned By</th>
+                                        <th>Complaint Time</th>
+                                        <th>Assigned Time</th>
+                                        <th>Respond Duration</th>
+                                        <th>Result</th>
+                                        <th>Result</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>

@@ -10,7 +10,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?1">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
@@ -138,10 +138,15 @@
                 sectionKpiPpnsClass_ = new SectionKpiPpns();
                 kpiPpnsClass_ = new MainKpiPpns();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
+                sectionKpiPpnsClass_.setRefSite(refSite_);
+                sectionKpiPpnsClass_.setRefStatus(refStatus_);
+                sectionKpiPpnsClass_.setRefUser(refUser_);
+                sectionKpiPpnsClass_.setRefPpmGroup(refPpmGroup_);
                 sectionKpiPpnsClass_.setClassFrom(kpiPpnsClass_);
                 sectionKpiPpnsClass_.init();
 

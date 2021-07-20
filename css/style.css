@@ -11,11 +11,17 @@
 .pb-1_3 {
     padding-bottom: 8px !important;
 }
+.pt-2-5 {
+    padding-top: 0.8rem !important;
+}
 .mb-4_5 {
     margin-bottom: 27px !important;
 }
 .mt-4_5 {
     margin-top: 2.1rem !important;
+}
+.ml-4_5 {
+    padding-left: 40px !important;
 }
 .th-strong th {
     font-weight: 900 !important; 

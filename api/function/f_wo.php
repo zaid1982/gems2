@@ -1668,6 +1668,7 @@ class Class_wo {
             $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNoOri'] = $dataLocal['wo_task_no'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' && $dataLocal['wo_task_wr_confirm'] !== '1' ? '-' : $dataLocal['wo_task_no'];
                 $row_result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
                 $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
@@ -1696,6 +1697,17 @@ class Class_wo {
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                $row_result['durationKpi'] = '';
+                $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
+                if ($durationResponded !== '') {
+                    if ($dataLocal['wo_task_severity'] === '5') {
+                        $row_result['durationKpi'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '4') {
+                        $row_result['durationKpi'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '3') {
+                        $row_result['durationKpi'] = $durationResponded < 30 ? 'Success' : 'Fail';
+                    }
+                }
                 array_push($result, $row_result);
             }
 

@@ -55,9 +55,35 @@ try {
         }
         if ($urlArr[1] === 'ppns_list') {
             $result = $fn_kpi->getKpiPpnsList();
+        } else if ($urlArr[1] === 'info_list') {
+            $result = $fn_kpi->getKpiInfo($urlArr[2], $urlArr[3], $urlArr[4]);
+        } else if ($urlArr[1] === 'ppns') {
+            $result = $fn_kpi->getKpiPpns($urlArr[2]);
+        } else if ($urlArr[1] === 'ppns_2') {
+            $result = $fn_kpi->getKpiPpns2($urlArr[2], $urlArr[3]);
         } else {
+            $result = $fn_kpi->getKpi($urlArr[1]);
+        }
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+
+        if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        if ($urlArr[1] === 'calculate_ppns') {
+            $fn_kpi->calculateKpiPpnsCate6($urlArr[2]);
+            $form_data['errmsg'] = 'KPI Deduction Data successfully updated';
+        }
+        Class_db::getInstance()->db_commit();
+
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
