@@ -191,21 +191,21 @@ class Class_kpi
                     $totalComplaint++;
                 }
                 if ($durationResponded !== '') {
-                    if ($woTask['woTaskSeverity'] === '5' && $durationResponded >= 15) {
+                    if ($woTask['woTaskSeverity'] === '5' && $durationResponded > 15) {
                         $totalNonComplyEmergency++;
                         $totalNonComply++;
-                    } else if ($woTask['woTaskSeverity'] === '4' && $durationResponded >= 15) {
+                    } else if ($woTask['woTaskSeverity'] === '4' && $durationResponded > 15) {
                         $totalNonComplyUrgent++;
-                    } else if ($woTask['woTaskSeverity'] === '3' && $durationResponded >= 30) {
+                    } else if ($woTask['woTaskSeverity'] === '3' && $durationResponded > 30) {
                         $totalNonComplyNormal++;
                     }
                 }
             }
             if ($totalComplaint > 0) {
-                if ($totalComplaintUrgent > 0 && $totalNonComplyUrgent / $totalComplaintUrgent < 0.75) {
+                if ($totalComplaintUrgent > 0 && $totalNonComplyUrgent / $totalComplaintUrgent > 0.25) {
                     $totalNonComply += $totalNonComplyUrgent;
                 }
-                if ($totalComplaintNormal > 0 && $totalNonComplyNormal / $totalComplaintNormal < 0.7) {
+                if ($totalComplaintNormal > 0 && $totalNonComplyNormal / $totalComplaintNormal > 0.3) {
                     $totalNonComply += $totalNonComplyNormal;
                 }
                 $ncp = $totalNonComply / $totalComplaint;
@@ -256,18 +256,18 @@ class Class_kpi
                     $totalComplaint++;
                 }
                 if ($durationMitigated !== '') {
-                    if ($woTask['woTaskSeverity'] === '5' && $durationMitigated < 3) {
+                    if ($woTask['woTaskSeverity'] === '5' && $durationMitigated > 3) {
                         $totalNonComplyEmergency++;
-                    } else if ($woTask['woTaskSeverity'] === '4' && $durationMitigated < 24) {
+                    } else if ($woTask['woTaskSeverity'] === '4' && $durationMitigated > 24) {
                         $totalNonComplyUrgent++;
-                    } else if ($woTask['woTaskSeverity'] === '3' && $durationMitigated < 168) {
+                    } else if ($woTask['woTaskSeverity'] === '3' && $durationMitigated > 168) {
                         $totalNonComplyNormal++;
                     }
                 }
             }
             if ($totalComplaint > 0) {
                 $totalNonComply = $totalNonComplyEmergency + $totalNonComplyUrgent + $totalNonComplyNormal;
-                if ($totalNonComply / $totalComplaint < 0.75) {
+                if ($totalNonComply / $totalComplaint > 0.25) {
                     $ncp = $totalNonComply / $totalComplaint;
                 }
             }

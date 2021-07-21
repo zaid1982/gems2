@@ -1706,11 +1706,11 @@ class Class_wo {
                 $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 if ($durationResponded !== '') {
                     if ($dataLocal['wo_task_severity'] === '5') {
-                        $row_result['kpiResponseResult'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded <= 15 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '4') {
-                        $row_result['kpiResponseResult'] = $durationResponded < 15 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded <= 15 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '3') {
-                        $row_result['kpiResponseResult'] = $durationResponded < 30 ? 'Success' : 'Fail';
+                        $row_result['kpiResponseResult'] = $durationResponded <= 30 ? 'Success' : 'Fail';
                     }
                 }
                 $row_result['durationMitigated'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
@@ -1718,11 +1718,11 @@ class Class_wo {
                 $durationMitigated = $this->fn_general->timeDiffHour($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
                 if ($durationMitigated !== '') {
                     if ($dataLocal['wo_task_severity'] === '5') {
-                        $row_result['kpiMitigateResult'] = $durationMitigated < 3 ? 'Success' : 'Fail';
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 3 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '4') {
-                        $row_result['kpiMitigateResult'] = $durationMitigated < 24 ? 'Success' : 'Fail';
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 24 ? 'Success' : 'Fail';
                     } else if ($dataLocal['wo_task_severity'] === '3') {
-                        $row_result['kpiMitigateResult'] = $durationMitigated < 168 ? 'Success' : 'Fail';
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 168 ? 'Success' : 'Fail';
                     }
                 }
                 array_push($result, $row_result);
