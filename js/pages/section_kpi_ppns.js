@@ -174,12 +174,11 @@ function SectionKpiPpns () {
         });
 
         $('#btnSkpSubmit').on('click', function () {
-            const assetGroupId = $(this).val();
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (kpiPpnsCategory === '6') {
-                        mzAjaxRequest2('kpi/calculate_ppns/'+kpiPpnsId, 'PUT');
+                    if (kpiPpnsCategory === '6' || kpiPpnsCategory === '10') {
+                        mzAjaxRequest2('kpi/calculate_ppns/'+kpiPpnsCategory+'/'+kpiPpnsId, 'PUT');
                         self.displayDeductedData();
                         classFrom.genTable();
                     }

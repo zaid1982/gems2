@@ -165,7 +165,7 @@ class Class_kpi
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($kpiPpnsId));
 
-            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId), '', 1);
+            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'6'), '', 1);
             $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
             $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth']));
 
@@ -209,6 +209,67 @@ class Class_kpi
                     $totalNonComply += $totalNonComplyNormal;
                 }
                 $ncp = $totalNonComply / $totalComplaint;
+            }
+
+            Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalComplaintEmergency, 'kpi_ppns_param_2'=>$totalNonComplyEmergency, 'kpi_ppns_param_3'=>$totalComplaintUrgent,
+                'kpi_ppns_param_4'=>$totalNonComplyUrgent, 'kpi_ppns_param_5'=>$totalComplaintNormal, 'kpi_ppns_param_6'=>$totalNonComplyNormal, 'kpi_ppns_param_7'=>$totalComplaint,
+                'kpi_ppns_param_8'=>$totalNonComply, 'kpi_ppns_ncp'=>$ncp), array('kpi_ppns_id'=>$kpiPpnsId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $kpiPpnsId
+     * @return void
+     * @throws Exception
+     */
+    public function calculateKpiPpnsCate10($kpiPpnsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($kpiPpnsId));
+
+            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'10'), '', 1);
+            $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
+            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth']));
+
+            $totalComplaintEmergency = 0;
+            $totalNonComplyEmergency = 0;
+            $totalComplaintUrgent = 0;
+            $totalNonComplyUrgent = 0;
+            $totalComplaintNormal = 0;
+            $totalNonComplyNormal = 0;
+            $totalComplaint = 0;
+            $totalNonComply = 0;
+            $ncp = 0;
+            foreach ($woTasks as $woTask) {
+                $durationMitigated = $this->fn_general->timeDiffHour($woTask['woTaskTimeCreated'], $woTask['woTaskTimeExecuted']);
+                if ($woTask['woTaskSeverity'] === '5') {
+                    $totalComplaintEmergency++;
+                    $totalComplaint++;
+                } else if ($woTask['woTaskSeverity'] === '4') {
+                    $totalComplaintUrgent++;
+                    $totalComplaint++;
+                } else if ($woTask['woTaskSeverity'] === '3') {
+                    $totalComplaintNormal++;
+                    $totalComplaint++;
+                }
+                if ($durationMitigated !== '') {
+                    if ($woTask['woTaskSeverity'] === '5' && $durationMitigated < 3) {
+                        $totalNonComplyEmergency++;
+                    } else if ($woTask['woTaskSeverity'] === '4' && $durationMitigated < 24) {
+                        $totalNonComplyUrgent++;
+                    } else if ($woTask['woTaskSeverity'] === '3' && $durationMitigated < 168) {
+                        $totalNonComplyNormal++;
+                    }
+                }
+            }
+            if ($totalComplaint > 0) {
+                $totalNonComply = $totalNonComplyEmergency + $totalNonComplyUrgent + $totalNonComplyNormal;
+                if ($totalNonComply / $totalComplaint < 0.75) {
+                    $ncp = $totalNonComply / $totalComplaint;
+                }
             }
 
             Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalComplaintEmergency, 'kpi_ppns_param_2'=>$totalNonComplyEmergency, 'kpi_ppns_param_3'=>$totalComplaintUrgent,

@@ -79,7 +79,16 @@ try {
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
         if ($urlArr[1] === 'calculate_ppns') {
-            $fn_kpi->calculateKpiPpnsCate6($urlArr[2]);
+            if (!isset ($urlArr[2]) || !isset ($urlArr[3])) {
+                throw new Exception('[' . __LINE__ . '] - Empty 2nd & 3rd parameters');
+            }
+            if ($urlArr[2] === '6') {
+                $fn_kpi->calculateKpiPpnsCate6($urlArr[3]);
+            } else if ($urlArr[2] === '10') {
+                $fn_kpi->calculateKpiPpnsCate10($urlArr[3]);
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Invalid KPI category for PPNS');
+            }
             $form_data['errmsg'] = 'KPI Deduction Data successfully updated';
         }
         Class_db::getInstance()->db_commit();
