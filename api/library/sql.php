@@ -1274,7 +1274,7 @@ class Class_sql
                     SUM(ROUND((kpi_ppns_ncp*kpi_ppns_weightage*kpi_portion_perc/100*kpi_portion_total_fee),2)) AS kpi_cate_all
                 FROM kpi k
                 LEFT JOIN kpi_ppns p ON p.kpi_id = k.kpi_id
-                WHERE site_id = 1
+                WHERE site_id = 7
                 GROUP BY k.kpi_id";
             } else if ($title === 'vw_meter_mobile') {
                 $sql = "SELECT 
