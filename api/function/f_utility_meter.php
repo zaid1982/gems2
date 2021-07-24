@@ -96,7 +96,7 @@ class Class_utility_meter {
      * @return string
      * @throws Exception
      */
-    public function getUtilityMeterMobileList($userId, $meterType = '') {
+    public function getUtilityMeterMobileList($userId, $meterType='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId));

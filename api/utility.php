@@ -57,6 +57,10 @@ try {
                 $readingType = isset ($urlArr[3]) ? $urlArr[3] : '';
                 $meterId = isset ($urlArr[4]) ? $urlArr[4] : '';
                 $result = $fn_utility->getUtilityMobileList($userId, $type, $readingType, $meterId);
+            }  else if ($urlArr[1] === 'data_monthly_analyzed') {
+                $result = $fn_utility->getUtilityMonthlyAnalyzed($userId, $urlArr[2]);
+            }  else if ($urlArr[1] === 'data_daily_analyzed') {
+                $result = $fn_utility->getUtilityDailyAnalyzed($urlArr[2], $urlArr[3], $urlArr[4], $urlArr[5]);
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

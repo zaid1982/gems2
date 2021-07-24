@@ -139,4 +139,83 @@ class Class_utility {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $userId
+     * @param $utilityType
+     * @return array
+     * @throws Exception
+     */
+    public function getUtilityMonthlyAnalyzed($userId, $utilityType) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $utilityType));
+
+            $results = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+            if ($siteId === '7') {
+                $utilityUsageRate = 0.324;
+                $utilityMaxDemand = 6078;
+                $utilityMaxDemandRate = 23.2;
+                $cajSambunganBebanRate = 8.500;
+                $kwtbbPerc = 1.6;
+            }
+
+            $previousCharges = 0;
+            $analyzedMonthlyUtilities = Class_db::getInstance()->db_select2('vw_utility_monthly_analyzed', array(), '', '', 0, array('siteId'=>$siteId, 'utilityType'=>$utilityType, 'andQuery'=>''));
+            foreach ($analyzedMonthlyUtilities AS $analyzedMonthlyUtility) {
+                $row = $analyzedMonthlyUtility;
+                if ($siteId === '7') {
+                    $row['utilityUsageRate'] = strval($utilityUsageRate);
+                    $row['utilityUsageRm'] = strval($utilityUsageRate * floatval($row['utilityTotalKwh']));
+                    $row['utilityMaxDemand'] = strval($utilityMaxDemand);
+                    $row['utilityMaxDemandRate'] = strval($utilityMaxDemandRate);
+                    $row['utilityMaxDemandRm'] = strval($utilityMaxDemandRate * floatval($row['utilityActualMaxDemand']));
+                    $row['cajSambunganBeban'] = strval($utilityMaxDemand - floatval($row['utilityActualMaxDemand']));
+                    $row['cajSambunganBebanRate'] = strval($cajSambunganBebanRate);
+                    $row['cajSambunganBebanRm'] = strval($cajSambunganBebanRate * floatval($row['cajSambunganBeban']));
+                    $row['electricityAmountRm'] = strval(floatval($row['utilityUsageRm']) + floatval($row['utilityMaxDemandRm']) + floatval($row['cajSambunganBebanRm']));
+                    $row['kwtbbPerc'] = strval($kwtbbPerc);
+                    $row['kwtbbRm'] = strval($kwtbbPerc/100 * (floatval($row['utilityUsageRm']) + floatval($row['utilityMaxDemandRm'])));
+                    $row['electricityBillRm'] = strval(floatval($row['electricityAmountRm']) + floatval($row['kwtbbRm']));
+                    $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['electricityBillRm']))/$previousCharges*100) : '0';
+                    $previousCharges = floatval($row['electricityBillRm']);
+                }
+                array_push($results, $row);
+            }
+            return $results;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $utilityType
+     * @param $siteId
+     * @param $year
+     * @param $month
+     * @return array
+     * @throws Exception
+     */
+    public function getUtilityDailyAnalyzed($utilityType, $siteId, $year, $month) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($utilityType, $siteId));
+
+            $results = array();
+            $previousCharges = 0;
+            $utilities = Class_db::getInstance()->db_select2('utl_utility', array('utility_type'=>$utilityType, 'site_id'=>$siteId, 'YEAR(utility_date)'=>$year, 'MONTH(utility_date)'=>$month));
+            foreach ($utilities AS $utility) {
+                $row = $utility;
+                $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['utilityTotal']))/$previousCharges*100) : '0';
+                $previousCharges = floatval($row['utilityTotal']);
+                array_push($results, $row);
+            }
+            return $results;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
