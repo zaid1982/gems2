@@ -169,7 +169,7 @@ function MainUtility () {
                 text: 'Electricity Consumption (kWh)'
             },
             subtitle: {
-                text: refSite[siteId]['siteName']
+                text: siteId !== '' ? refSite[siteId]['siteName'] : ''
             },
             xAxis: {
                 type: 'category',
@@ -282,7 +282,7 @@ function MainUtility () {
                 text: 'Maximum Demand (kW)'
             },
             subtitle: {
-                text: refSite[siteId]['siteName']
+                text: siteId !== '' ? refSite[siteId]['siteName'] : ''
             },
             xAxis: {
                 type: 'category',
@@ -397,7 +397,7 @@ function MainUtility () {
                 text: 'Electricity Consumption (RM)'
             },
             subtitle: {
-                text: refSite[siteId]['siteName']
+                text: siteId !== '' ? refSite[siteId]['siteName'] : ''
             },
             xAxis: {
                 type: 'category',
