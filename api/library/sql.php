@@ -1293,6 +1293,25 @@ class Class_sql
                 ) d ON d.meter_id = m.meter_id 
                 LEFT JOIN utl_utility l ON l.meter_id = m.meter_id AND l.utility_reading_type = 'Daily' AND l.utility_date = d.daily_latest_date
                 LEFT JOIN utl_utility n ON n.meter_id = m.meter_id AND n.utility_reading_type = 'Monthly'";
+            } else if ($title === 'vw_utility_monthly_analyzed') {
+                $sql = "SELECT 
+                    u.*, 
+                    z.site_id,
+                    z.utility_max_demand AS utility_actual_max_demand
+                FROM
+                (
+                    SELECT
+                        YEAR(utility_date) AS utility_year, 
+                        MONTH(utility_date) AS utility_month,
+                        DATE_FORMAT(utility_date,'%M %Y') AS utility_month_name,
+                        SUM(utility_total) AS utility_total_kwh,
+                        MAX(utility_date) AS max_date
+                    FROM utl_utility
+                    WHERE site_id = [siteId] AND utility_type = '[utilityType]' AND utility_reading_type = 'Daily' [andQuery]
+                    GROUP BY YEAR(utility_date), MONTH(utility_date) 
+                    ORDER BY YEAR(utility_date), MONTH(utility_date)
+                ) u
+                LEFT JOIN utl_utility z ON z.utility_date = u.max_date";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
@@ -1309,4 +1328,4 @@ class Class_sql
 
 }
 
-?>
+
