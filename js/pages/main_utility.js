@@ -99,7 +99,7 @@ function MainUtility () {
         let data = [];
         let plotBands = [];
         let plotYear = '', plotFrom = 0, plotCount = 0, plotTotal = 0;
-        let siteId;
+        let siteId = '';
         const plotColor = ['#FFEFF0', '#E9FFF2'];
         for (let i=0; i<dataSet.length; i++) {
             const dataYear = dataSet[i]['utilityYear'];
@@ -211,7 +211,7 @@ function MainUtility () {
         let data2 = [];
         let plotBands = [];
         let plotYear = '', plotFrom = 0, plotCount = 0, plotTotal = 0;
-        let siteId;
+        let siteId = '';
         const plotColor = ['#FFEFF0', '#E9FFF2'];
         for (let i=0; i<dataSet.length; i++) {
             const dataYear = dataSet[i]['utilityYear'];
@@ -328,7 +328,7 @@ function MainUtility () {
         let plotBands = [];
         let plotYear = '', plotFrom = 0, plotCount = 0, plotTotal = 0;
         const plotColor = ['#FFEFF0', '#E9FFF2'];
-        let siteId;
+        let siteId = '';
         for (let i=0; i<dataSet.length; i++) {
             const dataYear = dataSet[i]['utilityYear'];
             const utilityTotalRm = parseFloat(dataSet[i]['electricityBillRm']);
