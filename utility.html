@@ -44,17 +44,17 @@
             <div class="mt-4">
                 <ul class="nav nav-tabs md-tabs blue-grey lighten-1 mx-0">
                     <li class="nav-item">
-                        <a class="nav-link active" id="tabPpgInternalJust" data-toggle="tab" href="#tabPpgInternal" role="tab" aria-controls="tabPpgInternal"
+                        <a class="nav-link active" id="tabPpgElectricityJust" data-toggle="tab" href="#tabPpgElectricity" role="tab" aria-controls="tabPpgElectricity"
                            aria-selected="true"><i class="fas fa-fire pr-2"></i>Electricity</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="tabPpgExternalJust" data-toggle="tab" href="#tabPpgExternal" role="tab" aria-controls="tabPpgExternal"
+                        <a class="nav-link" id="tabPpgWaterJust" data-toggle="tab" href="#tabPpgWater" role="tab" aria-controls="tabPpgWater"
                            aria-selected="true"><i class="fas fa-water pr-2"></i>Water</a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content rounded-bottom card pt-5" id="myTabPpg">
-                <div class="tab-pane fade show active" id="tabPpgInternal" role="tabpanel" aria-labelledby="tabPpgInternalJust">
+                <div class="tab-pane fade show active" id="tabPpgElectricity" role="tabpanel" aria-labelledby="tabPpgElectricityJust">
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="mb-4" id="chartUtmKwh" style="height: 350px; margin: 0;"></div>
@@ -70,7 +70,7 @@
                                         <th>Consumption (kWh)</th>
                                         <th>Actual MD</th>
                                         <th>Maximum Demand</th>
-                                        <th>Caj Sambungan Beban</th>
+                                        <th>CLC</th>
                                         <th>Charges (RM)</th>
                                         <th>Trend</th>
                                         <th>Trend</th>
@@ -81,7 +81,29 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <div class="tab-pane fade show active" id="tabPpgWater" role="tabpanel" aria-labelledby="tabPpgWaterJust">
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="mb-4" id="chartUtmWater" style="margin: 0;"></div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="table-responsive">
+                                <table id="dtUtmMonthlyWaterData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>Month</th>
+                                        <th>Consumption (kWh)</th>
+                                        <th>Charges (RM)</th>
+                                        <th>Trend</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
