@@ -58,7 +58,11 @@ try {
                 $meterId = isset ($urlArr[4]) ? $urlArr[4] : '';
                 $result = $fn_utility->getUtilityMobileList($userId, $type, $readingType, $meterId);
             }  else if ($urlArr[1] === 'data_monthly_analyzed') {
-                $result = $fn_utility->getUtilityMonthlyAnalyzed($userId, $urlArr[2]);
+                if ($urlArr[2] === 'Electricity') {
+                    $result = $fn_utility->getUtilityMonthlyElectricityAnalyzed($userId);
+                } else if ($urlArr[2] === 'Water') {
+                    $result = $fn_utility->getUtilityMonthlyWaterAnalyzed($userId);
+                }
             }  else if ($urlArr[1] === 'data_daily_analyzed') {
                 $result = $fn_utility->getUtilityDailyAnalyzed($urlArr[2], $urlArr[3], $urlArr[4], $urlArr[5]);
             }

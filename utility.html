@@ -82,10 +82,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade show active" id="tabPpgWater" role="tabpanel" aria-labelledby="tabPpgWaterJust">
+                <div class="tab-pane fade" id="tabPpgWater" role="tabpanel" aria-labelledby="tabPpgWaterJust">
                     <div class="row">
                         <div class="col-lg-7">
-                            <div class="mb-4" id="chartUtmWater" style="margin: 0;"></div>
+                            <div class="mb-4" id="chartUtmWaterM3" style="margin: 0;"></div>
+                            <div class="mb-4" id="chartUtmWaterRm" style="margin: 0;"></div>
                         </div>
                         <div class="col-lg-5">
                             <div class="table-responsive">
@@ -93,7 +94,7 @@
                                     <thead>
                                     <tr class="th-strong">
                                         <th>Month</th>
-                                        <th>Consumption (kWh)</th>
+                                        <th>Domestic (m<sup>3</sup>)</th>
                                         <th>Charges (RM)</th>
                                         <th>Trend</th>
                                         <th>Trend</th>
@@ -108,6 +109,7 @@
             </div>
         </section>
         <div class="includeHtml" id="h-section_monthly_electricity"></div>
+        <div class="includeHtml" id="h-section_monthly_water"></div>
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>
@@ -151,6 +153,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let sectionMonthlyElectricityClass_;
+    let sectionMonthlyWaterClass_;
     let utilityClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -162,6 +165,7 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 sectionMonthlyElectricityClass_ = new SectionMonthlyElectricity();
+                sectionMonthlyWaterClass_ = new SectionMonthlyWater();
                 utilityClass_ = new MainUtility();
 
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
@@ -172,8 +176,14 @@
                 sectionMonthlyElectricityClass_.setClassFrom(utilityClass_);
                 sectionMonthlyElectricityClass_.init();
 
+                sectionMonthlyWaterClass_.setRefSite(refSite_);
+                sectionMonthlyWaterClass_.setRefUser(refUser_);
+                sectionMonthlyWaterClass_.setClassFrom(utilityClass_);
+                sectionMonthlyWaterClass_.init();
+
                 utilityClass_.setRefSite(refSite_);
                 utilityClass_.setSectionMonthlyElectricityClass(sectionMonthlyElectricityClass_);
+                utilityClass_.setSectionMonthlyWaterClass(sectionMonthlyWaterClass_);
                 utilityClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -185,6 +195,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_monthly_electricity.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_monthly_water.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_utility.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

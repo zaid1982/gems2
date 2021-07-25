@@ -1,25 +1,25 @@
-function SectionMonthlyElectricity () {
+function SectionMonthlyWater () {
 
-    const className = 'SectionMonthlyElectricity';
+    const className = 'SectionMonthlyWater';
     let self = this;
     let classFrom;
     let monthlySummary;
     let refSite;
     let refUser;
-    let oTableSme;
+    let oTableSmw;
 
     this.init = function () {
-        $('.sectionMonthlyElectricity').hide();
+        $('.sectionMonthlyWater').hide();
 
-        $('#btnSmeBack').on('click', function () {
-            $('.sectionMonthlyElectricity').hide();
+        $('#btnSmwBack').on('click', function () {
+            $('.sectionMonthlyWater').hide();
             classFrom.showMain();
             $(window).scrollTop(0);
         });
 
-        let exportOptSme = [];
-        exportOptSme['columns'] = [0, 1, 2, 3, 4, 5, 6, 8];
-        oTableSme = $('#dtSmeData').DataTable({
+        let exportOptSmw = [];
+        exportOptSmw['columns'] = [0, 1, 2, 3, 4, 5, 6, 8];
+        oTableSmw = $('#dtSmwData').DataTable({
             bLengthChange: false,
             bFilter: false,
             ordering: false,
@@ -38,10 +38,10 @@ function SectionMonthlyElectricity () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Print', exportOptions: exportOptSme},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Copy', exportOptions: exportOptSme},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Excel', exportOptions: exportOptSme},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOptSme}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Print', exportOptions: exportOptSmw},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Copy', exportOptions: exportOptSmw},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'Excel', exportOptions: exportOptSmw},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Utility Daily Records - Electricity', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOptSmw}
             ],
             aoColumns: [
                 {mData: 'utilityDate', width: '80px'},
@@ -88,38 +88,25 @@ function SectionMonthlyElectricity () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    $('#lblSmeMonthName').text(monthlySummary['utilityMonthName']);
-                    $('#lblSmeSiteName').text(refSite[monthlySummary['siteId']]['siteName']);
+                    console.log(monthlySummary);
+                    $('#lblSmwMonthName').text(monthlySummary['utilityMonthName']);
+                    $('#lblSmwSiteName').text(refSite[monthlySummary['siteId']]['siteName']);
                     const changes = parseFloat(monthlySummary['changePerc']);
                     if (changes === 0) {
-                        $('#lblSmeChangePerc').html('');
+                        $('#lblSmwChangePerc').html('');
                     } else if (changes > 0) {
-                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes,2)+'%');
+                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes,2)+'%');
                     } else {
-                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes*-1,2)+'%');
+                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes*-1,2)+'%');
                     }
-                    $('#lblSmeTotalMonthlyConsumption').text(mzFormatNumber(monthlySummary['utilityTotalKwh']));
-                    $('#lblSmeUtilityTotalKwh').text(mzFormatNumber(monthlySummary['utilityTotalKwh']));
-                    $('#lblSmeUtilityUsageRate').text(monthlySummary['utilityUsageRate']);
-                    $('#lblSmeUtilityUsageRm').text(mzFormatNumber(monthlySummary['utilityUsageRm'],2));
-                    $('#lblSmeCajSambunganBeban').text(mzFormatNumber(monthlySummary['cajSambunganBeban']));
-                    $('#lblSmeCajSambunganBebanRate').text(monthlySummary['cajSambunganBebanRate']);
-                    $('#lblSmeCajSambunganBebanRm').text(mzFormatNumber(monthlySummary['cajSambunganBebanRm'],2));
-                    $('#lblSmeUtilityActualMaxDemand').text(mzFormatNumber(monthlySummary['utilityActualMaxDemand']));
-                    $('#lblSmeUtilityMaxDemandRate').text(mzFormatNumber(monthlySummary['kwtbbRm'],2));
-                    $('#lblSmeUtilityMaxDemandRm').text(mzFormatNumber(monthlySummary['utilityMaxDemandRate'],2));
-                    $('#lblSmeElectricityAmountRm').text(mzFormatNumber(monthlySummary['utilityMaxDemandRm'],2));
-                    $('#lblSmeKwtbbPerc').text(mzFormatNumber(monthlySummary['kwtbbRm']));
-                    $('#lblSmeKwtbbRm').text(mzFormatNumber(monthlySummary['kwtbbPerc'],2));
-                    $('#lblSmeElectricityBillRm').text(mzFormatNumber(monthlySummary['electricityBillRm'],2));
-                    $('#lblSmeTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['electricityBillRm'],2));
+                    $('#lblSmwTotalMonthlyConsumption').text(mzFormatNumber(monthlySummary['utilityTotalUsage']));
+                    $('#lblSmwTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['utilityTotalUsageRm'],2));
 
-                    const dataDailyElectrics = mzAjaxRequest2('utility/data_daily_analyzed/Electricity/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
-                    oTableSme.clear().rows.add(dataDailyElectrics).draw();
-                    console.log(dataDailyElectrics);
-                    self.generateChartKhw('chartSmeKwh', dataDailyElectrics);
+                    //const dataDailyElectrics = mzAjaxRequest2('utility/data_daily_analyzed/Electricity/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
+                    //oTableSmw.clear().rows.add(dataDailyElectrics).draw();
+                    //self.generateChartM3('chartSmwKwh', dataDailyElectrics);
 
-                    $('.sectionMonthlyElectricity').show();
+                    $('.sectionMonthlyWater').show();
                     classFrom.hideMain();
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
@@ -132,7 +119,7 @@ function SectionMonthlyElectricity () {
         }
     };
 
-    this.generateChartKhw = function (chartId, dataSet) {
+    this.generateChartM3 = function (chartId, dataSet) {
         let data = [];
         for (let i=0; i<dataSet.length; i++) {
             const dataDate = dataSet[i]['utilityDate'];
@@ -144,13 +131,13 @@ function SectionMonthlyElectricity () {
             chart: {
                 type: 'column',
                 zoomType: 'x',
-               /* backgroundColor: {
-                    linearGradient: [0, 0, 1000, 1000],
-                    stops: [
-                        [0, 'rgb(255, 255, 255)'],
-                        [1, 'rgb(204, 229, 255)']
-                    ]
-                }*/
+                /* backgroundColor: {
+                     linearGradient: [0, 0, 1000, 1000],
+                     stops: [
+                         [0, 'rgb(255, 255, 255)'],
+                         [1, 'rgb(204, 229, 255)']
+                     ]
+                 }*/
             },
             title: {
                 text: 'Electricity Consumption (kWh)'

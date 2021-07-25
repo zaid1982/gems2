@@ -1293,7 +1293,7 @@ class Class_sql
                 ) d ON d.meter_id = m.meter_id 
                 LEFT JOIN utl_utility l ON l.meter_id = m.meter_id AND l.utility_reading_type = 'Daily' AND l.utility_date = d.daily_latest_date
                 LEFT JOIN utl_utility n ON n.meter_id = m.meter_id AND n.utility_reading_type = 'Monthly'";
-            } else if ($title === 'vw_utility_monthly_analyzed') {
+            } else if ($title === 'vw_utility_monthly_electricity_analyzed') {
                 $sql = "SELECT 
                     u.*, 
                     z.site_id,
@@ -1307,17 +1307,30 @@ class Class_sql
                         SUM(utility_total) AS utility_total_kwh,
                         MAX(utility_date) AS max_date
                     FROM utl_utility
-                    WHERE site_id = [siteId] AND utility_type = '[utilityType]' AND utility_reading_type = 'Daily' [andQuery]
+                    WHERE site_id = [siteId] AND utility_type = 'Electricity' AND utility_reading_type = 'Daily' [andQuery]
                     GROUP BY YEAR(utility_date), MONTH(utility_date) 
                     ORDER BY YEAR(utility_date), MONTH(utility_date)
                 ) u
-                LEFT JOIN utl_utility z ON z.utility_date = u.max_date";
+                LEFT JOIN utl_utility z ON z.utility_date = u.max_date AND z.site_id = [siteId] AND z.utility_type = 'Electricity' AND z.utility_reading_type = 'Daily'";
+            } else if ($title === 'vw_utility_monthly_water_analyzed') {
+                $sql = "SELECT
+                    YEAR(utility_date) AS utility_year, 
+                    MONTH(utility_date) AS utility_month,
+                    DATE_FORMAT(utility_date,'%M %Y') AS utility_month_name,
+                    SUM(utility_total) AS utility_total_usage,    
+                    site_id
+                FROM utl_utility
+                WHERE site_id = [siteId] AND utility_type = 'Water' AND utility_reading_type = 'Daily' AND utility_total IS NOT NULL
+                GROUP BY YEAR(utility_date), MONTH(utility_date) 
+                ORDER BY YEAR(utility_date), MONTH(utility_date)";
             } else if ($title === 'vw_utility_shift') {
                 $sql = "SELECT 
                     CASE WHEN CURTIME() >= '06:00:00' AND CURTIME() < '18:00:00' THEN 'Morning'
                         WHEN CURTIME() >= '18:00:00' AND CURTIME() < '22:00:00' THEN 'Evening'
                         ELSE 'Night' END AS reading_shift,
                     IF (CURTIME() < '06:00:00', CURDATE() - INTERVAL 1 DAY, CURDATE()) AS reading_date";
+            } else if ($title === 'vw_utility_monthly_water_analyzed') {
+                $sql = "";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

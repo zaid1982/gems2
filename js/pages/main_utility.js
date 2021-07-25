@@ -3,13 +3,14 @@ function MainUtility () {
     const className = 'MainStoreManagement';
     let self = this;
     let oTableUtmMonthly;
+    let oTableUtmMonthlyWater;
     let sectionMonthlyElectricityClass;
+    let sectionMonthlyWaterClass;
     let refSite;
 
     this.init = function () {
         let exportOptUtmMonthly = [];
         exportOptUtmMonthly['columns'] = [0, 1, 2, 3, 4, 5, 7];
-
         oTableUtmMonthly = $('#dtUtmMonthlyData').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -83,8 +84,76 @@ function MainUtility () {
             cell.attr('title', 'Click to see the Monthly report');
             $('[data-toggle="tooltip"]').tooltip();
         });
+
+        let exportOptUtmMonthlyWater = [];
+        exportOptUtmMonthlyWater['columns'] = [0, 1, 2, 3];
+        oTableUtmMonthlyWater = $('#dtUtmMonthlyWaterData').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            ordering: false,
+            language: _DATATABLE_LANGUAGE,
+            pageLength: 50,
+            autoWidth: false,
+            dom: "<'row'<'col-12 px-0'B>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { className: 'text-right', targets: [1, 2] },
+                { className: 'text-center font-weight-bold', targets: [3] },
+                { visible: false, targets: [4] },
+                { className: 'noVis', targets: [4] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Utility Monthly Records - Water', titleAttr: 'Print', exportOptions: exportOptUtmMonthlyWater},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Utility Monthly Records - Water', titleAttr: 'Copy', exportOptions: exportOptUtmMonthlyWater},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Utility Monthly Records - Water', titleAttr: 'Excel', exportOptions: exportOptUtmMonthlyWater},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Utility Monthly Records - Water', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOptUtmMonthlyWater}
+            ],
+            aoColumns: [
+                {mData: 'utilityMonthName'},
+                {mData: 'utilityTotalUsage', mRender: function (data){
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'utilityTotalUsageRm', mRender: function (data){
+                        return mzFormatNumber(data,2);
+                    }},
+                {mData: 'changePerc', width: '80px', mRender: function (data){
+                        const changes = parseFloat(data);
+                        if (changes === 0) {
+                            return '-';
+                        } else if (changes > 0) {
+                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes,2)+'%</a>';
+                        } else {
+                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
+                        }
+                    }},
+                {mData: null, mRender: function (data, type, row){
+                        const changes = parseFloat(row['changePerc']);
+                        if (changes === 0) {
+                            return '-';
+                        } else {
+                            return mzFormatNumber(changes*-1,2)+'%';
+                        }
+                    }}
+            ]
+        });
+        let oTableUtmMonthlyWaterTbody = $('#dtUtmMonthlyWaterData tbody');
+        oTableUtmMonthlyWaterTbody.delegate('tr', 'click', function (evt) {
+            const data = $('#dtUtmMonthlyWaterData').DataTable().row(this).data();
+            sectionMonthlyWaterClass.setMonthlySummary(data);
+            sectionMonthlyWaterClass.load();
+        });
+        oTableUtmMonthlyWaterTbody.delegate('tr', 'mouseenter', function (evt) {
+            const cell = $(evt.target).closest('td');
+            cell.css('cursor', 'pointer');
+            cell.attr('data-toggle', 'tooltip');
+            cell.attr('title', 'Click to see the Monthly report');
+            $('[data-toggle="tooltip"]').tooltip();
+        });
         
         self.generateElectricityMonthly();
+        self.generateWaterMonthly();
     };
 
     this.generateElectricityMonthly = function () {
@@ -93,6 +162,14 @@ function MainUtility () {
         self.generateChartKhw('chartUtmKwh', dataMonthlyElectrics);
         self.generateChartMd('chartUtmMd', dataMonthlyElectrics);
         self.generateChartRm('chartUtmRm', dataMonthlyElectrics);
+    };
+
+    this.generateWaterMonthly = function () {
+        const dataMonthlyWater = mzAjaxRequest2('utility/data_monthly_analyzed/Water', 'GET');
+        console.log(dataMonthlyWater);
+        oTableUtmMonthlyWater.clear().rows.add(dataMonthlyWater).draw();
+        self.generateChartWaterM3('chartUtmWaterM3', dataMonthlyWater);
+        self.generateChartWaterRm('chartUtmWaterRm', dataMonthlyWater);
     };
 
     this.generateChartKhw = function (chartId, dataSet) {
@@ -341,7 +418,7 @@ function MainUtility () {
                         to: i - 0.5,
                         color: plotColor[parseInt(plotYear) % 2],
                         label: {
-                            text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount)+'</b>',
+                            text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount, 2)+'</b>',
                             style: {
                                 color: '#999999'
                             },
@@ -371,7 +448,7 @@ function MainUtility () {
                     to: plotTo,
                     color: plotColor[parseInt(plotYear) % 2],
                     label: {
-                        text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount)+'</b>',
+                        text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount, 2)+'</b>',
                         style: {
                             color: '#999999'
                         },
@@ -434,6 +511,228 @@ function MainUtility () {
         });
     };
 
+    this.generateChartWaterM3 = function (chartId, dataSet) {
+        let data = [];
+        let plotBands = [];
+        let plotYear = '', plotFrom = 0, plotCount = 0, plotTotal = 0;
+        let siteId = '';
+        const plotColor = ['#FFEFF0', '#E9FFF2'];
+        for (let i=0; i<dataSet.length; i++) {
+            const dataYear = dataSet[i]['utilityYear'];
+            const utilityTotalUsage = parseFloat(dataSet[i]['utilityTotalUsage']);
+            data.push({name:dataSet[i]['utilityMonthName'], y:utilityTotalUsage, color: Highcharts.getOptions().colors[(parseInt(dataYear)+7)%10],
+                utilityYear:dataYear, utilityMonth:dataSet[i]['utilityMonth']});
+            if (plotYear !== dataYear && i > 0) {
+                plotBands.push(
+                    {
+                        from: plotFrom - 0.5,
+                        to: i - 0.5,
+                        color: plotColor[parseInt(plotYear) % 2],
+                        label: {
+                            text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount)+'</b>',
+                            style: {
+                                color: '#999999'
+                            },
+                            y: 20
+                        }
+                    }
+                );
+                plotFrom = i;
+                plotCount = 0;
+                plotTotal = 0;
+            }
+            plotYear = dataYear;
+            plotCount++;
+            plotTotal += utilityTotalUsage;
+            siteId = siteId === '' ? dataSet[i]['siteId'] : '';
+        }
+        if (plotCount > 0) {
+            let plotTo = dataSet.length - 0.5;
+            if (plotCount === 1) {
+                data.push({name:'', y:0, color: Highcharts.getOptions().colors[0],
+                    utilityYear:'', utilityMonth:''});
+                plotTo = dataSet.length + 0.5;
+            }
+            plotBands.push(
+                {
+                    from: plotFrom - 0.5,
+                    to: plotTo,
+                    color: plotColor[parseInt(plotYear) % 2],
+                    label: {
+                        text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount)+'</b>',
+                        style: {
+                            color: '#999999'
+                        },
+                        y: 20
+                    }
+                }
+            );
+        }
+
+        Highcharts.chart(chartId, {
+            chart: {
+                type: 'column',
+                zoomType: 'x',
+                backgroundColor: {
+                    linearGradient: [0, 0, 1000, 1000],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(204, 229, 255)']
+                    ]
+                }
+            },
+            title: {
+                text: 'Water Domestic Consumption (m3)'
+            },
+            subtitle: {
+                text: siteId !== '' ? refSite[siteId]['siteName'] : ''
+            },
+            xAxis: {
+                type: 'category',
+                plotBands: plotBands
+            },
+            yAxis: {
+                //min: 0,
+                //max: 1500000,
+                title: {
+                    text: 'Water Domestic Consumption (m3)'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                //xDateFormat: '%B %Y',
+                //valueSuffix: ' % of best month',
+                //pointFormat: 'Population : <b>{point.y:.1f} millions</b>'
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                name: 'Water Domestic Consumption (m3)',
+                data: data
+            }],
+            credits: {
+                enabled: false
+            }
+        });
+    };
+
+    this.generateChartWaterRm = function (chartId, dataSet) {
+        let data = [];
+        let plotBands = [];
+        let plotYear = '', plotFrom = 0, plotCount = 0, plotTotal = 0;
+        let siteId = '';
+        const plotColor = ['#FFEFF0', '#E9FFF2'];
+        for (let i=0; i<dataSet.length; i++) {
+            const dataYear = dataSet[i]['utilityYear'];
+            const utilityTotalUsageRm = parseFloat(dataSet[i]['utilityTotalUsageRm']);
+            data.push({name:dataSet[i]['utilityMonthName'], y:utilityTotalUsageRm, color: Highcharts.getOptions().colors[(parseInt(dataYear)+7)%10],
+                utilityYear:dataYear, utilityMonth:dataSet[i]['utilityMonth']});
+            if (plotYear !== dataYear && i > 0) {
+                plotBands.push(
+                    {
+                        from: plotFrom - 0.5,
+                        to: i - 0.5,
+                        color: plotColor[parseInt(plotYear) % 2],
+                        label: {
+                            text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount, 2)+'</b>',
+                            style: {
+                                color: '#999999'
+                            },
+                            y: 20
+                        }
+                    }
+                );
+                plotFrom = i;
+                plotCount = 0;
+                plotTotal = 0;
+            }
+            plotYear = dataYear;
+            plotCount++;
+            plotTotal += utilityTotalUsageRm;
+            siteId = siteId === '' ? dataSet[i]['siteId'] : '';
+        }
+        if (plotCount > 0) {
+            let plotTo = dataSet.length - 0.5;
+            if (plotCount === 1) {
+                data.push({name:'', y:0, color: Highcharts.getOptions().colors[0],
+                    utilityYear:'', utilityMonth:''});
+                plotTo = dataSet.length + 0.5;
+            }
+            plotBands.push(
+                {
+                    from: plotFrom - 0.5,
+                    to: plotTo,
+                    color: plotColor[parseInt(plotYear) % 2],
+                    label: {
+                        text: plotYear + '<br> <em>Avg : </em> <b>'+mzFormatNumber(plotTotal/plotCount, 2)+'</b>',
+                        style: {
+                            color: '#999999'
+                        },
+                        y: 20
+                    }
+                }
+            );
+        }
+
+        Highcharts.chart(chartId, {
+            chart: {
+                type: 'column',
+                zoomType: 'x',
+                backgroundColor: {
+                    linearGradient: [0, 0, 1000, 1000],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(204, 229, 255)']
+                    ]
+                }
+            },
+            title: {
+                text: 'Water Domestic Consumption (RM)'
+            },
+            subtitle: {
+                text: siteId !== '' ? refSite[siteId]['siteName'] : ''
+            },
+            xAxis: {
+                type: 'category',
+                plotBands: plotBands
+            },
+            yAxis: {
+                //min: 0,
+                max: 22000,
+                title: {
+                    text: 'Water Domestic Consumption (RM)'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                //xDateFormat: '%B %Y',
+                //valueSuffix: ' % of best month',
+                //pointFormat: 'Population : <b>{point.y:.1f} millions</b>'
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                name: 'Water Domestic Consumption (RM)',
+                data: data
+            }],
+            credits: {
+                enabled: false
+            }
+        });
+    };
+
     this.showMain = function () {
         $('.sectionUtmMain').show();
     };
@@ -452,5 +751,9 @@ function MainUtility () {
 
     this.setSectionMonthlyElectricityClass = function (_sectionMonthlyElectricityClass) {
         sectionMonthlyElectricityClass = _sectionMonthlyElectricityClass;
+    };
+
+    this.setSectionMonthlyWaterClass = function (_sectionMonthlyWaterClass) {
+        sectionMonthlyWaterClass = _sectionMonthlyWaterClass;
     };
 }

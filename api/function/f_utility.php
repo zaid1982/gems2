@@ -133,9 +133,15 @@ class Class_utility {
                     if (Class_db::getInstance()->db_count('utl_utility', array('meter_id'=>$params['meterId'], 'utility_reading_type'=>'Daily', 'utility_type'=>'Water', 'utility_date'=>$params['utilityDate'], 'utility_shift'=>$shift)) > 0) {
                         throw new Exception('[' . __LINE__ . '] - Today\'s ' . $shift . ' shift reading for Water already recorded.', 31);
                     }
+                    $previousReading = Class_db::getInstance()->db_select_single2('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_timestamp DESC');
+                    if (!empty($previousReading)) {
+                        $totalTemp = strval(floatval($params['utilityReading']) - floatval($previousReading['utilityReading']));
+                        Class_db::getInstance()->db_update('utl_utility', array('utility_total'=>$totalTemp, array('utility_id'=>$previousReading['utilityId'])));
+                    }
+                } else {
+                    $opening = Class_db::getInstance()->db_select_col('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_reading', 'utility_timestamp DESC');
+                    $total = strval(floatval($params['utilityReading']) - floatval($opening));
                 }
-                $opening = Class_db::getInstance()->db_select_col('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_reading', 'utility_timestamp DESC');
-                $total = strval(floatval($params['utilityReading']) - floatval($opening));
             }
             $insertParams = array_merge(
                 $this->fn_general->convertToMysqlArr($params, array('meterId', 'utilityDate', 'utilityReading', 'utilityMaxDemand', 'utilityTotalRm')),
@@ -152,14 +158,13 @@ class Class_utility {
 
     /**
      * @param $userId
-     * @param $utilityType
      * @return array
      * @throws Exception
      */
-    public function getUtilityMonthlyAnalyzed($userId, $utilityType) {
+    public function getUtilityMonthlyElectricityAnalyzed($userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($userId, $utilityType));
+            $this->fn_general->checkEmptyParams(array($userId));
 
             $results = array();
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
@@ -172,7 +177,7 @@ class Class_utility {
             }
 
             $previousCharges = 0;
-            $analyzedMonthlyUtilities = Class_db::getInstance()->db_select2('vw_utility_monthly_analyzed', array(), '', '', 0, array('siteId'=>$siteId, 'utilityType'=>$utilityType, 'andQuery'=>''));
+            $analyzedMonthlyUtilities = Class_db::getInstance()->db_select2('vw_utility_monthly_electricity_analyzed', array(), '', '', 0, array('siteId'=>$siteId, 'andQuery'=>''));
             foreach ($analyzedMonthlyUtilities AS $analyzedMonthlyUtility) {
                 $row = $analyzedMonthlyUtility;
                 if ($siteId === '7') {
@@ -187,10 +192,39 @@ class Class_utility {
                     $row['electricityAmountRm'] = strval(floatval($row['utilityUsageRm']) + floatval($row['utilityMaxDemandRm']) + floatval($row['cajSambunganBebanRm']));
                     $row['kwtbbPerc'] = strval($kwtbbPerc);
                     $row['kwtbbRm'] = strval($kwtbbPerc/100 * (floatval($row['utilityUsageRm']) + floatval($row['utilityMaxDemandRm'])));
-                    $row['electricityBillRm'] = strval(floatval($row['electricityAmountRm']) + floatval($row['kwtbbRm']));
+                    $row['electricityBillRm'] = strval(round(floatval($row['electricityAmountRm']) + floatval($row['kwtbbRm']),2));
                     $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['electricityBillRm']))/$previousCharges*100) : '0';
                     $previousCharges = floatval($row['electricityBillRm']);
                 }
+                array_push($results, $row);
+            }
+            return $results;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function getUtilityMonthlyWaterAnalyzed($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $results = array();
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
+
+            $previousCharges = 0;
+            $analyzedMonthlyUtilities = Class_db::getInstance()->db_select2('vw_utility_monthly_water_analyzed', array(), '', '', 0, array('siteId'=>$siteId));
+            foreach ($analyzedMonthlyUtilities AS $analyzedMonthlyUtility) {
+                $row = $analyzedMonthlyUtility;
+                $row['utilityTotalUsageRm'] = strval(round(floatval($row['utilityTotalUsage']) * 1.2,2));
+                $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['utilityTotalUsageRm']))/$previousCharges*100) : '0';
+                $previousCharges = floatval($row['utilityTotalUsageRm']);
                 array_push($results, $row);
             }
             return $results;
