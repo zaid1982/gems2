@@ -1665,8 +1665,10 @@ class Class_wo {
             }
             if ($kpiType === 'responseTime') {
                 $arrWhere['wo_task_status'] = 'N(25)';
+                $arrWhere['wo_task_type'] = '<>2';
             } else if ($kpiType === 'mitigateTime') {
                 $arrWhere['wo_task_time_executed'] = 'is not NULL';
+                $arrWhere['wo_task_type'] = '<>2';
             }
 
             $result = array();
