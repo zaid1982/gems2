@@ -92,7 +92,7 @@ function ModalDrawing () {
                 type: 'file',
                 name: 'Drawing DWG File',
                 validator: {
-                    notEmptyFile: true,
+                    notEmptyFile: false,
                     dwgType: true
                 }
             },
@@ -142,15 +142,17 @@ function ModalDrawing () {
                             drawingRemark: $('#txaMdwRemark').val()
                         };
                         const fileDwg = $('#txfMdwFile').prop('files');
-                        const dataDwgUpload = {
-                            name: $('#txtMdwTitle').val(),
-                            filename: fileDwg[0].name,
-                            size: fileDwg[0].size,
-                            type: fileDwg[0].type,
-                            data: $('#txfMdwFileBlob').val(),
-                            description: $('#txtMdwTitle').val()
-                        };                        
-                        dataDrawing['drawingDwg'] = mzAjaxRequest2('drawing/upload_dwg_drawing', 'POST', dataDwgUpload);
+                        if (fileDwg.length > 0) {
+                            const dataDwgUpload = {
+                                name: $('#txtMdwTitle').val(),
+                                filename: fileDwg[0].name,
+                                size: fileDwg[0].size,
+                                type: fileDwg[0].type,
+                                data: $('#txfMdwFileBlob').val(),
+                                description: $('#txtMdwTitle').val()
+                            };
+                            dataDrawing['drawingDwg'] = mzAjaxRequest2('drawing/upload_dwg_drawing', 'POST', dataDwgUpload);
+                        }
                         const filePdf = $('#txfMdwPdfFile').prop('files');
                         if (filePdf.length > 0) {
                             const dataPdfUpload = {
@@ -242,9 +244,8 @@ function ModalDrawing () {
                 formValidate.clearValidation();                
 
                 $('#lblMdwModalTitle').html('<i class="fas fa-upload text-white"></i> Upload Drawing File');
-                $('#lblMdwFile').text('Drawing DWG File *');
+                $('#lblMdwFile').text('Drawing DWG File');
                 $('#lblMdwPdfFile').text('Drawing PDF File');
-                vData[9]['validator']['notEmptyFile'] = true;
                 formValidate.registerFields(vData);
                 $('#btnMdwSave').hide();
                 $('#btnMdwSubmit').show();
@@ -281,7 +282,6 @@ function ModalDrawing () {
                 $('#lblMdwModalTitle').html('<i class="fas fa-edit text-white"></i> Edit Drawing File');
                 $('#lblMdwFile').text('Replace Drawing DWG File');
                 $('#lblMdwPdfFile').text('Replace Drawing PDF File');
-                vData[9]['validator']['notEmptyFile'] = false;
                 formValidate.registerFields(vData);
                 $('#btnMdwSubmit').hide();
                 $('#btnMdwSave').show();
