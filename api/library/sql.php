@@ -1312,6 +1312,12 @@ class Class_sql
                     ORDER BY YEAR(utility_date), MONTH(utility_date)
                 ) u
                 LEFT JOIN utl_utility z ON z.utility_date = u.max_date";
+            } else if ($title === 'vw_utility_shift') {
+                $sql = "SELECT 
+                    CASE WHEN CURTIME() >= '06:00:00' AND CURTIME() < '18:00:00' THEN 'Morning'
+                        WHEN CURTIME() >= '18:00:00' AND CURTIME() < '22:00:00' THEN 'Evening'
+                        ELSE 'Night' END AS reading_shift,
+                    IF (CURTIME() < '06:00:00', CURDATE() - INTERVAL 1 DAY, CURDATE()) AS reading_date";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

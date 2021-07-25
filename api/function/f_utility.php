@@ -116,21 +116,31 @@ class Class_utility {
             if ($readingType !== 'Daily' && $readingType !== 'Monthly') {
                 throw new Exception('[' . __LINE__ . '] - Invalid reading type.');
             }
-            if ($readingType === 'Daily' && Class_db::getInstance()->db_count('utl_utility', array('meter_id'=>$params['meterId'], 'utility_date'=>$params['utilityDate'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily')) > 0) {
-                throw new Exception('[' . __LINE__ . '] - The type of reading for the reading date already recorded.', 31);
+            if ($type === 'Electricity' && $readingType === 'Daily' && Class_db::getInstance()->db_count('utl_utility', array('meter_id'=>$params['meterId'], 'utility_date'=>$params['utilityDate'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily')) > 0) {
+                throw new Exception('[' . __LINE__ . '] - Today\'s daily reading for Electricity already recorded.', 31);
             }
 
-            $unit = '';
-            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
-            if ($type === 'Electricity') {
-                $unit = 'kWh';
-            }
-            if ($type === 'Water') {
-                $unit = 'm^3';
+            $opening = '';
+            $total = '';
+            $shift = '';
+            $unit = $type === 'Electricity' ? 'kWh' : 'm^3';
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            if ($readingType === 'Daily') {
+                if ($type === 'Water') {
+                    $utilityShiftZone = Class_db::getInstance()->db_select_single2('vw_utility_shift', array(), '', 1);
+                    $shift = $utilityShiftZone['readingShift'];
+                    $params['utilityDate'] = $utilityShiftZone['readingDate'];
+                    if (Class_db::getInstance()->db_count('utl_utility', array('meter_id'=>$params['meterId'], 'utility_reading_type'=>'Daily', 'utility_type'=>'Water', 'utility_date'=>$params['utilityDate'], 'utility_shift'=>$shift)) > 0) {
+                        throw new Exception('[' . __LINE__ . '] - Today\'s ' . $shift . ' shift reading for Water already recorded.', 31);
+                    }
+                }
+                $opening = Class_db::getInstance()->db_select_col('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_reading', 'utility_timestamp DESC');
+                $total = strval(floatval($params['utilityReading']) - floatval($opening));
             }
             $insertParams = array_merge(
                 $this->fn_general->convertToMysqlArr($params, array('meterId', 'utilityDate', 'utilityReading', 'utilityMaxDemand', 'utilityTotalRm')),
-                array('siteId'=>$siteId, 'utilityType'=>$type, 'utilityReadingType'=>$readingType, 'utilityUnit'=>$unit, 'utilityImage'=>$uploadId, 'utilityRecordedBy'=>$userId)
+                array('siteId'=>$siteId, 'utilityType'=>$type, 'utilityReadingType'=>$readingType, 'utilityUnit'=>$unit, 'utilityOpening'=>$opening, 'utilityTotal'=>$total, 'utilityShift'=>$shift,
+                    'utilityImage'=>$uploadId, 'utilityRecordedBy'=>$userId)
             );
             return Class_db::getInstance()->db_insert('utl_utility', $this->fn_general->convertToMysqlArrAll($insertParams));
         }
