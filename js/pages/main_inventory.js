@@ -13,11 +13,20 @@ function MainInventory () {
     let storeId;
     let sectionPartClass;
     let modalPartAddClass;
+    let userSite;
+    let userClient;
+    let userIsEdit = false;
 
     this.init = function () {
         $('#sectionInvResult').hide();
+        userIsEdit = mzIsRoleExist('14');
+        userSite = mzGetUserInfoByParam('siteId');
+        userClient = mzGetUserInfoByParam('clientId');
+        if (!userIsEdit) {
+            $('#btnInvDataAdd').hide();
+        }
 
-        if (mzIsRoleExist('1')) {
+        if (mzIsRoleExist('1,10')) {
             mzOption('optInvClient', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
             $('#optInvClient').on('change', function () {
                 mzOptionStop('optInvSite', refSite, 'Choose Site', 'siteId', 'siteName', {siteStatus: '1', clientId: $(this).val()}, 'required');
@@ -27,13 +36,11 @@ function MainInventory () {
             });
         }
         else {
-            const siteIdUser = mzGetUserInfoByParam('siteId');
-            const clientIdUser = refSite[siteIdUser]['clientId'];
-            mzOption('optInvClient', refClient, 'Choose Client', 'clientId', 'clientName', {clientId: clientIdUser, clientStatus: '1'}, 'required');
-            mzOption('optInvSite', refSite, 'Choose Site', 'siteId', 'siteName', {siteId: siteIdUser, siteStatus: '1'}, 'required');
-            mzOption('optInvStore', refStore, 'Choose Store', 'storeId', 'storeName', {siteId: siteIdUser, storeStatus: '1'}, 'required');
-            mzSetFieldValue('InvClient', clientIdUser, 'select', '', true);
-            mzSetFieldValue('InvSite', siteIdUser, 'select', '', true);
+            mzOption('optInvClient', refClient, 'Choose Client', 'clientId', 'clientName', {clientId: userClient, clientStatus: '1'}, 'required');
+            mzOption('optInvSite', refSite, 'Choose Site', 'siteId', 'siteName', {siteId: userSite, siteStatus: '1'}, 'required');
+            mzOption('optInvStore', refStore, 'Choose Store', 'storeId', 'storeName', {siteId: userSite, storeStatus: '1'}, 'required');
+            mzSetFieldValue('InvClient', userClient, 'select', '', true);
+            mzSetFieldValue('InvSite', userSite, 'select', '', true);
         }
 
         const vData = [
@@ -188,7 +195,7 @@ function MainInventory () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        self.loadSectionPart(true, data['partId'])
+                        self.loadSectionPart(userIsEdit, data['partId'])
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
                     }

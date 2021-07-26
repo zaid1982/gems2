@@ -20,11 +20,16 @@ function MainPpmManagement() {
     let versionLocal;
     let modalPpmClass;
     let ppmIdSelected;
+    let userSite;
+    let userIsAdmin = false;
 
     this.init = function () {
         $('#divPmgScheduled').hide();
+        userSite = mzGetUserInfoByParam('siteId');
+        userIsAdmin = mzIsRoleExist('1,19');
 
-        mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractName', {}, 'required');
+        const filterSite = !mzIsRoleExist('1,10') ? {siteId: userSite} : {};
+        mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractName', filterSite, 'required');
         mzOption('optPmgGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {
@@ -146,8 +151,9 @@ function MainPpmManagement() {
                                 label = '<a><i class="fas fa-list-ul lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"></i></a>&nbsp;&nbsp;';
                                 // label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } //else if (row['assignedStatus'] === '11') {
+                            if (userIsAdmin) {
                                 label += '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
-                            //}
+                            }
                             label += '<a><i class="fas fa-qrcode lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"></i></a>';
                             return label;
                         }

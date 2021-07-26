@@ -14,9 +14,16 @@ function MainAsset() {
     let oTableAsset;
     let sectionAssetClass;
     let contractId;
+    let userSite;
 
     this.init = function () {
-        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractName', {}, 'required');
+        userSite = mzGetUserInfoByParam('siteId');
+        if (!mzIsRoleExist('1,19')) {
+            $('#btnAszAssetAdd').hide();
+        }
+
+        const filterSite = !mzIsRoleExist('1,10') ? {siteId: userSite} : {};
+        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractName', filterSite, 'required');
         mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {

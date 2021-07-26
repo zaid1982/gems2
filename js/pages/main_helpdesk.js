@@ -11,6 +11,10 @@ function MainHelpdesk() {
     let modalCreateComplaintClass;
 
     this.init = function () {
+        if (!mzIsRoleExist('11')) {
+            $('#btnHdkWoAdd').hide();
+        }
+
         $('#lblHdkSiteName').html('Site Name : <b>'+refSite[userSite]['siteName']+'</b>');
 
         oTableWo =  $('#dtHdkWo').DataTable({
