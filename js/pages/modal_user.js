@@ -123,11 +123,11 @@ function ModalUser() {
             formValidate.validateForm();
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').show();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').show();
                 $('#divMusRole6, #divMusRole4').hide();
             } else if ($(this).val() === '2') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').hide();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').hide();
                 $('#divMusRole6, #divMusRole4').show();
                 $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
             }
@@ -274,12 +274,12 @@ function ModalUser() {
 
                 if (userType === '1') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').show();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18').show();
                     $('#divMusRole6, #divMusRole4').hide();
                 }
                 else if (userType === '2') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11').hide();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11').hide();
                     $('#divMusRole6, #divMusRole4').show();
                 }
                 formValidate.validateForm();
