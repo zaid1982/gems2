@@ -49,7 +49,11 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            $result = $fn_drawing->getDrawing($urlArr[1]);
+            if ($urlArr[1] === 'low') {
+                $result = $fn_drawing->getDrawingList('1');
+            } else {
+                $result = $fn_drawing->getDrawing($urlArr[1]);
+            }
         } else {
             $result = $fn_drawing->getDrawingList();
         }

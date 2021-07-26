@@ -73,13 +73,14 @@ class Class_drawing {
     }
 
     /**
+     * @param $permissionLevel
      * @return mixed
      * @throws Exception
      */
-    public function getDrawingList () {
+    public function getDrawingList ($permissionLevel='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return Class_db::getInstance()->db_select2('vw_drawing');
+            return Class_db::getInstance()->db_select2('vw_drawing', array('drawing_permission_level'=>$permissionLevel));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

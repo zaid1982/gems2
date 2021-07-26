@@ -6,12 +6,20 @@ function MainDrawingRecords () {
 	let modalDrawingClass;
     let refAssetGroup;
     let modalConfirmDeleteClass;
+    let userIsEdit = false;
+    let userIsHigh = false;
 	
 	this.init = function () {
+        userIsEdit = mzIsRoleExist('12');
+        userIsHigh = mzIsRoleExist('13');
+        if (!userIsEdit) {
+            $('#btnDwrDataAdd').hide();
+        }
+
         let exportOpt = Object.assign({}, mzExportOpt);
-        exportOpt['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        exportOpt['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let exportExcel = Object.assign({}, mzExportOpt);
-        exportExcel['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        exportExcel['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 		oTableDwr = $('#dtDwrData').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -38,10 +46,10 @@ function MainDrawingRecords () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0, 12] },
-                { visible: false, targets: [9, 10, 11] },
-                { className: 'text-center', targets: [0, 1, 3, 8, 11, 12] },
-                { className: 'noVis', targets: [0, 12] }
+                { bSortable: false, targets: [0, 13] },
+                { visible: false, targets: [9, 11, 12] },
+                { className: 'text-center', targets: [0, 1, 3, 6, 9, 12, 13] },
+                { className: 'noVis', targets: [0, 13] }
             ],
 			buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
@@ -57,21 +65,31 @@ function MainDrawingRecords () {
                 {mData: 'drawingVersion'},
                 {mData: 'drawingPublishedBy'},
                 {mData: 'drawingPublishedDate', width: '10%'},
-                {mData: 'drawingBlock', width: '10%'},
-                {mData: 'drawingLevel', width: '10%'},
+                {mData: 'drawingPermissionLevel', mRender: function (data){
+                        return data === '2' ? 'High' : 'Low';
+                    }},
+                {mData: 'drawingBlock'},
+                {mData: 'drawingLevel'},
                 {mData: 'assetGroupId', mRender: function (data){
                     return data !== '' ? refAssetGroup[data]['assetGroupName'] : '';
                 }},
                 {mData: 'drawingRemark'},
                 {mData: 'uploadBy'},
                 {mData: 'drawingTimeCreated'},
-                {mData: null, width: '96px',
+                {mData: null, width: '64', //'96px',
                     mRender: function (data, type, row, meta) {
-                        let label = '<a onclick="mzOpenUpload('+row['drawingDwg']+')"><i class="fas fa-download" data-toggle="tooltip" data-placement="top" title="Download DWG File"></i></a>&nbsp;';
-                        label += '<a onclick="mzOpenPdfUpload('+row['drawingPdf']+')"><i class="fas fa-file-pdf" data-toggle="tooltip" data-placement="top" title="View PDF"></i></a>&nbsp;';
-                        label += '<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrShare_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;';
-                        label += '<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;';
-                        label += '<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        let label = '';
+                        if (row['drawingDwg'] !== '') {
+                            label += '<a onclick="mzOpenUpload('+row['drawingDwg']+')"><i class="fas fa-download" data-toggle="tooltip" data-placement="top" title="Download DWG File"></i></a>&nbsp;';
+                        }
+                        if (row['drawingPdf'] !== '') {
+                            label += '<a onclick="mzOpenPdfUpload('+row['drawingPdf']+')"><i class="fas fa-file-pdf" data-toggle="tooltip" data-placement="top" title="View PDF"></i></a>&nbsp;';
+                        }
+                        //label += '<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrShare_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;';
+                        if (userIsEdit) {
+                            label += '<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;';
+                        }
+                        //label += '<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                         return label;
                     }}
 			]				
@@ -108,7 +126,7 @@ function MainDrawingRecords () {
 	};
 	
     this.genTable = function () {
-        const dataDb = mzAjaxRequest2('drawing', 'GET');
+        const dataDb = mzAjaxRequest2('drawing'+(userIsHigh?'':'/low'), 'GET');
         oTableDwr.clear().rows.add(dataDb).draw();
     };
 
