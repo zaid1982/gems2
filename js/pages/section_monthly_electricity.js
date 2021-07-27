@@ -116,7 +116,6 @@ function SectionMonthlyElectricity () {
 
                     const dataDailyElectrics = mzAjaxRequest2('utility/data_daily_analyzed/Electricity/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
                     oTableSme.clear().rows.add(dataDailyElectrics).draw();
-                    console.log(dataDailyElectrics);
                     self.generateChartKhw('chartSmeKwh', dataDailyElectrics);
 
                     $('.sectionMonthlyElectricity').show();

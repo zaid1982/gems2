@@ -14,18 +14,20 @@ function MainUtility () {
         oTableUtmMonthly = $('#dtUtmMonthlyData').DataTable({
             bLengthChange: false,
             bFilter: false,
-            ordering: false,
+            //ordering: false,
             language: _DATATABLE_LANGUAGE,
             pageLength: 50,
             autoWidth: false,
+            aaSorting: [[8, 'desc'], [9, 'desc']],
             dom: "<'row'<'col-12 px-0'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
+                { bSortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7] },
                 { className: 'text-right', targets: [1, 2, 3, 4, 5] },
                 { className: 'text-center font-weight-bold', targets: [6] },
-                { visible: false, targets: [3, 7] },
-                { className: 'noVis', targets: [7] }
+                { visible: false, targets: [3, 7, 8, 9] },
+                { className: 'noVis', targets: [7, 8, 9] }
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
@@ -68,7 +70,9 @@ function MainUtility () {
                         } else {
                             return mzFormatNumber(changes*-1,2)+'%';
                         }
-                    }}
+                    }},
+                {mData: 'utilityYear'},
+                {mData: 'utilityMonth'}
             ]
         });
         let oTableUtmMonthlyTbody = $('#dtUtmMonthlyData tbody');
@@ -90,18 +94,20 @@ function MainUtility () {
         oTableUtmMonthlyWater = $('#dtUtmMonthlyWaterData').DataTable({
             bLengthChange: false,
             bFilter: false,
-            ordering: false,
+            //ordering: false,
             language: _DATATABLE_LANGUAGE,
             pageLength: 50,
             autoWidth: false,
+            aaSorting: [[5, 'desc'], [6, 'desc']],
             dom: "<'row'<'col-12 px-0'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
+                { bSortable: false, targets: [0, 1, 2, 3, 4] },
                 { className: 'text-right', targets: [1, 2] },
                 { className: 'text-center font-weight-bold', targets: [3] },
-                { visible: false, targets: [4] },
-                { className: 'noVis', targets: [4] }
+                { visible: false, targets: [4, 5, 6] },
+                { className: 'noVis', targets: [4, 5, 6] }
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
@@ -135,7 +141,9 @@ function MainUtility () {
                         } else {
                             return mzFormatNumber(changes*-1,2)+'%';
                         }
-                    }}
+                    }},
+                {mData: 'utilityYear'},
+                {mData: 'utilityMonth'}
             ]
         });
         let oTableUtmMonthlyWaterTbody = $('#dtUtmMonthlyWaterData tbody');
@@ -167,7 +175,6 @@ function MainUtility () {
 
     this.generateWaterMonthly = function () {
         const dataMonthlyWater = mzAjaxRequest2('utility/data_monthly_analyzed/Water', 'GET');
-        console.log(dataMonthlyWater);
         oTableUtmMonthlyWater.clear().rows.add(dataMonthlyWater).draw();
         self.generateChartWaterM3('chartUtmWaterM3', dataMonthlyWater);
         self.generateChartWaterRm('chartUtmWaterRm', dataMonthlyWater);

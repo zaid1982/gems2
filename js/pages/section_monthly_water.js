@@ -94,7 +94,6 @@ function SectionMonthlyWater () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    console.log(monthlySummary);
                     $('#lblSmwMonthName').text(monthlySummary['utilityMonthName']);
                     $('#lblSmwSiteName').text(refSite[monthlySummary['siteId']]['siteName']);
                     const changes = parseFloat(monthlySummary['changePerc']);
@@ -109,7 +108,6 @@ function SectionMonthlyWater () {
                     $('#lblSmwTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['utilityTotalUsageRm'],2));
 
                     const dataDailyWater = mzAjaxRequest2('utility/data_daily_analyzed/Water/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
-                    console.log(dataDailyWater);
                     oTableSmw.clear().rows.add(dataDailyWater).draw();
                     self.generateChartM3('chartSmwM3', dataDailyWater);
 
