@@ -235,25 +235,53 @@ class Class_utility {
     }
 
     /**
-     * @param $utilityType
      * @param $siteId
      * @param $year
      * @param $month
      * @return array
      * @throws Exception
      */
-    public function getUtilityDailyAnalyzed($utilityType, $siteId, $year, $month) {
+    public function getUtilityDailyElectricityAnalyzed($siteId, $year, $month) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($utilityType, $siteId));
+            $this->fn_general->checkEmptyParams(array($siteId, $year, $month));
 
             $results = array();
             $previousCharges = 0;
-            $utilities = Class_db::getInstance()->db_select2('utl_utility', array('utility_type'=>$utilityType, 'site_id'=>$siteId, 'YEAR(utility_date)'=>$year, 'MONTH(utility_date)'=>$month));
+            $utilities = Class_db::getInstance()->db_select2('utl_utility', array('utility_type'=>'Electricity', 'site_id'=>$siteId, 'YEAR(utility_date)'=>$year, 'MONTH(utility_date)'=>$month));
             foreach ($utilities AS $utility) {
                 $row = $utility;
                 $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['utilityTotal']))/$previousCharges*100) : '0';
                 $previousCharges = floatval($row['utilityTotal']);
+                array_push($results, $row);
+            }
+            return $results;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $siteId
+     * @param $year
+     * @param $month
+     * @return array
+     * @throws Exception
+     */
+    public function getUtilityDailyWaterAnalyzed($siteId, $year, $month) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($siteId, $year, $month));
+
+            $results = array();
+            $previousCharges = 0;
+            $utilities = Class_db::getInstance()->db_select2('vw_utility_daily_water_analyzed', array(), '', '', 0, array('siteId'=>$siteId, 'readingYear'=>$year, 'readingMonth'=>$month));
+            foreach ($utilities AS $utility) {
+                $row = $utility;
+                $row['changePerc'] = $previousCharges > 0 ? strval(($previousCharges - floatval($row['totalDaily']))/$previousCharges*100) : '0';
+                $previousCharges = floatval($row['totalDaily']);
+                $row['totalDaily'] = round(floatval($row['totalDaily']),2);
                 array_push($results, $row);
             }
             return $results;

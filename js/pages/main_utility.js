@@ -154,6 +154,7 @@ function MainUtility () {
         
         self.generateElectricityMonthly();
         self.generateWaterMonthly();
+        window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
     this.generateElectricityMonthly = function () {

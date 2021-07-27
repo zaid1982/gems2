@@ -1323,6 +1323,19 @@ class Class_sql
                 WHERE site_id = [siteId] AND utility_type = 'Water' AND utility_reading_type = 'Daily' AND utility_total IS NOT NULL
                 GROUP BY YEAR(utility_date), MONTH(utility_date) 
                 ORDER BY YEAR(utility_date), MONTH(utility_date)";
+            } else if ($title === 'vw_utility_daily_water_analyzed') {
+                $sql = "SELECT 
+                    utility_date,
+                    MAX(IF (utility_shift = 'Morning', utility_reading, 0)) AS reading_morning,
+                    SUM(IF (utility_shift = 'Morning', utility_total, 0)) AS total_morning,
+                    MAX(IF (utility_shift = 'Evening', utility_reading, 0)) AS reading_evening,
+                    SUM(IF (utility_shift = 'Evening', utility_total, 0)) AS total_evening,
+                    MAX(IF (utility_shift = 'Night', utility_reading, 0)) AS reading_night,
+                    SUM(IF (utility_shift = 'Night', utility_total, 0)) AS total_night,
+                    SUM(utility_total) AS total_daily
+                FROM utl_utility
+                WHERE site_id = [siteId] AND utility_type = 'Water' AND utility_reading_type = 'Daily' AND utility_total IS NOT NULL AND YEAR(utility_date) = [readingYear] AND MONTH(utility_date) = [readingMonth] 
+                GROUP BY utility_date";
             } else if ($title === 'vw_utility_shift') {
                 $sql = "SELECT 
                     CASE WHEN CURTIME() >= '06:00:00' AND CURTIME() < '18:00:00' THEN 'Morning'

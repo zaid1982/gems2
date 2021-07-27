@@ -64,7 +64,11 @@ try {
                     $result = $fn_utility->getUtilityMonthlyWaterAnalyzed($userId);
                 }
             }  else if ($urlArr[1] === 'data_daily_analyzed') {
-                $result = $fn_utility->getUtilityDailyAnalyzed($urlArr[2], $urlArr[3], $urlArr[4], $urlArr[5]);
+                if ($urlArr[2] === 'Electricity') {
+                    $result = $fn_utility->getUtilityDailyElectricityAnalyzed($urlArr[3], $urlArr[4], $urlArr[5]);
+                } else if ($urlArr[2] === 'Water') {
+                    $result = $fn_utility->getUtilityDailyWaterAnalyzed($urlArr[3], $urlArr[4], $urlArr[5]);
+                }
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

@@ -18,7 +18,7 @@ function SectionMonthlyWater () {
         });
 
         let exportOptSmw = [];
-        exportOptSmw['columns'] = [0, 1, 2, 3, 4, 5, 6, 8];
+        exportOptSmw['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 9];
         oTableSmw = $('#dtSmwData').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -30,11 +30,12 @@ function SectionMonthlyWater () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { className: 'text-center', targets: [1] },
-                { className: 'text-right', targets: [2, 3, 4, 6] },
-                { className: 'text-center font-weight-bold', targets: [7] },
-                { visible: false, targets: [5, 6, 8] },
-                { className: 'noVis', targets: [8] }
+                { className: 'text-center', targets: [0] },
+                { className: 'text-right', targets: [1, 2, 3, 4, 5, 6] },
+                { className: 'text-right font-weight-bold', targets: [7] },
+                { className: 'text-center font-weight-bold', targets: [8] },
+                { visible: false, targets: [9] },
+                { className: 'noVis', targets: [9] }
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
@@ -45,22 +46,27 @@ function SectionMonthlyWater () {
             ],
             aoColumns: [
                 {mData: 'utilityDate', width: '80px'},
-                {mData: 'utilityMaxDemand', mRender: function (data){
-                        return mzFormatNumber(data);
+                {mData: 'readingMorning', mRender: function (data){
+                        return mzFormatNumber(data, 2);
                     }},
-                {mData: 'utilityOpening', mRender: function (data){
-                        return mzFormatNumber(data);
+                {mData: 'totalMorning', mRender: function (data){
+                        return mzFormatNumber(data, 2);
                     }},
-                {mData: 'utilityReading', mRender: function (data){
-                        return mzFormatNumber(data);
+                {mData: 'readingEvening', mRender: function (data){
+                        return mzFormatNumber(data, 2);
                     }},
-                {mData: 'utilityTotal', mRender: function (data){
-                        return mzFormatNumber(data);
+                {mData: 'totalEvening', mRender: function (data){
+                        return mzFormatNumber(data, 2);
                     }},
-                {mData: 'utilityRecordedBy', mRender: function (data){
-                        return refUser[data]['userFirstName'];
+                {mData: 'readingNight', mRender: function (data){
+                        return mzFormatNumber(data, 2);
                     }},
-                {mData: 'utilityTimestamp'},
+                {mData: 'totalNight', mRender: function (data){
+                        return mzFormatNumber(data, 2);
+                    }},
+                {mData: 'totalDaily', mRender: function (data){
+                        return mzFormatNumber(data, 2);
+                    }},
                 {mData: 'changePerc', width: '75px', mRender: function (data){
                         const changes = parseFloat(data);
                         if (changes === 0) {
@@ -102,9 +108,10 @@ function SectionMonthlyWater () {
                     $('#lblSmwTotalMonthlyConsumption').text(mzFormatNumber(monthlySummary['utilityTotalUsage']));
                     $('#lblSmwTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['utilityTotalUsageRm'],2));
 
-                    //const dataDailyElectrics = mzAjaxRequest2('utility/data_daily_analyzed/Electricity/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
-                    //oTableSmw.clear().rows.add(dataDailyElectrics).draw();
-                    //self.generateChartM3('chartSmwKwh', dataDailyElectrics);
+                    const dataDailyWater = mzAjaxRequest2('utility/data_daily_analyzed/Water/'+monthlySummary['siteId']+'/'+monthlySummary['utilityYear']+'/'+monthlySummary['utilityMonth'], 'GET');
+                    console.log(dataDailyWater);
+                    oTableSmw.clear().rows.add(dataDailyWater).draw();
+                    self.generateChartM3('chartSmwM3', dataDailyWater);
 
                     $('.sectionMonthlyWater').show();
                     classFrom.hideMain();
@@ -120,12 +127,22 @@ function SectionMonthlyWater () {
     };
 
     this.generateChartM3 = function (chartId, dataSet) {
-        let data = [];
+        let categories = [];
+        let dataMorning = [];
+        let dataEvening = [];
+        let dataNight = [];
         for (let i=0; i<dataSet.length; i++) {
             const dataDate = dataSet[i]['utilityDate'];
-            const utilityTotalKwh = parseFloat(dataSet[i]['utilityTotal']);
-            data.push({name:dataDate, y:utilityTotalKwh});
+            categories.push(dataDate);
+            dataMorning.push(parseFloat(dataSet[i]['totalMorning']))
+            dataEvening.push(parseFloat(dataSet[i]['totalEvening']))
+            dataNight.push(parseFloat(dataSet[i]['totalNight']))
         }
+        const data = [
+            {name:'Morning Shift', data:dataMorning, color: Highcharts.getOptions().colors[0]},
+            {name:'Evening Shift', data:dataEvening, color: Highcharts.getOptions().colors[3]},
+            {name:'Night Shift', data:dataNight, color: Highcharts.getOptions().colors[1]}
+        ];
 
         Highcharts.chart(chartId, {
             chart: {
@@ -140,39 +157,51 @@ function SectionMonthlyWater () {
                  }*/
             },
             title: {
-                text: 'Electricity Consumption (kWh)'
+                text: 'Daily Water Consumption (m3)'
             },
             subtitle: {
                 text: monthlySummary['utilityMonthName']
             },
             xAxis: {
-                type: 'category'
+                categories: categories
             },
             yAxis: {
                 //min: 0,
                 //max: 1500000,
                 title: {
-                    text: 'Electricity Consumption (kWh)'
+                    text: 'Water Consumption (m3)'
                 }
             },
             legend: {
-                enabled: false
+                align: 'right',
+                x: -30,
+                verticalAlign: 'top',
+                y: 55,
+                floating: true,
+                backgroundColor:
+                    Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                borderColor: '#CCC',
+                borderWidth: 1,
+                shadow: false
             },
             tooltip: {
                 //xDateFormat: '%B %Y',
                 //valueSuffix: ' % of best month',
                 //pointFormat: 'Population : <b>{point.y:.1f} millions</b>'
+                headerFormat: '<b>{point.x}</b><br/>',
+                pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
             },
             plotOptions: {
                 column: {
+                    stacking: 'normal',
                     pointPadding: 0,
-                    borderWidth: 0
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: false
+                    }
                 }
             },
-            series: [{
-                name: 'Electricity Consumption (kWh)',
-                data: data
-            }],
+            series: data,
             credits: {
                 enabled: false
             }
