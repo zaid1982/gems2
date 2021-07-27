@@ -88,6 +88,7 @@ function SectionMonthlyElectricity () {
             ShowLoader();
             setTimeout(function () {
                 try {
+                    console.log(monthlySummary);
                     $('#lblSmeMonthName').text(monthlySummary['utilityMonthName']);
                     $('#lblSmeSiteName').text(refSite[monthlySummary['siteId']]['siteName']);
                     const changes = parseFloat(monthlySummary['changePerc']);
@@ -109,7 +110,7 @@ function SectionMonthlyElectricity () {
                     $('#lblSmeUtilityMaxDemandRate').text(mzFormatNumber(monthlySummary['kwtbbRm'],2));
                     $('#lblSmeUtilityMaxDemandRm').text(mzFormatNumber(monthlySummary['utilityMaxDemandRate'],2));
                     $('#lblSmeElectricityAmountRm').text(mzFormatNumber(monthlySummary['utilityMaxDemandRm'],2));
-                    $('#lblSmeKwtbbPerc').text(mzFormatNumber(monthlySummary['kwtbbRm']));
+                    $('#lblSmeKwtbbPerc').text(mzFormatNumber(monthlySummary['kwtbbPerc'],1));
                     $('#lblSmeKwtbbRm').text(mzFormatNumber(monthlySummary['kwtbbPerc'],2));
                     $('#lblSmeElectricityBillRm').text(mzFormatNumber(monthlySummary['electricityBillRm'],2));
                     $('#lblSmeTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['electricityBillRm'],2));
