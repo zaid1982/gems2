@@ -72,9 +72,9 @@ function SectionMonthlyWater () {
                         if (changes === 0) {
                             return '-';
                         } else if (changes > 0) {
-                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes,2)+'%</a>';
+                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes,2)+'%</a>';
                         } else {
-                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
+                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
                         }
                     }},
                 {mData: null, mRender: function (data, type, row){
@@ -100,9 +100,9 @@ function SectionMonthlyWater () {
                     if (changes === 0) {
                         $('#lblSmwChangePerc').html('');
                     } else if (changes > 0) {
-                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes,2)+'%');
+                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes,2)+'%');
                     } else {
-                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes*-1,2)+'%');
+                        $('#lblSmwChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes*-1,2)+'%');
                     }
                     $('#lblSmwTotalMonthlyConsumption').text(mzFormatNumber(monthlySummary['utilityTotalUsage']));
                     $('#lblSmwTotalMonthlyCharges').text(mzFormatNumber(monthlySummary['utilityTotalUsageRm'],2));

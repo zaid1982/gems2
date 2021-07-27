@@ -66,9 +66,9 @@ function SectionMonthlyElectricity () {
                         if (changes === 0) {
                             return '-';
                         } else if (changes > 0) {
-                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes,2)+'%</a>';
+                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes,2)+'%</a>';
                         } else {
-                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
+                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
                         }
                     }},
                 {mData: null, mRender: function (data, type, row){
@@ -95,9 +95,9 @@ function SectionMonthlyElectricity () {
                     if (changes === 0) {
                         $('#lblSmeChangePerc').html('');
                     } else if (changes > 0) {
-                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes,2)+'%');
+                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes,2)+'%');
                     } else {
-                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-down"></i>  '+mzFormatNumber(changes*-1,2)+'%');
+                        $('#lblSmeChangePerc').html('<i class="fas fa-arrow-alt-circle-up"></i>  '+mzFormatNumber(changes*-1,2)+'%');
                     }
                     $('#lblSmeTotalMonthlyConsumption').text(mzFormatNumber(monthlySummary['utilityTotalKwh']));
                     $('#lblSmeUtilityTotalKwh').text(mzFormatNumber(monthlySummary['utilityTotalKwh']));

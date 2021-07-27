@@ -58,9 +58,9 @@ function MainUtility () {
                         if (changes === 0) {
                             return '-';
                         } else if (changes > 0) {
-                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes,2)+'%</a>';
+                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes,2)+'%</a>';
                         } else {
-                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
+                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
                         }
                     }},
                 {mData: null, mRender: function (data, type, row){
@@ -129,9 +129,9 @@ function MainUtility () {
                         if (changes === 0) {
                             return '-';
                         } else if (changes > 0) {
-                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes,2)+'%</a>';
+                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes,2)+'%</a>';
                         } else {
-                            return '<a class="text-success"><i class="fas fa-arrow-down"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
+                            return '<a class="text-danger"><i class="fas fa-arrow-up"></i> '+mzFormatNumber(changes*-1,2)+'%</a>';
                         }
                     }},
                 {mData: null, mRender: function (data, type, row){
