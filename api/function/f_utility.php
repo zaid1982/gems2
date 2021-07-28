@@ -85,7 +85,7 @@ class Class_utility {
             $this->fn_general->checkEmptyParams(array($userId));
 
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', null, 1);
-            return Class_db::getInstance()->db_select2('vw_utility_mobile_list', array('u.site_id'=>$siteId, 'u.utility_type'=>$type, 'u.utility_reading_type'=>$readingType, 'm.meter_id'=>$meterId));
+            return Class_db::getInstance()->db_select2('vw_utility_mobile_list', array('u.site_id'=>$siteId, 'u.utility_type'=>$type, 'u.utility_reading_type'=>$readingType, 'm.meter_id'=>$meterId), 'u.utility_date DESC');
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
