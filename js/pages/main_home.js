@@ -159,11 +159,11 @@ function MainHome() {
                             try {
                                 const rowId = linkId.substr(linkIndex+1);
                                 const currentRow = oTableWo.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfId'];
-                                if (currentRow['pdfId'] === '') {
+                               // let pdfId = currentRow['pdfId'];
+                                //if (currentRow['pdfId'] === '') {
                                     const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:currentRow['woTaskId']});
-                                    pdfId = resultRequest['pdfId'];
-                                }
+                                let pdfId = resultRequest['pdfId'];
+                                //}
                                 const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
                                 $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+currentRow['woTaskNo']);
                                 $('#mpdf_iframe').attr('src', pdfSrc);
@@ -184,11 +184,11 @@ function MainHome() {
                             try {
                                 const rowId = linkId.substr(linkIndex+1);
                                 const currentRow = oTableWo.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfIdWr'];
-                                if (currentRow['pdfId'] === '') {
+                                //let pdfId = currentRow['pdfIdWr'];
+                                //if (currentRow['pdfId'] === '') {
                                     const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf_wr', woTaskId:currentRow['woTaskId']});
-                                    pdfId = resultRequest['pdfId'];
-                                }
+                                let pdfId = resultRequest['pdfId'];
+                                //}
                                 const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
                                 $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Request Report: '+currentRow['woTaskNo']);
                                 $('#mpdf_iframe').attr('src', pdfSrc);
