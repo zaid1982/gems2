@@ -86,6 +86,8 @@ try {
                 $fn_kpi->calculateKpiPpnsCate6($urlArr[3]);
             } else if ($urlArr[2] === '10') {
                 $fn_kpi->calculateKpiPpnsCate10($urlArr[3]);
+            } else if ($urlArr[2] === '11') {
+                $fn_kpi->calculateKpiPpnsCate11($urlArr[3]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Invalid KPI category for PPNS');
             }

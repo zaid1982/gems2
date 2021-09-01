@@ -15,6 +15,7 @@ function SectionKpiPpns () {
     let refPpmGroup;
     let oTableSkpCategory6;
     let oTableSkpCategory10;
+    let oTableSkpCategory11;
 
     this.init = function () {
         $('.sectionKpiPpns').hide();
@@ -122,10 +123,10 @@ function SectionKpiPpns () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI PPNS Respond Time - Work Order List', titleAttr: 'Print', exportOptions: exportOpt10},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI PPNS Respond Time - Work Order List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI PPNS Respond Time - Work Order List', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI PPNS Respond Time - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt10}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI PPNS CM Execution - Work Order List', titleAttr: 'Print', exportOptions: exportOpt10},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI PPNS CM Execution - Work Order List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI PPNS CM Execution - Work Order List', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI PPNS CM Execution - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt10}
             ],
             aoColumns: [
                 {mData: null, bSortable: false},
@@ -173,11 +174,90 @@ function SectionKpiPpns () {
             ]
         });
 
+        let exportOpt11 = Object.assign({}, mzExportOpt);
+        exportOpt11['columns'] = [0, 1, 2, 5, 8, 9, 12, 14, 15, 16, 18];
+        oTableSkpCategory11 = $('#dtSkpCategory11').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[15, 'asc']],
+            language: _DATATABLE_LANGUAGE,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0] },
+                { className: 'text-center', targets: [0, 1, 2, 5, 8, 9, 12, 14, 15, 16, 17, 18] },
+                { className: 'noVis', targets: [0, 18] },
+                { visible: false, targets: [1, 3, 4, 6, 7, 9, 10, 11, 13, 15, 18] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI PPNS Service Quality - Work Order List', titleAttr: 'Print', exportOptions: exportOpt10},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI PPNS Service Quality - Work Order List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI PPNS Service Quality - Work Order List', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI PPNS Service Quality - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt10}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'woTaskTimeCreated', mRender: function (data){
+                        return data.substr(0, 10);
+                    }},
+                {mData: 'woTaskNoOri'},
+                {mData: 'siteId', mRender: function (data){
+                        return refSite[data]['siteDesc'];
+                    }},
+                {mData: 'woTaskLocation'},
+                {mData: 'woTaskTypeDesc'},
+                {mData: 'woTaskCreatedBy', mRender: function (data){
+                        return refUser[data]['userFirstName'];
+                    }},
+                {mData: 'woTaskComplaint'},
+                {mData: 'woTaskSeverity'},
+                {mData: 'ppmGroupId', mRender: function (data){
+                        return data !== '' ? refPpmGroup[data]['ppmGroupName'] : '';
+                    }},
+                {mData: 'woTaskAssignedTo', mRender: function (data){
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskRepairDesc'},
+                {mData: 'woTaskStatus', mRender: function (data) {
+                        return refStatus[data]['statusDesc'];
+                    }},
+                {mData: 'woTaskAssignedBy', mRender: function (data) {
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskTimeCreated'},
+                {mData: 'woTaskTimeExecuted'},
+                {mData: 'woTaskRate'},
+                {mData: null, mRender: function (data, type, row){
+                        const result = parseInt(row['woTaskRateOri']);
+                        if (result > 3) {
+                            return '<h6><span class="badge badge-pill green z-depth-2">Success</span></h6>';
+                        } else {
+                            return '<h6><span class="badge badge-pill red z-depth-2">Fail</span></h6>';
+                        }
+                    }},
+                {mData: null, mRender: function (data, type, row){
+                        const result = parseInt(row['woTaskRateOri']);
+                        if (result > 3) {
+                            return 'Success';
+                        } else {
+                            return 'Fail';
+                        }
+                    }}
+            ]
+        });
+
         $('#btnSkpSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (kpiPpnsCategory === '6' || kpiPpnsCategory === '10') {
+                    if (kpiPpnsCategory === '6' || kpiPpnsCategory === '10' || kpiPpnsCategory === '11') {
                         mzAjaxRequest2('kpi/calculate_ppns/'+kpiPpnsCategory+'/'+kpiPpnsId, 'PUT');
                         self.displayDeductedData();
                         classFrom.genTable();
@@ -245,6 +325,20 @@ function SectionKpiPpns () {
             const dataCategory10 = mzAjaxRequest('wo.php?type=dashboard_list&kpiType=mitigateTime&clientId='+refSite[siteId]['clientId']+'&siteId='+siteId+'&year='+kpi['kpiYear']+'&month='+(kpi['kpiMonth']-1), 'GET');
             oTableSkpCategory10.clear().rows.add(dataCategory10).draw();
             $('#divSkpCategory10, #divSkpData10').show();
+        }
+        else if (kpiPpnsCategory === '11') {
+            const param11_1 = parseInt(kpiPpns['kpiPpnsParam1']);
+            const param11_2 = parseInt(kpiPpns['kpiPpnsParam2']);
+            const param11_3 = parseFloat(kpiPpns['kpiPpnsParam3']);
+            const param11_4 = parseFloat(kpiPpns['kpiPpnsParam4']);
+            mzSetFieldValue('Skp11AllTotal', param11_1, 'text');
+            mzSetFieldValue('Skp11AllNonComply', param11_2, 'text');
+            mzSetFieldValue('Skp11AllNonComplyPerc', (param11_2/param11_1*100)+'%', 'text');
+            mzSetFieldValue('Skp11AllTargetPerc', (param11_3*100)+'%', 'text');
+            mzSetFieldValue('Skp11Target', param11_4, 'text');
+            const dataCategory11 = mzAjaxRequest('wo.php?type=dashboard_list&kpiType=serviceQuality&clientId='+refSite[siteId]['clientId']+'&siteId='+siteId+'&year='+kpi['kpiYear']+'&month='+(kpi['kpiMonth']-1), 'GET');
+            oTableSkpCategory11.clear().rows.add(dataCategory11).draw();
+            $('#divSkpCategory11, #divSkpData11').show();
         }
     };
 

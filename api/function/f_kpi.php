@@ -167,7 +167,7 @@ class Class_kpi
 
             $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'6'), '', 1);
             $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
-            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth']));
+            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth'], 'wo_task_status'=>'N(25)', 'wo_task_type'=>'<>2'));
 
             $totalComplaintEmergency = 0;
             $totalNonComplyEmergency = 0;
@@ -232,7 +232,7 @@ class Class_kpi
 
             $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'10'), '', 1);
             $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
-            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth']));
+            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth'], 'wo_task_time_executed'=>'is not NULL', 'wo_task_type'=>'<>2'));
 
             $totalComplaintEmergency = 0;
             $totalNonComplyEmergency = 0;
@@ -275,6 +275,44 @@ class Class_kpi
             Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalComplaintEmergency, 'kpi_ppns_param_2'=>$totalNonComplyEmergency, 'kpi_ppns_param_3'=>$totalComplaintUrgent,
                 'kpi_ppns_param_4'=>$totalNonComplyUrgent, 'kpi_ppns_param_5'=>$totalComplaintNormal, 'kpi_ppns_param_6'=>$totalNonComplyNormal, 'kpi_ppns_param_7'=>$totalComplaint,
                 'kpi_ppns_param_8'=>$totalNonComply, 'kpi_ppns_ncp'=>$ncp), array('kpi_ppns_id'=>$kpiPpnsId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $kpiPpnsId
+     * @return void
+     * @throws Exception
+     */
+    public function calculateKpiPpnsCate11($kpiPpnsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($kpiPpnsId));
+
+            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'11'), '', 1);
+            $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
+            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth'], 'wo_task_status'=>'16', 'wo_task_type'=>'<>2', 'wo_task_rate'=>'is not NULL'));
+
+            $totalComplaint = 0;
+            $totalUnsatisfactory = 0;
+            $targetUnsatisfactoryPerc = 0.2;
+            $ncp = 0;
+            foreach ($woTasks as $woTask) {
+                $woTaskRate = $woTask['woTaskRate'];
+                $totalComplaint++;
+                if (intval($woTaskRate) <= 3) {
+                    $totalUnsatisfactory++;
+                }
+            }
+            $targetUnsatisfactory = $totalComplaint * $targetUnsatisfactoryPerc;
+            if ($totalUnsatisfactory > $targetUnsatisfactory) {
+                $ncp = ($totalUnsatisfactory > $targetUnsatisfactory) / $totalComplaint;
+            }
+
+            Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalComplaint, 'kpi_ppns_param_2'=>$totalUnsatisfactory, 'kpi_ppns_param_3'=>$targetUnsatisfactoryPerc,
+                'kpi_ppns_param_4'=>$targetUnsatisfactory, 'kpi_ppns_ncp'=>$ncp), array('kpi_ppns_id'=>$kpiPpnsId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

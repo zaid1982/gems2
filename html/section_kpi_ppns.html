@@ -226,10 +226,42 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row divSkpCategory" id="divSkpData11">
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp11AllTotal" class="form-control" disabled>
+                                <label for="txtSkp11AllTotal" id="lblSkp11AllTotal" class="active">Total Incidences</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp11AllNonComply" class="form-control" disabled>
+                                <label for="txtSkp11AllNonComply" id="lblSkp11AllNonComply" class="active">Total Unsatisfactory WO</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp11AllNonComplyPerc" class="form-control" disabled>
+                                <label for="txtSkp11AllNonComplyPerc" id="lblSkp11AllNonComplyPerc" class="active">Total Unsatisfactory Perc</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp11AllTargetPerc" class="form-control" disabled>
+                                <label for="txtSkp11AllTargetPerc" id="lblSkp11AllTargetPerc" class="active">Allowed Target Perc</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp11Target" class="form-control" disabled>
+                                <label for="txtSkp11Target" id="lblSkp11Target" class="active">Target Unsatisfactory WO</label>
+                            </div>
+                        </div>
+                    </div>
                     <hr class="mt-0 divSkpCategory">
                     <div class="row">
                         <div class="col-md-12">
-                            <p class="font-weight-bolder pb-2">Total Monthly Deduction Calculation</p>
+                            <p class="font-weight-bolder pb-2">Total Monthly Deduction Calculation (triggered only if target value not meet)</p>
                         </div>
                         <div class="col-md-6 col-lg-12 col-xl-6">
                             <div class="md-form md-outline mt-0">
@@ -333,6 +365,45 @@
                                         <th>Complaint Time</th>
                                         <th>Work Completed Time</th>
                                         <th>Mitigation Duration</th>
+                                        <th>Result</th>
+                                        <th>Result</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-4_5 divSkpCategory" id="divSkpCategory11">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Complaint List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 px-0">
+                            <div class="table-responsive">
+                                <table id="dtSkpCategory11" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Work Order No.</th>
+                                        <th>Site</th>
+                                        <th>Location</th>
+                                        <th>Complaint Type</th>
+                                        <th>Complainant</th>
+                                        <th>Complaint Description</th>
+                                        <th>Severity</th>
+                                        <th>Trade</th>
+                                        <th>PIC Name</th>
+                                        <th>Repair Description</th>
+                                        <th>Progress</th>
+                                        <th>Assigned By</th>
+                                        <th>Complaint Time</th>
+                                        <th>Work Completed Time</th>
+                                        <th>Rating</th>
                                         <th>Result</th>
                                         <th>Result</th>
                                     </tr>

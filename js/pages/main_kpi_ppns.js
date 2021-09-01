@@ -6,7 +6,7 @@ function MainKpiPpns () {
     let sectionKpiPpnsClass;
 
     this.init = function () {
-        const monthFulls = mzGetMonthArray();
+        const monthFulls = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         oTableKpp = $('#dtKppData').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -44,7 +44,7 @@ function MainKpiPpns () {
             aoColumns: [
                 {mData: 'kpiYear'},
                 {mData: 'kpiMonth', mRender: function (data){
-                        return monthFulls[data]['monthName'];
+                        return monthFulls[data];
                     }},
                 {mData: 'kpiCate2', mRender: function (data, type, row, meta){
                         return '<a class="text-primary font-weight-bolder lnkKppDetails" id="lnkKppDetails_2_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deduction Details">'+mzFormatNumber(data,2)+'</a>';

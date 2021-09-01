@@ -1669,6 +1669,10 @@ class Class_wo {
             } else if ($kpiType === 'mitigateTime') {
                 $arrWhere['wo_task_time_executed'] = 'is not NULL';
                 $arrWhere['wo_task_type'] = '<>2';
+            } else if ($kpiType === 'serviceQuality') {
+                $arrWhere['wo_task_status'] = '16';
+                $arrWhere['wo_task_type'] = '<>2';
+                $arrWhere['wo_task_rate'] = 'is not NULL';
             }
 
             $result = array();
@@ -1688,6 +1692,7 @@ class Class_wo {
                 $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
                 $row_result['woTaskSeverity'] = $arrSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity'], '0'))];
                 $row_result['woTaskRepairDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_repair_desc']);
+                $row_result['woTaskRateOri'] = $this->fn_general->clear_null($dataLocal['wo_task_rate']);
                 $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['pdfIdWr'] = $this->fn_general->clear_null($dataLocal['pdf_id_wr']);

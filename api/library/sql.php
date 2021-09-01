@@ -1275,7 +1275,8 @@ class Class_sql
                 FROM kpi k
                 LEFT JOIN kpi_ppns p ON p.kpi_id = k.kpi_id
                 WHERE site_id = 7
-                GROUP BY k.kpi_id";
+                GROUP BY k.kpi_id
+                ORDER BY kpi_year DESC, kpi_month DESC";
             } else if ($title === 'vw_meter_mobile') {
                 $sql = "SELECT 
                     m.*,
