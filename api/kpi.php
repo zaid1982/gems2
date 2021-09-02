@@ -84,6 +84,8 @@ try {
             }
             if ($urlArr[2] === '6') {
                 $fn_kpi->calculateKpiPpnsCate6($urlArr[3]);
+            } else if ($urlArr[2] === '9') {
+                $fn_kpi->calculateKpiPpnsCate9($urlArr[3]);
             } else if ($urlArr[2] === '10') {
                 $fn_kpi->calculateKpiPpnsCate10($urlArr[3]);
             } else if ($urlArr[2] === '11') {

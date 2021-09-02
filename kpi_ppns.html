@@ -142,11 +142,17 @@
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
 
                 sectionKpiPpnsClass_.setRefSite(refSite_);
                 sectionKpiPpnsClass_.setRefStatus(refStatus_);
                 sectionKpiPpnsClass_.setRefUser(refUser_);
                 sectionKpiPpnsClass_.setRefPpmGroup(refPpmGroup_);
+                sectionKpiPpnsClass_.setRefAssetGroup(refAssetGroup_);
+                sectionKpiPpnsClass_.setRefAssetCategory(refAssetCategory_);
+                sectionKpiPpnsClass_.setRefAssetType(refAssetType_);
                 sectionKpiPpnsClass_.setClassFrom(kpiPpnsClass_);
                 sectionKpiPpnsClass_.init();
 

@@ -225,6 +225,48 @@ class Class_kpi
      * @return void
      * @throws Exception
      */
+    public function calculateKpiPpnsCate9($kpiPpnsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($kpiPpnsId));
+
+            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'9'), '', 1);
+            $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
+            $ppmTasks =  Class_db::getInstance()->db_select2('vw_ppm_list', array('site_id'=>$kpi['siteId'], 'YEAR(ppm_task_start_date)'=>$kpi['kpiYear'], 'MONTH(ppm_task_start_date)'=>$kpi['kpiMonth']));
+
+            $totalPlanned = 0;
+            $totalDue= 0;
+            $totalOnTime = 0;
+            $targetOnTimePerc = 0.95;
+            $ncp = 0;
+            foreach ($ppmTasks as $ppmTask) {
+                $totalPlanned++;
+                $lateness = $ppmTask['lateness2'];
+                if ($lateness === 'On-time') {
+                    $totalDue++;
+                    $totalOnTime++;
+                } else if ($lateness === 'Late' || $lateness === 'Not Started') {
+                    $totalDue++;
+                }
+            }
+            $targetOnTime = $totalDue * $targetOnTimePerc;
+            if ($totalOnTime < $targetOnTime) {
+                $ncp = ($targetOnTime - $totalOnTime) / $totalDue;
+            }
+
+            Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalPlanned, 'kpi_ppns_param_2'=>$totalDue, 'kpi_ppns_param_3'=>$targetOnTimePerc,
+                'kpi_ppns_param_4'=>$targetOnTime, 'kpi_ppns_param_5'=>($totalDue-$totalOnTime), 'kpi_ppns_param_6'=>$totalOnTime, 'kpi_ppns_ncp'=>$ncp), array('kpi_ppns_id'=>$kpiPpnsId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $kpiPpnsId
+     * @return void
+     * @throws Exception
+     */
     public function calculateKpiPpnsCate10($kpiPpnsId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
@@ -308,7 +350,7 @@ class Class_kpi
             }
             $targetUnsatisfactory = $totalComplaint * $targetUnsatisfactoryPerc;
             if ($totalUnsatisfactory > $targetUnsatisfactory) {
-                $ncp = ($totalUnsatisfactory > $targetUnsatisfactory) / $totalComplaint;
+                $ncp = ($totalUnsatisfactory - $targetUnsatisfactory) / $totalComplaint;
             }
 
             Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalComplaint, 'kpi_ppns_param_2'=>$totalUnsatisfactory, 'kpi_ppns_param_3'=>$targetUnsatisfactoryPerc,

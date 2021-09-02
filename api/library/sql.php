@@ -814,7 +814,11 @@ class Class_sql
                     ast_asset.asset_block,
                     ast_asset.asset_level,
                     task_upload.upload_ids,                     
-                    IF ((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date, 'Late', 'On-time') AS lateness
+                    IF ((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date, 'Late', 'On-time') AS lateness,                    
+                    CASE WHEN ppm_task_time_serviced IS NULL AND CURDATE() <= ppm_task_schedule_date THEN 'In Progress'
+                        WHEN ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date THEN 'Not Started'
+                        WHEN DATE(ppm_task_time_serviced) > ppm_task_schedule_date THEN 'Late'
+                        ELSE 'On-time' END AS lateness2
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
