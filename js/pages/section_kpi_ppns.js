@@ -16,6 +16,7 @@ function SectionKpiPpns () {
     let refAssetGroup;
     let refAssetCategory;
     let refAssetType;
+    let oTableSkpCategory4;
     let oTableSkpCategory6;
     let oTableSkpCategory9;
     let oTableSkpCategory10;
@@ -28,6 +29,112 @@ function SectionKpiPpns () {
             $('.sectionKpiPpns').hide();
             classFrom.showMain();
             $(window).scrollTop(0);
+        });
+
+        let exportOpt4 = Object.assign({}, mzExportOpt);
+        exportOpt4['columns'] = [0, 1, 2, 5, 8, 9, 13, 15, 16, 17, 19];
+        let exportOptAll4 = Object.assign({}, mzExportOpt);
+        exportOptAll4['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19];
+        oTableSkpCategory4 = $('#dtSkpCategory4').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[15, 'asc']],
+            language: _DATATABLE_LANGUAGE,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0] },
+                { className: 'text-center', targets: [0, 1, 2, 5, 8, 9, 12, 13, 15, 16, 17, 18, 19] },
+                { className: 'noVis', targets: [0, 19] },
+                { visible: false, targets: [3, 4, 7, 8, 9, 11, 12, 13, 14, 15, 19] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI PPNS Turnaround Time - Work Order List', titleAttr: 'Print', exportOptions: exportOpt4},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI PPNS Turnaround Time - Work Order List', titleAttr: 'Copy', exportOptions: exportOptAll4},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI PPNS Turnaround Time - Work Order List', titleAttr: 'Excel', exportOptions: exportOptAll4},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI PPNS Turnaround Time - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt4}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'woTaskTimeCreated', mRender: function (data){
+                        return data.substr(0, 10);
+                    }},
+                {mData: 'woTaskNoOri'},
+                {mData: 'siteId', mRender: function (data){
+                        return refSite[data]['siteDesc'];
+                    }},
+                {mData: 'woTaskLocation'},
+                {mData: 'woTaskTypeDesc'},
+                {mData: 'woTaskCreatedBy', mRender: function (data){
+                        return refUser[data]['userFirstName'];
+                    }},
+                {mData: 'woTaskComplaint'},
+                {mData: 'woTaskSeverity'},
+                {mData: 'ppmGroupId', mRender: function (data){
+                        return data !== '' ? refPpmGroup[data]['ppmGroupName'] : '';
+                    }},
+                {mData: 'woTaskAssignedTo', mRender: function (data){
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskRepairDesc'},
+                {mData: 'woTaskRate'},
+                {mData: 'woTaskStatus', mRender: function (data) {
+                        return refStatus[data]['statusDesc'];
+                    }},
+                {mData: 'woTaskAssignedBy', mRender: function (data) {
+                        return data !== '' ? refUser[data]['userFirstName'] : '';
+                    }},
+                {mData: 'woTaskTimeCreated'},
+                {mData: null, mRender: function (data, type, row) {
+                        return moment(row['woTaskTimeCreated']).add(1, 'M').format('YYYY/MM/DD');
+                    }},
+                {mData: 'woTaskTimeExecuted', mRender: function (data){
+                        return data.substr(0, 10);
+                    }},
+                {mData: null, mRender: function (data, type, row){
+                        const start = moment(row['woTaskTimeCreated']);
+                        const target = start.add(1, 'M');
+                        const now = moment();
+                        if (row['woTaskTimeExecuted'] === '') {
+                            if (now.isAfter(target)) {
+                                return '<h6><span class="badge badge-pill red z-depth-2">Fail</span></h6>';
+                            } else {
+                                return '';
+                            }
+                        }
+                        const complete = moment(row['woTaskTimeExecuted']);
+                        if (complete.isAfter(target)) {
+                            return '<h6><span class="badge badge-pill red z-depth-2">Fail</span></h6>';
+                        } else {
+                            return '<h6><span class="badge badge-pill green z-depth-2">Success</span></h6>';
+                        }
+                    }},
+                {mData: null, mRender: function (data, type, row){
+                        const start = moment(row['woTaskTimeCreated']);
+                        const target = start.add(1, 'M');
+                        const now = moment();
+                        if (row['woTaskTimeExecuted'] === '') {
+                            if (now.isAfter(target)) {
+                                return 'Fail';
+                            } else {
+                                return '';
+                            }
+                        }
+                        const complete = moment(row['woTaskTimeExecuted']);
+                        if (complete.isAfter(target)) {
+                            return 'Fail';
+                        } else {
+                            return 'Success';
+                        }
+                    }}
+            ]
         });
 
         let exportOpt6 = Object.assign({}, mzExportOpt);
@@ -354,7 +461,7 @@ function SectionKpiPpns () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (kpiPpnsCategory === '6' || kpiPpnsCategory === '9' || kpiPpnsCategory === '10' || kpiPpnsCategory === '11') {
+                    if (kpiPpnsCategory === '4' || kpiPpnsCategory === '6' || kpiPpnsCategory === '9' || kpiPpnsCategory === '10' || kpiPpnsCategory === '11') {
                         mzAjaxRequest2('kpi/calculate_ppns/'+kpiPpnsCategory+'/'+kpiPpnsId, 'PUT');
                         self.displayDeductedData();
                         classFrom.genTable();
@@ -373,15 +480,32 @@ function SectionKpiPpns () {
         mzSetFieldValue('SkpNcp', kpiPpns['kpiPpnsNcp'], 'text');
         mzSetFieldValue('SkpWeightage', (parseFloat(kpiPpns['kpiPpnsWeightage'])*100)+'%', 'text');
         mzSetFieldValue('SkpTmd', 'RM '+mzFormatNumber(parseFloat(kpiPpns['kpiPpnsNcp'])*parseFloat(kpiPpns['kpiPpnsWeightage'])*parseFloat(kpi['kpiPortionTotalFee'])*parseFloat(kpi['kpiPortionPerc'])/100,2), 'text');
-        if (kpiPpnsCategory === '6') {
-			const param6_1 = parseInt(kpiPpns['kpiPpnsParam1']);
-			const param6_2 = parseInt(kpiPpns['kpiPpnsParam2']);
-			const param6_3 = parseInt(kpiPpns['kpiPpnsParam3']);
-			const param6_4 = parseInt(kpiPpns['kpiPpnsParam4']);
-			const param6_5 = parseInt(kpiPpns['kpiPpnsParam5']);
-			const param6_6 = parseInt(kpiPpns['kpiPpnsParam6']);
-			const param6_7 = parseInt(kpiPpns['kpiPpnsParam7']);
-			const param6_8 = parseInt(kpiPpns['kpiPpnsParam8']);
+        if (kpiPpnsCategory === '4') {
+            const param4_1 = parseInt(kpiPpns['kpiPpnsParam1']);
+            const param4_2 = parseInt(kpiPpns['kpiPpnsParam2']);
+            const param4_3 = parseInt(kpiPpns['kpiPpnsParam3']);
+            const param4_4 = parseInt(kpiPpns['kpiPpnsParam4']);
+            const param4_5 = parseInt(kpiPpns['kpiPpnsParam5']);
+            const param4_6 = parseInt(kpiPpns['kpiPpnsParam6']);
+            mzSetFieldValue('Skp4TotalWoOpen', !isNaN(param4_1)?param4_1:'-', 'text');
+            mzSetFieldValue('Skp4TotalWoLate', !isNaN(param4_2)?param4_2:'-', 'text');
+            mzSetFieldValue('Skp4TargetWoInTime', !isNaN(param4_3)?param4_3:'-', 'text');
+            mzSetFieldValue('Skp4ActualWoInTime', !isNaN(param4_4)?param4_4:'-', 'text');
+            mzSetFieldValue('Skp4TargetWoInTimePerc', !isNaN(param4_5)?(param4_5*100)+'%':'-', 'text');
+            mzSetFieldValue('Skp4ActualWoInTimePerc', !isNaN(param4_6)?(param4_6*100)+'%':'-', 'text');
+            const dataCategory4 = mzAjaxRequest('wo.php?type=dashboard_list&kpiType=turnaroundTime&clientId='+refSite[siteId]['clientId']+'&siteId='+siteId+'&year='+kpi['kpiYear']+'&month='+(kpi['kpiMonth']-1), 'GET');
+            oTableSkpCategory4.clear().rows.add(dataCategory4).draw();
+            $('#divSkpCategory4, #divSkpData4').show();
+        }
+        else if (kpiPpnsCategory === '6') {
+            const param6_1 = parseInt(kpiPpns['kpiPpnsParam1']);
+            const param6_2 = parseInt(kpiPpns['kpiPpnsParam2']);
+            const param6_3 = parseInt(kpiPpns['kpiPpnsParam3']);
+            const param6_4 = parseInt(kpiPpns['kpiPpnsParam4']);
+            const param6_5 = parseInt(kpiPpns['kpiPpnsParam5']);
+            const param6_6 = parseInt(kpiPpns['kpiPpnsParam6']);
+            const param6_7 = parseInt(kpiPpns['kpiPpnsParam7']);
+            const param6_8 = parseInt(kpiPpns['kpiPpnsParam8']);
             mzSetFieldValue('Skp6EmergencyTotal', !isNaN(param6_1)?param6_1:'-', 'text');
             mzSetFieldValue('Skp6EmergencyNonComply', !isNaN(param6_2)?param6_2:'-', 'text');
             const emergencyPerc = !isNaN(param6_1) && param6_1 !== 0 ? mzFormatNumber((param6_1-param6_2)/param6_1*100,2) : 0;

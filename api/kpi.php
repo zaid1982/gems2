@@ -82,7 +82,9 @@ try {
             if (!isset ($urlArr[2]) || !isset ($urlArr[3])) {
                 throw new Exception('[' . __LINE__ . '] - Empty 2nd & 3rd parameters');
             }
-            if ($urlArr[2] === '6') {
+            if ($urlArr[2] === '4') {
+                $fn_kpi->calculateKpiPpnsCate4($urlArr[3]);
+            } else if ($urlArr[2] === '6') {
                 $fn_kpi->calculateKpiPpnsCate6($urlArr[3]);
             } else if ($urlArr[2] === '9') {
                 $fn_kpi->calculateKpiPpnsCate9($urlArr[3]);

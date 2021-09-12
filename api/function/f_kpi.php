@@ -160,6 +160,53 @@ class Class_kpi
      * @return void
      * @throws Exception
      */
+    public function calculateKpiPpnsCate4($kpiPpnsId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($kpiPpnsId));
+
+            $kpiPpns = Class_db::getInstance()->db_select_single2('kpi_ppns', array('kpi_ppns_id'=>$kpiPpnsId, 'kpi_ppns_category'=>'4'), '', 1);
+            $kpi = Class_db::getInstance()->db_select_single2('kpi', array('kpi_id'=>$kpiPpns['kpiId']), '', 1);
+            $woTasks =  Class_db::getInstance()->db_select2('wo_task', array('site_id'=>$kpi['siteId'], 'YEAR(wo_task_time_created)'=>$kpi['kpiYear'], 'MONTH(wo_task_time_created)'=>$kpi['kpiMonth'], 'wo_task_status'=>'N(25)', 'wo_task_type'=>'<>2'));
+
+            $totalWoOpen = 0;
+            $totalInTime = 0;
+            $targetInTimePerc = 0.75;
+            $ncp = 0;
+            foreach ($woTasks as $woTask) {
+                $current = new DateTime();
+                $start = new DateTime($woTask['woTaskTimeCreated']);
+                $target = $start->modify( '+1 month');
+                if (empty($woTask['woTaskTimeExecuted'])) {
+                    if ($current > $target) {
+                        $totalWoOpen++;
+                    }
+                    continue;
+                }
+                $totalWoOpen++;
+                $end = new DateTime($woTask['woTaskTimeExecuted']);
+                if ($end <= $target) {
+                    $totalInTime++;
+                }
+            }
+            $targetInTime = $totalWoOpen * $targetInTimePerc;
+            if ($totalInTime < $targetInTime) {
+                $ncp = ($targetInTime - $totalInTime) / $totalWoOpen;
+            }
+
+            Class_db::getInstance()->db_update('kpi_ppns', array('kpi_ppns_param_1'=>$totalWoOpen, 'kpi_ppns_param_2'=>($totalWoOpen-$totalInTime), 'kpi_ppns_param_3'=>$targetInTime,
+                'kpi_ppns_param_4'=>$totalInTime, 'kpi_ppns_param_5'=>$targetInTimePerc, 'kpi_ppns_param_6'=>round($totalInTime/$totalWoOpen, 2), 'kpi_ppns_ncp'=>$ncp), array('kpi_ppns_id'=>$kpiPpnsId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $kpiPpnsId
+     * @return void
+     * @throws Exception
+     */
     public function calculateKpiPpnsCate6($kpiPpnsId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);

@@ -1673,6 +1673,9 @@ class Class_wo {
                 $arrWhere['wo_task_status'] = '16';
                 $arrWhere['wo_task_type'] = '<>2';
                 $arrWhere['wo_task_rate'] = 'is not NULL';
+            } else if ($kpiType === 'turnaroundTime') {
+                $arrWhere['wo_task_status'] = 'N(25)';
+                $arrWhere['wo_task_type'] = '<>2';
             }
 
             $result = array();

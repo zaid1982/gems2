@@ -78,6 +78,44 @@
                     <h5 class="font-weight-bold text-center mt-1 mb-0"> Deduction Calculation</h5>
                 </div>
                 <div class="card-body mt-3">
+                    <div class="row divSkpCategory" id="divSkpData4">
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4TotalWoOpen" class="form-control" disabled>
+                                <label for="txtSkp4TotalWoOpen" id="lblSkp4TotalWoOpen" class="active">Total WO Open</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4TotalWoLate" class="form-control" disabled>
+                                <label for="txtSkp4TotalWoLate" id="lblSkp4TotalWoLate" class="active">Total WO Closed Late</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4TargetWoInTime" class="form-control" disabled>
+                                <label for="txtSkp4TargetWoInTime" id="lblSkp4TargetWoInTime" class="active">Target Closed in Time</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4ActualWoInTime" class="form-control" disabled>
+                                <label for="txtSkp4ActualWoInTime" id="lblSkp4ActualWoInTime" class="active">Actual Closed in Time</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4TargetWoInTimePerc" class="form-control" disabled>
+                                <label for="txtSkp4TargetWoInTimePerc" id="lblSkp4TargetWoInTimePerc" class="active">Target Perc Closed in Time</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSkp4ActualWoInTimePerc" class="form-control" disabled>
+                                <label for="txtSkp4ActualWoInTimePerc" id="lblSkp4ActualWoInTimePerc" class="active">Actual Perc Closed in Time</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row divSkpCategory" id="divSkpData6">
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
@@ -329,6 +367,46 @@
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtSkpTmd" class="form-control" disabled>
                                 <label for="txtSkpTmd" id="lblSkpTmd" class="active">Total Monthly Deduction</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-4_5 divSkpCategory" id="divSkpCategory4">
+                <div class="card-header blue lighten-3">
+                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Complaint List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 px-0">
+                            <div class="table-responsive">
+                                <table id="dtSkpCategory4" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Work Order No.</th>
+                                        <th>Site</th>
+                                        <th>Location</th>
+                                        <th>Complaint Type</th>
+                                        <th>Complainant</th>
+                                        <th>Complaint Description</th>
+                                        <th>Severity</th>
+                                        <th>Trade</th>
+                                        <th>Technician Name</th>
+                                        <th>Repair Description</th>
+                                        <th>Rating</th>
+                                        <th>Progress</th>
+                                        <th>Assigned By</th>
+                                        <th>Complaint Time</th>
+                                        <th>Target Complete Date</th>
+                                        <th>Actual Complete Date</th>
+                                        <th>Result</th>
+                                        <th>Result</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
