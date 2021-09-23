@@ -61,6 +61,8 @@ try {
             $result = $fn_kpi->getKpiPpns($urlArr[2]);
         } else if ($urlArr[1] === 'ppns_2') {
             $result = $fn_kpi->getKpiPpns2($urlArr[2], $urlArr[3]);
+        } else if ($urlArr[1] === 'ppnsComfortAvailability') {
+            $result = $fn_kpi->getKpiPpnsComfortAvailability($urlArr[2], $urlArr[3]);
         } else {
             $result = $fn_kpi->getKpi($urlArr[1]);
         }

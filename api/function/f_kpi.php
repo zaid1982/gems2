@@ -156,6 +156,23 @@ class Class_kpi
     }
 
     /**
+     * @param $year
+     * @param $month
+     * @return mixed
+     * @throws Exception
+     */
+    public function getKpiPpnsComfortAvailability($year, $month) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($year, $month));
+            return Class_db::getInstance()->db_select2('vw_kpi_ppns_comfort_availability', array('site_id'=>'7', 'ppm.checklist_id'=>'289', 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $kpiPpnsId
      * @return void
      * @throws Exception

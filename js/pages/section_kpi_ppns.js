@@ -524,6 +524,27 @@ function SectionKpiPpns () {
             oTableSkpCategory6.clear().rows.add(dataCategory6).draw();
             $('#divSkpCategory6, #divSkpData6').show();
         }
+        else if (kpiPpnsCategory === '8') {
+            const param8_1 = parseInt(kpiPpns['kpiPpnsParam1']);
+            const param8_2 = parseInt(kpiPpns['kpiPpnsParam2']);
+            const param8_3 = parseInt(kpiPpns['kpiPpnsParam3']);
+            const param8_4 = parseInt(kpiPpns['kpiPpnsParam4']);
+            const param8_5 = parseInt(kpiPpns['kpiPpnsParam5']);
+            const param8_6 = parseInt(kpiPpns['kpiPpnsParam6']);
+            const param8_7 = parseInt(kpiPpns['kpiPpnsParam7']);
+            const param8_8 = parseInt(kpiPpns['kpiPpnsParam8']);
+            mzSetFieldValue('Skp8TotalPlanned', !isNaN(param8_1)?param8_1:'-', 'text');
+            mzSetFieldValue('Skp8TotalDone', !isNaN(param8_2)?param8_2:'-', 'text');
+            mzSetFieldValue('Skp8TotalComply', !isNaN(param8_3)?param8_3:'-', 'text');
+            mzSetFieldValue('Skp8TotalNonComply', !isNaN(param8_4)?param8_4:'-', 'text');
+            mzSetFieldValue('Skp8TotalNonComplyTemp', !isNaN(param8_5)?param8_5:'-', 'text');
+            mzSetFieldValue('Skp8TotalNonComplyHumid', !isNaN(param8_6)?param8_6:'-', 'text');
+            mzSetFieldValue('Skp8TargetComplyPerc', !isNaN(param8_7)?(param8_7*100)+'%':'-', 'text');
+            mzSetFieldValue('Skp8ActualComplyPerc', !isNaN(param8_8)?(param8_8*100)+'%':'-', 'text');
+            const dataCategory8 = mzAjaxRequest2('kpi/ppnsComfortAvailability/'+kpi['kpiYear']+'/'+(kpi['kpiMonth']-1), 'GET');
+            //oTableSkpCategory8.clear().rows.add(dataCategory8).draw();
+            $('#divSkpCategory8, #divSkpData8').show();
+        }
         else if (kpiPpnsCategory === '9') {
             const param9_1 = parseInt(kpiPpns['kpiPpnsParam1']);
             const param9_2 = parseInt(kpiPpns['kpiPpnsParam2']);

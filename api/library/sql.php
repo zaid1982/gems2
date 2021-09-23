@@ -1281,6 +1281,25 @@ class Class_sql
                 WHERE site_id = 7
                 GROUP BY k.kpi_id
                 ORDER BY kpi_year DESC, kpi_month DESC";
+            } else if ($title === 'vw_kpi_ppns_comfort_availability') {
+                $sql = "SELECT 
+                    ppm_task.*,
+                    ast_asset.asset_no,
+                    ast_asset.asset_name,
+                    ast_asset.asset_location_code,
+                    ast_asset.asset_location_desc,
+                    ast_asset.asset_group_id,
+                    ast_asset.asset_category_id,
+                    ast_asset.asset_type_id,
+                    ast_asset.asset_block,
+                    ast_asset.asset_level,
+                    ppm.ppm_group_id,
+                    ppm_task_quan.ppm_task_quan_measured_values
+                FROM ppm_task
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN ppm_task_quan ON ppm_task_quan.ppm_task_id = ppm_task.ppm_task_id AND ppm_task_quan.checklist_quan_id = 1253";
             } else if ($title === 'vw_meter_mobile') {
                 $sql = "SELECT 
                     m.*,
