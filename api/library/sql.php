@@ -1294,7 +1294,8 @@ class Class_sql
                     ast_asset.asset_block,
                     ast_asset.asset_level,
                     ppm.ppm_group_id,
-                    ppm_task_quan.ppm_task_quan_measured_values
+                    ppm_task_quan.ppm_task_quan_measured_values,
+                    IF(ppm_task_quan_measured_values IS NULL, 'No Reading', IF(CAST(ppm_task_quan_measured_values AS DECIMAL(4,1)) BETWEEN 23 AND 25, 'Success', 'Fail')) AS result
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
