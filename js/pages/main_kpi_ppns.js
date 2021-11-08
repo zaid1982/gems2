@@ -22,10 +22,11 @@ function MainKpiPpns () {
                 { className: 'text-right font-weight-bolder', targets: [15] },
             ],
             buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - KPI / APD - PPNS', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}//,
+                //{ text: 'Add Attendance', className: 'btn btn-outline-elegant btn-sm px-2'}
             ],
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -92,6 +93,10 @@ function MainKpiPpns () {
         self.genTable();
     };
 
+    this.getClassName = function () {
+        return className;
+    };
+
     this.showMain = function () {
         $('.sectionKppMain').show();
     };
@@ -103,10 +108,6 @@ function MainKpiPpns () {
     this.genTable = function () {
         const dataDb = mzAjaxRequest2('kpi/ppns_list', 'GET');
         oTableKpp.clear().rows.add(dataDb).draw();
-    };
-
-    this.getClassName = function () {
-        return className;
     };
 
     this.setSectionKpiPpnsClass = function (_sectionKpiPpnsClass) {

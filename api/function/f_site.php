@@ -79,22 +79,7 @@ class Class_site {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_site');
-            foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['siteId'] = $dataLocal['site_id'];
-                $row_result['siteName'] = $dataLocal['site_name'];
-                $row_result['siteCode'] = $dataLocal['site_code'];
-                $row_result['siteDesc'] = $this->fn_general->clear_null($dataLocal['site_desc']);
-                $row_result['clientId'] = $dataLocal['client_id'];
-                $row_result['groupId'] = $dataLocal['group_id'];
-                $row_result['siteIsWr'] = $dataLocal['site_is_wr'];
-                $row_result['siteTimeCreated'] = str_replace('-', '/', $dataLocal['site_time_created']);
-                $row_result['siteStatus'] = $dataLocal['site_status'];
-                array_push($result, $row_result);
-            }
-
-            return $result;
+            return Class_db::getInstance()->db_select2('cli_site');
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

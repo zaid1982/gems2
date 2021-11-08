@@ -9,7 +9,7 @@ function MainUtility () {
     let refSite;
 
     this.init = function () {
-        let exportOptUtmMonthly = [];
+        let exportOptUtmMonthly = Object.assign({}, mzExportOpt);
         exportOptUtmMonthly['columns'] = [0, 1, 2, 3, 4, 5, 7];
         oTableUtmMonthly = $('#dtUtmMonthlyData').DataTable({
             bLengthChange: false,
@@ -89,7 +89,7 @@ function MainUtility () {
             $('[data-toggle="tooltip"]').tooltip();
         });
 
-        let exportOptUtmMonthlyWater = [];
+        let exportOptUtmMonthlyWater = Object.assign({}, mzExportOpt);
         exportOptUtmMonthlyWater['columns'] = [0, 1, 2, 3];
         oTableUtmMonthlyWater = $('#dtUtmMonthlyWaterData').DataTable({
             bLengthChange: false,
