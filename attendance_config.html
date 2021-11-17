@@ -60,6 +60,8 @@
                                                 <th>Site Code</th>
                                                 <th>Description</th>
                                                 <th>Site Status</th>
+                                                <th>Total Groups</th>
+                                                <th>Total Participants</th>
                                                 <th>Attendance Enabled</th>
                                                 <th>Enable / Disable</th>
                                             </tr>
@@ -78,6 +80,8 @@
         <div class="includeHtml" id="h-section_attendance_config_site"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_submit"></div>
+    <div class="includeHtml" id="h-modal_attendance_group"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -110,6 +114,8 @@
 
     let versionLocal_;
     let changePasswordClass_;
+    let confirmSubmitClass_;
+    let modalAttendanceGroupClass_;
     let sectionAttendanceConfigSiteClass_;
     let attendanceConfigClass_;
 
@@ -121,17 +127,25 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
+                confirmSubmitClass_ = new ModalConfirmSubmit();
+                modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 sectionAttendanceConfigSiteClass_ = new SectionAttendanceConfigSite();
                 attendanceConfigClass_ = new MainAttendanceConfig();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
 
+                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
+                modalAttendanceGroupClass_.init();
+
+                sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);
+                sectionAttendanceConfigSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceConfigSiteClass_.setClassFrom(attendanceConfigClass_);
                 sectionAttendanceConfigSiteClass_.init();
 
                 attendanceConfigClass_.setRefStatus(refStatus_);
                 attendanceConfigClass_.setRefClient(refClient_);
+                attendanceConfigClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 attendanceConfigClass_.setSectionAttendanceConfigSiteClass(sectionAttendanceConfigSiteClass_);
                 attendanceConfigClass_.init();
             } catch (e) {
@@ -142,6 +156,8 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_config_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

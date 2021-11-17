@@ -1369,6 +1369,16 @@ class Class_sql
                     IF (CURTIME() < '06:00:00', CURDATE() - INTERVAL 1 DAY, CURDATE()) AS reading_date";
             } else if ($title === 'vw_utility_monthly_water_analyzed') {
                 $sql = "";
+            } else if ($title === 'vw_attendance_site') {
+                $sql = "SELECT 
+                    s.*,
+                    IFNULL(ag.total, 0) AS total_group,
+                    IFNULL(ap.total, 0) AS total_participant	
+                FROM cli_site s
+                LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_group GROUP BY site_id) ag ON ag.site_id = s.site_id
+                LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_participant 
+                    LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
+                    GROUP BY site_id) ap ON ap.site_id = s.site_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

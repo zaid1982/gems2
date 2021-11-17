@@ -1,0 +1,138 @@
+<div class="modal fade" id="modal_attendance_group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info modal-lg mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMtgModalTitle"><i class="fas fa-plus text-white mr-2"></i> Add Attendance Group</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMtg" class="mt-2" autocomplete="off">
+					<div class="card z-depth-2">
+						<div class="card-body blue-grey lighten-5 pt-4 pb-0">
+							<div class="row">
+								<div class="col-md-8">
+									<div class="md-form mt-0">
+										<input type="text" id="txtMtgSiteName" class="form-control" disabled>
+										<label for="txtMtgSiteName" id="lblMtgSiteName" class="active">Site Name</label>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="md-form mt-0">
+										<input type="text" id="txtMtgSiteCode" class="form-control" disabled>
+										<label for="txtMtgSiteCode" id="lblMtgSiteCode" class="active">Site Code</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mt-4_5">
+						<div class="col-md-12">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgTitle" class="form-control">
+								<label for="txtMtgTitle" id="lblMtgTitle">Group Name *</label>
+								<p class="font-small text-danger" id="txtMtgTitleErr"></p>
+							</div>
+						</div>
+						<div class="col-md-6 select-outline mt-2 mb-2" id="optMtgGroup_1">
+							<select id="optMtgGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+								<option selected value="" disabled>Please Select *</option>
+								<option value="1">Civil</option>
+								<option value="2">Mechanical</option>
+								<option value="3">Electrical</option>
+								<option value="4">Other</option>
+							</select>
+							<label for="optMtgGroup" id="lblMtgGroup">Category</label>
+							<p class="font-small text-danger" id="optMtgGroupErr"></p>
+						</div>
+						<div class="col-md-6 select-outline mt-2 mb-2" id="optMtgPermission_">
+							<select id="optMtgPermission" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+								<option selected value="" disabled>Please Select</option>
+								<option value="1">Low</option>
+								<option value="2">High</option>
+							</select>
+							<label for="optMtgPermission" id="lblMtgPermission">Default Weekly Holiday *</label>
+							<p class="font-small text-danger" id="optMtgPermissionErr"></p>
+						</div>
+						<div class="col-md-12 select-outline mt-2 mb-2" id="optMtgPermission_">
+							<select id="optMtgPermission" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+								<option selected value="" disabled>Please Select</option>
+								<option value="1">Low</option>
+								<option value="2">High</option>
+							</select>
+							<label for="optMtgPermission" id="lblMtgPermission">Supervisor *</label>
+							<p class="font-small text-danger" id="optMtgPermissionErr"></p>
+						</div>
+						<div class="col-md-6">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgLevel" class="form-control">
+								<label for="txtMtgLevel" id="lblMtgLevel">Default Required Weekly Hours</label>
+								<p class="font-small text-danger" id="txtMtgLevelErr"></p>
+							</div>
+						</div>
+						<div class="col-md-6 select-outline mt-2 mb-2" id="optMtgPermission_">
+							<select id="optMtgPermission" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+								<option selected value="" disabled>Please Select</option>
+								<option value="1">Low</option>
+								<option value="2">High</option>
+							</select>
+							<label for="optMtgPermission" id="lblMtgPermission">Default Shift Mode *</label>
+							<p class="font-small text-danger" id="optMtgPermissionErr"></p>
+						</div>
+						<div class="col-md-6">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgVersion" class="form-control">
+								<label for="txtMtgVersion" id="lblMtgVersion">Day Shift Start *</label>
+								<p class="font-small text-danger" id="txtMtgVersionErr"></p>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgPublishedBy" class="form-control">
+								<label for="txtMtgPublishedBy" id="lblMtgPublishedBy">Day Shift End *</label>
+								<p class="font-small text-danger" id="txtMtgPublishedByErr"></p>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgPublishedDate" class="form-control datepicker">
+								<label for="txtMtgPublishedDate" id="lblMtgPublishedDate">Night Shift Start *</label>
+								<p class="font-small text-danger" id="txtMtgPublishedDateErr"></p>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgBlock" class="form-control">
+								<label for="txtMtgBlock" id="lblMtgBlock">Day Shift End *</label>
+								<p class="font-small text-danger" id="txtMtgBlockErr"></p>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="md-form md-outline mt-0">
+								<input type="text" id="txtMtgIdNo" class="form-control">
+								<label for="txtMtgIdNo" id="lblMtgIdNo">Polygon Border *</label>
+								<p class="font-small text-danger" id="txtMtgIdNoErr"></p>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="md-form md-outline mt-0">
+								<textarea id="txaMtgRemark" class="md-textarea form-control" rows="3"></textarea>
+								<label for="txaMtgRemark" id="lblMtgRemark" class="text-muted">Remarks</label>
+								<p class="font-small text-danger" id="txaMtgRemarkErr"></p>
+							</div>							
+						</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMtgClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMtgSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMtgSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>

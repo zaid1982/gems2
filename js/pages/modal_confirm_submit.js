@@ -1,33 +1,28 @@
 function ModalConfirmSubmit() {
 
-    let mcsType;
-    let mcsCallFrom;
+    let id;
+    let classFrom;
+    let flag;
 
     this.init = function () {
         $('#btnMcsSubmit').on('click', function () {
-            switch (mcsType) {
-                case 'submit_workorder':
-                    workOrderClass.submitWorkorder();
-                    break;
-                default:
-                    toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+            if (typeof classFrom !== 'undefined') {
+                classFrom.confirmSubmit(id, flag);
             }
             $('#modal_confirm_submit').modal('hide');
         });
     };
 
-    this.submit = function (callFrom, type) {
-        if (typeof callFrom === 'undefined' || callFrom === '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
-        if (typeof type === 'undefined' || type == '') {
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            return false;
-        }
-        mcsCallFrom = callFrom;
-        mcsType = type;
+    this.load = function (_id, _flag, _confirmText) {
+        mzCheckFuncParam([_id]);
+        id = _id;
+        flag = _flag;
+        $('#lblMcsConfirmation').html(typeof _confirmText !== 'undefined' ? _confirmText : 'Are you sure?')
         $('#modal_confirm_submit').modal({backdrop: 'static', keyboard: false});
+    };
+
+    this.setClassFrom = function (_classFrom) {
+        classFrom = _classFrom;
     };
 
     this.init();

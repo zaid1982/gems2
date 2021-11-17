@@ -6,7 +6,7 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_att_group.php';
 
-$api_name = 'api_att-group';
+$api_name = 'api_att_group';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -52,8 +52,12 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'xxx') {
-                //
+            if ($urlArr[1] === 'site') {
+                if (isset ($urlArr[2])) {
+                    $result = $fn_attGroup->getAttSite($urlArr[2]);
+                } else {
+                    $result = $fn_attGroup->getAttSiteList();
+                }
             }
         } else {
             $result = $fn_attGroup->getAttGroupList();
