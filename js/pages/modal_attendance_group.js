@@ -4,11 +4,13 @@ function ModalAttendanceGroup () {
     let self = this;
     let formValidate;
     let drawingId;
+    let siteId;
     let vData;
     let classFrom;
+    let refUser;
 	
 	this.init = function () {
-		vData = [
+        vData = [
             {
                 field_id: 'txtMtgTitle',
                 type: 'text',
@@ -233,17 +235,18 @@ function ModalAttendanceGroup () {
         });
 	};
 	
-	this.add = function () {
+	this.add = function (_siteId) {
 		ShowLoader();
         setTimeout(function () {
             try {
-                drawingId = '';
-                formValidate.clearValidation();                
+                mzCheckFuncParam([_siteId]);
+                siteId = _siteId;
+                formValidate.clearValidation();
+
+
 
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
-                $('#lblMtgFile').text('Drawing DWG File');
-                $('#lblMtgPdfFile').text('Drawing PDF File');
-                formValidate.registerFields(vData);
+                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
                 $('#btnMtgSave').hide();
                 $('#btnMtgSubmit').show();
 
@@ -278,7 +281,6 @@ function ModalAttendanceGroup () {
                 $('#lblMtgModalTitle').html('<i class="fas fa-edit text-white mr-2"></i> Edit Drawing File');
                 $('#lblMtgFile').text('Replace Drawing DWG File');
                 $('#lblMtgPdfFile').text('Replace Drawing PDF File');
-                formValidate.registerFields(vData);
                 $('#btnMtgSubmit').hide();
                 $('#btnMtgSave').show();
 
@@ -304,5 +306,9 @@ function ModalAttendanceGroup () {
 
     this.setSiteCode = function (_siteCode) {
         mzSetFieldValue('MtgSiteCode', _siteCode, 'text');
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 }

@@ -47,7 +47,7 @@ function SectionAttendanceConfigSite () {
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('.btnSacAddGroup').off('click').on('click', function () {
-                    modalAttendanceGroupClass.add();
+                    modalAttendanceGroupClass.add(siteId);
                 });
             },
             aoColumns: [

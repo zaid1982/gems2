@@ -15,12 +15,17 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- FullCalendar -->
     <link rel="stylesheet" href="js/vendor/full-calendar-5.9.0/lib/main.css">
+    <!-- Google Maps -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         .fc .fc-toolbar-title {
             font-size: 20px;
+        }
+        #map {
+            height: 100%;
         }
     </style>
     <!-- JQuery -->
@@ -108,7 +113,35 @@
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
 
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCe-2LZ0JETWPTXcBkdnz8LuMltiTIhbyE&libraries=drawing&v=weekly&channel=2" async></script>
 <!--Custom scripts-->
+
+<script type="text/javascript">
+
+    function initMap2() {
+        const map = new google.maps.Map(document.getElementById("map2"), {
+            center: { lat: 2.728, lng: 101.898 },
+            zoom: 15,
+        });
+        const drawingManager = new google.maps.drawing.DrawingManager({
+            drawingMode: google.maps.drawing.OverlayType.MARKER,
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [
+                    //google.maps.drawing.OverlayType.MARKER,
+                    //google.maps.drawing.OverlayType.CIRCLE,
+                    google.maps.drawing.OverlayType.POLYGON,
+                    //google.maps.drawing.OverlayType.POLYLINE,
+                    //google.maps.drawing.OverlayType.RECTANGLE,
+                ],
+            }
+        });
+
+        drawingManager.setMap(map);
+    }
+</script>
 <script type="text/javascript">
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
@@ -134,7 +167,9 @@
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
+                modalAttendanceGroupClass_.setRefUser(refUser_);
                 modalAttendanceGroupClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
                 modalAttendanceGroupClass_.init();
 
@@ -148,12 +183,17 @@
                 attendanceConfigClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 attendanceConfigClass_.setSectionAttendanceConfigSiteClass(sectionAttendanceConfigSiteClass_);
                 attendanceConfigClass_.init();
+
+                initMap2();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
         }, 200);
     });
+
+
+
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
