@@ -44,7 +44,7 @@
 							<label for="optMtgSupervisor" id="lblMtgSupervisor">Supervisor *</label>
 							<p class="font-small text-danger" id="optMtgSupervisorErr"></p>
 						</div>
-						<div class="col-lg-6 select-outline mb-2" id="optMtgGroupCategory_1">
+						<div class="col-lg-6 select-outline mb-2" id="optMtgGroupCategory_">
 							<select id="optMtgGroupCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 								<option selected value="" disabled>Please Select *</option>
 								<option value="Civil">Civil</option>
@@ -52,7 +52,7 @@
 								<option value="Electrical">Electrical</option>
 								<option value="Operation">Operation</option>
 							</select>
-							<label for="optMtgGroupCategory" id="lblMtgGroupCategory">Category</label>
+							<label for="optMtgGroupCategory" id="lblMtgGroupCategory">Category *</label>
 							<p class="font-small text-danger" id="optMtgGroupCategoryErr"></p>
 						</div>
 						<div class="col-lg-6 select-outline mb-2" id="optMtgGroupHoliday_">
@@ -83,7 +83,7 @@
 									<label for="optMtgGroupShiftMode" id="lblMtgGroupShiftMode">Default Shift Mode *</label>
 									<p class="font-small text-danger" id="optMtgGroupShiftModeErr"></p>
 								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgDayShiftStart_">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupDayShiftStart_">
 									<select id="optMtgGroupDayShiftStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 										<option selected value="" disabled>Please Select</option>
 										<option value="07:00">7:00 AM</option>
@@ -97,7 +97,7 @@
 									<label for="optMtgGroupDayShiftStart" id="lblMtgGroupDayShiftStart">Day Shift Start *</label>
 									<p class="font-small text-danger" id="optMtgGroupDayShiftStartErr"></p>
 								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgDayShiftEnd_">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupDayShiftEnd_">
 									<select id="optMtgGroupDayShiftEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 										<option selected value="" disabled>Please Select</option>
 										<option value="16:00">4:00 PM</option>
@@ -111,7 +111,7 @@
 									<label for="optMtgGroupDayShiftEnd" id="lblMtgGroupDayShiftEnd">Day Shift End *</label>
 									<p class="font-small text-danger" id="optMtgGroupDayShiftEndErr"></p>
 								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgNightShiftStart_">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightShiftStart_">
 									<select id="optMtgGroupNightShiftStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 										<option selected value="" disabled>Please Select</option>
 										<option value="18:00">6:00 PM</option>
@@ -123,7 +123,7 @@
 									<label for="optMtgGroupNightShiftStart" id="lblMtgGroupNightShiftStart">Night Shift Start *</label>
 									<p class="font-small text-danger" id="optMtgGroupNightShiftStartErr"></p>
 								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgNightShiftEnd_">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightShiftEnd_">
 									<select id="optMtgGroupNightShiftEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 										<option selected value="" disabled>Please Select</option>
 										<option value="05:00">5:00 AM</option>
@@ -147,9 +147,9 @@
 							</div>
 						</div>
 						<div class="col-lg-6">
-							<button class="btn btn-sm btn-deep-orange waves-effect float-right mb-2 mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
+							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mb-2 mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
 							<p class="mt-2">Perimeter for Verification : </p>
-							<div id="map2" class="z-depth-1" style="height: 308px; width: 100%"></div>
+							<div id="mapMtgGroup" class="z-depth-1" style="height: 308px; width: 100%"></div>
 						</div>
                     </div>
                 </form>

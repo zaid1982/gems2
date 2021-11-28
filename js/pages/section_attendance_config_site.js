@@ -107,6 +107,10 @@ function SectionAttendanceConfigSite () {
         classFrom = _classFrom;
     };
 
+    this.getClassFrom = function () {
+        return classFrom;
+    };
+
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };

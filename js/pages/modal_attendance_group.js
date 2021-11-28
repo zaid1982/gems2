@@ -8,107 +8,96 @@ function ModalAttendanceGroup () {
     let vData;
     let classFrom;
     let refUser;
+    let googleMapsDrawingPolygonClass;
 	
 	this.init = function () {
         vData = [
             {
-                field_id: 'txtMtgTitle',
+                field_id: 'txtMtgGroupName',
                 type: 'text',
-                name: 'Document Title',
+                name: 'Group Name',
                 validator: {
                     notEmpty: true,
-                    maxLength: 250
+                    maxLength: 200
                 }
             },
             {
-                field_id: 'txtMtgIdNo',
-                type: 'text',
-                name: 'Document ID No.',
-                validator: {
-                    notEmpty: true,
-                    maxLength: 30
-                }
-            },
-            {
-                field_id: 'txtMtgVersion',
-                type: 'text',
-                name: 'Document Version',
-                validator: {
-                    notEmpty: true,
-                    maxLength: 10
-                }
-            },
-            {
-                field_id: 'txtMtgPublishedBy',
-                type: 'text',
-                name: 'Published By',
-                validator: {
-                    notEmpty: true,
-                    maxLength: 150
-                }
-            },
-            {
-                field_id: 'txtMtgPublishedDate',
-                type: 'text',
-                name: 'Published Date',
-                validator: {
-                    notEmpty: true
-                }
-            },
-            {
-                field_id: 'txtMtgBlock',
-                type: 'text',
-                name: 'Document Version',
-                validator: {
-                    notEmpty: false,
-                    maxLength: 100
-                }
-            },
-            {
-                field_id: 'txtMtgLevel',
-                type: 'text',
-                name: 'Document Version',
-                validator: {
-                    notEmpty: false,
-                    maxLength: 20
-                }
-            },
-            {
-                field_id: 'optMtgGroup',
+                field_id: 'optMtgSupervisor',
                 type: 'select',
-                name: 'Group',
+                name: 'Supervisor',
                 validator: {
                     notEmpty: true
                 }
             },
             {
-                field_id: 'optMtgPermission',
+                field_id: 'optMtgGroupCategory',
                 type: 'select',
-                name: 'Permission Level',
+                name: 'Category',
                 validator: {
                     notEmpty: true
                 }
             },
             {
-                field_id: 'txfMtgFile',
-                type: 'file',
-                name: 'Drawing DWG File',
+                field_id: 'optMtgGroupHoliday',
+                type: 'select',
+                name: 'Default Weekly Holiday',
                 validator: {
-                    notEmptyFile: false,
-                    dwgType: true
+                    notEmpty: true
                 }
             },
             {
-                field_id: 'txfMtgPdfFile',
-                type: 'file',
-                name: 'Drawing PDF File',
+                field_id: 'txtMtgGroupReqWeekHours',
+                type: 'text',
+                name: 'Default Required Weekly Hours',
                 validator: {
-                    notEmptyFile: false,
-                    pdfType: true
+                    notEmpty: true,
+                    numeric: true,
+                    min: 8,
+                    max: 70
                 }
             },
             {
-                field_id: 'txaMtgRemark',
+                field_id: 'optMtgGroupShiftMode',
+                type: 'select',
+                name: 'Default Shift Mode',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupDayShiftStart',
+                type: 'select',
+                name: 'Day Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupDayShiftEnd',
+                type: 'select',
+                name: 'Day Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupNightShiftStart',
+                type: 'select',
+                name: 'Night Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupNightShiftEnd',
+                type: 'select',
+                name: 'Night Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'txaMtgGroupRemark',
                 type: 'text',
                 name: 'Remarks',
                 validator: {
@@ -121,6 +110,7 @@ function ModalAttendanceGroup () {
         formValidate.registerFields(vData);
 
         $('#btnMtgSubmit').on('click', function () {
+            console.log(googleMapsDrawingPolygonClass.getSelectedCoordinate());
             if (!formValidate.validateNow()) {
                 toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
             }
@@ -128,45 +118,22 @@ function ModalAttendanceGroup () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        let dataDrawing = {                        
-                            drawingTitle: $('#txtMtgTitle').val(),
-                            drawingIdNo: $('#txtMtgIdNo').val(),
-                            drawingVersion: $('#txtMtgVersion').val(),
-                            drawingPublishedBy: $('#txtMtgPublishedBy').val(),
-                            drawingPublishedDate: mzConvertDate($('#txtMtgPublishedDate').val()),
-                            drawingBlock: $('#txtMtgBlock').val(),
-                            drawingLevel: $('#txtMtgLevel').val(),
-                            assetGroupId: $('#optMtgGroup').val(),
-                            drawingPermissionLevel: $('#optMtgPermission').val(),
-                            drawingRemark: $('#txaMtgRemark').val()
+                        let data = {
+                            attGroupName: $('#txtMtgGroupName').val(),
+                            attGroupSupervisor: $('#optMtgSupervisor').val(),
+                            attGroupCategory: $('#optMtgGroupCategory').val(),
+                            attGroupHoliday: $('#optMtgGroupHoliday').val(),
+                            attGroupReqWeekHours: $('#txtMtgGroupReqWeekHours').val(),
+                            attGroupShiftMode: $('#optMtgGroupShiftMode').val(),
+                            attGroupDayShiftStart: $('#optMtgGroupDayShiftStart').val(),
+                            attGroupDayShiftEnd: $('#optMtgGroupDayShiftEnd').val(),
+                            attGroupDNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
+                            attGroupDNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
+                            attGroupRemark: $('#txaMtgGroupRemark').val()
                         };
-                        const fileDwg = $('#txfMtgFile').prop('files');
-                        if (fileDwg.length > 0) {
-                            const dataDwgUpload = {
-                                name: $('#txtMtgTitle').val(),
-                                filename: fileDwg[0].name,
-                                size: fileDwg[0].size,
-                                type: fileDwg[0].type,
-                                data: $('#txfMtgFileBlob').val(),
-                                description: $('#txtMtgTitle').val()
-                            };
-                            dataDrawing['drawingDwg'] = mzAjaxRequest2('drawing/upload_dwg_drawing', 'POST', dataDwgUpload);
-                        }
-                        const filePdf = $('#txfMtgPdfFile').prop('files');
-                        if (filePdf.length > 0) {
-                            const dataPdfUpload = {
-                                name: $('#txtMtgTitle').val(),
-                                filename: filePdf[0].name,
-                                size: filePdf[0].size,
-                                type: filePdf[0].type,
-                                data: $('#txfMtgPdfFileBlob').val(),
-                                description: $('#txtMtgTitle').val()
-                            };
-                            dataDrawing['drawingPdf'] = mzAjaxRequest2('drawing/upload_pdf_drawing', 'POST', dataPdfUpload);
-                        }
-                        mzAjaxRequest2('drawing', 'POST', dataDrawing);
-                        if (classFrom.getClassName() === 'MainDrawingRecords') {
-                            classFrom.genTable();
+                        //mzAjaxRequest2('att_group', 'POST', data);
+                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
+                            //classFrom.genTable();
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {
@@ -185,44 +152,7 @@ function ModalAttendanceGroup () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        let dataDrawing = {                        
-                            drawingTitle: $('#txtMtgTitle').val(),
-                            drawingIdNo: $('#txtMtgIdNo').val(),
-                            drawingVersion: $('#txtMtgVersion').val(),
-                            drawingPublishedBy: $('#txtMtgPublishedBy').val(),
-                            drawingPublishedDate: mzConvertDate($('#txtMtgPublishedDate').val()),
-                            drawingBlock: $('#txtMtgBlock').val(),
-                            drawingLevel: $('#txtMtgLevel').val(),
-                            assetGroupId: $('#optMtgGroup').val(),
-                            drawingPermissionLevel: $('#optMtgPermission').val(),
-                            drawingRemark: $('#txaMtgRemark').val()
-                        };
-                        const fileDwg = $('#txfMtgFile').prop('files');
-                        if (fileDwg.length > 0) {
-                            const dataDwgUpload = {
-                                name: $('#txtMtgTitle').val(),
-                                filename: fileDwg[0].name,
-                                size: fileDwg[0].size,
-                                type: fileDwg[0].type,
-                                data: $('#txfMtgFileBlob').val(),
-                                description: $('#txtMtgTitle').val()
-                            };                        
-                            mzAjaxRequest2('drawing/update_dwg_drawing/'+drawingId, 'PUT', dataDwgUpload);
-                        }
-                        const filePdf = $('#txfMtgPdfFile').prop('files');
-                        if (filePdf.length > 0) {
-                            const dataPdfUpload = {
-                                name: $('#txtMtgTitle').val(),
-                                filename: filePdf[0].name,
-                                size: filePdf[0].size,
-                                type: filePdf[0].type,
-                                data: $('#txfMtgPdfFileBlob').val(),
-                                description: $('#txtMtgTitle').val()
-                            };
-                            mzAjaxRequest2('drawing/update_pdf_drawing/'+drawingId, 'PUT', dataPdfUpload);
-                        }
-                        mzAjaxRequest2('drawing/'+drawingId, 'PUT', dataDrawing);
-                        if (classFrom.getClassName() === 'MainDrawingRecords') {
+                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             classFrom.genTable();
                         }
                         $('#modal_attendance_group').modal('hide');
@@ -232,6 +162,10 @@ function ModalAttendanceGroup () {
                     HideLoader();
                 }, 200);
             }
+        });
+
+        $('#btnMtgMapRedraw').on('click', function () {
+            googleMapsDrawingPolygonClass.deleteSelectedShape();
         });
 	};
 	
@@ -243,12 +177,11 @@ function ModalAttendanceGroup () {
                 siteId = _siteId;
                 formValidate.clearValidation();
 
-
-
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
                 mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
                 $('#btnMtgSave').hide();
                 $('#btnMtgSubmit').show();
+                googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
 
                 $('#modal_attendance_group').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
@@ -310,5 +243,9 @@ function ModalAttendanceGroup () {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+    };
+
+    this.setGoogleMapsDrawingPolygon = function (_googleMapsDrawingPolygonClass) {
+        googleMapsDrawingPolygonClass = _googleMapsDrawingPolygonClass;
     };
 }
