@@ -3,6 +3,7 @@ function SectionAttendanceConfigSite () {
     const className = 'SectionAttendanceConfigSite';
     let self = this;
     let classFrom;
+    let hasEdit = false;
     let siteId;
     let refStatus;
     let oTableSacGroup;
@@ -13,9 +14,20 @@ function SectionAttendanceConfigSite () {
         $('.sectionAttendanceConfigSite').hide();
 
         $('#btnSacBack').on('click', function () {
-            $('.sectionAttendanceConfigSite').hide();
-            classFrom.showMain();
-            $(window).scrollTop(0);
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (hasEdit) {
+                        classFrom.genTable();
+                    }
+                    $('.sectionAttendanceConfigSite').hide();
+                    classFrom.showMain();
+                    $(window).scrollTop(0);
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         oTableSacGroup = $('#dtSacGroup').DataTable({

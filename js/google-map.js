@@ -80,7 +80,6 @@ function GoogleMapsDrawingPolygon () {
                         lng: path.getAt(i).lng()
                     });
                 }
-                console.log(coordinates);
                 selectedCoordinate = coordinates;
             });
 
@@ -100,10 +99,6 @@ function GoogleMapsDrawingPolygon () {
         }
     };
 
-    this.getSelectedCoordinate = function () {
-        return selectedCoordinate;
-    };
-
     this.setDrawingManager = function (_mapId) {
         try {
             mzCheckFuncParam([_mapId]);
@@ -116,5 +111,17 @@ function GoogleMapsDrawingPolygon () {
         } catch (e) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);
         }
+    };
+
+    this.getSelectedCoordinate = function () {
+        return selectedCoordinate;
+    };
+
+    this.getMapCenter = function () {
+        return map.getCenter().toString();
+    };
+
+    this.getZoomLevel = function () {
+        return map.getZoom();
     };
 }

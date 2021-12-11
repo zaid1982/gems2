@@ -69,7 +69,7 @@
 								<div class="col-lg-12">
 									<div class="md-form md-outline mt-0">
 										<input type="text" id="txtMtgGroupReqWeekHours" class="form-control">
-										<label for="txtMtgGroupReqWeekHours" id="lblMtgGroupReqWeekHours">Default Required Weekly Hours</label>
+										<label for="txtMtgGroupReqWeekHours" id="lblMtgGroupReqWeekHours">Default Required Weekly Hours *</label>
 										<p class="font-small text-danger" id="txtMtgGroupReqWeekHoursErr"></p>
 									</div>
 								</div>
@@ -137,6 +137,12 @@
 									<label for="optMtgGroupNightShiftEnd" id="lblMtgGroupNightShiftEnd">Night Shift End *</label>
 									<p class="font-small text-danger" id="optMtgGroupNightShiftEndErr"></p>
 								</div>
+								<div class="col-md-12 select-outline mb-2" id="optMtgOtApprover_">
+									<select id="optMtgOtApprover" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Search here ..." data-stop-refresh="true" data-visible-options="-1">
+									</select>
+									<label for="optMtgOtApprover" id="lblMtgOtApprover">OT Approver *</label>
+									<p class="font-small text-danger" id="optMtgOtApproverErr"></p>
+								</div>
 								<div class="col-md-12">
 									<div class="md-form md-outline mt-0">
 										<textarea id="txaMtgGroupRemark" class="md-textarea form-control" rows="4"></textarea>
@@ -147,9 +153,9 @@
 							</div>
 						</div>
 						<div class="col-lg-6">
-							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mb-2 mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
-							<p class="mt-2">Perimeter for Verification : </p>
-							<div id="mapMtgGroup" class="z-depth-1" style="height: 308px; width: 100%"></div>
+							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
+							<p class="mt-2 font-weight-500">Perimeter for Verification : </p>
+							<div id="mapMtgGroup" class="z-depth-1" style="height: 368px; width: 100%"></div>
 						</div>
                     </div>
                 </form>

@@ -65,6 +65,21 @@ try {
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }
+    else if ('POST' === $request_method) {
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $params = $_POST['data'];
+        $maps = $_POST['maps'];
+
+        $attGroupId = $fn_attGroup->addAttGroup($params, $maps);
+        $fn_general->updateVersion(27);
+        $fn_general->save_audit('182', $userId, 'Attendance Group ID = '.$attGroupId.', Attendance Group Name = '.$params['attGroupName']);
+        $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+
+        Class_db::getInstance()->db_commit();
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
     else if ('PUT' === $request_method) {
         $putData = file_get_contents("php://input");
         $params = array();

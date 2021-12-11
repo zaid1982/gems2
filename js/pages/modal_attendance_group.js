@@ -103,6 +103,14 @@ function ModalAttendanceGroup () {
                 validator: {
                     maxLength: 5000
                 }
+            },
+            {
+                field_id: 'optMtgOtApprover',
+                type: 'select',
+                name: 'OT Approver',
+                validator: {
+                    notEmpty: true
+                }
             }
         ];
 
@@ -110,15 +118,19 @@ function ModalAttendanceGroup () {
         formValidate.registerFields(vData);
 
         $('#btnMtgSubmit').on('click', function () {
-            console.log(googleMapsDrawingPolygonClass.getSelectedCoordinate());
-            if (!formValidate.validateNow()) {
+            const coordinates = googleMapsDrawingPolygonClass.getSelectedCoordinate();
+            const mapCenter = googleMapsDrawingPolygonClass.getMapCenter();
+            const zoomLevel = googleMapsDrawingPolygonClass.getZoomLevel();
+            if (!formValidate.validateNow() || mapCenter === '' || zoomLevel === '') {
                 toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
-            }
-            else {
+            } else if (coordinates.length === 0) {
+                toastr['error']('Please make sure site/office Perimeter for attendance verification selected from the Map.', _ALERT_TITLE_ERROR);
+            } else {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        let data = {
+                        const data = {
+                            siteId: siteId,
                             attGroupName: $('#txtMtgGroupName').val(),
                             attGroupSupervisor: $('#optMtgSupervisor').val(),
                             attGroupCategory: $('#optMtgGroupCategory').val(),
@@ -127,11 +139,17 @@ function ModalAttendanceGroup () {
                             attGroupShiftMode: $('#optMtgGroupShiftMode').val(),
                             attGroupDayShiftStart: $('#optMtgGroupDayShiftStart').val(),
                             attGroupDayShiftEnd: $('#optMtgGroupDayShiftEnd').val(),
-                            attGroupDNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
-                            attGroupDNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
+                            attGroupNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
+                            attGroupNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
+                            attGroupOtApprover: $('#optMtgOtApprover').val(),
                             attGroupRemark: $('#txaMtgGroupRemark').val()
                         };
-                        //mzAjaxRequest2('att_group', 'POST', data);
+                        const maps = {
+                            coordinates: coordinates,
+                            mapCenter: mapCenter,
+                            zoomLevel: zoomLevel
+                        };
+                        mzAjaxRequest2('att_group', 'POST', {data: data, maps: maps});
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             //classFrom.genTable();
                         }
@@ -179,6 +197,7 @@ function ModalAttendanceGroup () {
 
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
                 mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
+                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
                 $('#btnMtgSave').hide();
                 $('#btnMtgSubmit').show();
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
