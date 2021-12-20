@@ -15,6 +15,7 @@ RewriteRule ^p_kpi_ppns/?$ kpi_ppns.html
 RewriteRule ^p_utility/?$ utility.html
 RewriteRule ^p_attendance/?$ attendance.html
 RewriteRule ^p_attendance_config/?$ attendance_config.html
+RewriteRule ^p_gamification/?$ gamification.html
 
 RewriteRule ^drawing/?$ api/drawing.php
 RewriteRule ^drawing/(.+)/?$ api/drawing.php
@@ -52,3 +53,5 @@ RewriteRule ^kpi/?$ api/kpi.php
 RewriteRule ^kpi/(.+)/?$ api/kpi.php
 RewriteRule ^att_group/?$ api/att_group.php
 RewriteRule ^att_group/(.+)/?$ api/att_group.php
+RewriteRule ^gamification/?$ api/gamification.php
+RewriteRule ^gamification/(.+)/?$ api/gamification.php

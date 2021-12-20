@@ -1367,8 +1367,6 @@ class Class_sql
                         WHEN CURTIME() >= '18:00:00' AND CURTIME() < '22:00:00' THEN 'Evening'
                         ELSE 'Night' END AS reading_shift,
                     IF (CURTIME() < '06:00:00', CURDATE() - INTERVAL 1 DAY, CURDATE()) AS reading_date";
-            } else if ($title === 'vw_utility_monthly_water_analyzed') {
-                $sql = "";
             } else if ($title === 'vw_attendance_site') {
                 $sql = "SELECT 
                     s.*,
@@ -1379,6 +1377,65 @@ class Class_sql
                 LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_participant 
                     LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
                     GROUP BY site_id) ap ON ap.site_id = s.site_id";
+            } else if ($title === 'vw_gamification_ppm_monthly') {
+                $sql = "SELECT 
+                    p.ppm_task_assigned_to,
+                    u.site_id,
+	                g.gmi_id,
+                    COUNT(*) AS ppm_total,
+                    SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
+                FROM ppm_task p
+                LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
+                LEFT JOIN gmi_monthly g ON g.user_id = p.ppm_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
+                WHERE YEAR(p.ppm_task_schedule_date) = [yearNo] AND MONTH(p.ppm_task_schedule_date) = [monthNo] AND p.ppm_task_assigned_to IS NOT NULL
+                GROUP BY p.ppm_task_assigned_to";
+            } else if ($title === 'vw_gamification_ppm_weekly') {
+                $sql = "SELECT 
+                    p.ppm_task_assigned_to,
+                    u.site_id,
+	                g.gmw_id,
+                    COUNT(*) AS ppm_total,
+                    SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
+                FROM ppm_task p
+                LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
+                LEFT JOIN gmi_weekly g ON g.user_id = p.ppm_task_assigned_to AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
+                WHERE YEAR(ppm_task_schedule_date) = [yearNo] AND WEEK(ppm_task_schedule_date, 5) = [weekNo] AND p.ppm_task_assigned_to IS NOT NULL
+                GROUP BY p.ppm_task_assigned_to";
+            } else if ($title === 'vw_gamification_ppm_weekly_end') {
+                $sql = "SELECT 
+                    p.ppm_task_assigned_to,
+                    u.site_id,
+	                g.gmw_id,
+                    COUNT(*) AS ppm_total,
+                    SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
+                FROM ppm_task p
+                LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
+                LEFT JOIN gmi_weekly g ON g.user_id = p.ppm_task_assigned_to AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
+                WHERE ((YEAR(ppm_task_schedule_date) = [yearNo1] AND WEEK(ppm_task_schedule_date, 5) = [weekNo1]) OR (YEAR(ppm_task_schedule_date) = [yearNo2] AND WEEK(ppm_task_schedule_date, 5) = 0) ) 
+                  AND p.ppm_task_assigned_to IS NOT NULL
+                GROUP BY p.ppm_task_assigned_to";
+            } else if ($title === 'vw_gamification_wo_monthly') {
+                $sql = "SELECT 
+                    w.wo_task_assigned_to,
+                    w.site_id,
+                    g.gmi_id,
+                    COUNT(*) AS wo_total,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL, 1, 0)) AS wo_completed,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) <= sv.client_severity_hour, 1, 0)) AS wo_on_time,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) > sv.client_severity_hour, 1, 0)) AS wo_late,
+                    SUM(IF(w.wo_task_type = 2, 1, 0)) AS wo_self_finding
+                FROM wo_task w
+                LEFT JOIN cli_site s ON s.site_id = w.site_id
+                LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
+                LEFT JOIN gmi_monthly g ON g.user_id = w.wo_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
+                WHERE YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
+                GROUP BY w.wo_task_assigned_to";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
