@@ -136,7 +136,7 @@ class Class_utility {
                     $previousReading = Class_db::getInstance()->db_select_single2('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_timestamp DESC');
                     if (!empty($previousReading)) {
                         $totalTemp = strval(floatval($params['utilityReading']) - floatval($previousReading['utilityReading']));
-                        Class_db::getInstance()->db_update('utl_utility', array('utility_total'=>$totalTemp, array('utility_id'=>$previousReading['utilityId'])));
+                        Class_db::getInstance()->db_update('utl_utility', array('utility_total'=>$totalTemp), array('utility_id'=>$previousReading['utilityId']));
                     }
                 } else {
                     $opening = Class_db::getInstance()->db_select_col('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_reading', 'utility_timestamp DESC');
