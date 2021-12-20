@@ -299,6 +299,7 @@ class Class_user {
                         }
                         array_splice($roles, $key, 1);
                     } else {
+                        // check attendance exist or not
                         Class_db::getInstance()->db_delete('sys_user_role', array('user_id'=>$userId, 'role_id'=>$curRole));
                         Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id'=>$userId, 'role_id'=>$curRole));
                         if ($curRole === '3' || $curRole === '4' || $curRole === '5' || $curRole === '8') {

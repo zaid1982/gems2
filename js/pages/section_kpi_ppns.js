@@ -18,6 +18,7 @@ function SectionKpiPpns () {
     let refAssetType;
     let oTableSkpCategory4;
     let oTableSkpCategory6;
+    let oTableSkpCategory8;
     let oTableSkpCategory9;
     let oTableSkpCategory10;
     let oTableSkpCategory11;
