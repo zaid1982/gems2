@@ -168,10 +168,10 @@ class Class_gamification {
                 $ppmTierName = 'Under Rated';
                 if (intval($ppm['ppmCompleted']) > 150) {
                     $ppmTierPoint = '2';
-                    $ppmTierName = 'Finisher';
+                    $ppmTierName = 'Medalist';
                 } else if (intval($ppm['ppmCompleted']) > 80) {
                     $ppmTierPoint = '1';
-                    $ppmTierName = 'Medalist';
+                    $ppmTierName = 'Finisher';
                 }
                 $gmiMonthly[$userId]['gmiPpmTierPoint'] = $ppmTierPoint;
                 $gmiMonthly[$userId]['gmiPpmTierName'] = $ppmTierName;
@@ -212,10 +212,10 @@ class Class_gamification {
                 $woTierName = 'Under Rated';
                 if (intval($wo['woCompleted']) > 150) {
                     $woTierPoint = '2';
-                    $woTierName = 'Finisher';
+                    $woTierName = 'Medalist';
                 } else if (intval($wo['woCompleted']) > 80) {
                     $woTierPoint = '1';
-                    $woTierName = 'Medalist';
+                    $woTierName = 'Finisher';
                 }
                 $gmiMonthly[$userId]['gmiWoTierPoint'] = $woTierPoint;
                 $gmiMonthly[$userId]['gmiWoTierName'] = $woTierName;
