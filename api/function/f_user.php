@@ -598,6 +598,7 @@ class Class_user {
     public function get_user ($userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
 
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -620,9 +621,13 @@ class Class_user {
             $result['userStatus'] = $user['user_status'];
             $result['siteId'] = $this->fn_general->clear_null($user['site_id']);
             $result['clientId'] = '';
-
             if (!empty($result['siteId'])) {
                 $result['clientId'] = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $result['siteId']), 'client_id');
+            }
+            $result['imgUrl'] = '';
+            if (!empty($user['upload_id'])) {
+                $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id'=>$user['upload_id']), null, 1);
+                $result['imgUrl'] = $constant::URL.$upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
             }
 
             return $result;

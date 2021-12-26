@@ -1,0 +1,236 @@
+<section class="section mb-5 sectionUserGame">
+    <div class="row mb-4 pb-0">
+        <div class="col-md-12">
+            <button class="btn btn-outline-info btn-rounded float-right text-white z-depth-3" id="btnSugBack" type="button">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Main Page
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card z-depth-3 text-center px-3 py-4 mb-4" id="cardSugPicture">
+                <div class="w-80 mx-auto mb-4">
+                    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg" class="z-depth-1 rounded-circle img-fluid" id="imgSugProfile">
+                </div>
+                <h6 class="font-weight-bold" id="h6SugFullName"></h6>
+                <small class="text-muted" id="smallSugDesignation"></small>
+                <ul class="list-unstyled d-flex justify-content-center mt-3 mb-0 red-text">
+                    <li><a href="javascript: void(0)"><i class="fas fa-user-edit mx-2"></i></a></li>
+                    <li><a href='mailto:xyz@something.com'><i class="far fa-envelope mx-2"></i></a></li>
+                </ul>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h1 class="float-left ml-2"><i class="fas fa-user-minus light-blue-text"></i></h1>
+                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPointDeduction"></h3>
+                    <p class="text-right font-small mb-0">Total Deduction Points</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h1 class="float-left ml-2"><i class="fas fa-scroll light-blue-text"></i></h1>
+                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPointTotal"></h3>
+                    <p class="text-right font-small mb-0">Current Scoring Point</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h1 class="float-left ml-2"><i class="fas fa-chart-line light-blue-text"></i></h1>
+                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPerformanceTrending">4,234 <i class="fas fa-angle-up text-success"></i></h3>
+                    <p class="text-right font-small mb-0">Performance Trading</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
+                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h4SugRatingPpm"></h4>
+                    <p class="text-right font-small mb-0">Tier PPM</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
+                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h4SugRatingWo"></h4>
+                    <p class="text-right font-small mb-0">Tier WO</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 col-lg-9">
+            <div class="card z-depth-3 mb-4" id="cardSugProfile">
+                <div class="card-header white p-0">
+                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
+                    <h4 class="font-weight-bold pt-2 pl-4_5">Leaderboard Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row pt-2">
+                        <div class="md-form col-lg-5 mt-0 my-2">
+                            <i class="fas fa-user prefix grey-text"></i>
+                            <label class="active pl-3">Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugFullName"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-4 mt-0 my-2">
+                            <i class="fas fa-user-tie prefix grey-text"></i>
+                            <label class="active pl-3">Designation</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugDesignation"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-3 mt-0 my-2">
+                            <i class="fas fa-tag prefix grey-text"></i>
+                            <label class="active pl-3">Category</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCategory"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 mt-0 my-2">
+                            <i class="fas fa-users prefix grey-text"></i>
+                            <label class="active pl-3">Team</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugTeam"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-4 mt-0 my-2">
+                            <i class="fas fa-building prefix grey-text"></i>
+                            <label class="active pl-3">Site</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSite"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-3 mt-0 my-2">
+                            <i class="fas fa-id-card prefix grey-text"></i>
+                            <label class="active pl-3">GF ID</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGfId"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 mt-0 my-2">
+                            <i class="fas fa-envelope prefix grey-text"></i>
+                            <label class="active pl-3">Email</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugEmail"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-4 mt-0 my-2">
+                            <i class="fas fa-certificate prefix grey-text"></i>
+                            <label class="active pl-3">Year of Service</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugYearService"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-3 mt-0 my-2">
+                            <i class="fas fa-phone prefix grey-text"></i>
+                            <label class="active pl-3">Phone No</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugPhoneNo"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 mt-0 my-2">
+                            <i class="fas fa-user-check prefix grey-text"></i>
+                            <label class="active pl-3">Superior</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSuperior"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-4 mt-0 my-2">
+                            <i class="fas fa-id-card-alt prefix grey-text"></i>
+                            <label class="active pl-3">Green Crad Expiry</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGreenCardExpiry"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-3 mt-0 my-2">
+                            <i class="fas fa-chart-line prefix grey-text"></i>
+                            <label class="active pl-3">Competency</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCompetency"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card z-depth-3 mb-3 light-blue">
+                        <div class="pl-4 white-text">
+                            <p class="font-small mt-3 mb-1">Total PPM Done</p>
+                            <h2 class="font-weight-bold mt-0 mb-2" id="h2SugPpmDone"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card z-depth-3 mb-3 light-blue">
+                        <div class="pl-4 white-text">
+                            <p class="font-small mt-3 mb-1">Total WO Done</p>
+                            <h2 class="font-weight-bold mt-0 mb-2" id="h2SugWoDone"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card z-depth-3 mb-3 light-blue">
+                        <div class="pl-4 white-text">
+                            <p class="font-small mt-3 mb-1">Late PPM</p>
+                            <h2 class="font-weight-bold mt-0 mb-2" id="h2SugLatePpm"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card z-depth-3 mb-3 light-blue">
+                        <div class="pl-4 white-text">
+                            <p class="font-small mt-3 mb-1">WO Overdue</p>
+                            <h2 class="font-weight-bold mt-0 mb-2" id="h2SugLateWo"></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<figure class="highcharts-figure">
+                <div class="card z-depth-3 mb-4 px-3 py-2">
+                    <div id="divSugProgressBar"></div>
+                    <div class="row text-center">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-3">Under Rated</div>
+                        <div class="col-md-4">Finisher</div>
+                        <div class="col-md-3">Medalist</div>
+                    </div>
+                </div>
+            </figure>-->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card z-depth-4 mb-4">
+                        <div class="text-center">
+                            <h6 class="mt-4 mb-0 font-weight-bold">OVERALL MONTHLY PERFORMANCE</h6>
+                            <div id="chartSugPerfPpm" style="height: 170px; margin: 0"></div>
+                            <h6 class="card-text mt-0 mb-3">Plan Preventive Maintainence</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card z-depth-4 mb-4">
+                        <div class="text-center">
+                            <h6 class="mt-4 mb-0 font-weight-bold">OVERALL MONTHLY PERFORMANCE</h6>
+                            <div id="chartSugPerfWo" style="height: 170px; margin: 0"></div>
+                            <h6 class="card-text mt-0 mb-3">Work Order</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-4">
+                <div class="card-header white p-0">
+                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
+                    <h4 class="font-weight-bold pt-2 pl-4_5">Performance History</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table id="dtSugHistory" class="table table-hover table-sm mb-0 display responsive">
+                        <thead>
+                        <tr class="th-strong">
+                            <th>Month</th>
+                            <th>Tier WO</th>
+                            <th>Tier PPM</th>
+                            <th>Tier Points WO</th>
+                            <th>Tier Points PPM</th>
+                            <th>Total Tasks</th>
+                            <th>Total Done</th>
+                            <th>Total On-Time</th>
+                            <th>Total Late</th>
+                            <th>Within Time</th>
+                            <th>Total Score</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

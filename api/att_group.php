@@ -58,6 +58,8 @@ try {
                 } else {
                     $result = $fn_attGroup->getAttSiteList();
                 }
+            } else {
+                $result = $fn_attGroup->getAttGroup($urlArr[1]);
             }
         } else {
             $result = $fn_attGroup->getAttGroupList();

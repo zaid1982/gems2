@@ -13,12 +13,17 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- FullCalendar -->
-    <link rel="stylesheet" href="js/vendor/full-calendar-5.9.0/lib/main.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
+        .w-80 {
+            width: 80% !important;
+        }
+        #divSugProgressBar {
+            height: 115px;
+        }
     </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
@@ -80,23 +85,19 @@
                             <h4 class="font-weight-bold pt-2 pl-4_5">Top Leaderboard <span class="lblGmiSelectedTitle font-italic font-weight-normal h5 float-right mr-4"></span></h4>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 px-0">
-                                    <div class="table-responsive">
-                                        <table id="dtGmiTop5" class="table table-hover mb-0 display responsive">
-                                            <thead>
-                                            <tr class="th-strong">
-                                                <th>TOP PERFORMER</th>
-                                                <th>SITE</th>
-                                                <th>TIER WO</th>
-                                                <th>TIER PPM</th>
-                                                <th>TOTAL POINTS</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div class="table-responsive">
+                                <table id="dtGmiTop5" class="table table-hover mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>TOP PERFORMER</th>
+                                        <th>SITE</th>
+                                        <th>TIER WO</th>
+                                        <th>TIER PPM</th>
+                                        <th>TOTAL POINTS</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -110,36 +111,33 @@
                             <h4 class="font-weight-bold pt-2 pl-4_5">Gamification Stats <span class="lblGmiSelectedTitle font-italic font-weight-normal h5 float-right mr-4"></span></h4>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 px-0">
-                                    <div class="table-responsive">
-                                        <table id="dtGmiStats" class="table table-hover table-sm mb-0 display responsive">
-                                            <thead>
-                                            <tr class="th-strong">
-                                                <th>#</th>
-                                                <th>Name</th>
-                                                <th>Site</th>
-                                                <th>Tier WO</th>
-                                                <th>Tier PPM</th>
-                                                <th>Tier Points WO</th>
-                                                <th>Tier Points PPM</th>
-                                                <th>Total WO & PPM</th>
-                                                <th>Total Completed</th>
-                                                <th>Total On-Time</th>
-                                                <th>Total Late</th>
-                                                <th>Total Points</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div class="table-responsive">
+                                <table id="dtGmiStats" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Site</th>
+                                        <th>Tier WO</th>
+                                        <th>Tier PPM</th>
+                                        <th>Tier Points WO</th>
+                                        <th>Tier Points PPM</th>
+                                        <th>Total Tasks</th>
+                                        <th>Total Done</th>
+                                        <th>Total On-Time</th>
+                                        <th>Total Late</th>
+                                        <th>Total Score</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_user_game"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
 </main>
@@ -164,9 +162,16 @@
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Highchart -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/bullet.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -174,6 +179,7 @@
 
     let versionLocal_;
     let changePasswordClass_;
+    let sectionUserGameClass_;
     let gamificationClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -184,13 +190,22 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
+                sectionUserGameClass_ = new SectionUserGame();
                 gamificationClass_ = new MainGamification();
 
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
+
+                sectionUserGameClass_.setRefDesignation(refDesignation_);
+                sectionUserGameClass_.setRefSite(refSite_);
+                sectionUserGameClass_.setRefUser(refUser_);
+                sectionUserGameClass_.setClassFrom(gamificationClass_);
+                sectionUserGameClass_.init();
 
                 gamificationClass_.setRefUser(refUser_);
                 gamificationClass_.setRefSite(refSite_);
+                gamificationClass_.setSectionUserGameClass(sectionUserGameClass_);
                 gamificationClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -200,6 +215,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_user_game.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_gamification.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

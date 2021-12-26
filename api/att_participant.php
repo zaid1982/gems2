@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_gamification.php';
+require_once 'function/f_att_participant.php';
 
-$api_name = 'api_gamification';
+$api_name = 'api_att_participant';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,14 +15,14 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_gamification = new Class_gamification();
+$fn_attParticipant = new Class_att_participant();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_gamification->__set('constant', $constant);
-    $fn_gamification->__set('fn_general', $fn_general);
+    $fn_attParticipant->__set('constant', $constant);
+    $fn_attParticipant->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -30,7 +30,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'gamification') {
+        if ($param === 'att_participant') {
             break;
         }
         array_shift($urlArr);
@@ -51,49 +51,13 @@ try {
     $userId = $jwt_data->userId;
 
     if ('GET' === $request_method) {
-        if (!isset ($urlArr[1])) {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-        }
-
-        if ($urlArr[1] === 'gmi_monthly') {
-            if (isset ($urlArr[3])) {
-                $result = $fn_gamification->getGmiMonthlyList($urlArr[2], $urlArr[3]);
-            } else {
-                $result = $fn_gamification->getGmiMonthly($urlArr[2]);
+        if (isset ($urlArr[1])) {
+            if ($urlArr[1] === 'by_user_id') {
+                $result = $fn_attParticipant->getAttParticipantByUserId($urlArr[2]);
             }
-        } else if ($urlArr[1] === 'gmi_monthly_top_5') {
-            $result = $fn_gamification->getGmiMonthlyTop5($urlArr[2], $urlArr[3]);
-        } else if ($urlArr[1] === 'gmi_monthly_history') {
-            $result = $fn_gamification->getGmiMonthlyHistory($urlArr[2], $urlArr[3], $urlArr[4]);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
-        $form_data['result'] = $result;
-        $form_data['success'] = true;
-    }
-    else if ('PUT' === $request_method) {
-        $putData = file_get_contents("php://input");
-        $params = array();
-        parse_str($putData, $params);
-
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-
-        if ($urlArr[1] === 'run_monthly') {
-            if (!isset ($urlArr[2])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year null');
-            } else if (!isset ($urlArr[3])) {
-                throw new Exception('[' . __LINE__ . '] - Parameter month null');
-            }
-            $fn_gamification->runMonthly($urlArr[2], $urlArr[3]);
-            $arrMonth = array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-            $fn_general->save_audit('183', $userId, 'Month = '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2]);
-            $form_data['errmsg'] = 'Leaderboard Points successfully update for month '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2];
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter action invalid (' . $urlArr[1] . ')');
-        }
-
-        Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
@@ -116,3 +80,7 @@ try {
 }
 
 echo json_encode($form_data);
+
+
+
+

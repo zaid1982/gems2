@@ -15,6 +15,7 @@ function MainGamification () {
     let oTableGmiStats;
     let refUser;
     let refSite;
+    let sectionUserGameClass;
 
     this.init = function () {
         monthArray = mzGetMonthArray();
@@ -121,10 +122,10 @@ function MainGamification () {
                 { className: 'text-center', targets: [2, 3, 4] }
             ],
             buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'PDF', exportOptions: mzExportOpt}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Print'},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Copy'},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Excel'},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'PDF'}
             ],
             aoColumns: [
                 {mData: 'userId', mRender: function (data) {
@@ -170,9 +171,11 @@ function MainGamification () {
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [3, 4] },
-                { className: 'text-right', targets: [5, 6, 7, 8, 9, 10, 11] }
+                { className: 'text-right', targets: [5, 6, 7, 8, 9, 10, 11] },
+                { className: 'noVis', targets: [0] }
             ],
             buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Excel', exportOptions: mzExportOpt},
@@ -190,8 +193,8 @@ function MainGamification () {
                 {mData: 'siteId', mRender: function (data) {
                         return refSite[data]['siteName'];
                     }},
-                {mData: 'gmiWoTierName'},
-                {mData: 'gmiPpmTierName'},
+                {mData: 'gmiWoTierName', width: '9%'},
+                {mData: 'gmiPpmTierName', width: '9%'},
                 {mData: 'gmiWoTierPoint', width: '6%', mRender: function (data) {
                         return mzFormatNumber(data, 1);
                     }},
@@ -215,10 +218,12 @@ function MainGamification () {
                     }}
             ]
         });
+        oTableGmiStats.column(5).visible(false);
+        oTableGmiStats.column(6).visible(false);
         let oTableGmiStatsTbody = $('#dtGmiStats tbody');
         oTableGmiStatsTbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtGmiStats').DataTable().row(this).data();
-            //sectionAttendanceConfigSiteClass.load(data['userId']);
+            sectionUserGameClass.load(data['gmiId'], data['userId']);
         });
         oTableGmiStatsTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtGmiStats').DataTable().row(this).data();
@@ -263,5 +268,9 @@ function MainGamification () {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setSectionUserGameClass = function (_sectionUserGameClass) {
+        sectionUserGameClass = _sectionUserGameClass
     };
 }

@@ -53,5 +53,7 @@ RewriteRule ^kpi/?$ api/kpi.php
 RewriteRule ^kpi/(.+)/?$ api/kpi.php
 RewriteRule ^att_group/?$ api/att_group.php
 RewriteRule ^att_group/(.+)/?$ api/att_group.php
+RewriteRule ^att_participant/?$ api/att_participant.php
+RewriteRule ^att_participant/(.+)/?$ api/att_participant.php
 RewriteRule ^gamification/?$ api/gamification.php
 RewriteRule ^gamification/(.+)/?$ api/gamification.php
