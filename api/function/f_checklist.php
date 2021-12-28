@@ -115,6 +115,8 @@ class Class_checklist {
                 $row_result['checklistIssueNo'] = $this->fn_general->clear_null($dataLocal['checklist_issue_no']);
                 $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['checklistMinExecTime'] = $this->fn_general->clear_null($dataLocal['checklist_min_exec_time']);
+                $row_result['checklistMaxExecTime'] = $this->fn_general->clear_null($dataLocal['checklist_max_exec_time']);
                 $row_result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
                 $row_result['checklistTimeRegistered'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_registered']));
                 $row_result['checklistTimeCreated'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['checklist_time_created']));
@@ -147,6 +149,8 @@ class Class_checklist {
             $result['checklistGuideline'] = $this->fn_general->clear_null($dataLocal['checklist_guideline']);
             $result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
             $result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+            $result['checklistMinExecTime'] = $this->fn_general->clear_null($dataLocal['checklist_min_exec_time']);
+            $result['checklistMaxExecTime'] = $this->fn_general->clear_null($dataLocal['checklist_max_exec_time']);
             $result['checklistTimeRegistered'] = str_replace('-', '/', $dataLocal['checklist_time_registered']);
             $result['checklistTimeCreated'] = str_replace('-', '/', $dataLocal['checklist_time_created']);
             $result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
@@ -213,7 +217,25 @@ class Class_checklist {
             if (!isset($put_vars['checklistGuideline'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline not exist');
             }
+            if (!isset($put_vars['checklistMinExecTimeHour']) || !isset($put_vars['checklistMinExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMinExecTime not exist');
+            }
+            if (!isset($put_vars['checklistMaxExecTimeHour']) || !isset($put_vars['checklistMaxExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMaxExecTime not exist');
+            }
 
+            $minExecTime = '';
+            if ($put_vars['checklistMinExecTimeHour'] !== '' && $put_vars['checklistMinExecTimeMinute'] === '') {
+                $minExecTime = $put_vars['checklistMinExecTimeHour'];
+            } else if ($put_vars['checklistMinExecTimeHour'] !== '' && $put_vars['checklistMinExecTimeMinute'] !== '') {
+                $minExecTime = $put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'];
+            }
+            $maxExecTime = '';
+            if ($put_vars['checklistMaxExecTimeHour'] !== '' && $put_vars['checklistMaxExecTimeMinute'] === '') {
+                $maxExecTime = $put_vars['checklistMaxExecTimeHour'];
+            } else if ($put_vars['checklistMaxExecTimeHour'] !== '' && $put_vars['checklistMaxExecTimeMinute'] !== '') {
+                $maxExecTime = $put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute'];
+            }
             $checklistName = $put_vars['checklistName'];
             $checklistDocumentNo = $put_vars['checklistDocumentNo'];
             $checklistIssueNo = $put_vars['checklistIssueNo'];
@@ -222,7 +244,9 @@ class Class_checklist {
                 'checklist_document_no'=>$checklistDocumentNo,
                 'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
-                'checklist_guideline'=>$put_vars['checklistGuideline']
+                'checklist_guideline'=>$put_vars['checklistGuideline'],
+                'checklist_min_exec_time'=>$minExecTime,
+                'checklist_max_exec_time'=>$maxExecTime
             );
 
             $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
@@ -279,6 +303,12 @@ class Class_checklist {
             if (!isset($put_vars['checklistGuideline']) || empty($put_vars['checklistGuideline'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
             }
+            if (!isset($put_vars['checklistMinExecTimeHour']) || !isset($put_vars['checklistMinExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMinExecTime not exist');
+            }
+            if (!isset($put_vars['checklistMaxExecTimeHour']) || !isset($put_vars['checklistMaxExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMaxExecTime not exist');
+            }
 
             $checklistName = $put_vars['checklistName'];
             $checklistDocumentNo = $put_vars['checklistDocumentNo'];
@@ -289,6 +319,8 @@ class Class_checklist {
                 'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline'],
+                'checklist_min_exec_time'=>$put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'],
+                'checklist_max_exec_time'=>$put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute'],
                 'checklist_registered_by'=>$userId,
                 'checklist_time_registered'=>'Now()',
                 'checklist_status'=>'1'
@@ -347,6 +379,12 @@ class Class_checklist {
             if (!isset($put_vars['checklistGuideline']) || empty($put_vars['checklistGuideline'])) {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistGuideline empty');
             }
+            if (!isset($put_vars['checklistMinExecTimeHour']) || !isset($put_vars['checklistMinExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMinExecTime not exist');
+            }
+            if (!isset($put_vars['checklistMaxExecTimeHour']) || !isset($put_vars['checklistMaxExecTimeMinute'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistMaxExecTime not exist');
+            }
 
             $checklistName = $put_vars['checklistName'];
             $checklistDocumentNo = $put_vars['checklistDocumentNo'];
@@ -356,7 +394,9 @@ class Class_checklist {
                 'checklist_document_no'=>$checklistDocumentNo,
                 'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
-                'checklist_guideline'=>$put_vars['checklistGuideline']
+                'checklist_guideline'=>$put_vars['checklistGuideline'],
+                'checklist_min_exec_time'=>$put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'],
+                'checklist_max_exec_time'=>$put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute']
             );
 
             $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
