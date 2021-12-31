@@ -232,10 +232,13 @@ function MainChecklist() {
                 [
                     {mData: null, bSortable: false},
                     {mData: 'checklistName'},
-                    {mData: 'checklistDocumentNo'},
-                    {mData: 'checklistIssueNo'},
-                    {mData: 'checklistTimeRegistered'},
-                    {mData: null,
+                    {mData: 'checklistDocumentNo', sClass: 'text-center', width: '10%'},
+                    {mData: 'checklistIssueNo', sClass: 'text-right', width: '8%'},
+                    {mData: 'checklistMinExecTime', sClass: 'text-center', width: '10%'},
+                    {mData: 'checklistMaxExecTime', sClass: 'text-center', width: '10%'},
+                    {mData: 'checklistMaxAssistant', sClass: 'text-right', width: '10%'},
+                    {mData: 'checklistTimeRegistered', sClass: 'text-center', width: '10%'},
+                    {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['checklistStatus']]['statusColor']+' z-depth-2">'+refStatus[row['checklistStatus']]['statusDesc']+'</span></h6>';
                         }
@@ -263,13 +266,13 @@ function MainChecklist() {
         let cntChecklist;
         let btnChecklistOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntChecklist = 1;
                         }
-                        if (column === 5) {
+                        if (column === 8) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');

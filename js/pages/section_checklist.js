@@ -109,7 +109,7 @@ function SectionChecklist() {
             {
                 field_id: 'txtSckChecklistMinExecTimeMinute',
                 type: 'text',
-                name: 'Min Exec Time (Minute)',
+                name: 'Minimum Execution Time (Minute)',
                 validator: {
                     notEmpty: true,
                     digit: true,
@@ -120,26 +120,37 @@ function SectionChecklist() {
             {
                 field_id: 'txtSckChecklistMaxExecTimeHour',
                 type: 'text',
-                name: 'Max Exec Time (Hour)',
+                name: 'Maximum Execution Time (Hour)',
                 validator: {
                     notEmpty: true,
                     digit: true,
                     min: 0,
                     higher: {
                         id: 'txtSckChecklistMinExecTimeHour',
-                        label: 'Min Exec Time (Hour)'
+                        label: 'Minimum Execution Time (Hour)'
                     }
                 }
             },
             {
                 field_id: 'txtSckChecklistMaxExecTimeMinute',
                 type: 'text',
-                name: 'Max Exec Time (Minute)',
+                name: 'Maximum Execution Time (Minute)',
                 validator: {
                     notEmpty: true,
                     digit: true,
                     min: 0,
                     max: 60
+                }
+            },
+            {
+                field_id: 'txtSckChecklistMaxAssistant',
+                type: 'text',
+                name: 'Maximum Total Assistant',
+                validator: {
+                    notEmpty: true,
+                    digit: true,
+                    min: 0,
+                    max: 10
                 }
             }
         ];
@@ -434,7 +445,8 @@ function SectionChecklist() {
                         checklistMinExecTimeHour: $('#txtSckChecklistMinExecTimeHour').val(),
                         checklistMinExecTimeMinute: $('#txtSckChecklistMinExecTimeMinute').val(),
                         checklistMaxExecTimeHour: $('#txtSckChecklistMaxExecTimeHour').val(),
-                        checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val()
+                        checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val(),
+                        checklistMaxAssistant: $('#txtSckChecklistMaxAssistant').val()
                     };
 
                     mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -474,7 +486,8 @@ function SectionChecklist() {
                             checklistMinExecTimeHour: $('#txtSckChecklistMinExecTimeHour').val(),
                             checklistMinExecTimeMinute: $('#txtSckChecklistMinExecTimeMinute').val(),
                             checklistMaxExecTimeHour: $('#txtSckChecklistMaxExecTimeHour').val(),
-                            checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val()
+                            checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val(),
+                            checklistMaxAssistant: $('#txtSckChecklistMaxAssistant').val()
                         };
 
                         mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -515,7 +528,8 @@ function SectionChecklist() {
                             checklistMinExecTimeHour: $('#txtSckChecklistMinExecTimeHour').val(),
                             checklistMinExecTimeMinute: $('#txtSckChecklistMinExecTimeMinute').val(),
                             checklistMaxExecTimeHour: $('#txtSckChecklistMaxExecTimeHour').val(),
-                            checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val()
+                            checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val(),
+                            checklistMaxAssistant: $('#txtSckChecklistMaxAssistant').val()
                         };
 
                         mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
@@ -594,6 +608,7 @@ function SectionChecklist() {
         const maxExecTime = dataSck['checklistMaxExecTime'];
         mzSetFieldValue('SckChecklistMaxExecTimeHour', maxExecTime !== '' ? parseInt(maxExecTime.substr(0, 2)) : '0', 'text');
         mzSetFieldValue('SckChecklistMaxExecTimeMinute', maxExecTime !== '' ? parseInt(maxExecTime.substr(3, 2)) : '0', 'text');
+        mzSetFieldValue('SckChecklistMaxAssistant', dataSck['checklistMaxAssistant'], 'text');
 
         self.genTableSckChecklistQual();
         self.genTableSckChecklistQuan();
