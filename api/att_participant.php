@@ -54,6 +54,8 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'by_user_id') {
                 $result = $fn_attParticipant->getAttParticipantByUserId($urlArr[2]);
+            } else if ($urlArr[1] === 'by_site') {
+                $result = '';
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

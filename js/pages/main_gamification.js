@@ -238,18 +238,6 @@ function MainGamification () {
         self.genTableStats();
     };
 
-    this.getClassName = function () {
-        return className;
-    };
-
-    this.showMain = function () {
-        $('.sectionGmiMain').show();
-    };
-
-    this.hideMain = function () {
-        $('.sectionGmiMain').hide();
-    };
-
     this.genTableTop5 = function () {
         const runType = currentType === 2 ? 'gmi_weekly_top_5' : 'gmi_monthly_top_5';
         const dataDb = mzAjaxRequest2('gamification/'+runType+'/'+currentYear+'/'+(currentMonth+1), 'GET');
@@ -260,6 +248,18 @@ function MainGamification () {
         const runType = currentType === 2 ? 'gmi_weekly' : 'gmi_monthly';
         const dataDb = mzAjaxRequest2('gamification/'+runType+'/'+currentYear+'/'+(currentMonth+1), 'GET');
         oTableGmiStats.clear().rows.add(dataDb).draw();
+    };
+
+    this.getClassName = function () {
+        return className;
+    };
+
+    this.showMain = function () {
+        $('.sectionGmiMain').show();
+    };
+
+    this.hideMain = function () {
+        $('.sectionGmiMain').hide();
     };
 
     this.setRefUser = function (_refUser) {

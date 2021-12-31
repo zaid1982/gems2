@@ -24,9 +24,11 @@ function MainAttendanceConfig () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0, 9] },
-                { className: 'text-center', targets: [0, 3, 5, 6, 7, 8, 9] }
+                { className: 'text-center', targets: [0, 3, 5, 6, 7, 8, 9] },
+                { className: 'noVis', targets: [0] }
             ],
             buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Print', exportOptions: exportOptAtc},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Copy', exportOptions: exportOptAtc},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Excel', exportOptions: exportOptAtc},
@@ -91,14 +93,14 @@ function MainAttendanceConfig () {
         oTableAtcTbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtAtcData').DataTable().row(this).data();
             const cell = $(evt.target).closest('td');
-            if (cell.index() < 7) {
+            if (cell.index() < 9) {
                 sectionAttendanceConfigSiteClass.load(data['siteId']);
             }
         });
         oTableAtcTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtAtcData').DataTable().row(this).data();
             const cell = $(evt.target).closest('td');
-            if (cell.index() < 7) {
+            if (cell.index() < 9) {
                 cell.css('cursor', 'pointer');
                 cell.attr('data-toggle', 'tooltip');
                 cell.attr('title', 'Click to configure '+data['siteName']);

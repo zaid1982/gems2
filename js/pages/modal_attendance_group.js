@@ -201,6 +201,7 @@ function ModalAttendanceGroup () {
                 $('#btnMtgSave').hide();
                 $('#btnMtgSubmit').show();
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
+                googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup');
 
                 $('#modal_attendance_group').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {

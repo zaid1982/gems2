@@ -50,7 +50,7 @@ function SectionAttendanceConfigSite () {
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: mzExportOpt},
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: 'Add Attendance Group', className: 'btn btn-danger btn-sm px-2 btnSacAddGroup'}
+                { text: 'Add Attendance Group', className: 'btn btn-outline-red btn-sm px-2 btnSacAddGroup'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -64,16 +64,21 @@ function SectionAttendanceConfigSite () {
             },
             aoColumns: [
                 {mData: null},
-                {mData: 'attGroupDesc'},
+                {mData: 'attGroupName'},
                 {mData: 'attGroupSupervisor'},
-                {mData: 'attGroupPolygon'},
-                {mData: 'dayShiftTime'},
-                {mData: 'nightShiftTime'},
-                {mData: 'attGroupHoliday'},
-                {mData: 'attGroupReqWeeklyHours'},
-                {mData: 'attGroupShiftMode'},
-                {mData: 'totalParticipant'},
-                {mData: null, width: '5%'}
+                {mData: null, width: '10%', mRender: function(data, type, row) {
+                        return row['attGroupDayShiftStart'] + ' to ' + row['attGroupDayShiftEnd'];
+                    }},
+                {mData: null, width: '10%', mRender: function(data, type, row) {
+                        return row['attGroupNightShiftStart'] + ' to ' + row['attGroupNightShiftEnd'];
+                    }},
+                {mData: 'attGroupHoliday', width: '10%'},
+                {mData: 'attGroupReqWeekHours', width: '8%'},
+                {mData: 'attGroupShiftMode', width: '8%'},
+                {mData: 'totalParticipantActive', width: '8%', mRender: function(data) {
+                        return data !== '' ? data : '0';
+                    }},
+                {mData: null, width: '6%'}
             ]
         });
     };
@@ -89,6 +94,8 @@ function SectionAttendanceConfigSite () {
             $('#lblSacSiteStatus').html((attSite['siteIsAttendance']==='1'?'Enabled':'Disabled'));
             modalAttendanceGroupClass.setSiteName(attSite['siteName']);
             modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
+
+            self.genTableGroup();
         } catch (e) {
             throw new Error(e.message);
         }
@@ -109,6 +116,12 @@ function SectionAttendanceConfigSite () {
             }
             HideLoader();
         }, 200);
+    };
+
+    this.genTableGroup = function () {
+        const dataDb = mzAjaxRequest2('att_group/by_site/'+siteId, 'GET');
+        console.log(dataDb);
+        oTableSacGroup.clear().rows.add(dataDb).draw();
     };
 
     this.getClassName = function () {

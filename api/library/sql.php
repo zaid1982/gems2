@@ -1436,6 +1436,33 @@ class Class_sql
                 LEFT JOIN gmi_monthly g ON g.user_id = w.wo_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
                 WHERE YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY w.wo_task_assigned_to";
+            } else if ($title === 'vw_att_group') {
+                $sql = "SELECT
+                    att_group.att_group_id,
+                    site_id,
+                    att_group_name,
+                    att_group_category,
+                    att_group_supervisor,
+                    AsText(att_group_polygon) AS att_group_polygon, 
+                    AsText(att_group_map_center) AS att_group_map_center,
+                    att_group_map_zoom,
+                    TIME_FORMAT(att_group_day_shift_start,'%h:%i %p') AS att_group_day_shift_start,
+                    TIME_FORMAT(att_group_day_shift_end,'%h:%i %p') AS att_group_day_shift_end,
+                    TIME_FORMAT(att_group_night_shift_start,'%h:%i %p') AS att_group_night_shift_start,
+                    TIME_FORMAT(att_group_night_shift_end,'%h:%i %p') AS att_group_night_shift_end,
+                    att_group_holiday,
+                    att_group_req_week_hours,
+                    att_group_shift_mode, 
+                    att_group_ot_approver,
+                    att_group_remark,
+                    att_group_status,
+                    participant.total_active AS total_participant_active
+                FROM att_group
+                LEFT JOIN (
+                    SELECT att_group_id, COUNT(*) AS total_active
+                    FROM att_participant GROUP BY att_group_id
+                ) participant ON participant.att_group_id = att_group.att_group_id
+                ";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

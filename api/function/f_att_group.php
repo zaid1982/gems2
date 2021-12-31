@@ -72,13 +72,15 @@ class Class_att_group {
     }
 
     /**
+     * @param $siteId
      * @return string
      * @throws Exception
      */
-    public function getAttGroupList() {
+    public function getAttGroupBySite($siteId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            return Class_db::getInstance()->db_select2('att_group', array());
+            $this->fn_general->checkEmptyParams(array($siteId));
+            return Class_db::getInstance()->db_select2('vw_att_group', array('site_id'=>$siteId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -94,7 +96,7 @@ class Class_att_group {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($attGroupId));
-            return Class_db::getInstance()->db_select_single2('att_group', array('att_group_id'=>$attGroupId));
+            return Class_db::getInstance()->db_select_single2('vw_att_group', array('att_group_id'=>$attGroupId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

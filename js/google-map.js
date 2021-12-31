@@ -99,15 +99,40 @@ function GoogleMapsDrawingPolygon () {
         }
     };
 
-    this.setDrawingManager = function (_mapId) {
+    this.setDrawingManager = function (_mapId, _center) {
         try {
             mzCheckFuncParam([_mapId]);
+            const centerLat = 2.728;
+            const centerLng = 101.898;
             map = new google.maps.Map(document.getElementById(_mapId), {
-                center: {lat: 2.928, lng: 101.898},
-                zoom: 15,
+                center: {lat: centerLat, lng: centerLng},
+                zoom: 18,
             });
             self.deleteSelectedShape();
             drawingManager.setMap(map);
+        } catch (e) {
+            throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+        }
+    };
+
+    this.drawPolygon = function (_mapId) {
+        try {
+            mzCheckFuncParam([_mapId]);
+            const triangleCoords = [
+                { lat: 2.9286482470098343, lng: 101.89708804893495 },
+                { lat: 2.928642889598061, lng: 101.89715778636933 },
+                { lat: 2.928530383945045, lng: 101.89714705753327 },
+                { lat: 2.9286482470098343, lng: 101.89708804893495 }
+            ];
+            const bermudaTriangle = new google.maps.Polygon({
+                paths: triangleCoords,
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+            });
+            bermudaTriangle.setMap(map);
         } catch (e) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);
         }

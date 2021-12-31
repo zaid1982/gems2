@@ -51,18 +51,20 @@ try {
     $userId = $jwt_data->userId;
 
     if ('GET' === $request_method) {
-        if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'site') {
-                if (isset ($urlArr[2])) {
-                    $result = $fn_attGroup->getAttSite($urlArr[2]);
-                } else {
-                    $result = $fn_attGroup->getAttSiteList();
-                }
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        if ($urlArr[1] === 'site') {
+            if (isset ($urlArr[2])) {
+                $result = $fn_attGroup->getAttSite($urlArr[2]);
             } else {
-                $result = $fn_attGroup->getAttGroup($urlArr[1]);
+                $result = $fn_attGroup->getAttSiteList();
             }
+        }
+        else if ($urlArr[1] === 'by_site') {
+            $result = $fn_attGroup->getAttGroupBySite($urlArr[2]);
         } else {
-            $result = $fn_attGroup->getAttGroupList();
+            $result = $fn_attGroup->getAttGroup($urlArr[1]);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
