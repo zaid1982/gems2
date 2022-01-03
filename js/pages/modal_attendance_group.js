@@ -3,7 +3,7 @@ function ModalAttendanceGroup () {
 	const className = 'ModalAttendanceGroup';
     let self = this;
     let formValidate;
-    let drawingId;
+    let attGroupId;
     let siteId;
     let vData;
     let classFrom;
@@ -151,7 +151,7 @@ function ModalAttendanceGroup () {
                         };
                         mzAjaxRequest2('att_group', 'POST', {data: data, maps: maps});
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
-                            //classFrom.genTable();
+                            classFrom.genTableGroup();
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {
@@ -198,10 +198,10 @@ function ModalAttendanceGroup () {
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
                 mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
                 mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
-                $('#btnMtgSave').hide();
-                $('#btnMtgSubmit').show();
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup');
+                $('#btnMtgSave').hide();
+                $('#btnMtgSubmit').show();
 
                 $('#modal_attendance_group').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
@@ -211,31 +211,37 @@ function ModalAttendanceGroup () {
         }, 200);
 	};
 
-    this.edit = function (_drawingId) {
+    this.edit = function (_attGroupId, _siteId) {
 		ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_drawingId]);
-                drawingId = _drawingId;
-                formValidate.clearValidation();                
+                mzCheckFuncParam([_attGroupId, _siteId]);
+                attGroupId = _attGroupId;
+                siteId = _siteId;
+                formValidate.clearValidation();
 
-                const drawing = mzAjaxRequest2('drawing/'+drawingId, 'GET');
-                mzSetFieldValue('MtgTitle', drawing['drawingTitle'], 'text');
-                mzSetFieldValue('MtgIdNo', drawing['drawingIdNo'], 'text');
-                mzSetFieldValue('MtgVersion', drawing['drawingVersion'], 'text');
-                mzSetFieldValue('MtgPublishedBy', drawing['drawingPublishedBy'], 'text');
-                mzSetFieldValue('MtgPublishedDate', drawing['drawingPublishedDate'], 'date');
-                mzSetFieldValue('MtgBlock', drawing['drawingBlock'], 'text');
-                mzSetFieldValue('MtgLevel', drawing['drawingLevel'], 'text');
-                mzSetFieldValue('MtgGroup', drawing['assetGroupId'], 'select');
-                mzSetFieldValue('MtgPermission', drawing['drawingPermissionLevel'], 'select');
-                mzSetFieldValue('MtgRemark', drawing['drawingRemark'], 'textarea');
-                
-                $('#lblMtgModalTitle').html('<i class="fas fa-edit text-white mr-2"></i> Edit Drawing File');
-                $('#lblMtgFile').text('Replace Drawing DWG File');
-                $('#lblMtgPdfFile').text('Replace Drawing PDF File');
-                $('#btnMtgSubmit').hide();
+                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
+                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
+                const attGroup = mzAjaxRequest2('att_group/'+attGroupId, 'GET');
+                console.log(attGroup);
+                const polygon = JSON.parse(attGroup['attGroupPolygon']);
+                console.log(polygon);
+                mzSetFieldValue('MtgGroupName', attGroup['attGroupName'], 'text');
+                mzSetFieldValue('MtgSupervisor', attGroup['attGroupSupervisor'], 'select');
+                mzSetFieldValue('MtgGroupCategory', attGroup['attGroupCategory'], 'select');
+                mzSetFieldValue('MtgGroupHoliday', attGroup['attGroupHoliday'], 'select');
+                mzSetFieldValue('MtgGroupReqWeekHours', attGroup['attGroupReqWeekHours'], 'text');
+                mzSetFieldValue('MtgGroupShiftMode', attGroup['attGroupShiftMode'], 'select');
+                mzSetFieldValue('MtgGroupDayShiftStart', attGroup['attGroupDayShiftStart2'], 'select');
+                mzSetFieldValue('MtgGroupDayShiftEnd', attGroup['attGroupDayShiftEnd2'], 'select');
+                mzSetFieldValue('MtgGroupNightShiftStart', attGroup['attGroupNightShiftStart2'], 'select');
+                mzSetFieldValue('MtgGroupNightShiftEnd', attGroup['attGroupNightShiftEnd2'], 'select');
+                mzSetFieldValue('MtgOtApprover', attGroup['attGroupOtApprover'], 'select');
+                mzSetFieldValue('MtgGroupRemark', attGroup['attGroupRemark'], 'textarea');
+                googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup', attGroup['attGroupMapCenterLat'], attGroup['attGroupMapCenterLng'], attGroup['attGroupMapZoom']);
+                googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup', polygon['coordinates'][0]);
                 $('#btnMtgSave').show();
+                $('#btnMtgSubmit').hide();
 
                 $('#modal_attendance_group').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {

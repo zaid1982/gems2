@@ -99,14 +99,15 @@ function GoogleMapsDrawingPolygon () {
         }
     };
 
-    this.setDrawingManager = function (_mapId, _center) {
+    this.setDrawingManager = function (_mapId, _latitude, _longitude, _zoom) {
         try {
             mzCheckFuncParam([_mapId]);
-            const centerLat = 2.728;
-            const centerLng = 101.898;
+            const centerLat = typeof _latitude !== 'undefined' ? parseFloat(_latitude) : 2.9280622799459395;
+            const centerLng = typeof _longitude !== 'undefined' ? parseFloat(_longitude) : 101.89702233481408;
+            const mapZoom = typeof _zoom !== 'undefined' ? parseInt(_zoom) : 19;
             map = new google.maps.Map(document.getElementById(_mapId), {
                 center: {lat: centerLat, lng: centerLng},
-                zoom: 18,
+                zoom: mapZoom
             });
             self.deleteSelectedShape();
             drawingManager.setMap(map);
@@ -115,15 +116,21 @@ function GoogleMapsDrawingPolygon () {
         }
     };
 
-    this.drawPolygon = function (_mapId) {
+    this.drawPolygon = function (_mapId, _coordinates) {
         try {
             mzCheckFuncParam([_mapId]);
-            const triangleCoords = [
-                { lat: 2.9286482470098343, lng: 101.89708804893495 },
-                { lat: 2.928642889598061, lng: 101.89715778636933 },
-                { lat: 2.928530383945045, lng: 101.89714705753327 },
-                { lat: 2.9286482470098343, lng: 101.89708804893495 }
-            ];
+            let triangleCoords = [];
+            if (typeof _coordinates !== 'undefined' && $.isArray(_coordinates)) {
+                for (let i = 0; i < _coordinates.length; i++) {
+                    const pointSide = { lat: _coordinates[i][0], lng: _coordinates[i][1]};
+                    triangleCoords.push(pointSide);
+                    if (i === _coordinates.length - 1) {
+                        const pointOrigin = { lat: _coordinates[0][0], lng: _coordinates[0][1]};
+                        triangleCoords.push(pointOrigin);
+                    }
+                }
+            }
+            console.log(triangleCoords);
             const bermudaTriangle = new google.maps.Polygon({
                 paths: triangleCoords,
                 strokeColor: "#FF0000",

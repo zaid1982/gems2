@@ -6,13 +6,12 @@ function SectionAttendanceConfigSite () {
     let hasEdit = false;
     let siteId;
     let refStatus;
+    let refUser;
     let oTableSacGroup;
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
 
     this.init = function () {
-        $('.sectionAttendanceConfigSite').hide();
-
         $('#btnSacBack').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -43,9 +42,12 @@ function SectionAttendanceConfigSite () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0] }
+                { className: 'text-center', targets: [0,3,4,5,7,9] },
+                { className: 'text-right', targets: [6,8] },
+                { className: 'noVis', targets: [0] }
             ],
             buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: mzExportOpt},
@@ -65,11 +67,13 @@ function SectionAttendanceConfigSite () {
             aoColumns: [
                 {mData: null},
                 {mData: 'attGroupName'},
-                {mData: 'attGroupSupervisor'},
-                {mData: null, width: '10%', mRender: function(data, type, row) {
+                {mData: 'attGroupSupervisor', mRender: function(data) {
+                        return data !== '' ? refUser[parseInt(data)]['userFullName'] : '-';
+                    }},
+                {mData: null, width: '12%', mRender: function(data, type, row) {
                         return row['attGroupDayShiftStart'] + ' to ' + row['attGroupDayShiftEnd'];
                     }},
-                {mData: null, width: '10%', mRender: function(data, type, row) {
+                {mData: null, width: '12%', mRender: function(data, type, row) {
                         return row['attGroupNightShiftStart'] + ' to ' + row['attGroupNightShiftEnd'];
                     }},
                 {mData: 'attGroupHoliday', width: '10%'},
@@ -78,9 +82,35 @@ function SectionAttendanceConfigSite () {
                 {mData: 'totalParticipantActive', width: '8%', mRender: function(data) {
                         return data !== '' ? data : '0';
                     }},
-                {mData: null, width: '6%'}
+                {mData: 'attGroupStatus', width: '6%', mRender: function(data) {
+                        return refStatus[parseInt(data)]['statusDesc'];
+                    }}
             ]
         });
+        if ($('#headerSacGroup').width() < 880) {
+            oTableSacGroup.column(3).visible(false);
+            oTableSacGroup.column(4).visible(false);
+            oTableSacGroup.column(5).visible(false);
+        }
+        let oTableSacGroupTbody = $('#dtSacGroup tbody');
+        oTableSacGroupTbody.delegate('tr', 'click', function (evt) {
+            const data = $('#dtSacGroup').DataTable().row(this).data();
+            if (typeof data !== 'undefined') {
+                modalAttendanceGroupClass.edit(data['attGroupId'], siteId);
+            }
+        });
+        oTableSacGroupTbody.delegate('tr', 'mouseenter', function (evt) {
+            const data = $('#dtSacGroup').DataTable().row(this).data();
+            if (typeof data !== 'undefined') {
+                const cell = $(evt.target).closest('td');
+                cell.css('cursor', 'pointer');
+                cell.attr('data-toggle', 'tooltip');
+                cell.attr('title', 'Click to edit '+data['attGroupName']+' configuration');
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+
+        $('.sectionAttendanceConfigSite').hide();
     };
 
     this.loadDetails = function () {
@@ -120,7 +150,6 @@ function SectionAttendanceConfigSite () {
 
     this.genTableGroup = function () {
         const dataDb = mzAjaxRequest2('att_group/by_site/'+siteId, 'GET');
-        console.log(dataDb);
         oTableSacGroup.clear().rows.add(dataDb).draw();
     };
 
@@ -138,6 +167,10 @@ function SectionAttendanceConfigSite () {
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
+    };
+
+    this.setRefUser = function (_refUser) {
+        refUser = _refUser;
     };
 
     this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
