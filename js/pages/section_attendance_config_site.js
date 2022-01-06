@@ -5,11 +5,14 @@ function SectionAttendanceConfigSite () {
     let classFrom;
     let hasEdit = false;
     let siteId;
+    let userId;
     let refStatus;
     let refUser;
     let oTableSacGroup;
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
+    let isAdmin;
+    let isSupervisor;
 
     this.init = function () {
         $('#btnSacBack').on('click', function () {
@@ -28,6 +31,10 @@ function SectionAttendanceConfigSite () {
                 HideLoader();
             }, 200);
         });
+
+        userId = mzGetUserId();
+        isAdmin = mzIsRoleExist('1');
+        isSupervisor = mzIsRoleExist('20');
 
         oTableSacGroup = $('#dtSacGroup').DataTable({
             bLengthChange: false,
@@ -60,9 +67,13 @@ function SectionAttendanceConfigSite () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.btnSacAddGroup').off('click').on('click', function () {
-                    modalAttendanceGroupClass.add(siteId);
-                });
+                if (isAdmin) {
+                    $('.btnSacAddGroup').off('click').on('click', function () {
+                        modalAttendanceGroupClass.add(siteId);
+                    });
+                } else {
+                    $('.btnSacAddGroup').hide();
+                }
             },
             aoColumns: [
                 {mData: null},
@@ -95,13 +106,13 @@ function SectionAttendanceConfigSite () {
         let oTableSacGroupTbody = $('#dtSacGroup tbody');
         oTableSacGroupTbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtSacGroup').DataTable().row(this).data();
-            if (typeof data !== 'undefined') {
+            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
                 modalAttendanceGroupClass.edit(data['attGroupId'], siteId);
             }
         });
         oTableSacGroupTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtSacGroup').DataTable().row(this).data();
-            if (typeof data !== 'undefined') {
+            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
                 const cell = $(evt.target).closest('td');
                 cell.css('cursor', 'pointer');
                 cell.attr('data-toggle', 'tooltip');

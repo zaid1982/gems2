@@ -130,7 +130,6 @@ function GoogleMapsDrawingPolygon () {
                     }
                 }
             }
-            console.log(triangleCoords);
             const bermudaTriangle = new google.maps.Polygon({
                 paths: triangleCoords,
                 strokeColor: "#FF0000",

@@ -182,6 +182,7 @@ class Class_att_group {
     /**
      * @param array $params
      * @param array $maps
+     * @return mixed
      * @throws Exception
      */
     public function addAttGroup ($params=array(), $maps=array()) {
@@ -208,6 +209,29 @@ class Class_att_group {
             $coordinateStr .= $maps['coordinates'][0]['lat'].' '.$maps['coordinates'][0]['lng'];
             $params['attGroupPolygon'] = "|ST_GEOMFROMTEXT('POLYGON((".$coordinateStr."))')";
             return Class_db::getInstance()->db_insert('att_group', $this->fn_general->convertToMysqlArrAll($params));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $attGroupId
+     * @param array $params
+     * @param array $maps
+     * @return mixed
+     * @throws Exception
+     */
+    public function updateAttGroup ($attGroupId, $params=array(), $maps=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$maps '.json_encode($maps));
+
+            if (array_key_exists('coordinates',$maps)) {
+                throw new Exception('[' . __LINE__ . '] - exist', 31);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

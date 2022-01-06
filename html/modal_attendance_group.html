@@ -15,6 +15,18 @@
 					<div class="card z-depth-2">
 						<div class="card-body blue-grey lighten-5 pt-4 pb-0">
 							<div class="row">
+								<div class="col-lg-12 col-xl-6 divMtgAdminHide">
+									<div class="md-form mt-0">
+										<input type="text" id="txtMtgGroupNameLbl" class="form-control" disabled>
+										<label for="txtMtgGroupNameLbl" id="lblMtgGroupNameLbl" class="active">Group Name</label>
+									</div>
+								</div>
+								<div class="col-lg-12 col-xl-6 divMtgAdminHide">
+									<div class="md-form mt-0">
+										<input type="text" id="txtMtgSupervisorName" class="form-control" disabled>
+										<label for="txtMtgSupervisorName" id="lblMtgSupervisorName" class="active">Supervisor</label>
+									</div>
+								</div>
 								<div class="col-md-8">
 									<div class="md-form mt-0">
 										<input type="text" id="txtMtgSiteName" class="form-control" disabled>
@@ -31,15 +43,15 @@
 						</div>
 					</div>
 					<div class="row mt-4_5">
-						<div class="col-md-12">
+						<div class="col-md-12 divMtgAdminView">
 							<div class="md-form md-outline mt-0">
 								<input type="text" id="txtMtgGroupName" class="form-control">
 								<label for="txtMtgGroupName" id="lblMtgGroupName">Group Name *</label>
 								<p class="font-small text-danger" id="txtMtgGroupNameErr"></p>
 							</div>
 						</div>
-						<div class="col-md-12 select-outline mb-2" id="optMtgSupervisor_">
-							<select id="optMtgSupervisor" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Search here ..." data-stop-refresh="true" data-visible-options="-1">
+						<div class="col-md-12 select-outline mb-2 divMtgAdminView" id="optMtgSupervisor_">
+							<select id="optMtgSupervisor" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 							</select>
 							<label for="optMtgSupervisor" id="lblMtgSupervisor">Supervisor *</label>
 							<p class="font-small text-danger" id="optMtgSupervisorErr"></p>
@@ -138,7 +150,7 @@
 									<p class="font-small text-danger" id="optMtgGroupNightShiftEndErr"></p>
 								</div>
 								<div class="col-md-12 select-outline mb-2" id="optMtgOtApprover_">
-									<select id="optMtgOtApprover" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Search here ..." data-stop-refresh="true" data-visible-options="-1">
+									<select id="optMtgOtApprover" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
 									</select>
 									<label for="optMtgOtApprover" id="lblMtgOtApprover">OT Approver *</label>
 									<p class="font-small text-danger" id="optMtgOtApproverErr"></p>

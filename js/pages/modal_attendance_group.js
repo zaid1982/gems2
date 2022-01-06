@@ -9,8 +9,13 @@ function ModalAttendanceGroup () {
     let classFrom;
     let refUser;
     let googleMapsDrawingPolygonClass;
+    let isAdmin;
+    let isSupervisor;
 	
 	this.init = function () {
+        isAdmin = mzIsRoleExist('1');
+        isSupervisor = mzIsRoleExist('20');
+
         vData = [
             {
                 field_id: 'txtMtgGroupName',
@@ -119,9 +124,7 @@ function ModalAttendanceGroup () {
 
         $('#btnMtgSubmit').on('click', function () {
             const coordinates = googleMapsDrawingPolygonClass.getSelectedCoordinate();
-            const mapCenter = googleMapsDrawingPolygonClass.getMapCenter();
-            const zoomLevel = googleMapsDrawingPolygonClass.getZoomLevel();
-            if (!formValidate.validateNow() || mapCenter === '' || zoomLevel === '') {
+            if (!formValidate.validateNow()) {
                 toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
             } else if (coordinates.length === 0) {
                 toastr['error']('Please make sure site/office Perimeter for attendance verification selected from the Map.', _ALERT_TITLE_ERROR);
@@ -129,27 +132,7 @@ function ModalAttendanceGroup () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
-                        const data = {
-                            siteId: siteId,
-                            attGroupName: $('#txtMtgGroupName').val(),
-                            attGroupSupervisor: $('#optMtgSupervisor').val(),
-                            attGroupCategory: $('#optMtgGroupCategory').val(),
-                            attGroupHoliday: $('#optMtgGroupHoliday').val(),
-                            attGroupReqWeekHours: $('#txtMtgGroupReqWeekHours').val(),
-                            attGroupShiftMode: $('#optMtgGroupShiftMode').val(),
-                            attGroupDayShiftStart: $('#optMtgGroupDayShiftStart').val(),
-                            attGroupDayShiftEnd: $('#optMtgGroupDayShiftEnd').val(),
-                            attGroupNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
-                            attGroupNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
-                            attGroupOtApprover: $('#optMtgOtApprover').val(),
-                            attGroupRemark: $('#txaMtgGroupRemark').val()
-                        };
-                        const maps = {
-                            coordinates: coordinates,
-                            mapCenter: mapCenter,
-                            zoomLevel: zoomLevel
-                        };
-                        mzAjaxRequest2('att_group', 'POST', {data: data, maps: maps});
+                        mzAjaxRequest2('att_group', 'POST', self.getDataSubmitted());
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             classFrom.genTableGroup();
                         }
@@ -170,6 +153,9 @@ function ModalAttendanceGroup () {
                 ShowLoader();
                 setTimeout(function () {
                     try {
+                        mzAjaxRequest2('att_group/'+attGroupId, 'PUT', self.getDataSubmitted());
+
+                        throw new Error('test');
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             classFrom.genTable();
                         }
@@ -186,18 +172,54 @@ function ModalAttendanceGroup () {
             googleMapsDrawingPolygonClass.deleteSelectedShape();
         });
 	};
+
+    this.getDataSubmitted = function () {
+        try {
+            const data = {
+                siteId: siteId,
+                attGroupName: $('#txtMtgGroupName').val(),
+                attGroupSupervisor: $('#optMtgSupervisor').val(),
+                attGroupCategory: $('#optMtgGroupCategory').val(),
+                attGroupHoliday: $('#optMtgGroupHoliday').val(),
+                attGroupReqWeekHours: $('#txtMtgGroupReqWeekHours').val(),
+                attGroupShiftMode: $('#optMtgGroupShiftMode').val(),
+                attGroupDayShiftStart: $('#optMtgGroupDayShiftStart').val(),
+                attGroupDayShiftEnd: $('#optMtgGroupDayShiftEnd').val(),
+                attGroupNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
+                attGroupNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
+                attGroupOtApprover: $('#optMtgOtApprover').val(),
+                attGroupRemark: $('#txaMtgGroupRemark').val()
+            };
+            const maps = {
+                coordinates: googleMapsDrawingPolygonClass.getSelectedCoordinate(),
+                mapCenter: googleMapsDrawingPolygonClass.getMapCenter(),
+                zoomLevel: googleMapsDrawingPolygonClass.getZoomLevel()
+            };
+            return {data: data, maps: maps};
+        } catch (e) {
+            throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+        }
+    };
 	
 	this.add = function (_siteId) {
 		ShowLoader();
         setTimeout(function () {
             try {
+                if (!isAdmin) {
+                    throw new Error('Your Role is disallowed to add Attendance Group');
+                }
+
                 mzCheckFuncParam([_siteId]);
                 siteId = _siteId;
                 formValidate.clearValidation();
+                formValidate.enableField('txtMtgGroupName');
+                formValidate.enableField('optMtgSupervisor');
+                $('.divMtgAdminView').show();
+                $('.divMtgAdminHide').hide();
 
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
-                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
-                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
+                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#20'}, 'required');
+                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#21'}, 'required');
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup');
                 $('#btnMtgSave').hide();
@@ -220,14 +242,28 @@ function ModalAttendanceGroup () {
                 siteId = _siteId;
                 formValidate.clearValidation();
 
-                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
-                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId}, 'required');
+                if (isAdmin) {
+                    formValidate.enableField('txtMtgGroupName');
+                    formValidate.enableField('optMtgSupervisor');
+                    $('.divMtgAdminView').show();
+                    $('.divMtgAdminHide').hide();
+                } else if (isSupervisor) {
+                    formValidate.disableField('txtMtgGroupName');
+                    formValidate.disableField('optMtgSupervisor');
+                    $('.divMtgAdminView').hide();
+                    $('.divMtgAdminHide').show();
+                } else {
+                    throw new Error('Your Role is disallowed to configure this Attendance Group');
+                }
+
+                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#20'}, 'required');
+                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#21'}, 'required');
                 const attGroup = mzAjaxRequest2('att_group/'+attGroupId, 'GET');
-                console.log(attGroup);
                 const polygon = JSON.parse(attGroup['attGroupPolygon']);
-                console.log(polygon);
                 mzSetFieldValue('MtgGroupName', attGroup['attGroupName'], 'text');
+                mzSetFieldValue('MtgGroupNameLbl', attGroup['attGroupName'], 'text');
                 mzSetFieldValue('MtgSupervisor', attGroup['attGroupSupervisor'], 'select');
+                mzSetFieldValue('MtgSupervisorName', refUser[attGroup['attGroupSupervisor']]['userFullName'], 'text');
                 mzSetFieldValue('MtgGroupCategory', attGroup['attGroupCategory'], 'select');
                 mzSetFieldValue('MtgGroupHoliday', attGroup['attGroupHoliday'], 'select');
                 mzSetFieldValue('MtgGroupReqWeekHours', attGroup['attGroupReqWeekHours'], 'text');
@@ -243,6 +279,7 @@ function ModalAttendanceGroup () {
                 $('#btnMtgSave').show();
                 $('#btnMtgSubmit').hide();
 
+                $('#lblMtgModalTitle').html('<i class="fas fa-edit text-white mr-2"></i> Edit Attendance Group');
                 $('#modal_attendance_group').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

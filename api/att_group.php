@@ -105,9 +105,9 @@ try {
             $fn_general->updateVersion(6);
             $fn_general->save_audit('181', $userId, 'Site ID = '.$urlArr[2]);
             $form_data['errmsg'] = $constant::SUC_SITE_DEACTIVATE;
-
         } else {
-            throw new Exception('[' . __LINE__ . '] - Parameter action invalid (' . $urlArr[1] . ')');
+            $result = $fn_attGroup->updateAttGroup($urlArr[1], $params['data'], $params['maps']);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
         }
 
         Class_db::getInstance()->db_commit();

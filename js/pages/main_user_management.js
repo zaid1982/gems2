@@ -125,7 +125,7 @@ function MainUserManagement() {
         $('#optUmnGroupId').on('change', function () {
             oTableUser.column(14).search("^" + $(this).val() + "$", true, false, true).draw();
         });
-        $('#linkUmn0').on('click', function () {
+        /*$('#linkUmn0').on('click', function () {
             oTableUser.column(11).search('').draw();
         });
         $('#linkUmn1').on('click', function () {
@@ -142,7 +142,7 @@ function MainUserManagement() {
         });
         $('#linkUmn5').on('click', function () {
             oTableUser.column(11).search('5', false, true, false).draw();
-        });
+        });*/
 
         let cntUser;
         let btnUserOpt = {
@@ -225,7 +225,7 @@ function MainUserManagement() {
         result = JSON.parse(result);
 
         let chartData = [];
-        let total0 = 0;
+        /*let total0 = 0;
         let total1 = 0;
         let total2 = 0;
         let total3 = 0;
@@ -236,11 +236,11 @@ function MainUserManagement() {
         let total8 = 0;
         let total9 = 0;
         let total10 = 0;
-        let total11 = 0;
+        let total11 = 0;*/
 
         $.each(result, function (n, u) {
             chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
-            if (u['roleId'] === '1') {
+            /*if (u['roleId'] === '1') {
                 total1 = parseInt(u['total']);
             } else if (u['roleId'] === '2') {
                 total2 = parseInt(u['total']);
@@ -263,10 +263,10 @@ function MainUserManagement() {
             } else if (u['roleId'] === '11') {
                 total11 = parseInt(u['total']);
             }
-            total0 += parseInt(u['total']);
+            total0 += parseInt(u['total']);*/
         });
 
-        $('#linkUmn0').html('<span class="bullet blue z-depth-2"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
+        /*$('#linkUmn0').html('<span class="bullet blue z-depth-2"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
         $('#linkUmn1').html('<span class="bullet yellow z-depth-2"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
         $('#linkUmn2').html('<span class="bullet light-green z-depth-2"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
         $('#linkUmn3').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
@@ -277,7 +277,7 @@ function MainUserManagement() {
         $('#linkUmn8').html('<span class="bullet light-green z-depth-2"></span> '+refRole[8]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total8)+'</span>');
         $('#linkUmn9').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[9]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total9)+'</span>');
         $('#linkUmn10').html('<span class="bullet purple z-depth-2"></span> '+refRole[10]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total10)+'</span>');
-        $('#linkUmn11').html('<span class="bullet mdb-color lighten-2 z-depth-2"></span> '+refRole[11]['roleDesc']+' <span class="badge mdb-color lighten-2 float-right">'+mzFormatNumber(total11)+'</span>');
+        $('#linkUmn11').html('<span class="bullet mdb-color lighten-2 z-depth-2"></span> '+refRole[11]['roleDesc']+' <span class="badge mdb-color lighten-2 float-right">'+mzFormatNumber(total11)+'</span>');*/
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
