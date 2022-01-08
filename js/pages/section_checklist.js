@@ -628,6 +628,9 @@ function SectionChecklist() {
                     checklistName: '',
                     checklistDocumentNo: '',
                     checklistIssueNo: '',
+                    checklistMinExecTime: '',
+                    checklistMaxExecTime: '',
+                    checklistMaxAssistant: '',
                     checklistTimeRegistered: '',
                     assetTypeId: _assetTypeId,
                     checklistStatus: '5'

@@ -142,7 +142,7 @@ class Class_wo {
      */
     public function create_wo_no ($groupId, $isWo=true) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -196,7 +196,7 @@ class Class_wo {
      */
     public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='', $isHelpdesk='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $constant = $this->constant;
 
             if (empty($taskId)) {
@@ -262,7 +262,7 @@ class Class_wo {
      */
     public function get_submitted_wo_m ($searchText='', $woType='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -301,7 +301,7 @@ class Class_wo {
      */
     public function get_pending_task_m ($searchText='', $woType='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
@@ -424,7 +424,7 @@ class Class_wo {
      */
     public function get_section_status_assign_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -459,7 +459,7 @@ class Class_wo {
      */
     public function get_section_status_wr_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -489,7 +489,7 @@ class Class_wo {
      */
     public function save_respond_time_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -509,7 +509,7 @@ class Class_wo {
      */
     public function get_wo_task ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 if (!empty($transactionId)) {
@@ -548,7 +548,7 @@ class Class_wo {
      */
     public function get_complaint_details_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -637,7 +637,7 @@ class Class_wo {
      */
     public function get_wo_group_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -665,7 +665,7 @@ class Class_wo {
      */
     public function get_wo_technician_m ($ppmGroupId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($ppmGroupId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter groupId empty');
@@ -694,7 +694,7 @@ class Class_wo {
      */
     public function get_technician_details_m ($userTechId='', $ppmGroupId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($userTechId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
@@ -742,7 +742,7 @@ class Class_wo {
      */
     public function save_assigned_technician_m ($ppmGroupId='', $userTechId='', $severityId='', $assistUserId=array(), $woTaskType='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -792,7 +792,7 @@ class Class_wo {
      */
     public function save_wo_severity_m ($severityId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -822,7 +822,7 @@ class Class_wo {
      */
     public function save_wr_rectification_time_m ($timeRectified='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -845,7 +845,7 @@ class Class_wo {
      */
     public function get_assigned_technician () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -864,7 +864,7 @@ class Class_wo {
      */
     public function get_complainer () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -883,7 +883,7 @@ class Class_wo {
      */
     public function get_wr_validity () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -907,7 +907,7 @@ class Class_wo {
      */
     public function get_current_task ($currentStatus='', $currentCheckpoint='', $currentStatus2='', $currentCheckpoint2='', $currentStatus3='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $constant = $this->constant;
 
             if (empty($this->woTaskId)) {
@@ -950,7 +950,7 @@ class Class_wo {
      */
     public function submit_assign ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -985,7 +985,7 @@ class Class_wo {
      */
     public function reject_complaint ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1017,7 +1017,7 @@ class Class_wo {
      */
     public function get_wo_assign_severity_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1047,7 +1047,7 @@ class Class_wo {
      */
     public function save_wo_repair_desc_m ($repairDesc='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1072,7 +1072,7 @@ class Class_wo {
      */
     public function get_wo_repair_desc_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1240,7 +1240,7 @@ class Class_wo {
      */
     public function return_by_technician ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1274,7 +1274,7 @@ class Class_wo {
      */
     public function return_wr_by_technician ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1312,7 +1312,7 @@ class Class_wo {
      */
     public function submit_wr_check ($transactionId='', $signatureId='', $remark='', $isVerified='0', $isRejected='0') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1358,7 +1358,7 @@ class Class_wo {
      */
     public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo='', $verifier='', $isRejected='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1412,7 +1412,7 @@ class Class_wo {
      */
     public function return_wr_verify ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1450,7 +1450,7 @@ class Class_wo {
      */
     public function submit_repair ($transactionId='', $signatureId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1490,7 +1490,7 @@ class Class_wo {
      */
     public function return_verify ($transactionId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1532,7 +1532,7 @@ class Class_wo {
      */
     public function submit_verify ($transactionId='', $signatureId='', $woTaskRate='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1576,7 +1576,7 @@ class Class_wo {
      */
     public function save_wo_rate_m ($woTaskRate='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1601,7 +1601,7 @@ class Class_wo {
      */
     public function get_wo_rate_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -1620,7 +1620,7 @@ class Class_wo {
      */
     public function get_wr_rectification_time_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -2797,7 +2797,7 @@ class Class_wo {
      */
     public function get_wo_severity_list_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -2826,7 +2826,7 @@ class Class_wo {
      */
     public function get_wo_is_wr () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId) && empty($this->userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId and userId empty');
@@ -2853,7 +2853,7 @@ class Class_wo {
      */
     public function save_asset_no_m ($assetNo) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
@@ -2890,7 +2890,7 @@ class Class_wo {
      */
     public function get_technician_current_task ($userTechId='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
             if (empty($userTechId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userTechId empty');
@@ -2909,6 +2909,66 @@ class Class_wo {
             }
             return $result;
         } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function get_execution_info () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($this->woTaskId));
+            $minExecutionTime = '-';
+            $maxExecutionTime = '-';
+            $isTimeExceeded = false;
+
+            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$this->woTaskId));
+            $woMinExecutionTime = $woTask['woTaskMinExecTime'];
+            $woMaxExecutionTime = $woTask['woTaskMaxExecTime'];
+
+            if ($woMinExecutionTime !== '') {
+                $minHours = intval(substr($woMinExecutionTime, 0, 2));
+                $minMinutes = intval(substr($woMinExecutionTime, 3, 2));
+                $minHoursText = '';
+                if ($minHours > 0) {
+                    $minHoursText = $minHours === 1 ? '1 hour ' : $minHours.' hours ';
+                }
+                $minMinutesText = '';
+                if ($minMinutes > 0) {
+                    $minMinutesText = $minMinutes === 1 ? '1 minute' : $minMinutes.' minutes';
+                }
+                $minExecutionTime = $minHoursText.$minMinutesText;
+            }
+
+            if ($woMaxExecutionTime !== '') {
+                $maxHours = intval(substr($woMaxExecutionTime, 0, 2));
+                $maxMinutes = intval(substr($woMaxExecutionTime, 3, 2));
+                $maxHoursText = '';
+                if ($maxHours > 0) {
+                    $maxHoursText = $maxHours === 1 ? '1 hour ' : $maxHours.' hours ';
+                }
+                $maxMinutesText = '';
+                if ($maxMinutes > 0) {
+                    $maxMinutesText = $maxMinutes === 1 ? '1 minute' : $maxMinutes.' minutes';
+                }
+                $maxExecutionTime = $maxHoursText.$maxMinutesText;
+
+                if ($woTask['woTaskTimeAssigned'] !== '' && $maxExecutionTime !== '') {
+                    $now = new DateTime();
+                    $assignTime = new DateTime($woTask['woTaskTimeAssigned']);
+                    $assignTime->modify($maxExecutionTime);
+                    $isTimeExceeded = $now > $assignTime;
+                }
+            }
+
+            return array('minExecutionTime'=>$minExecutionTime, 'maxExecutionTime'=>$maxExecutionTime, 'isTimeExceeded'=>$isTimeExceeded);
+        }
+        catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
