@@ -436,7 +436,7 @@ class Class_wo {
                 array('sectionName'=>'E', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18]),
                 array('sectionName'=>'F', 'sectionDesc'=>'Assistants', 'sectionStatus'=>$statusArr[18])
             );
-            
+
             $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
             if (!empty($woTask['woTaskAssignedTo'])) {
                 $result[1]['sectionStatus'] = $statusArr[19];
@@ -1148,7 +1148,7 @@ class Class_wo {
                 'severity'=>$woTask['woTaskSeverity'],
                 'userCategory'=>($woTask['woTaskTypeInit']==='1'?'Client':'Internal'),
                 'woTaskCategory'=>$woTask['woTaskType'],
-                'woTaskMaxAssistant'=>$woTask['woTaskMaxAssistant']
+                'woTaskMaxAssistant'=>(empty($woTask['woTaskMaxAssistant'])?'0':$woTask['woTaskMaxAssistant'])
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

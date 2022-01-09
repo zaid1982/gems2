@@ -56,6 +56,8 @@ try {
                 $result = $fn_wo->get_execution_info($urlArr[2]);
             } else if ($urlArr[1] === 'section_assign') {
                 $result = $fn_wo->get_section_status_m_v2($urlArr[2]);
+            } else if ($urlArr[1] === 'assign_and_severity') {
+                $result = $fn_wo->get_wo_assign_severity_m_v2($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
