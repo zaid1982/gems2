@@ -2915,19 +2915,20 @@ class Class_wo {
     }
 
     /**
+     * @param $woTaskId
      * @return array
      * @throws Exception
      */
-    public function get_execution_info () {
+    public function get_execution_info ($woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            $this->fn_general->checkEmptyParams(array($this->woTaskId));
+            $this->fn_general->checkEmptyParams(array($woTaskId));
             $minExecutionTime = '-';
             $maxExecutionTime = '-';
             $isTimeExceeded = false;
 
-            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$this->woTaskId));
+            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId));
             if ($woTask['woTaskSeverity'] !== '' && $woTask['woTaskTimeCreated'] !== '') {
                 $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['siteId']), 'client_id');
                 $severityHours = Class_db::getInstance()->db_select_col('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$woTask['woTaskSeverity']), 'client_severity_hour');
@@ -2940,45 +2941,6 @@ class Class_wo {
                 $assignTime->modify($maxExecutionTime);
                 $isTimeExceeded = $now > $assignTime;
             }
-
-            /*$woMinExecutionTime = $woTask['woTaskMinExecTime'];
-            $woMaxExecutionTime = $woTask['woTaskMaxExecTime'];
-
-            if ($woMinExecutionTime !== '') {
-                $minHours = intval(substr($woMinExecutionTime, 0, 2));
-                $minMinutes = intval(substr($woMinExecutionTime, 3, 2));
-                $minHoursText = '';
-                if ($minHours > 0) {
-                    $minHoursText = $minHours === 1 ? '1 hour ' : $minHours.' hours ';
-                }
-                $minMinutesText = '';
-                if ($minMinutes > 0) {
-                    $minMinutesText = $minMinutes === 1 ? '1 minute' : $minMinutes.' minutes';
-                }
-                $minExecutionTime = $minHoursText.$minMinutesText;
-            }
-
-            if ($woMaxExecutionTime !== '') {
-                $maxHours = intval(substr($woMaxExecutionTime, 0, 2));
-                $maxMinutes = intval(substr($woMaxExecutionTime, 3, 2));
-                $maxHoursText = '';
-                if ($maxHours > 0) {
-                    $maxHoursText = $maxHours === 1 ? '1 hour ' : $maxHours.' hours ';
-                }
-                $maxMinutesText = '';
-                if ($maxMinutes > 0) {
-                    $maxMinutesText = $maxMinutes === 1 ? '1 minute' : $maxMinutes.' minutes';
-                }
-                $maxExecutionTime = $maxHoursText.$maxMinutesText;
-
-                if ($woTask['woTaskTimeAssigned'] !== '' && $maxExecutionTime !== '') {
-                    $now = new DateTime();
-                    $assignTime = new DateTime($woTask['woTaskTimeAssigned']);
-                    $assignTime->modify($maxExecutionTime);
-                    $isTimeExceeded = $now > $assignTime;
-                }
-            }*/
-
             return array('minExecutionTime'=>$minExecutionTime, 'maxExecutionTime'=>$maxExecutionTime, 'isTimeExceeded'=>$isTimeExceeded);
         }
         catch(Exception $ex) {

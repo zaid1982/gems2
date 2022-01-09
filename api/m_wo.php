@@ -104,8 +104,6 @@ try {
             $result = $fn_wo->get_wo_severity_list_m();
         } else if ($type === 'wr_rectification_time') {
             $result = $fn_wo->get_wr_rectification_time_m();
-        } else if ($type === 'execution_info') {
-            $result = $fn_wo->get_execution_info();
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }

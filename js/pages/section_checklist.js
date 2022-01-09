@@ -100,6 +100,7 @@ function SectionChecklist() {
                     notEmpty: true,
                     digit: true,
                     min: 0,
+                    max: 838,
                     lower: {
                         id: 'txtSckChecklistMinExecTimeHour',
                         label: 'Max Exec Time (Hour)'
@@ -125,6 +126,7 @@ function SectionChecklist() {
                     notEmpty: true,
                     digit: true,
                     min: 0,
+                    max: 838,
                     higher: {
                         id: 'txtSckChecklistMinExecTimeHour',
                         label: 'Minimum Execution Time (Hour)'

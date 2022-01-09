@@ -57,3 +57,7 @@ RewriteRule ^att_participant/?$ api/att_participant.php
 RewriteRule ^att_participant/(.+)/?$ api/att_participant.php
 RewriteRule ^gamification/?$ api/gamification.php
 RewriteRule ^gamification/(.+)/?$ api/gamification.php
+RewriteRule ^wo_v2/?$ api/wo_v2.php
+RewriteRule ^wo_v2/(.+)/?$ api/wo_v2.php
+RewriteRule ^ppm_v2/?$ api/ppm_v2.php
+RewriteRule ^ppm_v2/(.+)/?$ api/ppm_v2.php

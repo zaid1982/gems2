@@ -1669,6 +1669,18 @@ class Class_ppm {
             Class_db::getInstance()->db_update('wfl_transaction', array('user_id'=>$userId, 'transaction_status' => '13'), array('transaction_id' => $transactionId));
             Class_db::getInstance()->db_update('wfl_task', array('task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
 
+            $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_id', null, 1);
+            $checklistId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'checklist_id', null, 1);
+            $checklist = Class_db::getInstance()->db_select_single2('ppm_checklist', array('checklist_id'=>$checklistId));
+            if (!empty($checklist)) {
+                $updateArr = array(
+                    'ppmTaskMinExecTime'=>$checklist['checklistMinExecTime'],
+                    'ppmTaskMaxExecTime'=>$checklist['checklistMaxExecTime'],
+                    'ppmTaskMaxAssistant'=>$checklist['checklistMaxAssistant']
+                );
+                Class_db::getInstance()->db_update('ppm_task', $this->fn_general->convertToMysqlArrAll($updateArr), array('ppm_task_id'=>$ppmTaskId));
+            }
+
             $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
             $sectionStatus = $totalNull > '0' ? '18' : '19';
             Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
@@ -2642,6 +2654,73 @@ class Class_ppm {
 
             Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$newDate, 'ppm_task_is_scheduled'=>'1'), array('ppm_task_id'=>$ppmTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$newDate), array('transaction_id'=>$ppmTask['transaction_id']));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_execution_info ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($ppmTaskId));
+            $minExecutionTime = '-';
+            $maxExecutionTime = '-';
+            $isTimeExceeded = false;
+
+            $ppmTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id'=>$ppmTaskId));
+            $ppmMinExecutionTime = $ppmTask['ppmTaskMinExecTime'];
+            $ppmMaxExecutionTime = $ppmTask['ppmTaskMaxExecTime'];
+
+            if ($ppmMinExecutionTime !== '') {
+                $minTimeArr = explode(':', $ppmMinExecutionTime);
+                if (count($minTimeArr) === 3) {
+                    $minHours = intval($minTimeArr[0]);
+                    $minMinutes = intval($minTimeArr[1]);
+                    $minHoursText = '';
+                    if ($minHours > 0) {
+                        $minHoursText = $minHours === 1 ? '1 hour ' : $minHours . ' hours ';
+                    }
+                    $minMinutesText = '';
+                    if ($minMinutes > 0) {
+                        $minMinutesText = $minMinutes === 1 ? '1 minute' : $minMinutes . ' minutes';
+                    }
+                    $minExecutionTime = $minHoursText . $minMinutesText;
+                }
+            }
+
+            if ($ppmMaxExecutionTime !== '') {
+                $maxTimeArr = explode(':', $ppmMaxExecutionTime);
+                if (count($maxTimeArr) === 3) {
+                    $maxHours = intval($maxTimeArr[0]);
+                    $maxMinutes = intval($maxTimeArr[1]);
+                    $maxHoursText = '';
+                    if ($maxHours > 0) {
+                        $maxHoursText = $maxHours === 1 ? '1 hour ' : $maxHours.' hours ';
+                    }
+                    $maxMinutesText = '';
+                    if ($maxMinutes > 0) {
+                        $maxMinutesText = $maxMinutes === 1 ? '1 minute' : $maxMinutes.' minutes';
+                    }
+                    $maxExecutionTime = $maxHoursText.$maxMinutesText;
+
+                    if ($ppmTask['ppmTaskTimeStart'] !== '' && $maxExecutionTime !== '') {
+                        $now = new DateTime();
+                        $assignTime = new DateTime($ppmTask['ppmTaskTimeStart']);
+                        $assignTime->modify($maxExecutionTime);
+                        $isTimeExceeded = $now > $assignTime;
+                    }
+                }
+            }
+
+            return array('minExecutionTime'=>$minExecutionTime, 'maxExecutionTime'=>$maxExecutionTime, 'isTimeExceeded'=>$isTimeExceeded);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
