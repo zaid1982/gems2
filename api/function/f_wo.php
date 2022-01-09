@@ -422,6 +422,93 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
+    public function get_section_status_m_v2 ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+
+            $statusArr = $this->fn_general->getRefStatus();
+            $result = array(
+                array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$statusArr[17]),
+                array('sectionName'=>'B', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'E', 'sectionDesc'=>'Assistants', 'sectionStatus'=>$statusArr[18])
+            );
+
+            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            if (!empty($woTask['woTaskRepairDesc'])) {
+                $result[1]['sectionStatus'] = $statusArr[19];
+            }
+            if ($woTask['woTaskDoneAsset'] === '1') {
+                $result[3]['sectionStatus'] = $statusArr[19];
+            }
+            if ($woTask['woTaskDoneAssistant'] === '1') {
+                $result[4]['sectionStatus'] = $statusArr[19];
+            }
+
+            $imgBefore = false;
+            $imgDuring = false;
+            $imgAfter = false;
+            $woTaskUploads = Class_db::getInstance()->db_select2('wo_task_upload', array('wo_task_id'=>$woTaskId));
+            foreach ($woTaskUploads as $woTaskUpload) {
+                $uploadType = $woTaskUpload['woTaskUploadType'];
+                if ($uploadType === '2') {
+                    $imgBefore = true;
+                } else if ($uploadType === '3') {
+                    $imgDuring = true;
+                } else if ($uploadType === '4') {
+                    $imgAfter = true;
+                }
+            }
+            if ($imgBefore && $imgDuring && $imgAfter) {
+                $result[2]['sectionStatus'] = $statusArr[19];
+            }
+
+            $isMaterial = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['siteId']), 'site_is_material');
+            if ($isMaterial === '1') {
+                $sectionStatus = $statusArr[18];
+                $materialStatusId = '';
+                $materialStatus = '';
+                $sectionComment = '';
+                if ($woTask['woTaskHasParts'] === '0') {
+                    $sectionStatus = $statusArr[19];
+                } else if ($woTask['woTaskHasParts'] === '1') {
+                    $statusPartId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId), 'wo_task_request_status', 'wo_task_request_id DESC');
+                    if (!empty($statusPartId)) {
+                        if ($statusPartId === '36') {
+                            $sectionStatus = $statusArr[19];
+                        } else if ($statusPartId === '50') {
+                            $sectionComment = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId), 'wo_task_request_remark', 'wo_task_request_id DESC');
+                        }
+                        $materialStatus = $statusArr[$statusPartId];
+                        $materialStatusId = $statusPartId;
+                    }
+                }
+                $result[] = array('sectionName' => 'F',
+                    'sectionDesc' => 'Material / Spare Parts',
+                    'sectionStatus' => $sectionStatus,
+                    'sectionStatusMaterialId' => $materialStatusId,
+                    'sectionStatusMaterial' => $materialStatus,
+                    'sectionComment' => $sectionComment);
+            }
+
+            $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transactionId'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
+            if (!empty($remark)) {
+                $result[] = array('sectionName' => ($isMaterial === '1' ? 'G' : 'F'), 'sectionDesc' => 'Comment', 'sectionStatus' => $statusArr[17], 'comment' => $remark);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function get_section_status_assign_m () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
@@ -1034,6 +1121,31 @@ class Class_wo {
                 'userCategory'=>($woTask['wo_task_type_init']==='1'?'Client':'Internal'),
                 'woTaskCategory'=>$this->fn_general->clear_null($woTask['wo_task_type']),
                 'assistUserId'=>$assistUserId);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_assign_severity_m_v2 ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            return array(
+                'groupId'=>$woTask['ppmGroupId'],
+                'userId'=>$woTask['woTaskAssignedTo'],
+                'severity'=>$woTask['woTaskSeverity'],
+                'userCategory'=>($woTask['woTaskTypeInit']==='1'?'Client':'Internal'),
+                'woTaskCategory'=>$woTask['woTaskType'],
+                'woTaskMaxAssistant'=>$woTask['woTaskMaxAssistant']
+            );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
