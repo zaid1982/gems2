@@ -430,21 +430,25 @@ class Class_wo {
             $statusArr = $this->fn_general->getRefStatus();
             $result = array(
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$statusArr[17]),
-                array('sectionName'=>'B', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$statusArr[18]),
-                array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$statusArr[18]),
-                array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18]),
-                array('sectionName'=>'E', 'sectionDesc'=>'Assistants', 'sectionStatus'=>$statusArr[18])
+                array('sectionName'=>'B', 'sectionDesc'=>'Assign Executor', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'C', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'D', 'sectionDesc'=>'Images', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'E', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'F', 'sectionDesc'=>'Assistants', 'sectionStatus'=>$statusArr[18])
             );
-
+            
             $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
-            if (!empty($woTask['woTaskRepairDesc'])) {
+            if (!empty($woTask['woTaskAssignedTo'])) {
                 $result[1]['sectionStatus'] = $statusArr[19];
             }
+            if (!empty($woTask['woTaskRepairDesc'])) {
+                $result[2]['sectionStatus'] = $statusArr[19];
+            }
             if ($woTask['woTaskDoneAsset'] === '1') {
-                $result[3]['sectionStatus'] = $statusArr[19];
+                $result[4]['sectionStatus'] = $statusArr[19];
             }
             if ($woTask['woTaskDoneAssistant'] === '1') {
-                $result[4]['sectionStatus'] = $statusArr[19];
+                $result[5]['sectionStatus'] = $statusArr[19];
             }
 
             $imgBefore = false;
@@ -462,7 +466,7 @@ class Class_wo {
                 }
             }
             if ($imgBefore && $imgDuring && $imgAfter) {
-                $result[2]['sectionStatus'] = $statusArr[19];
+                $result[3]['sectionStatus'] = $statusArr[19];
             }
 
             $isMaterial = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['siteId']), 'site_is_material');
@@ -485,7 +489,7 @@ class Class_wo {
                         $materialStatusId = $statusPartId;
                     }
                 }
-                $result[] = array('sectionName' => 'F',
+                $result[] = array('sectionName' => 'G',
                     'sectionDesc' => 'Material / Spare Parts',
                     'sectionStatus' => $sectionStatus,
                     'sectionStatusMaterialId' => $materialStatusId,
@@ -495,7 +499,7 @@ class Class_wo {
 
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transactionId'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
             if (!empty($remark)) {
-                $result[] = array('sectionName' => ($isMaterial === '1' ? 'G' : 'F'), 'sectionDesc' => 'Comment', 'sectionStatus' => $statusArr[17], 'comment' => $remark);
+                $result[] = array('sectionName' => ($isMaterial === '1' ? 'H' : 'G'), 'sectionDesc' => 'Comment', 'sectionStatus' => $statusArr[17], 'comment' => $remark);
             }
 
             return $result;
