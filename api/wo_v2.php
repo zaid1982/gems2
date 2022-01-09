@@ -66,6 +66,26 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $params = $_POST;
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        if ($urlArr[1] === 'save_assigned_technician') {
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $returnVal = $fn_wo->save_assigned_technician_m_v2($urlArr[2], $params);
+            $fn_general->save_audit('110', $userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName'].', category = '.$returnVal['woTaskType'].', max assistant = '.$params['woTaskMaxAssistant']);
+            Class_db::getInstance()->db_commit();
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

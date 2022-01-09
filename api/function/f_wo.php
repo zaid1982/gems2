@@ -877,6 +877,43 @@ class Class_wo {
     }
 
     /**
+     * @param $woTaskId
+     * @param array $params
+     * @return array
+     * @throws Exception
+     */
+    public function save_assigned_technician_m_v2 ($woTaskId, $params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            $this->fn_general->checkEmptyParamsArray($params, array('groupId', 'userId', 'severity', 'woTaskCategory', 'woTaskMaxAssistant'));
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $arrTaskType = $this->get_wo_type();
+            $woTaskAssignedTo = $params['userId'];
+            $ppmGroupId = $params['groupId'];
+            $woTaskSeverity = $params['severity'];
+            $woTaskType = $params['woTaskCategory'];
+            $woTaskMaxAssistant = $params['woTaskMaxAssistant'];
+            Class_db::getInstance()->db_update('wo_task',
+                array('wo_task_assigned_to'=>$woTaskAssignedTo, 'ppm_group_id'=>$ppmGroupId, 'wo_task_severity'=>$woTaskSeverity, 'wo_task_type'=>$woTaskType, 'wo_task_max_assistant'=>$woTaskMaxAssistant),
+                array('wo_task_id'=>$woTaskId));
+
+            $woTaskNo = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'wo_task_no', null, 1);
+            return array(
+                'woTaskNo'=>$woTaskNo,
+                'userFirstName'=>!empty($woTaskAssignedTo)?$arrUserFullName[intval($woTaskAssignedTo)]:'',
+                'severityName'=>!empty($woTaskSeverity)?$arrSeverity[intval($woTaskSeverity)]:'',
+                'woTaskType'=>!empty($woTaskType)?$arrTaskType[intval($woTaskType)]:''
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param string $severityId
      * @return array
      * @throws Exception
