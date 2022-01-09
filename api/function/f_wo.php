@@ -2928,7 +2928,20 @@ class Class_wo {
             $isTimeExceeded = false;
 
             $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$this->woTaskId));
-            $woMinExecutionTime = $woTask['woTaskMinExecTime'];
+            if ($woTask['woTaskSeverity'] !== '' && $woTask['woTaskTimeCreated'] !== '') {
+                $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['siteId']), 'client_id');
+                $severityHours = Class_db::getInstance()->db_select_col('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$woTask['woTaskSeverity']), 'client_severity_hour');
+                $minExecutionTime = '0 hour';
+                $maxHours = intval($severityHours);
+                $maxExecutionTime = $maxHours <= 1 ? $maxHours.' hour' : $maxHours.' hours';
+
+                $now = new DateTime();
+                $assignTime = new DateTime($woTask['woTaskTimeCreated']);
+                $assignTime->modify($maxExecutionTime);
+                $isTimeExceeded = $now > $assignTime;
+            }
+
+            /*$woMinExecutionTime = $woTask['woTaskMinExecTime'];
             $woMaxExecutionTime = $woTask['woTaskMaxExecTime'];
 
             if ($woMinExecutionTime !== '') {
@@ -2964,7 +2977,7 @@ class Class_wo {
                     $assignTime->modify($maxExecutionTime);
                     $isTimeExceeded = $now > $assignTime;
                 }
-            }
+            }*/
 
             return array('minExecutionTime'=>$minExecutionTime, 'maxExecutionTime'=>$maxExecutionTime, 'isTimeExceeded'=>$isTimeExceeded);
         }
