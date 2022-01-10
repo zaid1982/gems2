@@ -58,6 +58,10 @@ try {
                 $result = $fn_wo->get_section_status_m_v2($urlArr[2]);
             } else if ($urlArr[1] === 'assign_and_severity') {
                 $result = $fn_wo->get_wo_assign_severity_m_v2($urlArr[2]);
+            } else if ($urlArr[1] === 'assistant_dropdown_list') {
+                $result = $fn_wo->get_wo_assistant_dropdown_m($urlArr[2]);
+            } else if ($urlArr[1] === 'assistant_list') {
+                $result = $fn_wo->get_wo_assistant_list_m($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }

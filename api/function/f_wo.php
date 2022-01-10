@@ -3101,4 +3101,53 @@ class Class_wo {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_assistant_dropdown_m ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            $assistantList = array();
+            $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId), '', 1);
+            $assistantDropdownArr = Class_db::getInstance()->db_select2('mw_ppm_group_user',
+                array('ppm_group_user.ppm_group_id'=>$woTask['ppmGroupId'], 'ppm_group_user.user_id'=>'<>'.$woTask['woTaskAssignedTo'], 'user_status'=>'1'), 'user_first_name');
+            foreach ($assistantDropdownArr as $assistantDropdown) {
+                $assistantList[] = array('userId'=>$assistantDropdown['userId'], 'userFullName'=>$assistantDropdown['userFirstName']);
+            }
+            return $assistantList;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_assistant_list_m ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            $userFullNameArr = $this->fn_general->getUserFullName();
+            $assistantList = array();
+            $woTaskAssistArr = Class_db::getInstance()->db_select2('wo_task_assist', array('wo_task_id'=>$woTaskId));
+            foreach ($woTaskAssistArr as $woTaskAssist) {
+                $assistantList[] = array('userId'=>$woTaskAssist['userId'], 'userFullName'=>$userFullNameArr[intval($woTaskAssist['userId'])]);
+            }
+            return $assistantList;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
