@@ -4,6 +4,7 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
+require_once 'function/f_wo_task_assist.php';
 require_once 'function/f_wo.php';
 
 $api_name = 'api_wo_v2';
@@ -15,14 +16,17 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_wo = new Class_wo();
+$fn_woTaskAssist = new Class_wo_task_assist();
+$fn_woTask = new Class_wo();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_wo->__set('constant', $constant);
-    $fn_wo->__set('fn_general', $fn_general);
+    $fn_woTaskAssist->__set('constant', $constant);
+    $fn_woTaskAssist->__set('fn_general', $fn_general);
+    $fn_woTask->__set('constant', $constant);
+    $fn_woTask->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -52,12 +56,10 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'execution_info') {
-                $result = $fn_wo->get_execution_info($urlArr[2]);
-            } else if ($urlArr[1] === 'section_assign') {
-                $result = $fn_wo->get_section_status_m_v2($urlArr[2]);
-            } else if ($urlArr[1] === 'assign_and_severity') {
-                $result = $fn_wo->get_wo_assign_severity_m_v2($urlArr[2]);
+            if ($urlArr[1] === 'dropdown_list') {
+                $result = $fn_woTaskAssist->getWoAssistantDropdownM($urlArr[2]);
+            } else if ($urlArr[1] === 'assistant_list') {
+                $result = $fn_woTaskAssist->getWoAssistantListM($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
@@ -69,23 +71,20 @@ try {
     }
     else if ('POST' === $request_method) {
         $params = $_POST;
-        if (!isset ($urlArr[1])) {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-        }
-
-        if ($urlArr[1] === 'save_assigned_technician') {
-            Class_db::getInstance()->db_beginTransaction();
-            $is_transaction = true;
-            $returnVal = $fn_wo->save_assigned_technician_m_v2($urlArr[2], $params);
-            $fn_general->save_audit('110', $userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName'].', category = '.$returnVal['woTaskType'].', max assistant = '.$params['woTaskMaxAssistant']);
-            Class_db::getInstance()->db_commit();
-            $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-        }
-
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $fn_woTaskAssist->addWoTaskAssists($params);
+        $woTask = $fn_woTask->getWoTask($params['woTaskId']);
+        $userFullNameArr = $fn_general->getUserFullName();
+        $assistant = $params['assistant'];
+        $fn_general->save_audit('184', $userId, 'Work Order no. = '.$woTask['woTaskNo'].', assistant = '.$userFullNameArr[$assistant]);
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_WO_ADD_ASSISTANT;
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
+
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

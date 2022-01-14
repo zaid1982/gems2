@@ -227,6 +227,7 @@ class Class_constant {
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your mobile and email.';
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';
+    const SUC_WO_ADD_ASSISTANT = 'Assistants successfully added';
     const SUC_WO_SAVE_WO_SEVERITY = 'Work Order severity successfully saved';
     const SUC_WO_SAVE_WO_RECTIFICATION_TIME = 'Rectification time successfully saved';
     const SUC_WO_SAVE_WO_REPAIR_WORK = 'Work Order repair work successfully saved';
