@@ -7,7 +7,7 @@ require_once 'function/f_login.php';
 require_once 'function/f_wo_task_assist.php';
 require_once 'function/f_wo.php';
 
-$api_name = 'api_wo_v2';
+$api_name = 'api_wo_task_assist';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -34,7 +34,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'wo_v2') {
+        if ($param === 'wo_task_assist') {
             break;
         }
         array_shift($urlArr);
@@ -84,7 +84,18 @@ try {
         $form_data['success'] = true;
     }
     else if ('DELETE' === $request_method) {
-
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $fn_woTaskAssist->deleteWoTaskAssist($urlArr[1]);
+        $woTask = $fn_woTask->getWoTask($urlArr[1]);
+        $fn_general->save_audit('185', $userId, 'Work Order no. = '.$woTask['woTaskNo']);
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_WO_DELETE_ASSISTANT;
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

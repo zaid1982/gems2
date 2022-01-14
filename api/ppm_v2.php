@@ -53,7 +53,7 @@ try {
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'execution_info') {
-                $result = $fn_ppm->get_execution_info($urlArr[2]);
+                $result = $fn_ppm->getExecutionInfo($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }

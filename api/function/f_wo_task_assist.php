@@ -110,7 +110,7 @@ class Class_wo_task_assist {
             $assistantList = array();
             $woTaskAssistArr = Class_db::getInstance()->db_select2('wo_task_assist', array('wo_task_id'=>$woTaskId));
             foreach ($woTaskAssistArr as $woTaskAssist) {
-                $assistantList[] = array('userId'=>$woTaskAssist['userId'], 'userFullName'=>$userFullNameArr[intval($woTaskAssist['userId'])]);
+                $assistantList[] = array('woTaskAssistId'=>$woTaskAssist['woTaskAssistId'], 'userId'=>$woTaskAssist['userId'], 'userFullName'=>$userFullNameArr[intval($woTaskAssist['userId'])]);
             }
             return $assistantList;
         }
@@ -132,6 +132,22 @@ class Class_wo_task_assist {
             if (Class_db::getInstance()->db_count('wo_task_assist', array('wo_task_id'=>$params['woTaskId'], 'user_id'=>$params['assistant'])) == 0) {
                 Class_db::getInstance()->db_insert('wo_task_assist', array('wo_task_id'=>$params['woTaskId'], 'user_id'=>$params['assistant']));
             }
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $woTaskAssistId
+     * @return void
+     * @throws Exception
+     */
+    public function deleteWoTaskAssist ($woTaskAssistId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskAssistId));
+            Class_db::getInstance()->db_delete('wo_task_assist', array('wo_task_assist_id'=>$woTaskAssistId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

@@ -438,7 +438,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function get_section_status_m_v2 ($woTaskId) {
+    public function getSectionStatusV2M ($woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskId));
@@ -898,7 +898,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function save_assigned_technician_m_v2 ($woTaskId, $params=array()) {
+    public function saveAssignedTechnicianV2M ($woTaskId, $params=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -1189,7 +1189,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function get_wo_assign_severity_m_v2 ($woTaskId) {
+    public function getWoAssignSeverityV2M ($woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -3088,7 +3088,7 @@ class Class_wo {
      * @return array
      * @throws Exception
      */
-    public function get_execution_info ($woTaskId) {
+    public function getExecutionInfo ($woTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -3143,6 +3143,22 @@ class Class_wo {
             );
         }
         catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $woTaskId
+     * @return void
+     * @throws Exception
+     */
+    public function saveWoTaskDoneAssistant ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_done_assistant'=>'1'), array('wo_task_id'=>$woTaskId));
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }

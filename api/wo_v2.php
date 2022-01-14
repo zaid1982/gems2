@@ -53,11 +53,11 @@ try {
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'execution_info') {
-                $result = $fn_wo->get_execution_info($urlArr[2]);
+                $result = $fn_wo->getExecutionInfo($urlArr[2]);
             } else if ($urlArr[1] === 'section_assign') {
-                $result = $fn_wo->get_section_status_m_v2($urlArr[2]);
+                $result = $fn_wo->getSectionStatusV2M($urlArr[2]);
             } else if ($urlArr[1] === 'assign_and_severity') {
-                $result = $fn_wo->get_wo_assign_severity_m_v2($urlArr[2]);
+                $result = $fn_wo->getWoAssignSeverityV2M($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
@@ -76,10 +76,18 @@ try {
         if ($urlArr[1] === 'save_assigned_technician') {
             Class_db::getInstance()->db_beginTransaction();
             $is_transaction = true;
-            $returnVal = $fn_wo->save_assigned_technician_m_v2($urlArr[2], $params);
-            $fn_general->save_audit('110', $userId, 'Work Order no. = '.$returnVal['woTaskNo'].', technician = '.$returnVal['userFirstName'].', severity = '.$returnVal['severityName'].', category = '.$returnVal['woTaskType'].', max assistant = '.$params['woTaskMaxAssistant']);
+            $returnVal = $fn_wo->saveAssignedTechnicianV2M($urlArr[2], $params);
+            $fn_general->save_audit('110', $userId, 'Work Order no. = ' . $returnVal['woTaskNo'] . ', technician = ' . $returnVal['userFirstName'] . ', severity = ' . $returnVal['severityName'] . ', category = ' . $returnVal['woTaskType'] . ', max assistant = ' . $params['woTaskMaxAssistant']);
             Class_db::getInstance()->db_commit();
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
+        } else if ($urlArr[1] === 'save_assistant_list') {
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_wo->saveWoTaskDoneAssistant($urlArr[2]);
+            $woTask = $fn_wo->getWoTask($urlArr[2]);
+            $fn_general->save_audit('186', $userId, 'Work Order no. = ' . $woTask['woTaskNo']);
+            Class_db::getInstance()->db_commit();
+            $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSISTANTS;
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }

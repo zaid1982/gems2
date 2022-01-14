@@ -2666,7 +2666,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_execution_info ($ppmTaskId) {
+    public function getExecutionInfo ($ppmTaskId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
