@@ -3077,24 +3077,54 @@ class Class_wo {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $this->fn_general->checkEmptyParams(array($woTaskId));
-            $minExecutionTime = '-';
-            $maxExecutionTime = '-';
-            $isTimeExceeded = false;
+            $respondTimeStr = '';
+            $executionTimeStr = '';
+            $respondTimeDisplay = '';
+            $completionTimeDisplay = '';
+            $woExecuteTime = '';
+            $isRespondTimeExceeded = false;
+            $isExecutionTimeExceeded = false;
+            $now = new DateTime();
 
             $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId));
             if ($woTask['woTaskSeverity'] !== '' && $woTask['woTaskTimeCreated'] !== '') {
                 $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['siteId']), 'client_id');
-                $severityHours = Class_db::getInstance()->db_select_col('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$woTask['woTaskSeverity']), 'client_severity_hour');
-                $minExecutionTime = '0 hour';
-                $maxHours = intval($severityHours);
-                $maxExecutionTime = $maxHours <= 1 ? $maxHours.' hour' : $maxHours.' hours';
+                $severity = Class_db::getInstance()->db_select_single2('cli_client_severity', array('client_id'=>$clientId, 'severity_id'=>$woTask['woTaskSeverity']));
+                $respondMinute = intval($severity['clientSeverityRespondTime']);
+                $respondTimeStr = $respondMinute <= 1 ? $respondMinute.' minute' : $respondMinute.' minutes';
+                $executionHours = intval($severity['clientSeverityHour']);
+                $executionTimeStr = $executionHours <= 1 ? $executionHours.' hour' : $executionHours.' hours';
 
-                $now = new DateTime();
-                $assignTime = new DateTime($woTask['woTaskTimeCreated']);
-                $assignTime->modify($maxExecutionTime);
-                $isTimeExceeded = $now > $assignTime;
+                $respondTime = new DateTime($woTask['woTaskTimeCreated']);
+                $respondTime->modify($respondTimeStr);
+                $respondTimeDisplay = $respondTime->format('Y-m-d H:i:s');
+                $isRespondTimeExceeded = $now > $respondTime;
+
+                $woExecuteTime = $woTask['woTaskTimeExecuted'];
+                $executeTime = new DateTime($woExecuteTime);
+                if ($woTask['woTaskType'] === '2' && $woTask['woTaskTimeAssigned'] !== '') {
+                    $completionTime = new DateTime($woTask['woTaskTimeAssigned']);
+                    $completionTime->modify($executionTimeStr);
+                    $completionTimeDisplay = $completionTime->format('Y-m-d H:i:s');
+                    $isExecutionTimeExceeded = $woExecuteTime !== '' ? $executeTime > $completionTime : $now > $completionTime;
+                } else if ($woTask['woTaskType'] !== '2') {
+                    $completionTime = new DateTime($woTask['woTaskTimeCreated']);
+                    $completionTime->modify($executionTimeStr);
+                    $completionTimeDisplay = $completionTime->format('Y-m-d H:i:s');
+                    $isExecutionTimeExceeded = $woExecuteTime !== '' ? $executeTime > $completionTime : $now > $completionTime;
+                }
             }
-            return array('minExecutionTime'=>$minExecutionTime, 'maxExecutionTime'=>$maxExecutionTime, 'isTimeExceeded'=>$isTimeExceeded);
+            return array(
+                'responseTimeSla'=>$respondTimeStr,
+                'completionTimeSla'=>$executionTimeStr,
+                'currentTime'=>$now->format('Y-m-d H:i:s'),
+                'assignTime'=>$woTask['woTaskTimeAssigned'],
+                'executeTime'=>$woExecuteTime,
+                'responseTimeDue'=>$respondTimeDisplay,
+                'completionTimeDue'=>$completionTimeDisplay,
+                'responseTimeExceeded'=>$isRespondTimeExceeded,
+                'completionTimeExceeded'=>$isExecutionTimeExceeded
+            );
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
