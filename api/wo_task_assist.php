@@ -73,7 +73,7 @@ try {
         $params = $_POST;
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        $fn_woTaskAssist->addWoTaskAssists($params);
+        $fn_woTaskAssist->addWoTaskAssist($params);
         $woTask = $fn_woTask->getWoTask($params['woTaskId']);
         $userFullNameArr = $fn_general->getUserFullName();
         $assistant = $params['assistant'];

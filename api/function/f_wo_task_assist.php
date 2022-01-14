@@ -125,7 +125,7 @@ class Class_wo_task_assist {
      * @return void
      * @throws Exception
      */
-    public function addWoTaskAssists ($params) {
+    public function addWoTaskAssist ($params) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParamsArray($params, array('woTaskId', 'assistant'));
