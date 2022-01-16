@@ -73,24 +73,21 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
         if ($urlArr[1] === 'save_assigned_technician') {
-            Class_db::getInstance()->db_beginTransaction();
-            $is_transaction = true;
             $returnVal = $fn_wo->saveAssignedTechnicianV2M($urlArr[2], $params);
             $fn_general->save_audit('110', $userId, 'Work Order no. = ' . $returnVal['woTaskNo'] . ', technician = ' . $returnVal['userFirstName'] . ', severity = ' . $returnVal['severityName'] . ', category = ' . $returnVal['woTaskType'] . ', max assistant = ' . $params['woTaskMaxAssistant']);
-            Class_db::getInstance()->db_commit();
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSIGNED_TECHNICIAN;
         } else if ($urlArr[1] === 'save_assistant_list') {
-            Class_db::getInstance()->db_beginTransaction();
-            $is_transaction = true;
             $fn_wo->saveWoTaskDoneAssistant($urlArr[2]);
             $woTask = $fn_wo->getWoTask($urlArr[2]);
             $fn_general->save_audit('186', $userId, 'Work Order no. = ' . $woTask['woTaskNo']);
-            Class_db::getInstance()->db_commit();
             $form_data['errmsg'] = $constant::SUC_WO_SAVE_ASSISTANTS;
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+        Class_db::getInstance()->db_commit();
 
         $form_data['result'] = $result;
         $form_data['success'] = true;

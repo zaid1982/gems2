@@ -152,7 +152,7 @@ function SectionChecklist() {
                     notEmpty: true,
                     digit: true,
                     min: 0,
-                    max: 10
+                    max: 5
                 }
             }
         ];

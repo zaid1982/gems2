@@ -54,12 +54,34 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'execution_info') {
                 $result = $fn_ppm->getExecutionInfo($urlArr[2]);
+            } else if ($urlArr[1] === 'ppm_section_status') {
+                $result = $fn_ppm->getPpmSectionStatusV2M($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $params = $_POST;
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        if ($urlArr[1] === 'assign_ppm_single') {
+            $result = $fn_ppm->assignPpmSingleV2($params, $userId);
+            $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
+            $form_data['errmsg'] = $constant::SUC_PPM_SAVE;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        Class_db::getInstance()->db_commit();
+
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
