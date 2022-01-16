@@ -3015,4 +3015,20 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $ppmTaskId
+     * @return void
+     * @throws Exception
+     */
+    public function savePpmTaskDoneAssistant ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($ppmTaskId));
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>'19'), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'I'));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

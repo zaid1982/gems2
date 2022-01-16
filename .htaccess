@@ -63,3 +63,5 @@ RewriteRule ^ppm_v2/?$ api/ppm_v2.php
 RewriteRule ^ppm_v2/(.+)/?$ api/ppm_v2.php
 RewriteRule ^wo_task_assist/?$ api/wo_task_assist.php
 RewriteRule ^wo_task_assist/(.+)/?$ api/wo_task_assist.php
+RewriteRule ^ppm_task_assist/?$ api/ppm_task_assist.php
+RewriteRule ^ppm_task_assist/(.+)/?$ api/ppm_task_assist.php

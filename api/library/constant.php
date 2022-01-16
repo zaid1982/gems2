@@ -224,6 +224,9 @@ class Class_constant {
     const SUC_PPM_GROUP_USER_ADD = 'PPM Group User successfully added';
     const SUC_PPM_GROUP_USER_DELETE = 'PPM Group User successfully deleted';
     const SUC_PPM_RESCHEDULE = 'PPM Date successfully rescheduled';
+    const SUC_PPM_ADD_ASSISTANT = 'PPM Assistant successfully added';
+    const SUC_PPM_DELETE_ASSISTANT = 'PPM Assistant successfully removed';
+    const SUC_PPM_SAVE_ASSISTANTS = 'PPM Assistant List successfully saved';
 
     const SUC_WO_COMPLAINT_SUBMITTED = 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your mobile and email.';
     const SUC_WO_SAVE_ASSIGNED_TECHNICIAN = 'Assigned technician successfully saved';

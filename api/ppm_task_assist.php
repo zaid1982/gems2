@@ -4,9 +4,10 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
+require_once 'function/f_ppm_task_assist.php';
 require_once 'function/f_ppm.php';
 
-$api_name = 'api_ppm_v2';
+$api_name = 'api_ppm_task_assist';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,14 +16,17 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_ppm = new Class_ppm();
+$fn_ppmTaskAssist = new Class_ppm_task_assist();
+$fn_ppmTask = new Class_ppm();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_ppm->__set('constant', $constant);
-    $fn_ppm->__set('fn_general', $fn_general);
+    $fn_ppmTaskAssist->__set('constant', $constant);
+    $fn_ppmTaskAssist->__set('fn_general', $fn_general);
+    $fn_ppmTask->__set('constant', $constant);
+    $fn_ppmTask->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -30,7 +34,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'ppm_v2') {
+        if ($param === 'ppm_task_assist') {
             break;
         }
         array_shift($urlArr);
@@ -52,10 +56,10 @@ try {
 
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'execution_info') {
-                $result = $fn_ppm->getExecutionInfo($urlArr[2]);
-            } else if ($urlArr[1] === 'ppm_section_status') {
-                $result = $fn_ppm->getPpmSectionStatusV2M($urlArr[2]);
+            if ($urlArr[1] === 'dropdown_list') {
+                $result = $fn_ppmTaskAssist->getPpmAssistantDropdownM($urlArr[2]);
+            } else if ($urlArr[1] === 'assistant_list') {
+                $result = $fn_ppmTaskAssist->getPpmAssistantListM($urlArr[2]);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
@@ -67,26 +71,29 @@ try {
     }
     else if ('POST' === $request_method) {
         $params = $_POST;
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $fn_ppmTaskAssist->addPpmTaskAssist($params);
+        $ppmTask = $fn_ppmTask->getPpmTask($params['ppmTaskId']);
+        $userFullNameArr = $fn_general->getUserFullName();
+        $assistant = $params['assistant'];
+        $fn_general->save_audit('187', $userId, 'PPM Task No = '.$ppmTask['ppmTaskNo'].', assistant = '.$userFullNameArr[$assistant]);
+        Class_db::getInstance()->db_commit();
+        $form_data['errmsg'] = $constant::SUC_PPM_ADD_ASSISTANT;
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('DELETE' === $request_method) {
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
-
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        if ($urlArr[1] === 'assign_ppm_single') {
-            $result = $fn_ppm->assignPpmSingleV2($params, $userId);
-            $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
-            $form_data['errmsg'] = $constant::SUC_PPM_SAVE;
-        } else if ($urlArr[1] === 'save_assistant_list') {
-            $fn_ppm->savePpmTaskDoneAssistant($urlArr[2]);
-            $ppmTask = $fn_ppm->getPpmTask($urlArr[2]);
-            $fn_general->save_audit('189', $userId, 'PPM Task No = ' . $ppmTask['ppmTaskNo']);
-            $form_data['errmsg'] = $constant::SUC_PPM_SAVE_ASSISTANTS;
-        } else {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
-        }
+        $fn_ppmTaskAssist->deletePpmTaskAssist($urlArr[1]);
+        $ppmTask = $fn_ppmTask->getPpmTask($urlArr[1]);
+        $fn_general->save_audit('188', $userId, 'PPM Task No = '.$ppmTask['ppmTaskNo']);
         Class_db::getInstance()->db_commit();
-
+        $form_data['errmsg'] = $constant::SUC_PPM_DELETE_ASSISTANT;
         $form_data['result'] = $result;
         $form_data['success'] = true;
     } else {
