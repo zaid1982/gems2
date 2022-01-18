@@ -149,6 +149,7 @@ function SectionAttendanceConfigSite () {
                 mzCheckFuncParam([_siteId]);
                 siteId = _siteId;
                 self.loadDetails();
+                hasEdit = false;
                 $('.sectionAttendanceConfigSite').show();
                 classFrom.hideMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
@@ -186,5 +187,9 @@ function SectionAttendanceConfigSite () {
 
     this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
         modalAttendanceGroupClass = _modalAttendanceGroupClass;
+    };
+
+    this.setHasEdit = function (_hasEdit) {
+        hasEdit = _hasEdit;
     };
 }

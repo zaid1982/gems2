@@ -182,7 +182,7 @@ function MzValidate(name) {
         }
         else if (type === 'radio') {
             fieldSelector = $("input[name='"+field_id+"']:radio");
-            fieldErrSelector = $('#' + field_id.substr(0, field_id.length-2) + 'Err');
+            fieldErrSelector = $('#' +field_id + 'Err');
         }
         else {
             fieldSelector = $('#' + field_id);
@@ -299,7 +299,7 @@ function MzValidate(name) {
             }
             else if (u.type === 'radio') {
                 fieldSelector = $("input[name='"+u.field_id+"']:radio");
-                fieldErrSelector = $('#' + (u.field_id).substr(0, (u.field_id).length-2) + 'Err');
+                fieldErrSelector = $('#' + u.field_id + 'Err');
             }
             else {
                 fieldSelector = $('#' + u.field_id);
@@ -370,7 +370,7 @@ function MzValidate(name) {
             }
             else if (u.type === 'radio') {
                 fieldSelector = $("input[name='"+fieldId+"']:radio");
-                fieldErrSelector = $('#' + fieldId.substr(0, fieldId.length-2) + 'Err');
+                fieldErrSelector = $('#' + fieldId + 'Err');
             }
             else {
                 fieldSelector = $('#' + fieldId);
@@ -642,6 +642,9 @@ function initiatePages() {
         clear: 'Padam',
         close: 'Batal'*/
     });
+
+    // Time Picker Initialization
+    //$('.timepicker').pickatime({});
 
     const token = sessionStorage.getItem('token');
     const navId = sessionStorage.getItem('navId');
@@ -1308,6 +1311,9 @@ function mzSetFieldValue(name, value, type, label, isInit) {
             for (let i = 0; i < value.length; i++) {
                 $('#chk'+name+value[i]).prop('checked', true);
             }
+        }
+        else if (type === 'radio') {
+            $('#rad'+name+value).prop('checked', true);
         }
         else if (type === 'date') {
             let dateSplit = value.split("/");

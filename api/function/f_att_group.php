@@ -182,6 +182,38 @@ class Class_att_group {
     /**
      * @param array $params
      * @param array $maps
+     * @return array
+     * @throws Exception
+     */
+    private function getAttGroupParams ($params=array(), $maps=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParamsArray($params, array('siteId', 'attGroupName', 'attGroupSupervisor', 'attGroupCategory', 'attGroupHoliday', 'attGroupReqWeekHours',
+                'attGroupShiftMode', 'attGroupDayShiftStart', 'attGroupDayShiftEnd', 'attGroupNightShiftStart', 'attGroupNightShiftEnd', 'attGroupStatus'));
+            $this->fn_general->checkEmptyParamsArray($maps, array('mapCenter', 'zoomLevel'));
+
+            if (array_key_exists('coordinates',$maps) && !empty($maps['coordinates'])) {
+                $params['attGroupMapCenter'] = "|ST_GEOMFROMTEXT('POINT".str_replace(',', ' ', $maps['mapCenter'])."')";
+                $params['attGroupMapZoom'] = $maps['zoomLevel'];
+                $coordinateStr = '';
+                foreach ($maps['coordinates'] as $coordinates) {
+                    $coordinateStr .= $coordinates['lat'].' '.$coordinates['lng'].',';
+                }
+                $coordinateStr .= $maps['coordinates'][0]['lat'].' '.$maps['coordinates'][0]['lng'];
+                $params['attGroupPolygon'] = "|ST_GEOMFROMTEXT('POLYGON((".$coordinateStr."))')";
+            }
+
+            return $this->fn_general->convertToMysqlArrAll($params);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $params
+     * @param array $maps
      * @return mixed
      * @throws Exception
      */
@@ -189,9 +221,8 @@ class Class_att_group {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $constant = $this->constant;
-            $this->fn_general->checkEmptyParamsArray($params, array('siteId', 'attGroupName', 'attGroupSupervisor', 'attGroupCategory', 'attGroupHoliday', 'attGroupReqWeekHours',
-                'attGroupShiftMode', 'attGroupDayShiftStart', 'attGroupDayShiftEnd', 'attGroupNightShiftStart', 'attGroupNightShiftEnd'));
-            $this->fn_general->checkEmptyParamsArray($maps, array('coordinates', 'mapCenter', 'zoomLevel'));
+            $this->fn_general->checkEmptyParamsArray($params, array('siteId', 'attGroupName'));
+            $this->fn_general->checkEmptyParamsArray($maps, array('coordinates'));
 
             if (empty($maps['coordinates'])) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ATT_NO_POLYGON, 31);
@@ -199,16 +230,7 @@ class Class_att_group {
             if (Class_db::getInstance()->db_count('att_group', array('site_id'=>$params['siteId'], 'att_group_name'=>$params['attGroupName'])) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ATT_GROUP_NAME_EXIST, 31);
             }
-
-            $params['attGroupMapCenter'] = "|ST_GEOMFROMTEXT('POINT".str_replace(',', ' ', $maps['mapCenter'])."')";
-            $params['attGroupMapZoom'] = $maps['zoomLevel'];
-            $coordinateStr = '';
-            foreach ($maps['coordinates'] as $coordinates) {
-                $coordinateStr .= $coordinates['lat'].' '.$coordinates['lng'].',';
-            }
-            $coordinateStr .= $maps['coordinates'][0]['lat'].' '.$maps['coordinates'][0]['lng'];
-            $params['attGroupPolygon'] = "|ST_GEOMFROMTEXT('POLYGON((".$coordinateStr."))')";
-            return Class_db::getInstance()->db_insert('att_group', $this->fn_general->convertToMysqlArrAll($params));
+            return Class_db::getInstance()->db_insert('att_group', $this->getAttGroupParams($params, $maps));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -220,18 +242,14 @@ class Class_att_group {
      * @param $attGroupId
      * @param array $params
      * @param array $maps
-     * @return mixed
+     * @return void
      * @throws Exception
      */
     public function updateAttGroup ($attGroupId, $params=array(), $maps=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $constant = $this->constant;
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, '$maps '.json_encode($maps));
-
-            if (array_key_exists('coordinates',$maps)) {
-                throw new Exception('[' . __LINE__ . '] - exist', 31);
-            }
+            $this->fn_general->checkEmptyParams(array($attGroupId));
+            Class_db::getInstance()->db_update('att_group', $this->getAttGroupParams($params, $maps), array('att_group_id'=>$attGroupId));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

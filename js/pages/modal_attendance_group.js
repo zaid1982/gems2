@@ -116,6 +116,14 @@ function ModalAttendanceGroup () {
                 validator: {
                     notEmpty: true
                 }
+            },
+            {
+                field_id: 'radMtgGroupStatus',
+                type: 'radio',
+                name: 'Status',
+                validator: {
+                    notEmptyCheck: true
+                }
             }
         ];
 
@@ -135,6 +143,7 @@ function ModalAttendanceGroup () {
                         mzAjaxRequest2('att_group', 'POST', self.getDataSubmitted());
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             classFrom.genTableGroup();
+                            classFrom.setHasEdit(true);
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {
@@ -154,10 +163,8 @@ function ModalAttendanceGroup () {
                 setTimeout(function () {
                     try {
                         mzAjaxRequest2('att_group/'+attGroupId, 'PUT', self.getDataSubmitted());
-
-                        throw new Error('test');
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
-                            classFrom.genTable();
+                            classFrom.genTableGroup();
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {
@@ -188,7 +195,8 @@ function ModalAttendanceGroup () {
                 attGroupNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
                 attGroupNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
                 attGroupOtApprover: $('#optMtgOtApprover').val(),
-                attGroupRemark: $('#txaMtgGroupRemark').val()
+                attGroupRemark: $('#txaMtgGroupRemark').val(),
+                attGroupStatus: $("input[name='radMtgGroupStatus']:checked").val()
             };
             const maps = {
                 coordinates: googleMapsDrawingPolygonClass.getSelectedCoordinate(),
@@ -274,6 +282,7 @@ function ModalAttendanceGroup () {
                 mzSetFieldValue('MtgGroupNightShiftEnd', attGroup['attGroupNightShiftEnd2'], 'select');
                 mzSetFieldValue('MtgOtApprover', attGroup['attGroupOtApprover'], 'select');
                 mzSetFieldValue('MtgGroupRemark', attGroup['attGroupRemark'], 'textarea');
+                mzSetFieldValue('MtgGroupStatus', attGroup['attGroupStatus'], 'radio');
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup', attGroup['attGroupMapCenterLat'], attGroup['attGroupMapCenterLng'], attGroup['attGroupMapZoom']);
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup', polygon['coordinates'][0]);
                 $('#btnMtgSave').show();

@@ -106,7 +106,9 @@ try {
             $fn_general->save_audit('181', $userId, 'Site ID = '.$urlArr[2]);
             $form_data['errmsg'] = $constant::SUC_SITE_DEACTIVATE;
         } else {
-            $result = $fn_attGroup->updateAttGroup($urlArr[1], $params['data'], $params['maps']);
+            $fn_attGroup->updateAttGroup($urlArr[1], $params['data'], $params['maps']);
+            $fn_general->updateVersion(27);
+            $fn_general->save_audit('190', $userId, 'Attendance Group ID = '.$urlArr[1].', Attendance Group Name = '.$params['data']['attGroupName']);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
 

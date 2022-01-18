@@ -56,34 +56,34 @@
 							<label for="optMtgSupervisor" id="lblMtgSupervisor">Supervisor *</label>
 							<p class="font-small text-danger" id="optMtgSupervisorErr"></p>
 						</div>
-						<div class="col-lg-6 select-outline mb-2" id="optMtgGroupCategory_">
-							<select id="optMtgGroupCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-								<option selected value="" disabled>Please Select *</option>
-								<option value="Civil">Civil</option>
-								<option value="Mechanical">Mechanical</option>
-								<option value="Electrical">Electrical</option>
-								<option value="Operation">Operation</option>
-							</select>
-							<label for="optMtgGroupCategory" id="lblMtgGroupCategory">Category *</label>
-							<p class="font-small text-danger" id="optMtgGroupCategoryErr"></p>
-						</div>
-						<div class="col-lg-6 select-outline mb-2" id="optMtgGroupHoliday_">
-							<select id="optMtgGroupHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-								<option selected value="" disabled>Please Select</option>
-								<option value="Saturday & Sunday">Saturday & Sunday</option>
-								<option value="Sunday">Sunday</option>
-							</select>
-							<label for="optMtgGroupHoliday" id="lblMtgGroupHoliday">Default Weekly Holiday *</label>
-							<p class="font-small text-danger" id="optMtgGroupHolidayErr"></p>
-						</div>
 						<div class="col-lg-6">
 							<div class="row">
+								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupCategory_">
+									<select id="optMtgGroupCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected value="" disabled>Please Select *</option>
+										<option value="Civil">Civil</option>
+										<option value="Mechanical">Mechanical</option>
+										<option value="Electrical">Electrical</option>
+										<option value="Operation">Operation</option>
+									</select>
+									<label for="optMtgGroupCategory" id="lblMtgGroupCategory">Category *</label>
+									<p class="font-small text-danger" id="optMtgGroupCategoryErr"></p>
+								</div>
 								<div class="col-lg-12">
 									<div class="md-form md-outline mt-0">
 										<input type="text" id="txtMtgGroupReqWeekHours" class="form-control">
 										<label for="txtMtgGroupReqWeekHours" id="lblMtgGroupReqWeekHours">Default Required Weekly Hours *</label>
 										<p class="font-small text-danger" id="txtMtgGroupReqWeekHoursErr"></p>
 									</div>
+								</div>
+								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupHoliday_">
+									<select id="optMtgGroupHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected value="" disabled>Please Select</option>
+										<option value="Saturday & Sunday">Saturday & Sunday</option>
+										<option value="Sunday">Sunday</option>
+									</select>
+									<label for="optMtgGroupHoliday" id="lblMtgGroupHoliday">Default Weekly Holiday *</label>
+									<p class="font-small text-danger" id="optMtgGroupHolidayErr"></p>
 								</div>
 								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupShiftMode_">
 									<select id="optMtgGroupShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
@@ -166,8 +166,20 @@
 						</div>
 						<div class="col-lg-6">
 							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
-							<p class="mt-2 font-weight-500">Perimeter for Verification : </p>
-							<div id="mapMtgGroup" class="z-depth-1" style="height: 368px; width: 100%"></div>
+							<h6 class="mt-2 font-weight-500">Perimeter for Verification :</h6>
+							<div id="mapMtgGroup" class="z-depth-1" style="height: 410px; width: 100%"></div>
+							<h6 class="mt-4 mb-0 font-weight-500">Status :</h6>
+							<div class="md-form mt-0 mb-3 ml-3">
+								<div class="form-check form-check-inline">
+									<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus1" value="1">
+									<label class="form-check-label" for="radMtgGroupStatus1">Active</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus2" value="2">
+									<label class="form-check-label" for="radMtgGroupStatus2">Disabled</label>
+								</div>
+							</div>
+							<p class="font-small text-danger mt-0" id="radMtgGroupStatusErr"></p>
 						</div>
                     </div>
                 </form>
