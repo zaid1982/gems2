@@ -107,10 +107,55 @@ class Class_gamification {
     /**
      * @param $year
      * @param $month
-     * @return string
+     * @return array
      * @throws Exception
      */
     public function getGmiMonthlyTop5 ($year, $month) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($year, $month));
+            return Class_db::getInstance()->db_select2('gmi_monthly', array('gmi_year'=>$year, 'gmi_month'=>$month), 'gmi_point_total DESC', '5');
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $year
+     * @param $month
+     * @return array
+     * @throws Exception
+     */
+    public function getGmiMonthlyTop5M ($year, $month) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $result = array();
+            $top5Arr = $this->getGmiMonthlyTop5($year, $month);
+            $arrUserFullName = $this->fn_general->getUserFullName();
+            $arrSite = $this->fn_general->getSiteName();
+            foreach ($top5Arr as $top5) {
+                $row['individualName'] = $arrUserFullName[intval($top5['userId'])];
+                $row['projectName'] = $arrSite[intval($top5['siteId'])];
+                $row['individualCategory'] = Class_db::getInstance()->db_select_col('att_participant', array('user_id'=>$top5['userId']), 'att_participant_category');
+                $row['totalScore'] = $top5['gmiPointTotal'];
+                $result[] = $row;
+            }
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $year
+     * @param $month
+     * @return array
+     * @throws Exception
+     */
+    public function getGmiMonthlyTop5ProjectM ($year, $month) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($year, $month));
@@ -227,7 +272,7 @@ class Class_gamification {
                 $allCompleted = intval($gmi['gmiPpmCompleted']) + intval($gmi['gmiWoCompleted']);
                 $allOnTime = intval($gmi['gmiPpmOnTime']) + intval($gmi['gmiWoOnTime']);
                 $allLate = intval($gmi['gmiPpmLate']) + intval($gmi['gmiWoLate']);
-                $tierDivider = floatval($gmi['gmiWoTierPoint']) > floatval($gmi['gmiPpmTierPoint']) ? floatval($gmi['gmiWoTierPoint']) : floatval($gmi['gmiPpmTierPoint']);
+                $tierDivider = max(floatval($gmi['gmiWoTierPoint']), floatval($gmi['gmiPpmTierPoint']));
                 $gmi['gmiPointCompleted'] = strval((($allCompleted/$allTotal)*$tierDivider)*0.3*10000);
                 $gmi['gmiPointOnTime'] = strval((($allOnTime/$allTotal)*$tierDivider)*0.7*10000);
                 $gmi['gmiPointLate'] = strval(-(($allLate/$allTotal)*$tierDivider)*0.15*10000);

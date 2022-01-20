@@ -63,6 +63,10 @@ try {
             }
         } else if ($urlArr[1] === 'gmi_monthly_top_5') {
             $result = $fn_gamification->getGmiMonthlyTop5($urlArr[2], $urlArr[3]);
+        } else if ($urlArr[1] === 'gmi_monthly_top_5_m') {
+            $result = $fn_gamification->getGmiMonthlyTop5M($urlArr[2], $urlArr[3]);
+        } else if ($urlArr[1] === 'gmi_monthly_top_5_project_m') {
+
         } else if ($urlArr[1] === 'gmi_monthly_history') {
             $result = $fn_gamification->getGmiMonthlyHistory($urlArr[2], $urlArr[3], $urlArr[4]);
         } else {
