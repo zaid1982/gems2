@@ -560,6 +560,11 @@ function SectionChecklist() {
                         checklistIssueNo: $('#txtSckChecklistIssueNo').val(),
                         checklistDesc: $('#txaSckChecklistDesc').val(),
                         checklistGuideline: $('#txaSckChecklistGuideline').val(),
+                        checklistMinExecTimeHour: $('#txtSckChecklistMinExecTimeHour').val(),
+                        checklistMinExecTimeMinute: $('#txtSckChecklistMinExecTimeMinute').val(),
+                        checklistMaxExecTimeHour: $('#txtSckChecklistMaxExecTimeHour').val(),
+                        checklistMaxExecTimeMinute: $('#txtSckChecklistMaxExecTimeMinute').val(),
+                        checklistMaxAssistant: $('#txtSckChecklistMaxAssistant').val(),
                         checklistStatus: checklistStatus
                     };
                     const pdfId = mzAjaxRequest('checklist.php?checklistId='+checklistId, 'PUT', data);
