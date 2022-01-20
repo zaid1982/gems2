@@ -1373,9 +1373,10 @@ class Class_sql
                     IFNULL(ag.total, 0) AS total_group,
                     IFNULL(ap.total, 0) AS total_participant	
                 FROM cli_site s
-                LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_group GROUP BY site_id) ag ON ag.site_id = s.site_id
+                LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_group WHERE att_group_status = 1 GROUP BY site_id) ag ON ag.site_id = s.site_id
                 LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_participant 
                     LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
+                    WHERE att_participant_status = 1 
                     GROUP BY site_id) ap ON ap.site_id = s.site_id";
             } else if ($title === 'vw_gamification_ppm_monthly') {
                 $sql = "SELECT 

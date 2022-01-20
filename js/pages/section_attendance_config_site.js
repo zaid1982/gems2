@@ -5,12 +5,14 @@ function SectionAttendanceConfigSite () {
     let classFrom;
     let hasEdit = false;
     let siteId;
+    let siteName;
     let userId;
     let refStatus;
     let refUser;
     let oTableSacGroup;
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
+    let modalConfirmSubmitClass;
     let isAdmin;
     let isSupervisor;
 
@@ -121,6 +123,32 @@ function SectionAttendanceConfigSite () {
             }
         });
 
+        $('#btnSacActivate').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    modalConfirmSubmitClass.setClassFrom(self);
+                    modalConfirmSubmitClass.load(siteId, 'Activate', 'Are you sure to <b>ACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        $('#btnSacDeactivate').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    modalConfirmSubmitClass.setClassFrom(self);
+                    modalConfirmSubmitClass.load(siteId, 'Deactivate', 'Are you sure to <b>DEACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         $('.sectionAttendanceConfigSite').hide();
     };
 
@@ -128,15 +156,44 @@ function SectionAttendanceConfigSite () {
         try {
             mzCheckFuncParam([siteId]);
             const attSite = mzAjaxRequest2('att_group/site/'+siteId, 'GET');
-            $('#lblSacSiteName').html(attSite['siteName']);
+            siteName = attSite['siteName'];
+            $('#lblSacSiteName').html(siteName);
             $('#lblSacSiteCode').html(attSite['siteCode']);
             $('#lblSacTotalGroup').html(attSite['totalGroup']);
             $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
-            $('#lblSacSiteStatus').html((attSite['siteIsAttendance']==='1'?'Enabled':'Disabled'));
+            if (attSite['siteIsAttendance']==='1') {
+                $('#lblSacSiteStatus').html('Enabled');
+                $('#btnSacActivate').hide();
+                $('#btnSacDeactivate').show();
+            } else {
+                $('#lblSacSiteStatus').html('Disabled');
+                $('#btnSacActivate').show();
+                $('#btnSacDeactivate').hide();
+            }
             modalAttendanceGroupClass.setSiteName(attSite['siteName']);
             modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
 
             self.genTableGroup();
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    };
+
+    this.reloadTopStatistic = function () {
+        try {
+            mzCheckFuncParam([siteId]);
+            const attSite = mzAjaxRequest2('att_group/site/'+siteId, 'GET');
+            $('#lblSacTotalGroup').html(attSite['totalGroup']);
+            $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
+            if (attSite['siteIsAttendance']==='1') {
+                $('#lblSacSiteStatus').html('Enabled');
+                $('#btnSacActivate').hide();
+                $('#btnSacDeactivate').show();
+            } else {
+                $('#lblSacSiteStatus').html('Disabled');
+                $('#btnSacActivate').show();
+                $('#btnSacDeactivate').hide();
+            }
         } catch (e) {
             throw new Error(e.message);
         }
@@ -158,6 +215,37 @@ function SectionAttendanceConfigSite () {
             }
             HideLoader();
         }, 200);
+    };
+
+    this.confirmSubmit = function (_siteId, _flag) {
+        try {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzCheckFuncParam([_siteId, _flag]);
+                    if (_flag === 'Activate') {
+                        mzAjaxRequest2('att_group/activate_site/'+_siteId, 'PUT');
+                        $('#lblSacSiteStatus').html('Enabled');
+                        $('#btnSacActivate').hide();
+                        $('#btnSacDeactivate').show();
+                        hasEdit = true;
+                    } else if (_flag === 'Deactivate') {
+                        mzAjaxRequest2('att_group/deactivate_site/'+_siteId, 'PUT');
+                        $('#lblSacSiteStatus').html('Disabled');
+                        $('#btnSacActivate').show();
+                        $('#btnSacDeactivate').hide();
+                        hasEdit = true;
+                    } else {
+                        toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        } catch (e) {
+            throw new Error(e.message);
+        }
     };
 
     this.genTableGroup = function () {
@@ -187,6 +275,10 @@ function SectionAttendanceConfigSite () {
 
     this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
         modalAttendanceGroupClass = _modalAttendanceGroupClass;
+    };
+
+    this.setModalConfirmSubmitClass = function (_modalConfirmSubmitClass) {
+        modalConfirmSubmitClass = _modalConfirmSubmitClass;
     };
 
     this.setHasEdit = function (_hasEdit) {

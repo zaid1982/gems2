@@ -153,24 +153,6 @@ function MainAttendanceConfig () {
         }
     };
 
-    this.siteDeactivate = function (_siteId) {
-        try {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    mzCheckFuncParam([_siteId]);
-                    mzAjaxRequest2('att_group/deactivate_site/'+_siteId, 'PUT');
-                    self.genTable();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
-        } catch (e) {
-            throw new Error(e.message);
-        }
-    };
-
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };
