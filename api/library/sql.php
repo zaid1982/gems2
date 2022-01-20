@@ -1469,6 +1469,15 @@ class Class_sql
                     FROM att_participant GROUP BY att_group_id
                 ) participant ON participant.att_group_id = att_group.att_group_id
                 ";
+            } else if ($title === 'vw_gmi_monthly_project_m') {
+                $sql = "SELECT 
+                        cli_site.site_name,
+                        SUM(gmi_monthly.gmi_point_total) AS total_score
+                    FROM gmi_monthly 
+                    LEFT JOIN cli_site ON cli_site.site_id = gmi_monthly.site_id
+                    WHERE gmi_year = [yearNo] AND gmi_month = [monthNo] 
+                    GROUP BY gmi_monthly.site_id
+                    ";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
