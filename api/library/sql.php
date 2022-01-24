@@ -1378,6 +1378,18 @@ class Class_sql
                     LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
                     WHERE att_participant_status = 1 
                     GROUP BY site_id) ap ON ap.site_id = s.site_id";
+            } else if ($title === 'vw_att_participant_site') {
+                $sql = "SELECT
+                    u.user_first_name,
+                    up.user_contact_no,
+                    up.user_email,
+                    d.designation_desc,
+                    IFNULL(p.att_participant_status, 11) AS participant_status,
+                    p.*
+                FROM sys_user u
+                LEFT JOIN att_participant p ON p.user_id = u.user_id
+                LEFT JOIN sys_user_profile up ON up.user_id = u.user_id
+                LEFT JOIN ref_designation d ON d.designation_id = up.designation_id";
             } else if ($title === 'vw_gamification_ppm_monthly') {
                 $sql = "SELECT 
                     p.ppm_task_assigned_to,

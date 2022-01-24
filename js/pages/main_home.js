@@ -1053,7 +1053,8 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(17).search(this.ppmGroupId, true, false).draw();
+                                            /* Search with regex */
+                                            oTableWo.column(17).search('^('+this.ppmGroupId+')$', true, false).draw();
                                         }
                                     }
                                 }
