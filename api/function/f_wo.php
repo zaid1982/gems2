@@ -3114,12 +3114,19 @@ class Class_wo {
                 $respondTime = new DateTime($woTask['woTaskTimeCreated']);
                 $respondTime->modify($respondTimeStr);
                 $respondTimeDisplay = $respondTime->format('Y-m-d H:i:s');
-                $isRespondTimeExceeded = $now > $respondTime;
+
+                $woAssignTime = $woTask['woTaskTimeAssigned'];
+                $completionTime = new DateTime($woAssignTime);
+                if ($woAssignTime !== '') {
+                    $isRespondTimeExceeded = $completionTime > $respondTime;
+                } else {
+                    $isRespondTimeExceeded = $now > $respondTime;
+                }
 
                 $woExecuteTime = $woTask['woTaskTimeExecuted'];
                 $executeTime = new DateTime($woExecuteTime);
-                if ($woTask['woTaskType'] === '2' && $woTask['woTaskTimeAssigned'] !== '') {
-                    $completionTime = new DateTime($woTask['woTaskTimeAssigned']);
+                if ($woTask['woTaskType'] === '2' && $woAssignTime !== '') {
+                    $completionTime = new DateTime($woAssignTime);
                     $completionTime->modify($executionTimeStr);
                     $completionTimeDisplay = $completionTime->format('Y-m-d H:i:s');
                     $isExecutionTimeExceeded = $woExecuteTime !== '' ? $executeTime > $completionTime : $now > $completionTime;
@@ -3134,7 +3141,7 @@ class Class_wo {
                 'responseTimeSla'=>$respondTimeStr,
                 'completionTimeSla'=>$executionTimeStr,
                 'currentTime'=>$now->format('Y-m-d H:i:s'),
-                'assignTime'=>$woTask['woTaskTimeAssigned'],
+                'assignTime'=>$woAssignTime,
                 'executeTime'=>$woExecuteTime,
                 'responseTimeDue'=>$respondTimeDisplay,
                 'completionTimeDue'=>$completionTimeDisplay,
