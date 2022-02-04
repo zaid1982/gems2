@@ -1,6 +1,6 @@
 <?php
 
-class Class_att_participant {
+class Class_user_profile {
 
     private $constant;
     private $fn_general;
@@ -72,47 +72,15 @@ class Class_att_participant {
     }
 
     /**
-     * @param $attParticipantId
-     * @return string
-     * @throws Exception
-     */
-    public function getAttParticipant ($attParticipantId) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($attParticipantId));
-            return Class_db::getInstance()->db_select_single2('att_participant', array('att_participant_id'=>$attParticipantId));
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
      * @param $userId
      * @return string
      * @throws Exception
      */
-    public function getAttParticipantByUserId ($userId) {
+    public function getProfileUserId ($userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId));
-            return Class_db::getInstance()->db_select_single2('att_participant', array('user_id'=>$userId, 'att_participant_status'=>'1'));
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param $siteId
-     * @return string
-     * @throws Exception
-     */
-    public function getAttParticipantSite($siteId) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($siteId));
-            return Class_db::getInstance()->db_select2('vw_att_participant_site', array('site_id'=>$siteId));
+            return Class_db::getInstance()->db_select_single2('sys_user_profile', array('user_id'=>$userId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

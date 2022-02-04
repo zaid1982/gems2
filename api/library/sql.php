@@ -1384,7 +1384,7 @@ class Class_sql
                     up.user_contact_no,
                     up.user_email,
                     d.designation_desc,
-                    IFNULL(p.att_participant_status, 11) AS participant_status,
+                    IFNULL(p.att_participant_status, 52) AS participant_status,
                     p.*
                 FROM sys_user u
                 LEFT JOIN att_participant p ON p.user_id = u.user_id

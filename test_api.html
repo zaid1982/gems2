@@ -16,39 +16,40 @@
 
 <script type="text/javascript">
 
-$.ajax({
-    url: 'api/m_wo.php?type=section_status&woTaskId=15553',
-    type: 'GET',
-    //contentType: 'application/json',
-    headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJpbnZlbnRvcnlfc2FtcGxlMVwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2MjA2NDEzNzYsImV4cCI6MTYyMDY0MTM4Nn0.6digRxPmkG32vLctmmAMtBxdqREubLspAHY-A1wRpW0',
-    //    deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-	//headers : {'authorization': 'Bearer e49ZjGgX8oI:APA91bFdlEMJJX7hxPbev7wyQrnFNe_Z6DWW8B-hcUBPloU9NpSHTv5vYbSUdR83L5pGdWvs_hQ0K3G8qqT_HsANeGb5xoxw7vW3WMXrKsIq83Fb34UWjC1-qPxoLvN7J4jwM20ovKRD',
-		deviceid:'3a67b5cd5924ff77'},
-    data: '',
-    dataType: 'json',
-    success: function (resp) {
-        console.log(resp);
-    },
-    error: function () {
-        errMsg = _ALERT_MSG_ERROR_DEFAULT;
-    }
-});
+    $.ajax({
+        //url: 'api/m_ppm.php',
+        url: 'gamification/gmi_monthly_top_5_project_m/2021/12',
+        type: 'GET',
+        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJpbnZlbnRvcnlfc2FtcGxlMVwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2NDI3MTg0NjUsImV4cCI6MTY0MjcxODQ3NX0.YxIWxOO0W4KBqyBCOTVngLO44-G8Bxag_zfei3VZh9k',
+            deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+        data:
+        {
+           /* ppmTaskId: '771266',
+            assistant: '950'*/
+        }
+        ,
+        dataType: 'json',
+        success: function (resp) {
+            console.log(resp);
+        },
+        error: function (resp) {
+            console.log(resp);
+        }
+    });
 
-
-/* $.ajax({
-    url: 'api/m_login.php',
-    type: 'POST',
-    //contentType: 'application/json',
-    headers: '',
-    data: {action:'login', username:'admin', password:'password', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-    dataType: 'json',
-    success: function (resp) {
-        console.log(resp);
-    },
-    error: function () {
-        errMsg = _ALERT_MSG_ERROR_DEFAULT;
-    }
-});  */
-
-
+   /*$.ajax({
+        url: 'api/m_login.php',
+        type: 'POST',
+        //contentType: 'application/json',
+        headers: '',
+        data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+        dataType: 'json',
+        success: function (resp) {
+            console.log(resp);
+        },
+        error: function () {
+            errMsg = _ALERT_MSG_ERROR_DEFAULT;
+        }
+    });*/
+//https://gems.globalfm.com.my/api/m_login.php
 </script>

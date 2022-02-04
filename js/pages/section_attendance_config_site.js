@@ -13,6 +13,7 @@ function SectionAttendanceConfigSite () {
     let oTableSacGroup;
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
+    let modalAttendanceParticipantClass;
     let modalConfirmSubmitClass;
     let isAdmin;
     let isSupervisor;
@@ -47,7 +48,7 @@ function SectionAttendanceConfigSite () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 50,
             autoWidth: false,
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+            dom: "<'row'<'col-7 px-0'B><'col-5 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -132,7 +133,7 @@ function SectionAttendanceConfigSite () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 50,
             autoWidth: false,
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
+            dom: "<'row'<'col-7 px-0 pb-2'B><'col-5 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -148,7 +149,7 @@ function SectionAttendanceConfigSite () {
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: 'All', className: 'btn btn-outline-blue btn-sm px-2 ml-3', attr: { id: 'btnSacParticipantStatusAll' }},
                 { text: 'Assigned', className: 'btn btn-outline-success btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusAssigned' }},
-                { text: 'Not Assigned', className: 'btn btn-outline-grey btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusNotAssigned' }}
+                { text: 'Unregistered', className: 'btn btn-outline-grey btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusNotAssigned' }}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -167,8 +168,8 @@ function SectionAttendanceConfigSite () {
                 });
                 $('#btnSacParticipantStatusNotAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
-                    oTableSacParticipant.column(10).search('^(Not Assigned)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Participant List (Not Assigned)')
+                    oTableSacParticipant.column(10).search('^(Unregistered)$', true, false).draw();
+                    $('#dtSacParticipantTitle').text('Participant List (Unregistered)')
                 });
             },
             aoColumns: [
@@ -184,7 +185,7 @@ function SectionAttendanceConfigSite () {
                 {mData: 'attParticipantShift'},
                 {mData: 'attParticipantCompetency'},
                 {mData: 'attParticipantCidbCardExpiry'},
-                {mData: 'participantStatus', width: '6%', mRender: function(data) {
+                {mData: 'participantStatus', width: '8%', mRender: function(data) {
                         return refStatus[parseInt(data)]['statusDesc'];
                     }}
             ]
@@ -200,45 +201,39 @@ function SectionAttendanceConfigSite () {
         let oTableSacParticipantTbody = $('#dtSacParticipant tbody');
         oTableSacParticipantTbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtSacParticipant').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
-                //modalAttendanceGroupClass.edit(data['attGroupId'], siteId);
+            if (typeof data !== 'undefined' && (isAdmin || isSupervisor)) {
+                modalAttendanceParticipantClass.setParticipantName(data['userFirstName']);
+                modalAttendanceParticipantClass.setSiteName(siteName);
+                modalAttendanceParticipantClass.load(data['userId'], data['attParticipantId']);
             }
         });
         oTableSacParticipantTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtSacParticipant').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
+            if (typeof data !== 'undefined' && (isAdmin || isSupervisor)) {
                 const cell = $(evt.target).closest('td');
                 cell.css('cursor', 'pointer');
                 cell.attr('data-toggle', 'tooltip');
-                cell.attr('title', 'Click to edit '+data['attGroupName']+' configuration');
+                cell.attr('title', 'Click to edit '+data['userFirstName']+' configuration');
                 $('[data-toggle="tooltip"]').tooltip();
             }
         });
 
         $('#btnSacActivate').on('click', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    modalConfirmSubmitClass.setClassFrom(self);
-                    modalConfirmSubmitClass.load(siteId, 'Activate', 'Are you sure to <b>ACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
+            try {
+                modalConfirmSubmitClass.setClassFrom(self);
+                modalConfirmSubmitClass.load(siteId, 'Activate', 'Are you sure to <b>ACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         $('#btnSacDeactivate').on('click', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    modalConfirmSubmitClass.setClassFrom(self);
-                    modalConfirmSubmitClass.load(siteId, 'Deactivate', 'Are you sure to <b>DEACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
+            try {
+                modalConfirmSubmitClass.setClassFrom(self);
+                modalConfirmSubmitClass.load(siteId, 'Deactivate', 'Are you sure to <b>DEACTIVATE</b> attendance for <b>'+siteName+'</b> site?');
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         $('.sectionAttendanceConfigSite').hide();
@@ -378,6 +373,10 @@ function SectionAttendanceConfigSite () {
 
     this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
         modalAttendanceGroupClass = _modalAttendanceGroupClass;
+    };
+
+    this.setModalAttendanceParticipantClass = function (_modalAttendanceParticipantClass) {
+        modalAttendanceParticipantClass = _modalAttendanceParticipantClass;
     };
 
     this.setModalConfirmSubmitClass = function (_modalConfirmSubmitClass) {

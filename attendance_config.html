@@ -86,6 +86,7 @@
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
     <div class="includeHtml" id="h-modal_attendance_group"></div>
+    <div class="includeHtml" id="h-modal_attendance_participant"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -124,6 +125,7 @@
     let changePasswordClass_;
     let confirmSubmitClass_;
     let modalAttendanceGroupClass_;
+    let modalAttendanceParticipantClass_;
     let sectionAttendanceConfigSiteClass_;
     let attendanceConfigClass_;
     let googleMapsDrawingPolygonClass_;
@@ -138,6 +140,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 confirmSubmitClass_ = new ModalConfirmSubmit();
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
+                modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 sectionAttendanceConfigSiteClass_ = new SectionAttendanceConfigSite();
                 attendanceConfigClass_ = new MainAttendanceConfig();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
@@ -153,10 +156,13 @@
                 modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
                 modalAttendanceGroupClass_.init();
 
+                modalAttendanceParticipantClass_.init();
+
                 sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);
                 sectionAttendanceConfigSiteClass_.setRefUser(refUser_);
                 sectionAttendanceConfigSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
+                sectionAttendanceConfigSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
                 sectionAttendanceConfigSiteClass_.setClassFrom(attendanceConfigClass_);
                 sectionAttendanceConfigSiteClass_.init();
 
@@ -175,6 +181,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_config_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

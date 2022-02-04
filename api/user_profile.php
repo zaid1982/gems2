@@ -4,9 +4,9 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_att_participant.php';
+require_once 'function/f_user_profile.php';
 
-$api_name = 'api_att_participant';
+$api_name = 'api_user_profile';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
@@ -15,14 +15,14 @@ $userId = '';
 $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
-$fn_attParticipant = new Class_att_participant();
+$fn_userProfile = new Class_user_profile();
 
 try {
     $fn_general->__set('constant', $constant);
     $fn_login->__set('constant', $constant);
     $fn_login->__set('fn_general', $fn_general);
-    $fn_attParticipant->__set('constant', $constant);
-    $fn_attParticipant->__set('fn_general', $fn_general);
+    $fn_userProfile->__set('constant', $constant);
+    $fn_userProfile->__set('fn_general', $fn_general);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -30,7 +30,7 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'att_participant') {
+        if ($param === 'user_profile') {
             break;
         }
         array_shift($urlArr);
@@ -53,11 +53,9 @@ try {
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'by_user_id') {
-                $result = $fn_attParticipant->getAttParticipantByUserId($urlArr[2]);
-            } else if ($urlArr[1] === 'by_site') {
-                $result = $fn_attParticipant->getAttParticipantSite($urlArr[2]);
+                $result = $fn_userProfile->getProfileUserId($urlArr[2]);
             } else {
-                $result = $fn_attParticipant->getAttParticipant($urlArr[1]);
+                throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
             }
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');

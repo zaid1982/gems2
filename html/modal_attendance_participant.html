@@ -1,0 +1,133 @@
+<div class="modal fade" id="modal_attendance_participant" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info modal-lg mt-3 pt-5 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMtpModalTitle"><i class="fas fa-user-edit text-white mr-2"></i> Edit Attendance Participant</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMtp" class="mt-2" autocomplete="off">
+                    <div class="card z-depth-2">
+                        <div class="card-body blue-grey lighten-5 pt-4 pb-0">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="md-form mt-0">
+                                        <input type="text" id="txtMtpParticipantName" class="form-control" disabled>
+                                        <label for="txtMtpParticipantName" id="lblMtpParticipantName" class="active">Participant Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="md-form mt-0">
+                                        <input type="text" id="txtMtpSiteName" class="form-control" disabled>
+                                        <label for="txtMtpSiteName" id="lblMtpSiteName" class="active">Site Name</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4_5">
+                        <div class="col-lg-12 select-outline mb-2" id="optMtpGroup_">
+                            <select id="optMtpGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <label for="optMtpGroup" id="lblMtpGroup">Attendance Group *</label>
+                            <p class="font-small text-danger" id="optMtpGroupErr"></p>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpGfId" class="form-control">
+                                <label for="txtMtpGfId" id="lblMtpGfId">GF ID *</label>
+                                <p class="font-small text-danger" id="txtMtpGfIdErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2" id="optMtpDesignation_">
+                            <select id="optMtpDesignation" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <label for="optMtpDesignation" id="lblMtpDesignation">Designation *</label>
+                            <p class="font-small text-danger" id="optMtpDesignationErr"></p>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpContactNo" class="form-control">
+                                <label for="txtMtpContactNo" id="lblMtpContactNo">Contact No *</label>
+                                <p class="font-small text-danger" id="txtMtpContactNoErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpEmail" class="form-control">
+                                <label for="txtMtpEmail" id="lblMtpEmail">Email *</label>
+                                <p class="font-small text-danger" id="txtMtpEmailErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2" id="optMtpCategory_">
+                            <select id="optMtpCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select *</option>
+                                <option value="Civil">Civil</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Operation">Operation</option>
+                            </select>
+                            <label for="optMtpCategory" id="lblMtpCategory">Category *</label>
+                            <p class="font-small text-danger" id="optMtpCategoryErr"></p>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpReqWeekHours" class="form-control">
+                                <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
+                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2" id="optMtpHoliday_">
+                            <select id="optMtpHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Saturday & Sunday">Saturday & Sunday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                            <label for="optMtpHoliday" id="lblMtpHoliday">Weekly Holiday *</label>
+                            <p class="font-small text-danger" id="optMtpHolidayErr"></p>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2" id="optMtpShiftMode_">
+                            <select id="optMtpShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Daily Shift">Daily Shift</option>
+                                <option value="Night Shift">Night Shift</option>
+                                <option value="Rotate">Rotate</option>
+                            </select>
+                            <label for="optMtpShiftMode" id="lblMtpShiftMode">Shift Mode *</label>
+                            <p class="font-small text-danger" id="optMtpShiftModeErr"></p>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpYearStartService" class="form-control datepicker">
+                                <label for="txtMtpYearStartService" id="lblMtpYearStartService">Year Start Service</label>
+                                <p class="font-small text-danger" id="txtMtpYearStartServiceErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpCidbExpiry" class="form-control">
+                                <label for="txtMtpCidbExpiry" id="lblMtpCidbExpiry">CIDB Card Expiry</label>
+                                <p class="font-small text-danger" id="txtMtpCidbExpiryErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpCompetency" class="form-control">
+                                <label for="txtMtpCompetency" id="lblMtpCompetency">Competency</label>
+                                <p class="font-small text-danger" id="txtMtpCompetencyErr"></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect btnMtpClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button id="btnMtpSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMtpSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>

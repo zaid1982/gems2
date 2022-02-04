@@ -65,3 +65,5 @@ RewriteRule ^wo_task_assist/?$ api/wo_task_assist.php
 RewriteRule ^wo_task_assist/(.+)/?$ api/wo_task_assist.php
 RewriteRule ^ppm_task_assist/?$ api/ppm_task_assist.php
 RewriteRule ^ppm_task_assist/(.+)/?$ api/ppm_task_assist.php
+RewriteRule ^user_profile/?$ api/user_profile.php
+RewriteRule ^user_profile/(.+)/?$ api/user_profile.php
