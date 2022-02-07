@@ -64,6 +64,37 @@ try {
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
+    }
+    else if ('POST' === $request_method) {
+        $params = $_POST;
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $attParticipantId = $fn_attParticipant->addAttParticipant($params);
+        $fn_general->save_audit('191', $userId, 'Attendance Participant ID = '.$attParticipantId.', Attendance Group ID = '.$params['attGroupId']);
+        $form_data['errmsg'] = $constant::SUC_SUBMITTED;
+        Class_db::getInstance()->db_commit();
+
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
+    }
+    else if ('PUT' === $request_method) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+        $fn_attParticipant->updateAttParticipant($urlArr[1], $params);
+        $fn_general->save_audit('192', $userId, 'Attendance Participant ID = '.$urlArr[1].', Attendance Group ID = '.$params['attGroupId']);
+        $form_data['errmsg'] = $constant::SUC_SAVE;
+        Class_db::getInstance()->db_commit();
+
+        $form_data['result'] = $result;
+        $form_data['success'] = true;
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }

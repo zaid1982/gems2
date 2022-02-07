@@ -148,6 +148,7 @@
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
 
                 googleMapsDrawingPolygonClass_.initMapDrawing('mapMtgGroup');
 
@@ -156,6 +157,8 @@
                 modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
                 modalAttendanceGroupClass_.init();
 
+                modalAttendanceParticipantClass_.setRefDesignation(refDesignation_);
+                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceConfigSiteClass_)
                 modalAttendanceParticipantClass_.init();
 
                 sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);

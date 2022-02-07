@@ -88,6 +88,20 @@ class Class_att_group {
     }
 
     /**
+     * @return array
+     * @throws Exception
+     */
+    public function getAttGroupRef () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            return Class_db::getInstance()->db_select2('vw_ref_att_group', array());
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $attGroupId
      * @return string
      * @throws Exception

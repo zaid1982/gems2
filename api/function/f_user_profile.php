@@ -80,7 +80,10 @@ class Class_user_profile {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId));
-            return Class_db::getInstance()->db_select_single2('sys_user_profile', array('user_id'=>$userId));
+            $userProfile = Class_db::getInstance()->db_select_single2('sys_user_profile', array('user_id'=>$userId));
+            $user = Class_db::getInstance()->db_select_single2('sys_user', array('user_id'=>$userId));
+            $userProfile['siteId'] = $user['siteId'];
+            return $userProfile;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

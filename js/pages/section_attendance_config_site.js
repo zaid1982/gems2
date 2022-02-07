@@ -204,7 +204,7 @@ function SectionAttendanceConfigSite () {
             if (typeof data !== 'undefined' && (isAdmin || isSupervisor)) {
                 modalAttendanceParticipantClass.setParticipantName(data['userFirstName']);
                 modalAttendanceParticipantClass.setSiteName(siteName);
-                modalAttendanceParticipantClass.load(data['userId'], data['attParticipantId']);
+                modalAttendanceParticipantClass.load(data['userIds'], data['attParticipantId'], siteId);
             }
         });
         oTableSacParticipantTbody.delegate('tr', 'mouseenter', function (evt) {

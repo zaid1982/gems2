@@ -118,4 +118,52 @@ class Class_att_participant {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * @param array $params
+     * @return string
+     * @throws Exception
+     */
+    public function addAttParticipant ($params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParamsArray($params, array('userId', 'attGroupId', 'attParticipantCategory', 'attParticipantReqWeekHours', 'attParticipantShiftMode', 'attParticipantShift', 'attParticipantHoliday', 'attParticipantStatus',
+                'userContactNo', 'userEmail', 'designationId'));
+
+            $attParticipantArr = $this->fn_general->convertToMysqlArr($params, array('userId', 'attParticipantGfId', 'attParticipantYearService', 'attParticipantCidbCardExpiry', 'attParticipantCompetency', 'attGroupId', 'attParticipantCategory', 'attParticipantReqWeekHours',
+                'attParticipantShiftMode', 'attParticipantShift', 'attParticipantHoliday', 'attParticipantStatus'));
+            $userProfileArr = $this->fn_general->convertToMysqlArr($params, array('userContactNo', 'userEmail', 'designationId'));
+            Class_db::getInstance()->db_update('sys_user_profile', $userProfileArr, array('user_id'=>$params['userId']));
+            return Class_db::getInstance()->db_insert('att_participant', $attParticipantArr);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $attParticipantId
+     * @param array $params
+     * @return void
+     * @throws Exception
+     */
+    public function updateAttParticipant ($attParticipantId, $params=array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($attParticipantId));
+            $this->fn_general->checkEmptyParamsArray($params, array('userId', 'attGroupId', 'attParticipantCategory', 'attParticipantReqWeekHours', 'attParticipantShiftMode', 'attParticipantShift', 'attParticipantHoliday', 'attParticipantStatus',
+                'userContactNo', 'userEmail', 'designationId'));
+
+            $attParticipantArr = $this->fn_general->convertToMysqlArr($params, array('attParticipantGfId', 'attParticipantYearService', 'attParticipantCidbCardExpiry', 'attParticipantCompetency', 'attGroupId', 'attParticipantCategory', 'attParticipantReqWeekHours',
+                'attParticipantShiftMode', 'attParticipantShift', 'attParticipantHoliday', 'attParticipantStatus'));
+            $userProfileArr = $this->fn_general->convertToMysqlArr($params, array('userContactNo', 'userEmail', 'designationId'));
+            Class_db::getInstance()->db_update('att_participant', $attParticipantArr, array('att_participant_id'=>$attParticipantId));
+            Class_db::getInstance()->db_update('sys_user_profile', $userProfileArr, array('user_id'=>$params['userId']));
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

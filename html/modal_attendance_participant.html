@@ -31,84 +31,42 @@
                         </div>
                     </div>
                     <div class="row mt-4_5">
-                        <div class="col-lg-12 select-outline mb-2" id="optMtpGroup_">
-                            <select id="optMtpGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
-                            <label for="optMtpGroup" id="lblMtpGroup">Attendance Group *</label>
-                            <p class="font-small text-danger" id="optMtpGroupErr"></p>
-                        </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpGfId" class="form-control">
-                                <label for="txtMtpGfId" id="lblMtpGfId">GF ID *</label>
+                                <label for="txtMtpGfId" id="lblMtpGfId">GF ID</label>
                                 <p class="font-small text-danger" id="txtMtpGfIdErr"></p>
                             </div>
                         </div>
-                        <div class="col-lg-6 select-outline mb-2" id="optMtpDesignation_">
+                        <div class="col-lg-8 select-outline mb-2" id="optMtpDesignation_">
                             <select id="optMtpDesignation" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpDesignation" id="lblMtpDesignation">Designation *</label>
                             <p class="font-small text-danger" id="optMtpDesignationErr"></p>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpContactNo" class="form-control">
-                                <label for="txtMtpContactNo" id="lblMtpContactNo">Contact No *</label>
+                                <label for="txtMtpContactNo" id="lblMtpContactNo">Contact No. *</label>
                                 <p class="font-small text-danger" id="txtMtpContactNoErr"></p>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-8">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpEmail" class="form-control">
                                 <label for="txtMtpEmail" id="lblMtpEmail">Email *</label>
                                 <p class="font-small text-danger" id="txtMtpEmailErr"></p>
                             </div>
                         </div>
-                        <div class="col-lg-6 select-outline mb-2" id="optMtpCategory_">
-                            <select id="optMtpCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-                                <option selected value="" disabled>Please Select *</option>
-                                <option value="Civil">Civil</option>
-                                <option value="Mechanical">Mechanical</option>
-                                <option value="Electrical">Electrical</option>
-                                <option value="Operation">Operation</option>
-                            </select>
-                            <label for="optMtpCategory" id="lblMtpCategory">Category *</label>
-                            <p class="font-small text-danger" id="optMtpCategoryErr"></p>
-                        </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMtpReqWeekHours" class="form-control">
-                                <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
-                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 select-outline mb-2" id="optMtpHoliday_">
-                            <select id="optMtpHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-                                <option selected value="" disabled>Please Select</option>
-                                <option value="Saturday & Sunday">Saturday & Sunday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                            <label for="optMtpHoliday" id="lblMtpHoliday">Weekly Holiday *</label>
-                            <p class="font-small text-danger" id="optMtpHolidayErr"></p>
-                        </div>
-                        <div class="col-lg-6 select-outline mb-2" id="optMtpShiftMode_">
-                            <select id="optMtpShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-                                <option selected value="" disabled>Please Select</option>
-                                <option value="Daily Shift">Daily Shift</option>
-                                <option value="Night Shift">Night Shift</option>
-                                <option value="Rotate">Rotate</option>
-                            </select>
-                            <label for="optMtpShiftMode" id="lblMtpShiftMode">Shift Mode *</label>
-                            <p class="font-small text-danger" id="optMtpShiftModeErr"></p>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMtpYearStartService" class="form-control datepicker">
+                                <input type="text" id="txtMtpYearStartService" class="form-control">
                                 <label for="txtMtpYearStartService" id="lblMtpYearStartService">Year Start Service</label>
                                 <p class="font-small text-danger" id="txtMtpYearStartServiceErr"></p>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-8">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMtpCidbExpiry" class="form-control">
+                                <input type="text" id="txtMtpCidbExpiry" class="form-control datepicker">
                                 <label for="txtMtpCidbExpiry" id="lblMtpCidbExpiry">CIDB Card Expiry</label>
                                 <p class="font-small text-danger" id="txtMtpCidbExpiryErr"></p>
                             </div>
@@ -119,6 +77,71 @@
                                 <label for="txtMtpCompetency" id="lblMtpCompetency">Competency</label>
                                 <p class="font-small text-danger" id="txtMtpCompetencyErr"></p>
                             </div>
+                        </div>
+                        <div class="col-lg-12 select-outline mb-2" id="optMtpGroup_">
+                            <select id="optMtpGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <label for="optMtpGroup" id="lblMtpGroup">Attendance Group *</label>
+                            <p class="font-small text-danger" id="optMtpGroupErr"></p>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpCategory_">
+                            <select id="optMtpCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Civil">Civil</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Operation">Operation</option>
+                            </select>
+                            <label for="optMtpCategory" id="lblMtpCategory">Category *</label>
+                            <p class="font-small text-danger" id="optMtpCategoryErr"></p>
+                        </div>
+                        <div class="col-lg-6 divMtpGroupSelected">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpReqWeekHours" class="form-control">
+                                <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
+                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpShiftMode_">
+                            <select id="optMtpShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Daily Shift">Daily Shift</option>
+                                <option value="Night Shift">Night Shift</option>
+                                <option value="Rotate">Rotate</option>
+                            </select>
+                            <label for="optMtpShiftMode" id="lblMtpShiftMode">Shift Mode *</label>
+                            <p class="font-small text-danger" id="optMtpShiftModeErr"></p>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpShift_">
+                            <select id="optMtpShift" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Day">Day</option>
+                                <option value="Night">Night</option>
+                            </select>
+                            <label for="optMtpShift" id="lblMtpShift">Current Shift *</label>
+                            <p class="font-small text-danger" id="optMtpShiftErr"></p>
+                        </div>
+                        <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpHoliday_">
+                            <select id="optMtpHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                                <option selected value="" disabled>Please Select</option>
+                                <option value="Saturday & Sunday">Saturday & Sunday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                            <label for="optMtpHoliday" id="lblMtpHoliday">Weekly Holiday *</label>
+                            <p class="font-small text-danger" id="optMtpHolidayErr"></p>
+                        </div>
+                        <div class="col-lg-12 divMtpGroupSelected">
+                            <h6 class="my-0 font-weight-500">Status :</h6>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMtpStatus" id="radMtpStatus1" value="1">
+                                    <label class="form-check-label" for="radMtpStatus1">Active</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMtpStatus" id="radMtpStatus2" value="2">
+                                    <label class="form-check-label" for="radMtpStatus2">Disabled</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMtpStatusErr"></p>
                         </div>
                     </div>
                 </form>

@@ -1,6 +1,7 @@
 const _ALERT_TITLE_VALIDATION_ERROR = "VALIDATION ERROR";
 const _ALERT_MSG_VALIDATION = "Please make sure all fields filled correctly";
 const _ALERT_TITLE_ERROR = "ERROR";
+const _ALERT_TITLE_WARNING = "WARNING";
 const _ALERT_MSG_ERROR_DEFAULT = "Error on system. Please contact Administrator!";
 const _ALERT_TITLE_SUCCESS = "SUCCESS";
 
@@ -18,6 +19,7 @@ const _ALERT_TITLE_SUCCESS_ACTIVATE = "ACTIVATION SUCCESS";
 const _ALERT_MSG_SUCCESS_ACTIVATE = "Your account has successfully activated. Please login with email as user ID and your registered password.";
 const _ALERT_MSG_SUCCESS_UPDATE_USER = "Your information successfully updated";
 const _ALERT_MSG_ERROR_SITE_NOCITY = "Please select city first";
+const _ALERT_MSG_ROLES_NO_ACCESS = "You are not allowed to perform this operation";
 
 const _DATATABLE_LANGUAGE =  {
     /*info: "Papar muka _START_ hingga _END_ dari _TOTAL_ rekod",
@@ -997,7 +999,7 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
         if (typeof api === 'undefined') {
             rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name});
 		} else if (typeof apiBeautify !== 'undefined' && apiBeautify === true) {
-			rawData = mzAjaxRequest(api, 'GET');
+			rawData = mzAjaxRequest(api, 'GET', '', '', true);
         } else {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
@@ -1281,23 +1283,23 @@ function mzSetFieldValue(name, value, type, label, isInit) {
         $('#txa'+name).summernote('code', '');
     }
 
-    if (value !== '' && value.length !== 0) {
+    if (type === 'select') {
+        if (typeof isInit === 'undefined') {
+            $('#opt'+name).materialSelect('destroy');
+        }
+        $('#opt'+name).val(value);
+        //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
+        $('#lbl'+name).addClass('active');
+        if (typeof isInit === 'undefined') {
+            $('#opt'+name).materialSelect();
+        }
+        $('#opt' + name + 'Pre').addClass('active');
+    }
+    else if (value !== '' && value.length !== 0) {
         if (type === 'text') {
             $('#txt'+name).val(value);
             $('#lbl'+name).addClass('active');
             $('#txt' + name + 'Pre').addClass('active');
-        }
-        else if (type === 'select') {
-            if (typeof isInit === 'undefined') {
-                $('#opt'+name).materialSelect('destroy');
-            }
-            $('#opt'+name).val(value);
-            //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
-            $('#lbl'+name).addClass('active');
-            if (typeof isInit === 'undefined') {
-                $('#opt'+name).materialSelect();
-            }
-            $('#opt' + name + 'Pre').addClass('active');
         }
         else if (type === 'textarea') {
             $('#txa'+name).val(value);

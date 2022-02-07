@@ -1384,7 +1384,8 @@ class Class_sql
                     up.user_contact_no,
                     up.user_email,
                     d.designation_desc,
-                    IFNULL(p.att_participant_status, 52) AS participant_status,
+                    IFNULL(p.att_participant_status, 52) AS participant_status,   
+                    u.user_id AS user_ids,
                     p.*
                 FROM sys_user u
                 LEFT JOIN att_participant p ON p.user_id = u.user_id
@@ -1449,6 +1450,17 @@ class Class_sql
                 LEFT JOIN gmi_monthly g ON g.user_id = w.wo_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
                 WHERE YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY w.wo_task_assigned_to";
+            } else if ($title === 'vw_ref_att_group') {
+                $sql = "SELECT
+                    att_group_id,
+                    site_id,
+                    att_group_name,
+                    att_group_category,
+                    att_group_holiday,
+                    att_group_shift_mode,          
+                    att_group_req_week_hours,
+                    att_group_status
+                FROM att_group";
             } else if ($title === 'vw_att_group') {
                 $sql = "SELECT
                     att_group.att_group_id,

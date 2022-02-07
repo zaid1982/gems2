@@ -131,11 +131,8 @@ function ModalAttendanceGroup () {
         formValidate.registerFields(vData);
 
         $('#btnMtgSubmit').on('click', function () {
-            const coordinates = googleMapsDrawingPolygonClass.getSelectedCoordinate();
             if (!formValidate.validateNow()) {
                 toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
-            } else if (coordinates.length === 0) {
-                toastr['error']('Please make sure site/office Perimeter for attendance verification selected from the Map.', _ALERT_TITLE_ERROR);
             } else {
                 ShowLoader();
                 setTimeout(function () {
@@ -143,6 +140,7 @@ function ModalAttendanceGroup () {
                         mzAjaxRequest2('att_group', 'POST', self.getDataSubmitted());
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
                             classFrom.genTableGroup();
+                            classFrom.reloadTopStatistic();
                             classFrom.setHasEdit(true);
                         }
                         $('#modal_attendance_group').modal('hide');

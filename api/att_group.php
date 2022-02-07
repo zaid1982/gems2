@@ -52,9 +52,9 @@ try {
 
     if ('GET' === $request_method) {
         if (!isset ($urlArr[1])) {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            $result = $fn_attGroup->getAttGroupRef();
         }
-        if ($urlArr[1] === 'site') {
+        else if ($urlArr[1] === 'site') {
             if (isset ($urlArr[2])) {
                 $result = $fn_attGroup->getAttSite($urlArr[2]);
             } else {
@@ -63,7 +63,8 @@ try {
         }
         else if ($urlArr[1] === 'by_site') {
             $result = $fn_attGroup->getAttGroupBySite($urlArr[2]);
-        } else {
+        }
+        else {
             $result = $fn_attGroup->getAttGroup($urlArr[1]);
         }
         $form_data['result'] = $result;
