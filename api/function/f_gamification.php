@@ -199,67 +199,157 @@ class Class_gamification {
             $gmiPpm = Class_db::getInstance()->db_select2('vw_gamification_ppm_monthly', array(), '', '', 0, array('yearNo'=>$year, 'monthNo'=>$month));
             foreach ($gmiPpm as $ppm) {
                 $userId = intval($ppm['ppmTaskAssignedTo']);
-                $gmiMonthly[$userId]['userId'] = $ppm['ppmTaskAssignedTo'];
+                $gmiMonthly[$userId]['userId'] = $userId;
                 $gmiMonthly[$userId]['gmiYear'] = $year;
                 $gmiMonthly[$userId]['gmiMonth'] = $month;
                 $gmiMonthly[$userId]['siteId'] = $ppm['siteId'];
                 $gmiMonthly[$userId]['gmiId'] = $ppm['gmiId'];
-                $gmiMonthly[$userId]['gmiPpmTotal'] = $ppm['ppmTotal'];
-                $gmiMonthly[$userId]['gmiPpmCompleted'] = $ppm['ppmCompleted'];
-                $gmiMonthly[$userId]['gmiPpmOnTime'] = $ppm['ppmOnTime'];
-                $gmiMonthly[$userId]['gmiPpmLate'] = $ppm['ppmLate'];
+                $gmiMonthly[$userId]['gmiPpmTotal'] = intval($ppm['ppmTotal']);
+                $gmiMonthly[$userId]['gmiPpmCompleted'] = intval($ppm['ppmCompleted']);
+                $gmiMonthly[$userId]['gmiPpmOnTime'] = intval($ppm['ppmOnTime']);
+                $gmiMonthly[$userId]['gmiPpmLate'] = intval($ppm['ppmLate']);
+                $gmiMonthly[$userId]['gmiPpmAssist'] = 0;
 
-                $ppmTierPoint = '0.5';
+                $ppmTierPoint = 0.5;
                 $ppmTierName = 'Under Rated';
-                if (intval($ppm['ppmCompleted']) > 150) {
-                    $ppmTierPoint = '2';
+                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
+                    $ppmTierPoint = 2;
                     $ppmTierName = 'Medalist';
-                } else if (intval($ppm['ppmCompleted']) > 80) {
-                    $ppmTierPoint = '1';
+                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
+                    $ppmTierPoint = 1;
                     $ppmTierName = 'Finisher';
                 }
                 $gmiMonthly[$userId]['gmiPpmTierPoint'] = $ppmTierPoint;
                 $gmiMonthly[$userId]['gmiPpmTierName'] = $ppmTierName;
 
-                $gmiMonthly[$userId]['gmiWoTotal'] = '0';
-                $gmiMonthly[$userId]['gmiWoCompleted'] = '0';
-                $gmiMonthly[$userId]['gmiWoOnTime'] = '0';
-                $gmiMonthly[$userId]['gmiWoLate'] = '0';
-                $gmiMonthly[$userId]['gmiWoSelfFinding'] = '0';
-                $gmiMonthly[$userId]['gmiWoTierPoint'] = '0.5';
+                $gmiMonthly[$userId]['gmiWoTotal'] = 0;
+                $gmiMonthly[$userId]['gmiWoCompleted'] = 0;
+                $gmiMonthly[$userId]['gmiWoOnTime'] = 0;
+                $gmiMonthly[$userId]['gmiWoLate'] = 0;
+                $gmiMonthly[$userId]['gmiWoSelfFinding'] = 0;
+                $gmiMonthly[$userId]['gmiWoAssist'] = 0;
+                $gmiMonthly[$userId]['gmiWoTierPoint'] = 0.5;
                 $gmiMonthly[$userId]['gmiWoTierName'] = 'Under Rated';
+            }
+
+            $gmiPpmAssist = Class_db::getInstance()->db_select2('vw_gamification_ppm_assist_monthly', array(), '', '', 0, array('yearNo'=>$year, 'monthNo'=>$month));
+            foreach ($gmiPpmAssist as $ppmAssist) {
+                $userId = intval($ppmAssist['userId']);
+                if (!array_key_exists($userId, $gmiMonthly)) {
+                    $gmiMonthly[$userId]['userId'] = $userId;
+                    $gmiMonthly[$userId]['gmiYear'] = $year;
+                    $gmiMonthly[$userId]['gmiMonth'] = $month;
+                    $gmiMonthly[$userId]['siteId'] = $ppmAssist['siteId'];
+                    $gmiMonthly[$userId]['gmiId'] = $ppmAssist['gmiId'];
+                    $gmiMonthly[$userId]['gmiPpmTotal'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmCompleted'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmOnTime'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmLate'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmAssist'] = 0;
+                    $gmiMonthly[$userId]['gmiWoTotal'] = 0;
+                    $gmiMonthly[$userId]['gmiWoCompleted'] = 0;
+                    $gmiMonthly[$userId]['gmiWoOnTime'] = 0;
+                    $gmiMonthly[$userId]['gmiWoLate'] = 0;
+                    $gmiMonthly[$userId]['gmiWoSelfFinding'] = 0;
+                    $gmiMonthly[$userId]['gmiWoAssist'] = 0;
+                    $gmiMonthly[$userId]['gmiWoTierPoint'] = 0.5;
+                    $gmiMonthly[$userId]['gmiWoTierName'] = 'Under Rated';
+                }
+
+                $gmiMonthly[$userId]['gmiPpmAssist'] = intval($ppmAssist['ppmTotal']);
+                $gmiMonthly[$userId]['gmiPpmTotal'] = $gmiMonthly[$userId]['gmiPpmTotal'] + intval($ppmAssist['ppmTotal']);
+                $gmiMonthly[$userId]['gmiPpmCompleted'] = $gmiMonthly[$userId]['gmiPpmCompleted'] + intval($ppmAssist['ppmCompleted']);
+                $gmiMonthly[$userId]['gmiPpmOnTime'] = $gmiMonthly[$userId]['gmiPpmOnTime'] + intval($ppmAssist['ppmOnTime']);
+                $gmiMonthly[$userId]['gmiPpmLate'] = $gmiMonthly[$userId]['gmiPpmLate'] + intval($ppmAssist['ppmLate']);
+
+                $ppmTierPoint = 0.5;
+                $ppmTierName = 'Under Rated';
+                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
+                    $ppmTierPoint = 2;
+                    $ppmTierName = 'Medalist';
+                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
+                    $ppmTierPoint = 1;
+                    $ppmTierName = 'Finisher';
+                }
+                $gmiMonthly[$userId]['gmiPpmTierPoint'] = $ppmTierPoint;
+                $gmiMonthly[$userId]['gmiPpmTierName'] = $ppmTierName;
             }
 
             $gmiWo = Class_db::getInstance()->db_select2('vw_gamification_wo_monthly', array(), '', '', 0, array('yearNo'=>$year, 'monthNo'=>$month));
             foreach ($gmiWo as $wo) {
                 $userId = intval($wo['woTaskAssignedTo']);
                 if (!array_key_exists($userId, $gmiMonthly)) {
+                    $gmiMonthly[$userId]['userId'] = $userId;
                     $gmiMonthly[$userId]['gmiYear'] = $year;
                     $gmiMonthly[$userId]['gmiMonth'] = $month;
-                    $gmiMonthly[$userId]['gmiPpmTotal'] = '0';
-                    $gmiMonthly[$userId]['gmiPpmCompleted'] = '0';
-                    $gmiMonthly[$userId]['gmiPpmOnTime'] = '0';
-                    $gmiMonthly[$userId]['gmiPpmLate'] = '0';
-                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = '0.5';
+                    $gmiMonthly[$userId]['siteId'] = $wo['siteId'];
+                    $gmiMonthly[$userId]['gmiId'] = $wo['gmiId'];
+                    $gmiMonthly[$userId]['gmiPpmTotal'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmCompleted'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmOnTime'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmLate'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmAssist'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 0.5;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Under Rated';
                 }
 
-                $gmiMonthly[$userId]['userId'] = $wo['woTaskAssignedTo'];
-                $gmiMonthly[$userId]['siteId'] = $wo['siteId'];
-                $gmiMonthly[$userId]['gmiId'] = $wo['gmiId'];
-                $gmiMonthly[$userId]['gmiWoTotal'] = $wo['woTotal'];
-                $gmiMonthly[$userId]['gmiWoCompleted'] = $wo['woCompleted'];
-                $gmiMonthly[$userId]['gmiWoOnTime'] = $wo['woOnTime'];
-                $gmiMonthly[$userId]['gmiWoLate'] = $wo['woLate'];
-                $gmiMonthly[$userId]['gmiWoSelfFinding'] = $wo['woSelfFinding'];
+                $gmiMonthly[$userId]['gmiWoTotal'] = intval($wo['woTotal']);
+                $gmiMonthly[$userId]['gmiWoCompleted'] = intval($wo['woCompleted']);
+                $gmiMonthly[$userId]['gmiWoOnTime'] = intval($wo['woOnTime']);
+                $gmiMonthly[$userId]['gmiWoLate'] = intval($wo['woLate']);
+                $gmiMonthly[$userId]['gmiWoSelfFinding'] = intval($wo['woSelfFinding']);
+                $gmiMonthly[$userId]['gmiWoAssist'] = 0;
 
-                $woTierPoint = '0.5';
+                $woTierPoint = 0.5;
                 $woTierName = 'Under Rated';
-                if (intval($wo['woCompleted']) > 150) {
-                    $woTierPoint = '2';
+                if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
+                    $woTierPoint = 2;
                     $woTierName = 'Medalist';
-                } else if (intval($wo['woCompleted']) > 80) {
-                    $woTierPoint = '1';
+                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
+                    $woTierPoint = 1;
+                    $woTierName = 'Finisher';
+                }
+                $gmiMonthly[$userId]['gmiWoTierPoint'] = $woTierPoint;
+                $gmiMonthly[$userId]['gmiWoTierName'] = $woTierName;
+            }
+
+            $gmiWoAssist = Class_db::getInstance()->db_select2('vw_gamification_wo_assist_monthly', array(), '', '', 0, array('yearNo'=>$year, 'monthNo'=>$month));
+            foreach ($gmiWoAssist as $woAssist) {
+                $userId = intval($woAssist['userId']);
+                if (!array_key_exists($userId, $gmiMonthly)) {
+                    $gmiMonthly[$userId]['userId'] = $userId;
+                    $gmiMonthly[$userId]['gmiYear'] = $year;
+                    $gmiMonthly[$userId]['gmiMonth'] = $month;
+                    $gmiMonthly[$userId]['siteId'] = $woAssist['siteId'];
+                    $gmiMonthly[$userId]['gmiId'] = $woAssist['gmiId'];
+                    $gmiMonthly[$userId]['gmiPpmTotal'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmCompleted'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmOnTime'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmLate'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmAssist'] = 0;
+                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 0.5;
+                    $gmiMonthly[$userId]['gmiPpmTierName'] = 'Under Rated';
+                    $gmiMonthly[$userId]['gmiWoTotal'] = 0;
+                    $gmiMonthly[$userId]['gmiWoCompleted'] = 0;
+                    $gmiMonthly[$userId]['gmiWoOnTime'] = 0;
+                    $gmiMonthly[$userId]['gmiWoLate'] = 0;
+                    $gmiMonthly[$userId]['gmiWoSelfFinding'] = 0;
+                    $gmiMonthly[$userId]['gmiWoAssist'] = 0;
+                }
+
+                $gmiMonthly[$userId]['gmiWoAssist'] = intval($woAssist['woTotal']);
+                $gmiMonthly[$userId]['gmiWoTotal'] = $gmiMonthly[$userId]['gmiWoTotal'] + intval($woAssist['woTotal']);
+                $gmiMonthly[$userId]['gmiWoCompleted'] = $gmiMonthly[$userId]['gmiWoCompleted'] + intval($woAssist['woCompleted']);
+                $gmiMonthly[$userId]['gmiWoOnTime'] = $gmiMonthly[$userId]['gmiWoOnTime'] + intval($woAssist['woOnTime']);
+                $gmiMonthly[$userId]['gmiWoLate'] = $gmiMonthly[$userId]['gmiWoLate'] + intval($woAssist['woLate']);
+
+                $woTierPoint = 0.5;
+                $woTierName = 'Under Rated';
+                if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
+                    $woTierPoint = 2;
+                    $woTierName = 'Medalist';
+                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
+                    $woTierPoint = 1;
                     $woTierName = 'Finisher';
                 }
                 $gmiMonthly[$userId]['gmiWoTierPoint'] = $woTierPoint;
@@ -268,16 +358,16 @@ class Class_gamification {
 
             foreach ($gmiMonthly as $gmi) {
                 $gmiId = $gmi['gmiId'];
-                $allTotal = intval($gmi['gmiPpmTotal']) + intval($gmi['gmiWoTotal']);
-                $allCompleted = intval($gmi['gmiPpmCompleted']) + intval($gmi['gmiWoCompleted']);
-                $allOnTime = intval($gmi['gmiPpmOnTime']) + intval($gmi['gmiWoOnTime']);
-                $allLate = intval($gmi['gmiPpmLate']) + intval($gmi['gmiWoLate']);
-                $tierDivider = max(floatval($gmi['gmiWoTierPoint']), floatval($gmi['gmiPpmTierPoint']));
-                $gmi['gmiPointCompleted'] = strval((($allCompleted/$allTotal)*$tierDivider)*0.3*10000);
-                $gmi['gmiPointOnTime'] = strval((($allOnTime/$allTotal)*$tierDivider)*0.7*10000);
-                $gmi['gmiPointLate'] = strval(-(($allLate/$allTotal)*$tierDivider)*0.15*10000);
-                $gmi['gmiPointSelfFinding'] = strval(intval($gmi['gmiWoSelfFinding']) * 5);
-                $gmi['gmiPointTotal'] = strval(intval($gmi['gmiPointCompleted']) + intval($gmi['gmiPointOnTime']) + intval($gmi['gmiPointLate']) + intval($gmi['gmiPointSelfFinding']));
+                $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
+                $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
+                $allOnTime = $gmi['gmiPpmOnTime'] + $gmi['gmiWoOnTime'];
+                $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
+                $tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
+                $gmi['gmiPointCompleted'] = (($allCompleted/$allTotal)*$tierDivider)*0.3*10000;
+                $gmi['gmiPointOnTime'] = (($allOnTime/$allTotal)*$tierDivider)*0.7*10000;
+                $gmi['gmiPointLate'] = -(($allLate/$allTotal)*$tierDivider)*0.15*10000;
+                $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * 5;
+                $gmi['gmiPointTotal'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointOnTime'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'];
                 unset($gmi['gmiId']);
                 if ($gmiId === '') {
                     Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));

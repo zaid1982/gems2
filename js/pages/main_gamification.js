@@ -144,7 +144,7 @@ function MainGamification () {
         let oTableGmiTop5Tbody = $('#dtGmiTop5 tbody');
         oTableGmiTop5Tbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtGmiTop5').DataTable().row(this).data();
-            //sectionAttendanceConfigSiteClass.load(data['userId']);
+            sectionUserGameClass.load(data['gmiId'], data['userId']);
         });
         oTableGmiTop5Tbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtGmiTop5').DataTable().row(this).data();
@@ -175,7 +175,7 @@ function MainGamification () {
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Excel', exportOptions: mzExportOpt},

@@ -21,9 +21,23 @@
             </div>
             <div class="card z-depth-3 mb-3">
                 <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-user-minus light-blue-text"></i></h1>
+                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-user-plus light-blue-text"></i></h2>
+                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h3SugPointAddition"></h4>
+                    <p class="text-right font-small mb-0">Points Addition</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h1 class="float-left ml-2 mt-1"><i class="fas fa-user-minus light-blue-text"></i></h1>
                     <h3 class="text-right font-weight-bold mb-0" id="h3SugPointDeduction"></h3>
-                    <p class="text-right font-small mb-0">Total Deduction Points</p>
+                    <p class="text-right font-small mb-0">Points Deduction</p>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="p-3">
+                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
+                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h3SugPointBonus"></h4>
+                    <p class="text-right font-small mb-0">Bonus Points</p>
                 </div>
             </div>
             <div class="card z-depth-3 mb-3">
@@ -36,22 +50,8 @@
             <div class="card z-depth-3 mb-3">
                 <div class="p-3">
                     <h1 class="float-left ml-2"><i class="fas fa-chart-line light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPerformanceTrending">4,234 <i class="fas fa-angle-up text-success"></i></h3>
+                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPerformanceTrending">0 <i class="fas fa-angle-up text-success"></i></h3>
                     <p class="text-right font-small mb-0">Performance Trading</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
-                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h4SugRatingPpm"></h4>
-                    <p class="text-right font-small mb-0">Tier PPM</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
-                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h4SugRatingWo"></h4>
-                    <p class="text-right font-small mb-0">Tier WO</p>
                 </div>
             </div>
         </div>
@@ -138,7 +138,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row mb-2">
+            <!--<div class="row mb-2">
                 <div class="col-sm-6 col-lg-3">
                     <div class="card z-depth-3 mb-3 light-blue">
                         <div class="pl-4 white-text">
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
             <!--<figure class="highcharts-figure">
                 <div class="card z-depth-3 mb-4 px-3 py-2">
                     <div id="divSugProgressBar"></div>
@@ -184,21 +184,69 @@
                 </div>
             </figure>-->
             <div class="row">
-                <div class="col-md-6">
-                    <div class="card z-depth-4 mb-4">
-                        <div class="text-center">
-                            <h6 class="mt-4 mb-0 font-weight-bold">OVERALL MONTHLY PERFORMANCE</h6>
-                            <div id="chartSugPerfPpm" style="height: 170px; margin: 0"></div>
-                            <h6 class="card-text mt-0 mb-3">Plan Preventive Maintainence</h6>
+                <div class="col-lg-6">
+                    <div class="card z-depth-4 mb-4" id="divCardPpm">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="mb-0 font-weight-bold text-center">PLAN PREVENTIVE MAINTENANCE</h6>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <div id="chartSugPpmPerformance" style="height: 120px; margin: 0"></div>
+                                        <h6 class="card-text mt-0 mb-3">Overall<br/>Monthly Performance</h6>
+                                    </div>
+                                </div>
+                                <div class="col-6 mt-3">
+                                    <div id="chartSugPpmType" style="height: 190px; margin: 0"></div>
+                                </div>
+                                <div class="col-7">
+                                    <div class="card blue-grey lighten-5 z-depth-1">
+                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Total Done</h6>
+                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugPpmCompleted"></h4>
+                                    </div>
+                                    <div class="card blue-grey lighten-5 z-depth-1 mt-3">
+                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Tier-WO</h6>
+                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugPpmTierName">Under Rated</h4>
+                                    </div>
+                                </div>
+                                <div class="col-5 mt-2">
+                                    <div id="chartSugPpmLateness" style="height: 150px; margin: 0"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card z-depth-4 mb-4">
-                        <div class="text-center">
-                            <h6 class="mt-4 mb-0 font-weight-bold">OVERALL MONTHLY PERFORMANCE</h6>
-                            <div id="chartSugPerfWo" style="height: 170px; margin: 0"></div>
-                            <h6 class="card-text mt-0 mb-3">Work Order</h6>
+                <div class="col-lg-6">
+                    <div class="card z-depth-4 mb-4" id="divCardWo">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="mb-0 font-weight-bold text-center">WORK ORDER</h6>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <div id="chartSugWoPerformance" style="height: 120px; margin: 0"></div>
+                                        <h6 class="card-text mt-0 mb-3">Overall<br/>Monthly Performance</h6>
+                                    </div>
+                                </div>
+                                <div class="col-6 mt-3">
+                                    <div id="chartSugWoType" style="height: 190px; margin: 0"></div>
+                                </div>
+                                <div class="col-7">
+                                    <div class="card blue-grey lighten-5 z-depth-1">
+                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Total Done</h6>
+                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugWoCompleted"></h4>
+                                    </div>
+                                    <div class="card blue-grey lighten-5 z-depth-1 mt-3 mb-0">
+                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Tier-WO</h6>
+                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugWoTierName">Under Rated</h4>
+                                    </div>
+                                </div>
+                                <div class="col-5 mt-2">
+                                    <div id="chartSugWoLateness" style="height: 150px; margin: 0"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -222,7 +270,6 @@
                             <th>Total Done</th>
                             <th>Total On-Time</th>
                             <th>Total Late</th>
-                            <th>Within Time</th>
                             <th>Total Score</th>
                         </tr>
                         </thead>

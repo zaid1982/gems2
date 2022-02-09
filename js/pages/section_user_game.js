@@ -33,18 +33,16 @@ function SectionUserGame () {
 
         oTableSugHistory = $('#dtSugHistory').DataTable({
             bLengthChange: false,
-            bFilter: true,
-            //aaSorting: [[11, 'desc']],
-            ordering: true,
+            bFilter: false,
+            ordering: false,
             language: _DATATABLE_LANGUAGE,
             autoWidth: false,
             dom: "<'row'<'col-12 px-0'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [1, 2] },
-                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10] },
+                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -78,9 +76,6 @@ function SectionUserGame () {
                 {mData: null, width: '8%', mRender: function (data, type, row) {
                         return mzFormatNumber(parseInt(row['gmiWoLate']) + parseInt(row['gmiPpmLate']));
                     }},
-                {mData: null, width: '8%', mRender: function (data, type, row) {
-                        return '--';
-                    }},
                 {mData: 'gmiPointTotal', width: '8%', mRender: function (data) {
                         return mzFormatNumber(data);
                     }}
@@ -99,25 +94,40 @@ function SectionUserGame () {
                 userId = _userId;
 
                 const data = mzAjaxRequest2('gamification/gmi_monthly/'+gmiId, 'GET');
-                console.log(data);
-                $('#h3SugPointDeduction').html(mzFormatNumber(Math.abs(parseInt(data['gmiPointLate'])+parseInt(data['gmiWoLate']))));
-                $('#h3SugPointTotal').html(mzFormatNumber(parseInt(data['gmiPointTotal'])+parseInt(data['gmiWoTotal'])));
-                $('#h4SugRatingPpm').html(data['gmiPpmTierName']);
-                $('#h4SugRatingWo').html(data['gmiWoTierName']);
-                $('#h2SugPpmDone').html(mzFormatNumber(data['gmiPpmCompleted']));
-                $('#h2SugWoDone').html(mzFormatNumber(data['gmiWoCompleted']));
-                $('#h2SugLatePpm').html(mzFormatNumber(data['gmiPpmLate']));
-                $('#h2SugLateWo').html(mzFormatNumber(data['gmiWoLate']));
-                self.generateChartPerformancePpm(parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmLate']));
-                self.generateChartPerformanceWo(parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
+                $('#h3SugPointAddition').html(mzFormatNumber(parseInt(data['gmiPointCompleted'])+parseInt(data['gmiPointOnTime'])));
+                $('#h3SugPointDeduction').html(mzFormatNumber(parseInt(data['gmiPointLate'])));
+                $('#h3SugPointBonus').html(mzFormatNumber(parseInt(data['gmiPointSelfFinding'])));
+                $('#h3SugPointTotal').html(mzFormatNumber(parseInt(data['gmiPointTotal'])));
+                $('#h4SugPpmTierName').html(data['gmiPpmTierName']);
+                $('#h4SugPpmCompleted').html(mzFormatNumber(data['gmiPpmCompleted']));
+                self.generateChartPerformance('chartSugPpmPerformance', 'Plan Preventive Performance', parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmLate']));
+                self.generateChartLateness('chartSugPpmLateness', parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmLate']));
+                self.generateChartPpmType('chartSugPpmType', parseInt(data['gmiPpmTotal']), parseInt(data['gmiPpmAssist']))
+                $('#h4SugWoTierName').html(data['gmiWoTierName']);
+                $('#h4SugWoCompleted').html(mzFormatNumber(data['gmiWoCompleted']));
+                self.generateChartPerformance('chartSugWoPerformance', 'Work Order', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
+                self.generateChartLateness('chartSugWoLateness', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
+                self.generateChartWoType('chartSugWoType', parseInt(data['gmiWoTotal']), parseInt(data['gmiWoSelfFinding']), parseInt(data['gmiWoAssist']))
                 self.loadProfile(userId);
 
                 const dataHistory = mzAjaxRequest2('gamification/gmi_monthly_history/'+data['gmiYear']+'/'+data['gmiMonth']+'/'+userId, 'GET');
-                console.log(dataHistory);
                 oTableSugHistory.clear().rows.add(dataHistory).draw();
+                if (dataHistory.length > 0 && typeof dataHistory[1] !== 'undefined') {
+                    const totalDiff = parseInt(data['gmiPointTotal']) - parseInt(dataHistory[1]['gmiPointTotal']);
+                    if (totalDiff < 0) {
+                        $('#h3SugPerformanceTrending').html('<span class="text-danger">-' + mzFormatNumber(-totalDiff) + '</span> <i class="fas fa-angle-down text-danger"></i>');
+                    } else {
+                        $('#h3SugPerformanceTrending').html('<span class="text-success">+' + mzFormatNumber(totalDiff) + '</span>  <i class="fas fa-angle-up text-success"></i>');
+                    }
+                } else {
+                    $('#h3SugPerformanceTrending').html(mzFormatNumber(parseInt(data['gmiPointTotal'])) + ' <i class="fas fa-angle-up text-success"></i>');
+                }
 
                 $('.sectionUserGame').show();
                 classFrom.hideMain();
+                /*const divCardWoHeight = $('#divCardWo').height();
+                $('#divCardPpm').css('minHeight', divCardWoHeight+'px');*/
+
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -146,7 +156,7 @@ function SectionUserGame () {
         let groupName = '&nbsp;';
         let supervisor = '&nbsp;';
         const attParticipant = mzAjaxRequest2('att_participant/'+userId, 'GET');
-        if (attParticipant !== '') {
+        if (attParticipant) {
             sugGfId = attParticipant['attParticipantGfId'] !== '' ? attParticipant['attParticipantGfId'] : sugGfId;
             yearOfService = attParticipant['attParticipantYearService'] !== '' ? attParticipant['attParticipantYearService'] : yearOfService;
             greenCardExpiry = attParticipant['attParticipantCidbCardExpiry'] !== '' ? attParticipant['attParticipantCidbCardExpiry'] : greenCardExpiry;
@@ -155,7 +165,7 @@ function SectionUserGame () {
                 const attGroup = mzAjaxRequest2('att_group/'+attParticipant['attGroupId'], 'GET');
                 category = attGroup['attGroupCategory'];
                 groupName = attGroup['attGroupName'];
-                supervisor = attGroup['attGroupSupervisor'] !== '' ? refUser[user['attGroupSupervisor']]['userFullName'] : supervisor;
+                supervisor = attGroup['attGroupSupervisor'] !== '' ? refUser[attGroup['attGroupSupervisor']]['userFullName'] : supervisor;
             }
         }
         $('#pSugGfId').html(sugGfId);
@@ -167,9 +177,9 @@ function SectionUserGame () {
         $('#pSugSuperior').html(supervisor);
     };
 
-    this.generateChartPerformancePpm = function (onTime, late) {
+    this.generateChartPerformance = function (chartId, title, onTime, late) {
         const perc = onTime + late === 0 ? 0 : Math.round(onTime/(onTime+late)*100);
-        Highcharts.chart('chartSugPerfPpm', {
+        Highcharts.chart(chartId, {
             chart: {
                 type: 'pie'
             },
@@ -178,10 +188,10 @@ function SectionUserGame () {
             },
             title: {
                 text: perc+'%',
-                style: { "fontSize": "40px" },
+                style: { "fontSize": "20px" },
                 align: 'center',
                 verticalAlign: 'middle',
-                y: 85
+                y: 60
             },
             plotOptions: {
                 pie: {
@@ -190,8 +200,8 @@ function SectionUserGame () {
                     },
                     startAngle: -90,
                     endAngle: 90,
-                    center: ['50%', '120%'],
-                    size: '220%'
+                    center: ['50%', '150%'],
+                    size: '250%'
                 }
             },
             credits: {
@@ -199,55 +209,165 @@ function SectionUserGame () {
             },
             series: [{
                 type: 'pie',
-                name: 'Plan Preventive Maintenance',
+                name: title,
                 innerSize: '60%',
                 data: [
-                    {name:'Total PPM On-Time', y:onTime, color: 'yellowgreen'},
-                    {name:'Total PPM Late', y:late, color: 'palegreen'}
+                    {name:'Total PPM On-Time', y:onTime, color: 'Gold'},
+                    {name:'Total PPM Late', y:late, color: 'LightGoldenrodYellow'}
                 ]
             }]
         });
     };
 
-    this.generateChartPerformanceWo = function (onTime, late) {
-        const perc = onTime + late === 0 ? 0 : Math.round(onTime/(onTime+late)*100);
-        Highcharts.chart('chartSugPerfWo', {
+    this.generateChartLateness = function (chartId, onTime, late) {
+        Highcharts.chart(chartId, {
             chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: 0,
-                plotShadow: false
+                type: 'column',
             },
             exporting: {
                 enabled: false
             },
             title: {
-                text: perc+'%',
-                style: { "fontSize": "40px" },
-                align: 'center',
-                verticalAlign: 'middle',
-                y: 85
+                text: ''
+            },
+            xAxis: {
+                categories: ['On-time', 'Late']
+            },
+            yAxis: {
+                title: {
+                    text: null
+                },
+                tickInterval: 2,
+                labels: {
+                    enabled: false
+                }
             },
             plotOptions: {
-                pie: {
+                column: {
                     dataLabels: {
-                        enabled: false
+                        enabled: true,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 200
+                        }
                     },
-                    startAngle: -90,
-                    endAngle: 90,
-                    center: ['50%', '120%'],
-                    size: '220%'
+                    borderWidth: 0
                 }
+            },
+            legend: {
+                enabled: false
             },
             credits: {
                 enabled: false
             },
             series: [{
-                type: 'pie',
-                name: 'Work Order',
-                innerSize: '60%',
+                name: 'Total Lateness',
                 data: [
-                    {name:'Total On-time', y:onTime, color: 'cornflowerblue'},
-                    {name:'Total Late', y:late, color: 'lightblue'}
+                    {y: onTime, color: 'limegreen'},
+                    {y: late, color: 'red'}
+                ]
+            }]
+        });
+    };
+
+    this.generateChartPpmType = function (chartId, total, assist) {
+        Highcharts.chart(chartId, {
+            chart: {
+                type: 'column',
+            },
+            exporting: {
+                enabled: false
+            },
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: ['Normal', 'Self-Finding', 'Assist']
+            },
+            yAxis: {
+                title: {
+                    text: null
+                },
+                tickInterval: 2,
+                labels: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 200
+                        }
+                    },
+                    borderWidth: 0
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Wo Type Total',
+                data: [
+                    {y: total-assist, color: 'dodgerblue'},
+                    {y: assist, color: 'deeppink'}
+                ]
+            }]
+        });
+    };
+
+    this.generateChartWoType = function (chartId, total, selfFinding, assist) {
+        Highcharts.chart(chartId, {
+            chart: {
+                type: 'column',
+            },
+            exporting: {
+                enabled: false
+            },
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: ['Normal', 'Self-Finding', 'Assist']
+            },
+            yAxis: {
+                title: {
+                    text: null
+                },
+                tickInterval: 2,
+                labels: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 200
+                        }
+                    },
+                    borderWidth: 0
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Wo Type Total',
+                data: [
+                    {y: total-selfFinding-assist, color: 'dodgerblue'},
+                    {y: selfFinding, color: 'yellowgreen'},
+                    {y: assist, color: 'deeppink'}
                 ]
             }]
         });
