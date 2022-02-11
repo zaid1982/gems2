@@ -30,7 +30,8 @@ function SectionUserGame () {
         });
 
         monthArray = mzGetMonthArray();
-
+        let exportSugHistoryPdf = Object.assign({}, mzExportOpt);
+        exportSugHistoryPdf['columns'] = [0, 1, 2, 3, 4, 16, 17, 18, 19, 24];
         oTableSugHistory = $('#dtSugHistory').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -42,27 +43,60 @@ function SectionUserGame () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [1, 2] },
-                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9] },
+                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Performance History', titleAttr: 'Print'},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Performance History', titleAttr: 'Copy'},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Performance History', titleAttr: 'Excel'},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Performance History', titleAttr: 'PDF', orientation: 'landscape'}
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Performance History', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Performance History', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Performance History', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Performance History', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportSugHistoryPdf}
             ],
             aoColumns: [
                 {mData: null, mRender: function (data, type, row) {
                         return monthArray[parseInt(row['gmiMonth'])-1]['monthName'] + ' ' + row['gmiYear'];
                     }},
-                {mData: 'gmiWoTierName', width: '12%'},
-                {mData: 'gmiPpmTierName', width: '12%'},
-                {mData: 'gmiWoTierPoint', width: '6%', mRender: function (data) {
+                {mData: 'gmiWoTierName', width: '14%'},
+                {mData: 'gmiPpmTierName', width: '14%'},
+                {mData: 'gmiWoTierPoint', width: '8%', mRender: function (data) {
                         return mzFormatNumber(data, 1);
                     }},
-                {mData: 'gmiPpmTierPoint', width: '6%', mRender: function (data) {
+                {mData: 'gmiPpmTierPoint', width: '8%', mRender: function (data) {
                         return mzFormatNumber(data, 1);
+                    }},
+                {mData: 'gmiPpmTotal', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmCompleted', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmOnTime', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmLate', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmAssist', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoTotal', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoCompleted', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoOnTime', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoLate', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoAssist', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoSelfFinding', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
                     }},
                 {mData: null, width: '8%', mRender: function (data, type, row) {
                         return mzFormatNumber(parseInt(row['gmiWoTotal']) + parseInt(row['gmiPpmTotal']));
@@ -76,13 +110,40 @@ function SectionUserGame () {
                 {mData: null, width: '8%', mRender: function (data, type, row) {
                         return mzFormatNumber(parseInt(row['gmiWoLate']) + parseInt(row['gmiPpmLate']));
                     }},
-                {mData: 'gmiPointTotal', width: '8%', mRender: function (data) {
+                {mData: 'gmiPointCompleted', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointOnTime', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointLate', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointSelfFinding', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointTotal', width: '10%', mRender: function (data) {
                         return mzFormatNumber(data);
                     }}
             ]
         });
         oTableSugHistory.column(3).visible(false);
         oTableSugHistory.column(4).visible(false);
+        oTableSugHistory.column(5).visible(false);
+        oTableSugHistory.column(6).visible(false);
+        oTableSugHistory.column(7).visible(false);
+        oTableSugHistory.column(8).visible(false);
+        oTableSugHistory.column(9).visible(false);
+        oTableSugHistory.column(10).visible(false);
+        oTableSugHistory.column(11).visible(false);
+        oTableSugHistory.column(12).visible(false);
+        oTableSugHistory.column(13).visible(false);
+        oTableSugHistory.column(14).visible(false);
+        oTableSugHistory.column(15).visible(false);
+        oTableSugHistory.column(20).visible(false);
+        oTableSugHistory.column(21).visible(false);
+        oTableSugHistory.column(22).visible(false);
+        oTableSugHistory.column(23).visible(false);
     };
 
     this.load = function (_gmiId, _userId) {
@@ -282,7 +343,7 @@ function SectionUserGame () {
                 text: ''
             },
             xAxis: {
-                categories: ['Normal', 'Self-Finding', 'Assist']
+                categories: ['Normal', 'Assist']
             },
             yAxis: {
                 title: {

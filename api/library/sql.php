@@ -1402,8 +1402,9 @@ class Class_sql
                     SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
                 FROM ppm_task p
                 LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
+                LEFT JOIN sys_user_profile up ON up.user_id = u.user_id
                 LEFT JOIN gmi_monthly g ON g.user_id = p.ppm_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
-                WHERE YEAR(p.ppm_task_schedule_date) = [yearNo] AND MONTH(p.ppm_task_schedule_date) = [monthNo] AND p.ppm_task_assigned_to IS NOT NULL
+                WHERE up.designation_id = 4 AND YEAR(p.ppm_task_schedule_date) = [yearNo] AND MONTH(p.ppm_task_schedule_date) = [monthNo] AND p.ppm_task_assigned_to IS NOT NULL
                 GROUP BY p.ppm_task_assigned_to";
             } else if ($title === 'vw_gamification_ppm_assist_monthly') {
                 $sql = "SELECT 
@@ -1417,8 +1418,9 @@ class Class_sql
                 FROM ppm_task_assist a
                 LEFT JOIN ppm_task p ON p.ppm_task_id = a.ppm_task_id
                 LEFT JOIN sys_user u ON u.user_id = a.user_id
+                LEFT JOIN sys_user_profile up ON up.user_id = u.user_id
                 LEFT JOIN gmi_monthly g ON g.user_id = a.user_id AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
-                WHERE YEAR(p.ppm_task_schedule_date) = [yearNo] AND MONTH(p.ppm_task_schedule_date) = [monthNo] AND p.ppm_task_assigned_to IS NOT NULL
+                WHERE up.designation_id = 4 AND YEAR(p.ppm_task_schedule_date) = [yearNo] AND MONTH(p.ppm_task_schedule_date) = [monthNo] AND p.ppm_task_assigned_to IS NOT NULL
                 GROUP BY a.user_id";
             } else if ($title === 'vw_gamification_ppm_weekly') {
                 $sql = "SELECT 
@@ -1461,9 +1463,10 @@ class Class_sql
                     SUM(IF(w.wo_task_type = 2, 1, 0)) AS wo_self_finding
                 FROM wo_task w
                 LEFT JOIN cli_site s ON s.site_id = w.site_id
+                LEFT JOIN sys_user_profile up ON up.user_id = w.wo_task_assigned_to
                 LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
                 LEFT JOIN gmi_monthly g ON g.user_id = w.wo_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
-                WHERE YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
+                WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY w.wo_task_assigned_to";
             } else if ($title === 'vw_gamification_wo_assist_monthly') {
                 $sql = "SELECT 
@@ -1477,9 +1480,10 @@ class Class_sql
                 FROM wo_task_assist a
                 LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id
                 LEFT JOIN cli_site s ON s.site_id = w.site_id
+                LEFT JOIN sys_user_profile up ON up.user_id = a.user_id
                 LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
                 LEFT JOIN gmi_monthly g ON g.user_id = a.user_id AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
-                WHERE YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
+                WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY a.user_id";
             } else if ($title === 'vw_ref_att_group') {
                 $sql = "SELECT

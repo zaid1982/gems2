@@ -118,15 +118,31 @@
                                         <th>#</th>
                                         <th>Name</th>
                                         <th>Site</th>
+                                        <th>Designation</th>
                                         <th>Tier WO</th>
-                                        <th>Tier PPM</th>
+                                        <th>Tier PPM</th> <!--5-->
                                         <th>Tier Points WO</th>
                                         <th>Tier Points PPM</th>
+                                        <th>PPM Total</th>
+                                        <th>PPM Done</th>
+                                        <th>PPM On-Time</th> <!--10-->
+                                        <th>PPM Late</th>
+                                        <th>PPM Assist</th>
+                                        <th>WO Total</th>
+                                        <th>WO Done</th>
+                                        <th>WO On-Time</th> <!--15-->
+                                        <th>WO Late</th>
+                                        <th>WO Assist</th>
+                                        <th>WO Self-Finding</th>
                                         <th>Total Tasks</th>
-                                        <th>Total Done</th>
+                                        <th>Total Done</th> <!--20-->
                                         <th>Total On-Time</th>
                                         <th>Total Late</th>
-                                        <th>Total Score</th>
+                                        <th>Completed Points</th>
+                                        <th>On-Time Points</th>
+                                        <th>Deduction Points</th> <!--25-->
+                                        <th>Bonus Points</th>
+                                        <th>Total Points</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -205,6 +221,7 @@
 
                 gamificationClass_.setRefUser(refUser_);
                 gamificationClass_.setRefSite(refSite_);
+                gamificationClass_.setRefDesignation(refDesignation_);
                 gamificationClass_.setSectionUserGameClass(sectionUserGameClass_);
                 gamificationClass_.init();
             } catch (e) {

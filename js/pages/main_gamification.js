@@ -15,6 +15,7 @@ function MainGamification () {
     let oTableGmiStats;
     let refUser;
     let refSite;
+    let refDesignation;
     let sectionUserGameClass;
 
     this.init = function () {
@@ -122,10 +123,10 @@ function MainGamification () {
                 { className: 'text-center', targets: [2, 3, 4] }
             ],
             buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Print'},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Copy'},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Excel'},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'PDF'}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Top Leaderboard : '+currentTitle, titleAttr: 'PDF', exportOptions: mzExportOpt}
             ],
             aoColumns: [
                 {mData: 'userId', mRender: function (data) {
@@ -158,10 +159,12 @@ function MainGamification () {
             oTableGmiTop5.column(1).visible(false);
         }
 
+        let exportGmiStatsPdf = Object.assign({}, mzExportOpt);
+        exportGmiStatsPdf['columns'] = [0, 1, 2, 3, 4, 5, 19, 20, 21, 22, 27];
         oTableGmiStats = $('#dtGmiStats').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[11, 'desc']],
+            aaSorting: [[27, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             autoWidth: false,
@@ -170,16 +173,16 @@ function MainGamification () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [3, 4] },
-                { className: 'text-right', targets: [5, 6, 7, 8, 9, 10, 11] },
+                { className: 'text-center', targets: [4, 5] },
+                { className: 'text-right', targets: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Gamification Stats : '+currentTitle, titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportGmiStatsPdf}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -193,6 +196,11 @@ function MainGamification () {
                 {mData: 'siteId', mRender: function (data) {
                         return refSite[data]['siteName'];
                     }},
+                {mData: null, mRender: function (data, type, row) {
+                        const userId = row['userId'];
+                        const designationId = refUser[userId]['designationId'];
+                        return designationId !== '' ? refDesignation[designationId]['designationDesc'] : '';
+                    }},
                 {mData: 'gmiWoTierName', width: '9%'},
                 {mData: 'gmiPpmTierName', width: '9%'},
                 {mData: 'gmiWoTierPoint', width: '6%', mRender: function (data) {
@@ -200,6 +208,39 @@ function MainGamification () {
                     }},
                 {mData: 'gmiPpmTierPoint', width: '6%', mRender: function (data) {
                         return mzFormatNumber(data, 1);
+                    }},
+                {mData: 'gmiPpmTotal', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmCompleted', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmOnTime', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmLate', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmAssist', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoTotal', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoCompleted', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoOnTime', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoLate', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoAssist', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiWoSelfFinding', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
                     }},
                 {mData: null, width: '6%', mRender: function (data, type, row) {
                         return mzFormatNumber(parseInt(row['gmiWoTotal']) + parseInt(row['gmiPpmTotal']));
@@ -213,13 +254,42 @@ function MainGamification () {
                 {mData: null, width: '6%', mRender: function (data, type, row) {
                         return mzFormatNumber(parseInt(row['gmiWoLate']) + parseInt(row['gmiPpmLate']));
                     }},
+                {mData: 'gmiPointCompleted', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointOnTime', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointLate', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointSelfFinding', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
                 {mData: 'gmiPointTotal', width: '6%', mRender: function (data) {
                         return mzFormatNumber(data);
                     }}
             ]
         });
-        oTableGmiStats.column(5).visible(false);
+        oTableGmiStats.column(3).visible(false);
         oTableGmiStats.column(6).visible(false);
+        oTableGmiStats.column(7).visible(false);
+        oTableGmiStats.column(8).visible(false);
+        oTableGmiStats.column(9).visible(false);
+        oTableGmiStats.column(10).visible(false);
+        oTableGmiStats.column(11).visible(false);
+        oTableGmiStats.column(12).visible(false);
+        oTableGmiStats.column(13).visible(false);
+        oTableGmiStats.column(14).visible(false);
+        oTableGmiStats.column(15).visible(false);
+        oTableGmiStats.column(16).visible(false);
+        oTableGmiStats.column(17).visible(false);
+        oTableGmiStats.column(18).visible(false);
+        oTableGmiStats.column(23).visible(false);
+        oTableGmiStats.column(24).visible(false);
+        oTableGmiStats.column(25).visible(false);
+        oTableGmiStats.column(26).visible(false);
+
         let oTableGmiStatsTbody = $('#dtGmiStats tbody');
         oTableGmiStatsTbody.delegate('tr', 'click', function (evt) {
             const data = $('#dtGmiStats').DataTable().row(this).data();
@@ -268,6 +338,10 @@ function MainGamification () {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setRefDesignation = function (_refDesignation) {
+        refDesignation = _refDesignation;
     };
 
     this.setSectionUserGameClass = function (_sectionUserGameClass) {
