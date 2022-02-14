@@ -353,6 +353,7 @@ try {
             $nextCheck = $woType==='2'?'2':'';
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', '', $nextCheck);
             $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
+            $fn_wo->saveWoTaskDoneAssistant($woTaskId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             $fn_email->setup_email($returnVal['woTaskCreatedBy'], 7, array('task_no'=>$returnVal['woTaskNo']));
             $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 8, array('task_no'=>$returnVal['woTaskNo']));
