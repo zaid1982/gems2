@@ -419,6 +419,8 @@ function MainHome() {
                     {mData: 'ppmTaskTimeChecked'},
                     {mData: 'ppmTaskTimeVerified'},
                     {mData: 'lateness'},
+                    {mData: 'ppmMinExecTime'},
+                    {mData: 'ppmMaxExecTime'},
                     {mData: 'withinStatus'},
                     {mData: null,
                         mRender: function (data, type, row) {
@@ -473,9 +475,11 @@ function MainHome() {
         oTablePpm.column(22).visible(false);
         oTablePpm.column(23).visible(false);
         oTablePpm.column(24).visible(false);
+        oTablePpm.column(25).visible(false);
+        oTablePpm.column(26).visible(false);
 
         $('#optHmeDataPpmColumns').on('change', function () {
-            for (let i=1; i<=26; i++) {
+            for (let i=1; i<=28; i++) {
                 oTablePpm.column(i).visible(false);
             }
             const selectedColumns = $(this).val();
@@ -487,13 +491,13 @@ function MainHome() {
         let cntPpm;
         let btnPpmOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntPpm = 1;
                         }
-                        if (column === 26) {
+                        if (column === 28) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
@@ -1360,8 +1364,8 @@ function MainHome() {
                                     events: {
                                         click: function (event) {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(27).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTablePpm.column(30).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
+                                            oTablePpm.column(30).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTablePpm.column(33).search(event.point.series.userOptions.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1429,8 +1433,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(27).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTablePpm.column(29).search(event.point.series.userOptions.assetGroupId, true, false).draw();
+                                            oTablePpm.column(30).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTablePpm.column(32).search(event.point.series.userOptions.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1494,7 +1498,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(29).search(this.assetGroupId, true, false).draw();
+                                            oTablePpm.column(32).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
@@ -1572,7 +1576,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(30).search(this.ppmTaskStatus, true, false).draw();
+                                            oTablePpm.column(33).search(this.ppmTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1715,7 +1719,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(32).search(this.ppmTaskServicedBy, true, false).draw();
+                                            oTablePpm.column(35).search(this.ppmTaskServicedBy, true, false).draw();
                                         }
                                     }
                                 }
@@ -1791,7 +1795,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(32).search(this.ppmTaskServicedBy, true, false).draw();
+                                            oTablePpm.column(35).search(this.ppmTaskServicedBy, true, false).draw();
                                         }
                                     }
                                 }
@@ -1867,7 +1871,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTablePpm.search('').columns().search('').draw();
-                                            oTablePpm.column(29).search(this.assetGroupId, true, false).draw();
+                                            oTablePpm.column(32).search(this.assetGroupId, true, false).draw();
                                         }
                                     }
                                 }
