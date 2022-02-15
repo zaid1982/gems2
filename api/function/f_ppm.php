@@ -2617,6 +2617,7 @@ class Class_ppm {
                 $row_result['ppmTaskTimeVerified'] = str_replace('-', '/', $dataLocal['ppm_task_time_verified']);
                 $row_result['lateness'] = $dataLocal['lateness'];
                 $row_result['lateness2'] = $dataLocal['lateness2'];
+                $row_result['withinStatus'] = $dataLocal['within_status'];
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['ppmTaskStatus'] = $dataLocal['ppm_task_status'];
                 array_push($result, $row_result);

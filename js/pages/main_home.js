@@ -419,6 +419,7 @@ function MainHome() {
                     {mData: 'ppmTaskTimeChecked'},
                     {mData: 'ppmTaskTimeVerified'},
                     {mData: 'lateness'},
+                    {mData: 'withinStatus'},
                     {mData: null,
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
@@ -474,7 +475,7 @@ function MainHome() {
         oTablePpm.column(24).visible(false);
 
         $('#optHmeDataPpmColumns').on('change', function () {
-            for (let i=1; i<=25; i++) {
+            for (let i=1; i<=26; i++) {
                 oTablePpm.column(i).visible(false);
             }
             const selectedColumns = $(this).val();
@@ -486,13 +487,13 @@ function MainHome() {
         let cntPpm;
         let btnPpmOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
                             cntPpm = 1;
                         }
-                        if (column === 25) {
+                        if (column === 26) {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');

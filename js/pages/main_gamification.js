@@ -160,7 +160,7 @@ function MainGamification () {
         }
 
         let exportGmiStatsPdf = Object.assign({}, mzExportOpt);
-        exportGmiStatsPdf['columns'] = [0, 1, 2, 3, 4, 5, 19, 20, 21, 22, 27];
+        exportGmiStatsPdf['columns'] = [0, 1, 2, 3, 4, 5, 20, 21, 22, 23, 28];
         oTableGmiStats = $('#dtGmiStats').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -174,7 +174,7 @@ function MainGamification () {
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [4, 5] },
-                { className: 'text-right', targets: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] },
+                { className: 'text-right', targets: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -216,6 +216,9 @@ function MainGamification () {
                         return mzFormatNumber(data);
                     }},
                 {mData: 'gmiPpmOnTime', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmWithin', width: '6%', mRender: function (data) {
                         return mzFormatNumber(data);
                     }},
                 {mData: 'gmiPpmLate', width: '6%', mRender: function (data) {
@@ -285,10 +288,11 @@ function MainGamification () {
         oTableGmiStats.column(16).visible(false);
         oTableGmiStats.column(17).visible(false);
         oTableGmiStats.column(18).visible(false);
-        oTableGmiStats.column(23).visible(false);
+        oTableGmiStats.column(19).visible(false);
         oTableGmiStats.column(24).visible(false);
         oTableGmiStats.column(25).visible(false);
         oTableGmiStats.column(26).visible(false);
+        oTableGmiStats.column(27).visible(false);
 
         let oTableGmiStatsTbody = $('#dtGmiStats tbody');
         oTableGmiStatsTbody.delegate('tr', 'click', function (evt) {

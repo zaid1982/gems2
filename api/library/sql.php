@@ -818,7 +818,11 @@ class Class_sql
                     CASE WHEN ppm_task_time_serviced IS NULL AND CURDATE() <= ppm_task_schedule_date THEN 'In Progress'
                         WHEN ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date THEN 'Not Started'
                         WHEN DATE(ppm_task_time_serviced) > ppm_task_schedule_date THEN 'Late'
-                        ELSE 'On-time' END AS lateness2
+                        ELSE 'On-time' END AS lateness2,
+                    CASE WHEN ppm_task_min_exec_time IS NULL OR ppm_task_max_exec_time IS NULL OR ppm_task_time_start IS NULL OR ppm_task_time_serviced IS NULL THEN '' 
+                        WHEN TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) < ppm_task_min_exec_time THEN 'Less'
+                        WHEN TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) <= ppm_task_max_exec_time THEN 'Within'
+                        ELSE 'Exceed' END AS within_status
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
@@ -1399,7 +1403,9 @@ class Class_sql
                     COUNT(*) AS ppm_total,
                     SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
                     SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
-                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late,
+                    SUM(IF(ppm_task_min_exec_time IS NOT NULL AND ppm_task_max_exec_time IS NOT NULL AND ppm_task_time_start IS NOT NULL AND ppm_task_time_serviced IS NOT NULL 
+		                AND TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) >= ppm_task_min_exec_time AND TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) <= ppm_task_max_exec_time, 1, 0)) AS ppm_within
                 FROM ppm_task p
                 LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
                 LEFT JOIN sys_user_profile up ON up.user_id = u.user_id

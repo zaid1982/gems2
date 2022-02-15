@@ -31,7 +31,7 @@ function SectionUserGame () {
 
         monthArray = mzGetMonthArray();
         let exportSugHistoryPdf = Object.assign({}, mzExportOpt);
-        exportSugHistoryPdf['columns'] = [0, 1, 2, 3, 4, 16, 17, 18, 19, 24];
+        exportSugHistoryPdf['columns'] = [0, 1, 2, 3, 4, 17, 18, 19, 20, 25];
         oTableSugHistory = $('#dtSugHistory').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -43,7 +43,7 @@ function SectionUserGame () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [1, 2] },
-                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] },
+                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -72,6 +72,9 @@ function SectionUserGame () {
                         return mzFormatNumber(data);
                     }},
                 {mData: 'gmiPpmOnTime', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPpmWithin', width: '8%', mRender: function (data) {
                         return mzFormatNumber(data);
                     }},
                 {mData: 'gmiPpmLate', width: '8%', mRender: function (data) {
@@ -140,10 +143,12 @@ function SectionUserGame () {
         oTableSugHistory.column(13).visible(false);
         oTableSugHistory.column(14).visible(false);
         oTableSugHistory.column(15).visible(false);
+        oTableSugHistory.column(16).visible(false);
         oTableSugHistory.column(20).visible(false);
         oTableSugHistory.column(21).visible(false);
         oTableSugHistory.column(22).visible(false);
         oTableSugHistory.column(23).visible(false);
+        oTableSugHistory.column(24).visible(false);
     };
 
     this.load = function (_gmiId, _userId) {
@@ -162,12 +167,12 @@ function SectionUserGame () {
                 $('#h4SugPpmTierName').html(data['gmiPpmTierName']);
                 $('#h4SugPpmCompleted').html(mzFormatNumber(data['gmiPpmCompleted']));
                 self.generateChartPerformance('chartSugPpmPerformance', 'Plan Preventive Performance', parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmLate']));
-                self.generateChartLateness('chartSugPpmLateness', parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmLate']));
+                self.generateChartPpmLateness('chartSugPpmLateness', parseInt(data['gmiPpmOnTime']), parseInt(data['gmiPpmWithin']), parseInt(data['gmiPpmLate']));
                 self.generateChartPpmType('chartSugPpmType', parseInt(data['gmiPpmTotal']), parseInt(data['gmiPpmAssist']))
                 $('#h4SugWoTierName').html(data['gmiWoTierName']);
                 $('#h4SugWoCompleted').html(mzFormatNumber(data['gmiWoCompleted']));
                 self.generateChartPerformance('chartSugWoPerformance', 'Work Order', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
-                self.generateChartLateness('chartSugWoLateness', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
+                self.generateChartWoLateness('chartSugWoLateness', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
                 self.generateChartWoType('chartSugWoType', parseInt(data['gmiWoTotal']), parseInt(data['gmiWoSelfFinding']), parseInt(data['gmiWoAssist']))
                 self.loadProfile(userId);
 
@@ -280,7 +285,59 @@ function SectionUserGame () {
         });
     };
 
-    this.generateChartLateness = function (chartId, onTime, late) {
+    this.generateChartPpmLateness = function (chartId, onTime, within, late) {
+        Highcharts.chart(chartId, {
+            chart: {
+                type: 'column',
+            },
+            exporting: {
+                enabled: false
+            },
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: ['On-time', 'Within', 'Late']
+            },
+            yAxis: {
+                title: {
+                    text: null
+                },
+                tickInterval: 2,
+                labels: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 200
+                        }
+                    },
+                    borderWidth: 0
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Total Lateness',
+                data: [
+                    {y: onTime, color: 'limegreen'},
+                    {y: within, color: 'darkgreen'},
+                    {y: late, color: 'red'}
+                ]
+            }]
+        });
+    };
+
+    this.generateChartWoLateness = function (chartId, onTime, late) {
         Highcharts.chart(chartId, {
             chart: {
                 type: 'column',
