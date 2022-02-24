@@ -282,6 +282,7 @@ try {
                     $toGroup = $fn_task->get_group_id_from_user($nextUser, '4');
                 }
                 $fn_task->submit_task($taskId, $jwt_data->userId, '9', $remark, '', '', $toGroup, $nextUser);
+                $fn_ppm->savePpmTaskDoneAssistant($ppmTaskId);
             } else if ($result == '2') {
                 $fn_task->submit_task($taskId, $jwt_data->userId, '20', $remark, '1', '', '', '', 1);
             } else {
