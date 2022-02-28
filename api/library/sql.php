@@ -1256,7 +1256,7 @@ class Class_sql
                     m.meter_name,
                     m.meter_location,
                     s.user_first_name AS utility_recorded_by,
-                    CONCAT('https://gems.globalfm.com.my/gems2/api/', p.upload_folder,'/',p.upload_filename,'.',p.upload_extension) AS utility_image
+                    CONCAT('https://gems.globalfm.com.my/api/', p.upload_folder,'/',p.upload_filename,'.',p.upload_extension) AS utility_image
                 FROM utl_utility u
                 LEFT JOIN utl_meter m ON m.meter_id = u.meter_id 
                 LEFT JOIN sys_user s ON s.user_id = u.utility_recorded_by
