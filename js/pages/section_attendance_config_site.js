@@ -15,6 +15,7 @@ function SectionAttendanceConfigSite () {
     let modalAttendanceGroupClass;
     let modalAttendanceParticipantClass;
     let modalConfirmSubmitClass;
+    let sectionAttendanceGroupClass;
     let isAdmin;
     let isSupervisor;
 
@@ -26,7 +27,7 @@ function SectionAttendanceConfigSite () {
                     if (hasEdit) {
                         classFrom.genTable();
                     }
-                    $('.sectionAttendanceConfigSite').hide();
+                    self.hideMain();
                     classFrom.showMain();
                     $(window).scrollTop(0);
                 } catch (e) {
@@ -40,6 +41,8 @@ function SectionAttendanceConfigSite () {
         isAdmin = mzIsRoleExist('1');
         isSupervisor = mzIsRoleExist('20');
 
+        let exportOptSacGroup = Object.assign({}, mzExportOpt);
+        exportOptSacGroup['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9];
         oTableSacGroup = $('#dtSacGroup').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -52,17 +55,17 @@ function SectionAttendanceConfigSite () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0,3,4,5,7,9] },
-                { className: 'text-right', targets: [6,8] },
-                { className: 'noVis', targets: [0] }
+                { bSortable: false, targets: [0, 10] },
+                { className: 'text-center', targets: [0, 3, 4, 5, 7, 9, 10] },
+                { className: 'text-right', targets: [6, 8] },
+                { className: 'noVis', targets: [0, 10] }
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Print', exportOptions: exportOptSacGroup},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: exportOptSacGroup},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: exportOptSacGroup},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOptSacGroup},
                 { text: 'Add Attendance Group', className: 'btn btn-outline-red btn-sm px-2 ml-3', attr: { id: 'btnSacAddGroup' }}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
@@ -78,6 +81,24 @@ function SectionAttendanceConfigSite () {
                 } else {
                     $('#btnSacAddGroup').hide();
                 }
+                $('.lnkAgrSacGroupEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
+                        modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
+                    }
+                });
+                $('.lnkAgrSacGroupDetail').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
+                        sectionAttendanceGroupClass.load(currentRow['attGroupId']);
+                    }
+                });
             },
             aoColumns: [
                 {mData: null},
@@ -99,6 +120,14 @@ function SectionAttendanceConfigSite () {
                     }},
                 {mData: 'attGroupStatus', width: '6%', mRender: function(data) {
                         return refStatus[parseInt(data)]['statusDesc'];
+                    }},
+                {mData: null, mRender: function(data, type, row, meta) {
+                        let label = '';
+                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                            label = '<a><i class="fas fa-edit mr-1 lnkAgrSacGroupEdit" id="lnkAgrAssetGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
+                        }
+                        label += '<a><i class="fas fa-calendar-alt lnkAgrSacGroupDetail" id="lnkAgrSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to schedule ' + row['attGroupName'] + '"></i></a>';
+                        return label;
                     }}
             ]
         });
@@ -107,23 +136,6 @@ function SectionAttendanceConfigSite () {
             oTableSacGroup.column(4).visible(false);
             oTableSacGroup.column(5).visible(false);
         }
-        let oTableSacGroupTbody = $('#dtSacGroup tbody');
-        oTableSacGroupTbody.delegate('tr', 'click', function (evt) {
-            const data = $('#dtSacGroup').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
-                modalAttendanceGroupClass.edit(data['attGroupId'], siteId);
-            }
-        });
-        oTableSacGroupTbody.delegate('tr', 'mouseenter', function (evt) {
-            const data = $('#dtSacGroup').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || (!isAdmin && isSupervisor && userId === data['attGroupSupervisor']))) {
-                const cell = $(evt.target).closest('td');
-                cell.css('cursor', 'pointer');
-                cell.attr('data-toggle', 'tooltip');
-                cell.attr('title', 'Click to edit '+data['attGroupName']+' configuration');
-                $('[data-toggle="tooltip"]').tooltip();
-            }
-        });
 
         oTableSacParticipant = $('#dtSacParticipant').DataTable({
             bLengthChange: false,
@@ -236,7 +248,7 @@ function SectionAttendanceConfigSite () {
             }
         });
 
-        $('.sectionAttendanceConfigSite').hide();
+        self.hideMain();
     };
 
     this.loadDetails = function () {
@@ -296,8 +308,8 @@ function SectionAttendanceConfigSite () {
                 siteId = _siteId;
                 self.loadDetails();
                 hasEdit = false;
-                $('.sectionAttendanceConfigSite').show();
                 classFrom.hideMain();
+                self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -363,6 +375,14 @@ function SectionAttendanceConfigSite () {
         return classFrom;
     };
 
+    this.showMain = function () {
+        $('.sectionAttendanceConfigSite').show();
+    };
+
+    this.hideMain = function () {
+        $('.sectionAttendanceConfigSite').hide();
+    };
+
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };
@@ -381,6 +401,10 @@ function SectionAttendanceConfigSite () {
 
     this.setModalConfirmSubmitClass = function (_modalConfirmSubmitClass) {
         modalConfirmSubmitClass = _modalConfirmSubmitClass;
+    };
+
+    this.setSectionAttendanceGroupClass = function (_sectionAttendanceGroupClass) {
+        sectionAttendanceGroupClass = _sectionAttendanceGroupClass;
     };
 
     this.setHasEdit = function (_hasEdit) {

@@ -17,7 +17,7 @@
     <!-- Google Maps -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?2" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         .fc .fc-toolbar-title {
@@ -82,6 +82,7 @@
             </div>
         </section>
         <div class="includeHtml" id="h-section_attendance_config_site"></div>
+        <div class="includeHtml" id="h-section_attendance_group"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
@@ -127,6 +128,7 @@
     let modalAttendanceGroupClass_;
     let modalAttendanceParticipantClass_;
     let sectionAttendanceConfigSiteClass_;
+    let sectionAttendanceGroupClass_;
     let attendanceConfigClass_;
     let googleMapsDrawingPolygonClass_;
 
@@ -142,6 +144,7 @@
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 sectionAttendanceConfigSiteClass_ = new SectionAttendanceConfigSite();
+                sectionAttendanceGroupClass_ = new SectionAttendanceGroup();
                 attendanceConfigClass_ = new MainAttendanceConfig();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
 
@@ -161,11 +164,15 @@
                 modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceConfigSiteClass_)
                 modalAttendanceParticipantClass_.init();
 
+                sectionAttendanceGroupClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
+                sectionAttendanceGroupClass_.init();
+
                 sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);
                 sectionAttendanceConfigSiteClass_.setRefUser(refUser_);
                 sectionAttendanceConfigSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
+                sectionAttendanceConfigSiteClass_.setSectionAttendanceGroupClass(sectionAttendanceGroupClass_);
                 sectionAttendanceConfigSiteClass_.setClassFrom(attendanceConfigClass_);
                 sectionAttendanceConfigSiteClass_.init();
 
@@ -185,6 +192,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_config_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

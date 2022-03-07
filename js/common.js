@@ -1034,6 +1034,28 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
     return returnVal;
 }
 
+function mzGetIndexedArray (data, id) {
+    try {
+        if (id === '') {
+            throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+        }
+        let returnVal = [];
+        $.each(data, function (n, u) {
+            if (typeof u[id] === 'undefined') {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            const rawIndex = parseInt(u[id]);
+            if (isNaN(rawIndex)) {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            returnVal[rawIndex] = u;
+        });
+        return returnVal;
+    } catch (e) {
+        throw new Error(e.message);
+    }
+}
+
 function mzGetLocalRaw(name, version, filters, api) {
     if (typeof name === 'undefined' || typeof version === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);

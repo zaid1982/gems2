@@ -72,8 +72,8 @@ class Class_att_participant {
     }
 
     /**
-     * @param $attParticipantId
-     * @return string
+     * @param string $attParticipantId
+     * @return array
      * @throws Exception
      */
     public function getAttParticipant ($attParticipantId) {
@@ -88,8 +88,8 @@ class Class_att_participant {
     }
 
     /**
-     * @param $userId
-     * @return string
+     * @param string $userId
+     * @return array
      * @throws Exception
      */
     public function getAttParticipantByUserId ($userId) {
@@ -104,8 +104,8 @@ class Class_att_participant {
     }
 
     /**
-     * @param $siteId
-     * @return string
+     * @param string $siteId
+     * @return array
      * @throws Exception
      */
     public function getAttParticipantSite($siteId) {
