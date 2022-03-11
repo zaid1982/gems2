@@ -361,6 +361,7 @@ function SectionPart () {
                 self.genTablePending();
                 self.genTablePartList();
                 self.genTableCheckIn();
+                self.genTableCheckOut();
 
                 $('.sectionPart').show();
                 classFrom.hideMain();
