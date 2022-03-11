@@ -150,6 +150,7 @@ class Class_part_sub {
                 $runningNoTemp = 1000000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $partSubNo = 'I'.$siteCode.$curDates->format("y").$runningNoStr;
+                $runningNo++;
                 Class_db::getInstance()->db_insert('ast_part_sub', array('part_id'=>$doItem['partId'], 'item_id'=>$itemId, 'part_sub_no'=>$partSubNo, 'do_no'=>$doNo, 'do_item_id'=>$doItem['doItemId'],
                     'part_sub_location'=>$doItem['partSubLocation'], 'part_sub_warranty'=>$doItem['doItemWarranty'], 'part_sub_validity'=>$doItem['doItemValidity'], 'part_sub_cost'=>$doItem['doItemCost'],
                     'part_sub_registered_by'=>$userId, 'part_sub_status'=>'46'));
