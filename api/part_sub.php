@@ -56,7 +56,7 @@ try {
     if ('GET' === $request_method) {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'list_available') {
-                $result = $fn_part_sub->getPartSubList('(46,38)', $urlArr[2]);
+                $result = $fn_part_sub->getPartSubList('(46,38,51)', $urlArr[2]);
             }
         } else {
             $result = $fn_part_sub->getPartSubList();

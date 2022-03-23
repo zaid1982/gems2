@@ -155,7 +155,7 @@ class Class_email {
             $notiTextTitle = $notiText['noti_text_title'];
             $notiTextHtml = $notiText['noti_text_html'];
 
-            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>$notiTextId), NULL, NULL, 1);
+            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>$notiTextId));
             foreach ($notiParameters as $parameter) {
                 $paramCode = $parameter['noti_param_code'];
                 if (!array_key_exists($paramCode, $notiParam)) {
