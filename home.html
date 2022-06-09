@@ -403,6 +403,8 @@
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->
 <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
@@ -426,8 +428,8 @@
 <script type="text/javascript">
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-    let versionLocal;
-    let changePasswordClass;
+    let versionLocal_;
+    let changePasswordClass_;
     let homeClass_;
     let modalConfirmDelete_;
 
@@ -440,7 +442,7 @@
             try {
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
-                changePasswordClass = new ModalChangePassword();
+                changePasswordClass_ = new ModalChangePassword();
                 homeClass_ = new MainHome();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 

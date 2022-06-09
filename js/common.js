@@ -499,7 +499,7 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
                 if (resp['errmsg'] !== '') {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
                 }
-            } else if (resp.error === 'Expired token') {
+            } else if (resp.error === 'Expired token' || resp.error === 'Token not valid') {
                 window.location.href = 'login.html?f=2';
             } else {
                 errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
@@ -658,7 +658,8 @@ function initiatePages() {
         sessionStorage.removeItem('token');
         window.location.href = 'login.html?f=1';
     }
-    userInfo = JSON.parse(userInfo);
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    userInfo = JSON.parse(objEncrypted);
     if (typeof userInfo.menu === 'undefined') {
         sessionStorage.removeItem('token');
         window.location.href = 'login.html?f=1';
@@ -713,7 +714,8 @@ function mzProfile() {
 
 function mzGetUserId() {
     let userInfo = sessionStorage.getItem('userInfo');
-    userInfo = JSON.parse(userInfo);
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    userInfo = JSON.parse(objEncrypted);
     return userInfo['userId'];
 }
 
@@ -916,7 +918,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name);
+    const localData = localStorage.getItem(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
@@ -930,7 +932,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     
     if (getNew) {
         rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name}); 
-        localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
+        localStorage.setItem(name+'_2', JSON.stringify({version:version[name], data:rawData}));
     }
     
     $.each(rawData, function (n, u) {
@@ -983,11 +985,12 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name);
+    const localData = localStorage.getItem(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
-        objData = JSON.parse(localData);
+        const objEncrypted = CryptoJS.AES.decrypt(localData, 'GEMS').toString(CryptoJS.enc.Utf8);
+        objData = JSON.parse(objEncrypted);
         if (typeof objData.version === 'undefined' || typeof objData.data === 'undefined' || objData.version !== version[name]) {
             getNew = true;
         } else {
@@ -1003,7 +1006,8 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
         } else {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
-        localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
+        const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
+        localStorage.setItem(name+'_2', rawEncrypted);
     }
 
     $.each(rawData, function (n, u) {
@@ -1069,11 +1073,12 @@ function mzGetLocalRaw(name, version, filters, api) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name);
+    const localData = localStorage.getItem(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
-        objData = JSON.parse(localData);
+        const objEncrypted = CryptoJS.AES.decrypt(localData,'GEMS').toString(CryptoJS.enc.Utf8);
+        objData = JSON.parse(objEncrypted);
         if (typeof objData.version === 'undefined' || typeof objData.data === 'undefined' || objData.version !== version[name]) {
             getNew = true;
         } else {
@@ -1087,7 +1092,8 @@ function mzGetLocalRaw(name, version, filters, api) {
         } else {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
-        localStorage.setItem(name, JSON.stringify({version:version[name], data:rawData}));
+        const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
+        localStorage.setItem(name+'_2', rawEncrypted.toString());
     }
     
     $.each(rawData, function (n, u) {
@@ -1428,7 +1434,8 @@ function mzIsRoleExist(roleIds) {
 
     let result = false;
     let userInfo = sessionStorage.getItem('userInfo');
-    userInfo = JSON.parse(userInfo);
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    userInfo = JSON.parse(objEncrypted);
     const roles = userInfo['roles'];
     for (let i=0; i<roles.length; i++) {
         for (let j=0; j<roleSplit.length; j++) {
@@ -1449,7 +1456,8 @@ function mzGetUserInfoByParam(parameter) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     let userInfo = sessionStorage.getItem('userInfo');
-    userInfo = JSON.parse(userInfo);
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    userInfo = JSON.parse(objEncrypted);
     return userInfo[parameter];
 }
 

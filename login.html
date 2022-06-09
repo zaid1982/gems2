@@ -92,6 +92,8 @@
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
 
 <script type="text/javascript">
 
@@ -196,7 +198,8 @@
                             userInfo[n] = u;
                         }
                     });
-                    sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+                    const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify(userInfo), 'GEMS');
+                    sessionStorage.setItem('userInfo', rawEncrypted);
                     sessionStorage.setItem('navId', parseInt(userInfo.menu[0].navId));
                     sessionStorage.setItem('navSecondId', 0);
                     window.location.href = userInfo.menu[0]['navPage'];

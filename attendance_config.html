@@ -17,7 +17,7 @@
     <!-- Google Maps -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css?2" rel="stylesheet">
+    <link href="css/style.css?3" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         .fc .fc-toolbar-title {
@@ -25,6 +25,25 @@
         }
         #map {
             height: 100%;
+        }
+        .table-grid-width {
+            width: 32px;
+            min-width: 32px;
+        }
+        .table-grid-cut-text {
+             text-overflow: ellipsis;
+             overflow: hidden;
+             width: 135px;
+             white-space: nowrap;
+        }
+        .table-grid-small-text th {
+            font-size: 12px;
+            text-align: center;
+            background-color: #F1F1F1;
+        }
+        .table-grid-small-text td {
+            font-size: 12px;
+            text-align: center;
         }
     </style>
     <!-- JQuery -->
@@ -55,7 +74,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="table-responsive">
-                                        <table id="dtAtcData" class="table table-hover table-sm mt-3 mb-0 display responsive" style="width: 100%">
+                                        <table id="dtAtcData" class="table table-hover table-striped table-sm mt-3 mb-0 display responsive" style="width: 100%">
                                             <thead>
                                             <tr class="th-strong">
                                                 <th>#</th>
@@ -104,6 +123,8 @@
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->
 <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>

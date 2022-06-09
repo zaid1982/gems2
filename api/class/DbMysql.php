@@ -1,0 +1,673 @@
+<?php
+
+class DbMysql {
+
+    public static $DBH;
+    public static $userId;
+    public static $isLogged = false;
+
+    /**
+     * @param $class
+     * @param $function
+     * @param $line
+     * @param $msg
+     */
+    public static function logDebug ($class, $function, $line, $msg) {
+        if (self::$isLogged) {
+            $debugMsg = date("Y/m/d h:i:sa") . " (" . self::$userId . ") [" . $class . ":" . $function . ":" . $line . "] - " . $msg . "\r\n";
+            error_log($debugMsg, 3, Constant::$folderDebug . 'debug\debug_' . date("Ymd") . '.log');
+        }
+    }
+
+    /**
+     * @param $class
+     * @param $function
+     * @param $line
+     * @param $msg
+     */
+    public static function logError ($class, $function, $line, $msg) {
+        if (self::$isLogged) {
+            $debugMsg = date("Y/m/d h:i:sa") . " (" . self::$userId . ") [" . $class . ":" . $function . ":" . $line . "] - (ERROR) " . $msg . "\r\n";
+            error_log($debugMsg, 3, Constant::$folderDebug . 'debug\debug_' . date("Ymd") . '.log');
+            $debugMsg = date("Y/m/d h:i:sa") . " (" . self::$userId . ") [" . $class . ":" . $function . ":" . $line . "] - " . $msg . "\r\n";
+            error_log($debugMsg, 3, Constant::$folderDebug . 'error\error_' . date("Ymd") . '.log');
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function connect () {
+        try {
+            self::$DBH = new PDO("mysql:host=".Constant::$dbHost.";dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
+            self::$DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$DBH->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            self::$DBH->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+        }
+        catch(PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function close () {
+        self::$DBH = null;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function beginTransaction () {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            self::$DBH->beginTransaction();
+        }
+        catch(PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function commit () {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            self::$DBH->commit();
+        }
+        catch(PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function rollback () {
+        try {
+            if (!empty(self::$DBH)) {
+                self::$DBH->rollBack();
+            }
+        }
+        catch(PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $dataInput
+     * @return array
+     * @throws Exception
+     */
+    private static function convertFromDbIndex (array $dataInput): array {
+        try {
+            $dataOutput = array();
+            foreach ($dataInput as $key=>$value) {
+                $keyTemps = explode('_', $key);
+                foreach ($keyTemps as $j=>$keyTemp) {
+                    if ($j > 0) {
+                        $keyTemps[$j] = ucfirst($keyTemp);
+                    }
+                }
+                $newIndex = implode('', $keyTemps);
+                $dataOutput[$newIndex] = $value;
+            }
+            return $dataOutput;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $dataInputs
+     * @return array
+     * @throws Exception
+     */
+    private static function convertFromDbIndexes (array $dataInputs): array {
+        try {
+            $dataOutputs = array();
+            $newIndexArray = array();
+            $cnt = 0;
+            foreach ($dataInputs as $dataKey=>$dataInput) {
+                if ($cnt === 0) {
+                    foreach ($dataInput as $key=>$value) {
+                        $keyTemps = explode('_', $key);
+                        foreach ($keyTemps as $j=>$keyTemp) {
+                            if ($j > 0) {
+                                $keyTemps[$j] = ucfirst($keyTemp);
+                            }
+                        }
+                        $newIndex = implode('', $keyTemps);
+                        $newIndexArray[$key] = $newIndex;
+                    }
+                    $cnt++;
+                }
+                $newData = array();
+                foreach ($dataInput as $key=>$value) {
+                    $newData[$newIndexArray[$key]] = $value;
+                }
+                $dataOutputs[$dataKey] = $newData;
+            }
+            return $dataOutputs;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $index
+     * @return string
+     * @throws Exception
+     */
+    private static function convertToDbString (string $index): string {
+        try {
+            $newIndex = '';
+            for ($i = 0; $i < strlen($index); $i++) {
+                if (ctype_digit($index[$i])) {
+                    $newIndex .= '_' . $index[$i];
+                } else if (ctype_upper($index[$i])) {
+                    $newIndex .= '_' . strtolower($index[$i]);
+                } else {
+                    $newIndex .= $index[$i];
+                }
+            }
+            return $newIndex;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return string
+     * @throws Exception
+     */
+    private static function getWhereString (array $columns): string {
+        try {
+            $whereString = '';
+            foreach ($columns as $columnIndex => $columnValue) {
+                if ($columnValue === '' || $columnValue === '%%') {
+                    continue;
+                }
+                $index = self::convertToDbString($columnIndex);
+                $values = explode('|', $columnValue);
+                if (count($values) > 1) {
+                    switch ($values[0]) {
+                        case 's1':
+                        case 's2':
+                        case 's3':
+                            $whereString .= $values[1];
+                            break;
+                        case '%':
+                            $whereString .= "$index LIKE ?";
+                            break;
+                        case '>':
+                        case '<':
+                        case '>=':
+                        case '<=':
+                        case '<>':
+                            $whereString .= "$index $values[0] ?";
+                            break;
+                        case 'IN':
+                        case 'NOT IN':
+                            $inValues = explode(',', $values[1]);
+                            if (count($inValues) > 0) {
+                                $inStrings = array();
+                                $x = 0;
+                                do {
+                                    $inStrings[] = '?';
+                                    $x++;
+                                } while ($x < count($inValues));
+                                $inString = implode(" , ", $inStrings);
+                                $whereString .= "$index $values[0] ($inString)";
+                            }
+                            break;
+                        default:
+                            $whereString .= "$index = ?";
+                    }
+                } else if ($columnValue === 'IS NULL' || $columnValue === 'IS NOT NULL') {
+                    $whereString .= "$index $columnValue";
+                } else {
+                    $whereString .= "$index = ?";
+                }
+                $whereString .= ' AND ';
+            }
+            return !empty($whereString) ? ' WHERE '.rtrim($whereString, 'AND ') : '';
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return string
+     * @throws Exception
+     */
+    private static function getSetString (array $columns): string {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $setString = '';
+            foreach ($columns as $columnIndex => $columnValue) {
+                $index = self::convertToDbString($columnIndex);
+                if ($columnValue === '++') {
+                    $setString .= "$index = $index + 1, ";
+                } else if (substr($columnValue, 0, 1) === '|') {
+                    $setString.= "$index = ".substr($columnValue, 1).", ";
+                } else {
+                    $setString .= "$index = ?, ";
+                }
+            }            
+            return ' SET '.rtrim($setString, ', ');
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getInsertString (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $insertKeys = array();
+            foreach ($columns as $columnValue) {
+                $insertKeys[] = self::convertToDbString($columnValue);
+            }
+            return $insertKeys;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getInsertValues (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $insertValues = array();
+            foreach ($columns as $columnValue) {
+                if ($columnValue === '' || $columnValue === 'NULL') {
+                    $insertValues[] = '?';
+                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    $insertValues[] = $columnValue;
+                } else {
+                    $insertValues[] = '?';
+                }
+            }
+            return $insertValues;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getPreparedWhere (array $columns): array {
+        try {
+            $preparedValues = array();
+            foreach ($columns as $columnValue) {
+                if ($columnValue === '' || $columnValue === '%%') {
+                    continue;
+                }
+                $values = explode('|', $columnValue);
+                if (count($values) > 1) {
+                    switch ($values[0]) {
+                        case 's1':
+                        case 's2':
+                        case 's3':
+                            break;
+                        case '%':
+                            $preparedValues[] = addslashes($values[1]);
+                            break;
+                        case '>':
+                        case '<':
+                        case '>=':
+                        case '<=':
+                        case '<>':
+                            $preparedValues[] = $values[1];
+                            break;
+                        case 'IN':
+                        case 'NOT IN':
+                            $inValues = explode(',', $values[1]);
+                            foreach ($inValues as $inValue) {
+                                $preparedValues[] = $inValue;
+                            }
+                            break;
+                        default:
+                            $preparedValues[] = addslashes($columnValue);
+                    }
+                } else if ($columnValue === 'IS NULL' || $columnValue === 'IS NOT NULL') {
+                    continue;
+                } else {
+                    $preparedValues[] = addslashes($columnValue);
+                }
+            }
+            return $preparedValues;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getPreparedSet (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $preparedValues = array();
+            foreach ($columns as $columnValue) {
+                if ($columnValue === '++') {
+                    continue;
+                } else if (substr($columnValue, 0, 1) === '|') {
+                    continue;
+                } else if ($columnValue === '' || $columnValue === 'NULL') {
+                    $preparedValues[] = null;
+                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    $preparedValues[] = $columnValue;
+                } else {
+                    $preparedValues[] = addslashes($columnValue);
+                }
+            }
+            return $preparedValues;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getPreparedInsert (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $insertValues = array();
+            foreach ($columns as $columnValue) {
+                if ($columnValue === '' || $columnValue === 'NULL') {
+                    $insertValues[] = null;
+                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    continue;
+                } else {
+                    $insertValues[] = addslashes($columnValue);
+                }
+            }
+            return $insertValues;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $columns
+     * @param bool $throwEmpty
+     * @param string $orderBy
+     * @return array
+     * @throws Exception
+     */
+    public static function select (string $tableName, array $columns=array(), bool $throwEmpty=false, string $orderBy=''): array {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : '';
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = /** @lang text */
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy;
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedWheres);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($throwEmpty && empty($result)) {
+                throw new Exception('Select query result empty');
+            }
+            return self::convertFromDbIndex($result);
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $columns
+     * @param string $columnOut
+     * @param bool $throwEmpty
+     * @param string $orderBy
+     * @return string
+     * @throws Exception
+     */
+    public static function selectColumn (string $tableName, array $columns=array(), string $columnOut='', bool $throwEmpty=false, string $orderBy=''): string {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            if (empty($columnOut)) {
+                throw new Exception('Empty $columnOut');
+            }
+            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : '';
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = /** @lang text */
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy;
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedWheres);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($throwEmpty && empty($result)) {
+                throw new Exception('Select query result empty');
+            }
+            $resultConvert = self::convertFromDbIndex($result);
+            if (!array_key_exists($columnOut, $resultConvert)) {
+                throw new Exception('Column '.$columnOut.' in result query not found');
+            }
+            return $resultConvert[$columnOut];
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $columns
+     * @param int $fetchType
+     * @param bool $throwEmpty
+     * @param string $orderBy
+     * @param string $limit
+     * @return array
+     * @throws Exception
+     */
+    public static function selectAll (string $tableName, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $limit=''): array {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : ' ';
+            $limit = !empty($limit) ? ' LIMIT '.$limit : '';
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = /** @lang text */
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy.$limit;
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedWheres);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
+            $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
+            if ($throwEmpty && empty($result)) {
+                throw new Exception('Select query result empty');
+            }
+            return self::convertFromDbIndexes($result);
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $statement
+     * @param array $columns
+     * @param int $fetchType
+     * @param bool $throwEmpty
+     * @return array
+     * @throws Exception
+     */
+    public static function selectSqlAll (string $statement, array $columns=array(), int $fetchType=0, bool $throwEmpty=false): array {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($statement)) {
+                throw new Exception('Empty $statement');
+            }
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($columns);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
+            $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
+            $stmt = null;
+            if ($throwEmpty && empty($result)) {
+                throw new Exception('Select query result empty');
+            }
+            return self::convertFromDbIndexes($result);
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $columns
+     * @return int
+     * @throws Exception
+     */
+    public static function count (string $tableName, array $columns=array()): int {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = /** @lang text */
+                "SELECT COUNT(*) FROM ".$tableName.self::getWhereString($columns);
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedWheres);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
+            $result = $stmt->fetch();
+            return $result[0];
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $insertArr
+     * @return int
+     * @throws Exception
+     */
+    public static function insert (string $tableName, array $insertArr=array()): int {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            if (empty($insertArr)) {
+                throw new Exception('Empty $insertArr');
+            }
+            $insertKeys = array_keys($insertArr);
+            $insertValues = array_values($insertArr);
+            $preparedValues = self::getPreparedInsert($insertValues);
+            $statement = /** @lang text */
+                "INSERT INTO ".$tableName." (".implode(', ', self::getInsertString($insertKeys)).") VALUES (".implode(', ', self::getInsertValues($insertValues)).")";
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedValues);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
+            return self::$DBH->lastInsertId();
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param array $setArr
+     * @param array $whereArr
+     * @return int
+     * @throws Exception
+     */
+    public static function update (string $tableName, array $setArr=array(), array $whereArr=array()): int {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            if (empty($whereArr)) {
+                throw new Exception('Empty $whereArr');
+            }
+            if (empty($setArr)) {
+                throw new Exception('Empty $setArr');
+            }
+            $preparedSetValues = self::getPreparedSet($setArr);
+            $preparedWheres = self::getPreparedWhere($whereArr);
+            $statement = /** @lang text */
+                "UPDATE ".$tableName.self::getSetString($setArr).self::getWhereString($whereArr);
+            $stmt = self::$DBH->prepare($statement);
+            $preparedValues = array_merge($preparedSetValues, $preparedWheres);
+            $stmt->execute($preparedValues);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
+            return $stmt->rowCount();
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+}

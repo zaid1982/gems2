@@ -76,11 +76,11 @@ function MainAttendanceConfig () {
                 {mData: 'totalGroup'},
                 {mData: 'totalParticipant'},
                 {mData: 'siteIsAttendance', width: '10%', mRender: function(data) {
-                        return data === '1' ? 'Yes' : 'No';
+                        return data === 1 ? 'Yes' : 'No';
                     }},
                 {mData: null, width: '5%',
                     mRender: function (data, type, row, meta) {
-                        if (row['siteIsAttendance'] === '1') {
+                        if (row['siteIsAttendance'] === 1) {
                             return '<a><i class="fas fa-toggle-off lnkAtcDeactivate" id="lnkAtcDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to Deactivate"></i></a>';
                         } else {
                             return '<a><i class="fas fa-toggle-on lnkAtcActivate" id="lnkAtcActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to Activate"></i></a>';

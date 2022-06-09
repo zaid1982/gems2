@@ -94,7 +94,7 @@ class Class_login {
             }
             
             $key = "gems2";
-            $token = array('iss'=>'inventory_sample1/jwt', 'userId'=>$userId, 'username'=>$username, 'iat'=>time(), 'exp'=>time()+10);
+            $token = array('iss'=>'gems2/jwt', 'userId'=>$userId, 'username'=>$username, 'iat'=>time(), 'exp'=>time()+10);
             $jwt = JWT::encode($token, $key);              
             return $jwt;
         }
@@ -118,9 +118,10 @@ class Class_login {
             
             $key = "gems2";
             JWT::$leeway = 86400; // $leeway in seconds
-            $data = JWT::decode(substr($jwt, 7), $key, array('HS256'));
+            $token = substr($jwt, 7);
+            $data = JWT::decode($token, $key, array('HS256'));
             
-            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId)) == 0) {
+            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId, 'user_token'=>$token)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Token not valid');
             }
             return $data;
@@ -330,6 +331,7 @@ class Class_login {
             $result['clientId'] = $upload = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$profile['site_id']), 'client_id', null, 1);
 
             $result['menu'] = $this->get_menu_list($arr_roles);
+            Class_db::getInstance()->db_update('sys_user', array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token), array('user_id'=>$userId));
 
             return $result;
         }

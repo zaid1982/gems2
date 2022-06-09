@@ -16,6 +16,8 @@ function SectionAttendanceGroup () {
     }*/
 
     this.init = function () {
+        //self.hideMain();
+
         $('#btnSagBack').on('click', function () {
             ShowLoader();
             setTimeout(function () {
