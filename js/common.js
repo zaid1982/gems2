@@ -1199,7 +1199,7 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
                         const dataValue = u[filterKey];
                         if (dataValue === filterVal) {
                             filterCnt++;
-                        } else if (filterVal !== null && filterVal.substr(0,1) === '#') {
+                        } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '#') {
                             const filterSplit = dataValue.split(',');
                             for (let j=0; j<filterSplit.length; j++) {
                                 if (filterSplit[j] === filterVal.substr(1)) {
@@ -1207,7 +1207,7 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
                                     break;
                                 }
                             }
-                        } else if (filterVal !== null && filterVal.substr(0,1) === '(') {
+                        } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '(') {
                             let filterVal2 = filterVal.substr(1,filterVal.length-2);
                             const filterSplit2 = filterVal2.split(',');
                             for (let j=0; j<filterSplit2.length; j++) {
@@ -1323,7 +1323,7 @@ function mzSetFieldValue(name, value, type, label, isInit) {
         }
         $('#opt' + name + 'Pre').addClass('active');
     }
-    else if (value !== '' && value.length !== 0) {
+    else if (value !== null || value !== '' || value.length !== 0) {
         if (type === 'text') {
             $('#txt'+name).val(value);
             $('#lbl'+name).addClass('active');

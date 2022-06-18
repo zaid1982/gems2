@@ -263,8 +263,8 @@ function ModalAttendanceGroup () {
                     throw new Error('Your Role is disallowed to configure this Attendance Group');
                 }
 
-                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#20'}, 'required');
-                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#21'}, 'required');
+                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#20'}, 'required');
+                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#21'}, 'required');
                 const attGroup = mzAjaxRequest2('att_group/'+attGroupId, 'GET');
                 const polygon = JSON.parse(attGroup['attGroupPolygon']);
                 mzSetFieldValue('MtgGroupName', attGroup['attGroupName'], 'text');
@@ -314,6 +314,19 @@ function ModalAttendanceGroup () {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+        for (let i=0; i<refUser.length; i++) {
+            if (typeof refUser[i] !== 'undefined') {
+                if (typeof refUser[i]['siteId'] === 'string') {
+                    refUser[i]['siteId'] = parseInt(refUser[i]['siteId']);
+                }
+                if (typeof refUser[i]['userStatus'] === 'string') {
+                    refUser[i]['userStatus'] = parseInt(refUser[i]['userStatus']);
+                }
+                if (typeof refUser[i]['userType'] === 'string') {
+                    refUser[i]['userType'] = parseInt(refUser[i]['userType']);
+                }
+            }
+        }
     };
 
     this.setGoogleMapsDrawingPolygon = function (_googleMapsDrawingPolygonClass) {

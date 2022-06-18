@@ -8,7 +8,7 @@ use \Firebase\JWT\JWT;
 
 class General {
 
-    public $userId;
+    public $userId = 0;
     public $isLogged = false;
 
     /**
@@ -111,6 +111,35 @@ class General {
             }
             return true;
         } catch (Exception | Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $inputArr
+     * @param array $indexArr
+     * @param bool $isAlert
+     * @return void
+     * @throws Exception
+     */
+    public function checkMandatoryArray (array $inputArr, array $indexArr, bool $isAlert=false): void {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyArray($inputArr);
+            $this->checkEmptyArray($indexArr);
+            $throwCode = $isAlert ? 31 : 30;
+            foreach ($indexArr as $index) {
+                if (!array_key_exists($index, $inputArr)) {
+                    throw new Exception('Index '.$index.' not exist');
+                }
+                $param = $inputArr[$index];
+                if (is_null($param) || $param === '') {
+                    throw new Exception('[' . __LINE__ . '] - Parameter '.$index.' empty', $throwCode);
+                } else if (gettype($param) === 'integer' && $param === 0) {
+                    throw new Exception('[' . __LINE__ . '] - Integer '.$index.' 0', $throwCode);
+                }
+            }
+        } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
@@ -294,6 +323,69 @@ class General {
                 $outputArr[$index] = $inputArr[$index];
             }
             return $outputArr;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $fileArr
+     * @param int $documentId
+     * @return void
+     * @throws Exception
+     */
+    public function uploadPrepare (array $fileArr, int $documentId): array {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyInteger($this->userId);
+            $this->checkEmptyArray($fileArr);
+            $this->checkEmptyInteger($documentId);
+            $this->checkMandatoryArray($fileArr, array('name', 'filename', 'type', 'size', 'data'));
+
+            $curDates = new DateTime();
+            $uploadUplname = $fileArr['filename'];
+            $pos = strrpos($uploadUplname,'.');
+
+            $uploadArr['uploadName'] = $fileArr['name'];
+            $uploadArr['uploadUplname'] = $uploadUplname;
+            $uploadArr['uploadFilename'] = $curDates->format("ymdHis").'_'.$documentId.'_'.$this->userId;
+            $uploadArr['uploadExtension'] = $pos !== false ? substr($uploadUplname, $pos+1) : ' - ';
+            $uploadArr['uploadFolder'] = 'upload/temp';
+            $uploadArr['uploadFilesize'] = $fileArr['size'];
+            $uploadArr['uploadFileWidth'] = $fileArr['width'];
+            $uploadArr['uploadFileHeight'] = $fileArr['height'];
+            $uploadArr['uploadBlobType'] = $fileArr['type'];
+            $uploadArr['uploadCreatedBy'] = $this->userId;
+
+            if (!$this->folderExist($uploadArr['uploadFolder'])) {
+                mkdir ($uploadArr['uploadFolder'],0777, true);
+            }
+            file_put_contents($uploadArr['uploadFolder'].'/'.$uploadArr['uploadFilename'].'.'.$uploadArr['uploadExtension'], base64_decode($fileArr['data']));
+            return $uploadArr;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $uploadArr
+     * @param string $folder
+     * @param string $filename
+     * @return int
+     * @throws Exception
+     */
+    public function uploadSave (array $uploadArr, string $folder, string $filename): int {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyArray($uploadArr);
+            $folderNew = 'upload/'.$folder;
+            if (!$this->folderExist($folderNew)) {
+                mkdir ($folderNew,0777, true);
+            }
+            rename($uploadArr['uploadFolder'].'/'.$uploadArr['uploadFilename'].'.'.$uploadArr['uploadExtension'], $folderNew.'/'.$filename.'.'.$uploadArr['uploadExtension']);
+            $uploadArr['uploadFolder'] = $folderNew;
+            $uploadArr['uploadFilename'] = $filename;
+            return DbMysql::insert('sys_upload', $uploadArr);
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

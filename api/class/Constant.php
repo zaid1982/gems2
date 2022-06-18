@@ -10,10 +10,14 @@ class Constant {
     public static $isLogged = true;
     public static $folderDebug = 'C:\Users\User\logs\gems\\';
 
-
-
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
+    );
+
+    public static $taskErr = array(
+        'alreadySubmitted' => 'This task already submitted!',
+        'claimed' => 'This task currently assigned to other user!',
+        'invalidRole' => 'You do not have __ role to perform this task!'
     );
 
     public static $attGroupErr = array(

@@ -19,22 +19,26 @@ try {
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnAttGroup->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod);
+    $fnAttGroup->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
     $urlArr = $fnAttGroup->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            $result = $fnAttGroup->getAttGroupRef();
+            $result = $fnAttGroup->getRef();
         }
         else if ($urlArr[1] === 'site') {
             if (isset ($urlArr[2])) {
-                //Todo getAttSite($urlArr[2])
+                $result = $fnAttGroup->getAttSite(intval($urlArr[2]));
             } else {
                 $result = $fnAttGroup->getAttSiteList();
             }
         }
+        else if ($urlArr[1] === 'by_site') {
+            $result = $fnAttGroup->getList(intval($urlArr[2]));
+        }
         else {
-            //Todo getAttGroup($urlArr[1])
+            $fnAttGroup->set(intval($urlArr[1]));
+            $result = $fnAttGroup->attGroup;
         }
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -53,7 +57,7 @@ try {
         if ($urlArr[1] === 'activate_site') {
             $siteId = intval($urlArr[2]);
             $fnAttGroup->setSiteName($siteId);
-            $fnAttGroup->activateAttSite($siteId);
+            $fnAttGroup->activate($siteId);
             $fnAttGroup->updateVersion(6);
             
             $fnAttGroup->saveAudit(180, $fnAttGroup->siteName);
@@ -62,7 +66,7 @@ try {
         else if ($urlArr[1] === 'deactivate_site') {
             $siteId = intval($urlArr[2]);
             $fnAttGroup->setSiteName($siteId);
-            $fnAttGroup->deactivateAttSite($siteId);
+            $fnAttGroup->deactivate($siteId);
             $fnAttGroup->updateVersion(6);
             $fnAttGroup->saveAudit(181, $fnAttGroup->siteName);
             $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroupSuc['disabled']);

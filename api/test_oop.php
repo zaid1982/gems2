@@ -20,6 +20,7 @@ $fnGeneral = new General();
 $fnLogin = new Login();
 
 try {
+
    // print_r(apache_request_headers());
     $j = array('checkpointId'=>'NULL', 'roleId'=>'1');
     print_r(array_keys($j));

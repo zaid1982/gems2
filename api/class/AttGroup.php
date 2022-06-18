@@ -2,7 +2,7 @@
 
 class AttGroup extends General {
 
-    public $attGroupId = '';
+    public $attGroupId = 0;
     public $attGroup = array();
     public $siteName = '';
 
@@ -10,13 +10,59 @@ class AttGroup extends General {
     }
 
     /**
+     * @param int $attGroupId
+     * @return void
+     * @throws Exception
+     */
+    public function set (int $attGroupId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            parent::checkEmptyInteger($attGroupId);
+            $this->attGroupId = $attGroupId;
+            $this->attGroup = DbMysql::select('v_att_group', array('attGroupId'=>$this->attGroupId),true);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $siteId
      * @return array
      * @throws Exception
      */
-    public function getAttGroupRef (): array {
+    public function getList (int $siteId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            parent::checkEmptyInteger($siteId);
+            return DbMysql::selectAll('v_att_group', array('siteId'=>$siteId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getRef (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             return DbMysql::selectAll('v_att_group', array(), 1);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $siteId
+     * @return array
+     * @throws Exception
+     */
+    public function getAttSite (int $siteId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            parent::checkEmptyInteger($siteId);
+            return DbMysql::select('v_att_site', array('siteId'=>$siteId), true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -55,7 +101,7 @@ class AttGroup extends General {
      * @return void
      * @throws Exception
      */
-    public function activateAttSite (int $siteId): void {
+    public function activate (int $siteId): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             parent::checkEmptyInteger($siteId);
@@ -73,7 +119,7 @@ class AttGroup extends General {
      * @return void
      * @throws Exception
      */
-    public function deactivateAttSite (int $siteId): void {
+    public function deactivate (int $siteId): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
             parent::checkEmptyInteger($siteId);

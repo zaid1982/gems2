@@ -3,7 +3,7 @@
 class DbMysql {
 
     public static $DBH;
-    public static $userId;
+    public static $userId = 0;
     public static $isLogged = false;
 
     /**
@@ -246,79 +246,6 @@ class DbMysql {
 
     /**
      * @param array $columns
-     * @return string
-     * @throws Exception
-     */
-    private static function getSetString (array $columns): string {
-        try {
-            if (empty($columns)) {
-                throw new Exception('Empty $columns');
-            }
-            $setString = '';
-            foreach ($columns as $columnIndex => $columnValue) {
-                $index = self::convertToDbString($columnIndex);
-                if ($columnValue === '++') {
-                    $setString .= "$index = $index + 1, ";
-                } else if (substr($columnValue, 0, 1) === '|') {
-                    $setString.= "$index = ".substr($columnValue, 1).", ";
-                } else {
-                    $setString .= "$index = ?, ";
-                }
-            }            
-            return ' SET '.rtrim($setString, ', ');
-        } catch (Exception|Throwable $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param array $columns
-     * @return array
-     * @throws Exception
-     */
-    private static function getInsertString (array $columns): array {
-        try {
-            if (empty($columns)) {
-                throw new Exception('Empty $columns');
-            }
-            $insertKeys = array();
-            foreach ($columns as $columnValue) {
-                $insertKeys[] = self::convertToDbString($columnValue);
-            }
-            return $insertKeys;
-        } catch (Exception|Throwable $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param array $columns
-     * @return array
-     * @throws Exception
-     */
-    private static function getInsertValues (array $columns): array {
-        try {
-            if (empty($columns)) {
-                throw new Exception('Empty $columns');
-            }
-            $insertValues = array();
-            foreach ($columns as $columnValue) {
-                if ($columnValue === '' || $columnValue === 'NULL') {
-                    $insertValues[] = '?';
-                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
-                    $insertValues[] = $columnValue;
-                } else {
-                    $insertValues[] = '?';
-                }
-            }
-            return $insertValues;
-        } catch (Exception|Throwable $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param array $columns
      * @return array
      * @throws Exception
      */
@@ -370,6 +297,33 @@ class DbMysql {
 
     /**
      * @param array $columns
+     * @return string
+     * @throws Exception
+     */
+    private static function getSetString (array $columns): string {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $setString = '';
+            foreach ($columns as $columnIndex => $columnValue) {
+                $index = self::convertToDbString($columnIndex);
+                if ($columnValue === '++') {
+                    $setString .= "$index = $index + 1, ";
+                } else if (substr($columnValue, 0, 1) === '|') {
+                    $setString.= "$index = ".substr($columnValue, 1).", ";
+                } else {
+                    $setString .= "$index = ?, ";
+                }
+            }            
+            return ' SET '.rtrim($setString, ', ');
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
      * @return array
      * @throws Exception
      */
@@ -403,6 +357,54 @@ class DbMysql {
      * @return array
      * @throws Exception
      */
+    private static function getInsertString (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $insertKeys = array();
+            foreach ($columns as $columnValue) {
+                $insertKeys[] = self::convertToDbString($columnValue);
+            }
+            return $insertKeys;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
+    private static function getInsertValues (array $columns): array {
+        try {
+            if (empty($columns)) {
+                throw new Exception('Empty $columns');
+            }
+            $insertValues = array();
+            foreach ($columns as $columnValue) {
+                if ($columnValue === '' || $columnValue === 'NULL') {
+                    $insertValues[] = '?';
+                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    $insertValues[] = $columnValue;
+                } else if (substr($columnValue, 0, 1) === '|') {
+                    $insertValues[] = substr($columnValue, 1);
+                } else {
+                    $insertValues[] = '?';
+                }
+            }
+            return $insertValues;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     * @throws Exception
+     */
     private static function getPreparedInsert (array $columns): array {
         try {
             if (empty($columns)) {
@@ -413,6 +415,8 @@ class DbMysql {
                 if ($columnValue === '' || $columnValue === 'NULL') {
                     $insertValues[] = null;
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    continue;
+                } else if (substr($columnValue, 0, 1) === '|') {
                     continue;
                 } else {
                     $insertValues[] = addslashes($columnValue);
@@ -429,10 +433,11 @@ class DbMysql {
      * @param array $columns
      * @param bool $throwEmpty
      * @param string $orderBy
+     * @param string $orderDirection
      * @return array
      * @throws Exception
      */
-    public static function select (string $tableName, array $columns=array(), bool $throwEmpty=false, string $orderBy=''): array {
+    public static function select (string $tableName, array $columns=array(), bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC'): array {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
@@ -440,10 +445,10 @@ class DbMysql {
             if (empty($tableName)) {
                 throw new Exception('Empty $tableName');
             }
-            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : '';
+            $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
-                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy;
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$order;
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
@@ -465,10 +470,11 @@ class DbMysql {
      * @param string $columnOut
      * @param bool $throwEmpty
      * @param string $orderBy
+     * @param string $orderDirection
      * @return string
      * @throws Exception
      */
-    public static function selectColumn (string $tableName, array $columns=array(), string $columnOut='', bool $throwEmpty=false, string $orderBy=''): string {
+    public static function selectColumn (string $tableName, array $columns=array(), string $columnOut='', bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC'): string {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
@@ -479,10 +485,10 @@ class DbMysql {
             if (empty($columnOut)) {
                 throw new Exception('Empty $columnOut');
             }
-            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : '';
+            $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
-                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy;
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$order;
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
@@ -508,11 +514,12 @@ class DbMysql {
      * @param int $fetchType
      * @param bool $throwEmpty
      * @param string $orderBy
+     * @param string $orderDirection
      * @param string $limit
      * @return array
      * @throws Exception
      */
-    public static function selectAll (string $tableName, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $limit=''): array {
+    public static function selectAll (string $tableName, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC', string $limit=''): array {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
@@ -520,11 +527,11 @@ class DbMysql {
             if (empty($tableName)) {
                 throw new Exception('Empty $tableName');
             }
-            $orderBy = !empty($orderBy) ? ' ORDER BY '.$orderBy : ' ';
+            $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
             $limit = !empty($limit) ? ' LIMIT '.$limit : '';
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
-                "SELECT * FROM ".$tableName.self::getWhereString($columns).$orderBy.$limit;
+                "SELECT * FROM ".$tableName.self::getWhereString($columns).$order.$limit;
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
