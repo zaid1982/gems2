@@ -15,7 +15,7 @@ function MainFcaTask () {
         isAuditor = mzIsRoleExist('21');
         
         let exportOptFctObserve = Object.assign({}, mzExportOpt);
-        exportOptFctObserve['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9];
+        exportOptFctObserve['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 10, 13, 14];
         oTableFctObserve = $('#dtFctObserve').DataTable({
             bLengthChange: false,
             bFilter: true,
