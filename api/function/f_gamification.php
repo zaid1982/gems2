@@ -252,7 +252,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmLate'] = intval($ppm['ppmLate']);
                 $gmiMonthly[$userId]['gmiPpmWithin'] = intval($ppm['ppmWithin']);
                 if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
-                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 2;
+                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
                 } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
@@ -272,7 +272,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
                 $gmiMonthly[$userId]['gmiPpmLate'] += intval($ppmAssist['ppmLate']);
                 if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
-                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 2;
+                    $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
                 } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
@@ -292,7 +292,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiWoLate'] = intval($wo['woLate']);
                 $gmiMonthly[$userId]['gmiWoSelfFinding'] = intval($wo['woSelfFinding']);
                 if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
-                    $gmiMonthly[$userId]['gmiWoTierPoint'] = 2;
+                    $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Medalist';
                 } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
@@ -312,7 +312,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiWoOnTime'] += intval($woAssist['woOnTime']);
                 $gmiMonthly[$userId]['gmiWoLate'] += intval($woAssist['woLate']);
                 if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
-                    $gmiMonthly[$userId]['gmiWoTierPoint'] = 2;
+                    $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Medalist';
                 } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
