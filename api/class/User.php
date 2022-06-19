@@ -14,14 +14,18 @@ class User extends General {
     public function getRef (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $sysUserArrNew = array();
             $sysUserArr = DbMysql::selectAll('sys_user', array(), 1);
-            foreach ($sysUserArr as $sysUser) {
-                $sysUserNew = parent::arraySpliceAssoc($sysUser, array('userName', 'userType', 'userFirstName', 'userMykadNo', 'siteId', 'uploadId', 'userFailAttempt', 'userTimeCreated', 'userTimeActivate',
-                    'userTimeLogin', 'userTimeBlock', 'userSignature', 'userStatus'));
-                $sysUserArrNew[] = $sysUserNew;
+            foreach ($sysUserArr as $i=>$sysUser) {
+                $sysUserArr[$i]['userPassword'] = null;
+                $sysUserArr[$i]['userPasswordTemp'] = null;
+                $sysUserArr[$i]['userToken'] = null;
+                $sysUserArr[$i]['userDeviceId'] = null;
+                $sysUserArr[$i][1] = null;
+                $sysUserArr[$i][2] = null;
+                $sysUserArr[$i][10] = null;
+                $sysUserArr[$i][17] = null;
             }
-            return $sysUserArrNew;
+            return $sysUserArr;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
