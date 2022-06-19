@@ -10,7 +10,7 @@ class Audit extends General {
      */
     public function insertAudit () {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             //$ipaddress = self::getIpAddress();
         } catch (Exception|Throwable $ex) {

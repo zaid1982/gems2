@@ -17,6 +17,7 @@ class Constant {
     public static $taskErr = array(
         'alreadySubmitted' => 'This task already submitted!',
         'claimed' => 'This task currently assigned to other user!',
+        'notClaimed' => 'This task should be claimed before submission!',
         'invalidRole' => 'You do not have __ role to perform this task!'
     );
 
@@ -28,5 +29,9 @@ class Constant {
     public static $attGroupSuc = array(
         'enabled' => 'Site __ successfully enabled!',
         'disabled' => 'Site __ successfully disabled!'
+    );
+
+    public static $fcaTaskSuc = array(
+        'submitNew' => 'New FCA Audit successfully submitted for recommendation process!'
     );
 }

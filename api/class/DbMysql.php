@@ -312,6 +312,8 @@ class DbMysql {
                     $setString .= "$index = $index + 1, ";
                 } else if (substr($columnValue, 0, 1) === '|') {
                     $setString.= "$index = ".substr($columnValue, 1).", ";
+                } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
+                    $setString .= "$index = $columnValue, ";
                 } else {
                     $setString .= "$index = ?, ";
                 }
@@ -340,8 +342,10 @@ class DbMysql {
                     continue;
                 } else if ($columnValue === '' || $columnValue === 'NULL') {
                     $preparedValues[] = null;
+                } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
+                    $preparedValues[] = null;
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
-                    $preparedValues[] = $columnValue;
+                    continue;
                 } else {
                     $preparedValues[] = addslashes($columnValue);
                 }
@@ -386,6 +390,8 @@ class DbMysql {
             foreach ($columns as $columnValue) {
                 if ($columnValue === '' || $columnValue === 'NULL') {
                     $insertValues[] = '?';
+                } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
+                    $insertValues[] = '?';
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
                     $insertValues[] = $columnValue;
                 } else if (substr($columnValue, 0, 1) === '|') {
@@ -413,6 +419,8 @@ class DbMysql {
             $insertValues = array();
             foreach ($columns as $columnValue) {
                 if ($columnValue === '' || $columnValue === 'NULL') {
+                    $insertValues[] = null;
+                } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
                     $insertValues[] = null;
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
                     continue;
@@ -449,10 +457,10 @@ class DbMysql {
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
                 "SELECT * FROM ".$tableName.self::getWhereString($columns).$order;
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
@@ -489,10 +497,10 @@ class DbMysql {
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
                 "SELECT * FROM ".$tableName.self::getWhereString($columns).$order;
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
@@ -532,10 +540,10 @@ class DbMysql {
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
                 "SELECT * FROM ".$tableName.self::getWhereString($columns).$order.$limit;
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
@@ -563,10 +571,10 @@ class DbMysql {
             if (empty($statement)) {
                 throw new Exception('Empty $statement');
             }
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($columns);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
             $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
             $stmt = null;
             if ($throwEmpty && empty($result)) {
@@ -596,10 +604,10 @@ class DbMysql {
             $preparedWheres = self::getPreparedWhere($columns);
             $statement = /** @lang text */
                 "SELECT COUNT(*) FROM ".$tableName.self::getWhereString($columns);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $result = $stmt->fetch();
             return $result[0];
         }
@@ -630,10 +638,10 @@ class DbMysql {
             $preparedValues = self::getPreparedInsert($insertValues);
             $statement = /** @lang text */
                 "INSERT INTO ".$tableName." (".implode(', ', self::getInsertString($insertKeys)).") VALUES (".implode(', ', self::getInsertValues($insertValues)).")";
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedValues);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
             return self::$DBH->lastInsertId();
         }
         catch (PDOException $ex) {
@@ -664,13 +672,13 @@ class DbMysql {
             }
             $preparedSetValues = self::getPreparedSet($setArr);
             $preparedWheres = self::getPreparedWhere($whereArr);
+            $preparedValues = array_merge($preparedSetValues, $preparedWheres);
             $statement = /** @lang text */
                 "UPDATE ".$tableName.self::getSetString($setArr).self::getWhereString($whereArr);
-            $stmt = self::$DBH->prepare($statement);
-            $preparedValues = array_merge($preparedSetValues, $preparedWheres);
-            $stmt->execute($preparedValues);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$stmt->queryString);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedValues);
             return $stmt->rowCount();
         }
         catch (PDOException $ex) {

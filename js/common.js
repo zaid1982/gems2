@@ -1038,6 +1038,36 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
     return returnVal;
 }
 
+function mzGetLocalArrayV2(name, version, api) {
+    if (typeof name === 'undefined' || typeof version === 'undefined') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (typeof version[name] === 'undefined' || version[name] === '') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    let getNew = false;
+    let objData;
+    let rawData;
+    const localData = localStorage.getItem(name+'_2');
+    if (localData === null) {
+        getNew = true;
+    } else {
+        const objEncrypted = CryptoJS.AES.decrypt(localData, 'GEMS').toString(CryptoJS.enc.Utf8);
+        objData = JSON.parse(objEncrypted);
+        if (typeof objData.version === 'undefined' || typeof objData.data === 'undefined' || objData.version !== version[name]) {
+            getNew = true;
+        } else {
+            rawData = objData.data;
+        }
+    }
+    if (getNew) {
+        rawData = mzAjaxRequest(api, 'GET', '', '', true);
+        const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
+        localStorage.setItem(name+'_2', rawEncrypted);
+    }
+    return rawData;
+}
+
 function mzGetIndexedArray (data, id) {
     try {
         if (id === '') {
@@ -1167,13 +1197,13 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
         //htmlStr.push('<option value="" disabled selected>'+defaultText+'</option>');
         document.getElementById(name).options[0].disabled = true;
     }
-    
+
     let dataSort = [];
     $.each(data, function (n, u) {
         if (typeof u !== 'undefined' && typeof u[keyIndex] !== 'undefined' && typeof u[valIndex] !== 'undefined') {
             dataSort.push(u);       
         }
-    }); 
+    });
 
     if (isSort) {
         if (typeof sortIndex !== 'undefined' && sortIndex !== '') {
@@ -1238,6 +1268,96 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     $('#lbl' + name.substr(3)).addClass('active');
     //document.getElementById(name).setAttribute('data-stop-refresh', 'true');
     //$('#'+name).prevAll('.select-dropdown').children('li:eq()').trigger('click');
+}
+
+
+
+function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
+    if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (name === '') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (typeof isSort === 'undefined') {
+        isSort = true;
+    }
+
+    const dataFilterArr = typeof filters === 'undefined' ? [] : filters;
+    let optionIndex = 0;
+    removeOptions(document.getElementById(name));
+    document.getElementById(name).options[optionIndex++] = new Option(defaultText, "", true, true);
+
+    if (typeof type !== 'undefined' && type === 'required') {
+        document.getElementById(name).options[0].disabled = true;
+    }
+
+    let dataSort = [];
+    $.each(data, function (n, u) {
+        if (typeof u !== 'undefined' && typeof u[valIndex] !== 'undefined') {
+            u['id'] = n;
+            dataSort.push(u);
+        }
+    });
+
+    if (isSort) {
+        if (typeof sortIndex !== 'undefined' && sortIndex !== '') {
+            dataSort.sort(function(a, b){
+                return a[sortIndex].localeCompare(b[sortIndex], 'en', {numeric: true});
+            });
+        } else {
+            dataSort.sort(function(a, b){
+                return a[valIndex].localeCompare(b[valIndex]);
+            });
+        }
+    }
+
+    $.each(dataSort, function (n, u) {
+        if (typeof u !== 'undefined' && typeof u[valIndex] !== 'undefined') {
+            if (dataFilterArr !== '') {
+                const keysFilter = Object.keys(dataFilterArr);
+                let filterCnt = 0;
+                for (let i=0; i<keysFilter.length; i++) {
+                    const filterKey = keysFilter[i];
+                    const filterVal = dataFilterArr[filterKey];
+                    if (typeof u[filterKey] !== 'undefined') {
+                        const dataValue = u[filterKey];
+                        if (dataValue === filterVal) {
+                            filterCnt++;
+                        } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '#') {
+                            const filterSplit = dataValue.split(',');
+                            for (let j=0; j<filterSplit.length; j++) {
+                                if (filterSplit[j] === filterVal.substr(1)) {
+                                    filterCnt++;
+                                    break;
+                                }
+                            }
+                        } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '(') {
+                            let filterVal2 = filterVal.substr(1,filterVal.length-2);
+                            const filterSplit2 = filterVal2.split(',');
+                            for (let j=0; j<filterSplit2.length; j++) {
+                                if (filterSplit2[j] === dataValue) {
+                                    filterCnt++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (filterCnt === keysFilter.length) {
+                    document.getElementById(name).options[optionIndex++] = new Option(u[valIndex], u['id']);
+                    //htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
+                }
+            } else {
+                document.getElementById(name).options[optionIndex++] = new Option(u[valIndex], u['id']);
+                //htmlStr.push('<option value="'+u[keyIndex]+'">'+u[valIndex]+'</option>');
+            }
+        }
+    });
+
+    $('#' + name).val(null);
+    $('#lbl' + name.substr(3)).removeClass('active');
+    $('#lbl' + name.substr(3)).addClass('active');
 }
 
 function removeOptions(selectbox) {

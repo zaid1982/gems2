@@ -18,14 +18,14 @@
 
     $.ajax({
         //url: 'api/m_ppm.php',
-        url: 'wo_request/reserve_request/252',
-        type: 'PUT',
-        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJpbnZlbnRvcnlfc2FtcGxlMVwvand0IiwidXNlcklkIjoiMjExIiwidXNlcm5hbWUiOiJyYW1kYW4iLCJpYXQiOjE2NDc1MTUzMDYsImV4cCI6MTY0NzUxNTMxNn0.1Lr4pMV5J6mAJeGMgdP2POMBtWLQMVbqZFRZSYvB8hQ',
+        url: 'fca_task',
+        type: 'POST',
+        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2NTU2MTAyMjEsImV4cCI6MTY1NTYxMDIzMX0.ZT5P93gcHNBhPIbMJ2pQzvCi3Ul5oJS99rk7lmHbpi8',
             deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
         data:
         {
-           /* ppmTaskId: '771266',
-            assistant: '950'*/
+            ppmTaskId: '771266',
+            assistant: '950'
         }
         ,
         dataType: 'json',
@@ -37,19 +37,19 @@
         }
     });
 
-   /*$.ajax({
-        url: 'api/m_login.php',
-        type: 'POST',
-        //contentType: 'application/json',
-        headers: '',
-        data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-        dataType: 'json',
-        success: function (resp) {
-            console.log(resp);
-        },
-        error: function () {
-            errMsg = _ALERT_MSG_ERROR_DEFAULT;
-        }
-    });*/
+    /*$.ajax({
+         url: 'api/m_login.php',
+         type: 'POST',
+         //contentType: 'application/json',
+         headers: '',
+         data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+         dataType: 'json',
+         success: function (resp) {
+             console.log(resp);
+         },
+         error: function () {
+             errMsg = _ALERT_MSG_ERROR_DEFAULT;
+         }
+     });*/
 //https://gems.globalfm.com.my/api/m_login.php
 </script>

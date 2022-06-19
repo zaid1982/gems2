@@ -24,19 +24,18 @@ try {
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
+            //TODO - get all att Group
+        } else if ($urlArr[1] === 'ref') {
             $result = $fnAttGroup->getRef();
-        }
-        else if ($urlArr[1] === 'site') {
+        } else if ($urlArr[1] === 'site') {
             if (isset ($urlArr[2])) {
                 $result = $fnAttGroup->getAttSite(intval($urlArr[2]));
             } else {
                 $result = $fnAttGroup->getAttSiteList();
             }
-        }
-        else if ($urlArr[1] === 'by_site') {
+        } else if ($urlArr[1] === 'by_site') {
             $result = $fnAttGroup->getList(intval($urlArr[2]));
-        }
-        else {
+        } else {
             $fnAttGroup->set(intval($urlArr[1]));
             $result = $fnAttGroup->attGroup;
         }
@@ -59,7 +58,6 @@ try {
             $fnAttGroup->setSiteName($siteId);
             $fnAttGroup->activate($siteId);
             $fnAttGroup->updateVersion(6);
-            
             $fnAttGroup->saveAudit(180, $fnAttGroup->siteName);
             $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroupSuc['enabled']);
         }

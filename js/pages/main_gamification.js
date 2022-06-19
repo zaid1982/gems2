@@ -349,6 +349,6 @@ function MainGamification () {
     };
 
     this.setSectionUserGameClass = function (_sectionUserGameClass) {
-        sectionUserGameClass = _sectionUserGameClass
+        sectionUserGameClass = _sectionUserGameClass;
     };
 }

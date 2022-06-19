@@ -41,14 +41,15 @@ class General {
 
     /**
      * @param string $string
+     * @param string $stringName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyString (string $string=''): bool {
+    public function checkEmptyString (string $string='', string $stringName=''): bool {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if ($string === '' || $string === NULL) {
-                throw new Exception('Empty $string');
+                throw new Exception('Empty string '.$stringName);
             }
             return true;
         } catch (Exception | Throwable $ex) {
@@ -58,14 +59,15 @@ class General {
 
     /**
      * @param int $integer
+     * @param string $integerName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyInteger (int $integer=0): bool {
+    public function checkEmptyInteger (int $integer=0, string $integerName): bool {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            if ($integer === 0) {
-                throw new Exception('Empty $integer');
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (empty($integer)) {
+                throw new Exception('Empty integer '.$integerName);
             }
             return true;
         } catch (Exception | Throwable $ex) {
@@ -75,14 +77,15 @@ class General {
 
     /**
      * @param array $dataInputs
+     * @param string $arrayName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyArray (array $dataInputs): bool {
+    public function checkEmptyArray (array $dataInputs, string $arrayName): bool {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($dataInputs)) {
-                throw new Exception('Empty $dataInputs');
+                throw new Exception('Empty array '.$arrayName);
             }
             return true;
         } catch (Exception | Throwable $ex) {
@@ -97,7 +100,7 @@ class General {
      */
     public function checkEmptyParams (array $params): bool {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             foreach ($params as $key=>$param) {
                 if (isset($param)) {
                     if ($param === '') {
@@ -124,9 +127,9 @@ class General {
      */
     public function checkMandatoryArray (array $inputArr, array $indexArr, bool $isAlert=false): void {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyArray($inputArr);
-            $this->checkEmptyArray($indexArr);
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyArray($inputArr, 'inputArr');
+            $this->checkEmptyArray($indexArr, 'indexArr');
             $throwCode = $isAlert ? 31 : 30;
             foreach ($indexArr as $index) {
                 if (!array_key_exists($index, $inputArr)) {
@@ -171,7 +174,7 @@ class General {
     public function saveAudit (int $auditActionId, string $remark): void {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyInteger($auditActionId);
+            $this->checkEmptyInteger($auditActionId, 'auditActionId');
             if (isset($_SERVER['HTTP_CLIENT_IP']) && $_SERVER['HTTP_CLIENT_IP']!='') {
                 $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
             } else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']!='') {
@@ -221,7 +224,7 @@ class General {
     public function getStringFromFile (string $filename): string {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyString($filename);
+            $this->checkEmptyString($filename, 'filename');
             $handle = fopen($filename.'.txt', "rb");
             if (FALSE === $handle) {
                 throw new Exception('Fail to open '.$filename);
@@ -241,7 +244,7 @@ class General {
      */
     public function checkJwt (array $headers) {
         try {
-            $this->checkEmptyArray($headers);
+            $this->checkEmptyArray($headers, 'headers');
             if (isset($headers['Authorization'])) {
                 $jwt = $headers['Authorization'];
             } else if (isset($headers['authorization']) && isset($headers['deviceid'])) {
@@ -297,7 +300,7 @@ class General {
     public function updateVersion (int $versionId): void {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyInteger($versionId);
+            $this->checkEmptyInteger($versionId, 'versionId');
             DbMysql::update('sys_version', array('versionNo'=>'++'), array('versionId'=>$versionId));
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -313,8 +316,8 @@ class General {
     public function arraySpliceAssoc (array $inputArr, array $indexArr): array {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyArray($inputArr);
-            $this->checkEmptyArray($indexArr);
+            $this->checkEmptyArray($inputArr, 'inputArr');
+            $this->checkEmptyArray($indexArr, 'indexArr');
             $outputArr = array();
             foreach ($indexArr as $index) {
                 if (!array_key_exists($index, $inputArr)) {
@@ -329,6 +332,15 @@ class General {
     }
 
     /**
+     * @param string $folder
+     * @return bool
+     */
+    public function folderExist (string $folder): bool {
+        $path = realpath($folder);
+        return ($path !== false AND is_dir($path));
+    }
+
+    /**
      * @param array $fileArr
      * @param int $documentId
      * @return void
@@ -337,15 +349,16 @@ class General {
     public function uploadPrepare (array $fileArr, int $documentId): array {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyInteger($this->userId);
-            $this->checkEmptyArray($fileArr);
-            $this->checkEmptyInteger($documentId);
+            $this->checkEmptyArray($fileArr, 'fileArr');
+            $this->checkEmptyInteger($this->userId, 'userId');
+            $this->checkEmptyInteger($documentId, 'documentId');
             $this->checkMandatoryArray($fileArr, array('name', 'filename', 'type', 'size', 'data'));
 
             $curDates = new DateTime();
             $uploadUplname = $fileArr['filename'];
             $pos = strrpos($uploadUplname,'.');
 
+            $uploadArr['documentId'] = $documentId;
             $uploadArr['uploadName'] = $fileArr['name'];
             $uploadArr['uploadUplname'] = $uploadUplname;
             $uploadArr['uploadFilename'] = $curDates->format("ymdHis").'_'.$documentId.'_'.$this->userId;
@@ -377,12 +390,15 @@ class General {
     public function uploadSave (array $uploadArr, string $folder, string $filename): int {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyArray($uploadArr);
+            $this->checkEmptyArray($uploadArr, 'uploadArr');
             $folderNew = 'upload/'.$folder;
             if (!$this->folderExist($folderNew)) {
                 mkdir ($folderNew,0777, true);
             }
-            rename($uploadArr['uploadFolder'].'/'.$uploadArr['uploadFilename'].'.'.$uploadArr['uploadExtension'], $folderNew.'/'.$filename.'.'.$uploadArr['uploadExtension']);
+            $currentFile = $uploadArr['uploadFolder'].'/'.$uploadArr['uploadFilename'].'.'.$uploadArr['uploadExtension'];
+            $newFile = $folderNew.'/'.$filename.'.'.$uploadArr['uploadExtension'];
+            rename($currentFile, $newFile);
+            //unlink($currentFile);
             $uploadArr['uploadFolder'] = $folderNew;
             $uploadArr['uploadFilename'] = $filename;
             return DbMysql::insert('sys_upload', $uploadArr);

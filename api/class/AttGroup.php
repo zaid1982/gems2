@@ -16,8 +16,8 @@ class AttGroup extends General {
      */
     public function set (int $attGroupId): void {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($attGroupId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attGroupId, 'attGroupId');
             $this->attGroupId = $attGroupId;
             $this->attGroup = DbMysql::select('v_att_group', array('attGroupId'=>$this->attGroupId),true);
         } catch (Exception|Throwable $ex) {
@@ -32,8 +32,8 @@ class AttGroup extends General {
      */
     public function getList (int $siteId): array {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($siteId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
             return DbMysql::selectAll('v_att_group', array('siteId'=>$siteId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -46,7 +46,7 @@ class AttGroup extends General {
      */
     public function getRef (): array {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             return DbMysql::selectAll('v_att_group', array(), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -60,8 +60,8 @@ class AttGroup extends General {
      */
     public function getAttSite (int $siteId): array {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($siteId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
             return DbMysql::select('v_att_site', array('siteId'=>$siteId), true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -74,7 +74,7 @@ class AttGroup extends General {
      */
     public function getAttSiteList (): array {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             return DbMysql::selectAll('v_att_site');
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -88,8 +88,8 @@ class AttGroup extends General {
      */
     public function setSiteName (int $siteId): void {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($siteId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
             $this->siteName = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteName', true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -103,8 +103,8 @@ class AttGroup extends General {
      */
     public function activate (int $siteId): void {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($siteId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
             if (DbMysql::count('cli_site', array('siteId'=>$siteId, 'siteIsAttendance'=>1)) > 0) {
                 throw new Exception(str_replace('__', $this->siteName, Constant::$attGroupErr['siteAlreadyEnabled']), 31);
             }
@@ -121,8 +121,8 @@ class AttGroup extends General {
      */
     public function deactivate (int $siteId): void {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-            parent::checkEmptyInteger($siteId);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
             if (DbMysql::count('cli_site', array('siteId'=>$siteId, 'siteIsAttendance'=>0)) > 0) {
                 throw new Exception(str_replace('__', $this->siteName, Constant::$attGroupErr['siteAlreadyDisabled']), 31);
             }
