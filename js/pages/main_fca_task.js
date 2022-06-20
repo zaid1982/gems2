@@ -12,7 +12,7 @@ function MainFcaTask () {
     let refDefectCategory;
 
     this.init = function () {
-        isAuditor = mzIsRoleExist('21');
+        isAuditor = mzIsRoleExist('22');
         
         let exportOptFctObserve = Object.assign({}, mzExportOpt);
         exportOptFctObserve['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 10, 13, 14];

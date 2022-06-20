@@ -102,7 +102,7 @@ class FcaTask extends General {
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkEmptyString($this->fcaTaskNo, 'fcaTaskNo');
             parent::checkEmptyArray($columns, 'columns');
-            parent::checkMandatoryArray($columns, array('siteId', 'assetGroupId', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation', 'fcaTaskImage1'), true);
+            parent::checkMandatoryArray($columns, array('siteId', 'assetGroupId', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation', 'fcaTaskImage1'), true);
             $columns['transactionId'] = $transactionId;
             $columns['fcaTaskNo'] = $this->fcaTaskNo;
             $columns['fcaTaskCreatedBy'] = $this->userId;
