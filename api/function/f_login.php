@@ -121,7 +121,7 @@ class Class_login {
             $token = substr($jwt, 7);
             $data = JWT::decode($token, $key, array('HS256'));
             
-            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId, 'user_token'=>$token)) == 0) {
+            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Token not valid');
             }
             return $data;
