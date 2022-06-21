@@ -101,15 +101,13 @@ class FcaTask extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkEmptyString($this->fcaTaskNo, 'fcaTaskNo');
-            parent::checkEmptyArray($columns, 'columns');
             parent::checkMandatoryArray($columns, array('siteId', 'assetGroupId', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation', 'fcaTaskImage1'), true);
             $columns['transactionId'] = $transactionId;
             $columns['fcaTaskNo'] = $this->fcaTaskNo;
             $columns['fcaTaskCreatedBy'] = $this->userId;
             $columns['fcaTaskTimeCreated'] = 'NOW()';
             $columns['fcaTaskStatus'] = '55';
-            $fcaTaskId = DbMysql::insert('fca_task', $columns);
-            $this->set($fcaTaskId);
+            $this->set(DbMysql::insert('fca_task', $columns));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

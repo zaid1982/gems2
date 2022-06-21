@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>GEMS 2.0</title>
+</head>
+<body>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -34,53 +43,23 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFctMain">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFczMain">
             <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Facility Condition Appraisal (FCA) Task
+                Facility Condition Appraisal (FCA) Zone Management
             </h5>
         </nav>
-        <nav class="navbar navbar-expand navbar-dark primary-color lighten-2 z-depth-4 mt-4 sectionFctMain">
-            <div class="collapse navbar-collapse" id="basicExampleNav">
-                <ul class="navbar-nav mr-auto">
-                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctAudit" type="button">
-                        <i class="fas fa-eye mr-2"></i> Observe
-                    </button>
-                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctRecommend" type="button">
-                        <i class="fas fa-marker mr-2"></i> Recommend
-                    </button>
-                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctValidate" type="button">
-                        <i class="fas fa-check mr-2"></i> Validate
-                    </button>
-                </ul>
-            </div>
-        </nav>
-        <section class="my-3 sectionFctMain sectionFctObserve">
+        <section class="my-3">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1" id="divFctObserveHeader">
-                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Observation List</h4>
-                        </div>
+                    <div class="card z-depth-3 mb-4_5" id="divFczCard">
                         <div class="card-body pt-4">
                             <div class="table-responsive">
-                                <table id="dtFctObserve" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtFczData" class="table table-hover table-sm mb-0 display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
-                                        <th>Audit No.</th>
                                         <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Block</th>
-                                        <th>Level</th>
-                                        <th>Area</th> <!--10-->
-                                        <th>Auditor</th>
-                                        <th>Validator</th>
-                                        <th>Submitted Time</th>
+                                        <th>Zone Name</th>
                                         <th>Status</th>
                                     </tr>
                                     </thead>
@@ -92,10 +71,10 @@
                 </div>
             </div>
         </section>
-        <div class="includeHtml" id="h-section_fca_info"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_fca_add"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_fca_zone"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -131,9 +110,9 @@
 
     let versionLocal_;
     let changePasswordClass_;
-    let modalFcaAddClass_;
-    let sectionFcaInfoClass_;
-    let fcaTaskClass_;
+    let modalConfirmDelete_;
+    let modalFcaZoneClass_;
+    let fcaZoneClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
         ShowLoader();
@@ -142,33 +121,22 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                modalFcaAddClass_ = new ModalFcaAdd();
-                sectionFcaInfoClass_ = new SectionFcaInfo();
-                fcaTaskClass_ = new MainFcaTask();
+                modalConfirmDelete_ = new ModalConfirmDelete();
+                modalFcaZoneClass_ = new ModalFcaZone();
+                fcaZoneClass_ = new MainFcaZone();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
                 const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site_v2/ref');
-                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
-                const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
 
-                modalFcaAddClass_.setRefSite(refSite_);
-                modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
-                modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
-                modalFcaAddClass_.setClassFrom(fcaTaskClass_);
-                modalFcaAddClass_.init();
+                modalFcaZoneClass_.setRefSite(refSite_);
+                modalFcaZoneClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                modalFcaZoneClass_.setClassFrom(fcaZoneClass_);
+                modalFcaZoneClass_.init();
 
-                sectionFcaInfoClass_.setClassFrom(fcaTaskClass_);
-                sectionFcaInfoClass_.init()
-
-                fcaTaskClass_.setRefStatus(refStatus_);
-                fcaTaskClass_.setRefUser(refUser_);
-                fcaTaskClass_.setRefSite(refSite_);
-                fcaTaskClass_.setRefAssetGroup(refAssetGroup_);
-                fcaTaskClass_.setRefDefectCategory(refDefectCategory_);
-                fcaTaskClass_.setModalFcaAddClass(modalFcaAddClass_);
-                fcaTaskClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
-                fcaTaskClass_.init();
+                fcaZoneClass_.setRefStatus(refStatus_);
+                fcaZoneClass_.setRefSite(refSite_);
+                fcaZoneClass_.setModalFcaZoneClass(modalFcaZoneClass_);
+                fcaZoneClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -178,9 +146,9 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_fca_task.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_fca_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
 </body>
 </html>

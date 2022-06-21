@@ -259,7 +259,7 @@ class General {
             $this->userId = $data->userId;
             DbMysql::$userId = $this->userId;
             if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userToken'=>$token)) !== 1) {
-                throw new Exception('Token not valid');
+                throw new Exception('Expired token', 31);
             }
             if (isset($headers['authorization']) && DbMysql::count('sys_user', array('userId'=>$this->userId, 'userDeviceId'=>$headers['deviceid'])) !== 1) {
                 throw new Exception('Device ID invalid with this login');

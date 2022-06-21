@@ -14,24 +14,28 @@ class Constant {
         'default' => 'Error on system. Please contact Administrator!'
     );
 
-    public static $taskErr = array(
-        'alreadySubmitted' => 'This task already submitted!',
-        'claimed' => 'This task currently assigned to other user!',
-        'notClaimed' => 'This task should be claimed before submission!',
-        'invalidRole' => 'You do not have __ role to perform this task!'
+    public static $task = array(
+        'errAlreadySubmitted' => 'This task already submitted!',
+        'errClaimed' => 'This task currently assigned to other user!',
+        'errNotClaimed' => 'This task should be claimed before submission!',
+        'errInvalidRole' => 'You do not have __ role to perform this task!'
     );
 
-    public static $attGroupErr = array(
-        'siteAlreadyEnabled' => 'Site __ already enabled! Please refresh the page.',
-        'siteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.'
+    public static $attGroup = array(
+        'siteEnabled' => 'Site __ successfully enabled!',
+        'siteDisabled' => 'Site __ successfully disabled!',
+        'errSiteAlreadyEnabled' => 'Site __ already enabled! Please refresh the page.',
+        'errSiteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.'
     );
 
-    public static $attGroupSuc = array(
-        'enabled' => 'Site __ successfully enabled!',
-        'disabled' => 'Site __ successfully disabled!'
-    );
-
-    public static $fcaTaskSuc = array(
+    public static $fcaTask = array(
         'submitNew' => 'New FCA Audit successfully submitted for recommendation process!'
+    );
+
+    public static $fcaZone = array(
+        'add' => 'Zone __ successfully registered!',
+        'update' => 'Zone __ successfully updated!',
+        'delete' => 'Zone __ successfully deleted!',
+        'errStillExist' => 'Zone __ cannot be deleted because it still exist in FCA record!'
     );
 }

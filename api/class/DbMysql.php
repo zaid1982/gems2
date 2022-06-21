@@ -685,4 +685,34 @@ class DbMysql {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * @param string $tableName
+     * @param array $whereArr
+     * @return void
+     * @throws Exception
+     */
+    public static function delete (string $tableName, array $whereArr=array()): void {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($tableName)) {
+                throw new Exception('Empty $tableName');
+            }
+            if (empty($whereArr)) {
+                throw new Exception('Empty $whereArr');
+            }
+            $preparedValues = self::getPreparedWhere($whereArr);
+            $statement = /** @lang text */
+                "DELETE FROM ".$tableName.self::getWhereString($whereArr);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($preparedValues);
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }

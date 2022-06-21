@@ -558,7 +558,7 @@ function mzAjaxRequest2(url, type, data, functionStr) {
                 if (resp['errmsg'] !== '') {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
                 }
-            } else if (resp.error === 'Expired token') {
+            } else if (resp.errmsg === 'Expired token') {
                 window.location.href = 'login.html?f=2';
             } else {
                 errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
@@ -980,7 +980,7 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     const dataFilterArr = typeof filters === 'undefined' ? [] : filters;
-    
+
     let returnVal = [];
     let getNew = false;
     let objData;

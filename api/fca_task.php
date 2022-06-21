@@ -15,9 +15,9 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
 $fnFcaTask = new FcaTask();
-
 try {
     DbMysql::connect();
+    $fnFcaTask->logDebug('API', $apiName, __LINE__, 'Request method = , URL = '.$_SERVER['REQUEST_URI']);
     $fnFcaTask->checkJwt(apache_request_headers());
     $fnFcaTask->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
@@ -78,7 +78,7 @@ try {
         $fnNoti->prepare($fnFcaTask->userId, 22, array('task_no'=>$fnFcaTask->fcaTaskNo));
         $fnFcaTask->saveAudit(193, $fnFcaTask->fcaTaskNo);
         DbMysql::commit();
-        $formData['errmsg'] = Constant::$fcaTaskSuc['submitNew'];
+        $formData['errmsg'] = Constant::$fcaTask['submitNew'];
 
         $formData['result'] = $result;
         $formData['success'] = true;

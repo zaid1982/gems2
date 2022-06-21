@@ -106,7 +106,7 @@ class AttGroup extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
             if (DbMysql::count('cli_site', array('siteId'=>$siteId, 'siteIsAttendance'=>1)) > 0) {
-                throw new Exception(str_replace('__', $this->siteName, Constant::$attGroupErr['siteAlreadyEnabled']), 31);
+                throw new Exception(str_replace('__', $this->siteName, Constant::$attGroup['errSiteAlreadyEnabled']), 31);
             }
             DbMysql::update('cli_site', array('siteIsAttendance'=>1), array('siteId'=>$siteId));
         } catch (Exception|Throwable $ex) {
@@ -124,7 +124,7 @@ class AttGroup extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
             if (DbMysql::count('cli_site', array('siteId'=>$siteId, 'siteIsAttendance'=>0)) > 0) {
-                throw new Exception(str_replace('__', $this->siteName, Constant::$attGroupErr['siteAlreadyDisabled']), 31);
+                throw new Exception(str_replace('__', $this->siteName, Constant::$attGroup['errSiteAlreadyDisabled']), 31);
             }
             DbMysql::update('cli_site', array('siteIsAttendance'=>0), array('siteId'=>$siteId));
         } catch (Exception|Throwable $ex) {

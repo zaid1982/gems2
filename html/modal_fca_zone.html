@@ -1,0 +1,53 @@
+<div class="modal fade" id="modal_fca_zone" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2" id="h4MfzTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMfz" class="mt-3">
+                    <div class="row">
+                        <div class="col-12 select-outline mb-2" id="optMfzSite_">
+                            <select id="optMfzSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfzSite" id="lblMfzSite">Site *</label>
+                            <p class="font-small text-danger" id="optMfzSiteErr"></p>
+                        </div>
+                        <div class="col-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMfzName" class="form-control">
+                                <label for="txtMfzName" id="lblMfzName">Zone Name *</label>
+                                <p class="font-small text-danger" id="txtMfzNameErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0">Status :</p>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfzStatus" id="radMfzStatus1" value="1">
+                                    <label class="form-check-label" for="radMfzStatus1">Active</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfzStatus" id="radMfzStatus2" value="2">
+                                    <label class="form-check-label" for="radMfzStatus2">Disabled</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfzStatusErr"></p>
+                        </div>                        
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMfzDelete" class="btn btn-outline-danger waves-effect"><i class="fas fa-trash-alt text-danger mr-1"></i> Delete</button>
+                <button id="btnMfzSave" class="btn btn-info waves-effect"><i class="far fa-save mr-1"></i> Save</button>
+                <button id="btnMfzSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

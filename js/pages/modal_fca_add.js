@@ -212,7 +212,6 @@ function ModalFcaAdd () {
                             image1: image1Data,
                             image2: image2Data
                         };
-                        console.log(data);
                         mzAjaxRequest2('fca_task', 'POST', data);
                         classFrom.genTable(1);
                         $('#modal_fca_add').modal('hide');
@@ -250,10 +249,6 @@ function ModalFcaAdd () {
             };
         };
         reader.readAsDataURL(files);
-    };
-
-    this.getClassName = function () {
-        return className;
     };
 
     this.setClassFrom = function (_classFrom) {

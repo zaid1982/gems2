@@ -43,17 +43,17 @@ class Task extends General {
             parent::checkEmptyInteger($this->taskId, 'taskId');
             parent::checkEmptyArray($this->wflTask, 'wflTask');
             if ($this->wflTask['taskCurrent'] !== 1) {
-                throw new Exception(Constant::$taskErr['alreadySubmitted'], 31);
+                throw new Exception(Constant::$task['errAlreadySubmitted'], 31);
             }
             if ($this->wflTask['checkpointId'] !== $checkpointId) {
                 throw new Exception(Constant::$err['default'], 31);
             }
             if ($this->wflTask['taskClaimedUser'] !== null && $this->wflTask['taskClaimedUser'] !== $this->userId) {
-                throw new Exception(Constant::$taskErr['claimed'], 31);
+                throw new Exception(Constant::$task['errClaimed'], 31);
             }
             if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$this->wflTask['roleId'], 'groupId'=>$this->wflTask['groupId'])) === 0) {
                 $roleName = DbMysql::selectColumn('ref_role', array('roleId'=>$this->wflTask['roleId']), 'roleDesc', true);
-                throw new Exception(str_replace('__', $roleName, Constant::$taskErr['invalidRole']), 31);
+                throw new Exception(str_replace('__', $roleName, Constant::$task['errInvalidRole']), 31);
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -81,7 +81,7 @@ class Task extends General {
             $groupId = empty($checkpoint['groupId']) ? DbMysql::selectColumn('sys_user_group', array('userId'=>$this->userId), 'groupId', true, 'userGroupId DESC') : $checkpoint['groupId'];
             if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$checkpoint['roleId'], 'groupId'=>$groupId)) === 0) {
                 $roleName = DbMysql::selectColumn('ref_role', array('roleId'=>$checkpoint['roleId']), 'roleDesc', true);
-                throw new Exception(str_replace('__', $roleName, Constant::$taskErr['invalidRole']), 31);
+                throw new Exception(str_replace('__', $roleName, Constant::$task['errInvalidRole']), 31);
             }
             $whereTransactionDueDay = '|CURDATE() + INTERVAL '.DbMysql::selectColumn('wfl_flow', array('flowId'=>$flowId), 'flowDueDay', true).' DAY';
             $whereTaskDueDay = !empty($checkpoint['checkpointDueDay']) ? '|CURDATE() + INTERVAL '.$checkpoint['checkpointDueDay'].' DAY' : '';
@@ -140,7 +140,7 @@ class Task extends General {
             $wflCheckpoint = DbMysql::select('wfl_checkpoint', array('checkpoint_id'=>$this->wflTask['checkpointId']));
             $updateArr = array('taskCurrent'=>2, 'taskRemark'=>$remark, 'taskTimeSubmit'=>'NOW()', 'taskStatus'=>$status);
             if ($wflCheckpoint['checkpointClaimType'] === 2 && empty($this->wflTask['taskClaimedUser'])) {
-                throw new Exception(Constant::$taskErr['notClaimed'], 31);
+                throw new Exception(Constant::$task['errNotClaimed'], 31);
             } else {
                 $updateArr['taskTimeClaimed'] = 'NOW()';
                 $updateArr['taskClaimedUser'] = $this->userId;

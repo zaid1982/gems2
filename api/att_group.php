@@ -59,7 +59,7 @@ try {
             $fnAttGroup->activate($siteId);
             $fnAttGroup->updateVersion(6);
             $fnAttGroup->saveAudit(180, $fnAttGroup->siteName);
-            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroupSuc['enabled']);
+            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroup['siteEnabled']);
         }
         else if ($urlArr[1] === 'deactivate_site') {
             $siteId = intval($urlArr[2]);
@@ -67,7 +67,7 @@ try {
             $fnAttGroup->deactivate($siteId);
             $fnAttGroup->updateVersion(6);
             $fnAttGroup->saveAudit(181, $fnAttGroup->siteName);
-            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroupSuc['disabled']);
+            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroup['siteDisabled']);
         }
 
         DbMysql::commit();

@@ -4,12 +4,13 @@ function MainFcaTask () {
     let self = this;
     let oTableFctObserve;
     let isAuditor = false;
-    let modalFcaAddClass;
     let refStatus;
     let refUser;
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
+    let modalFcaAddClass;
+    let sectionFcaInfoClass;
 
     this.init = function () {
         isAuditor = mzIsRoleExist('22');
@@ -22,14 +23,14 @@ function MainFcaTask () {
             aaSorting: [[1, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
-            pageLength: 50,
+            pageLength: 10,
             autoWidth: false,
             dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0, 1, 4, 13, 14] },
+                { className: 'text-center', targets: [0, 13, 14] },
                 { visible: false, targets: [7, 8, 9, 10, 11, 12, 13] },
                 { className: 'noVis', targets: [0] }
             ],
@@ -93,6 +94,10 @@ function MainFcaTask () {
             ]
         });
         let oTableFctObserveTbody = $('#dtFctObserve tbody');
+        oTableFctObserveTbody.delegate('tr', 'click', function () {
+            const data = $('#dtFctObserve').DataTable().row(this).data();
+            sectionFcaInfoClass.load(data['fcaTaskId']);
+        });
         oTableFctObserveTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtFctObserve').DataTable().row(this).data();
             const cell = $(evt.target).closest('td');
@@ -112,16 +117,16 @@ function MainFcaTask () {
         }
     };
 
+    this.getClassName = function () {
+        return className;
+    };
+
     this.showMain = function () {
         $('.sectionFctMain').show();
     };
 
     this.hideMain = function () {
         $('.sectionFctMain').hide();
-    };
-
-    this.setModalFcaAddClass = function (_modalFcaAddClass) {
-        modalFcaAddClass = _modalFcaAddClass;
     };
 
     this.setRefStatus = function (_refStatus) {
@@ -142,5 +147,13 @@ function MainFcaTask () {
 
     this.setRefDefectCategory = function (_refDefectCategory) {
         refDefectCategory = _refDefectCategory;
+    };
+
+    this.setModalFcaAddClass = function (_modalFcaAddClass) {
+        modalFcaAddClass = _modalFcaAddClass;
+    };
+
+    this.setSectionFcaInfoClass = function (_sectionFcaInfoClass) {
+        sectionFcaInfoClass = _sectionFcaInfoClass;
     };
 }
