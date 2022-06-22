@@ -13,26 +13,17 @@
             <div class="modal-body pb-2">
                 <form id="formMfa" class="mt-3">
                     <div class="row">
-                        <div class="col-md-12 select-outline mb-2" id="optMfaSite_">
+                        <div class="col-md-6 select-outline mb-2" id="optMfaSite_">
                             <select id="optMfaSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Filter Site"></select>
                             <label for="optMfaSite" id="lblMfaSite">Site *</label>
                             <p class="font-small text-danger" id="optMfaSiteErr"></p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMfaBlock" class="form-control">
-                                <label for="txtMfaBlock" id="lblMfaBlock">Block</label>
-                                <p class="font-small text-danger" id="txtMfaBlockErr"></p>
-                            </div>
+                        <div class="col-md-6 select-outline mb-2" id="optMfaZone_">
+                            <select id="optMfaZone" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfaZone" id="lblMfaZone">Zone</label>
+                            <p class="font-small text-danger" id="optMfaZoneErr"></p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMfaLevel" class="form-control">
-                                <label for="txtMfaLevel" id="lblMfaLevel">Level</label>
-                                <p class="font-small text-danger" id="txtMfaLevelErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMfaArea" class="form-control">
                                 <label for="txtMfaArea" id="lblMfaArea">Area *</label>
@@ -44,13 +35,13 @@
                             <label for="optMfaAssetGroup" id="lblMfaAssetGroup">Asset Group *</label>
                             <p class="font-small text-danger" id="optMfaAssetGroupErr"></p>
                         </div>
-                        <div class="col-md-6">
+                        <!--<div class="col-md-6">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMfaAssetNo" class="form-control">
-                                <label for="txtMfaAssetNo" id="lblMfaAssetNo">Asset No. *</label>
+                                <label for="txtMfaAssetNo" id="lblMfaAssetNo">Asset No.</label>
                                 <p class="font-small text-danger" id="txtMfaAssetNoErr"></p>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMfaEvaluated" class="form-control">
@@ -67,7 +58,7 @@
                         </div>
                         <div class="col-md-6 select-outline mb-2" id="optMfaDefectCategory_">
                             <select id="optMfaDefectCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optMfaDefectCategory" id="lblMfaDefectCategory">Defect Category *</label>
+                            <label for="optMfaDefectCategory" id="lblMfaDefectCategory">Defect Category</label>
                             <p class="font-small text-danger" id="optMfaDefectCategoryErr"></p>
                         </div>
                         <div class="col-md-12">
@@ -77,6 +68,58 @@
                                 <p class="font-small text-danger" id="txaMfaObservationErr"></p>
                             </div>
                         </div>
+                        <!--<div class="col-12 mb-3">
+                            <p class="mb-0 font-small">Condition Scale :</p>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaCondition" id="radMfaCondition1" value="1">
+                                    <label class="form-check-label" for="radMfaCondition1">Very Good</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaCondition" id="radMfaCondition2" value="2">
+                                    <label class="form-check-label" for="radMfaCondition2">Good</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaCondition" id="radMfaCondition3" value="3">
+                                    <label class="form-check-label" for="radMfaCondition3">Average</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaCondition" id="radMfaCondition4" value="4">
+                                    <label class="form-check-label" for="radMfaCondition4">Critical</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaCondition" id="radMfaCondition5" value="5">
+                                    <label class="form-check-label" for="radMfaCondition5">Very Critical</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfaConditionErr"></p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0 font-small">Evaluation Type :</p>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaEvaluationType" id="radMfaEvaluationType1" value="1">
+                                    <label class="form-check-label" for="radMfaEvaluationType1">Normal</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaEvaluationType" id="radMfaEvaluationType2" value="2">
+                                    <label class="form-check-label" for="radMfaEvaluationType2">Routine</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaEvaluationType" id="radMfaEvaluationType3" value="3">
+                                    <label class="form-check-label" for="radMfaEvaluationType3">Repair</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaEvaluationType" id="radMfaEvaluationType4" value="4">
+                                    <label class="form-check-label" for="radMfaEvaluationType4">Recovery</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfaEvaluationType" id="radMfaEvaluationType5" value="5">
+                                    <label class="form-check-label" for="radMfaEvaluationType5">Replacement</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfaEvaluationTypeErr"></p>
+                        </div>-->
                     </div>
                     <h6 class="mb-3">Audit Images * :</h6>
                     <div class="row">

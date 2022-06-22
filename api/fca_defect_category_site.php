@@ -25,6 +25,8 @@ try {
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
             $result = $fnDefectCategorySite->getList();
+        } else if ($urlArr[1] === 'ref') {
+            $result = $fnDefectCategorySite->getRef();
         } else if ($urlArr[1] === 'grouped') {
             $result = $fnDefectCategorySite->getListGrouped();
         } else {

@@ -15,6 +15,25 @@ class FcaDefectCategorySite extends General {
      * @return array
      * @throws Exception
      */
+    public function getRef(): array
+    {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $returnArr = array();
+            $refArr = DbMysql::selectAll('v_defect_category_site', array());
+            foreach ($refArr as $ref) {
+                $returnArr[intval($ref['siteId'])] = $ref['defectCategoryList'];
+            }
+            return $returnArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function getList(): array
     {
         try {

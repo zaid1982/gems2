@@ -7,12 +7,13 @@ function ModalFcaAdd () {
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
+    let refDefectCategorySite;
+    let refFcaZone;
     let imageSize = [[0,0],[0,0]];
 
     this.init = function () {
         mzOptionV2('optMfaSite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
         mzOptionV2('optMfaAssetGroup', refAssetGroup, 'Select Asset Group *', 'assetGroupName', {assetGroupStatus: 1}, 'required');
-        mzOptionV2('optMfaDefectCategory', refDefectCategory, 'Select Defect Category *', 'fcaDefectCategoryName', {fcaDefectCategoryStatus: 1}, 'required');
 
         const vData = [
             {
@@ -24,21 +25,11 @@ function ModalFcaAdd () {
                 }
             },
             {
-                field_id: 'txtMfaBlock',
-                type: 'text',
-                name: 'Block',
+                field_id: 'optMfaZone',
+                type: 'select',
+                name: 'Zone',
                 validator: {
-                    notEmpty: false,
-                    maxLength: 30
-                }
-            },
-            {
-                field_id: 'txtMfaLevel',
-                type: 'text',
-                name: 'Level',
-                validator: {
-                    notEmpty: false,
-                    maxLength: 30
+                    notEmpty: false
                 }
             },
             {
@@ -58,15 +49,15 @@ function ModalFcaAdd () {
                     notEmpty: true
                 }
             },
-            {
+           /* {
                 field_id: 'txtMfaAssetNo',
                 type: 'text',
                 name: 'Asset No.',
                 validator: {
-                    notEmpty: true,
+                    notEmpty: false,
                     maxLength: 50
                 }
-            },
+            },*/
             {
                 field_id: 'txtMfaEvaluated',
                 type: 'text',
@@ -90,7 +81,7 @@ function ModalFcaAdd () {
                 type: 'select',
                 name: 'Defect Category',
                 validator: {
-                    notEmpty: true
+                    notEmpty: false
                 }
             },
             {
@@ -122,6 +113,24 @@ function ModalFcaAdd () {
 
         formValidate = new MzValidate('formMfa');
         formValidate.registerFields(vData);
+
+        $('#optMfaSite').on('change', function () {
+            const siteId = parseInt($(this).val());
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzOptionV2('optMfaZone', refFcaZone, 'Select Zone', 'fcaZoneName', {siteId: siteId, fcaZoneStatus: 1});
+                    let filterArr = {fcaDefectCategoryStatus: 1};
+                    if (typeof refDefectCategorySite[siteId] !== 'undefined') {
+                        filterArr['id'] = '('+refDefectCategorySite[siteId]+')';
+                    }
+                    mzOptionV2('optMfaDefectCategory', refDefectCategory, 'Select Defect Category', 'fcaDefectCategoryName', filterArr);
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 100);
+        });
 
         $('#txfMfaImage1').on('change', function () {
             try {
@@ -200,11 +209,10 @@ function ModalFcaAdd () {
                         };
                         const data = {
                             siteId: parseInt($('#optMfaSite').val()),
-                            fcaTaskBlock: $('#txtMfaBlock').val(),
-                            fcaTaskLevel: $('#txtMfaLevel').val(),
+                            fcaZoneId: parseInt($('#optMfaZone').val()),
                             fcaTaskArea: $('#txtMfaArea').val(),
                             assetGroupId: parseInt($('#optMfaAssetGroup').val()),
-                            fcaTaskAssetNo: $('#txtMfaAssetNo').val(),
+                            //fcaTaskAssetNo: $('#txtMfaAssetNo').val(),
                             fcaTaskAssetEvaluated: $('#txtMfaEvaluated').val(),
                             fcaTaskDefectItem: $('#txtMfaDefectItem').val(),
                             fcaDefectCategoryId: parseInt($('#optMfaDefectCategory').val()),
@@ -229,6 +237,8 @@ function ModalFcaAdd () {
         setTimeout(function () {
             try {
                 formValidate.clearValidation();
+                mzOptionStopClear('optMfaZone', 'Select Defect Category');
+                mzOptionStopClear('optMfaDefectCategory', 'Select Defect Category');
                 $('#imgMfaImage1, #imgMfaImage2').attr('src', 'img/background/upload_placeholder.png');
                 imageSize = [[0,0],[0,0]];
                 $('#modal_fca_add').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
@@ -265,5 +275,13 @@ function ModalFcaAdd () {
 
     this.setRefDefectCategory = function (_refDefectCategory) {
         refDefectCategory = _refDefectCategory;
+    };
+
+    this.setRefDefectCategorySite = function (_refDefectCategorySite) {
+        refDefectCategorySite = _refDefectCategorySite;
+    };
+
+    this.setRefFcaZone = function (_refFcaZone) {
+        refFcaZone = _refFcaZone;
     };
 }

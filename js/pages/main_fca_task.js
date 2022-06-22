@@ -9,6 +9,7 @@ function MainFcaTask () {
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
+    let refFcaZone;
     let modalFcaAddClass;
     let sectionFcaInfoClass;
 
@@ -16,11 +17,11 @@ function MainFcaTask () {
         isAuditor = mzIsRoleExist('22');
         
         let exportOptFctObserve = Object.assign({}, mzExportOpt);
-        exportOptFctObserve['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 10, 13, 14];
+        exportOptFctObserve['columns'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         oTableFctObserve = $('#dtFctObserve').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[1, 'asc']],
+            aaSorting: [[1, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
@@ -30,12 +31,12 @@ function MainFcaTask () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0, 13, 14] },
-                { visible: false, targets: [7, 8, 9, 10, 11, 12, 13] },
+                { className: 'text-center', targets: [0, 14, 15] },
+                { visible: false, targets: [4, 10, 11, 12, 13, 14] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Submitted Observation List', titleAttr: 'Print', exportOptions: exportOptFctObserve},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Submitted Observation List', titleAttr: 'Copy', exportOptions: exportOptFctObserve},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Submitted Observation List', titleAttr: 'Excel', exportOptions: mzExportOpt},
@@ -56,10 +57,10 @@ function MainFcaTask () {
                     modalFcaAddClass.add();
                 });
                 if ($('#divFctObserveHeader').width() < 546) {
+                    $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
-                    $(this).DataTable().column(3).visible(false);
-                    $(this).DataTable().column(4).visible(false);
-                    $(this).DataTable().column(6).visible(false);
+                    $(this).DataTable().column(7).visible(false);
+                    $(this).DataTable().column(8).visible(false);
                     $('.btnFctObserveHide').hide();
                 }
             },
@@ -76,11 +77,14 @@ function MainFcaTask () {
                 {mData: 'fcaTaskAssetEvaluated'},  <!--5-->
                 {mData: 'fcaTaskDefectItem'},
                 {mData: 'fcaDefectCategoryId', mRender: function(data) {
-                        return refDefectCategory[data]['fcaDefectCategoryName'];
+                        return data !== null ? refDefectCategory[data]['fcaDefectCategoryName'] : '';
                     }},
-                {mData: 'fcaTaskBlock'},
-                {mData: 'fcaTaskLevel'},
-                {mData: 'fcaTaskArea'},  <!--10-->
+                {mData: 'fcaZoneId', mRender: function(data) {
+                        return data !== null ? refFcaZone[data]['fcaZoneName'] : '';
+                    }},
+                {mData: 'fcaTaskArea'},
+                {mData: 'fcaTaskConditionScale'},  <!--10-->
+                {mData: 'fcaTaskEvaluationType'},
                 {mData: 'fcaTaskCreatedBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
@@ -88,7 +92,7 @@ function MainFcaTask () {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'fcaTaskTimeCreated'},
-                {mData: 'fcaTaskStatus', mRender: function(data) {
+                {mData: 'fcaTaskStatus', mRender: function(data) {   <!--10-->
                         return refStatus[data]['statusAction'];
                     }}
             ]
@@ -147,6 +151,10 @@ function MainFcaTask () {
 
     this.setRefDefectCategory = function (_refDefectCategory) {
         refDefectCategory = _refDefectCategory;
+    };
+
+    this.setRefFcaZone = function (_refFcaZone) {
+        refFcaZone = _refFcaZone;
     };
 
     this.setModalFcaAddClass = function (_modalFcaAddClass) {

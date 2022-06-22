@@ -75,13 +75,14 @@
                                         <th>Evaluated Asset</th> <!--5-->
                                         <th>Defect Item</th>
                                         <th>Defect Category</th>
-                                        <th>Block</th>
-                                        <th>Level</th>
-                                        <th>Area</th> <!--10-->
+                                        <th>Zone</th>
+                                        <th>Area</th>
+                                        <th>Condition Scale</th> <!--10-->
+                                        <th>Evaluation Type</th>
                                         <th>Auditor</th>
                                         <th>Validator</th>
                                         <th>Submitted Time</th>
-                                        <th>Status</th>
+                                        <th>Status</th> <!--15-->
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -151,10 +152,14 @@
                 const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site_v2/ref');
                 const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
                 const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
+                const refDefectCategorySite_ = mzAjaxRequest2('fca_defect_category_site/ref', 'GET');
+                const refFcaZone_ = mzGetLocalArrayV2('gems_zone', versionLocal_, 'fca_zone/ref');
 
                 modalFcaAddClass_.setRefSite(refSite_);
                 modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
                 modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
+                modalFcaAddClass_.setRefDefectCategorySite(refDefectCategorySite_);
+                modalFcaAddClass_.setRefFcaZone(refFcaZone_);
                 modalFcaAddClass_.setClassFrom(fcaTaskClass_);
                 modalFcaAddClass_.init();
 
@@ -166,6 +171,7 @@
                 fcaTaskClass_.setRefSite(refSite_);
                 fcaTaskClass_.setRefAssetGroup(refAssetGroup_);
                 fcaTaskClass_.setRefDefectCategory(refDefectCategory_);
+                fcaTaskClass_.setRefFcaZone(refFcaZone_);
                 fcaTaskClass_.setModalFcaAddClass(modalFcaAddClass_);
                 fcaTaskClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
                 fcaTaskClass_.init();

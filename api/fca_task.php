@@ -65,7 +65,7 @@ try {
         $fnTask->createNew(5, $fnFcaTask->fcaTaskNo);
         $fnTask->set($fnTask->wflTaskNew['taskId']);
 
-        $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('siteId', 'assetGroupId', 'fcaTaskBlock', 'fcaTaskLevel', 'fcaTaskArea', 'fcaTaskAssetNo', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation'));
+        $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('siteId', 'assetGroupId', 'fcaZoneId', 'fcaTaskArea', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation'));
         $paramFcaTask['fcaTaskImage1'] = $fnFcaTask->uploadSave($image1Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_1');
         if (!empty($image2Arr)) {
             $paramFcaTask['fcaTaskImage2'] = $fnFcaTask->uploadSave($image2Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_2');

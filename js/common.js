@@ -1340,7 +1340,7 @@ function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, so
                             let filterVal2 = filterVal.substr(1,filterVal.length-2);
                             const filterSplit2 = filterVal2.split(',');
                             for (let j=0; j<filterSplit2.length; j++) {
-                                if (filterSplit2[j] === dataValue) {
+                                if (filterSplit2[j] == dataValue) {
                                     filterCnt++;
                                     break;
                                 }
