@@ -1,0 +1,35 @@
+<div class="modal fade" id="modal_fca_defect_site" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-plus text-white"></i> &nbsp;Add Site Defect Category</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMfy" class="mt-3">
+                    <div class="row">
+                        <div class="col-12 select-outline mb-2" id="optMfySite_">
+                            <select id="optMfySite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfySite" id="lblMfySite">Site *</label>
+                            <p class="font-small text-danger" id="optMfySiteErr"></p>
+                        </div>
+                        <div class="col-12 select-outline mb-2" id="optMfyDefectCategory_">
+                            <select id="optMfyDefectCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfyDefectCategory" id="lblMfyDefectCategory">Defect Category *</label>
+                            <p class="font-small text-danger" id="optMfyDefectCategoryErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMfySubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

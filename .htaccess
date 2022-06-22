@@ -84,3 +84,5 @@ RewriteRule ^status/?$ api/status.php
 RewriteRule ^status/(.+)/?$ api/status.php
 RewriteRule ^fca_zone/?$ api/fca_zone.php
 RewriteRule ^fca_zone/(.+)/?$ api/fca_zone.php
+RewriteRule ^fca_defect_category_site/?$ api/fca_defect_category_site.php
+RewriteRule ^fca_defect_category_site/(.+)/?$ api/fca_defect_category_site.php

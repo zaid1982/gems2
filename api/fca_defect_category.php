@@ -24,15 +24,71 @@ try {
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            //TODO - get all Defect Catgegory
+            $result = $fnDefectCategory->getList();
         } else if ($urlArr[1] === 'ref') {
             $result = $fnDefectCategory->getRef();
+        } else if (is_numeric($urlArr[1])) {
+            $result = $fnDefectCategory->get(intval($urlArr[1]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
         $formData['result'] = $result;
         $formData['success'] = true;
-    } else {
+    }
+    else if ('POST' === $requestMethod) {
+        $params = $_POST;
+        if (isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
+        }
+
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $fnDefectCategory->insert($params);
+        $fnDefectCategory->updateVersion(28);
+        $fnDefectCategory->saveAudit(199, $fnDefectCategory->fcaDefectCategoryName);
+        DbMysql::commit();
+        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['add']);
+
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else if ('PUT' === $requestMethod) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $fnDefectCategory->update(intval($urlArr[1]), $params);
+        $fnDefectCategory->updateVersion(28);
+        $fnDefectCategory->saveAudit(200, $fnDefectCategory->fcaDefectCategoryName);
+        DbMysql::commit();
+        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['update']);
+
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else if ('DELETE' === $requestMethod) {
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $fnDefectCategory->set(intval($urlArr[1]));
+        $fnDefectCategory->delete();
+        $fnDefectCategory->updateVersion(28);
+        $fnDefectCategory->saveAudit(201, $fnDefectCategory->fcaDefectCategoryName);
+        DbMysql::commit();
+        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['delete']);
+
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }
     DbMysql::close();

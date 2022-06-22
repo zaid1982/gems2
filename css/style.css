@@ -30,8 +30,8 @@
     overflow-y: initial !important
 }
 .modal-body{
-    max-height: calc(100vh - 235px);
-    overflow-y: auto;
+    /*max-height: calc(100vh - 235px);
+    overflow-y: auto;*/
 }
 
 .cascading-admin-card {

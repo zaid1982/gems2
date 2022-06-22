@@ -36,6 +36,21 @@ class Constant {
         'add' => 'Zone __ successfully registered!',
         'update' => 'Zone __ successfully updated!',
         'delete' => 'Zone __ successfully deleted!',
-        'errStillExist' => 'Zone __ cannot be deleted because it still exist in FCA record!'
+        'errStillExist' => 'Zone __ cannot be deleted because it still exist in FCA record!',
+        'errAlreadyExist' => 'Zone __ already exist under similar site!'
+    );
+
+    public static $fcaDefectCategory = array(
+        'add' => 'Defect Category __ successfully registered!',
+        'update' => 'Defect Category __ successfully updated!',
+        'delete' => 'Defect Category __ successfully deleted!',
+        'errStillExist' => 'Defect Category __ cannot be deleted because it still exist in FCA record!',
+        'errAlreadyExist' => 'Defect Category __ already exist!'
+    );
+
+    public static $fcaDefectCategorySite = array(
+        'add' => 'Defect Category __ successfully registered from ___ site!',
+        'delete' => 'Defect Category __ successfully deleted from ___ site!',
+        'errAlreadyExist' => 'Defect Category __ already exist in ___ site!'
     );
 }

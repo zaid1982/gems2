@@ -79,6 +79,9 @@ class FcaZone extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkMandatoryArray($columns, array('siteId', 'fcaZoneName', 'fcaZoneStatus'), true);
+            if (DbMysql::count('fca_zone', parent::arraySpliceAssoc($columns, array('siteId', 'fcaZoneName'))) > 0) {
+                throw new Exception(str_replace('__', $columns['fcaZoneName'], Constant::$fcaZone['errAlreadyExist']), 31);
+            }
             $this->set(DbMysql::insert('fca_zone', $columns));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -96,6 +99,9 @@ class FcaZone extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($fcaZoneId, 'fcaZoneId');
             parent::checkMandatoryArray($columns, array('siteId', 'fcaZoneName', 'fcaZoneStatus'), true);
+            if (DbMysql::count('fca_zone', array_merge(parent::arraySpliceAssoc($columns, array('siteId', 'fcaZoneName')), array('fcaZoneId'=>'<>|'.$fcaZoneId))) > 0) {
+                throw new Exception(str_replace('__', $columns['fcaZoneName'], Constant::$fcaZone['errAlreadyExist']), 31);
+            }
             DbMysql::update('fca_zone', $columns, array('fcaZoneId'=>$fcaZoneId));
             $this->set($fcaZoneId);
         } catch (Exception|Throwable $ex) {

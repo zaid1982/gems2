@@ -720,3 +720,7 @@ img.rounded-circle {
     margin-right: 0 !important;
   }
 }
+
+.cdk-overlay-container {
+  z-index: 1051 !important;
+}

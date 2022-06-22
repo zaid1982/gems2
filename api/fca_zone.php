@@ -28,7 +28,7 @@ try {
         } else if ($urlArr[1] === 'ref') {
             $result = $fnFcaZone->getRef();
         } else if (is_numeric($urlArr[1])) {
-            $result = $fnFcaZone->get($urlArr[1]);
+            $result = $fnFcaZone->get(intval($urlArr[1]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -87,7 +87,8 @@ try {
 
         $formData['result'] = $result;
         $formData['success'] = true;
-    } else {
+    }
+    else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }
     DbMysql::close();

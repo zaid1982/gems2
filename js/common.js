@@ -1270,7 +1270,11 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     //$('#'+name).prevAll('.select-dropdown').children('li:eq()').trigger('click');
 }
 
-
+function mzOptionStopV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
+    $('#'+name).materialSelect({'destroy': true});
+    mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex);
+    $('#'+name).materialSelect();
+}
 
 function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
     if (typeof name === 'undefined' || typeof data === 'undefined' || typeof defaultText === 'undefined') {

@@ -34,24 +34,50 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFczMain">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFcdMain">
             <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Facility Condition Appraisal (FCA) Zone Management
+                FCA Defect Category Management
             </h5>
         </nav>
         <section class="mt-4 mb-3">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5" id="divFczCard">
+                <div class="col-lg-5">
+                    <div class="card z-depth-3 mb-4_5" id="divFcdDefectCard">
+                        <div class="card-header white p-0 z-depth-1">
+                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Defect Category</h4>
+                        </div>
                         <div class="card-body pt-4">
                             <div class="table-responsive">
-                                <table id="dtFczData" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtFcdDefectData" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Defect Category</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card z-depth-3 mb-4_5" id="divFcdSiteCard">
+                        <div class="card-header white p-0 z-depth-1">
+                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Site's Defect Category</h4>
+                        </div>
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtFcdSiteData" class="table table-hover table-sm mb-0 display responsive">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
                                         <th>Site</th>
-                                        <th>Zone Name</th>
-                                        <th>Status</th>
+                                        <th>Defect Category</th>
+                                        <th>Defect Category</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -65,8 +91,10 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_fca_zone"></div>
+    <div class="includeHtml" id="h-modal_fca_defect"></div>
+    <div class="includeHtml" id="h-modal_fca_defect_site"></div>
 </main>
+
 
 <!-- SCRIPTS -->
 <script type="text/javascript">
@@ -102,8 +130,9 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
-    let modalFcaZoneClass_;
-    let fcaZoneClass_;
+    let modalFcaDefectClass_;
+    let modalFcaDefectSiteClass_;
+    let fcaDefectClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
         ShowLoader();
@@ -113,21 +142,27 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
-                modalFcaZoneClass_ = new ModalFcaZone();
-                fcaZoneClass_ = new MainFcaZone();
+                modalFcaDefectClass_ = new ModalFcaDefect();
+                modalFcaDefectSiteClass_ = new ModalFcaDefectSite();
+                fcaDefectClass_ = new MainFcaDefect();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site_v2/ref');
 
-                modalFcaZoneClass_.setRefSite(refSite_);
-                modalFcaZoneClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                modalFcaZoneClass_.setClassFrom(fcaZoneClass_);
-                modalFcaZoneClass_.init();
+                modalFcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                modalFcaDefectClass_.setClassFrom(fcaDefectClass_);
+                modalFcaDefectClass_.init();
 
-                fcaZoneClass_.setRefStatus(refStatus_);
-                fcaZoneClass_.setRefSite(refSite_);
-                fcaZoneClass_.setModalFcaZoneClass(modalFcaZoneClass_);
-                fcaZoneClass_.init();
+                modalFcaDefectSiteClass_.setRefSite(refSite_);
+                modalFcaDefectSiteClass_.setClassFrom(fcaDefectClass_);
+                modalFcaDefectSiteClass_.init();
+
+                fcaDefectClass_.setRefStatus(refStatus_);
+                fcaDefectClass_.setRefSite(refSite_);
+                fcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                fcaDefectClass_.setModalFcaDefectClass(modalFcaDefectClass_);
+                fcaDefectClass_.setModalFcaDefectSiteClass(modalFcaDefectSiteClass_);
+                fcaDefectClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -138,8 +173,9 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_fca_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_defect_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
 </body>
-</html>
+</html><!DOCTYPE html>
