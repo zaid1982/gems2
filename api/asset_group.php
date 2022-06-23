@@ -59,6 +59,7 @@ try {
 
         $result = $fn_assetGroup->add_assetGroup($params);
         $fn_general->updateVersion(9);
+        $fn_general->updateVersion(30);
         $fn_general->save_audit('31', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
 
         Class_db::getInstance()->db_commit();
@@ -78,18 +79,21 @@ try {
         if ($action === 'update') {
             $fn_assetGroup->update_assetGroup($assetGroupId, $put_vars);
             $fn_general->updateVersion(9);
+            $fn_general->updateVersion(30);
             $fn_general->save_audit('32', $jwt_data->userId, 'Asset Group = ' . $put_vars['assetGroupName']);
             $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_EDIT;
         }
         else if ($action === 'deactivate') {
             $assetGroupName = $fn_assetGroup->deactivate_assetGroup($assetGroupId);
             $fn_general->updateVersion(9);
+            $fn_general->updateVersion(30);
             $fn_general->save_audit('33', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
             $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $assetGroupName = $fn_assetGroup->activate_assetGroup($assetGroupId);
             $fn_general->updateVersion(9);
+            $fn_general->updateVersion(30);
             $fn_general->save_audit('34', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
             $form_data['errmsg'] = $constant::SUC_ASSET_GROUP_ACTIVATE;
         } else {
@@ -107,6 +111,7 @@ try {
 
         $assetGroupName = $fn_assetGroup->delete_assetGroup($assetGroupId);
         $fn_general->updateVersion(9);
+        $fn_general->updateVersion(30);
         $fn_general->save_audit('35', $jwt_data->userId, 'Asset Group = ' . $assetGroupName);
 
         Class_db::getInstance()->db_commit();

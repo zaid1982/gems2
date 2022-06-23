@@ -82,6 +82,7 @@ try {
             );
             $result = $fn_user->add_user($params);
             $fn_general->updateVersion(3);
+            $fn_general->updateVersion(29);
             $fn_general->save_audit('17', $jwt_data->userId, 'User ID = ' . $result);
             $form_data['errmsg'] = $constant::SUC_USER_ADD;
         } else {
@@ -125,18 +126,21 @@ try {
         else if ($action === 'update_user') {
             $fn_user->update_profile($userId, $put_vars);
             $fn_general->updateVersion(3);
+            $fn_general->updateVersion(29);
             $fn_general->save_audit('18', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_UPDATE;
         }
         else if ($action === 'deactivate') {
             $fn_user->deactivate_profile($userId);
             $fn_general->updateVersion(3);
+            $fn_general->updateVersion(29);
             $fn_general->save_audit('19', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $fn_user->activate_profile($userId);
             $fn_general->updateVersion(3);
+            $fn_general->updateVersion(29);
             $fn_general->save_audit('20', $jwt_data->userId, 'User ID = ' . $userId);
             $form_data['errmsg'] = $constant::SUC_USER_ACTIVATE;
         }

@@ -63,6 +63,7 @@ try {
 
         $result = $fn_site->add_site($params);
         $fn_general->updateVersion(6);
+        $fn_general->updateVersion(32);
         $fn_general->save_audit('12', $jwt_data->userId, 'Site = ' . $siteName);
 
         Class_db::getInstance()->db_commit();
@@ -81,16 +82,19 @@ try {
         if ($action === 'update') {
             $fn_site->update_site($siteId, $put_vars);
             $fn_general->updateVersion(6);
+            $fn_general->updateVersion(32);
             $fn_general->save_audit('13', $jwt_data->userId, 'Site = ' . $put_vars['siteName']);
             $form_data['errmsg'] = $constant::SUC_SITE_EDIT;
         } else if ($action === 'deactivate') {
             $siteName = $fn_site->deactivate_site($siteId);
             $fn_general->updateVersion(6);
+            $fn_general->updateVersion(32);
             $fn_general->save_audit('14', $jwt_data->userId, 'Site = ' . $siteName);
             $form_data['errmsg'] = $constant::SUC_SITE_DEACTIVATE;
         } else if ($action === 'activate') {
             $siteName = $fn_site->activate_site($siteId);
             $fn_general->updateVersion(6);
+            $fn_general->updateVersion(32);
             $fn_general->save_audit('15', $jwt_data->userId, 'Site = ' . $siteName);
             $form_data['errmsg'] = $constant::SUC_SITE_ACTIVATE;
         } else {
@@ -107,6 +111,7 @@ try {
 
         $siteName = $fn_site->delete_site($siteId);
         $fn_general->updateVersion(6);
+        $fn_general->updateVersion(32);
         $fn_general->save_audit('16', $jwt_data->userId, 'Site = ' . $siteName);
 
         Class_db::getInstance()->db_commit();
