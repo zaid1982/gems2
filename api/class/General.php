@@ -406,4 +406,50 @@ class General {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * @param int $uploadId
+     * @return array
+     * @throws Exception
+     */
+    public function getUpload (int $uploadId): array {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyInteger($uploadId, 'uploadId');
+            $upload = DbMysql::select('sys_upload', array('uploadId'=>$uploadId), true);
+            $upload['src'] = Constant::$url.$upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'].'?t='.time();
+            return $upload;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $time
+     * @return string
+     * @throws Exception
+     */
+    public function timeDisplay (string $time): string {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyString($time);
+            $durationStr = '';
+            $pieces = explode(':', $time);
+            if (count($pieces) === 3) {
+                $hour = intval($pieces[0]);
+                $minute = intval($pieces[1]);
+                if ($hour >= 24) {
+                    $durationInt = intval(floor($hour/24));
+                    $durationStr = $durationInt === 1 ? $durationInt.' day' : $durationInt.' days';
+                } else if ($hour > 0) {
+                    $durationStr = $hour === 1 ? $hour.' hour' : $hour.' hours';
+                } else {
+                    $durationStr = $minute <= 1 ? $minute.' minute' : $minute.' minutes';
+                }
+            }
+            return $durationStr;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }

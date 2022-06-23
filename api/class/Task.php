@@ -32,6 +32,23 @@ class Task extends General {
     }
 
     /**
+     * @param int $transactionId
+     * @throws Exception
+     */
+    public function setByTransaction (int $transactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            $this->transactionId = $this->wflTask['transactionId'];
+            $this->wflTask = DbMysql::select('wfl_task', array('transactionId'=>$this->transactionId, 'taskCurrent'=>1),true);
+            $this->taskId = $this->wflTask['taskId'];
+            $this->transactionNo = DbMysql::selectColumn('wfl_transaction', array('transactionId'=>$this->transactionId), 'transactionNo', true);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $checkpointId
      * @throws Exception
      */
@@ -207,6 +224,55 @@ class Task extends General {
                 'taskCreatedGroup'=>$this->wflTask['groupId'], 'taskClaimedUser'=>$claimedUser, 'taskDateDue'=>$whereTaskDueDay, 'taskStatusPrevious'=>$this->wflTask['taskStatus'], 'taskStatus'=>$statusNew));
             DbMysql::update('wfl_transaction', array('transactionStatus'=>$statusNew), array('transactionId'=>$this->transactionId));
             $this->wflTaskNew = DbMysql::select('wfl_task', array('taskId'=>$taskIdNew), true);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $transactionId
+     * @return array
+     * @throws Exception
+     */
+    public function getProgressTimeList (int $transactionId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            $checkpointTurn = 0;
+            $returnArr = array();
+            $taskArr = DbMysql::selectSqlAll(/** @lang text */ "SELECT 
+                    TIMEDIFF(task_time_submit, task_time_created) AS performance,
+                    TIMEDIFF(NOW(), task_time_created) AS balance,
+                    task_time_submit,
+                    checkpoint_desc,
+                    checkpoint_type,
+                    checkpoint_color,
+                    checkpoint_order
+                FROM wfl_task t
+                LEFT JOIN wfl_checkpoint c ON c.checkpoint_id = t.checkpoint_id
+                WHERE transaction_id = ? AND checkpoint_type <> 3", array($transactionId));
+            foreach ($taskArr as $i=>$task) {
+                $return = parent::arraySpliceAssoc($task, array('checkpointDesc', 'checkpointColor', 'taskTimeSubmit'));
+                $durationStr = '';
+                $barPercent = 100;
+                if ($task['checkpointType'] <> 1) {
+                    $barPercent = $task['performance'] !== null ? 100 : 0;
+                    $duration = $task['performance'] !== null ? $task['performance'] : $task['balance'];
+                    $durationStr = parent::timeDisplay($duration);
+                }
+                $return['duration'] = $durationStr;
+                $return['barPercent'] = $barPercent;
+                $returnArr[] = $return;
+                if ($i === count($taskArr) - 1 && $task['checkpointOrder'] !== null) {
+                    $checkpointTurn = $task['checkpointOrder'];
+                }
+            }
+            $flowId = DbMysql::selectColumn('wfl_transaction', array('transactionId'=>$transactionId), 'flowId');
+            $checkpointArr = DbMysql::selectAll('wfl_checkpoint', array('flowId'=>$flowId, 'checkpointType'=>'<>|3', 'checkpointSkip'=>0, 'checkpointOrder'=>'>|'.$checkpointTurn), 0, false, 'checkpointOrder');
+            foreach ($checkpointArr as $checkpoint) {
+                $returnArr[] = array('checkpointDesc'=>$checkpoint['checkpointDesc'], 'checkpointColor'=>$checkpoint['checkpointColor'], 'taskTimeSubmit'=>null, 'duration', 'barPercent'=>0, 'duration'=>'');
+            }
+            return $returnArr;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

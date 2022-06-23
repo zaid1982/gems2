@@ -1,9 +1,13 @@
 <section class="section mb-5 sectionFcaInfo">
     <div class="row mb-4 pb-0">
         <div class="col-md-12">
+            <button type="button" class="btn btn-amber btn-rounded float-right text-white z-depth-3"
+                    id="btnSfcRecommend" data-toggle="tooltip" data-placement="bottom" title="Perform FCA Recommendation">
+                <i class="fas fa-marker mr-1"></i> Recommendation
+            </button>
             <button type="button" class="btn btn-grey btn-rounded float-right text-white z-depth-3"
                     id="btnSfcBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
+                <i class="fas fa-arrow-left mr-1"></i> Back to Main Page
             </button>
         </div>
     </div>
@@ -12,8 +16,8 @@
             <div class="card z-depth-4 mb-4">
                 <div class="p-3 info-color text-white">
                     <h5>FCA Audit No.</h5>
-                    <h2 class="mt-3 mb-0"><span id="lblSmwTotalMonthlyCharges">FCABNMHQ22061900002</span></h2>
-                    <p class="mt-1 mb-0">Status - <span id="lblSmwSiteName">Recommendation</span></p>
+                    <h1 class="mt-3 mb-0 font-weight-bold"><span id="lblSfcAuditNo"></span></h1>
+                    <p class="mt-1 mb-0">Status - <span class="font-weight-bold" id="lblSfcStatus"></span></p>
                 </div>
             </div>
             <div class="card z-depth-4 mb-4">
@@ -24,7 +28,7 @@
                         </span>
                         <div class="media-body">
                             <h5 class="dark-grey-text mb-3">Observation</h5>
-                            <p class="font-weight-light text-muted mb-0">Your web pages looks good on all devices and screen sizes, including desktop, tablet and mobile.</p>
+                            <p class="font-weight-light text-muted mb-0" id="pSfcObservation"></p>
                         </div>
                     </div>
                 </div>
@@ -37,7 +41,7 @@
                         </span>
                         <div class="media-body">
                             <h5 class="dark-grey-text mb-3">Recommendation</h5>
-                            <p class="font-weight-light text-muted mb-0">Your web pages looks good on all devices and screen sizes, including desktop, tablet and mobile.</p>
+                            <p class="font-weight-light text-muted mb-0" id="pSfcRecommendation"></p>
                         </div>
                     </div>
                 </div>
@@ -50,15 +54,24 @@
                         </span>
                         <div class="media-body">
                             <h5 class="dark-grey-text mb-3">Validation</h5>
-                            <p class="font-weight-light text-muted mb-0">Your web pages looks good on all devices and screen sizes, including desktop, tablet and mobile.</p>
+                            <p class="font-weight-light text-muted mb-0" id="pSfcValidation"></p>
                         </div>
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-info z-depth-3 btn-block mb-4" id="btnSdaEdit"><i class="far fa-file-pdf mr-2"></i> Download PDF FCA</button>
+            <div class="card z-depth-3 mb-4">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 24px; height: 48px">&nbsp;</div>
+                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Work Progress</h4>
+                </div>
+                <div class="card-body pb-3" id="divSfcProgress"></div>
+            </div>
+            <button type="button" class="btn btn-info z-depth-3 btn-block mb-3" id="btnSfcEditAudit" data-toggle="tooltip" data-placement="bottom" title="Edit FCA Observation"><i class="far fa-edit mr-2"></i> Edit FCA Observation</button>
+            <button type="button" class="btn btn-info z-depth-3 btn-block mb-3" id="btnSfcEditRecommend" data-toggle="tooltip" data-placement="bottom" title="Edit FCA Recommendation"><i class="far fa-edit mr-2"></i> Edit FCA Recommendation</button>
+            <button type="button" class="btn btn-info z-depth-3 btn-block mb-4" id="btnSfcEditValidate" data-toggle="tooltip" data-placement="bottom" title="Edit FCA Validation"><i class="far fa-edit mr-2"></i> Edit FCA Validation</button>
         </div>
         <div class="col-md-7">
-            <div class="card z-depth-3 mb-4" id="cardSugProfile">
+            <div class="card z-depth-3 mb-4">
                 <div class="card-header white p-0">
                     <div class="float-left info-color" style="width: 24px; height: 48px">&nbsp;</div>
                     <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">FCA Profile</h4>
@@ -66,89 +79,109 @@
                 <div class="card-body pb-0">
                     <div class="row pt-2">
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-user prefix text-info"></i>
-                            <label class="active pl-3">Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugFullName">SSSSS</p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-user-tie prefix text-info"></i>
-                            <label class="active pl-3">Designation</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugDesignation">SSSSS</p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-tag prefix text-info"></i>
-                            <label class="active pl-3">Category</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCategory">SSSSS</p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-users prefix text-info"></i>
-                            <label class="active pl-3">Team</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugTeam">SSSSS</p>
+                            <i class="fas fa-map-marked-alt prefix text-info"></i>
+                            <label class="active pl-3">Site</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcSite"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
                             <i class="fas fa-building prefix text-info"></i>
-                            <label class="active pl-3">Site</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSite">SSSSS</p>
+                            <label class="active pl-3">Zone</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcZone"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-12 my-2">
+                            <i class="fas fa-map-signs prefix text-info"></i>
+                            <label class="active pl-3">Area</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcArea"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-id-card prefix text-info"></i>
-                            <label class="active pl-3">GF ID</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGfId">SSSSS</p>
+                            <i class="fas fa-tools prefix text-info"></i>
+                            <label class="active pl-3">Asset Group</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcAssetGroup"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-envelope prefix text-info"></i>
-                            <label class="active pl-3">Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugEmail">SSSSS</p>
+                            <i class="fas fa-barcode prefix text-info"></i>
+                            <label class="active pl-3">Asset No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcAssetNo"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-12 my-2">
+                            <i class="fas fa-house-damage prefix text-info"></i>
+                            <label class="active pl-3">Evaluated Asset</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcEvaluatedAsset"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fas fa-tint-slash prefix text-info"></i>
+                            <label class="active pl-3">Defect Item</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcDefectItem"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fas fa-tag prefix text-info"></i>
+                            <label class="active pl-3">Defect Category</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcDefectCategory"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
                             <i class="fas fa-certificate prefix text-info"></i>
-                            <label class="active pl-3">Year of Service</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugYearService">SSSSS</p>
+                            <label class="active pl-3">Condition Scale</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcConditionScale"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-phone prefix text-info"></i>
-                            <label class="active pl-3">Phone No</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugPhoneNo">$nbsp;</p>
+                            <i class="fas fa-hammer prefix text-info"></i>
+                            <label class="active pl-3">Evaluation Type</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcEvaluationType"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
-                        <div class="md-form col-lg-6 my-2">
+                        <div class="md-form col-lg-12 my-2">
+                            <i class="fas fa-user-tie prefix text-info"></i>
+                            <label class="active pl-3">Auditor</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcAuditor"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-12 my-2">
                             <i class="fas fa-user-check prefix text-info"></i>
-                            <label class="active pl-3">Superior</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSuperior">SSSSS</p>
+                            <label class="active pl-3">Validator</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcValidator"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-id-card-alt prefix text-info"></i>
-                            <label class="active pl-3">Green Crad Expiry</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGreenCardExpiry">SSSSS</p>
+                            <i class="fas fa-calendar-alt prefix text-info"></i>
+                            <label class="active pl-3">Audit Date</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcAuditDate"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-2">
-                            <i class="fas fa-chart-line prefix text-info"></i>
-                            <label class="active pl-3">Competency</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCompetency">SSSSS</p>
+                            <i class="fas fa-calendar-check prefix text-info"></i>
+                            <label class="active pl-3">Validate Date</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSfcValidateDate"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-4" id="cardSugProfile">
+            <div class="card z-depth-3 mb-4">
                 <div class="card-header white p-0">
                     <div class="float-left info-color" style="width: 24px; height: 48px">&nbsp;</div>
                     <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Audit Images</h4>
                 </div>
-                <div class="card-body pb-0">
-
+                <div class="card-body">
+                    <div class="mdb-lightbox no-margin" id="divSfcImageAudit"></div>
                 </div>
-
+            </div>
+            <div class="card z-depth-3 mb-4">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 24px; height: 48px">&nbsp;</div>
+                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Rectification Images</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mdb-lightbox no-margin" id="divSfcImageRectify"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -57,6 +57,15 @@ function HideLoader() {
     $('#loading-overlay').remove();
 }
 
+function mzReplaceNull(str, replaced) {
+    replaced = typeof replaced !== 'undefined' ? replaced : '';
+    return (str === null || str === '') ? replaced : str;
+}
+
+function mzParseInt(n) {
+    return mzValidNumeric(n) ? parseInt(n) : '';
+}
+
 function mzFormatNumber(num, fix) {
     if (num === null || num === '') 	num = 0;
     num = parseFloat(num);
@@ -795,7 +804,7 @@ function mzConvertDate(dateInput) {
 }
 
 function mzConvertDateDisplay(dateInput) {
-    if (typeof dateInput === 'undefined' || (dateInput.length !== 10 && dateInput.length !== 19)) {
+    if (typeof dateInput === 'undefined' || dateInput === null || (dateInput.length !== 10 && dateInput.length !== 19)) {
         return '';
     }
     let fullDateStr = '';
@@ -804,7 +813,10 @@ function mzConvertDateDisplay(dateInput) {
             'November', 'December'];
 
     const datePart = dateInput.substr(0, 10);
-    const dateSplit = datePart.split("/");
+    let dateSplit = datePart.split("/");
+    if (dateSplit.length !== 3) {
+        dateSplit = datePart.split("-");
+    }
     if (dateSplit.length !== 3) {
         return '';
     }

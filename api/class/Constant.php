@@ -9,6 +9,8 @@ class Constant {
     public static $redisPort = 6379;
     public static $isLogged = true;
     public static $folderDebug = 'C:\Users\User\logs\gems\\';
+    //public static $url = '//gems.globalfm.com.my/api/';
+    public static $url = '//localhost:8081/gems2/api/';
 
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'

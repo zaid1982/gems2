@@ -55,6 +55,21 @@ class FcaTask extends General {
     }
 
     /**
+     * @param int $fcaTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function get(int $fcaTaskId=0): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fcaTaskId = !empty($fcaTaskId) ? $fcaTaskId : $this->fcaTaskId;
+            return DbMysql::select('fca_task', array('fcaTaskId'=>$this->fcaTaskId), 1);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $checkpointId
      * @return array
      * @throws Exception

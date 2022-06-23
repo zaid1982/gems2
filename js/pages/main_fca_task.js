@@ -21,7 +21,7 @@ function MainFcaTask () {
         oTableFctObserve = $('#dtFctObserve').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[1, 'desc']],
+            aaSorting: [[14, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
@@ -31,8 +31,8 @@ function MainFcaTask () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0, 14, 15] },
-                { visible: false, targets: [4, 10, 11, 12, 13, 14] },
+                { className: 'text-center', targets: [0, 17, 18] },
+                { visible: false, targets: [4, 10, 11, 12, 13, 14, 15, 16, 17] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -61,6 +61,7 @@ function MainFcaTask () {
                     $(this).DataTable().column(2).visible(false);
                     $(this).DataTable().column(7).visible(false);
                     $(this).DataTable().column(8).visible(false);
+                    $(this).DataTable().column(18).visible(false);
                     $('.btnFctObserveHide').hide();
                 }
             },
@@ -85,14 +86,17 @@ function MainFcaTask () {
                 {mData: 'fcaTaskArea'},
                 {mData: 'fcaTaskConditionScale'},  <!--10-->
                 {mData: 'fcaTaskEvaluationType'},
-                {mData: 'fcaTaskCreatedBy', mRender: function(data) {
+                {mData: 'fcaTaskObservation'},
+                {mData: 'fcaTaskRecommendation'},
+                {mData: 'fcaTaskValidation'},
+                {mData: 'fcaTaskCreatedBy', mRender: function(data) {   <!--15-->
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'fcaTaskValidateBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'fcaTaskTimeCreated'},
-                {mData: 'fcaTaskStatus', mRender: function(data) {   <!--10-->
+                {mData: 'fcaTaskStatus', mRender: function(data) {   <!--18-->
                         return refStatus[data]['statusAction'];
                     }}
             ]

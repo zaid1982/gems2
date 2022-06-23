@@ -10,7 +10,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?4">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
@@ -34,6 +34,7 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
+        <div id="mdb-lightbox-ui"></div>
         <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFctMain">
             <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
                 Facility Condition Appraisal (FCA) Task
@@ -79,10 +80,13 @@
                                         <th>Area</th>
                                         <th>Condition Scale</th> <!--10-->
                                         <th>Evaluation Type</th>
-                                        <th>Auditor</th>
+                                        <th>Observation</th>
+                                        <th>Recommendation</th>
+                                        <th>Validation</th>
+                                        <th>Auditor</th> <!--15-->
                                         <th>Validator</th>
                                         <th>Submitted Time</th>
-                                        <th>Status</th> <!--15-->
+                                        <th>Status</th> <!--18-->
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -128,6 +132,10 @@
 
 <!--Custom scripts-->
 <script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal_;
@@ -141,6 +149,7 @@
         setTimeout(function () {
             try {
                 initiatePages();
+                initPhotoSwipeFromDOM('.mdb-lightbox');
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalFcaAddClass_ = new ModalFcaAdd();
@@ -163,6 +172,12 @@
                 modalFcaAddClass_.setClassFrom(fcaTaskClass_);
                 modalFcaAddClass_.init();
 
+                sectionFcaInfoClass_.setRefStatus(refStatus_);
+                sectionFcaInfoClass_.setRefUser(refUser_);
+                sectionFcaInfoClass_.setRefSite(refSite_);
+                sectionFcaInfoClass_.setRefAssetGroup(refAssetGroup_);
+                sectionFcaInfoClass_.setRefDefectCategory(refDefectCategory_);
+                sectionFcaInfoClass_.setRefFcaZone(refFcaZone_);
                 sectionFcaInfoClass_.setClassFrom(fcaTaskClass_);
                 sectionFcaInfoClass_.init()
 

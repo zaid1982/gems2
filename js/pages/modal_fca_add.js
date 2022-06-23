@@ -208,14 +208,14 @@ function ModalFcaAdd () {
                             description: $('#txaMfaImgDesc2').val()
                         };
                         const data = {
-                            siteId: parseInt($('#optMfaSite').val()),
-                            fcaZoneId: parseInt($('#optMfaZone').val()),
+                            siteId: mzParseInt($('#optMfaSite').val()),
+                            fcaZoneId: mzParseInt($('#optMfaZone').val()),
                             fcaTaskArea: $('#txtMfaArea').val(),
-                            assetGroupId: parseInt($('#optMfaAssetGroup').val()),
+                            assetGroupId: mzParseInt($('#optMfaAssetGroup').val()),
                             //fcaTaskAssetNo: $('#txtMfaAssetNo').val(),
                             fcaTaskAssetEvaluated: $('#txtMfaEvaluated').val(),
                             fcaTaskDefectItem: $('#txtMfaDefectItem').val(),
-                            fcaDefectCategoryId: parseInt($('#optMfaDefectCategory').val()),
+                            fcaDefectCategoryId: mzParseInt($('#optMfaDefectCategory').val()),
                             fcaTaskObservation: $('#txaMfaObservation').val(),
                             image1: image1Data,
                             image2: image2Data

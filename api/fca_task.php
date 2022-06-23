@@ -34,6 +34,10 @@ try {
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
             $result = $fnFcaTask->getList();
+        } else if (is_numeric($urlArr[1])) {
+            $result = $fnFcaTask->get(intval($urlArr[1]));
+        } else if ($urlArr[1] === 'progress' && isset ($urlArr[2])) {
+            $result = $fnTask->getProgressTimeList(intval($urlArr[2]));
         } else if ($urlArr[1] === 'audit') {
             $result = $fnFcaTask->getSubmittedList(51);
         } else if ($urlArr[1] === 'recommend' && $urlArr[2] === 'new') {
@@ -45,7 +49,7 @@ try {
         } else if ($urlArr[1] === 'validate' && $urlArr[2] === 'submitted') {
             //TODO - get submitted validate task
         } else {
-            //TODO - get current fca info
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
         $formData['result'] = $result;
         $formData['success'] = true;
