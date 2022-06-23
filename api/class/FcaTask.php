@@ -70,16 +70,28 @@ class FcaTask extends General {
     }
 
     /**
-     * @param int $checkpointId
      * @return array
      * @throws Exception
      */
-    public function getSubmittedList (int $checkpointId): array {
+    public function getObserveList (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            parent::checkEmptyInteger($checkpointId, 'checkpointId');
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>$checkpointId, 'taskCurrent'=>2, 'taskClaimedUser'=>$this->userId));
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>51, 'taskCurrent'=>2, 'taskClaimedUser'=>$this->userId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getRecommendList (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>52, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

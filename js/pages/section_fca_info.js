@@ -10,6 +10,7 @@ function SectionFcaInfo () {
     let refAssetGroup;
     let refDefectCategory;
     let refFcaZone;
+    let sectionFrom;
     let refConditionScale = ['', '1 - Very Good', '2 - Good', '3 - Average', '4 - Critical', '5 - Very Critical'];
     let refEvaluationType = ['', '1 - Normal', '2 - Routine', '3 - Repair', '4 - Recovery', '5 - Replacement'];
 
@@ -18,17 +19,18 @@ function SectionFcaInfo () {
 
         $('#btnSfcBack').on('click', function () {
             self.hideSection();
-            classFrom.showMain();
+            classFrom.showMain(sectionFrom);
             $(window).scrollTop(0);
         });
     };
 
-    this.load = function (_fcaTaskId) {
+    this.load = function (_fcaTaskId, _sectionFrom) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_fcaTaskId]);
+                mzCheckFuncParam([_fcaTaskId, _sectionFrom]);
                 fcaTaskId = _fcaTaskId;
+                sectionFrom = _sectionFrom;
                 self.displayInfo();
                 classFrom.hideMain();
                 self.showSection();
@@ -139,11 +141,13 @@ function SectionFcaInfo () {
                     '<p class="mt-0 mb-2 ml-1 font-small font-italic">'+mzConvertDateDisplay(progress['taskTimeSubmit'])+'</p>');
             });
 
-            $('#btnSfcEditRecommend, #btnSfcEditValidate').show();
-            if (dataDb['fcaTaskStatus'] === 55 || dataDb['fcaTaskStatus'] === 57) {
-                $('#btnSfcEditRecommend, #btnSfcEditValidate').hide();
+            $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend').hide();
+            if (dataDb['fcaTaskStatus'] === 55 && sectionFrom === 'Recommend') {
+                $('#btnSfcRecommend').show();
             } else if (dataDb['fcaTaskStatus'] === 56) {
                 $('#btnSfcEditValidate').hide();
+            } else if (dataDb['fcaTaskStatus'] === 57) {
+                //
             }
         } catch (e) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);

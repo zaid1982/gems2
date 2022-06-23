@@ -39,15 +39,11 @@ try {
         } else if ($urlArr[1] === 'progress' && isset ($urlArr[2])) {
             $result = $fnTask->getProgressTimeList(intval($urlArr[2]));
         } else if ($urlArr[1] === 'audit') {
-            $result = $fnFcaTask->getSubmittedList(51);
-        } else if ($urlArr[1] === 'recommend' && $urlArr[2] === 'new') {
-            //TODO - get new recommend task
-        } else if ($urlArr[1] === 'recommend' && $urlArr[2] === 'submitted') {
-            //TODO - get submitted recommend task
-        } else if ($urlArr[1] === 'validate' && $urlArr[2] === 'new') {
+            $result = $fnFcaTask->getObserveList();
+        } else if ($urlArr[1] === 'recommend') {
+            $result = $fnFcaTask->getRecommendList();
+        } else if ($urlArr[1] === 'validate') {
             //TODO - get new validate task
-        } else if ($urlArr[1] === 'validate' && $urlArr[2] === 'submitted') {
-            //TODO - get submitted validate task
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

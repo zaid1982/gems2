@@ -44,18 +44,18 @@
             <div class="collapse navbar-collapse" id="basicExampleNav">
                 <ul class="navbar-nav mr-auto">
                     <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctAudit" type="button">
-                        <i class="fas fa-eye mr-2"></i> Observe
+                        <i class="fas fa-eye"></i><span class="mx-2">Observe</span><span class="badge badge-danger" id="badgeFctTotalCorrection"></span>
                     </button>
                     <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctRecommend" type="button">
-                        <i class="fas fa-marker mr-2"></i> Recommend
+                        <i class="fas fa-marker"></i><span class="mx-2">Recommend</span><span class="badge badge-danger" id="badgeFctTotalRecommend"></span>
                     </button>
                     <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnFctValidate" type="button">
-                        <i class="fas fa-check mr-2"></i> Validate
+                        <i class="fas fa-check"></i><span class="mx-2">Validate</span><span class="badge badge-danger" id="badgeFctTotalValidate"></span>
                     </button>
                 </ul>
             </div>
         </nav>
-        <section class="my-3 sectionFctMain sectionFctObserve">
+        <section class="my-3 sectionFctMain sectionFctTask sectionFctObserve">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card z-depth-3 mb-4_5">
@@ -87,6 +87,41 @@
                                         <th>Validator</th>
                                         <th>Submitted Time</th>
                                         <th>Status</th> <!--18-->
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="my-3 sectionFctMain sectionFctTask sectionFctRecommend">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-header white p-0 z-depth-1" id="divFctRecommendHeader">
+                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Recommendation List</h4>
+                        </div>
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtFctRecommend" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Audit No.</th>
+                                        <th>Site</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset No.</th>
+                                        <th>Evaluated Asset</th> <!--5-->
+                                        <th>Defect Item</th>
+                                        <th>Defect Category</th>
+                                        <th>Zone</th>
+                                        <th>Area</th>
+                                        <th>Observation</th> <!--10-->
+                                        <th>Received Time</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
