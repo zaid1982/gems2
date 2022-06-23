@@ -4,6 +4,7 @@ function ModalFcaAdd () {
     let self = this;
     let formValidate;
     let classFrom;
+    let actionType;
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
@@ -220,8 +221,10 @@ function ModalFcaAdd () {
                             image1: image1Data,
                             image2: image2Data
                         };
-                        mzAjaxRequest2('fca_task', 'POST', data);
-                        classFrom.genTable(1);
+                        if (actionType === 'add') {
+                            mzAjaxRequest2('fca_task', 'POST', data);
+                            classFrom.genTable(1);
+                        }
                         $('#modal_fca_add').modal('hide');
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -237,6 +240,7 @@ function ModalFcaAdd () {
         setTimeout(function () {
             try {
                 formValidate.clearValidation();
+                actionType = 'add';
                 mzOptionStopClear('optMfaZone', 'Select Defect Category');
                 mzOptionStopClear('optMfaDefectCategory', 'Select Defect Category');
                 $('#imgMfaImage1, #imgMfaImage2').attr('src', 'img/background/upload_placeholder.png');

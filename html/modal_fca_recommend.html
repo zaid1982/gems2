@@ -1,0 +1,85 @@
+<div class="modal fade" id="modal_fca_recommend" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-gavel text-white"></i> &nbsp;Recommend FCA Audit</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMfr" class="mt-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMfrAssetNo" class="form-control">
+                                <label for="txtMfrAssetNo" id="lblMfrAssetNo">Asset No.</label>
+                                <p class="font-small text-danger" id="txtMfrAssetNoErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0 font-small">Condition Scale :</p>
+                            <div class="md-form mt-0 mb-3">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrCondition" id="radMfrCondition1" value="1">
+                                    <label class="form-check-label" for="radMfrCondition1">Very Good</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrCondition" id="radMfrCondition2" value="2">
+                                    <label class="form-check-label" for="radMfrCondition2">Good</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrCondition" id="radMfrCondition3" value="3">
+                                    <label class="form-check-label" for="radMfrCondition3">Average</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrCondition" id="radMfrCondition4" value="4">
+                                    <label class="form-check-label" for="radMfrCondition4">Critical</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrCondition" id="radMfrCondition5" value="5">
+                                    <label class="form-check-label" for="radMfrCondition5">Very Critical</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfrConditionErr"></p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0 font-small">Evaluation Type :</p>
+                            <div class="md-form mt-0 mb-3">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrEvaluationType" id="radMfrEvaluationType1" value="1">
+                                    <label class="form-check-label" for="radMfrEvaluationType1">Normal</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrEvaluationType" id="radMfrEvaluationType2" value="2">
+                                    <label class="form-check-label" for="radMfrEvaluationType2">Routine</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrEvaluationType" id="radMfrEvaluationType3" value="3">
+                                    <label class="form-check-label" for="radMfrEvaluationType3">Repair</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrEvaluationType" id="radMfrEvaluationType4" value="4">
+                                    <label class="form-check-label" for="radMfrEvaluationType4">Recovery</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="radMfrEvaluationType" id="radMfrEvaluationType5" value="5">
+                                    <label class="form-check-label" for="radMfrEvaluationType5">Replacement</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfrEvaluationTypeErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMfrSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+                    

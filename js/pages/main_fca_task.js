@@ -57,7 +57,7 @@ function MainFcaTask () {
                     }
                     modalFcaAddClass.add();
                 });
-                if ($('#divFctObserveHeader').width() < 546) {
+                if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
                     $(this).DataTable().column(7).visible(false);
@@ -105,7 +105,7 @@ function MainFcaTask () {
         let oTableFctObserveTbody = $('#dtFctObserve tbody');
         oTableFctObserveTbody.delegate('tr', 'click', function () {
             const data = $('#dtFctObserve').DataTable().row(this).data();
-            sectionFcaInfoClass.load(data['fcaTaskId'], 'Observe');
+            sectionFcaInfoClass.load(data['fcaTaskId'], 'Observe', data['taskId']);
         });
         oTableFctObserveTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtFctObserve').DataTable().row(this).data();
@@ -155,12 +155,12 @@ function MainFcaTask () {
                     }
                     modalFcaAddClass.add();
                 });
-                if ($('#divFctRecommendHeader').width() < 546) {
+                if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
+                    $(this).DataTable().column(5).visible(false);
                     $(this).DataTable().column(7).visible(false);
                     $(this).DataTable().column(8).visible(false);
-                    $(this).DataTable().column(9).visible(false);
                     $('.btnFctRecommendHide').hide();
                 }
             },
@@ -190,7 +190,7 @@ function MainFcaTask () {
         let oTableFctRecommendTbody = $('#dtFctRecommend tbody');
         oTableFctRecommendTbody.delegate('tr', 'click', function () {
             const data = $('#dtFctRecommend').DataTable().row(this).data();
-            sectionFcaInfoClass.load(data['fcaTaskId'], 'Recommend');
+            sectionFcaInfoClass.load(data['fcaTaskId'], 'Recommend', data['taskId']);
         });
         oTableFctRecommendTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtFctRecommend').DataTable().row(this).data();

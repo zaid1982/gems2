@@ -4,13 +4,15 @@ function SectionFcaInfo () {
     let self = this;
     let classFrom;
     let fcaTaskId;
+    let taskId;
+    let sectionFrom;
     let refStatus;
     let refUser;
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
     let refFcaZone;
-    let sectionFrom;
+    let modalFcaRecommendClass;
     let refConditionScale = ['', '1 - Very Good', '2 - Good', '3 - Average', '4 - Critical', '5 - Very Critical'];
     let refEvaluationType = ['', '1 - Normal', '2 - Routine', '3 - Repair', '4 - Recovery', '5 - Replacement'];
 
@@ -22,14 +24,19 @@ function SectionFcaInfo () {
             classFrom.showMain(sectionFrom);
             $(window).scrollTop(0);
         });
+
+        $('#btnSfcRecommend').on('click', function (fcaTaskId, taskId) {
+            modalFcaRecommendClass.load();
+        });
     };
 
-    this.load = function (_fcaTaskId, _sectionFrom) {
+    this.load = function (_fcaTaskId, _sectionFrom, _taskId) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_fcaTaskId, _sectionFrom]);
+                mzCheckFuncParam([_fcaTaskId, _taskId, _sectionFrom]);
                 fcaTaskId = _fcaTaskId;
+                taskId = mzReplaceNull(_taskId, 0);
                 sectionFrom = _sectionFrom;
                 self.displayInfo();
                 classFrom.hideMain();
@@ -141,13 +148,18 @@ function SectionFcaInfo () {
                     '<p class="mt-0 mb-2 ml-1 font-small font-italic">'+mzConvertDateDisplay(progress['taskTimeSubmit'])+'</p>');
             });
 
-            $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend').hide();
+            $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend, #btnSfcValidate, #btnSfcCorrection').hide();
             if (dataDb['fcaTaskStatus'] === 55 && sectionFrom === 'Recommend') {
                 $('#btnSfcRecommend').show();
             } else if (dataDb['fcaTaskStatus'] === 56) {
-                $('#btnSfcEditValidate').hide();
+                $('#btnSfcEditValidate').show();
+                if (sectionFrom === 'Recommend') {
+                    $('#btnSfcValidate').show();
+                }
             } else if (dataDb['fcaTaskStatus'] === 57) {
-                //
+                if (sectionFrom === 'Observe') {
+                    $('#btnSfcCorrection').show();
+                }
             }
         } catch (e) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -201,5 +213,9 @@ function SectionFcaInfo () {
 
     this.setRefFcaZone = function (_refFcaZone) {
         refFcaZone = _refFcaZone;
+    };
+
+    this.setModalFcaRecommendClass = function (_modalFcaRecommendClass) {
+        modalFcaRecommendClass = _modalFcaRecommendClass;
     };
 }
