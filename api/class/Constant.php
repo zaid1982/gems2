@@ -31,7 +31,8 @@ class Constant {
     );
 
     public static $fcaTask = array(
-        'submitNew' => 'New FCA Audit successfully submitted for recommendation process!'
+        'submitNew' => 'New FCA Audit successfully submitted for recommendation process!',
+        'submitRecommend' => 'FCA Audit Recommendation successfully submitted for validation process!'
     );
 
     public static $fcaZone = array(

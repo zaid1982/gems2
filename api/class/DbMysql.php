@@ -465,7 +465,7 @@ class DbMysql {
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
             }
-            return self::convertFromDbIndex($result);
+            return !empty($result) ? self::convertFromDbIndex($result) : array();
         }
         catch (PDOException $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

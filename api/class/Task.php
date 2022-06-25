@@ -39,7 +39,7 @@ class Task extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($transactionId, 'transactionId');
-            $this->transactionId = $this->wflTask['transactionId'];
+            $this->transactionId = $transactionId;
             $this->wflTask = DbMysql::select('wfl_task', array('transactionId'=>$this->transactionId, 'taskCurrent'=>1),true);
             $this->taskId = $this->wflTask['taskId'];
             $this->transactionNo = DbMysql::selectColumn('wfl_transaction', array('transactionId'=>$this->transactionId), 'transactionNo', true);
@@ -59,11 +59,8 @@ class Task extends General {
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkEmptyInteger($this->taskId, 'taskId');
             parent::checkEmptyArray($this->wflTask, 'wflTask');
-            if ($this->wflTask['taskCurrent'] !== 1) {
+            if ($this->wflTask['taskCurrent'] !== 1 || $this->wflTask['checkpointId'] !== $checkpointId) {
                 throw new Exception(Constant::$task['errAlreadySubmitted'], 31);
-            }
-            if ($this->wflTask['checkpointId'] !== $checkpointId) {
-                throw new Exception(Constant::$err['default'], 31);
             }
             if ($this->wflTask['taskClaimedUser'] !== null && $this->wflTask['taskClaimedUser'] !== $this->userId) {
                 throw new Exception(Constant::$task['errClaimed'], 31);
@@ -114,18 +111,23 @@ class Task extends General {
     }
 
     /**
+     * @param bool $isSite
      * @return array
      * @throws Exception
      */
-    public function getSiteRecipients (): array {
+    public function getRecipients (bool $isSite=false): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyArray($this->wflTaskNew, 'wflTaskNew');
             if (!empty($this->wflTaskNew['taskClaimedUser'])) {
                 throw new Exception('TaskClaimedUser should be empty');
             }
-            $siteId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true);
-            $checkpointUsers = DbMysql::select('v_checkpoint_user_site', array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+            if (!$isSite) {
+                $siteId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true);
+                $checkpointUsers = DbMysql::select('v_checkpoint_user_site', array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+            } else {
+                $checkpointUsers = DbMysql::select('wfl_checkpoint_user', array('checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+            }
             return array_column($checkpointUsers, 'userId');
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -198,7 +200,7 @@ class Task extends General {
             }
 
             // ********* process task assigned ********* \\
-            $groupId = empty($wflCheckpointNext['groupId']) ? $wflCheckpointNext['groupId'] : 0;
+            $groupId = !empty($wflCheckpointNext['groupId']) ? $wflCheckpointNext['groupId'] : 0;
             $claimedUser = 0;
             $wflTaskAssign = DbMysql::select('wfl_task_assign', array('transactionId'=>$this->transactionId, 'checkpointId'=>$checkpointIdNext, 'roleId'=>$wflCheckpointNext['roleId']), false, 'taskAssignId', 'DESC');
             if ($wflCheckpointNext['checkpointClaimType'] === 3) {

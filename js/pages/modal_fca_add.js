@@ -50,15 +50,6 @@ function ModalFcaAdd () {
                     notEmpty: true
                 }
             },
-           /* {
-                field_id: 'txtMfaAssetNo',
-                type: 'text',
-                name: 'Asset No.',
-                validator: {
-                    notEmpty: false,
-                    maxLength: 50
-                }
-            },*/
             {
                 field_id: 'txtMfaEvaluated',
                 type: 'text',
@@ -213,7 +204,6 @@ function ModalFcaAdd () {
                             fcaZoneId: mzParseInt($('#optMfaZone').val()),
                             fcaTaskArea: $('#txtMfaArea').val(),
                             assetGroupId: mzParseInt($('#optMfaAssetGroup').val()),
-                            //fcaTaskAssetNo: $('#txtMfaAssetNo').val(),
                             fcaTaskAssetEvaluated: $('#txtMfaEvaluated').val(),
                             fcaTaskDefectItem: $('#txtMfaDefectItem').val(),
                             fcaDefectCategoryId: mzParseInt($('#optMfaDefectCategory').val()),
@@ -223,7 +213,7 @@ function ModalFcaAdd () {
                         };
                         if (actionType === 'add') {
                             mzAjaxRequest2('fca_task', 'POST', data);
-                            classFrom.genTable(1);
+                            classFrom.genTable();
                         }
                         $('#modal_fca_add').modal('hide');
                     } catch (e) {

@@ -6,6 +6,7 @@ function SectionFcaInfo () {
     let fcaTaskId;
     let taskId;
     let sectionFrom;
+    let isUpdated = false;
     let refStatus;
     let refUser;
     let refSite;
@@ -21,12 +22,15 @@ function SectionFcaInfo () {
 
         $('#btnSfcBack').on('click', function () {
             self.hideSection();
+            if (isUpdated) {
+                classFrom.genTable();
+            }
             classFrom.showMain(sectionFrom);
             $(window).scrollTop(0);
         });
 
-        $('#btnSfcRecommend').on('click', function (fcaTaskId, taskId) {
-            modalFcaRecommendClass.load();
+        $('#btnSfcRecommend').on('click', function () {
+            modalFcaRecommendClass.load(fcaTaskId, taskId);
         });
     };
 
@@ -38,7 +42,7 @@ function SectionFcaInfo () {
                 fcaTaskId = _fcaTaskId;
                 taskId = mzReplaceNull(_taskId, 0);
                 sectionFrom = _sectionFrom;
-                self.displayInfo();
+                self.displayInfo(true, true, true);
                 classFrom.hideMain();
                 self.showSection();
                 window.scrollTo({top: 0, behavior: 'smooth'});
@@ -49,7 +53,7 @@ function SectionFcaInfo () {
         }, 200);
     };
 
-    this.displayInfo = function () {
+    this.displayInfo = function (isImage, isImageRectify, isTask) {
         try {
             const dataDb = mzAjaxRequest2('fca_task/'+fcaTaskId, 'GET');
             $('#lblSfcAuditNo').text(dataDb['fcaTaskNo']);
@@ -72,93 +76,99 @@ function SectionFcaInfo () {
             $('#pSfcAuditDate').text(mzConvertDateDisplay(dataDb['fcaTaskTimeCreated']));
             $('#pSfcValidateDate').text(mzReplaceNull(mzConvertDateDisplay(dataDb['fcaTaskTimeValidated']), '-'));
 
-            let divImageAudit = $('#divSfcImageAudit');
-            divImageAudit.html('');
-            if (dataDb['fcaTaskImage1'] !== null) {
-                const image1 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage1'], 'GET');
-                if (image1['uploadFileWidth'] !== null && image1['uploadFileHeight'] !== null) {
-                    divImageAudit.append('<figure class="col-md-6">\n' +
-                        '   <a href="'+image1['src']+'" data-size="'+image1['uploadFileWidth']+'x'+image1['uploadFileHeight']+'">\n' +
-                        '     <img src="'+image1['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                        '   </a>\n' +
-                        '   <p class="mb-0 font-small text-center">Audit Image 1</p>\n' +
-                        '</figure>\n');
+            if (isImage) {
+                let divImageAudit = $('#divSfcImageAudit');
+                divImageAudit.html('');
+                if (dataDb['fcaTaskImage1'] !== null) {
+                    const image1 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage1'], 'GET');
+                    if (image1['uploadFileWidth'] !== null && image1['uploadFileHeight'] !== null) {
+                        divImageAudit.append('<figure class="col-md-6">\n' +
+                            '   <a href="'+image1['src']+'" data-size="'+image1['uploadFileWidth']+'x'+image1['uploadFileHeight']+'">\n' +
+                            '     <img src="'+image1['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
+                            '   </a>\n' +
+                            '   <p class="mb-0 font-small text-center">Audit Image 1</p>\n' +
+                            '</figure>\n');
+                    } else {
+                        divImageAudit.append(self.getNoImageHtml('Audit Image 1'));
+                    }
                 } else {
                     divImageAudit.append(self.getNoImageHtml('Audit Image 1'));
                 }
-            } else {
-                divImageAudit.append(self.getNoImageHtml('Audit Image 1'));
-            }
-            if (dataDb['fcaTaskImage2'] !== null) {
-                const image2 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage2'], 'GET');
-                if (image2['uploadFileWidth'] !== null && image2['uploadFileHeight'] !== null) {
-                    divImageAudit.append('<figure class="col-md-6">\n' +
-                        '   <a href="'+image2['src']+'" data-size="'+image2['uploadFileWidth']+'x'+image2['uploadFileHeight']+'">\n' +
-                        '     <img src="'+image2['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                        '   </a>\n' +
-                        '   <p class="mb-0 font-small text-center">Audit Image 2</p>\n' +
-                        '</figure>\n');
+                if (dataDb['fcaTaskImage2'] !== null) {
+                    const image2 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage2'], 'GET');
+                    if (image2['uploadFileWidth'] !== null && image2['uploadFileHeight'] !== null) {
+                        divImageAudit.append('<figure class="col-md-6">\n' +
+                            '   <a href="'+image2['src']+'" data-size="'+image2['uploadFileWidth']+'x'+image2['uploadFileHeight']+'">\n' +
+                            '     <img src="'+image2['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
+                            '   </a>\n' +
+                            '   <p class="mb-0 font-small text-center">Audit Image 2</p>\n' +
+                            '</figure>\n');
+                    } else {
+                        divImageAudit.append(self.getNoImageHtml('Audit Image 2'));
+                    }
                 } else {
                     divImageAudit.append(self.getNoImageHtml('Audit Image 2'));
                 }
-            } else {
-                divImageAudit.append(self.getNoImageHtml('Audit Image 2'));
             }
 
-            let divImageRectify = $('#divSfcImageRectify');
-            divImageRectify.html('');
-            if (dataDb['fcaTaskImageRectify1'] !== null) {
-                const imageRectify1 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImageRectify1'], 'GET');
-                if (imageRectify1['uploadFileWidth'] !== null && imageRectify1['uploadFileHeight'] !== null) {
-                    divImageRectify.append('<figure class="col-md-6">\n' +
-                        '   <a href="'+imageRectify1['src']+'" data-size="'+imageRectify1['uploadFileWidth']+'x'+imageRectify1['uploadFileHeight']+'">\n' +
-                        '     <img src="'+imageRectify1['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                        '   </a>\n' +
-                        '   <p class="mb-0 font-small text-center">Rectify Image 1</p>\n' +
-                        '</figure>\n');
+            if (isImageRectify) {
+                let divImageRectify = $('#divSfcImageRectify');
+                divImageRectify.html('');
+                if (dataDb['fcaTaskImageRectify1'] !== null) {
+                    const imageRectify1 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
+                    if (imageRectify1['uploadFileWidth'] !== null && imageRectify1['uploadFileHeight'] !== null) {
+                        divImageRectify.append('<figure class="col-md-6">\n' +
+                            '   <a href="' + imageRectify1['src'] + '" data-size="' + imageRectify1['uploadFileWidth'] + 'x' + imageRectify1['uploadFileHeight'] + '">\n' +
+                            '     <img src="' + imageRectify1['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
+                            '   </a>\n' +
+                            '   <p class="mb-0 font-small text-center">Rectify Image 1</p>\n' +
+                            '</figure>\n');
+                    } else {
+                        divImageRectify.append(self.getNoImageHtml('Rectify Image 1'));
+                    }
                 } else {
                     divImageRectify.append(self.getNoImageHtml('Rectify Image 1'));
                 }
-            } else {
-                divImageRectify.append(self.getNoImageHtml('Rectify Image 1'));
-            }
-            if (dataDb['fcaTaskImageRectify2'] !== null) {
-                const imageRectify2 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImageRectify1'], 'GET');
-                if (imageRectify2['uploadFileWidth'] !== null && imageRectify2['uploadFileHeight'] !== null) {
-                    divImageRectify.append('<figure class="col-md-6">\n' +
-                        '   <a href="'+imageRectify2['src']+'" data-size="'+imageRectify2['uploadFileWidth']+'x'+imageRectify2['uploadFileHeight']+'">\n' +
-                        '     <img src="'+imageRectify2['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                        '   </a>\n' +
-                        '   <p class="mb-0 font-small text-center">Rectify Image 2</p>\n' +
-                        '</figure>\n');
+                if (dataDb['fcaTaskImageRectify2'] !== null) {
+                    const imageRectify2 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
+                    if (imageRectify2['uploadFileWidth'] !== null && imageRectify2['uploadFileHeight'] !== null) {
+                        divImageRectify.append('<figure class="col-md-6">\n' +
+                            '   <a href="' + imageRectify2['src'] + '" data-size="' + imageRectify2['uploadFileWidth'] + 'x' + imageRectify2['uploadFileHeight'] + '">\n' +
+                            '     <img src="' + imageRectify2['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
+                            '   </a>\n' +
+                            '   <p class="mb-0 font-small text-center">Rectify Image 2</p>\n' +
+                            '</figure>\n');
+                    } else {
+                        divImageRectify.append(self.getNoImageHtml('Rectify Image 2'));
+                    }
                 } else {
                     divImageRectify.append(self.getNoImageHtml('Rectify Image 2'));
                 }
-            } else {
-                divImageRectify.append(self.getNoImageHtml('Rectify Image 2'));
             }
 
-            $('#divSfcProgress').html('');
-            const dataProgress = mzAjaxRequest2('fca_task/progress/'+dataDb['transactionId'], 'GET');
-            $.each(dataProgress, function (n, progress) {
-                $('#divSfcProgress').append('<p class="mb-0 ml-1 font-small"><strong>'+progress['checkpointDesc']+'</strong><span class="float-right">'+progress['duration']+'</span></p>\n' +
-                    '<div class="progress md-progress mb-0" style="height: 20px">\n' +
-                    '   <div class="progress-bar progress-bar-striped progress-bar-animated '+progress['checkpointColor']+'" role="progressbar" style="width: '+progress['barPercent']+'%; height: 20px" aria-valuenow="'+progress['barPercent']+'%" aria-valuemin="0" aria-valuemax="100"></div>\n' +
-                    '</div>\n' +
-                    '<p class="mt-0 mb-2 ml-1 font-small font-italic">'+mzConvertDateDisplay(progress['taskTimeSubmit'])+'</p>');
-            });
+            if (isTask) {
+                $('#divSfcProgress').html('');
+                const dataProgress = mzAjaxRequest2('fca_task/progress/'+dataDb['transactionId'], 'GET');
+                $.each(dataProgress, function (n, progress) {
+                    $('#divSfcProgress').append('<p class="mb-0 ml-1 font-small"><strong>'+progress['checkpointDesc']+'</strong><span class="float-right">'+progress['duration']+'</span></p>\n' +
+                        '<div class="progress md-progress mb-0" style="height: 20px">\n' +
+                        '   <div class="progress-bar progress-bar-striped progress-bar-animated '+progress['checkpointColor']+'" role="progressbar" style="width: '+progress['barPercent']+'%; height: 20px" aria-valuenow="'+progress['barPercent']+'%" aria-valuemin="0" aria-valuemax="100"></div>\n' +
+                        '</div>\n' +
+                        '<p class="mt-0 mb-2 ml-1 font-small font-italic">'+mzConvertDateDisplay(progress['taskTimeSubmit'])+'</p>');
+                });
 
-            $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend, #btnSfcValidate, #btnSfcCorrection').hide();
-            if (dataDb['fcaTaskStatus'] === 55 && sectionFrom === 'Recommend') {
-                $('#btnSfcRecommend').show();
-            } else if (dataDb['fcaTaskStatus'] === 56) {
-                $('#btnSfcEditValidate').show();
-                if (sectionFrom === 'Recommend') {
-                    $('#btnSfcValidate').show();
-                }
-            } else if (dataDb['fcaTaskStatus'] === 57) {
-                if (sectionFrom === 'Observe') {
-                    $('#btnSfcCorrection').show();
+                $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend, #btnSfcValidate, #btnSfcCorrection').hide();
+                if (dataDb['fcaTaskStatus'] === 55 && sectionFrom === 'Recommend') {
+                    $('#btnSfcRecommend').show();
+                } else if (dataDb['fcaTaskStatus'] === 56) {
+                    $('#btnSfcEditValidate').show();
+                    if (sectionFrom === 'Recommend') {
+                        $('#btnSfcValidate').show();
+                    }
+                } else if (dataDb['fcaTaskStatus'] === 57) {
+                    if (sectionFrom === 'Observe') {
+                        $('#btnSfcCorrection').show();
+                    }
                 }
             }
         } catch (e) {
@@ -189,6 +199,10 @@ function SectionFcaInfo () {
 
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
+    };
+
+    this.setIsUpdated = function (_isUpdated) {
+        isUpdated = _isUpdated;
     };
 
     this.setRefStatus = function (_refStatus) {

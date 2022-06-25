@@ -52,34 +52,52 @@ try {
     }
     else if ('POST' === $requestMethod) {
         $params = $_POST;
-        if (isset ($urlArr[1])) {
+        if (!isset ($urlArr[1])) {
+            $image1Arr = $fnFcaTask->uploadPrepare($params['image1'], 25);
+            $image2Arr = !empty($params['image2']) ? $fnFcaTask->uploadPrepare($params['image2'], 26) : array();
+
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $curDates = new DateTime();
+            $fnFcaTask->generateNo($params['siteId']);
+            $fnTask->createNew(5, $fnFcaTask->fcaTaskNo);
+            $fnTask->set($fnTask->wflTaskNew['taskId']);
+
+            $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('siteId', 'assetGroupId', 'fcaZoneId', 'fcaTaskArea', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation'));
+            $paramFcaTask['fcaTaskImage1'] = $fnFcaTask->uploadSave($image1Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_1');
+            if (!empty($image2Arr)) {
+                $paramFcaTask['fcaTaskImage2'] = $fnFcaTask->uploadSave($image2Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_2');
+            }
+            $fnFcaTask->insert($paramFcaTask, $fnTask->transactionId);
+            $fnFcaTaskSection->register($fnFcaTask->fcaTaskId);
+
+            $fnTask->submit($fnFcaTask->fcaTask['fcaTaskObservation'], 54, 55);
+            $fnEmail->prepare($fnFcaTask->userId, 21, array('task_no'=>$fnFcaTask->fcaTaskNo, 'observation'=>$fnFcaTask->fcaTask['fcaTaskObservation']));
+            $fnNoti->prepare($fnFcaTask->userId, 22, array('task_no'=>$fnFcaTask->fcaTaskNo));
+            $fnFcaTask->saveAudit(193, $fnFcaTask->fcaTaskNo);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$fcaTask['submitNew'];
+        }
+        else if ($urlArr[1] === 'recommend' && isset ($urlArr[2])) {
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $fnFcaTask->set(intval($urlArr[2]));
+            $fnFcaTask->submitRecommend($params);
+            $fnFcaTaskSection->update($fnFcaTask->fcaTaskId, 'recommend');
+            $fnTask->setByTransaction($fnFcaTask->fcaTask['transactionId']);
+            $fnTask->checkValidity(52);
+            $fnTask->submit($fnFcaTask->fcaTask['fcaTaskRecommendation'], 55, 56);
+            foreach ($fnTask->getRecipients() as $recipient) {
+                $fnEmail->prepare($recipient, 22, array('task_no'=>$fnFcaTask->fcaTaskNo, 'recommendation'=>$fnFcaTask->fcaTask['fcaTaskRecommendation']));
+                $fnNoti->prepare($recipient, 23, array('task_no'=>$fnFcaTask->fcaTaskNo));
+            }
+            $fnFcaTask->saveAudit(194, $fnFcaTask->fcaTaskNo);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$fcaTask['submitRecommend'];
+        }
+        else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
         }
-        $image1Arr = $fnFcaTask->uploadPrepare($params['image1'], 25);
-        $image2Arr = !empty($params['image2']) ? $fnFcaTask->uploadPrepare($params['image2'], 26) : array();
-
-        DbMysql::beginTransaction();
-        $isTransaction = true;
-        $curDates = new DateTime();
-        $fnFcaTask->generateNo($params['siteId']);
-        $fnTask->createNew(5, $fnFcaTask->fcaTaskNo);
-        $fnTask->set($fnTask->wflTaskNew['taskId']);
-
-        $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('siteId', 'assetGroupId', 'fcaZoneId', 'fcaTaskArea', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation'));
-        $paramFcaTask['fcaTaskImage1'] = $fnFcaTask->uploadSave($image1Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_1');
-        if (!empty($image2Arr)) {
-            $paramFcaTask['fcaTaskImage2'] = $fnFcaTask->uploadSave($image2Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_2');
-        }
-        $fnFcaTask->insert($paramFcaTask, $fnTask->transactionId);
-        $fnFcaTaskSection->register($fnFcaTask->fcaTaskId);
-
-        $fnTask->submit($fnFcaTask->fcaTask['fcaTaskObservation'], 54, 55);
-        $fnEmail->prepare($fnFcaTask->userId, 21, array('task_no'=>$fnFcaTask->fcaTaskNo, 'observation'=>$fnFcaTask->fcaTask['fcaTaskObservation']));
-        $fnNoti->prepare($fnFcaTask->userId, 22, array('task_no'=>$fnFcaTask->fcaTaskNo));
-        $fnFcaTask->saveAudit(193, $fnFcaTask->fcaTaskNo);
-        DbMysql::commit();
-        $formData['errmsg'] = Constant::$fcaTask['submitNew'];
-
         $formData['result'] = $result;
         $formData['success'] = true;
     } else {

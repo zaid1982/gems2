@@ -22,7 +22,7 @@ function MainFcaTask () {
         oTableFctObserve = $('#dtFctObserve').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[14, 'desc']],
+            aaSorting: [[17, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
@@ -207,7 +207,8 @@ function MainFcaTask () {
                 try {
                     $('.sectionFctTask').hide();
                     $('.sectionFctObserve').show();
-                    self.genTable(1);
+                    $('.btnFctTab').removeClass('lighten-2').addClass('lighten-2');
+                    $('#btnFctAudit').removeClass('lighten-2');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -222,7 +223,8 @@ function MainFcaTask () {
                 try {
                     $('.sectionFctTask').hide();
                     $('.sectionFctRecommend').show();
-                    self.genTable(2);
+                    $('.btnFctTab').removeClass('lighten-2').addClass('lighten-2');
+                    $('#btnFctRecommend').removeClass('lighten-2');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -232,19 +234,15 @@ function MainFcaTask () {
         });
 
         $('.sectionFctRecommend, .sectionFctValidate').hide();
-        self.genTable(1);
-        self.genTable(2);
+        self.genTable();
     };
 
-    this.genTable = function (_tableId) {
-        if (_tableId === 1) {
-            const dataDb = mzAjaxRequest2('fca_task/audit', 'GET');
-            oTableFctObserve.clear().rows.add(dataDb).draw();
-        } else if (_tableId === 2) {
-            const dataDb = mzAjaxRequest2('fca_task/recommend', 'GET');
-            oTableFctRecommend.clear().rows.add(dataDb).draw();
-            $('#badgeFctTotalRecommend').text(dataDb.length);
-        }
+    this.genTable = function () {
+        const dataObserve = mzAjaxRequest2('fca_task/audit', 'GET');
+        oTableFctObserve.clear().rows.add(dataObserve).draw();
+        const dataRecommend = mzAjaxRequest2('fca_task/recommend', 'GET');
+        oTableFctRecommend.clear().rows.add(dataRecommend).draw();
+        $('#badgeFctTotalRecommend').text(dataRecommend.length);
     };
 
     this.getClassName = function () {

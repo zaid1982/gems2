@@ -127,6 +127,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
             parent::checkEmptyString($this->fcaTaskNo, 'fcaTaskNo');
             parent::checkMandatoryArray($columns, array('siteId', 'assetGroupId', 'fcaTaskArea', 'fcaTaskDefectItem', 'fcaTaskObservation', 'fcaTaskImage1'), true);
             $columns['transactionId'] = $transactionId;
@@ -140,4 +141,25 @@ class FcaTask extends General {
         }
     }
 
+    /**
+     * @param array $params
+     * @return void
+     * @throws Exception
+     */
+    public function submitRecommend (array $params): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->fcaTaskId, 'fcaTaskId');
+            $columns = parent::arraySpliceAssoc($params, array('fcaTaskAssetNo', 'fcaTaskConditionScale', 'fcaTaskEvaluationType', 'fcaTaskRecommendation'));
+            parent::checkMandatoryArray($columns, array('fcaTaskConditionScale', 'fcaTaskEvaluationType', 'fcaTaskRecommendation'), true);
+            $columns['fcaTaskRecommendBy'] = $this->userId;
+            $columns['fcaTaskTimeRecommended'] = 'NOW()';
+            $columns['fcaTaskStatus'] = '56';
+            DbMysql::update('fca_task', $columns, array('fcaTaskId'=>$this->fcaTaskId));
+            $this->set($this->fcaTaskId);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }
