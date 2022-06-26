@@ -173,7 +173,54 @@ try {
         }
         $formData['result'] = $result;
         $formData['success'] = true;
-    } else {
+    }
+    else if ('PUT' === $requestMethod) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+
+        if ($urlArr[1] === 'exclude_report') {
+            $fnFcaTask->set(intval($urlArr[2]));
+            $fnFcaTask->updateInReport(1);
+            $fnFcaTask->saveAudit(206, $fnFcaTask->fcaTaskNo);
+            $formData['errmsg'] = str_replace('__', $fnFcaTask->fcaTaskNo, Constant::$fcaTask['excludeReport']);
+        }
+        else if ($urlArr[1] === 'include_report') {
+            $fnFcaTask->set(intval($urlArr[2]));
+            $fnFcaTask->updateInReport(0);
+            $fnFcaTask->saveAudit(207, $fnFcaTask->fcaTaskNo);
+            $formData['errmsg'] = str_replace('__', $fnFcaTask->fcaTaskNo, Constant::$fcaTask['includeReport']);
+        }
+        else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
+        }
+
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else if ('DELETE' === $requestMethod) {
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+
+        $fnFcaTask->set(intval($urlArr[1]));
+        $fnFcaTask->delete();
+        $fnFcaTask->saveAudit(208, $fnFcaTask->fcaTaskNo);
+        $formData['errmsg'] = str_replace('__', $fnFcaTask->fcaTaskNo, Constant::$fcaTask['delete']);
+
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }
     DbMysql::close();

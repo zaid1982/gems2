@@ -48,7 +48,7 @@ class FcaTask extends General {
     public function getList (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return DbMysql::selectAll('fca_task');
+            return DbMysql::selectAll('fca_task', array('fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -77,7 +77,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>51, 'taskCurrent'=>2, 'taskClaimedUser'=>$this->userId));
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>51, 'taskCurrent'=>2, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -91,7 +91,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>52, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId));
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>52, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -105,7 +105,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>53, 'taskCurrent'=>1, 'taskClaimedUser'=>'s1|(task_claimed_user IS NULL OR task_claimed_user = '.$this->userId.')'));
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>53, 'taskCurrent'=>1, 'taskClaimedUser'=>'s1|(task_claimed_user IS NULL OR task_claimed_user = '.$this->userId.')', 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -119,7 +119,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>54, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId));
+            return DbMysql::selectAll('v_fca_task_wf', array('checkpointId'=>54, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -250,6 +250,35 @@ class FcaTask extends General {
             $columns['fcaTaskStatus'] = '55';
             DbMysql::update('fca_task', $columns, array('fcaTaskId'=>$this->fcaTaskId));
             $this->set($this->fcaTaskId);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $isExclude
+     * @return void
+     * @throws Exception
+     */
+    public function updateInReport (int $isExclude): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->fcaTaskId, 'fcaTaskId');
+            DbMysql::update('fca_task', array('fcaTaskExcludeReport'=>strval($isExclude)), array('fcaTaskId'=>$this->fcaTaskId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function delete (): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->fcaTaskId, 'fcaTaskId');
+            DbMysql::update('fca_task', array('fcaTaskRemoved'=>1), array('fcaTaskId'=>$this->fcaTaskId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

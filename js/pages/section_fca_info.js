@@ -18,6 +18,7 @@ function SectionFcaInfo () {
     let modalFcaRecommendClass;
     let modalFcaValidateClass;
     let modalFcaAddClass;
+    let modalConfirmDeleteClass;
 
     this.init = function () {
         self.hideSection();
@@ -42,6 +43,38 @@ function SectionFcaInfo () {
         $('#btnSfcCorrection').on('click', function () {
             modalFcaAddClass.setClassFrom(self);
             modalFcaAddClass.correct(fcaTaskId);
+        });
+
+        $('#btnSfcExcludeReport').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzAjaxRequest2('fca_task/exclude_report/'+fcaTaskId, 'PUT');
+                    $('#btnSfcExcludeReport').hide();
+                    $('#btnSfcIncludeReport').show();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        $('#btnSfcIncludeReport').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzAjaxRequest2('fca_task/include_report/'+fcaTaskId, 'PUT');
+                    $('#btnSfcIncludeReport').hide();
+                    $('#btnSfcExcludeReport').show();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
+        $('#btnSfcRemove').on('click', function () {
+            modalConfirmDeleteClass.delete(fcaTaskId, self);
         });
     };
 
@@ -86,6 +119,13 @@ function SectionFcaInfo () {
             $('#pSfcValidator').text(dataDb['fcaTaskValidateBy']!==null?refUser[dataDb['fcaTaskValidateBy']]['userFirstName']:'-');
             $('#pSfcAuditDate').text(mzConvertDateDisplay(dataDb['fcaTaskTimeCreated']));
             $('#pSfcValidateDate').text(mzReplaceNull(mzConvertDateDisplay(dataDb['fcaTaskTimeValidated']), '-'));
+
+            $('#btnSfcExcludeReport, #btnSfcIncludeReport').hide();
+            if (dataDb['fcaTaskExcludeReport'] === 1) {
+                $('#btnSfcIncludeReport').show();
+            } else {
+                $('#btnSfcExcludeReport').show();
+            }
 
             if (isImage) {
                 let divImageAudit = $('#divSfcImageAudit');
@@ -186,6 +226,23 @@ function SectionFcaInfo () {
         }
     };
 
+    this.delete = function (_fcaTaskId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_fcaTaskId]);
+                mzAjaxRequest2('fca_task/'+_fcaTaskId, 'DELETE');
+                self.hideSection();
+                classFrom.genTable();
+                classFrom.showMain(sectionFrom==='Correction'?'Observe':sectionFrom);
+                $(window).scrollTop(0);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    };
+
     this.getNoImageHtml = function (_description) {
         return '<figure class="col-md-6">\n' +
             '   <a href="img/background/no-image.png" data-size="284x177">\n' +
@@ -257,5 +314,9 @@ function SectionFcaInfo () {
 
     this.setModalFcaAddClass = function (_modalFcaAddClass) {
         modalFcaAddClass = _modalFcaAddClass;
+    };
+
+    this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
+        modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
 }

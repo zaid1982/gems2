@@ -36,6 +36,9 @@ class Constant {
         'submitCorrection' => 'FCA Audit Recommendation successfully returned to auditor for correction!',
         'submitValidate' => 'FCA Audit Recommendation successfully submitted and complete!',
         'resubmit' => 'FCA Audit Correction successfully resubmitted for recommendation process!',
+        'excludeReport' => 'FCA Audit No. __ successfully set to be exclude from PDF Report!',
+        'includeReport' => 'FCA Audit No. __ successfully set to be include in PDF Report!',
+        'delete' => 'FCA Audit No. __ successfully been deleted!'
     );
 
     public static $fcaZone = array(

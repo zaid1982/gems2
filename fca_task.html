@@ -215,6 +215,7 @@
     <div class="includeHtml" id="h-modal_fca_add"></div>
     <div class="includeHtml" id="h-modal_fca_recommend"></div>
     <div class="includeHtml" id="h-modal_fca_validate"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -257,6 +258,7 @@
     let modalFcaAddClass_;
     let modalFcaRecommendClass_;
     let modalFcaValidateClass_;
+    let modalConfirmDelete_;
     let sectionFcaInfoClass_;
     let fcaTaskClass_;
 
@@ -271,6 +273,7 @@
                 modalFcaAddClass_ = new ModalFcaAdd();
                 modalFcaRecommendClass_ = new ModalFcaRecommend();
                 modalFcaValidateClass_ = new ModalFcaValidate();
+                modalConfirmDelete_ = new ModalConfirmDelete();
                 sectionFcaInfoClass_ = new SectionFcaInfo();
                 fcaTaskClass_ = new MainFcaTask();
 
@@ -312,6 +315,7 @@
                 sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_);
                 sectionFcaInfoClass_.setModalFcaValidateClass(modalFcaValidateClass_);
                 sectionFcaInfoClass_.setModalFcaAddClass(modalFcaAddClass_);
+                sectionFcaInfoClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 sectionFcaInfoClass_.setClassFrom(fcaTaskClass_);
                 sectionFcaInfoClass_.init()
 
@@ -338,6 +342,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_fca_recommend.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_fca_validate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_fca_task.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
