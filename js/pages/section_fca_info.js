@@ -4,18 +4,20 @@ function SectionFcaInfo () {
     let self = this;
     let classFrom;
     let fcaTaskId;
-    let taskId;
     let sectionFrom;
     let isUpdated = false;
+    let dataDb;
     let refStatus;
     let refUser;
     let refSite;
     let refAssetGroup;
     let refDefectCategory;
     let refFcaZone;
+    let refConditionScale;
+    let refEvaluationType;
     let modalFcaRecommendClass;
-    let refConditionScale = ['', '1 - Very Good', '2 - Good', '3 - Average', '4 - Critical', '5 - Very Critical'];
-    let refEvaluationType = ['', '1 - Normal', '2 - Routine', '3 - Repair', '4 - Recovery', '5 - Replacement'];
+    let modalFcaValidateClass;
+    let modalFcaAddClass;
 
     this.init = function () {
         self.hideSection();
@@ -25,23 +27,32 @@ function SectionFcaInfo () {
             if (isUpdated) {
                 classFrom.genTable();
             }
-            classFrom.showMain(sectionFrom);
+            classFrom.showMain(sectionFrom==='Correction'?'Observe':sectionFrom);
             $(window).scrollTop(0);
         });
 
         $('#btnSfcRecommend').on('click', function () {
-            modalFcaRecommendClass.load(fcaTaskId, taskId);
+            modalFcaRecommendClass.load(fcaTaskId, dataDb);
+        });
+
+        $('#btnSfcValidate').on('click', function () {
+            modalFcaValidateClass.load(fcaTaskId, mzReplaceNull(dataDb['fcaTaskConditionScale'], 0), mzReplaceNull(dataDb['fcaTaskEvaluationType'], 0));
+        });
+
+        $('#btnSfcCorrection').on('click', function () {
+            modalFcaAddClass.setClassFrom(self);
+            modalFcaAddClass.correct(fcaTaskId);
         });
     };
 
-    this.load = function (_fcaTaskId, _sectionFrom, _taskId) {
+    this.load = function (_fcaTaskId, _sectionFrom) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_fcaTaskId, _taskId, _sectionFrom]);
+                mzCheckFuncParam([_fcaTaskId, _sectionFrom]);
                 fcaTaskId = _fcaTaskId;
-                taskId = mzReplaceNull(_taskId, 0);
                 sectionFrom = _sectionFrom;
+                isUpdated = false;
                 self.displayInfo(true, true, true);
                 classFrom.hideMain();
                 self.showSection();
@@ -55,7 +66,7 @@ function SectionFcaInfo () {
 
     this.displayInfo = function (isImage, isImageRectify, isTask) {
         try {
-            const dataDb = mzAjaxRequest2('fca_task/'+fcaTaskId, 'GET');
+            dataDb = mzAjaxRequest2('fca_task/'+fcaTaskId, 'GET');
             $('#lblSfcAuditNo').text(dataDb['fcaTaskNo']);
             $('#lblSfcStatus').text(refStatus[dataDb['fcaTaskStatus']]['statusDesc']);
             $('#pSfcObservation').text(dataDb['fcaTaskObservation']);
@@ -81,7 +92,7 @@ function SectionFcaInfo () {
                 divImageAudit.html('');
                 if (dataDb['fcaTaskImage1'] !== null) {
                     const image1 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage1'], 'GET');
-                    if (image1['uploadFileWidth'] !== null && image1['uploadFileHeight'] !== null) {
+                    if (image1['fileExist'] && image1['uploadFileWidth'] !== null && image1['uploadFileHeight'] !== null) {
                         divImageAudit.append('<figure class="col-md-6">\n' +
                             '   <a href="'+image1['src']+'" data-size="'+image1['uploadFileWidth']+'x'+image1['uploadFileHeight']+'">\n' +
                             '     <img src="'+image1['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
@@ -96,7 +107,7 @@ function SectionFcaInfo () {
                 }
                 if (dataDb['fcaTaskImage2'] !== null) {
                     const image2 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage2'], 'GET');
-                    if (image2['uploadFileWidth'] !== null && image2['uploadFileHeight'] !== null) {
+                    if (image2['fileExist'] && image2['uploadFileWidth'] !== null && image2['uploadFileHeight'] !== null) {
                         divImageAudit.append('<figure class="col-md-6">\n' +
                             '   <a href="'+image2['src']+'" data-size="'+image2['uploadFileWidth']+'x'+image2['uploadFileHeight']+'">\n' +
                             '     <img src="'+image2['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
@@ -116,7 +127,7 @@ function SectionFcaInfo () {
                 divImageRectify.html('');
                 if (dataDb['fcaTaskImageRectify1'] !== null) {
                     const imageRectify1 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
-                    if (imageRectify1['uploadFileWidth'] !== null && imageRectify1['uploadFileHeight'] !== null) {
+                    if (imageRectify1['fileExist'] && imageRectify1['uploadFileWidth'] !== null && imageRectify1['uploadFileHeight'] !== null) {
                         divImageRectify.append('<figure class="col-md-6">\n' +
                             '   <a href="' + imageRectify1['src'] + '" data-size="' + imageRectify1['uploadFileWidth'] + 'x' + imageRectify1['uploadFileHeight'] + '">\n' +
                             '     <img src="' + imageRectify1['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
@@ -131,7 +142,7 @@ function SectionFcaInfo () {
                 }
                 if (dataDb['fcaTaskImageRectify2'] !== null) {
                     const imageRectify2 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
-                    if (imageRectify2['uploadFileWidth'] !== null && imageRectify2['uploadFileHeight'] !== null) {
+                    if (imageRectify2['fileExist'] && imageRectify2['uploadFileWidth'] !== null && imageRectify2['uploadFileHeight'] !== null) {
                         divImageRectify.append('<figure class="col-md-6">\n' +
                             '   <a href="' + imageRectify2['src'] + '" data-size="' + imageRectify2['uploadFileWidth'] + 'x' + imageRectify2['uploadFileHeight'] + '">\n' +
                             '     <img src="' + imageRectify2['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
@@ -157,16 +168,15 @@ function SectionFcaInfo () {
                         '<p class="mt-0 mb-2 ml-1 font-small font-italic">'+mzConvertDateDisplay(progress['taskTimeSubmit'])+'</p>');
                 });
 
-                $('#btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend, #btnSfcValidate, #btnSfcCorrection').hide();
+                $('#btnSfcEditAudit, #btnSfcEditRecommend, #btnSfcEditValidate, #btnSfcRecommend, #btnSfcValidate, #btnSfcCorrection').hide();
                 if (dataDb['fcaTaskStatus'] === 55 && sectionFrom === 'Recommend') {
                     $('#btnSfcRecommend').show();
                 } else if (dataDb['fcaTaskStatus'] === 56) {
-                    $('#btnSfcEditValidate').show();
-                    if (sectionFrom === 'Recommend') {
+                    if (sectionFrom === 'Validate') {
                         $('#btnSfcValidate').show();
                     }
                 } else if (dataDb['fcaTaskStatus'] === 57) {
-                    if (sectionFrom === 'Observe') {
+                    if (sectionFrom === 'Correction') {
                         $('#btnSfcCorrection').show();
                     }
                 }
@@ -229,7 +239,23 @@ function SectionFcaInfo () {
         refFcaZone = _refFcaZone;
     };
 
+    this.setRefConditionScale = function (_refConditionScale) {
+        refConditionScale = _refConditionScale;
+    };
+
+    this.setRefEvaluationType = function (_refEvaluationType) {
+        refEvaluationType = _refEvaluationType;
+    };
+
     this.setModalFcaRecommendClass = function (_modalFcaRecommendClass) {
         modalFcaRecommendClass = _modalFcaRecommendClass;
+    };
+
+    this.setModalFcaValidateClass = function (_modalFcaValidateClass) {
+        modalFcaValidateClass = _modalFcaValidateClass;
+    };
+
+    this.setModalFcaAddClass = function (_modalFcaAddClass) {
+        modalFcaAddClass = _modalFcaAddClass;
     };
 }

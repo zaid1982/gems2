@@ -5,7 +5,7 @@ function ModalFcaRecommend () {
     let formValidate;
     let classFrom;
     let fcaTaskId;
-    let taskId;
+    let fcaTask;
 
     this.init = function () {
         const vData = [
@@ -59,7 +59,7 @@ function ModalFcaRecommend () {
                             fcaTaskAssetNo: $('#txtMfrAssetNo').val(),
                             fcaTaskConditionScale: $("input[name='radMfrCondition']:checked").val(),
                             fcaTaskEvaluationType: $("input[name='radMfrEvaluationType']:checked").val(),
-                            fcaTaskRecommendation: $('#txaMfrRecommendation').val(),
+                            fcaTaskRecommendation: $('#txaMfrRecommendation').val()
                         };
                         mzAjaxRequest2('fca_task/recommend/'+fcaTaskId, 'POST', data);
                         classFrom.setIsUpdated(true);
@@ -74,14 +74,18 @@ function ModalFcaRecommend () {
         });
     };
 
-    this.load = function (_fcaTaskId, _taskId) {
+    this.load = function (_fcaTaskId, _fcaTask) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_fcaTaskId, _taskId]);
+                mzCheckFuncParam([_fcaTaskId]);
                 formValidate.clearValidation();
                 fcaTaskId = _fcaTaskId;
-                taskId = _taskId;
+                fcaTask = _fcaTask;
+                mzSetFieldValue('MfrAssetNo', fcaTask['fcaTaskAssetNo'], 'text');
+                mzSetFieldValue('MfrCondition', fcaTask['fcaTaskConditionScale'], 'radio');
+                mzSetFieldValue('MfrEvaluationType', fcaTask['fcaTaskEvaluationType'], 'radio');
+                mzSetFieldValue('MfrRecommendation', fcaTask['fcaTaskRecommendation'], 'textarea');
                 $('#modal_fca_recommend').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

@@ -417,8 +417,30 @@ class General {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->checkEmptyInteger($uploadId, 'uploadId');
             $upload = DbMysql::select('sys_upload', array('uploadId'=>$uploadId), true);
-            $upload['src'] = Constant::$url.$upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'].'?t='.time();
+            $file = $upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'];
+            $upload['src'] = Constant::$url.$file.'?t='.time();
+            $upload['fileExist'] = file_exists($file);
             return $upload;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $uploadId
+     * @return string
+     * @throws Exception
+     */
+    public function getUploadLink (int $uploadId): string {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyInteger($uploadId, 'uploadId');
+            $upload = DbMysql::select('sys_upload', array('uploadId'=>$uploadId), true);
+            $file = $upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'];
+            if (!file_exists($file)) {
+                $file = 'upload/upload_placeholder.png';
+            }
+            return Constant::$url.$file.'?t='.time();
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

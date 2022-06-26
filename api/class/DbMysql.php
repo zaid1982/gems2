@@ -338,10 +338,10 @@ class DbMysql {
             foreach ($columns as $columnValue) {
                 if ($columnValue === '++') {
                     continue;
-                } else if (substr($columnValue, 0, 1) === '|') {
-                    continue;
                 } else if ($columnValue === '' || $columnValue === 'NULL') {
                     $preparedValues[] = null;
+                } else if (substr($columnValue, 0, 1) === '|') {
+                    continue;
                 } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
                     $preparedValues[] = null;
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {

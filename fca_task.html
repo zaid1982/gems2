@@ -61,7 +61,7 @@
                     <div class="card z-depth-3 mb-4_5">
                         <div class="card-header white p-0 z-depth-1">
                             <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Observation List</h4>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Observation Submitted List</h4>
                         </div>
                         <div class="card-body pt-4">
                             <div class="table-responsive">
@@ -96,6 +96,44 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-header white p-0 z-depth-1">
+                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Need Correction List</h4>
+                        </div>
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtFctCorrection" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Audit No.</th>
+                                        <th>Site</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset No.</th>
+                                        <th>Evaluated Asset</th> <!--5-->
+                                        <th>Defect Item</th>
+                                        <th>Defect Category</th>
+                                        <th>Zone</th>
+                                        <th>Area</th>
+                                        <th>Condition Scale</th> <!--10-->
+                                        <th>Evaluation Scale</th>
+                                        <th>Observation</th>
+                                        <th>Recommendation</th>
+                                        <th>Validation</th>
+                                        <th>Validator</th> <!--15-->
+                                        <th>Received Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
         <section class="my-3 sectionFctMain sectionFctTask sectionFctRecommend">
             <div class="row">
@@ -103,7 +141,7 @@
                     <div class="card z-depth-3 mb-4_5">
                         <div class="card-header white p-0 z-depth-1">
                             <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Recommendation List</h4>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">New Recommendation Task List</h4>
                         </div>
                         <div class="card-body pt-4">
                             <div class="table-responsive">
@@ -132,11 +170,51 @@
                 </div>
             </div>
         </section>
+        <section class="my-3 sectionFctMain sectionFctTask sectionFctValidate">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-header white p-0 z-depth-1">
+                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
+                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">New Validation Task List</h4>
+                        </div>
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtFctValidate" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Audit No.</th>
+                                        <th>Site</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset No.</th>
+                                        <th>Evaluated Asset</th> <!--5-->
+                                        <th>Defect Item</th>
+                                        <th>Defect Category</th>
+                                        <th>Zone</th>
+                                        <th>Area</th>
+                                        <th>Condition Scale</th> <!--10-->
+                                        <th>Evaluation Scale</th>
+                                        <th>Auditor</th>
+                                        <th>Observation</th>
+                                        <th>Recommendation</th>
+                                        <th>Received Time</th> <!--15-->
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <div class="includeHtml" id="h-section_fca_info"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_fca_add"></div>
     <div class="includeHtml" id="h-modal_fca_recommend"></div>
+    <div class="includeHtml" id="h-modal_fca_validate"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -178,6 +256,7 @@
     let changePasswordClass_;
     let modalFcaAddClass_;
     let modalFcaRecommendClass_;
+    let modalFcaValidateClass_;
     let sectionFcaInfoClass_;
     let fcaTaskClass_;
 
@@ -191,6 +270,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 modalFcaAddClass_ = new ModalFcaAdd();
                 modalFcaRecommendClass_ = new ModalFcaRecommend();
+                modalFcaValidateClass_ = new ModalFcaValidate();
                 sectionFcaInfoClass_ = new SectionFcaInfo();
                 fcaTaskClass_ = new MainFcaTask();
 
@@ -201,17 +281,25 @@
                 const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
                 const refDefectCategorySite_ = mzAjaxRequest2('fca_defect_category_site/ref', 'GET');
                 const refFcaZone_ = mzGetLocalArrayV2('gems_zone', versionLocal_, 'fca_zone/ref');
+                const refConditionScale = ['', 'Very Good', 'Good', 'Average', 'Critical', 'Very Critical'];
+                const refEvaluationType = ['', 'Normal', 'Routine', 'Repair', 'Recovery', 'Replacement'];
 
                 modalFcaAddClass_.setRefSite(refSite_);
                 modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
                 modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
                 modalFcaAddClass_.setRefDefectCategorySite(refDefectCategorySite_);
                 modalFcaAddClass_.setRefFcaZone(refFcaZone_);
-                modalFcaAddClass_.setClassFrom(fcaTaskClass_);
+                modalFcaAddClass_.setRefConditionScale(refConditionScale);
+                modalFcaAddClass_.setRefEvaluationType(refEvaluationType);
                 modalFcaAddClass_.init();
 
                 modalFcaRecommendClass_.setClassFrom(sectionFcaInfoClass_);
                 modalFcaRecommendClass_.init();
+
+                modalFcaValidateClass_.setClassFrom(sectionFcaInfoClass_);
+                modalFcaValidateClass_.setRefConditionScale(refConditionScale);
+                modalFcaValidateClass_.setRefEvaluationType(refEvaluationType);
+                modalFcaValidateClass_.init();
 
                 sectionFcaInfoClass_.setRefStatus(refStatus_);
                 sectionFcaInfoClass_.setRefUser(refUser_);
@@ -219,7 +307,11 @@
                 sectionFcaInfoClass_.setRefAssetGroup(refAssetGroup_);
                 sectionFcaInfoClass_.setRefDefectCategory(refDefectCategory_);
                 sectionFcaInfoClass_.setRefFcaZone(refFcaZone_);
-                sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_)
+                sectionFcaInfoClass_.setRefConditionScale(refConditionScale);
+                sectionFcaInfoClass_.setRefEvaluationType(refEvaluationType);
+                sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_);
+                sectionFcaInfoClass_.setModalFcaValidateClass(modalFcaValidateClass_);
+                sectionFcaInfoClass_.setModalFcaAddClass(modalFcaAddClass_);
                 sectionFcaInfoClass_.setClassFrom(fcaTaskClass_);
                 sectionFcaInfoClass_.init()
 
@@ -229,6 +321,8 @@
                 fcaTaskClass_.setRefAssetGroup(refAssetGroup_);
                 fcaTaskClass_.setRefDefectCategory(refDefectCategory_);
                 fcaTaskClass_.setRefFcaZone(refFcaZone_);
+                fcaTaskClass_.setRefConditionScale(refConditionScale);
+                fcaTaskClass_.setRefEvaluationType(refEvaluationType);
                 fcaTaskClass_.setModalFcaAddClass(modalFcaAddClass_);
                 fcaTaskClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
                 fcaTaskClass_.init();
@@ -243,6 +337,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_fca_recommend.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_validate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_fca_task.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>

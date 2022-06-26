@@ -37,7 +37,18 @@ const _DATATABLE_LANGUAGE =  {
 const mzUrlDownload = '//gems.globalfm.com.my/api/';
 //const mzUrlDownload = '//localhost:8081/gems2/api/';
 let mzCnt;
-let mzExportOpt = {
+const mzExportOpt = {
+    columns: ':visible',
+    format: {
+        body: function ( data, row, column ) {
+            if (row === 0 && column === 0) {
+                mzCnt = 1;
+            }
+            return column === 0 ? mzCnt++ : data;
+        }
+    }
+};
+const mzExportExcelOpt = {
     format: {
         body: function ( data, row, column ) {
             if (row === 0 && column === 0) {
@@ -59,7 +70,7 @@ function HideLoader() {
 
 function mzReplaceNull(str, replaced) {
     replaced = typeof replaced !== 'undefined' ? replaced : '';
-    return (str === null || str === '') ? replaced : str;
+    return (typeof str === 'undefined' || str === null || str === '') ? replaced : str;
 }
 
 function mzParseInt(n) {
@@ -171,6 +182,11 @@ function MzValidate(name) {
                     return false;
                 }
                 break;
+            case 'fileSize':
+                if (fieldSelector.prop('files').length > 0 && fieldSelector.prop('files')[0].size > val*1024*1024) {
+                    return false;
+                }
+                break;
             case 'dwgType':                
                 if (val === true && fieldSelector.prop('files').length > 0) {
                     const filename = fieldSelector.prop('files')[0].name;
@@ -262,14 +278,17 @@ function MzValidate(name) {
                     case 'notEmptyCheck':
                         msg += '<br>Please check at least 1 ' + name;
                         return false;
-                    case 'notEmptySummernote':
-                        msg += '<br>Please fill in '+name;
+                    case 'fileSize':
+                        msg += '<br>Please make sure file size not exceed '+name+' GB';
                         return false;
                     case 'pdfType':
                         msg += '<br>Please make sure the uploaded file is in PDF type';
                         return false;
                     case 'imageType':
                         msg += '<br>Please make sure the uploaded file is in JPG, JPEG, PNG type';
+                        return false;
+                    case 'notEmptySummernote':
+                        msg += '<br>Please fill in '+u2;
                         return false;
                     case 'dwgType':
                         msg += '<br>Please make sure the uploaded file is in DWG format';

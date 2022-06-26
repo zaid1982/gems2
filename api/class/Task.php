@@ -120,13 +120,13 @@ class Task extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyArray($this->wflTaskNew, 'wflTaskNew');
             if (!empty($this->wflTaskNew['taskClaimedUser'])) {
-                throw new Exception('TaskClaimedUser should be empty');
+                return array($this->userId);
             }
-            if (!$isSite) {
+            if ($isSite) {
                 $siteId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true);
-                $checkpointUsers = DbMysql::select('v_checkpoint_user_site', array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+                $checkpointUsers = DbMysql::selectAll('v_checkpoint_user_site', array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
             } else {
-                $checkpointUsers = DbMysql::select('wfl_checkpoint_user', array('checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+                $checkpointUsers = DbMysql::selectAll('wfl_checkpoint_user', array('checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
             }
             return array_column($checkpointUsers, 'userId');
         } catch (Exception|Throwable $ex) {
@@ -173,7 +173,7 @@ class Task extends General {
             if ($wflCheckpointNext['checkpointType'] === 3) {
                 $wflTransaction = DbMysql::select('wfl_transaction', array('transactionId'=>$this->transactionId));
                 $statusFinish = $statusNew === 8 ? 7 : $statusNew;
-                $groupId = empty($wflCheckpointNext['groupId']) ? $wflCheckpointNext['groupId'] : $wflTransaction['groupId'];
+                $groupId = !empty($wflCheckpointNext['groupId']) ? $wflCheckpointNext['groupId'] : $wflTransaction['groupId'];
                 DbMysql::update('wfl_transaction', array('transactionTimeComplete'=>'NOW()', 'transactionStatus'=>$statusFinish), array('transactionId'=>$this->transactionId));
                 DbMysql::insert('wfl_task', array('transactionId'=>$this->transactionId, 'checkpointId'=>$checkpointIdNext, 'taskCreatedUser'=>$this->userId, 'taskCreatedGroup'=>$this->wflTask['groupId'],
                     'taskStatusPrevious'=>$this->wflTask['taskStatus'], 'taskStatus'=>$statusFinish, 'roleId'=>$wflCheckpointNext['roleId'], 'groupId'=>$groupId, 'taskClaimedUser'=>$wflTransaction['userId']));

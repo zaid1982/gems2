@@ -4,15 +4,39 @@
         <div class="modal-content">
             <!--Header-->
             <div class="modal-header d-flex justify-content-center pb-2">
-                <h4 class="text-white mt-2 ml-2"><i class="fas fa-gavel text-white"></i> &nbsp;Create New FCA Audit</h4>
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-eye text-white"></i> &nbsp;<span id="spanMfaTitle">Create New FCA Audit</span></h4>
                 <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
             <div class="modal-body pb-2">
-                <form id="formMfa" class="mt-3">
-                    <div class="row">
+                <form id="formMfa">
+                    <div class="card z-depth-1 mb-4_5" id="divMfaValidationInfo">
+                        <div class="card-body blue-grey lighten-5 pt-4 pb-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="md-form mt-0">
+                                        <input type="text" id="txtMfaConditionScale" class="form-control" disabled>
+                                        <label for="txtMfaConditionScale" id="lblMfaConditionScale" class="active">Condition Scale</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form mt-0">
+                                        <input type="text" id="txtMfaEvaluationType" class="form-control" disabled>
+                                        <label for="txtMfaEvaluationType" id="lblMfaEvaluationType" class="active">Evaluation Scale</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="md-form mt-0">
+                                        <textarea id="txaMfaValidation" class="md-textarea form-control" rows="1"></textarea>
+                                        <label for="txaMfaValidation" id="lblMfaValidation" class="text-muted">Validation Remark</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
                         <div class="col-md-6 select-outline mb-2" id="optMfaSite_">
                             <select id="optMfaSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Filter Site"></select>
                             <label for="optMfaSite" id="lblMfaSite">Site *</label>

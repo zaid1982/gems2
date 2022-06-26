@@ -43,7 +43,9 @@ try {
         } else if ($urlArr[1] === 'recommend') {
             $result = $fnFcaTask->getRecommendList();
         } else if ($urlArr[1] === 'validate') {
-            //TODO - get new validate task
+            $result = $fnFcaTask->getValidateList();
+        } else if ($urlArr[1] === 'correction') {
+            $result = $fnFcaTask->getCorrectionList();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -83,10 +85,13 @@ try {
             $isTransaction = true;
             $fnFcaTask->set(intval($urlArr[2]));
             $fnFcaTask->submitRecommend($params);
-            $fnFcaTaskSection->update($fnFcaTask->fcaTaskId, 'recommend');
+            $fnFcaTaskSection->update($fnFcaTask->fcaTaskId, $urlArr[1]);
             $fnTask->setByTransaction($fnFcaTask->fcaTask['transactionId']);
             $fnTask->checkValidity(52);
             $fnTask->submit($fnFcaTask->fcaTask['fcaTaskRecommendation'], 55, 56);
+            DbMysql::commit();
+
+            DbMysql::beginTransaction();
             foreach ($fnTask->getRecipients() as $recipient) {
                 $fnEmail->prepare($recipient, 22, array('task_no'=>$fnFcaTask->fcaTaskNo, 'recommendation'=>$fnFcaTask->fcaTask['fcaTaskRecommendation']));
                 $fnNoti->prepare($recipient, 23, array('task_no'=>$fnFcaTask->fcaTaskNo));
@@ -94,6 +99,74 @@ try {
             $fnFcaTask->saveAudit(194, $fnFcaTask->fcaTaskNo);
             DbMysql::commit();
             $formData['errmsg'] = Constant::$fcaTask['submitRecommend'];
+        }
+        else if ($urlArr[1] === 'correction' && isset ($urlArr[2])) {
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $fnFcaTask->set(intval($urlArr[2]));
+            $fnFcaTask->submitCorrection($params['fcaTaskValidation']);
+            $fnFcaTaskSection->update($fnFcaTask->fcaTaskId, $urlArr[1]);
+            $fnTask->setByTransaction($fnFcaTask->fcaTask['transactionId']);
+            $fnTask->checkValidity(53);
+            $fnTask->submit($fnFcaTask->fcaTask['fcaTaskValidation'], 56, 57, 1);
+            $fnEmail->prepare($fnFcaTask->fcaTask['fcaTaskCreatedBy'], 23, array('task_no'=>$fnFcaTask->fcaTaskNo, 'validation'=>$fnFcaTask->fcaTask['fcaTaskValidation']));
+            $fnNoti->prepare($fnFcaTask->fcaTask['fcaTaskCreatedBy'], 24, array('task_no'=>$fnFcaTask->fcaTaskNo));
+            $fnFcaTask->saveAudit(204, $fnFcaTask->fcaTaskNo);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$fcaTask['submitCorrection'];
+        }
+        else if ($urlArr[1] === 'validate' && isset ($urlArr[2])) {
+            $image1Arr = !empty($params['image1']) ? $fnFcaTask->uploadPrepare($params['image1'], 25) : array();
+            $image2Arr = !empty($params['image2']) ? $fnFcaTask->uploadPrepare($params['image2'], 26) : array();
+
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $curDates = new DateTime();
+            $fnFcaTask->set(intval($urlArr[2]));
+            $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('fcaTaskValidation'));
+            if (!empty($image1Arr)) {
+                $paramFcaTask['fcaTaskImageRectify1'] = $fnFcaTask->uploadSave($image1Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_1');
+            }
+            if (!empty($image2Arr)) {
+                $paramFcaTask['fcaTaskImageRectify2'] = $fnFcaTask->uploadSave($image2Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_2');
+            }
+            $fnFcaTask->submitValidate($paramFcaTask);
+            $fnFcaTaskSection->update($fnFcaTask->fcaTaskId, $urlArr[1]);
+
+            $fnTask->setByTransaction($fnFcaTask->fcaTask['transactionId']);
+            $fnTask->checkValidity(53);
+            $fnTask->submit($fnFcaTask->fcaTask['fcaTaskValidation'], 56, 19);
+            $fnEmail->prepare($fnFcaTask->fcaTask['fcaTaskCreatedBy'], 26, array('task_no'=>$fnFcaTask->fcaTaskNo, 'validation'=>$fnFcaTask->fcaTask['fcaTaskValidation']));
+            $fnNoti->prepare($fnFcaTask->fcaTask['fcaTaskCreatedBy'], 25, array('task_no'=>$fnFcaTask->fcaTaskNo));
+            $fnFcaTask->saveAudit(195, $fnFcaTask->fcaTaskNo);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$fcaTask['submitValidate'];
+        }
+        else if ($urlArr[1] === 'resubmit' && isset ($urlArr[2])) {
+            $image1Arr = !empty($params['image1']) ? $fnFcaTask->uploadPrepare($params['image1'], 25) : array();
+            $image2Arr = !empty($params['image2']) ? $fnFcaTask->uploadPrepare($params['image2'], 26) : array();
+
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $curDates = new DateTime();
+            $fnFcaTask->set(intval($urlArr[2]));
+            $paramFcaTask = $fnFcaTask->arraySpliceAssoc($params, array('siteId', 'assetGroupId', 'fcaZoneId', 'fcaTaskArea', 'fcaTaskAssetEvaluated', 'fcaTaskDefectItem', 'fcaDefectCategoryId', 'fcaTaskObservation'));
+            if (!empty($image1Arr)) {
+                $paramFcaTask['fcaTaskImage1'] = $fnFcaTask->uploadSave($image1Arr, 'fca/' . $curDates->format("ym"), $fnFcaTask->fcaTaskNo . '_1');
+            }
+            if (!empty($image2Arr)) {
+                $paramFcaTask['fcaTaskImage2'] = $fnFcaTask->uploadSave($image2Arr, 'fca/'.$curDates->format("ym"), $fnFcaTask->fcaTaskNo.'_2');
+            }
+            $fnFcaTask->resubmit($paramFcaTask);
+
+            $fnTask->setByTransaction($fnFcaTask->fcaTask['transactionId']);
+            $fnTask->checkValidity(54);
+            $fnTask->submit($fnFcaTask->fcaTask['fcaTaskObservation'], 54, 55);
+            $fnEmail->prepare($fnFcaTask->userId, 21, array('task_no'=>$fnFcaTask->fcaTaskNo, 'observation'=>$fnFcaTask->fcaTask['fcaTaskObservation']));
+            $fnNoti->prepare($fnFcaTask->userId, 22, array('task_no'=>$fnFcaTask->fcaTaskNo));
+            $fnFcaTask->saveAudit(205, $fnFcaTask->fcaTaskNo);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$fcaTask['resubmit'];
         }
         else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');

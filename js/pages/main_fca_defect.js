@@ -33,7 +33,7 @@ function MainFcaDefect () {
             buttons: [
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFcdDefectHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFcdDefectHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'PDF', exportOptions: mzExportOpt},
                 { text: '<i class="fas fa-plus mr-2"></i>Add Defect Category', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnFcdDefectAdd' }, titleAttr: 'Add New FCA Defect Category'}
             ],
