@@ -17,8 +17,10 @@ RewriteRule ^p_attendance/?$ attendance.html
 RewriteRule ^p_attendance_config/?$ attendance_config.html
 RewriteRule ^p_gamification/?$ gamification.html
 RewriteRule ^p_fca_task/?$ fca_task.html
+RewriteRule ^p_fca_all/?$ fca_all.html
 RewriteRule ^p_fca_zone/?$ fca_zone.html
 RewriteRule ^p_fca_defect/?$ fca_defect.html
+RewriteRule ^p_fca_report/?$ fca_report.html
 
 RewriteRule ^drawing/?$ api/drawing.php
 RewriteRule ^drawing/(.+)/?$ api/drawing.php

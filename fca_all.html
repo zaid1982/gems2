@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.css?4">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid" id="divFcaPageWidth">
+        <div id="mdb-lightbox-ui"></div>
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFcaMain">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
+                Facility Condition Appraisal (FCA) Records
+            </h5>
+        </nav>
+        <section class="mt-4 mb-3 sectionFcaMain">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtFcaData" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Audit No.</th>
+                                        <th>Site</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset No.</th>
+                                        <th>Evaluated Asset</th> <!--5-->
+                                        <th>Defect Item</th>
+                                        <th>Defect Category</th>
+                                        <th>Zone</th>
+                                        <th>Area</th>
+                                        <th>Condition Scale</th> <!--10-->
+                                        <th>Evaluation Scale</th>
+                                        <th>Observation</th>
+                                        <th>Recommendation</th>
+                                        <th>Validation</th>
+                                        <th>Auditor</th> <!--15-->
+                                        <th>Validator</th>
+                                        <th>Submitted Time</th>
+                                        <th>Recommend Time</th>
+                                        <th>Validate Time</th>
+                                        <th>Status</th> <!--20-->
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="includeHtml" id="h-section_fca_info"></div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_fca_add"></div>
+    <div class="includeHtml" id="h-modal_fca_recommend"></div>
+    <div class="includeHtml" id="h-modal_fca_validate"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalFcaAddClass_;
+    let modalFcaRecommendClass_;
+    let modalFcaValidateClass_;
+    let modalConfirmDelete_;
+    let sectionFcaInfoClass_;
+    let fcaAllClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                initPhotoSwipeFromDOM('.mdb-lightbox');
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalFcaAddClass_ = new ModalFcaAdd();
+                modalFcaRecommendClass_ = new ModalFcaRecommend();
+                modalFcaValidateClass_ = new ModalFcaValidate();
+                modalConfirmDelete_ = new ModalConfirmDelete();
+                sectionFcaInfoClass_ = new SectionFcaInfo();
+                fcaAllClass_ = new MainFcaAll();
+
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site_v2/ref');
+                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
+                const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
+                const refDefectCategorySite_ = mzAjaxRequest2('fca_defect_category_site/ref', 'GET');
+                const refFcaZone_ = mzGetLocalArrayV2('gems_zone', versionLocal_, 'fca_zone/ref');
+                const refConditionScale = ['', 'Very Good', 'Good', 'Average', 'Critical', 'Very Critical'];
+                const refEvaluationType = ['', 'Normal', 'Routine', 'Repair', 'Recovery', 'Replacement'];
+
+                modalFcaAddClass_.setRefSite(refSite_);
+                modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
+                modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
+                modalFcaAddClass_.setRefDefectCategorySite(refDefectCategorySite_);
+                modalFcaAddClass_.setRefFcaZone(refFcaZone_);
+                modalFcaAddClass_.setRefConditionScale(refConditionScale);
+                modalFcaAddClass_.setRefEvaluationType(refEvaluationType);
+                modalFcaAddClass_.init();
+
+                modalFcaRecommendClass_.setClassFrom(sectionFcaInfoClass_);
+                modalFcaRecommendClass_.init();
+
+                modalFcaValidateClass_.setClassFrom(sectionFcaInfoClass_);
+                modalFcaValidateClass_.setRefConditionScale(refConditionScale);
+                modalFcaValidateClass_.setRefEvaluationType(refEvaluationType);
+                modalFcaValidateClass_.init();
+
+                sectionFcaInfoClass_.setRefStatus(refStatus_);
+                sectionFcaInfoClass_.setRefUser(refUser_);
+                sectionFcaInfoClass_.setRefSite(refSite_);
+                sectionFcaInfoClass_.setRefAssetGroup(refAssetGroup_);
+                sectionFcaInfoClass_.setRefDefectCategory(refDefectCategory_);
+                sectionFcaInfoClass_.setRefFcaZone(refFcaZone_);
+                sectionFcaInfoClass_.setRefConditionScale(refConditionScale);
+                sectionFcaInfoClass_.setRefEvaluationType(refEvaluationType);
+                sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_);
+                sectionFcaInfoClass_.setModalFcaValidateClass(modalFcaValidateClass_);
+                sectionFcaInfoClass_.setModalFcaAddClass(modalFcaAddClass_);
+                sectionFcaInfoClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                sectionFcaInfoClass_.setClassFrom(fcaAllClass_);
+                sectionFcaInfoClass_.init()
+
+                fcaAllClass_.setRefStatus(refStatus_);
+                fcaAllClass_.setRefUser(refUser_);
+                fcaAllClass_.setRefSite(refSite_);
+                fcaAllClass_.setRefAssetGroup(refAssetGroup_);
+                fcaAllClass_.setRefDefectCategory(refDefectCategory_);
+                fcaAllClass_.setRefFcaZone(refFcaZone_);
+                fcaAllClass_.setRefConditionScale(refConditionScale);
+                fcaAllClass_.setRefEvaluationType(refEvaluationType);
+                fcaAllClass_.setModalFcaAddClass(modalFcaAddClass_);
+                fcaAllClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
+                fcaAllClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_recommend.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_validate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_fca_all.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+</body>
+</html>
+    
