@@ -5,6 +5,48 @@ class AttGroup extends General {
     public $attGroupId = 0;
     public $attGroup = array();
     public $siteName = '';
+    private $sqlAttGroup = /** @lang text */
+        "SELECT
+            a.att_group_id,
+            site_id,
+            att_group_name,
+            att_group_category,
+            att_group_supervisor,
+            ST_AsGeoJSON(att_group_polygon) AS att_group_polygon, 
+            ST_X(att_group_map_center) AS att_group_map_center_lat,
+            ST_Y(att_group_map_center) AS att_group_map_center_lng,
+            att_group_map_zoom,
+            TIME_FORMAT(att_group_day_shift_start,'%h:%i %p') AS att_group_day_shift_start,
+            TIME_FORMAT(att_group_day_shift_end,'%h:%i %p') AS att_group_day_shift_end,
+            TIME_FORMAT(att_group_night_shift_start,'%h:%i %p') AS att_group_night_shift_start,
+            TIME_FORMAT(att_group_night_shift_end,'%h:%i %p') AS att_group_night_shift_end,
+            TIME_FORMAT(att_group_day_shift_start,'%H:%i') AS att_group_day_shift_start_2,
+            TIME_FORMAT(att_group_day_shift_end,'%H:%i') AS att_group_day_shift_end_2,
+            TIME_FORMAT(att_group_night_shift_start,'%H:%i') AS att_group_night_shift_start_2,
+            TIME_FORMAT(att_group_night_shift_end,'%H:%i') AS att_group_night_shift_end_2,
+            att_group_holiday,
+            att_group_req_week_hours,
+            att_group_shift_mode, 
+            att_group_ot_approver,
+            att_group_remark,
+            att_group_status,
+            p.total_active AS total_participant_active
+        FROM att_group a
+        LEFT JOIN (
+            SELECT att_group_id, COUNT(*) AS total_active
+            FROM att_participant GROUP BY att_group_id
+        ) p ON p.att_group_id = a.att_group_id ";
+    private $sqlAttSite = /** @lang text */
+        "SELECT 
+            s.*,
+            IFNULL(ag.total, 0) AS total_group,
+            IFNULL(ap.total, 0) AS total_participant	
+        FROM cli_site s
+        LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_group WHERE att_group_status = 1 GROUP BY site_id) ag ON ag.site_id = s.site_id
+        LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_participant 
+        LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
+        WHERE att_participant_status = 1 
+        GROUP BY site_id) ap ON ap.site_id = s.site_id ";
 
     function __construct () {
     }
@@ -19,7 +61,7 @@ class AttGroup extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attGroupId, 'attGroupId');
             $this->attGroupId = $attGroupId;
-            $this->attGroup = DbMysql::select('v_att_group', array('attGroupId'=>$this->attGroupId),true);
+            $this->attGroup = DbMysql::selectSql($this->sqlAttGroup.' WHERE att_group_id = ?', array($this->attGroupId),true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -34,7 +76,7 @@ class AttGroup extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
-            return DbMysql::selectAll('v_att_group', array('siteId'=>$siteId));
+            return DbMysql::selectSqlAll($this->sqlAttGroup.' WHERE site_id = ?', array($siteId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -47,7 +89,7 @@ class AttGroup extends General {
     public function getRef (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return DbMysql::selectAll('v_att_group', array(), 1);
+            return DbMysql::selectSqlAll($this->sqlAttGroup, array(), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -62,7 +104,7 @@ class AttGroup extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
-            return DbMysql::select('v_att_site', array('siteId'=>$siteId), true);
+            return DbMysql::selectSql($this->sqlAttSite.' WHERE site_id = ?', array($siteId), true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -75,7 +117,7 @@ class AttGroup extends General {
     public function getAttSiteList (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return DbMysql::selectAll('v_att_site');
+            return DbMysql::selectSqlAll($this->sqlAttSite);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

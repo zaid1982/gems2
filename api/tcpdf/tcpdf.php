@@ -3491,7 +3491,7 @@ class TCPDF {
 			);
 			$this->write1DBarcode($barcode, 'C128', '', $cur_y + $line_width, '', (($this->footer_margin / 3) - $line_width), 0.3, $style, '');
 		}
-		$w_page = isset($this->l['w_page']) ? $this->l['w_page'].' ' : '';
+		$w_page = isset($this->l['w_page']) ? $this->l['w_page'].' ' : 'Page ';
 		if (empty($this->pagegroups)) {
 			$pagenumtxt = $w_page.$this->getAliasNumPage().' / '.$this->getAliasNbPages();
 		} else {

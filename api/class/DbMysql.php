@@ -468,7 +468,7 @@ class DbMysql {
             return !empty($result) ? self::convertFromDbIndex($result) : array();
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -512,7 +512,7 @@ class DbMysql {
             return $resultConvert[$columnOut];
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -551,7 +551,39 @@ class DbMysql {
             return self::convertFromDbIndexes($result);
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $statement
+     * @param array $columns
+     * @param int $fetchType
+     * @param bool $throwEmpty
+     * @return array
+     * @throws Exception
+     */
+    public static function selectSql (string $statement, array $columns=array(), bool $throwEmpty=false): array {
+        try {
+            if (empty(self::$DBH)) {
+                throw new Exception('Connection lost');
+            }
+            if (empty($statement)) {
+                throw new Exception('Empty $statement');
+            }
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
+            $stmt = self::$DBH->prepare($statement);
+            $stmt->execute($columns);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
+            if ($throwEmpty && empty($result)) {
+                throw new Exception('Select query result empty');
+            }
+            return !empty($result) ? self::convertFromDbIndex($result) : array();
+        }
+        catch (PDOException $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -583,7 +615,7 @@ class DbMysql {
             return self::convertFromDbIndexes($result);
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -612,7 +644,7 @@ class DbMysql {
             return $result[0];
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -645,7 +677,7 @@ class DbMysql {
             return self::$DBH->lastInsertId();
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -682,7 +714,7 @@ class DbMysql {
             return $stmt->rowCount();
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 
@@ -712,7 +744,7 @@ class DbMysql {
             $stmt->execute($preparedValues);
         }
         catch (PDOException $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
         }
     }
 }

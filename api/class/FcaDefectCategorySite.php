@@ -20,7 +20,10 @@ class FcaDefectCategorySite extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $returnArr = array();
-            $refArr = DbMysql::selectAll('v_defect_category_site', array());
+            $refArr = DbMysql::selectSqlAll(/** @lang text */ "SELECT 
+                    site_id, GROUP_CONCAT(fca_defect_category_id) AS defect_category_list
+                FROM fca_defect_category_site 
+                GROUP BY site_id ", array());
             foreach ($refArr as $ref) {
                 $returnArr[intval($ref['siteId'])] = $ref['defectCategoryList'];
             }
@@ -52,7 +55,10 @@ class FcaDefectCategorySite extends General {
     {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            return DbMysql::selectAll('v_defect_category_site', array());
+            return DbMysql::selectSqlAll(/** @lang text */ "SELECT 
+                    site_id, GROUP_CONCAT(fca_defect_category_id) AS defect_category_list
+                FROM fca_defect_category_site 
+                GROUP BY site_id ", array());
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

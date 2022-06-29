@@ -37,18 +37,15 @@ try {
     }
     else if ('POST' === $requestMethod) {
         $params = $_POST;
-        if (isset ($urlArr[1])) {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
-        }
-
         DbMysql::beginTransaction();
         $isTransaction = true;
+
         $fnFcaZone->insert($params);
         $fnFcaZone->updateVersion(33);
         $fnFcaZone->saveAudit(196, $fnFcaZone->fcaZoneName);
-        DbMysql::commit();
         $formData['errmsg'] = str_replace('__', $fnFcaZone->fcaZoneName, Constant::$fcaZone['add']);
 
+        DbMysql::commit();
         $formData['result'] = $result;
         $formData['success'] = true;
     }

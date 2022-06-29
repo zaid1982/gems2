@@ -63,11 +63,29 @@ class General {
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyInteger (int $integer=0, string $integerName): bool {
+    public function checkEmptyInteger (int $integer, string $integerName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($integer)) {
                 throw new Exception('Empty integer '.$integerName);
+            }
+            return true;
+        } catch (Exception | Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param float $float
+     * @param string $floatName
+     * @return bool
+     * @throws Exception
+     */
+    public function checkEmptyFloat (float $float, string $floatName): bool {
+        try {
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (empty($float)) {
+                throw new Exception('Empty float '.$floatName);
             }
             return true;
         } catch (Exception | Throwable $ex) {
@@ -256,7 +274,7 @@ class General {
             JWT::$leeway = 86400; // $leeway in seconds
             $token = substr($jwt, 7);
             $data = JWT::decode($token, $key, array('HS256'));
-            $this->userId = $data->userId;
+            $this->userId = intval($data->userId);
             DbMysql::$userId = $this->userId;
             if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userToken'=>$token)) !== 1) {
                 throw new Exception('Expired token', 31);
@@ -473,5 +491,126 @@ class General {
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
+    }
+
+    /**
+     * @param string $datetime
+     * @return string
+     * @throws Exception
+     */
+    public function dateDisplay (string $datetime): string {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (empty($datetime)) {
+                return '';
+            }
+            $dateResult = '';
+            if (strlen($datetime) === 10 || strlen($datetime) === 19) {
+                $dateStr = substr($datetime, 0, 10);
+                $pieces = explode('-', $dateStr);
+                if (count($pieces) === 3) {
+                    $dateResult = $pieces[2].'/'.$pieces[1].'/'.$pieces[0];
+                }
+            }
+            return $dateResult;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param object $pdf
+     * @return void
+     */
+    public function pdfCheckYTitle(object $pdf): void {
+        if ($pdf->GetY() > 272) {
+            $pdf->AddPage();
+            $pdf->setPage($pdf->getPage());
+        }
+    }
+
+    /**
+     * @param object $pdf
+     * @param int $startY
+     * @param int $maxNoCells
+     * @return void
+     */
+    private function pdfCheckYRow (object $pdf, int $startY, int $maxNoCells): void {
+        $tempY = $startY+($maxNoCells*4)+2;
+        if ($tempY > 273) {
+            $previousY = $tempY - 277;
+            $pdf->AddPage();
+            $pdf->setPage($pdf->getPage());
+            if ($previousY > 0) {
+                $pdf->SetY($pdf->GetY() + $previousY);
+            }
+        }
+    }
+
+    /**
+     * @param object $pdf
+     * @param string $value
+     * @return void
+     */
+    public function pdfWriteOneColumn (object $pdf, string $value): void {
+        $maxNoCells = 0;
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+        $cellCount = $pdf->MultiCell(180,4,$value,0,'L',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $pdf->SetXY($startX,$startY);
+        $pdf->MultiCell(180, ($maxNoCells*4)+2, '', 1, 'L', 0, 0);
+        $pdf->Ln();
+        $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
+    }
+
+    /**
+     * @param object $pdf
+     * @param string $label
+     * @param string $value
+     * @return void
+     */
+    public function pdfWriteTwoColumn (object $pdf, string $label, string $value): void {
+        $maxNoCells = 0;
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+        $cellCount = $pdf->MultiCell(32,4,$label,0,'R',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $cellCount = $pdf->MultiCell(148,4,$value,0,'L',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $pdf->SetXY($startX,$startY);
+        $pdf->MultiCell(32, ($maxNoCells*4)+2, '', 1, 'R', 0, 0);
+        $pdf->MultiCell(148, ($maxNoCells*4)+2, '', 1, 'L', 0, 0);
+        $pdf->Ln();
+        $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
+    }
+
+    /**
+     * @param object $pdf
+     * @param string $label1
+     * @param string $value1
+     * @param string $label2
+     * @param string $value2
+     * @return void
+     */
+    public function pdfWriteFourColumn (object $pdf, string $label1, string $value1, string $label2, string $value2): void {
+        $maxNoCells = 0;
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+        $cellCount = $pdf->MultiCell(32,4,$label1,0,'R',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $cellCount = $pdf->MultiCell(58,4,$value1,0,'L',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $cellCount = $pdf->MultiCell(32,4,$label2,0,'R',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $cellCount = $pdf->MultiCell(58,4,$value2,0,'L',0,0);
+        if ($cellCount > $maxNoCells ) {$maxNoCells = $cellCount;}
+        $pdf->SetXY($startX,$startY);
+        $pdf->MultiCell(32, ($maxNoCells*4)+2, '', 1, 'R', 0, 0);
+        $pdf->MultiCell(58, ($maxNoCells*4)+2, '', 1, 'L', 0, 0);
+        $pdf->MultiCell(32, ($maxNoCells*4)+2, '', 1, 'R', 0, 0);
+        $pdf->MultiCell(58, ($maxNoCells*4)+2, '', 1, 'L', 0, 0);
+        $pdf->Ln();
+        $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
     }
 }

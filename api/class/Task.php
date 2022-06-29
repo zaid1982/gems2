@@ -124,7 +124,10 @@ class Task extends General {
             }
             if ($isSite) {
                 $siteId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true);
-                $checkpointUsers = DbMysql::selectAll('v_checkpoint_user_site', array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
+                $checkpointUsers = DbMysql::selectSqlAll(/** @lang text */ "SELECT wfl_checkpoint_user.*, sys_user.site_id
+                    FROM wfl_checkpoint_user 
+                    LEFT JOIN sys_user ON sys_user.user_id = wfl_checkpoint_user.user_id
+                    WHERE site_id = ? AND checkpoint_id = ? AND role_id = ?", array($siteId, $this->wflTaskNew['checkpointId'], $this->wflTaskNew['roleId']));
             } else {
                 $checkpointUsers = DbMysql::selectAll('wfl_checkpoint_user', array('checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
             }
