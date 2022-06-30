@@ -53,13 +53,13 @@
                                         <th>Report Name</th>
                                         <th>Date From</th>
                                         <th>Date To</th>
-                                        <th>Asset Group</th>
+                                        <th>Asset Group</th>  <!--5-->
                                         <th>Exclude List</th>
                                         <th>Sort By</th>
                                         <th>Total FCA</th>
                                         <th>Created By</th>
-                                        <th>Time Created</th>
-                                        <th style="width: 32px; min-width: 32px;">&nbsp;</th>
+                                        <th>Time Created</th>   <!--10-->
+                                        <th style="width: 34px; min-width: 34px;">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -73,7 +73,8 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_fca_zone"></div>
+    <div class="includeHtml" id="h-modal_fca_report"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -110,7 +111,7 @@
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDelete_;
-    let modalFcaZoneClass_;
+    let modalFcaReportClass_;
     let fcaReportClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -121,18 +122,23 @@
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
-                //modalFcaZoneClass_ = new ModalFcaZone();
+                modalFcaReportClass_ = new ModalFcaReport();
                 fcaReportClass_ = new MainFcaReport();
 
                 const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site_v2/ref');
+                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
 
-                //modalFcaZoneClass_.setRefSite(refSite_);
-                //modalFcaZoneClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                //modalFcaZoneClass_.setClassFrom(fcaReportClass_);
-                //modalFcaZoneClass_.init();
+                modalFcaReportClass_.setRefSite(refSite_);
+                modalFcaReportClass_.setRefAssetGroup(refAssetGroup_);
+                modalFcaReportClass_.setClassFrom(fcaReportClass_);
+                modalFcaReportClass_.init();
 
                 fcaReportClass_.setRefSite(refSite_);
-                //fcaReportClass_.setModalFcaZoneClass(modalFcaZoneClass_);
+                fcaReportClass_.setRefAssetGroup(refAssetGroup_);
+                fcaReportClass_.setRefUser(refUser_);
+                fcaReportClass_.setModalFcaReportClass(modalFcaReportClass_);
+                fcaReportClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 fcaReportClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -144,7 +150,7 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
 </body>

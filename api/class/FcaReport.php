@@ -39,6 +39,23 @@ class FcaReport extends General {
     }
 
     /**
+     * @param array $columns
+     * @return void
+     * @throws Exception
+     */
+    public function insert (array $columns): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkMandatoryArray($columns, array('fcaReportName', 'fcaReportDateFrom', 'fcaReportDateTo', 'siteId', 'fcaReportExcludeList', 'fcaReportSortBy', 'pdfId'), true);
+            $columns['fcaReportCreatedBy'] = $this->userId;
+            $this->set(DbMysql::insert('fca_report', $columns));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @return void
      * @throws Exception
      */
@@ -87,7 +104,7 @@ class FcaReport extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, '$params '.json_encode($params));
-            parent::checkMandatoryArray($params, array('fcaReportDateFrom', 'fcaReportDateTo', 'siteId', 'fcaReportExcludeList', 'fcaReportSortBy'));
+            parent::checkMandatoryArray($params, array('fcaReportDateFrom', 'fcaReportDateTo', 'siteId', 'fcaReportExcludeList', 'fcaReportSortBy'), true);
             $sqlVal = array($params['fcaReportDateFrom'], $params['fcaReportDateTo'], intval($params['siteId']));
 
             $sql = /** @lang text */
@@ -101,11 +118,11 @@ class FcaReport extends General {
                 LEFT JOIN fca_zone z ON z.fca_zone_id = f.fca_zone_id
                 LEFT JOIN sys_upload u1 ON u1.upload_id = f.fca_task_image_1
                 LEFT JOIN sys_upload u2 ON u2.upload_id = f.fca_task_image_2
-                WHERE (fca_task_time_created BETWEEN ? AND ?) AND f.site_id = ?";
+                WHERE fca_task_status = 19 AND (fca_task_time_created BETWEEN ? AND ?) AND f.site_id = ?";
             if (intval($params['fcaReportExcludeList']) === 1) {
                 $sql .= " AND fca_task_exclude_report = 0";
             }
-            if (!empty($criteriaArr['assetGroupId'])) {
+            if (!empty($params['assetGroupId'])) {
                 $sql .= " AND asset_group_id = ?";
                 $sqlVal[] = intval($params['assetGroupId']);
             }
@@ -263,12 +280,11 @@ class FcaReport extends General {
             if (!parent::folderExist($folder)) {
                 mkdir ($folder,0777, true);
             }
-            //$filename = 'fca_'.$curDates->format("ymdHis").'.pdf';
-            $filename = 'fca.pdf';
+            $filename = 'fca_'.$curDates->format("ymdHis").'.pdf';
             $filenameSrc = trim(dirname(__FILE__), 'class').'pdf\fca\\' . $siteId . '\\' . $filename;
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'dirname = '.$filenameSrc);
             $pdf->Output($filenameSrc, 'F');
-
+            $params['pdfId'] = DbMysql::insert('sys_pdf', array('pdfType'=>'fca', 'pdfFolder'=>$folder, 'pdfFilename'=>$filename));
             return $params;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

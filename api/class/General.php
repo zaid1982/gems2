@@ -444,6 +444,28 @@ class General {
         }
     }
 
+
+
+    /**
+     * @param int $pdfId
+     * @return string
+     * @throws Exception
+     */
+    public function getPdfLink (int $pdfId): string {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyInteger($pdfId, 'pdfId');
+            $upload = DbMysql::select('sys_pdf', array('pdfId'=>$pdfId), true);
+            $file = $upload['pdfFolder'].'/'.$upload['pdfFilename'];
+            if (!file_exists($file)) {
+                throw new Exception('PDF File '.$file.' not exist');
+            }
+            return Constant::$url.$file.'?t='.time();
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
     /**
      * @param int $uploadId
      * @return string

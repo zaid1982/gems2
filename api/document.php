@@ -28,6 +28,8 @@ try {
             $result = $fnGeneral->getUpload(intval($urlArr[2]));
         } else if ($urlArr[1] === 'upload_link' && isset ($urlArr[2])) {
             $result = $fnGeneral->getUploadLink(intval($urlArr[2]));
+        } else if ($urlArr[1] === 'pdf_link' && isset ($urlArr[2])) {
+            $result = $fnGeneral->getPdfLink(intval($urlArr[2]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

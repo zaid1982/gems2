@@ -1762,3 +1762,18 @@ function mzOpenPdfUpload (uploadId) {
         HideLoader();
     }, 200);
 }
+
+function mzOpenPdfUpload2 (pdfId, title) {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            const pdfSrc = mzAjaxRequest2('document/pdf_link/'+pdfId, 'GET');
+            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;'+title);
+            $('#mpdf_iframe').attr('src', pdfSrc);
+            $('#modal_pdf').modal('show');
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+}

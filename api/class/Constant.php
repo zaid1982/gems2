@@ -62,4 +62,9 @@ class Constant {
         'delete' => 'Defect Category __ successfully deleted from ___ site!',
         'errAlreadyExist' => 'Defect Category __ already exist in ___ site!'
     );
+
+    public static $fcaReport = array(
+        'add' => 'FCA Report __ successfully generated. Please check the PDF from the FCA PDF Report List',
+        'delete' => 'FCA Report __ successfully deleted!'
+    );
 }

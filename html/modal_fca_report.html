@@ -1,0 +1,81 @@
+<div class="modal fade" id="modal_fca_report" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2"><i class="fas fa-file-pdf text-white"></i> &nbsp;Generate New FCA Report</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMfr" class="mt-3">
+                    <div class="row">
+                        <div class="col-12 select-outline mb-2" id="optMfrSite_">
+                            <select id="optMfrSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfrSite" id="lblMfrSite">Site *</label>
+                            <p class="font-small text-danger" id="optMfrSiteErr"></p>
+                        </div>
+                        <div class="col-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMfrName" class="form-control">
+                                <label for="txtMfrName" id="lblMfrName">Report Name *</label>
+                                <p class="font-small text-danger" id="txtMfrNameErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMfrDateFrom" class="form-control datepicker" readonly>
+                                <label for="txtMfrDateFrom" id="lblMfrDateFrom">Date From *</label>
+                                <p class="font-small text-danger" id="txtMfrDateFromErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMfrDateTo" class="form-control datepicker" readonly>
+                                <label for="txtMfrDateTo" id="lblMfrDateTo">Date To *</label>
+                                <p class="font-small text-danger" id="txtMfrDateToErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMfrAssetGroup_">
+                            <select id="optMfrAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMfrAssetGroup" id="lblMfrAssetGroup">Asset Group</label>
+                            <p class="font-small text-danger" id="optMfrAssetGroupErr"></p>
+                        </div>
+                        <div class="col-12 select-outline mb-2" id="optMfrSort_">
+                            <select id="optMfrSort" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0">
+                                <option value="" disabled>Select Sort By *</option>
+                                <option value="fca_task_time_created">Audit Date</option>
+                                <option value="asset_group_name">Asset Group</option>
+                                <option value="fca_zone_name">Zone</option>
+                                <option value="fca_task_condition_scale DESC">Condition Scale</option>
+                            </select>
+                            <label for="optMfrSort" id="lblMfrSort">Sort by *</label>
+                            <p class="font-small text-danger" id="optMfrSortErr"></p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0 ml-2">Keep Out FCA Exclude List :</p>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfrExclude" id="radMfrExclude1" value="1">
+                                    <label class="form-check-label" for="radMfrExclude1">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMfrExclude" id="radMfrExclude2" value="0">
+                                    <label class="form-check-label" for="radMfrExclude2">No</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMfrExcludeErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMfrSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

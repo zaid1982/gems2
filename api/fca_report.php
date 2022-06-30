@@ -30,16 +30,31 @@ try {
     }
     else if ('POST' === $requestMethod) {
         $params = $_POST;
+        $result = $fnFcaReport->createPdf($params);
+
         DbMysql::beginTransaction();
         $isTransaction = true;
-
-        $result = $fnFcaReport->createPdf($params);
-        //$fnFcaReport->insert($params);
-        //$fnFcaReport->saveAudit(196, $fnFcaReport->fcaReportName);
-        //$formData['errmsg'] = str_replace('__', $fnFcaReport->fcaReportName, Constant::$fcaReport['add']);
-        $formData['errmsg'] = 'Good';
-
+        $fnFcaReport->insert($result);
+        $fnFcaReport->saveAudit(209, $fnFcaReport->fcaReportName);
+        $formData['errmsg'] = str_replace('__', $fnFcaReport->fcaReportName, Constant::$fcaReport['add']);
         DbMysql::commit();
+
+        $formData['result'] = '';
+        $formData['success'] = true;
+    }
+    else if ('DELETE' === $requestMethod) {
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $fnFcaReport->set(intval($urlArr[1]));
+        $fnFcaReport->delete();
+        $fnFcaReport->saveAudit(210, $fnFcaReport->fcaReportName);
+        DbMysql::commit();
+        $formData['errmsg'] = str_replace('__', $fnFcaReport->fcaReportName, Constant::$fcaReport['delete']);
+
         $formData['result'] = $result;
         $formData['success'] = true;
     }
