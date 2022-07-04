@@ -35,7 +35,7 @@ class AttGroup extends General {
         LEFT JOIN (
             SELECT att_group_id, COUNT(*) AS total_active
             FROM att_participant GROUP BY att_group_id
-        ) p ON p.att_group_id = a.att_group_id ";
+        ) p ON p.att_group_id = a.att_group_id";
     private $sqlAttSite = /** @lang text */
         "SELECT 
             s.*,
@@ -46,7 +46,7 @@ class AttGroup extends General {
         LEFT JOIN (SELECT site_id, COUNT(*) AS total FROM att_participant 
         LEFT JOIN att_group ON att_group.att_group_id = att_participant.att_group_id
         WHERE att_participant_status = 1 
-        GROUP BY site_id) ap ON ap.site_id = s.site_id ";
+        GROUP BY site_id) ap ON ap.site_id = s.site_id";
 
     function __construct () {
     }
@@ -61,7 +61,7 @@ class AttGroup extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attGroupId, 'attGroupId');
             $this->attGroupId = $attGroupId;
-            $this->attGroup = DbMysql::selectSql($this->sqlAttGroup.' WHERE att_group_id = ?', array($this->attGroupId),true);
+            $this->attGroup = DbMysql::selectSql($this->sqlAttGroup, array('attGroupId'=>$this->attGroupId),true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -76,7 +76,7 @@ class AttGroup extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
-            return DbMysql::selectSqlAll($this->sqlAttGroup.' WHERE site_id = ?', array($siteId));
+            return DbMysql::selectSqlAll($this->sqlAttGroup, array('siteId'=>$siteId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -104,7 +104,7 @@ class AttGroup extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
-            return DbMysql::selectSql($this->sqlAttSite.' WHERE site_id = ?', array($siteId), true);
+            return DbMysql::selectSql($this->sqlAttSite, array('siteId', $siteId), true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

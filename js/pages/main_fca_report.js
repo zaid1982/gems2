@@ -10,10 +10,10 @@ function MainFcaReport () {
     let modalFcaReportClass;
     let modalConfirmDeleteClass;
     const refSort = {
-        fca_task_time_created: 'Audit Date',
-        asset_group_name: 'Asset Group',
-        fca_zone_name: 'Zone',
-        'fca_task_condition_scale DESC': 'Condition Scale'
+        fcaTaskTimeCreated: 'Audit Date',
+        assetGroupName: 'Asset Group',
+        fcaZoneName: 'Zone',
+        'fcaTaskConditionScale desc': 'Condition Scale'
     };
 
     this.init = function () {

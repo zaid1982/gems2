@@ -462,6 +462,7 @@ class DbMysql {
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
             }
@@ -502,6 +503,7 @@ class DbMysql {
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
             }
@@ -545,6 +547,7 @@ class DbMysql {
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
+            $stmt = null;
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
             }
@@ -556,25 +559,29 @@ class DbMysql {
     }
 
     /**
-     * @param string $statement
+     * @param string $query
      * @param array $columns
-     * @param int $fetchType
      * @param bool $throwEmpty
+     * @param string $orderBy
+     * @param string $orderDirection
      * @return array
      * @throws Exception
      */
-    public static function selectSql (string $statement, array $columns=array(), bool $throwEmpty=false): array {
+    public static function selectSql (string $query, array $columns=array(), bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC'): array {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
             }
-            if (empty($statement)) {
-                throw new Exception('Empty $statement');
+            if (empty($query)) {
+                throw new Exception('Empty $query');
             }
+            $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = $query.self::getWhereString($columns).$order;
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
-            $stmt->execute($columns);
+            $stmt->execute($preparedWheres);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             $stmt = null;
             if ($throwEmpty && empty($result)) {
@@ -588,25 +595,32 @@ class DbMysql {
     }
 
     /**
-     * @param string $statement
+     * @param string $query
      * @param array $columns
      * @param int $fetchType
      * @param bool $throwEmpty
+     * @param string $orderBy
+     * @param string $orderDirection
+     * @param string $limit
      * @return array
      * @throws Exception
      */
-    public static function selectSqlAll (string $statement, array $columns=array(), int $fetchType=0, bool $throwEmpty=false): array {
+    public static function selectSqlAll (string $query, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $orderDirection='', string $limit=''): array {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
             }
-            if (empty($statement)) {
+            if (empty($query)) {
                 throw new Exception('Empty $statement');
             }
+            $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
+            $limit = !empty($limit) ? ' LIMIT '.$limit : '';
+            $preparedWheres = self::getPreparedWhere($columns);
+            $statement = $query.self::getWhereString($columns).$order.$limit;
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
-            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($columns));
+            self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
-            $stmt->execute($columns);
+            $stmt->execute($preparedWheres);
             $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
             $stmt = null;
             if ($throwEmpty && empty($result)) {
@@ -641,6 +655,7 @@ class DbMysql {
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
             $result = $stmt->fetch();
+            $stmt = null;
             return $result[0];
         }
         catch (PDOException $ex) {
@@ -674,7 +689,9 @@ class DbMysql {
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedValues);
-            return self::$DBH->lastInsertId();
+            $lastInsertId = self::$DBH->lastInsertId();
+            $stmt = null;
+            return $lastInsertId;
         }
         catch (PDOException $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
@@ -711,7 +728,9 @@ class DbMysql {
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedValues);
-            return $stmt->rowCount();
+            $rowCount = $stmt->rowCount();
+            $stmt = null;
+            return $rowCount;
         }
         catch (PDOException $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());
@@ -742,6 +761,7 @@ class DbMysql {
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedValues));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedValues);
+            $stmt = null;
         }
         catch (PDOException $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage());

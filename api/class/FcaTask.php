@@ -92,7 +92,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectSqlAll($this->sqlFcaTaskWf.' WHERE checkpoint_id = ? AND task_current = ? AND task_claimed_user = ? AND fca_task_removed = 0', array(51, 2, $this->userId));
+            return DbMysql::selectSqlAll($this->sqlFcaTaskWf, array('checkpointId'=>51, 'taskCurrent'=>2, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -106,7 +106,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectSqlAll($this->sqlFcaTaskWf.' WHERE checkpoint_id = ? AND task_current = ? AND task_claimed_user = ? AND fca_task_removed = 0', array(52, 1, $this->userId));
+            return DbMysql::selectSqlAll($this->sqlFcaTaskWf, array('checkpointId'=>52, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -120,7 +120,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectSqlAll($this->sqlFcaTaskWf.' WHERE checkpoint_id = ? AND task_current = ? AND (task_claimed_user IS NULL OR task_claimed_user = ?) AND fca_task_removed = 0', array(53, 1, $this->userId));
+            return DbMysql::selectSqlAll($this->sqlFcaTaskWf, array('checkpointId'=>53, 'taskCurrent'=>1, 'taskClaimedUser'=>'s1|(task_claimed_user IS NULL OR task_claimed_user = '.$this->userId.')', 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -134,7 +134,7 @@ class FcaTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
-            return DbMysql::selectSqlAll($this->sqlFcaTaskWf.' WHERE checkpoint_id = ? AND task_current = ? AND task_claimed_user = ? AND fca_task_removed = 0', array(54, 1, $this->userId));
+            return DbMysql::selectSqlAll($this->sqlFcaTaskWf, array('checkpointId'=>54, 'taskCurrent'=>1, 'taskClaimedUser'=>$this->userId, 'fcaTaskRemoved'=>0));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -126,8 +126,7 @@ class Task extends General {
                 $siteId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true);
                 $checkpointUsers = DbMysql::selectSqlAll(/** @lang text */ "SELECT wfl_checkpoint_user.*, sys_user.site_id
                     FROM wfl_checkpoint_user 
-                    LEFT JOIN sys_user ON sys_user.user_id = wfl_checkpoint_user.user_id
-                    WHERE site_id = ? AND checkpoint_id = ? AND role_id = ?", array($siteId, $this->wflTaskNew['checkpointId'], $this->wflTaskNew['roleId']));
+                    LEFT JOIN sys_user ON sys_user.user_id = wfl_checkpoint_user.user_id", array('siteId'=>$siteId, 'checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
             } else {
                 $checkpointUsers = DbMysql::selectAll('wfl_checkpoint_user', array('checkpointId'=>$this->wflTaskNew['checkpointId'], 'roleId'=>$this->wflTaskNew['roleId']));
             }
@@ -254,8 +253,7 @@ class Task extends General {
                     checkpoint_color,
                     checkpoint_order
                 FROM wfl_task t
-                LEFT JOIN wfl_checkpoint c ON c.checkpoint_id = t.checkpoint_id
-                WHERE transaction_id = ? AND checkpoint_type <> 3", array($transactionId));
+                LEFT JOIN wfl_checkpoint c ON c.checkpoint_id = t.checkpoint_id", array('transactionId'=>$transactionId, 'checkpointType'=>'<>|3'));
             foreach ($taskArr as $i=>$task) {
                 $return = parent::arraySpliceAssoc($task, array('checkpointDesc', 'checkpointColor', 'taskTimeSubmit'));
                 $durationStr = '';

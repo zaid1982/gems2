@@ -65,6 +65,7 @@ class Constant {
 
     public static $fcaReport = array(
         'add' => 'FCA Report __ successfully generated. Please check the PDF from the FCA PDF Report List',
-        'delete' => 'FCA Report __ successfully deleted!'
+        'delete' => 'FCA Report __ successfully deleted!',
+        'errEmpty' => 'The requested report is empty!'
     );
 }

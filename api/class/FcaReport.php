@@ -105,7 +105,6 @@ class FcaReport extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, '$params '.json_encode($params));
             parent::checkMandatoryArray($params, array('fcaReportDateFrom', 'fcaReportDateTo', 'siteId', 'fcaReportExcludeList', 'fcaReportSortBy'), true);
-            $sqlVal = array($params['fcaReportDateFrom'], $params['fcaReportDateTo'], intval($params['siteId']));
 
             $sql = /** @lang text */
                 "SELECT 
@@ -117,21 +116,19 @@ class FcaReport extends General {
                 LEFT JOIN fca_defect_category d ON d.fca_defect_category_id = f.fca_defect_category_id
                 LEFT JOIN fca_zone z ON z.fca_zone_id = f.fca_zone_id
                 LEFT JOIN sys_upload u1 ON u1.upload_id = f.fca_task_image_1
-                LEFT JOIN sys_upload u2 ON u2.upload_id = f.fca_task_image_2
-                WHERE fca_task_status = 19 AND (fca_task_time_created BETWEEN ? AND ?) AND f.site_id = ?";
+                LEFT JOIN sys_upload u2 ON u2.upload_id = f.fca_task_image_2";
+            $columns = array('fcaTaskStatus'=>19, 'fcaTaskTimeCreated'=>'>=|'.$params['fcaReportDateFrom'], 'fcaTaskTimeCreated '=>'<=|'.$params['fcaReportDateTo'].' 23:59:59', 'f.siteId'=>intval($params['siteId']));
             if (intval($params['fcaReportExcludeList']) === 1) {
-                $sql .= " AND fca_task_exclude_report = 0";
+                $columns['fcaTaskExcludeReport'] = 0;
             }
             if (!empty($params['assetGroupId'])) {
-                $sql .= " AND asset_group_id = ?";
-                $sqlVal[] = intval($params['assetGroupId']);
+                $columns['assetGroupId'] = intval($params['assetGroupId']);
             }
-            $sql .= " ORDER BY ".$params['fcaReportSortBy'];
-            $fcaTaskArr = DbMysql::selectSqlAll($sql, $sqlVal);
-            $params['fcaReportTotal'] = count($fcaTaskArr);
+            $fcaTaskArr = DbMysql::selectSqlAll($sql, $columns, 0, false, $params['fcaReportSortBy']);
             if (empty($fcaTaskArr)) {
-                return $params;
+                throw new Exception(Constant::$fcaReport['errEmpty'], 31);
             }
+            $params['fcaReportTotal'] = count($fcaTaskArr);
 
             $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
             $pdf->SetTitle('GEMS 2.0 - FCA Report');
