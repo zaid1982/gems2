@@ -8,6 +8,7 @@ function ModalAttendanceGroup () {
     let vData;
     let classFrom;
     let refUser;
+    let refAssetGroup;
     let googleMapsDrawingPolygonClass;
     let isAdmin;
     let isSupervisor;
@@ -15,6 +16,7 @@ function ModalAttendanceGroup () {
 	this.init = function () {
         isAdmin = mzIsRoleExist('1');
         isSupervisor = mzIsRoleExist('20');
+        mzOptionV2('optMtgGroupCategory', refAssetGroup, 'Please Select', 'assetGroupName', {assetGroupStatus: 1}, 'required');
 
         vData = [
             {
@@ -70,23 +72,87 @@ function ModalAttendanceGroup () {
                 }
             },
             {
-                field_id: 'optMtgGroupDayShiftStart',
+                field_id: 'optMtgGroupNormalStart',
                 type: 'select',
-                name: 'Day Shift Start',
+                name: 'Work Start',
                 validator: {
                     notEmpty: true
                 }
             },
             {
-                field_id: 'optMtgGroupDayShiftEnd',
+                field_id: 'optMtgGroupNormalEnd',
                 type: 'select',
-                name: 'Day Shift End',
+                name: 'Work End',
                 validator: {
                     notEmpty: true
                 }
             },
             {
-                field_id: 'optMtgGroupNightShiftStart',
+                field_id: 'optMtgGroupAmStart',
+                type: 'select',
+                name: 'AM Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupAmEnd',
+                type: 'select',
+                name: 'AM Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupPmStart',
+                type: 'select',
+                name: 'PM Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupPmEnd',
+                type: 'select',
+                name: 'PM Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupMorningStart',
+                type: 'select',
+                name: 'Morning Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupMorningEnd',
+                type: 'select',
+                name: 'Morning Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupEveningStart',
+                type: 'select',
+                name: 'Evening Shift Start',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupEveningEnd',
+                type: 'select',
+                name: 'Evening Shift End',
+                validator: {
+                    notEmpty: true
+                }
+            },
+            {
+                field_id: 'optMtgGroupNightStart',
                 type: 'select',
                 name: 'Night Shift Start',
                 validator: {
@@ -94,7 +160,7 @@ function ModalAttendanceGroup () {
                 }
             },
             {
-                field_id: 'optMtgGroupNightShiftEnd',
+                field_id: 'optMtgGroupNightEnd',
                 type: 'select',
                 name: 'Night Shift End',
                 validator: {
@@ -185,14 +251,22 @@ function ModalAttendanceGroup () {
                 siteId: siteId,
                 attGroupName: $('#txtMtgGroupName').val(),
                 attGroupSupervisor: $('#optMtgSupervisor').val(),
-                attGroupCategory: $('#optMtgGroupCategory').val(),
+                assetGroupId: $('#optMtgGroupCategory').val(),
                 attGroupHoliday: $('#optMtgGroupHoliday').val(),
                 attGroupReqWeekHours: $('#txtMtgGroupReqWeekHours').val(),
                 attGroupShiftMode: $('#optMtgGroupShiftMode').val(),
-                attGroupDayShiftStart: $('#optMtgGroupDayShiftStart').val(),
-                attGroupDayShiftEnd: $('#optMtgGroupDayShiftEnd').val(),
-                attGroupNightShiftStart: $('#optMtgGroupNightShiftStart').val(),
-                attGroupNightShiftEnd: $('#optMtgGroupNightShiftEnd').val(),
+                attGroupNormalStart: $('#optMtgGroupNormalStart').val(),
+                attGroupNormalEnd: $('#optMtgGroupNormalEnd').val(),
+                attGroupAmStart: $('#optMtgGroupAmStart').val(),
+                attGroupAmEnd: $('#optMtgGroupAmEnd').val(),
+                attGroupPmStart: $('#optMtgGroupPmStart').val(),
+                attGroupPmEnd: $('#optMtgGroupPmEnd').val(),
+                attGroupMorningStart: $('#optMtgGroupMorningStart').val(),
+                attGroupMorningEnd: $('#optMtgGroupMorningEnd').val(),
+                attGroupEveningStart: $('#optMtgGroupEveningStart').val(),
+                attGroupEveningEnd: $('#optMtgGroupEveningEnd').val(),
+                attGroupNightStart: $('#optMtgGroupNightStart').val(),
+                attGroupNightEnd: $('#optMtgGroupNightEnd').val(),
                 attGroupOtApprover: $('#optMtgOtApprover').val(),
                 attGroupRemark: $('#txaMtgGroupRemark').val(),
                 attGroupStatus: $("input[name='radMtgGroupStatus']:checked").val()
@@ -225,8 +299,20 @@ function ModalAttendanceGroup () {
                 $('.divMtgAdminHide').hide();
 
                 $('#lblMtgModalTitle').html('<i class="fas fa-plus text-white mr-2"></i> Add Attendance Group');
-                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#20'}, 'required');
-                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: '1', userStatus: '1', siteId: siteId, roles: '#21'}, 'required');
+                mzOptionStopV2('optMtgSupervisor', refUser, 'Please Select', 'userFirstName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#20'}, 'required');
+                mzOptionStopV2('optMtgOtApprover', refUser, 'Please Select', 'userFirstName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#21'}, 'required');
+                mzSetFieldValue('MtgGroupNormalStart', '08:00:00', 'select');
+                mzSetFieldValue('MtgGroupNormalEnd', '17:00:00', 'select');
+                mzSetFieldValue('MtgGroupAmStart', '08:00:00', 'select');
+                mzSetFieldValue('MtgGroupAmEnd', '17:00:00', 'select');
+                mzSetFieldValue('MtgGroupPmStart', '17:00:00', 'select');
+                mzSetFieldValue('MtgGroupPmEnd', '02:00:00', 'select');
+                mzSetFieldValue('MtgGroupMorningStart', '08:00:00', 'select');
+                mzSetFieldValue('MtgGroupMorningEnd', '16:00:00', 'select');
+                mzSetFieldValue('MtgGroupEveningStart', '16:00:00', 'select');
+                mzSetFieldValue('MtgGroupEveningEnd', '00:00:00', 'select');
+                mzSetFieldValue('MtgGroupNightStart', '00:00:00', 'select');
+                mzSetFieldValue('MtgGroupNightEnd', '08:00:00', 'select');
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup');
                 $('#btnMtgSave').hide();
@@ -263,22 +349,30 @@ function ModalAttendanceGroup () {
                     throw new Error('Your Role is disallowed to configure this Attendance Group');
                 }
 
-                mzOptionStop('optMtgSupervisor', refUser, 'Choose Supervisor', 'userId', 'userFullName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#20'}, 'required');
-                mzOptionStop('optMtgOtApprover', refUser, 'Choose OT Approver', 'userId', 'userFullName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#21'}, 'required');
+                mzOptionStopV2('optMtgSupervisor', refUser, 'Please Select', 'userFirstName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#20'}, 'required');
+                mzOptionStopV2('optMtgOtApprover', refUser, 'Please Select', 'userFirstName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#21'}, 'required');
                 const attGroup = mzAjaxRequest2('att_group/'+attGroupId, 'GET');
                 const polygon = JSON.parse(attGroup['attGroupPolygon']);
                 mzSetFieldValue('MtgGroupName', attGroup['attGroupName'], 'text');
                 mzSetFieldValue('MtgGroupNameLbl', attGroup['attGroupName'], 'text');
                 mzSetFieldValue('MtgSupervisor', attGroup['attGroupSupervisor'], 'select');
-                mzSetFieldValue('MtgSupervisorName', refUser[attGroup['attGroupSupervisor']]['userFullName'], 'text');
-                mzSetFieldValue('MtgGroupCategory', attGroup['attGroupCategory'], 'select');
+                mzSetFieldValue('MtgSupervisorName', refUser[attGroup['attGroupSupervisor']]['userFirstName'], 'text');
+                mzSetFieldValue('MtgGroupCategory', attGroup['assetGroupId'], 'select');
                 mzSetFieldValue('MtgGroupHoliday', attGroup['attGroupHoliday'], 'select');
                 mzSetFieldValue('MtgGroupReqWeekHours', attGroup['attGroupReqWeekHours'], 'text');
                 mzSetFieldValue('MtgGroupShiftMode', attGroup['attGroupShiftMode'], 'select');
-                mzSetFieldValue('MtgGroupDayShiftStart', attGroup['attGroupDayShiftStart2'], 'select');
-                mzSetFieldValue('MtgGroupDayShiftEnd', attGroup['attGroupDayShiftEnd2'], 'select');
-                mzSetFieldValue('MtgGroupNightShiftStart', attGroup['attGroupNightShiftStart2'], 'select');
-                mzSetFieldValue('MtgGroupNightShiftEnd', attGroup['attGroupNightShiftEnd2'], 'select');
+                mzSetFieldValue('MtgGroupNormalStart', attGroup['attGroupNormalStart'], 'select');
+                mzSetFieldValue('MtgGroupNormalEnd', attGroup['attGroupNormalEnd'], 'select');
+                mzSetFieldValue('MtgGroupAmStart', attGroup['attGroupAmStart'], 'select');
+                mzSetFieldValue('MtgGroupAmEnd', attGroup['attGroupAmEnd'], 'select');
+                mzSetFieldValue('MtgGroupPmStart', attGroup['attGroupPmStart'], 'select');
+                mzSetFieldValue('MtgGroupPmEnd', attGroup['attGroupPmEnd'], 'select');
+                mzSetFieldValue('MtgGroupMorningStart', attGroup['attGroupMorningStart'], 'select');
+                mzSetFieldValue('MtgGroupMorningEnd', attGroup['attGroupMorningEnd'], 'select');
+                mzSetFieldValue('MtgGroupEveningStart', attGroup['attGroupEveningStart'], 'select');
+                mzSetFieldValue('MtgGroupEveningEnd', attGroup['attGroupEveningEnd'], 'select');
+                mzSetFieldValue('MtgGroupNightStart', attGroup['attGroupNightStart'], 'select');
+                mzSetFieldValue('MtgGroupNightEnd', attGroup['attGroupNightEnd'], 'select');
                 mzSetFieldValue('MtgOtApprover', attGroup['attGroupOtApprover'], 'select');
                 mzSetFieldValue('MtgGroupRemark', attGroup['attGroupRemark'], 'textarea');
                 mzSetFieldValue('MtgGroupStatus', attGroup['attGroupStatus'], 'radio');
@@ -314,19 +408,10 @@ function ModalAttendanceGroup () {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
-        for (let i=0; i<refUser.length; i++) {
-            if (typeof refUser[i] !== 'undefined') {
-                if (typeof refUser[i]['siteId'] === 'string') {
-                    refUser[i]['siteId'] = parseInt(refUser[i]['siteId']);
-                }
-                if (typeof refUser[i]['userStatus'] === 'string') {
-                    refUser[i]['userStatus'] = parseInt(refUser[i]['userStatus']);
-                }
-                if (typeof refUser[i]['userType'] === 'string') {
-                    refUser[i]['userType'] = parseInt(refUser[i]['userType']);
-                }
-            }
-        }
+    };
+
+    this.setRefAssetGroup = function (_refAssetGroup) {
+        refAssetGroup = _refAssetGroup;
     };
 
     this.setGoogleMapsDrawingPolygon = function (_googleMapsDrawingPolygonClass) {

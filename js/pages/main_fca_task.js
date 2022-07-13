@@ -29,7 +29,7 @@ function MainFcaTask () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -63,6 +63,7 @@ function MainFcaTask () {
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
+                    $(this).DataTable().column(5).visible(false);
                     $(this).DataTable().column(7).visible(false);
                     $(this).DataTable().column(8).visible(false);
                     $(this).DataTable().column(18).visible(false);
@@ -131,7 +132,7 @@ function MainFcaTask () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -145,7 +146,7 @@ function MainFcaTask () {
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctRecommendHide', text:'<i class="fas fa-print"></i>', title:'GEMS - New FCA Recommendation Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctRecommendHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - New FCA Recommendation Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - New FCA Recommendation Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Recommendation Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Recommendation Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -159,6 +160,7 @@ function MainFcaTask () {
                     $(this).DataTable().column(5).visible(false);
                     $(this).DataTable().column(7).visible(false);
                     $(this).DataTable().column(8).visible(false);
+                    $(this).DataTable().column(11).visible(false);
                     $('.btnFctRecommendHide').hide();
                 }
             },
@@ -207,7 +209,7 @@ function MainFcaTask () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -221,7 +223,7 @@ function MainFcaTask () {
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctValidateHide', text:'<i class="fas fa-print"></i>', title:'GEMS - New FCA Validation Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctValidateHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - New FCA Validation Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - New FCA Validation Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Validation Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Validation Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -236,6 +238,7 @@ function MainFcaTask () {
                     $(this).DataTable().column(7).visible(false);
                     $(this).DataTable().column(9).visible(false);
                     $(this).DataTable().column(10).visible(false);
+                    $(this).DataTable().column(15).visible(false);
                     $('.btnFctValidateHide').hide();
                 }
             },
@@ -294,7 +297,7 @@ function MainFcaTask () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -308,7 +311,7 @@ function MainFcaTask () {
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctCorrectionHide', text:'<i class="fas fa-print"></i>', title:'GEMS - New FCA Correction Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctCorrectionHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - New FCA Correction Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - New FCA Correction Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Correction Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - New FCA Correction Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -318,10 +321,12 @@ function MainFcaTask () {
                 $('[data-toggle="tooltip"]').tooltip();
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
+                    $(this).DataTable().column(2).visible(false);
                     $(this).DataTable().column(5).visible(false);
                     $(this).DataTable().column(7).visible(false);
-                    $(this).DataTable().column(9).visible(false);
+                    $(this).DataTable().column(8).visible(false);
                     $(this).DataTable().column(14).visible(false);
+                    $(this).DataTable().column(16).visible(false);
                     $('.btnFctCorrectionHide').hide();
                 }
             },

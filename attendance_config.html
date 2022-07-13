@@ -60,7 +60,7 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
+    <div class="container-fluid" id="divPageWidth">
         <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionAtcMain">
             <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1 pb-1">
                 Attendance Configuration - Site List
@@ -84,7 +84,7 @@
                                                 <th>Description</th>
                                                 <th>Site Status</th>
                                                 <th>Total Groups</th>
-                                                <th>Total Participants</th>
+                                                <th>Total Employees</th>
                                                 <th>Attendance Enabled</th>
                                                 <th>Enable / Disable</th>
                                             </tr>
@@ -169,14 +169,16 @@
                 attendanceConfigClass_ = new MainAttendanceConfig();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
                 const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
+                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
 
                 googleMapsDrawingPolygonClass_.initMapDrawing('mapMtgGroup');
 
                 modalAttendanceGroupClass_.setRefUser(refUser_);
+                modalAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
                 modalAttendanceGroupClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
                 modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
                 modalAttendanceGroupClass_.init();
@@ -190,6 +192,7 @@
 
                 sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);
                 sectionAttendanceConfigSiteClass_.setRefUser(refUser_);
+                sectionAttendanceConfigSiteClass_.setRefAssetGroup(refAssetGroup_);
                 sectionAttendanceConfigSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);

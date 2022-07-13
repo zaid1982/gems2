@@ -38,7 +38,7 @@
                     <div class="float-left light-blue" style="width: 10px; height: 113px">&nbsp;</div>
                     <h1 class="float-left ml-4 mt-4_5"><i class="fas fa-user light-blue-text"></i></h1>
                     <h1 class="text-right font-weight-bold mt-4 mb-0" id="lblSacTotalParticipant"></h1>
-                    <p class="text-right font-small mb-1">Total Active Participants</p>
+                    <p class="text-right font-small mb-1">Total Active Employees</p>
                 </div>
             </div>
         </div>
@@ -56,9 +56,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0" id="headerSacGroup">
-                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Attendance Group List</h4>
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Attendance Group List</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -70,12 +70,19 @@
                                         <th>#</th>
                                         <th>Group Name</th>
                                         <th>Supervisor</th>
-                                        <th>Day Shift Working Time</th>
-                                        <th>Night Shift Working Time</th>
-                                        <th>Default Holiday</th>
-                                        <th>Weekly Hours</th>
-                                        <th>Shift Mode</th>
-                                        <th>Total Participants</th>
+                                        <th>Category</th>
+                                        <th>Required Hours</th>
+                                        <th>Shift Mode</th> <!--5-->
+                                        <th>Holiday</th>
+                                        <th>Normal Hours</th>
+                                        <th>AM Hours</th>
+                                        <th>PM Hours</th>
+                                        <th>Morning Hours</th>  <!--10-->
+                                        <th>Evening Hours</th>
+                                        <th>Night Hours</th>
+                                        <th>OT Approver</th>
+                                        <th>Remark</th>
+                                        <th>Total Employees</th>  <!--15-->
                                         <th>Status</th>
                                         <th style="width: 40px; min-width: 40px">&nbsp;</th>
                                     </tr>
@@ -92,9 +99,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0" id="headerSacParticipant">
-                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5" id="dtSacParticipantTitle">Participant List</h4>
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;" id="dtSacParticipantTitle">Employee List</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -104,7 +111,7 @@
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
-                                        <th>Participant Name</th>
+                                        <th>Employee's Name</th>
                                         <th>Group Name</th>
                                         <th>GF ID</th>
                                         <th>Designation</th>

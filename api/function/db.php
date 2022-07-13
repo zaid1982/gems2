@@ -334,7 +334,7 @@ class Class_db{
                     throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Select query result empty'), 30);      
                 }
             } 
-            return $result;
+            return $this->fn_general->convertStrObjects($result);
         }
         catch(PDOException $e) {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
@@ -420,7 +420,7 @@ class Class_db{
                     throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Select query result empty'), 30); 
                 }
             } 
-            return $result;
+            return $this->fn_general->convertStrObject($result);
         }
         catch(PDOException $e) {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
@@ -513,7 +513,7 @@ class Class_db{
                 }
                 $result = $result[$colOut];
             }
-            return $result;
+            return strval($result);
         }
         catch(PDOException $e) {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
@@ -560,7 +560,7 @@ class Class_db{
                     if (!array_key_exists($colOut, $rows)) { 
                         throw new Exception($this->get_exception('0012', __FUNCTION__, __LINE__, 'Column in result query not found')); 
                     }
-                    array_push($arrCols, $rows[$colOut]);                                              
+                    array_push($arrCols, strval($rows[$colOut]));
                 }
             }
             return $arrCols;
@@ -813,7 +813,8 @@ class Class_db{
             $config = parse_ini_file('library/config.ini');
             $dbname = $config['dbname'];    
             $dbhost = $config['dbhost'];    
-            $this->DBH = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
+            //$this->DBH = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
+            $this->DBH = new PDO("mysql:host=$dbhost;port=3307;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
             $this->DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
         }
         catch(PDOException $e) {

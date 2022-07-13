@@ -43,120 +43,58 @@
 						</div>
 					</div>
 					<div class="row mt-4_5">
-						<div class="col-md-12 divMtgAdminView">
-							<div class="md-form md-outline mt-0">
-								<input type="text" id="txtMtgGroupName" class="form-control">
-								<label for="txtMtgGroupName" id="lblMtgGroupName">Group Name *</label>
-								<p class="font-small text-danger" id="txtMtgGroupNameErr"></p>
-							</div>
-						</div>
-						<div class="col-md-12 select-outline mb-2 divMtgAdminView" id="optMtgSupervisor_">
-							<select id="optMtgSupervisor" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-							</select>
-							<label for="optMtgSupervisor" id="lblMtgSupervisor">Supervisor *</label>
-							<p class="font-small text-danger" id="optMtgSupervisorErr"></p>
-						</div>
 						<div class="col-lg-6">
 							<div class="row">
+								<div class="col-lg-12 divMtgAdminView">
+									<div class="md-form md-outline mt-3">
+										<input type="text" id="txtMtgGroupName" class="form-control">
+										<label for="txtMtgGroupName" id="lblMtgGroupName">Group Name *</label>
+										<p class="font-small text-danger" id="txtMtgGroupNameErr"></p>
+									</div>
+								</div>
+								<div class="col-lg-12 select-outline mb-2 divMtgAdminView" id="optMtgSupervisor_">
+									<select id="optMtgSupervisor" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+									<label for="optMtgSupervisor" id="lblMtgSupervisor">Supervisor *</label>
+									<p class="font-small text-danger" id="optMtgSupervisorErr"></p>
+								</div>
 								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupCategory_">
-									<select id="optMtgGroupCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="Civil">Civil</option>
-										<option value="Mechanical">Mechanical</option>
-										<option value="Electrical">Electrical</option>
-										<option value="Operation">Operation</option>
-									</select>
+									<select id="optMtgGroupCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
 									<label for="optMtgGroupCategory" id="lblMtgGroupCategory">Category *</label>
 									<p class="font-small text-danger" id="optMtgGroupCategoryErr"></p>
 								</div>
 								<div class="col-lg-12">
 									<div class="md-form md-outline mt-0">
 										<input type="text" id="txtMtgGroupReqWeekHours" class="form-control">
-										<label for="txtMtgGroupReqWeekHours" id="lblMtgGroupReqWeekHours">Default Required Weekly Hours *</label>
+										<label for="txtMtgGroupReqWeekHours" id="lblMtgGroupReqWeekHours">Required Weekly Hours *</label>
 										<p class="font-small text-danger" id="txtMtgGroupReqWeekHoursErr"></p>
 									</div>
 								</div>
+								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupShiftMode_">
+									<select id="optMtgGroupShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="Normal">Normal</option>
+										<option value="2 Shifts">2 Shifts</option>
+										<option value="3 Shifts">3 Shifts</option>
+									</select>
+									<label for="optMtgGroupShiftMode" id="lblMtgGroupShiftMode">Default Shift Mode *</label>
+									<p class="font-small text-danger" id="optMtgGroupShiftModeErr"></p>
+								</div>
 								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupHoliday_">
 									<select id="optMtgGroupHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
+										<option selected disabled value="">Please Select</option>
 										<option value="Saturday & Sunday">Saturday & Sunday</option>
 										<option value="Sunday">Sunday</option>
 									</select>
 									<label for="optMtgGroupHoliday" id="lblMtgGroupHoliday">Default Weekly Holiday *</label>
 									<p class="font-small text-danger" id="optMtgGroupHolidayErr"></p>
 								</div>
-								<div class="col-lg-12 select-outline mb-2" id="optMtgGroupShiftMode_">
-									<select id="optMtgGroupShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="Daily Shift">Daily Shift</option>
-										<option value="Night Shift">Night Shift</option>
-										<option value="Rotate">Rotate</option>
-									</select>
-									<label for="optMtgGroupShiftMode" id="lblMtgGroupShiftMode">Default Shift Mode *</label>
-									<p class="font-small text-danger" id="optMtgGroupShiftModeErr"></p>
-								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupDayShiftStart_">
-									<select id="optMtgGroupDayShiftStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="07:00">7:00 AM</option>
-										<option value="07:30">7:30 AM</option>
-										<option value="08:00">8:00 AM</option>
-										<option value="08:30">8:30 AM</option>
-										<option value="09:00">9:00 AM</option>
-										<option value="09:30">9:30 AM</option>
-										<option value="10:00">10:00 AM</option>
-									</select>
-									<label for="optMtgGroupDayShiftStart" id="lblMtgGroupDayShiftStart">Day Shift Start *</label>
-									<p class="font-small text-danger" id="optMtgGroupDayShiftStartErr"></p>
-								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupDayShiftEnd_">
-									<select id="optMtgGroupDayShiftEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="16:00">4:00 PM</option>
-										<option value="16:30">4:30 PM</option>
-										<option value="17:00">5:00 PM</option>
-										<option value="17:30">5:30 PM</option>
-										<option value="18:00">6:00 PM</option>
-										<option value="18:30">6:30 PM</option>
-										<option value="19:00">7:00 PM</option>
-									</select>
-									<label for="optMtgGroupDayShiftEnd" id="lblMtgGroupDayShiftEnd">Day Shift End *</label>
-									<p class="font-small text-danger" id="optMtgGroupDayShiftEndErr"></p>
-								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightShiftStart_">
-									<select id="optMtgGroupNightShiftStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="18:00">6:00 PM</option>
-										<option value="18:30">6:30 PM</option>
-										<option value="19:00">7:00 PM</option>
-										<option value="19:30">7:30 PM</option>
-										<option value="20:00">8:00 PM</option>
-									</select>
-									<label for="optMtgGroupNightShiftStart" id="lblMtgGroupNightShiftStart">Night Shift Start *</label>
-									<p class="font-small text-danger" id="optMtgGroupNightShiftStartErr"></p>
-								</div>
-								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightShiftEnd_">
-									<select id="optMtgGroupNightShiftEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-										<option selected value="" disabled>Please Select</option>
-										<option value="05:00">5:00 AM</option>
-										<option value="05:30">5:30 AM</option>
-										<option value="06:00">6:00 AM</option>
-										<option value="06:30">6:30 AM</option>
-										<option value="07:00">7:00 AM</option>
-										<option value="07:30">7:30 AM</option>
-										<option value="08:00">8:00 AM</option>
-									</select>
-									<label for="optMtgGroupNightShiftEnd" id="lblMtgGroupNightShiftEnd">Night Shift End *</label>
-									<p class="font-small text-danger" id="optMtgGroupNightShiftEndErr"></p>
-								</div>
-								<div class="col-md-12 select-outline mb-2" id="optMtgOtApprover_">
-									<select id="optMtgOtApprover" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
-									</select>
+								<div class="col-lg-12 select-outline mb-2" id="optMtgOtApprover_">
+									<select id="optMtgOtApprover" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
 									<label for="optMtgOtApprover" id="lblMtgOtApprover">OT Approver *</label>
 									<p class="font-small text-danger" id="optMtgOtApproverErr"></p>
 								</div>
-								<div class="col-md-12">
-									<div class="md-form md-outline mt-0">
+								<div class="col-lg-12">
+									<div class="md-form md-outline mt-0 mb-0">
 										<textarea id="txaMtgGroupRemark" class="md-textarea form-control" rows="4"></textarea>
 										<label for="txaMtgGroupRemark" id="lblMtgGroupRemark" class="text-muted">Remarks</label>
 										<p class="font-small text-danger" id="txaMtgGroupRemarkErr"></p>
@@ -165,21 +103,200 @@
 							</div>
 						</div>
 						<div class="col-lg-6">
-							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
-							<h6 class="mt-2 font-weight-500">Perimeter for Verification :</h6>
-							<div id="mapMtgGroup" class="z-depth-1" style="height: 410px; width: 100%"></div>
-							<h6 class="mt-4 mb-0 font-weight-500">Status :</h6>
-							<div class="md-form mt-0 mb-3 ml-3">
-								<div class="form-check form-check-inline">
-									<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus1" value="1">
-									<label class="form-check-label" for="radMtgGroupStatus1">Active</label>
+							<p class="mb-3">Normal Working Hours :</p>
+							<div class="row">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNormalStart_">
+									<select id="optMtgGroupNormalStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="07:00:00">7:00 AM</option>
+										<option value="07:30:00">7:30 AM</option>
+										<option value="08:00:00">8:00 AM</option>
+										<option value="08:30:00">8:30 AM</option>
+										<option value="09:00:00">9:00 AM</option>
+										<option value="09:30:00">9:30 AM</option>
+										<option value="10:00:00">10:00 AM</option>
+									</select>
+									<label for="optMtgGroupNormalStart" id="lblMtgGroupNormalStart">Work Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupNormalStartErr"></p>
 								</div>
-								<div class="form-check form-check-inline">
-									<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus2" value="2">
-									<label class="form-check-label" for="radMtgGroupStatus2">Disabled</label>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNormalEnd_">
+									<select id="optMtgGroupNormalEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="16:00:00">4:00 PM</option>
+										<option value="16:30:00">4:30 PM</option>
+										<option value="17:00:00">5:00 PM</option>
+										<option value="17:30:00">5:30 PM</option>
+										<option value="18:00:00">6:00 PM</option>
+										<option value="18:30:00">6:30 PM</option>
+										<option value="19:00:00">7:00 PM</option>
+									</select>
+									<label for="optMtgGroupNormalEnd" id="lblMtgGroupNormalEnd">Work End *</label>
+									<p class="font-small text-danger" id="optMtgGroupNormalEndErr"></p>
 								</div>
 							</div>
-							<p class="font-small text-danger mt-0" id="radMtgGroupStatusErr"></p>
+							<p class="mb-3">2-shift Working Hours :</p>
+							<div class="row">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupAmStart_">
+									<select id="optMtgGroupAmStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="07:00:00">7:00 AM</option>
+										<option value="07:30:00">7:30 AM</option>
+										<option value="08:00:00">8:00 AM</option>
+										<option value="08:30:00">8:30 AM</option>
+										<option value="09:00:00">9:00 AM</option>
+										<option value="09:30:00">9:30 AM</option>
+										<option value="10:00:00">10:00 AM</option>
+									</select>
+									<label for="optMtgGroupAmStart" id="lblMtgGroupAmStart">AM Shift Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupAmStartErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupAmEnd_">
+									<select id="optMtgGroupAmEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="16:00:00">4:00 PM</option>
+										<option value="16:30:00">4:30 PM</option>
+										<option value="17:00:00">5:00 PM</option>
+										<option value="17:30:00">5:30 PM</option>
+										<option value="18:00:00">6:00 PM</option>
+										<option value="18:30:00">6:30 PM</option>
+										<option value="19:00:00">7:00 PM</option>
+									</select>
+									<label for="optMtgGroupAmEnd" id="lblMtgGroupAmEnd">AM Shift End *</label>
+									<p class="font-small text-danger" id="optMtgGroupAmEndErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupPmStart_">
+									<select id="optMtgGroupPmStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="16:00:00">4:00 PM</option>
+										<option value="16:30:00">4:30 PM</option>
+										<option value="17:00:00">5:00 PM</option>
+										<option value="17:30:00">5:30 PM</option>
+										<option value="18:00:00">6:00 PM</option>
+										<option value="18:30:00">6:30 PM</option>
+										<option value="19:00:00">7:00 PM</option>
+										<option value="19:30:00">7:30 PM</option>
+										<option value="20:00:00">8:00 PM</option>
+									</select>
+									<label for="optMtgGroupPmStart" id="lblMtgGroupPmStart">PM Shift Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupPmStartErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupPmEnd_">
+									<select id="optMtgGroupPmEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="02:00:00">2:00 AM</option>
+										<option value="02:30:00">2:30 AM</option>
+										<option value="03:00:00">3:00 AM</option>
+										<option value="03:30:00">3:30 AM</option>
+										<option value="04:00:00">4:00 AM</option>
+										<option value="04:30:00">4:30 AM</option>
+										<option value="05:00:00">5:00 AM</option>
+										<option value="05:30:00">5:30 AM</option>
+										<option value="06:00:00">6:00 AM</option>
+										<option value="06:30:00">6:30 AM</option>
+										<option value="07:00:00">7:00 AM</option>
+										<option value="07:30:00">7:30 AM</option>
+										<option value="08:00:00">8:00 AM</option>
+									</select>
+									<label for="optMtgGroupPmEnd" id="lblMtgGroupPmEnd">PM Shift End *</label>
+									<p class="font-small text-danger" id="optMtgGroupPmEndErr"></p>
+								</div>
+							</div>
+							<p class="mb-3">3-shift Working Hours :</p>
+							<div class="row">
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupMorningStart_">
+									<select id="optMtgGroupMorningStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="07:00:00">7:00 AM</option>
+										<option value="07:30:00">7:30 AM</option>
+										<option value="08:00:00">8:00 AM</option>
+										<option value="08:30:00">8:30 AM</option>
+										<option value="09:00:00">9:00 AM</option>
+									</select>
+									<label for="optMtgGroupMorningStart" id="lblMtgGroupMorningStart">Morning Shift Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupMorningStartErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupMorningEnd_">
+									<select id="optMtgGroupMorningEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="15:00:00">3:00 PM</option>
+										<option value="15:30:00">3:30 PM</option>
+										<option value="16:00:00">4:00 PM</option>
+										<option value="16:30:00">4:30 PM</option>
+										<option value="17:00:00">5:00 PM</option>
+									</select>
+									<label for="optMtgGroupMorningEnd" id="lblMtgGroupMorningEnd">Morning Shift End *</label>
+									<p class="font-small text-danger" id="optMtgGroupMorningEndErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupEveningStart_">
+									<select id="optMtgGroupEveningStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="15:00:00">3:00 PM</option>
+										<option value="15:30:00">3:30 PM</option>
+										<option value="16:00:00">4:00 PM</option>
+										<option value="16:30:00">4:30 PM</option>
+										<option value="17:00:00">5:00 PM</option>
+									</select>
+									<label for="optMtgGroupEveningStart" id="lblMtgGroupEveningStart">Evening Shift Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupEveningStartErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupEveningEnd_">
+									<select id="optMtgGroupEveningEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="23:00:00">11:00 PM</option>
+										<option value="23:30:00">11:30 PM</option>
+										<option value="00:00:00">12:00 AM</option>
+										<option value="00:30:00">12:30 AM</option>
+										<option value="01:00:00">1:00 AM</option>
+									</select>
+									<label for="optMtgGroupEveningEnd" id="lblMtgGroupEveningEnd">Evening Shift End *</label>
+									<p class="font-small text-danger" id="optMtgGroupEveningEndErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightStart_">
+									<select id="optMtgGroupNightStart" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="23:00:00">11:00 PM</option>
+										<option value="23:30:00">11:30 PM</option>
+										<option value="00:00:00">12:00 AM</option>
+										<option value="00:30:00">12:30 AM</option>
+										<option value="01:00:00">1:00 AM</option>
+									</select>
+									<label for="optMtgGroupNightStart" id="lblMtgGroupNightStart">Night Shift Start *</label>
+									<p class="font-small text-danger" id="optMtgGroupNightStartErr"></p>
+								</div>
+								<div class="col-lg-6 select-outline mb-2" id="optMtgGroupNightEnd_">
+									<select id="optMtgGroupNightEnd" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+										<option selected disabled value="">Please Select</option>
+										<option value="07:00:00">7:00 AM</option>
+										<option value="07:30:00">7:30 AM</option>
+										<option value="08:00:00">8:00 AM</option>
+										<option value="08:30:00">8:30 AM</option>
+										<option value="09:00:00">9:00 AM</option>
+									</select>
+									<label for="optMtgGroupNightEnd" id="lblMtgGroupNightEnd">Night Shift End *</label>
+									<p class="font-small text-danger" id="optMtgGroupNightEndErr"></p>
+								</div>
+							</div>
+							<p class="mb-0">Status :</p>
+							<div class="row">
+								<div class="col-lg-12 mb-3">
+									<div class="md-form mt-0 mb-3 ml-1">
+										<div class="form-check form-check-inline">
+											<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus1" value="1">
+											<label class="form-check-label" for="radMtgGroupStatus1">Active</label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input type="radio" class="form-check-input" name="radMtgGroupStatus" id="radMtgGroupStatus2" value="2">
+											<label class="form-check-label" for="radMtgGroupStatus2">Disabled</label>
+										</div>
+									</div>
+									<p class="font-small text-danger mt-0" id="radMtgGroupStatusErr"></p>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<button id="btnMtgMapRedraw" class="btn btn-sm btn-deep-orange waves-effect float-right mr-0" type="button"><i class="fas fa-undo-alt"></i> Redraw</button>
+							<h6 class="mt-2 font-weight-500">Perimeter for Verification :</h6>
+							<div id="mapMtgGroup" class="z-depth-1" style="height: 450px; width: 100%"></div>
 						</div>
                     </div>
                 </form>

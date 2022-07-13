@@ -42,6 +42,20 @@ try {
         $formData['result'] = $result;
         $formData['success'] = true;
     }
+    else if ('POST' === $requestMethod) {
+        $params = $_POST;
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+
+        $fnAttGroup->insert($params['data'], $params['maps']);
+        $fnAttGroup->updateVersion(27);
+        $fnAttGroup->saveAudit(182, $fnAttGroup->attGroupName);
+        $formData['errmsg'] = str_replace('__', $fnAttGroup->attGroupName, Constant::$attGroup['add']);
+
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
     else if ('PUT' === $requestMethod) {
         $putData = file_get_contents("php://input");
         $params = array();
@@ -68,6 +82,12 @@ try {
             $fnAttGroup->updateVersion(6);
             $fnAttGroup->saveAudit(181, $fnAttGroup->siteName);
             $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroup['siteDisabled']);
+        }
+        else {
+            $fnAttGroup->update(intval($urlArr[1]), $params['data'], $params['maps']);
+            $fnAttGroup->updateVersion(27);
+            $fnAttGroup->saveAudit(190, $fnAttGroup->attGroupName);
+            $formData['errmsg'] = str_replace('__', $fnAttGroup->attGroupName, Constant::$attGroup['update']);
         }
 
         DbMysql::commit();

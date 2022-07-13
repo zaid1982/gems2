@@ -41,20 +41,24 @@ const mzExportOpt = {
     columns: ':visible',
     format: {
         body: function ( data, row, column ) {
-            if (row === 0 && column === 0) {
-                mzCnt = 1;
+            if (column === 0) {
+                return mzCnt++;
+            } else if (data.length > 3 && data.substr(0, 3) === '<a>') {
+                return '';
             }
-            return column === 0 ? mzCnt++ : data;
+            return data;
         }
     }
 };
 const mzExportExcelOpt = {
     format: {
         body: function ( data, row, column ) {
-            if (row === 0 && column === 0) {
-                mzCnt = 1;
+            if (column === 0) {
+                return mzCnt++;
+            } else if (data.length > 3 && data.substr(0, 3) === '<a>') {
+                return '';
             }
-            return column === 0 ? mzCnt++ : data;
+            return data;
         }
     }
 };

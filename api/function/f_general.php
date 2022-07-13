@@ -757,7 +757,7 @@ class Class_general {
                 }
                 $newData = array();
                 foreach ($dataInput as $key=>$value) {
-                    $newData[$newIndexs[$key]] = is_null($value) ? '' : $value;
+                    $newData[$newIndexs[$key]] = is_null($value) ? '' : strval($value);
                 }
                 array_push($dataOutputs, $newData);
             }
@@ -786,10 +786,55 @@ class Class_general {
                     }
                 }
                 $newIndex = implode('', $keyTemps);
-                $dataOutput[$newIndex] = is_null($value) ? '' : $value;
+                $dataOutput[$newIndex] = is_null($value) ? '' : strval($value);
             }
 
             return $dataOutput;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $dataInput
+     * @return array
+     * @throws Exception
+     */
+    public function convertStrObject ($dataInput) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $dataOutput = array();
+            foreach ($dataInput as $key=>$value) {
+                $dataOutput[$key] = is_null($value) ? '' : strval($value);
+            }
+
+            return $dataOutput;
+        } catch(Exception $ex) {
+            $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $dataInputs
+     * @return array
+     * @throws Exception
+     */
+    public function convertStrObjects ($dataInputs) {
+        try {
+            //$this->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $dataOutputs = array();
+            foreach ($dataInputs as $index=>$dataInput) {
+                $newData = array();
+                foreach ($dataInput as $key=>$value) {
+                    $newData[$key] = is_null($value) ? '' : strval($value);
+                }
+                $dataOutputs[$index] = $newData;
+            }
+            return $dataOutputs;
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

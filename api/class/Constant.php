@@ -2,15 +2,17 @@
 
 class Constant {
     public static $dbUserName = 'root';
-    public static $dbUserPassword = 'Globalfm@19';
+    //public static $dbUserPassword = 'Globalfm@19';
+    public static $dbUserPassword = 'password';
     public static $dbName = 'gems';
-    public static $dbHost = '10.101.11.71';
+    //public static $dbHost = '10.101.11.71';
+    public static $dbHost = 'localhost';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
     public static $folderDebug = 'C:\Users\User\logs\gems\\';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//localhost:8081/gems2/api/';
+    public static $url = '//localhost:8082/gems2/api/';
 
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
@@ -24,10 +26,13 @@ class Constant {
     );
 
     public static $attGroup = array(
+        'add' => 'Attendance Group __ successfully registered!',
+        'update' => 'Attendance Group __ successfully updated!',
         'siteEnabled' => 'Site __ successfully enabled!',
         'siteDisabled' => 'Site __ successfully disabled!',
         'errSiteAlreadyEnabled' => 'Site __ already enabled! Please refresh the page.',
-        'errSiteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.'
+        'errSiteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.',
+        'errAlreadyExist' => 'Attendance Group __ already exist under similar site!'
     );
 
     public static $fcaTask = array(

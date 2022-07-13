@@ -256,12 +256,14 @@ function ModalAttendanceParticipant () {
                 $('#btnMtpSubmit, #btnMtpSave').hide();
 
                 const userProfile = mzAjaxRequest2('user_profile/by_user_id/'+userId, 'GET');
-                if (userProfile['siteId'] !== siteId) {
+                if (parseInt(userProfile['siteId']) !== siteId) {
                     classFrom.genTableParticipant();
                     throw new Error('This user site has been changed by other user');
                 }
 
-                refAttGroup = mzGetLocalArray('gems_att_group', mzGetDataVersion(), 'attGroupId', [], 'att_group', true);
+                //refAttGroup = mzGetLocalArray('gems_attGroup', mzGetDataVersion(), 'attGroupId', [], 'att_group', true);
+                refAttGroup = mzGetLocalArrayV2('gems_attGroup', mzGetDataVersion(), 'att_group/ref');
+                console.log(refAttGroup);
                 let isGroupExist = false;
                 $.each(refAttGroup, function (n, u) {
                     if (typeof u !== 'undefined' && u['siteId'] === siteId) {
@@ -274,7 +276,8 @@ function ModalAttendanceParticipant () {
                 }
 
                 formValidate.clearValidation();
-                mzOptionStop('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupId', 'attGroupName', {siteId: siteId}, 'required');
+                //mzOptionStop('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupId', 'attGroupName', {siteId: siteId}, 'required');
+                mzOptionStopV2('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupName', {siteId: siteId}, 'required');
                 mzSetFieldValue('MtpContactNo', userProfile['userContactNo'], 'text');
                 mzSetFieldValue('MtpEmail', userProfile['userEmail'], 'text');
                 mzSetFieldValue('MtpDesignation', userProfile['designationId'], 'select');
