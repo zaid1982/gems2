@@ -5,7 +5,7 @@ require_once 'class/General.php';
 require_once 'class/DbMysql.php';
 require_once 'class/FcaTask.php';
 require_once 'class/FcaTaskSection.php';
-require_once 'class/Task.php';
+require_once 'class/WflTask.php';
 require_once 'class/Email.php';
 require_once 'class/Noti.php';
 
@@ -26,7 +26,7 @@ try {
     $fnFcaTask->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
     $urlArr = $fnFcaTask->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
-    $fnTask = new Task($fnFcaTask->userId, Constant::$isLogged);
+    $fnTask = new WflTask($fnFcaTask->userId, Constant::$isLogged);
     $fnFcaTaskSection = new FcaTaskSection($fnFcaTask->userId, Constant::$isLogged);
     $fnEmail = new Email($fnFcaTask->userId, Constant::$isLogged);
     $fnNoti = new Noti($fnFcaTask->userId, Constant::$isLogged);

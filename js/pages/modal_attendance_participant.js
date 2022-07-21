@@ -10,12 +10,15 @@ function ModalAttendanceParticipant () {
     let siteId;
     let attGroupId;
     let refAttGroup;
+    let refAttType;
     let refDesignation;
+    let refAssetGroup;
     let isEditor;
 
     this.init = function () {
         isEditor = mzIsRoleExist('1,10');
-        mzOption('optMtpDesignation', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
+        mzOptionV2('optMtpDesignation', refDesignation, 'Please Select', 'designationDesc', {designationStatus: 1}, 'required');
+        mzOptionV2('optMtpCategory', refAssetGroup, 'Please Select', 'assetGroupName', {assetGroupStatus: 1}, 'required');
 
         vData = [
             {
@@ -153,14 +156,18 @@ function ModalAttendanceParticipant () {
                 try {
                     $('.divMtpGroupSelected').show();
                     if (attGroupId !== newGroup) {
-                        attGroupId = newGroup;
-                        mzSetFieldValue('MtpCategory', refAttGroup[attGroupId]['attGroupCategory'], 'select');
+                        attGroupId = parseInt(newGroup);
+                        mzOptionStopV2('optMtpShift', refAttType, 'Please Select', 'attTypeName', {attTypeMode: refAttGroup[attGroupId]['attGroupShiftMode'], attTypeStatus: 1}, 'required', false);
+                        mzSetFieldValue('MtpCategory', refAttGroup[attGroupId]['assetGroupId'], 'select');
                         mzSetFieldValue('MtpReqWeekHours', refAttGroup[attGroupId]['attGroupReqWeekHours'], 'text');
                         mzSetFieldValue('MtpShiftMode', refAttGroup[attGroupId]['attGroupShiftMode'], 'select');
                         mzSetFieldValue('MtpHoliday', refAttGroup[attGroupId]['attGroupHoliday'], 'select');
-                        mzSetFieldValue('MtpShift', '', 'select');
-                        $('#optMtpShiftErr').html('');
-                        if (refAttGroup[attGroupId]['attGroupStatus'] === '2') {
+                        formValidate.clearInvalid('optMtpCategory');
+                        formValidate.clearInvalid('txtMtpReqWeekHours');
+                        formValidate.clearInvalid('optMtpShiftMode');
+                        formValidate.clearInvalid('optMtpHoliday');
+                        formValidate.clearInvalid('radMtpStatus');
+                        if (refAttGroup[attGroupId]['attGroupStatus'] === 2) {
                             toastr['warning']('The selected group '+refAttGroup[attGroupId]['attGroupName']+' currently is disable. However you can still register this staff under this group.', _ALERT_TITLE_WARNING);
                         }
                     }
@@ -168,7 +175,20 @@ function ModalAttendanceParticipant () {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 200);
+            }, 100);
+        });
+
+        $('#optMtpShiftMode').on('change', function () {
+            const shiftMode = $(this).val();
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzOptionStopV2('optMtpShift', refAttType, 'Please Select', 'attTypeName', {attTypeMode: shiftMode, attTypeStatus: 1}, 'required', false);
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 100);
         });
 
         $('#btnMtpSubmit').on('click', function () {
@@ -230,10 +250,10 @@ function ModalAttendanceParticipant () {
                 attParticipantYearService: $('#txtMtpYearStartService').val(),
                 attParticipantCidbCardExpiry: mzConvertDate($('#txtMtpCidbExpiry').val()),
                 attParticipantCompetency: $('#txtMtpCompetency').val(),
-                attParticipantCategory: $('#optMtpCategory').val(),
+                assetGroupId: $('#optMtpCategory').val(),
                 attParticipantReqWeekHours: $('#txtMtpReqWeekHours').val(),
                 attParticipantShiftMode: $('#optMtpShiftMode').val(),
-                attParticipantShift: $('#optMtpShift').val(),
+                attTypeId: $('#optMtpShift').val(),
                 attParticipantHoliday: $('#optMtpHoliday').val(),
                 attParticipantStatus: $("input[name='radMtpStatus']:checked").val()
             };
@@ -260,10 +280,6 @@ function ModalAttendanceParticipant () {
                     classFrom.genTableParticipant();
                     throw new Error('This user site has been changed by other user');
                 }
-
-                //refAttGroup = mzGetLocalArray('gems_attGroup', mzGetDataVersion(), 'attGroupId', [], 'att_group', true);
-                refAttGroup = mzGetLocalArrayV2('gems_attGroup', mzGetDataVersion(), 'att_group/ref');
-                console.log(refAttGroup);
                 let isGroupExist = false;
                 $.each(refAttGroup, function (n, u) {
                     if (typeof u !== 'undefined' && u['siteId'] === siteId) {
@@ -276,31 +292,31 @@ function ModalAttendanceParticipant () {
                 }
 
                 formValidate.clearValidation();
-                //mzOptionStop('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupId', 'attGroupName', {siteId: siteId}, 'required');
                 mzOptionStopV2('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupName', {siteId: siteId}, 'required');
                 mzSetFieldValue('MtpContactNo', userProfile['userContactNo'], 'text');
                 mzSetFieldValue('MtpEmail', userProfile['userEmail'], 'text');
                 mzSetFieldValue('MtpDesignation', userProfile['designationId'], 'select');
-                if (attParticipantId !== '') {
+                if (attParticipantId !== null) {
                     const attParticipant = mzAjaxRequest2('att_participant/'+attParticipantId, 'GET');
                     attGroupId = attParticipant['attGroupId'];
+                    mzOptionStopV2('optMtpShift', refAttType, 'Please Select', 'attTypeName', {attTypeMode: attParticipant['attParticipantShiftMode'], attTypeStatus: 1}, 'required', false);
                     mzSetFieldValue('MtpGfId', attParticipant['attParticipantGfId'], 'text');
                     mzSetFieldValue('MtpYearStartService', attParticipant['attParticipantYearService'], 'text');
                     mzSetFieldValue('MtpCidbExpiry', attParticipant['attParticipantCidbCardExpiry'], 'date');
                     mzSetFieldValue('MtpCompetency', attParticipant['attParticipantCompetency'], 'text');
                     mzSetFieldValue('MtpGroup', attParticipant['attGroupId'], 'select');
-                    mzSetFieldValue('MtpCategory', attParticipant['attParticipantCategory'], 'select');
+                    mzSetFieldValue('MtpCategory', attParticipant['assetGroupId'], 'select');
                     mzSetFieldValue('MtpReqWeekHours', attParticipant['attParticipantReqWeekHours'], 'text');
                     mzSetFieldValue('MtpShiftMode', attParticipant['attParticipantShiftMode'], 'select');
-                    mzSetFieldValue('MtpShift', attParticipant['attParticipantShift'], 'select');
+                    mzSetFieldValue('MtpShift', attParticipant['attTypeId'], 'select');
                     mzSetFieldValue('MtpHoliday', attParticipant['attParticipantHoliday'], 'select');
                     mzSetFieldValue('MtpStatus', attParticipant['attParticipantStatus'], 'radio');
-                    $('#lblMtpModalTitle').html('<i class="fas fa-user-edit text-white mr-2"></i> Edit Attendance Participant');
+                    $('#lblMtpModalTitle').html('<i class="fas fa-user-edit text-white mr-2"></i> Edit Attendance Employee');
                     $('#btnMtpSave').show();
                     $('.divMtpGroupSelected').show();
                 } else {
                     attGroupId = '';
-                    $('#lblMtpModalTitle').html('<i class="fas fa-user-plus text-white mr-2"></i> Add Attendance Participant');
+                    $('#lblMtpModalTitle').html('<i class="fas fa-user-plus text-white mr-2"></i> Add Attendance Employee');
                     $('#btnMtpSubmit').show();
                     $('.divMtpGroupSelected').hide();
                 }
@@ -330,6 +346,18 @@ function ModalAttendanceParticipant () {
     };
 
     this.setRefDesignation = function (_refDesignation) {
-        refDesignation = _refDesignation
+        refDesignation = _refDesignation;
+    };
+
+    this.setRefAttGroup = function (_refAttGroup) {
+        refAttGroup = _refAttGroup;
+    };
+
+    this.setRefAttType = function (_refAttType) {
+        refAttType = _refAttType;
+    };
+
+    this.setRefAssetGroup = function (_refAssetGroup) {
+        refAssetGroup = _refAssetGroup;
     };
 }

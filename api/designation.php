@@ -56,6 +56,7 @@ try {
 
         $result = $fn_reference->add_designation($params);
         $fn_general->updateVersion(4);
+        $fn_general->updateVersion(34);
         $fn_general->save_audit('12', $jwt_data->userId, 'Designation = ' . $designationDesc);
 
         Class_db::getInstance()->db_commit();
@@ -74,16 +75,19 @@ try {
         if ($action === 'update') {
             $fn_reference->update_designation($designationId, $put_vars);
             $fn_general->updateVersion(4);
+            $fn_general->updateVersion(34);
             $fn_general->save_audit('13', $jwt_data->userId, 'Designation = ' . $put_vars['designationDesc']);
             $form_data['errmsg'] = $constant::SUC_DESIGNATION_EDIT;
         } else if ($action === 'deactivate') {
             $designationDesc = $fn_reference->deactivate_designation($designationId);
             $fn_general->updateVersion(4);
+            $fn_general->updateVersion(34);
             $fn_general->save_audit('14', $jwt_data->userId, 'Designation = ' . $designationDesc);
             $form_data['errmsg'] = $constant::SUC_DESIGNATION_DEACTIVATE;
         } else if ($action === 'activate') {
             $designationDesc = $fn_reference->activate_designation($designationId);
             $fn_general->updateVersion(4);
+            $fn_general->updateVersion(34);
             $fn_general->save_audit('15', $jwt_data->userId, 'Designation = ' . $designationDesc);
             $form_data['errmsg'] = $constant::SUC_DESIGNATION_ACTIVATE;
         } else {
@@ -100,6 +104,7 @@ try {
 
         $designationName = $fn_reference->delete_designation($designationId);
         $fn_general->updateVersion(4);
+        $fn_general->updateVersion(34);
         $fn_general->save_audit('16', $jwt_data->userId, 'Designation = ' . $designationName);
 
         Class_db::getInstance()->db_commit();

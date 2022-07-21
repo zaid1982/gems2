@@ -221,7 +221,7 @@ function SectionUserGame () {
         let category = '&nbsp;';
         let groupName = '&nbsp;';
         let supervisor = '&nbsp;';
-        const attParticipant = mzAjaxRequest2('att_participant/'+userId, 'GET');
+        /*const attParticipant = mzAjaxRequest2('att_participant/'+userId, 'GET');
         if (attParticipant) {
             sugGfId = attParticipant['attParticipantGfId'] !== '' ? attParticipant['attParticipantGfId'] : sugGfId;
             yearOfService = attParticipant['attParticipantYearService'] !== '' ? attParticipant['attParticipantYearService'] : yearOfService;
@@ -233,7 +233,7 @@ function SectionUserGame () {
                 groupName = attGroup['attGroupName'];
                 supervisor = attGroup['attGroupSupervisor'] !== '' ? refUser[attGroup['attGroupSupervisor']]['userFullName'] : supervisor;
             }
-        }
+        }*/
         $('#pSugGfId').html(sugGfId);
         $('#pSugYearService').html(yearOfService);
         $('#pSugGreenCardExpiry').html(greenCardExpiry);

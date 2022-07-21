@@ -25,16 +25,6 @@ class Constant {
         'errInvalidRole' => 'You do not have __ role to perform this task!'
     );
 
-    public static $attGroup = array(
-        'add' => 'Attendance Group __ successfully registered!',
-        'update' => 'Attendance Group __ successfully updated!',
-        'siteEnabled' => 'Site __ successfully enabled!',
-        'siteDisabled' => 'Site __ successfully disabled!',
-        'errSiteAlreadyEnabled' => 'Site __ already enabled! Please refresh the page.',
-        'errSiteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.',
-        'errAlreadyExist' => 'Attendance Group __ already exist under similar site!'
-    );
-
     public static $fcaTask = array(
         'submitNew' => 'New FCA Audit successfully submitted for recommendation process!',
         'submitRecommend' => 'FCA Audit Recommendation successfully submitted for validation process!',
@@ -72,5 +62,21 @@ class Constant {
         'add' => 'FCA Report __ successfully generated. Please check the PDF from the FCA PDF Report List',
         'delete' => 'FCA Report __ successfully deleted!',
         'errEmpty' => 'The requested report is empty!'
+    );
+
+    public static $attGroup = array(
+        'add' => 'Attendance Group __ successfully registered!',
+        'update' => 'Attendance Group __ successfully updated!',
+        'siteEnabled' => 'Site __ successfully enabled!',
+        'siteDisabled' => 'Site __ successfully disabled!',
+        'errSiteAlreadyEnabled' => 'Site __ already enabled! Please refresh the page.',
+        'errSiteAlreadyDisabled' => 'Site __ already disabled! Please refresh the page.',
+        'errAlreadyExist' => 'Attendance Group __ already exist under similar site!'
+    );
+
+    public static $attParticipant = array(
+        'add' => 'Employee _1 successfully assigned to _2 group!',
+        'update' => 'Employee __ attendance configuration successfully updated!',
+        'errAlreadyAssigned' => 'Employee _1 already assigned to _2 group!'
     );
 }

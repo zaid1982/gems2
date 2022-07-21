@@ -1,0 +1,170 @@
+<div class="modal fade right" id="modal_attendance_daily" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-full-height modal-right modal-info modal-lg" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="text-white mt-2 ml-2" id="lblMtdModalTitle"><i class="fas fa-business-time text-white mr-2"></i> Daily Attendance Record</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0">
+                <form id="formMtd" class="mt-2" autocomplete="off">
+                    <div class="row">
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fas fa-user prefix text-info"></i>
+                            <label class="active pl-3">Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdName"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 my-2">
+                            <i class="fas fa-user-tie prefix text-info"></i>
+                            <label class="active pl-3">Designation</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdDesignation"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-users prefix text-info"></i>
+                            <label class="active pl-3">Attendance Group</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdGroup"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-tag prefix text-info"></i>
+                            <label class="active pl-3">Category</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCategory"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-cloud-sun prefix text-info"></i>
+                            <label class="active pl-3">Shift Mode</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdShiftMode"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-cloud-moon prefix text-info"></i>
+                            <label class="active pl-3">Current Shift</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdShiftCurrent"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                    <p class="font-weight-500 mt-2">Attendance Summary :</p>
+                    <div class="row">
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-calendar-alt prefix text-info"></i>
+                            <label class="active pl-3">Date</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdDate"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-calendar-day prefix text-info"></i>
+                            <label class="active pl-3">Day</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdDay"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-business-time prefix text-info"></i>
+                            <label class="active pl-3">Required Working Time</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdWorkingTimeRequired"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 col-xl-3 my-2">
+                            <i class="fas fa-clock prefix text-info"></i>
+                            <label class="active pl-3">Total Working Time</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pMtdWorkingTimeTotal"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-lg-6">
+                            <p class="font-weight-500">Check In Information :</p>
+                            <div class="row">
+                                <div class="md-form col-xl-6 my-2">
+                                    <i class="fas fa-clock prefix text-info"></i>
+                                    <label class="active pl-3">Shift Start</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckInStart"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-6 my-2">
+                                    <i class="far fa-clock prefix text-info"></i>
+                                    <label class="active pl-3">Check In Time</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckInTime"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-12 my-2">
+                                    <i class="far fa-check-circle prefix text-info"></i>
+                                    <label class="active pl-3">Lateness Difference</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckInLateness"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <p class="font-weight-500">Check Out Information :</p>
+                            <div class="row">
+                                <div class="md-form col-xl-6 my-2">
+                                    <i class="fas fa-clock prefix text-info"></i>
+                                    <label class="active pl-3">Shift End</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckOutStart"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-6 my-2">
+                                    <i class="far fa-clock prefix text-info"></i>
+                                    <label class="active pl-3">Check Out Time</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckOutTime"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-12 my-2">
+                                    <i class="fas fa-check-circle prefix text-info"></i>
+                                    <label class="active pl-3">Earliness Difference</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdCheckOutEarliness"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-lg-6">
+                            <div id="mapMtdLocation" class="z-depth-1" style="height: 310px; width: 100%"></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <p class="font-weight-500">Location Validation :</p>
+                            <div class="row">
+                                <div class="md-form col-xl-12 my-2">
+                                    <i class="fas fa-map-marker-alt prefix text-info"></i>
+                                    <label class="active pl-3">Check In Validity</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdValidityIn"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-12 my-2">
+                                    <i class="fas fa-map-marker prefix text-info"></i>
+                                    <label class="active pl-3">Check Out Validity</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdValidityOut"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="md-form col-xl-12 my-2">
+                                    <i class="fas fa-calendar-check prefix text-info"></i>
+                                    <label class="active pl-3">Attendance Status</label>
+                                    <p class="pt-2-5 mb-0 pl-4_5" id="pMtdStatus"></p>
+                                    <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                </div>
+                                <div class="col-9 select-outline mt-2 mb-2" id="optMtdAttType_">
+                                    <select id="optMtdAttType" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                                    <label for="optMtdAttType" id="lblMtdAttType">Change Attendance Status *</label>
+                                    <p class="font-small text-danger" id="optMtdAttTypeErr"></p>
+                                </div>
+                                <div class="col-3">
+                                    <button id="btnMtdSubmit" class="btn btn-info btn-sm waves-effect mt-2">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+            

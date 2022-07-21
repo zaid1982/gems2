@@ -3,14 +3,14 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/Status.php';
+require_once 'class/RefStatus.php';
 
 $apiName = 'status';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fnStatus = new Status();
+$fnStatus = new RefStatus();
 
 try {
     DbMysql::connect();

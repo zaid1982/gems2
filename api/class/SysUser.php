@@ -1,6 +1,6 @@
 <?php
 
-class User extends General {
+class SysUser extends General {
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

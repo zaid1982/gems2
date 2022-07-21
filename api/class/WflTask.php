@@ -1,7 +1,7 @@
 
 <?php
 
-class Task extends General {
+class WflTask extends General {
 
     public $taskId = 0;
     public $transactionId = 0;

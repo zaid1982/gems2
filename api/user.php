@@ -3,14 +3,14 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/User.php';
+require_once 'class/SysUser.php';
 
 $apiName = 'user';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fnUser = new User();
+$fnUser = new SysUser();
 
 try {
     DbMysql::connect();

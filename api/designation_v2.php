@@ -3,30 +3,30 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/CliSite.php';
+require_once 'class/RefDesignation.php';
 
-$apiName = 'site';
+$apiName = 'designation';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fnSite = new CliSite();
+$fnDesignation = new RefDesignation();
 
 try {
     DbMysql::connect();
-    $fnSite->checkJwt(apache_request_headers());
-    $fnSite->isLogged = Constant::$isLogged;
+    $fnDesignation->checkJwt(apache_request_headers());
+    $fnDesignation->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnSite->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnSite->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnDesignation->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnDesignation->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            //TODO - get all site
+            //TODO - get all designation
         } else if ($urlArr[1] === 'ref') {
-            $result = $fnSite->getRef();
+            $result = $fnDesignation->getRef();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -43,10 +43,10 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnSite->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnDesignation->logError('API', $apiName, __LINE__, $e->getMessage());
     }
     $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnSite->logError('API', $apiName, __LINE__, $e->getMessage());
+    $fnDesignation->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

@@ -17,7 +17,7 @@
     <!-- Google Maps -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css?3" rel="stylesheet">
+    <link href="css/style.css?7" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         .fc .fc-toolbar-title {
@@ -31,10 +31,11 @@
             min-width: 32px;
         }
         .table-grid-cut-text {
-             text-overflow: ellipsis;
-             overflow: hidden;
-             width: 135px;
-             white-space: nowrap;
+            padding-left: 3px !important;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 135px;
+            white-space: nowrap;
         }
         .table-grid-small-text th {
             font-size: 12px;
@@ -44,6 +45,15 @@
         .table-grid-small-text td {
             font-size: 12px;
             text-align: center;
+        }
+        .table-grid-small-text > tbody > tr > td {
+            padding-left: 1px !important;
+            padding-right: 1px !important;
+        }
+        .table-grid-small-text > thead > tr > th {
+            padding-top: 3px !important;
+            padding-left: 1px !important;
+            padding-right: 1px !important;
         }
     </style>
     <!-- JQuery -->
@@ -101,12 +111,13 @@
             </div>
         </section>
         <div class="includeHtml" id="h-section_attendance_config_site"></div>
-        <div class="includeHtml" id="h-section_attendance_group"></div>
+        <div class="includeHtml" id="h-section_attendance_planner"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
     <div class="includeHtml" id="h-modal_attendance_group"></div>
     <div class="includeHtml" id="h-modal_attendance_participant"></div>
+    <div class="includeHtml" id="h-modal_attendance_daily"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -135,6 +146,8 @@
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 <!-- Google Maps -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCe-2LZ0JETWPTXcBkdnz8LuMltiTIhbyE&libraries=drawing&v=weekly&channel=2" async></script>
 <script type="text/javascript" src="js/google-map.js?5"></script>
@@ -148,8 +161,9 @@
     let confirmSubmitClass_;
     let modalAttendanceGroupClass_;
     let modalAttendanceParticipantClass_;
+    let modalAttendanceDailyClass_;
     let sectionAttendanceConfigSiteClass_;
-    let sectionAttendanceGroupClass_;
+    let sectionAttendancePlannerClass_;
     let attendanceConfigClass_;
     let googleMapsDrawingPolygonClass_;
 
@@ -164,16 +178,19 @@
                 confirmSubmitClass_ = new ModalConfirmSubmit();
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
+                modalAttendanceDailyClass_ = new ModalAttendanceDaily();
                 sectionAttendanceConfigSiteClass_ = new SectionAttendanceConfigSite();
-                sectionAttendanceGroupClass_ = new SectionAttendanceGroup();
+                sectionAttendancePlannerClass_ = new SectionAttendancePlanner();
                 attendanceConfigClass_ = new MainAttendanceConfig();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refClient_ = mzGetLocalArrayV2('gems_client2', versionLocal_, 'client/ref');
                 const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
-                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
-                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group_v2/ref');
+                const refDesignation_ = mzGetLocalArrayV2('gems_designation2', versionLocal_, 'designation/ref');
+                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
+                const refAttGroup_ = mzGetLocalArrayV2('gems_attGroup', versionLocal_, 'att_group/ref');
+                const refAttType_ = mzGetLocalArrayV2('gems_attType', versionLocal_, 'att_type/ref');
 
                 googleMapsDrawingPolygonClass_.initMapDrawing('mapMtgGroup');
 
@@ -184,19 +201,35 @@
                 modalAttendanceGroupClass_.init();
 
                 modalAttendanceParticipantClass_.setRefDesignation(refDesignation_);
+                modalAttendanceParticipantClass_.setRefAttGroup(refAttGroup_);
+                modalAttendanceParticipantClass_.setRefAttType(refAttType_);
+                modalAttendanceParticipantClass_.setRefAssetGroup(refAssetGroup_);
                 modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceConfigSiteClass_)
                 modalAttendanceParticipantClass_.init();
 
-                sectionAttendanceGroupClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
-                sectionAttendanceGroupClass_.init();
+                modalAttendanceDailyClass_.setRefStatus(refStatus_);
+                modalAttendanceDailyClass_.setRefUser(refUser_);
+                modalAttendanceDailyClass_.setRefDesignation(refDesignation_);
+                modalAttendanceDailyClass_.setRefAssetGroup(refAssetGroup_);
+                modalAttendanceDailyClass_.setRefAttGroup(refAttGroup_);
+                modalAttendanceDailyClass_.setRefAttType(refAttType_);
+                modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
+                modalAttendanceDailyClass_.init();
+
+                sectionAttendancePlannerClass_.setRefUser(refUser_);
+                sectionAttendancePlannerClass_.setRefAttType(refAttType_);
+                sectionAttendancePlannerClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
+                sectionAttendancePlannerClass_.setClassFrom(sectionAttendanceConfigSiteClass_);
+                sectionAttendancePlannerClass_.init();
 
                 sectionAttendanceConfigSiteClass_.setRefStatus(refStatus_);
                 sectionAttendanceConfigSiteClass_.setRefUser(refUser_);
                 sectionAttendanceConfigSiteClass_.setRefAssetGroup(refAssetGroup_);
+                sectionAttendanceConfigSiteClass_.setRefAttType(refAttType_);
                 sectionAttendanceConfigSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceConfigSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
-                sectionAttendanceConfigSiteClass_.setSectionAttendanceGroupClass(sectionAttendanceGroupClass_);
+                sectionAttendanceConfigSiteClass_.setSectionAttendancePlannerClass(sectionAttendancePlannerClass_);
                 sectionAttendanceConfigSiteClass_.setClassFrom(attendanceConfigClass_);
                 sectionAttendanceConfigSiteClass_.init();
 
@@ -216,7 +249,8 @@
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_planner.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_config_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

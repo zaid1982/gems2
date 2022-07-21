@@ -71,6 +71,7 @@ try {
 
         $result = $fn_client->add_client($params);
         $fn_general->updateVersion(5);
+        $fn_general->updateVersion(35);
         $fn_general->save_audit('7', $jwt_data->userId, 'Client = ' . $clientName);
 
         Class_db::getInstance()->db_commit();
@@ -90,6 +91,7 @@ try {
         if ($action === 'update') {
             $fn_client->update_client($clientId, $put_vars);
             $fn_general->updateVersion(5);
+            $fn_general->updateVersion(35);
             $fn_general->save_audit('8', $jwt_data->userId, 'Client = ' . $put_vars['clientName']);
             $form_data['errmsg'] = $constant::SUC_CLIENT_EDIT;
         }
@@ -101,12 +103,14 @@ try {
         else if ($action === 'deactivate') {
             $clientName = $fn_client->deactivate_client($clientId);
             $fn_general->updateVersion(5);
+            $fn_general->updateVersion(35);
             $fn_general->save_audit('9', $jwt_data->userId, 'Client = ' . $clientName);
             $form_data['errmsg'] = $constant::SUC_CLIENT_DEACTIVATE;
         }
         else if ($action === 'activate') {
             $clientName = $fn_client->activate_client($clientId);
             $fn_general->updateVersion(5);
+            $fn_general->updateVersion(35);
             $fn_general->save_audit('10', $jwt_data->userId, 'Client = ' . $clientName);
             $form_data['errmsg'] = $constant::SUC_CLIENT_ACTIVATE;
         } else {
@@ -124,6 +128,7 @@ try {
 
         $clientName = $fn_client->delete_client($clientId);
         $fn_general->updateVersion(5);
+        $fn_general->updateVersion(35);
         $fn_general->save_audit('11', $jwt_data->userId, 'Client = ' . $clientName);
 
         Class_db::getInstance()->db_commit();

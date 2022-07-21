@@ -144,6 +144,9 @@ input:-webkit-autofill {
 .table > tbody > tr > td {
     padding: 4px !important;
 }
+.font-radio {
+    font-size: 0.92rem;
+}
 /*
 .form-control:disabled {
     background-color: #f5f5f5 !important;
@@ -171,7 +174,8 @@ input:-webkit-autofill {
     color: #0d5bdd; }
 
 .danger-lighter-hover {
-    color: #ff3547;
+    /* color: #ff3547; */
+    color: #F8C4C4;
     -webkit-transition: .4s;
     transition: .4s; }
 .danger-lighter-hover:hover {
@@ -207,13 +211,14 @@ input:-webkit-autofill {
     color: #b35f00; }
 
 .success-lighter-hover {
-    color: #00C851;
+    /* color: #00C851; */
+    color: #98F874;
     -webkit-transition: .4s;
     transition: .4s; }
 .success-lighter-hover:hover {
     -webkit-transition: .4s;
     transition: .4s;
-    color: #16ff74; }
+    color: #35BD02; }
 
 .success-darker-hover {
     color: #00C851;

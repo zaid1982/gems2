@@ -1,6 +1,6 @@
 <?php
 
-class AssetGroup extends General {
+class AstAssetGroup extends General {
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

@@ -392,6 +392,11 @@ function MzValidate(name) {
         return result;
     };
 
+    this.clearInvalid = function (field_id) {
+        $('#' + field_id).removeClass('invalid');
+        $('#' + field_id + 'Err').html('');
+    };
+
     this.clearValidation = function () {
         $.each(this.fields, function (n, u) {
             let fieldSelector;
@@ -1309,6 +1314,8 @@ function mzOptionStopV2(name, data, defaultText, valIndex, filters, type, isSort
     $('#'+name).materialSelect({'destroy': true});
     mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex);
     $('#'+name).materialSelect();
+    $('#'+name).removeClass('invalid');
+    $('#'+name+'Err').html('');
 }
 
 function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
@@ -1482,7 +1489,7 @@ function mzSetFieldValue(name, value, type, label, isInit) {
         }
         $('#opt' + name + 'Pre').addClass('active');
     }
-    else if (value !== null || value !== '' || value.length !== 0) {
+    else if (value !== null && value !== '' && value.length !== 0) {
         if (type === 'text') {
             $('#txt'+name).val(value);
             $('#lbl'+name).addClass('active');

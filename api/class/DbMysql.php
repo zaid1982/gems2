@@ -622,10 +622,23 @@ class DbMysql {
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);
             $stmt->execute($preparedWheres);
-            $result = $stmt->fetchAll($fetchType === 1 ? PDO::FETCH_UNIQUE : PDO::FETCH_ASSOC);
+            if ($fetchType === 1) {
+                $result = $stmt->fetchAll(PDO::FETCH_UNIQUE);
+            } else if ($fetchType === 2) {
+                $result = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
+            } else {
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
             $stmt = null;
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
+            }
+            if ($fetchType === 2) {
+                $resultNew = array();
+                foreach ($result as $key => $list) {
+                    $resultNew[$key] = self::convertFromDbIndexes($list);
+                }
+                return $resultNew;
             }
             return self::convertFromDbIndexes($result);
         }

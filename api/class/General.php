@@ -444,8 +444,6 @@ class General {
         }
     }
 
-
-
     /**
      * @param int $pdfId
      * @return string
@@ -491,15 +489,16 @@ class General {
      * @return string
      * @throws Exception
      */
-    public function timeDisplay (string $time): string {
+    public function timeDisplay (string $time, bool $withSeconds = false): string {
         try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->checkEmptyString($time);
             $durationStr = '';
             $pieces = explode(':', $time);
             if (count($pieces) === 3) {
                 $hour = intval($pieces[0]);
                 $minute = intval($pieces[1]);
+                $seconds = intval($pieces[2]);
                 if ($hour >= 24) {
                     $durationInt = intval(floor($hour/24));
                     $durationStr = $durationInt === 1 ? $durationInt.' day' : $durationInt.' days';
@@ -507,6 +506,9 @@ class General {
                     $durationStr = $hour === 1 ? $hour.' hour' : $hour.' hours';
                 } else {
                     $durationStr = $minute <= 1 ? $minute.' minute' : $minute.' minutes';
+                }
+                if ($withSeconds && $seconds !== 0) {
+                    $durationStr .= ' '.$seconds.' seconds';
                 }
             }
             return $durationStr;

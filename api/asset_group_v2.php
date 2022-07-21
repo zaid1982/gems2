@@ -3,14 +3,14 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/AssetGroup.php';
+require_once 'class/AstAssetGroup.php';
 
-$apiName = 'asset_group_v2';
+$apiName = 'asset_group';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 
-$fnAssetGroup = new AssetGroup();
+$fnAssetGroup = new AstAssetGroup();
 
 try {
     DbMysql::connect();

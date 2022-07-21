@@ -53,7 +53,25 @@ class AttGroup extends General {
         WHERE att_participant_status = 1 
         GROUP BY site_id) ap ON ap.site_id = s.site_id";
 
-    function __construct () {
+    function __construct(int $userId = 0, bool $isLogged = false) {
+        $this->userId = $userId;
+        $this->isLogged = $isLogged;
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getTest (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            return DbMysql::selectSqlAll("SELECT 
+                    site_id, wo_task.*
+                FROM wo_task
+                WHERE YEAR(wo_task_time_created) = YEAR(CURDATE()) - 1 AND MONTH(wo_task_time_created) = MONTH(CURDATE()) - 1", array(), 2);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
     }
 
     /**

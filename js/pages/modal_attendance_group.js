@@ -228,8 +228,8 @@ function ModalAttendanceGroup () {
                     try {
                         mzAjaxRequest2('att_group/'+attGroupId, 'PUT', self.getDataSubmitted());
                         if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
-                            classFrom.reloadTopStatistic();
                             classFrom.genTableGroup();
+                            classFrom.reloadTopStatistic();
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {

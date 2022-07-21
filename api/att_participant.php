@@ -1,121 +1,104 @@
 <?php
 
-require_once 'library/constant.php';
-require_once 'function/db.php';
-require_once 'function/f_general.php';
-require_once 'function/f_login.php';
-require_once 'function/f_att_participant.php';
+require_once 'class/Constant.php';
+require_once 'class/General.php';
+require_once 'class/DbMysql.php';
+require_once 'class/AttParticipant.php';
+require_once 'class/AttTransaction.php';
 
-$api_name = 'api_att_participant';
-$is_transaction = false;
-$form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
+$apiName = 'att_participant';
+$isTransaction = false;
+$formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
-$userId = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$constant = new Class_constant();
-$fn_general = new Class_general();
-$fn_login = new Class_login();
-$fn_attParticipant = new Class_att_participant();
+$fnAttParticipant = new AttParticipant();
 
 try {
-    $fn_general->__set('constant', $constant);
-    $fn_login->__set('constant', $constant);
-    $fn_login->__set('fn_general', $fn_general);
-    $fn_attParticipant->__set('constant', $constant);
-    $fn_attParticipant->__set('fn_general', $fn_general);
+    DbMysql::connect();
+    $fnAttParticipant->checkJwt(apache_request_headers());
+    $fnAttParticipant->isLogged = Constant::$isLogged;
+    DbMysql::$isLogged = Constant::$isLogged;
 
-    Class_db::getInstance()->db_connect();
-    $request_method = $_SERVER['REQUEST_METHOD'];
-    $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+    $fnAttParticipant->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnAttParticipant->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
-    $urlArr = explode('/', $_SERVER['REQUEST_URI']);
-    foreach ($urlArr as $i=>$param) {
-        if ($param === 'att_participant') {
-            break;
+    $fnAttTransaction = new AttTransaction($fnAttParticipant->userId, Constant::$isLogged);
+
+    if ('GET' === $requestMethod) {
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        array_shift($urlArr);
-    }
-
-    $headers = apache_request_headers();
-    if (isset($headers['Authorization'])) {
-        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
-    } else if (isset($headers['authorization'])) {
-        $jwt_data = $fn_login->check_jwt($headers['authorization']);
-        if (!isset($headers['deviceid'])) {
-            throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
-        }
-        $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
-    } else {
-        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
-    }
-    $userId = $jwt_data->userId;
-
-    if ('GET' === $request_method) {
-        if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'by_user_id') {
-                $result = $fn_attParticipant->getAttParticipantByUserId($urlArr[2]);
-            } else if ($urlArr[1] === 'by_site') {
-                $result = $fn_attParticipant->getAttParticipantSite($urlArr[2]);
-            } else {
-                $result = $fn_attParticipant->getAttParticipant($urlArr[1]);
-            }
+        if ($urlArr[1] === 'by_site' && isset ($urlArr[2])) {
+            $result = $fnAttParticipant->getListSite(intval($urlArr[2]));
+        } else if (is_numeric($urlArr[1])) {
+            $result = $fnAttParticipant->get(intval($urlArr[1]));
         } else {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        $form_data['result'] = $result;
-        $form_data['success'] = true;
+        $formData['result'] = $result;
+        $formData['success'] = true;
     }
-    else if ('POST' === $request_method) {
+    else if ('POST' === $requestMethod) {
         $params = $_POST;
+        DbMysql::beginTransaction();
+        $isTransaction = true;
 
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-        $attParticipantId = $fn_attParticipant->addAttParticipant($params);
-        $fn_general->save_audit('191', $userId, 'Attendance Participant ID = '.$attParticipantId.', Attendance Group ID = '.$params['attGroupId']);
-        $form_data['errmsg'] = $constant::SUC_SUBMITTED;
-        Class_db::getInstance()->db_commit();
+        $fnAttParticipant->insert($params);
+        $now = new DateTime();
+        $year = intval($now->format('Y'));
+        $month = intval($now->format('n'));
+        $fnAttTransaction->insertMonthly($fnAttParticipant->attParticipantId, $year, $month);
+        $fnAttParticipant->saveAudit(191, $fnAttParticipant->attParticipantName);
+        $errorMsg = str_replace('_1', $fnAttParticipant->attParticipantName, Constant::$attParticipant['add']);
+        $formData['errmsg'] = str_replace('_2', $fnAttParticipant->attGroupName, $errorMsg);
 
-        $form_data['result'] = $result;
-        $form_data['success'] = true;
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
     }
-    else if ('PUT' === $request_method) {
+    else if ('PUT' === $requestMethod) {
         $putData = file_get_contents("php://input");
         $params = array();
         parse_str($putData, $params);
         if (!isset ($urlArr[1])) {
-            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
         }
+        DbMysql::beginTransaction();
+        $isTransaction = true;
 
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-        $fn_attParticipant->updateAttParticipant($urlArr[1], $params);
-        $fn_general->save_audit('192', $userId, 'Attendance Participant ID = '.$urlArr[1].', Attendance Group ID = '.$params['attGroupId']);
-        $form_data['errmsg'] = $constant::SUC_SAVE;
-        Class_db::getInstance()->db_commit();
+        $attParticipantOld = $fnAttParticipant->get(intval($urlArr[1]));
+        $fnAttParticipant->update($attParticipantOld, $params);
+        $attParticipantNew = $fnAttParticipant->get($fnAttParticipant->attParticipantId);
+        if ($attParticipantOld['attGroupId'] !== $attParticipantNew['attGroupId'] || $attParticipantOld['attParticipantShiftMode'] !== $attParticipantNew['attParticipantShiftMode']
+            || $attParticipantOld['attTypeId'] !== $attParticipantNew['attTypeId'] || $attParticipantOld['attParticipantHoliday'] !== $attParticipantNew['attParticipantHoliday']) {
+            $now = new DateTime();
+            $year = intval($now->format('Y'));
+            $month = intval($now->format('n'));
+            $fnAttTransaction->updateMonthly($fnAttParticipant->attParticipantId, $year, $month);
+        }
+        $fnAttParticipant->saveAudit(192, $fnAttParticipant->attParticipantName);
+        $formData['errmsg'] = str_replace('__', $fnAttParticipant->attParticipantName, Constant::$attParticipant['update']);
 
-        $form_data['result'] = $result;
-        $form_data['success'] = true;
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
     } else {
-        throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }
-
-    Class_db::getInstance()->db_close();
-} catch (Exception $ex) {
-    if ($is_transaction) {
-        Class_db::getInstance()->db_rollback();
+    DbMysql::close();
+} catch (Exception $e) {
+    try {
+        if ($isTransaction) {
+            DbMysql::rollback();
+        }
+        DbMysql::close();
+    } catch (Exception $ex) {
+        $fnAttParticipant->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    Class_db::getInstance()->db_close();
-    $form_data['error'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
-    if ($ex->getCode() === 31) {
-        $form_data['errmsg'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
-    } else {
-        $form_data['errmsg'] = $constant::ERR_DEFAULT;
-    }
-    $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
+    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
+    $fnAttParticipant->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
-echo json_encode($form_data);
-
-
-
-
+echo json_encode($formData);

@@ -11,14 +11,16 @@ function SectionAttendanceConfigSite () {
     let refUser;
     let refAssetGroup;
     let refAttGroup;
+    let refAttType;
     let oTableSacGroup;
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
     let modalAttendanceParticipantClass;
     let modalConfirmSubmitClass;
-    let sectionAttendanceGroupClass;
+    let sectionAttendancePlannerClass;
     let isAdmin;
     let isSupervisor;
+    let todayDate;
 
     this.init = function () {
         $('#btnSacBack').on('click', function () {
@@ -29,6 +31,7 @@ function SectionAttendanceConfigSite () {
                         classFrom.genTable();
                     }
                     self.hideMain();
+                    sectionAttendancePlannerClass.hideMain();
                     classFrom.showMain();
                     $(window).scrollTop(0);
                 } catch (e) {
@@ -48,7 +51,7 @@ function SectionAttendanceConfigSite () {
             aaSorting: [[1, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
-            pageLength: 50,
+            pageLength: 100,
             autoWidth: false,
             dom: "<'row'<'col-7 px-0'B><'col-5 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
@@ -81,7 +84,7 @@ function SectionAttendanceConfigSite () {
                 } else {
                     $('#btnSacAddGroup').hide();
                 }
-                $('.lnkAgrSacGroupEdit').off('click').on('click', function () {
+                $('.lnkSacGroupEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
@@ -90,13 +93,13 @@ function SectionAttendanceConfigSite () {
                         modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
                     }
                 });
-                $('.lnkAgrSacGroupDetail').off('click').on('click', function () {
+                $('.lnkSacGroupDetail').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
-                        sectionAttendanceGroupClass.load(currentRow['attGroupId']);
+                        //sectionAttendancePlannerClass.load(currentRow['attGroupId']);
                     }
                 });
                 if ($('#divPageWidth').width() < 880) {
@@ -137,9 +140,9 @@ function SectionAttendanceConfigSite () {
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
                         if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
-                            label = '<a><i class="fas fa-edit mr-1 lnkAgrSacGroupEdit" id="lnkAgrAssetGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
+                            label = '<a><i class="fas fa-edit mr-1 lnkSacGroupEdit" id="lnkSacGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
                         }
-                        label += '<a><i class="fas fa-calendar-alt lnkAgrSacGroupDetail" id="lnkAgrSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to schedule ' + row['attGroupName'] + '"></i></a>';
+                        label += '<a><i class="fas fa-users lnkSacGroupDetail" id="lnkSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['attGroupName'] + ' informations"></i></a>';
                         return label;
                     }}
             ]
@@ -148,19 +151,20 @@ function SectionAttendanceConfigSite () {
         oTableSacParticipant = $('#dtSacParticipant').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[10, 'asc'], [1, 'asc'], [2, 'asc']],
+            aaSorting: [[14, 'asc'], [2, 'asc'], [1, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
-            pageLength: 50,
+            pageLength: 100,
             autoWidth: false,
             dom: "<'row'<'col-7 px-0 pb-2'B><'col-5 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0,3,7,9,10] },
-                { visible: false, targets: [6, 8, 9] },
-                { className: 'noVis', targets: [0] }
+                { bSortable: false, targets: [0, 15] },
+                { className: 'text-center', targets: [0, 3, 5, 8, 11, 12, 13, 14, 15] },
+                { className: 'text-right', targets: [10] },
+                { visible: false, targets: [5, 6, 7, 8, 9, 10, 13] },
+                { className: 'noVis', targets: [0, 15] }
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
@@ -184,56 +188,79 @@ function SectionAttendanceConfigSite () {
                 });
                 $('#btnSacParticipantStatusAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
-                    oTableSacParticipant.column(10).search('^(Active|Disabled)$', true, false).draw();
+                    oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
                     $('#dtSacParticipantTitle').text('Employee List (Assigned)')
                 });
                 $('#btnSacParticipantStatusNotAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
-                    oTableSacParticipant.column(10).search('^(Unregistered)$', true, false).draw();
+                    oTableSacParticipant.column(14).search('^(Unregistered)$', true, false).draw();
                     $('#dtSacParticipantTitle').text('Employee List (Unregistered)')
                 });
+                $('.lnkSacParticipantEdit').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSacParticipant.row(parseInt(rowId)).data();
+                        if (isAdmin || isSupervisor) {
+                            modalAttendanceParticipantClass.setParticipantName(currentRow['userFirstName']);
+                            modalAttendanceParticipantClass.setSiteName(siteName);
+                            modalAttendanceParticipantClass.load(currentRow['userIds'], currentRow['attParticipantId'], siteId);
+                        } else {
+                            toastr['error']('You don\'t have permission as Site Admin or Supervisor role to perform this task!', _ALERT_TITLE_ERROR);
+                            return false;
+                        }
+                    }
+                });
+                $('.lnkSacParticipantDetail').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSacParticipant.row(parseInt(rowId)).data();
+                        //sectionAttendancePlannerClass.load(currentRow['attParticipantId']);
+                    }
+                });
                 if ($('#divPageWidth').width() < 880) {
+                    $(this).DataTable().column(3).visible(false);
                     $(this).DataTable().column(4).visible(false);
                     $(this).DataTable().column(5).visible(false);
-                    $(this).DataTable().column(7).visible(false);
+                    $(this).DataTable().column(12).visible(false);
                 }
             },
             aoColumns: [
                 {mData: null},
                 {mData: 'userFirstName'},
                 {mData: 'attGroupId', mRender: function(data) {
-                        return data !== '' ? refAttGroup[data] : '';
+                        return data !== null ? refAttGroup[data]['attGroupName'] : '';
                     }},
                 {mData: 'attParticipantGfId'},
                 {mData: 'designationDesc'},
-                {mData: 'userContactNo'},
+                {mData: 'userContactNo'},   // 5
                 {mData: 'userEmail'},
-                {mData: 'attParticipantShift'},
                 {mData: 'attParticipantCompetency'},
                 {mData: 'attParticipantCidbCardExpiry'},
+                {mData: 'assetGroupId', mRender: function(data) {
+                        return  data !== null ? refAssetGroup[data]['assetGroupName'] : '';
+                    }},
+                {mData: 'attParticipantReqWeekHours'},
+                {mData: 'attParticipantShiftMode'},
+                {mData: 'attTypeId', mRender: function(data) {
+                        return  data !== null ? refAttType[data]['attTypeName'] : '';
+                    }},
+                {mData: 'attParticipantHoliday'},
                 {mData: 'participantStatus', width: '8%', mRender: function(data) {
                         return refStatus[data]['statusDesc'];
+                    }},
+                {mData: null, mRender: function(data, type, row, meta) {
+                        let label = '';
+                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                            label = '<a><i class="fas fa-edit mr-1 lnkSacParticipantEdit" id="lnkSacParticipantEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['userFirstName'] + ' configuration"></i></a>';
+                        }
+                        label += '<a><i class="fas fa-user lnkSacParticipantDetail" id="lnkSacParticipantDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['userFirstName'] + ' informations"></i></a>';
+                        return label;
                     }}
             ]
-        });
-        let oTableSacParticipantTbody = $('#dtSacParticipant tbody');
-        oTableSacParticipantTbody.delegate('tr', 'click', function (evt) {
-            const data = $('#dtSacParticipant').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || isSupervisor)) {
-                modalAttendanceParticipantClass.setParticipantName(data['userFirstName']);
-                modalAttendanceParticipantClass.setSiteName(siteName);
-                modalAttendanceParticipantClass.load(data['userIds'], data['attParticipantId'], siteId);
-            }
-        });
-        oTableSacParticipantTbody.delegate('tr', 'mouseenter', function (evt) {
-            const data = $('#dtSacParticipant').DataTable().row(this).data();
-            if (typeof data !== 'undefined' && (isAdmin || isSupervisor)) {
-                const cell = $(evt.target).closest('td');
-                cell.css('cursor', 'pointer');
-                cell.attr('data-toggle', 'tooltip');
-                cell.attr('title', 'Click to edit '+data['userFirstName']+' configuration');
-                $('[data-toggle="tooltip"]').tooltip();
-            }
         });
 
         $('#btnSacActivate').on('click', function () {
@@ -266,7 +293,7 @@ function SectionAttendanceConfigSite () {
             $('#lblSacSiteCode').html(attSite['siteCode']);
             $('#lblSacTotalGroup').html(attSite['totalGroup']);
             $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
-            if (attSite['siteIsAttendance']==='1') {
+            if (attSite['siteIsAttendance'] === 1) {
                 $('#lblSacSiteStatus').html('Enabled');
                 $('#btnSacActivate').hide();
                 $('#btnSacDeactivate').show();
@@ -277,6 +304,7 @@ function SectionAttendanceConfigSite () {
             }
             modalAttendanceGroupClass.setSiteName(attSite['siteName']);
             modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
+            todayDate = moment();
             self.genTableGroup();
             self.genTableParticipant();
             oTableSacParticipant.search('').columns().search('').draw();
@@ -356,17 +384,24 @@ function SectionAttendanceConfigSite () {
     };
 
     this.genTableGroup = function () {
-        const dataDb = mzAjaxRequest2('att_group/by_site/'+siteId, 'GET');
-        refAttGroup = [];
-        $.each(dataDb, function (n, row) {
-            refAttGroup[parseInt(row['attGroupId'])] = row['attGroupName'];
-        });
-        oTableSacGroup.clear().rows.add(dataDb).draw();
+        try {
+            const dataDb = mzAjaxRequest2('att_group/by_site/'+siteId, 'GET');
+            oTableSacGroup.clear().rows.add(dataDb).draw();
+            refAttGroup = mzGetLocalArrayV2('gems_attGroup', mzGetDataVersion(), 'att_group/ref');
+            modalAttendanceParticipantClass.setRefAttGroup(refAttGroup);
+        } catch (e) {
+            throw new Error(e.message);
+        }
     };
 
     this.genTableParticipant = function () {
-        const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId, 'GET');
-        oTableSacParticipant.clear().rows.add(dataDb).draw();
+        try {
+            const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId, 'GET');
+            oTableSacParticipant.clear().rows.add(dataDb).draw();
+            sectionAttendancePlannerClass.loadSite(siteId, todayDate.format('YYYY'), todayDate.format('M'));
+        } catch (e) {
+            throw new Error(e.message);
+        }
     };
 
     this.getClassName = function () {
@@ -401,6 +436,10 @@ function SectionAttendanceConfigSite () {
         refAssetGroup = _refAssetGroup;
     };
 
+    this.setRefAttType = function (_refAttType) {
+        refAttType = _refAttType;
+    };
+
     this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
         modalAttendanceGroupClass = _modalAttendanceGroupClass;
     };
@@ -413,8 +452,8 @@ function SectionAttendanceConfigSite () {
         modalConfirmSubmitClass = _modalConfirmSubmitClass;
     };
 
-    this.setSectionAttendanceGroupClass = function (_sectionAttendanceGroupClass) {
-        sectionAttendanceGroupClass = _sectionAttendanceGroupClass;
+    this.setSectionAttendancePlannerClass = function (_sectionAttendancePlannerClass) {
+        sectionAttendancePlannerClass = _sectionAttendancePlannerClass;
     };
 
     this.setHasEdit = function (_hasEdit) {
