@@ -79,4 +79,9 @@ class Constant {
         'update' => 'Employee __ attendance configuration successfully updated!',
         'errAlreadyAssigned' => 'Employee _1 already assigned to _2 group!'
     );
+
+    public static $attTransaction = array(
+        'update' => 'Employee _1 daily status for date _2 successfully updated!',
+        'errUpdateValidation' => 'Please make sure either Daily Status or Attendance Status selected!'
+    );
 }

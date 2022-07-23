@@ -1,6 +1,6 @@
-function MainAttendanceConfig () {
+function MainAttendance () {
 
-    const className = 'MainAttendanceConfig';
+    const className = 'MainAttendance';
     let self = this;
     let refStatus;
     let refClient;
@@ -27,11 +27,10 @@ function MainAttendanceConfig () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Site List', titleAttr: 'Excel', mzExportOpt: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Site List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}//,
-                //{ text: 'Add Attendance', className: 'btn btn-outline-elegant btn-sm px-2'}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance All Site List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance All Site List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance All Site List', titleAttr: 'Excel', mzExportOpt: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Site All List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();

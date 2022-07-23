@@ -1,6 +1,6 @@
-function SectionAttendanceConfigSite () {
+function SectionAttendanceSite () {
 
-    const className = 'SectionAttendanceConfigSite';
+    const className = 'SectionAttendanceSite';
     let self = this;
     let classFrom;
     let hasEdit = false;
@@ -16,9 +16,11 @@ function SectionAttendanceConfigSite () {
     let oTableSacParticipant;
     let modalAttendanceGroupClass;
     let modalAttendanceParticipantClass;
+    let modalAttendanceDailyClass;
     let modalConfirmSubmitClass;
     let sectionAttendancePlannerClass;
     let isAdmin;
+    let isSiteAdmin;
     let isSupervisor;
     let todayDate;
 
@@ -43,6 +45,7 @@ function SectionAttendanceConfigSite () {
 
         userId = mzGetUserId();
         isAdmin = mzIsRoleExist('1');
+        isSiteAdmin = mzIsRoleExist('19');
         isSupervisor = mzIsRoleExist('20');
 
         oTableSacGroup = $('#dtSacGroup').DataTable({
@@ -284,36 +287,6 @@ function SectionAttendanceConfigSite () {
         self.hideMain();
     };
 
-    this.loadDetails = function () {
-        try {
-            mzCheckFuncParam([siteId]);
-            const attSite = mzAjaxRequest2('att_group/site/'+siteId, 'GET');
-            siteName = attSite['siteName'];
-            $('#lblSacSiteName').html(siteName);
-            $('#lblSacSiteCode').html(attSite['siteCode']);
-            $('#lblSacTotalGroup').html(attSite['totalGroup']);
-            $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
-            if (attSite['siteIsAttendance'] === 1) {
-                $('#lblSacSiteStatus').html('Enabled');
-                $('#btnSacActivate').hide();
-                $('#btnSacDeactivate').show();
-            } else {
-                $('#lblSacSiteStatus').html('Disabled');
-                $('#btnSacActivate').show();
-                $('#btnSacDeactivate').hide();
-            }
-            modalAttendanceGroupClass.setSiteName(attSite['siteName']);
-            modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
-            todayDate = moment();
-            self.genTableGroup();
-            self.genTableParticipant();
-            oTableSacParticipant.search('').columns().search('').draw();
-            $('#dtSacParticipantTitle').text('Employee List')
-        } catch (e) {
-            throw new Error(e.message);
-        }
-    };
-
     this.reloadTopStatistic = function () {
         try {
             mzCheckFuncParam([siteId]);
@@ -340,7 +313,36 @@ function SectionAttendanceConfigSite () {
             try {
                 mzCheckFuncParam([_siteId]);
                 siteId = _siteId;
-                self.loadDetails();
+
+                const attSite = mzAjaxRequest2('att_group/site/'+siteId, 'GET');
+                siteName = attSite['siteName'];
+                $('#lblSacSiteName').html(siteName);
+                $('#lblSacSiteCode').html(attSite['siteCode']);
+                $('#lblSacTotalGroup').html(attSite['totalGroup']);
+                $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
+                if (attSite['siteIsAttendance'] === 1) {
+                    $('#lblSacSiteStatus').html('Enabled');
+                    $('#btnSacActivate').hide();
+                    $('#btnSacDeactivate').show();
+                } else {
+                    $('#lblSacSiteStatus').html('Disabled');
+                    $('#btnSacActivate').show();
+                    $('#btnSacDeactivate').hide();
+                }
+                modalAttendanceGroupClass.setSiteName(attSite['siteName']);
+                modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
+
+                todayDate = moment();
+                self.genTableGroup();
+                self.genTableParticipant();
+
+                const chartData = mzAjaxRequest2('att_group/chart_site/'+siteId, 'GET');
+                self.genChart('chartSacAbsent', 'Absenteeism Performance', 'Group Absenteeism Rate (%)', chartData[0]);
+                self.genChart('chartSacLateness', 'Punctuality Performance', 'Group Punctuality Rate (%)', chartData[1]);
+                self.genChart('chartSacValidity', 'Geo-Validity Performance', 'Group Geo-Validity Rate (%)', chartData[2]);
+                oTableSacParticipant.search('').columns().search('').draw();
+
+                $('#dtSacParticipantTitle').text('Employee List');
                 hasEdit = false;
                 classFrom.hideMain();
                 self.showMain();
@@ -389,6 +391,7 @@ function SectionAttendanceConfigSite () {
             oTableSacGroup.clear().rows.add(dataDb).draw();
             refAttGroup = mzGetLocalArrayV2('gems_attGroup', mzGetDataVersion(), 'att_group/ref');
             modalAttendanceParticipantClass.setRefAttGroup(refAttGroup);
+            modalAttendanceDailyClass.setRefAttGroup(refAttGroup);
         } catch (e) {
             throw new Error(e.message);
         }
@@ -399,6 +402,66 @@ function SectionAttendanceConfigSite () {
             const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId, 'GET');
             oTableSacParticipant.clear().rows.add(dataDb).draw();
             sectionAttendancePlannerClass.loadSite(siteId, todayDate.format('YYYY'), todayDate.format('M'));
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    };
+
+    this.genChart = function (_chartId, _chartTitle, _subTitle, _data) {
+        try {
+            Highcharts.chart(_chartId, {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: _chartTitle
+                },
+                subtitle: {
+                    text: _subTitle
+                },
+                xAxis: {
+                    type: 'category',
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y:.2f} %</b>'
+                },
+                colorAxis: {
+                    maxColor: '#077DD3',
+                    minColor: '#7FC6FA'
+                },
+                plotOptions: {
+                    column: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        borderRadius: 3,
+                        borderWidth: 0
+                    }
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Performance',
+                    data: _data
+                }]
+            });
         } catch (e) {
             throw new Error(e.message);
         }
@@ -417,11 +480,11 @@ function SectionAttendanceConfigSite () {
     };
 
     this.showMain = function () {
-        $('.sectionAttendanceConfigSite').show();
+        $('.sectionAttendanceSite').show();
     };
 
     this.hideMain = function () {
-        $('.sectionAttendanceConfigSite').hide();
+        $('.sectionAttendanceSite').hide();
     };
 
     this.setRefStatus = function (_refStatus) {
@@ -446,6 +509,10 @@ function SectionAttendanceConfigSite () {
 
     this.setModalAttendanceParticipantClass = function (_modalAttendanceParticipantClass) {
         modalAttendanceParticipantClass = _modalAttendanceParticipantClass;
+    };
+
+    this.setModalAttendanceDailyClass = function (_modalAttendanceDailyClass) {
+        modalAttendanceDailyClass = _modalAttendanceDailyClass;
     };
 
     this.setModalConfirmSubmitClass = function (_modalConfirmSubmitClass) {

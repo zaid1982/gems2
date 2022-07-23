@@ -199,7 +199,7 @@ function ModalAttendanceParticipant () {
                 setTimeout(function () {
                     try {
                         mzAjaxRequest2('att_participant', 'POST', self.getDataSubmitted());
-                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
+                        if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.genTableParticipant();
                             classFrom.reloadTopStatistic();
@@ -222,7 +222,7 @@ function ModalAttendanceParticipant () {
                 setTimeout(function () {
                     try {
                         mzAjaxRequest2('att_participant/'+attParticipantId, 'PUT', self.getDataSubmitted());
-                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
+                        if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.genTableParticipant();
                             classFrom.reloadTopStatistic();

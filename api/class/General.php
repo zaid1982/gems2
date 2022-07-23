@@ -504,9 +504,11 @@ class General {
                     $durationStr = $durationInt === 1 ? $durationInt.' day' : $durationInt.' days';
                 } else if ($hour > 0) {
                     $durationStr = $hour === 1 ? $hour.' hour' : $hour.' hours';
-                } else {
-                    $durationStr = $minute <= 1 ? $minute.' minute' : $minute.' minutes';
                 }
+                if ($minute === 0 && $seconds === 0){
+                    return $durationStr;
+                }
+                $durationStr .= $minute <= 1 ? $minute.' minute' : $minute.' minutes';
                 if ($withSeconds && $seconds !== 0) {
                     $durationStr .= ' '.$seconds.' seconds';
                 }

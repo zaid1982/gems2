@@ -14,7 +14,8 @@ RewriteRule ^p_store_management/?$ store_management.html
 RewriteRule ^p_kpi_ppns/?$ kpi_ppns.html
 RewriteRule ^p_utility/?$ utility.html
 RewriteRule ^p_attendance/?$ attendance.html
-RewriteRule ^p_attendance_config/?$ attendance_config.html
+RewriteRule ^p_attendance_site/?$ attendance_site.html
+RewriteRule ^p_attendance_group/?$ attendance_group.html
 RewriteRule ^p_gamification/?$ gamification.html
 RewriteRule ^p_fca_task/?$ fca_task.html
 RewriteRule ^p_fca_all/?$ fca_all.html

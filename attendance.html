@@ -13,14 +13,47 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- FullCalendar -->
-    <link rel="stylesheet" href="js/vendor/full-calendar-5.9.0/lib/main.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Google Maps -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?7" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         .fc .fc-toolbar-title {
             font-size: 20px;
+        }
+        #map {
+            height: 100%;
+        }
+        .table-grid-width {
+            width: 32px;
+            min-width: 32px;
+        }
+        .table-grid-cut-text {
+            padding-left: 3px !important;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 135px;
+            white-space: nowrap;
+        }
+        .table-grid-small-text th {
+            font-size: 12px;
+            text-align: center;
+            background-color: #F1F1F1;
+        }
+        .table-grid-small-text td {
+            font-size: 12px;
+            text-align: center;
+        }
+        .table-grid-small-text > tbody > tr > td {
+            padding-left: 1px !important;
+            padding-right: 1px !important;
+        }
+        .table-grid-small-text > thead > tr > th {
+            padding-top: 3px !important;
+            padding-left: 1px !important;
+            padding-right: 1px !important;
         }
     </style>
     <!-- JQuery -->
@@ -37,258 +70,36 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionUtmMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Attendance Report
+    <div class="container-fluid" id="divPageWidth">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionAtcMain">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1 pb-1">
+                Attendance - All Site List
             </h5>
         </nav>
-        <section class="mt-4 mb-4 sectionAttMain">
-            <!--Navbar-->
-            <nav class="navbar navbar-expand navbar-dark mdb-color lighten-3 z-depth-4">
-                <div class="collapse navbar-collapse" id="basicExampleNav">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle" id="navAttSite" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Site</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navAttSite" id="divAttSite">
-                                <a class="dropdown-item lnkAttSite" href="#" id="lnkAttSite_1">Bank Negara</a>
-                                <a class="dropdown-item lnkAttSite" href="#" id="lnkAttSite_2">PPNS</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle" id="navAttReportType" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Group</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navAttReportType" id="divAttReportType">
-                                <a class="dropdown-item lnkAttReportType" href="#" id="lnkAttReportType_1">PPM</a>
-                                <a class="dropdown-item lnkAttReportType" href="#" id="lnkAttReportType_2">Operation</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle" id="navAttClient" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Category</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navAttGroup" id="divAttGroup">
-                                <a class="dropdown-item lnkAttGroup" href="#" id="lnkAttGroup_1">Mechanical</a>
-                                <a class="dropdown-item lnkAttGroup" href="#" id="lnkAttGroup_2">Electrical</a>
-                                <a class="dropdown-item lnkAttGroup" href="#" id="lnkAttGroup_3">Civil</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle" id="navAttMonth" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Month</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navAttMonth" id="divAttMonth">
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_1">January 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_2">February 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_3">March 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_4">April 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_5">May 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_6">June 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_7">July 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_8">August 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_9">September 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_10">October 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_11">November 2021</a>
-                                <a class="dropdown-item lnkAttMonth" href="#" id="lnkAttMonth_12">December 2021</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <a class="navbar-brand d-none d-md-block" href="#" id="lblAttSelected"></a>
-            </nav>
-            <!--/.Navbar-->
-            <div class="row mt-4">
-                <div class="col-md-3">
-                    <div class="card z-depth-4 mb-4 blue-grey lighten-5">
-                        <div class="pt-3 px-4">
-                            <h6 class="font-weight-bold">Total Attendance</h6>
-                            <h1 class="font-weight-bold mt-3 mb-4 blue-grey-text">67 / 71</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card z-depth-4 mb-4 blue-grey lighten-5">
-                        <div class="pt-3 px-4">
-                            <h6 class="font-weight-bold">Total Working Hours</h6>
-                            <h1 class="font-weight-bold mt-3 mb-4 blue-grey-text">316 / 348</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card z-depth-4 mb-4 blue-grey lighten-5">
-                        <div class="pt-3 px-4">
-                            <h6 class="font-weight-bold">OT Request</h6>
-                            <h1 class="font-weight-bold mt-3 mb-4 blue-grey-text">10</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card z-depth-4 mb-4 blue-grey lighten-5">
-                        <div class="pt-3 px-4">
-                            <h6 class="font-weight-bold">Approved OT</h6>
-                            <h1 class="font-weight-bold mt-3 mb-4 blue-grey-text">5</h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body p-0">
-                            <div class="text-center">
-                                <h5 class="mt-4 mb-0 font-weight-bold">Today Attendance</h5>
-                                <div id="chartAtt1" style="height: 270px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body p-0">
-                            <div class="text-center">
-                                <h5 class="mt-4 mb-0 font-weight-bold">Today Man Power</h5>
-                                <div id="chartAtt2" style="height: 270px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body p-0">
-                            <div class="text-center">
-                                <h5 class="mt-4 mb-0 font-weight-bold">Today Absent</h5>
-                                <div id="chartAtt3" style="height: 270px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body p-0">
-                            <div class="text-center btn-outline-primary">
-                                <h5 class="mt-4 mb-0 font-weight-bold">Today OT Request</h5>
-                                <div id="chartAtt4" style="height: 270px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body pb-0">
-                            <div id="chartAtt5" style="height: 470px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4 z-depth-4">
-                        <div class="card-body pb-0">
-                            <div class="mb-4" id="calendar" style="height: 450px"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <section class="mt-4 mb-4 sectionAtcMain">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card z-depth-4">
                         <div class="card-body pb-1 px-3">
                             <div class="row">
-                                <div class="col-md-3 select-outline mt-3 mb-2" id="optAttAssetGroup_">
-                                    <select id="optAttAssetGroup" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
-                                        <option value="1" selected>1/7/2021 to 7/7/2021</option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                    </select>
-                                    <label for="optAttAssetGroup" id="lblAttAssetGroup">Week</label>
-                                </div>
-                                <div class="col-md-9 text-right">
-                                    <button id="btnAttShiftMorning" class="btn btn-light-blue waves-effect" data-toggle="tooltip" title="Set Morning Shift"><i class="far fa-calendar-week mr-2"></i> Set Morning Shift</button>
-                                    <button id="btnAttShiftEvening" class="btn btn-deep-orange waves-effect" data-toggle="tooltip" title="Set Evening Shift"><i class="far fa-calendar-week mr-2"></i> Set Evening Shift</button>
-                                    <button id="btnAttShiftNight" class="btn btn-grey waves-effect" data-toggle="tooltip" title="Set Night Shift"><i class="far fa-calendar-week mr-2"></i> Set Night Shift</button>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="table-responsive">
-                                        <table id="dtAttData" class="table table-hover table-sm mt-3 mb-0 display responsive" style="width: 100%">
+                                        <table id="dtAtcData" class="table table-hover table-striped table-sm mt-3 mb-0 display responsive" style="width: 100%">
                                             <thead>
                                             <tr class="th-strong">
                                                 <th>#</th>
-                                                <th>Technician Name</th>
-                                                <th>Category</th>
-                                                <th width="10%">Completed</br>Hour</th>
-                                                <th width="10%">Remaining</br>Hours</th>
-                                                <th width="10%">Total</br>Working Hours</th>
-                                                <th width="10%">Percentage</br>Working Hours</th>
-                                                <th>Current Shift</th>
-                                                <th>Status</th>
-                                                <th></th>
+                                                <th>Client</th>
+                                                <th>Site Name</th>
+                                                <th>Site Code</th>
+                                                <th>Description</th>
+                                                <th>Site Status</th>
+                                                <th>Total Groups</th>
+                                                <th>Total Employees</th>
+                                                <th>Attendance Enabled</th>
+                                                <th>Enable / Disable</th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Amri Yazid</td>
-                                                <td class="text-center">Mechanical</td>
-                                                <td class="text-center">34</td>
-                                                <td class="text-center">13</td>
-                                                <td class="text-center">48</td>
-                                                <td class="text-center">
-                                                    <div class="progress md-progress light-blue lighten-4" style="height: 20px">
-                                                        <div class="progress-bar" role="progressbar" style="width: 75%; height: 20px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">75%</div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">Morning</td>
-                                                <td class="text-center">Open</td>
-                                                <td class="text-center"><a><i class="far fa-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>Razak</td>
-                                                <td class="text-center">Mechanical</td>
-                                                <td class="text-center">34</td>
-                                                <td class="text-center">13</td>
-                                                <td class="text-center">48</td>
-                                                <td class="text-center">
-                                                    <div class="progress md-progress light-blue lighten-4" style="height: 20px">
-                                                        <div class="progress-bar" role="progressbar" style="width: 75%; height: 20px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">75%</div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">Open</td>
-                                                <td class="text-center">Morning</td>
-                                                <td class="text-center"><a><i class="far fa-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>Ali Mohd</td>
-                                                <td class="text-center">Electrical</td>
-                                                <td class="text-center">34</td>
-                                                <td class="text-center">13</td>
-                                                <td class="text-center">48</td>
-                                                <td class="text-center">
-                                                    <div class="progress md-progress light-blue lighten-4" style="height: 20px">
-                                                        <div class="progress-bar" role="progressbar" style="width: 75%; height: 20px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">75%</div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">Open</td>
-                                                <td class="text-center">Evening</td>
-                                                <td class="text-center"><a><i class="far fa-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>4</td>
-                                                <td>Jojo Roki</td>
-                                                <td class="text-center">Civil</td>
-                                                <td class="text-center">34</td>
-                                                <td class="text-center">13</td>
-                                                <td class="text-center">48</td>
-                                                <td class="text-center">
-                                                    <div class="progress md-progress light-blue lighten-4" style="height: 20px">
-                                                        <div class="progress-bar" role="progressbar" style="width: 75%; height: 20px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">75%</div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">Open</td>
-                                                <td class="text-center">Night</td>
-                                                <td class="text-center"><a><i class="far fa-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></td>
-                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -299,9 +110,14 @@
                 </div>
             </div>
         </section>
+        <div class="includeHtml" id="h-section_attendance_site"></div>
+        <div class="includeHtml" id="h-section_attendance_planner"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_attendance_shift"></div>
+    <div class="includeHtml" id="h-modal_confirm_submit"></div>
+    <div class="includeHtml" id="h-modal_attendance_group"></div>
+    <div class="includeHtml" id="h-modal_attendance_participant"></div>
+    <div class="includeHtml" id="h-modal_attendance_daily"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -326,18 +142,26 @@
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <!-- Highchart -->
-<!--<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>-->
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/heatmap.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<!-- Calendar -->
-<!--<script type="text/javascript" src="js/vendor/fullcalendar-3.10.0/lib/moment.min.js"></script>-->
-<script type="text/javascript" src="js/vendor/full-calendar-5.9.0/lib/main.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/highcharts.js?1"></script>
+<script type="text/javascript" src="js/vendor/highcharts/highcharts-more.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/data.js?1"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js?1"></script>
+<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js?1"></script>
+<!-- HighMaps -->
+<script type="text/javascript" src="js/vendor/highcharts/maps/modules/map.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/maps/modules/data.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/maps/modules/exporting.js"></script>
+<script type="text/javascript" src="js/vendor/highcharts/maps/modules/offline-exporting.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCe-2LZ0JETWPTXcBkdnz8LuMltiTIhbyE&libraries=drawing&v=weekly&channel=2" async></script>
+<script type="text/javascript" src="js/google-map.js?7"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -345,8 +169,14 @@
 
     let versionLocal_;
     let changePasswordClass_;
-    let modalAttendanceShift_;
+    let confirmSubmitClass_;
+    let modalAttendanceGroupClass_;
+    let modalAttendanceParticipantClass_;
+    let modalAttendanceDailyClass_;
+    let sectionAttendanceSiteClass;
+    let sectionAttendancePlannerClass_;
     let attendanceClass_;
+    let googleMapsDrawingPolygonClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -356,22 +186,86 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                modalAttendanceShift_ = new ModalAttendanceShift();
+                confirmSubmitClass_ = new ModalConfirmSubmit();
+                modalAttendanceGroupClass_ = new ModalAttendanceGroup();
+                modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
+                modalAttendanceDailyClass_ = new ModalAttendanceDaily();
+                sectionAttendanceSiteClass = new SectionAttendanceSite();
+                sectionAttendancePlannerClass_ = new SectionAttendancePlanner();
                 attendanceClass_ = new MainAttendance();
+                googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
+
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+                const refClient_ = mzGetLocalArrayV2('gems_client2', versionLocal_, 'client/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                const refDesignation_ = mzGetLocalArrayV2('gems_designation2', versionLocal_, 'designation/ref');
+                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
+                const refAttGroup_ = mzGetLocalArrayV2('gems_attGroup', versionLocal_, 'att_group/ref');
+                const refAttType_ = mzGetLocalArrayV2('gems_attType', versionLocal_, 'att_type/ref');
+
+                googleMapsDrawingPolygonClass_.initMapDrawing('mapMtgGroup');
+
+                modalAttendanceGroupClass_.setRefUser(refUser_);
+                modalAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
+                modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
+                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass);
+                modalAttendanceGroupClass_.init();
+
+                modalAttendanceParticipantClass_.setRefDesignation(refDesignation_);
+                modalAttendanceParticipantClass_.setRefAttGroup(refAttGroup_);
+                modalAttendanceParticipantClass_.setRefAttType(refAttType_);
+                modalAttendanceParticipantClass_.setRefAssetGroup(refAssetGroup_);
+                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceSiteClass)
+                modalAttendanceParticipantClass_.init();
+
+                modalAttendanceDailyClass_.setRefStatus(refStatus_);
+                modalAttendanceDailyClass_.setRefUser(refUser_);
+                modalAttendanceDailyClass_.setRefDesignation(refDesignation_);
+                modalAttendanceDailyClass_.setRefAssetGroup(refAssetGroup_);
+                modalAttendanceDailyClass_.setRefAttGroup(refAttGroup_);
+                modalAttendanceDailyClass_.setRefAttType(refAttType_);
+                modalAttendanceDailyClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
+                modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
+                modalAttendanceDailyClass_.init();
+
+                sectionAttendancePlannerClass_.setRefUser(refUser_);
+                sectionAttendancePlannerClass_.setRefAttType(refAttType_);
+                sectionAttendancePlannerClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
+                sectionAttendancePlannerClass_.setClassFrom(sectionAttendanceSiteClass);
+                sectionAttendancePlannerClass_.init();
+
+                sectionAttendanceSiteClass.setRefStatus(refStatus_);
+                sectionAttendanceSiteClass.setRefUser(refUser_);
+                sectionAttendanceSiteClass.setRefAssetGroup(refAssetGroup_);
+                sectionAttendanceSiteClass.setRefAttType(refAttType_);
+                sectionAttendanceSiteClass.setModalConfirmSubmitClass(confirmSubmitClass_);
+                sectionAttendanceSiteClass.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
+                sectionAttendanceSiteClass.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
+                sectionAttendanceSiteClass.setSectionAttendancePlannerClass(sectionAttendancePlannerClass_);
+                sectionAttendanceSiteClass.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
+                sectionAttendanceSiteClass.setClassFrom(attendanceClass_);
+                sectionAttendanceSiteClass.init();
+
+                attendanceClass_.setRefStatus(refStatus_);
+                attendanceClass_.setRefClient(refClient_);
+                attendanceClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
+                attendanceClass_.setSectionAttendanceConfigSiteClass(sectionAttendanceSiteClass);
+                attendanceClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
-
-            modalAttendanceShift_.init();
-
-            attendanceClass_.setModalAttendanceShiftClass(modalAttendanceShift_);
-            attendanceClass_.init();
             HideLoader();
-        }, 300);
+        }, 200);
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_attendance_shift.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_attendance.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_submit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_planner.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
+

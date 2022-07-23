@@ -339,7 +339,7 @@ class DbMysql {
             foreach ($columns as $columnValue) {
                 if ($columnValue === '++') {
                     continue;
-                } else if ($columnValue === '' || $columnValue === 'NULL') {
+                } else if ($columnValue === '' || $columnValue === 'NULL' || $columnValue === null) {
                     $preparedValues[] = null;
                 } else if (substr($columnValue, 0, 1) === '|') {
                     continue;
@@ -389,7 +389,7 @@ class DbMysql {
             }
             $insertValues = array();
             foreach ($columns as $columnValue) {
-                if ($columnValue === '' || $columnValue === 'NULL') {
+                if ($columnValue === '' || $columnValue === 'NULL' || $columnValue === null) {
                     $insertValues[] = '?';
                 } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
                     $insertValues[] = '?';
@@ -419,7 +419,7 @@ class DbMysql {
             }
             $insertValues = array();
             foreach ($columns as $columnValue) {
-                if ($columnValue === '' || $columnValue === 'NULL') {
+                if ($columnValue === '' || $columnValue === 'NULL' || $columnValue === null) {
                     $insertValues[] = null;
                 } else if (gettype($columnValue) === 'integer' && $columnValue === 0) {
                     $insertValues[] = null;

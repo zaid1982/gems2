@@ -204,7 +204,7 @@ function ModalAttendanceGroup () {
                 setTimeout(function () {
                     try {
                         mzAjaxRequest2('att_group', 'POST', self.getDataSubmitted());
-                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
+                        if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.reloadTopStatistic();
                             classFrom.setHasEdit(true);
@@ -227,7 +227,7 @@ function ModalAttendanceGroup () {
                 setTimeout(function () {
                     try {
                         mzAjaxRequest2('att_group/'+attGroupId, 'PUT', self.getDataSubmitted());
-                        if (classFrom.getClassName() === 'SectionAttendanceConfigSite') {
+                        if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.reloadTopStatistic();
                         }
@@ -315,6 +315,7 @@ function ModalAttendanceGroup () {
                 mzSetFieldValue('MtgGroupNightEnd', '08:00:00', 'select');
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup');
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup');
+                googleMapsDrawingPolygonClass.setDrawingControl(true);
                 $('#btnMtgSave').hide();
                 $('#btnMtgSubmit').show();
 
@@ -378,6 +379,7 @@ function ModalAttendanceGroup () {
                 mzSetFieldValue('MtgGroupStatus', attGroup['attGroupStatus'], 'radio');
                 googleMapsDrawingPolygonClass.setDrawingManager('mapMtgGroup', attGroup['attGroupMapCenterLat'], attGroup['attGroupMapCenterLng'], attGroup['attGroupMapZoom']);
                 googleMapsDrawingPolygonClass.drawPolygon('mapMtgGroup', polygon['coordinates'][0]);
+                googleMapsDrawingPolygonClass.setDrawingControl(true);
                 $('#btnMtgSave').show();
                 $('#btnMtgSubmit').hide();
 

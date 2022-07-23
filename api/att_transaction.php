@@ -30,6 +30,33 @@ try {
         }
         $formData['result'] = $result;
         $formData['success'] = true;
+    }
+    else if ('PUT' === $requestMethod) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+        }
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+
+        if ($urlArr[1] === 'check_in') {
+            // TODO check in
+        }
+        else if (is_numeric($urlArr[1])) {
+            $fnAttTransaction->update(intval($urlArr[1]), $params);
+            $fnAttTransaction->saveAudit(211, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
+            $errorMsg = str_replace('_1', $fnAttTransaction->attParticipantName, Constant::$attTransaction['update']);
+            $formData['errmsg'] = str_replace('_2', $fnAttTransaction->attTransactionDate, $errorMsg);
+        }
+        else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request - '.$urlArr[1]);
+        }
+
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
     } else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }

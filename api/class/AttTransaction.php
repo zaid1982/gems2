@@ -3,11 +3,30 @@
 class AttTransaction extends General {
 
     public $attTransactionId = 0;
+    public $attTransactionDate = '';
+    public $attParticipantName = '';
     private $shiftCurrent = 0;
 
     function __construct(int $userId = 0, bool $isLogged = false) {
         $this->userId = $userId;
         $this->isLogged = $isLogged;
+    }
+
+    /**
+     * @param int $attTransactionId
+     * @throws Exception
+     */
+    public function set (int $attTransactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
+            $this->attTransactionId = $attTransactionId;
+            $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$this->attTransactionId), true);
+            $this->attParticipantName = DbMysql::selectColumn('sys_user', array('userId'=>$attTransaction['userId']),'userFirstName', true);
+            $this->attTransactionDate = $attTransaction['attTransactionDate'];
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
     }
 
     /**
@@ -37,7 +56,7 @@ class AttTransaction extends General {
                         ELSE NULL 
                     END AS result,
                     TIMEDIFF(att_transaction_shift_start, att_transaction_time_in) AS duration_in,
-                    TIMEDIFF(att_transaction_time_out, att_transaction_shift_end) AS duration_out,		
+                    TIMEDIFF(att_transaction_shift_end, att_transaction_time_out) AS duration_out,		
                     TIMEDIFF(att_transaction_shift_end, att_transaction_shift_start) AS duration_needed,
                     TIMEDIFF(att_transaction_time_out, att_transaction_time_in) AS duration_work,
                     ST_X(att_transaction_location_in) AS location_in_x,
@@ -60,6 +79,7 @@ class AttTransaction extends General {
                     t.att_transaction_shift_end,
                     t.att_transaction_time_in,
                     t.att_transaction_time_out,
+                    t.att_transaction_result,
                     t.att_transaction_status
                 FROM att_transaction t
                 LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
@@ -212,18 +232,20 @@ class AttTransaction extends General {
             if ($month < 1 || $month > 12) {
                 throw new Exception('Invalid month = '.$month);
             }
-            $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), 1);
-            $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), 1);
+            $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), true);
+            $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), true);
             DbMysql::delete('att_Transaction', array('userId'=>$attParticipant['userId'], 'attGroupId'=>$attParticipant['attGroupId'], 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month));
             $this->shiftCurrent = 0;
             $dateProcess = new DateTime();
             $endOfMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             for ($day = 1; $day <= $endOfMonth; $day++) {
                 $dateProcess->setDate($year, $month, $day);
+                $dateString = $dateProcess->format('Y-m-d');
                 $attTypeId = $this->getNewType($dateProcess, $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
                 $shiftTime = $this->getShiftTime($dateProcess, $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                DbMysql::insert('att_transaction', array('attTransactionDate'=>$dateProcess->format('Y-m-d'), 'attParticipantId'=>$attParticipantId, 'attGroupId'=>$attParticipant['attGroupId'],
-                    'userId'=>$attParticipant['userId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1]));
+                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13)) ? 'Leave' : null;
+                DbMysql::insert('att_transaction', array('attTransactionDate'=>$dateString, 'attParticipantId'=>$attParticipantId, 'attGroupId'=>$attParticipant['attGroupId'],
+                    'userId'=>$attParticipant['userId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult));
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -245,8 +267,8 @@ class AttTransaction extends General {
             if ($month < 1 || $month > 12) {
                 throw new Exception('Invalid month = '.$month);
             }
-            $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), 1);
-            $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), 1);
+            $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), true);
+            $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), true);
             $this->shiftCurrent = 0;
             $dateStart = new DateTime();
             $dateStart->setDate($year, $month, 1);
@@ -254,9 +276,36 @@ class AttTransaction extends General {
             foreach ($attTransactionList as $attTransaction) {
                 $attTypeId = $this->getNewType(new DateTime($attTransaction['attTransactionDate']), $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
                 $shiftTime = $this->getShiftTime(new DateTime($attTransaction['attTransactionDate']), $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                DbMysql::update('att_transaction', array('attGroupId'=>$attParticipant['attGroupId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1]),
+                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13)) ? 'Leave' : null;
+                DbMysql::update('att_transaction', array('attGroupId'=>$attParticipant['attGroupId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult),
                     array('attTransactionId'=>$attTransaction['attTransactionId']));
             }
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $attTransactionId
+     * @param array $columns
+     * @return void
+     * @throws Exception
+     */
+    public function update (int $attTransactionId, array $columns): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
+            if (!isset($columns['attTypeId']) && !isset($columns['attTransactionResult'])) {
+                throw new Exception(Constant::$attTransaction['errUpdateValidation'], 31);
+            }
+            $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
+            $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attTransaction['attParticipantId']), true);
+            $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attTransaction['attGroupId']), true);
+            $shiftTime = $this->getShiftTime(new DateTime($attTransaction['attTransactionDate']), $attGroup, $attParticipant['attParticipantShiftMode'], ($columns['attTypeId'] ?? $attTransaction['attTypeId']));
+            $columns['attTransactionShiftStart'] = $shiftTime[0];
+            $columns['attTransactionShiftEnd'] = $shiftTime[1];
+            DbMysql::update('att_transaction', $columns, array('attTransactionId'=>$attTransactionId));
+            $this->set($attTransactionId);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

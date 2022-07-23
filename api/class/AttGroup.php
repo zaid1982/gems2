@@ -59,16 +59,36 @@ class AttGroup extends General {
     }
 
     /**
+     * @param int $siteId
      * @return array
      * @throws Exception
      */
-    public function getTest (): array {
+    public function getChartsSite (int $siteId): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return DbMysql::selectSqlAll("SELECT 
-                    site_id, wo_task.*
-                FROM wo_task
-                WHERE YEAR(wo_task_time_created) = YEAR(CURDATE()) - 1 AND MONTH(wo_task_time_created) = MONTH(CURDATE()) - 1", array(), 2);
+            parent::checkEmptyInteger($siteId, 'siteId');
+            $absentArr = array();
+            $punctualArr = array();
+            $insideArr = array();
+            $dataArr = DbMysql::selectSqlAll("
+                    /** @lang text */
+                    SELECT 
+                    g.att_group_name, 
+                    COUNT(*) AS total,
+                    ROUND(SUM(IF(att_transaction_result = 'Present' || att_transaction_status <> 'Ready', 1, 0)) / COUNT(*) * 100, 2) AS absent,
+                    ROUND(SUM(IF(att_transaction_time_in < att_transaction_shift_start, 1, 0)) / COUNT(*) * 100, 2) AS punctual,
+                    ROUND(SUM(ST_CONTAINS(g.att_group_polygon, att_transaction_location_in) + ST_CONTAINS(g.att_group_polygon, att_transaction_location_out)) / COUNT(*) * 50, 2) AS inside
+                FROM att_transaction t
+                LEFT JOIN att_group g ON g.att_group_id = t.att_group_id 
+                WHERE g.site_id = ".$siteId." AND att_type_id IN (1,2,3,9,10,11) AND att_transaction_date <= CURDATE()
+                GROUP BY t.att_group_id", array());
+            foreach ($dataArr AS $data) {
+                $attGroupName = $data['attGroupName'];
+                $absentArr[] = array($attGroupName, floatval($data['absent']));
+                $punctualArr[] = array($attGroupName, floatval($data['punctual']));
+                $insideArr[] = array($attGroupName, floatval($data['inside']));
+            }
+            return array($absentArr, $punctualArr, $insideArr);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -35,6 +35,8 @@ try {
             }
         } else if ($urlArr[1] === 'by_site') {
             $result = $fnAttGroup->getList(intval($urlArr[2]));
+        } else if ($urlArr[1] === 'chart_site') {
+            $result = $fnAttGroup->getChartsSite(intval($urlArr[2]));
         } else {
             $fnAttGroup->set(intval($urlArr[1]));
             $result = $fnAttGroup->attGroup;

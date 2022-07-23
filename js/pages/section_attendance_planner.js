@@ -104,7 +104,7 @@ function SectionAttendancePlanner () {
 
     this.getCellDisplay = function (_data, _day, _metaRow) {
         try {
-            if (typeof _day !== 'number' || _day < 1 || _day > 31) {
+            if (typeof _day !== 'number' || _day < 1 || _day > parseInt(thisDate.endOf('month').format('D'))) {
                 return '';
             }
             const attTypeId = _data[_day]['attTypeId'];
