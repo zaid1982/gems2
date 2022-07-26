@@ -9,6 +9,7 @@ $apiName = 'att_type';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $fnAttType = new AttType();
 

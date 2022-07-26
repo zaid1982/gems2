@@ -11,6 +11,7 @@ $api_name = 'api_wo_task_assist';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 $userId = '';
 
 $constant = new Class_constant();

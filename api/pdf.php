@@ -9,6 +9,7 @@ $api_name = 'api_pdf';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $constant = new Class_constant();
 $fn_general = new Class_general();

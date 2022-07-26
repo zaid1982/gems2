@@ -40,15 +40,15 @@ class General {
     }
 
     /**
-     * @param string $string
+     * @param  $string
      * @param string $stringName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyString (string $string='', string $stringName=''): bool {
+    public function checkEmptyString ($string, string $stringName=''): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            if ($string === '' || $string === NULL) {
+            if ($string === '' || $string === null) {
                 throw new Exception('Empty string '.$stringName);
             }
             return true;
@@ -58,12 +58,12 @@ class General {
     }
 
     /**
-     * @param int $integer
+     * @param $integer
      * @param string $integerName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyInteger (int $integer, string $integerName): bool {
+    public function checkEmptyInteger ($integer, string $integerName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($integer)) {
@@ -76,12 +76,12 @@ class General {
     }
 
     /**
-     * @param float $float
+     * @param $float $float
      * @param string $floatName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyFloat (float $float, string $floatName): bool {
+    public function checkEmptyFloat ($float, string $floatName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($float)) {
@@ -485,14 +485,14 @@ class General {
     }
 
     /**
-     * @param string $time
-     * @return string
+     * @param $time
+     * @param bool $withSeconds
+     * @return string|null
      * @throws Exception
      */
-    public function timeDisplay (string $time, bool $withSeconds = false): string {
+    public function timeDisplay ($time, bool $withSeconds = false): ?string {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyString($time);
             $durationStr = '';
             $pieces = explode(':', $time);
             if (count($pieces) === 3) {
@@ -502,18 +502,21 @@ class General {
                 if ($hour >= 24) {
                     $durationInt = intval(floor($hour/24));
                     $durationStr = $durationInt === 1 ? $durationInt.' day' : $durationInt.' days';
-                } else if ($hour > 0) {
-                    $durationStr = $hour === 1 ? $hour.' hour' : $hour.' hours';
+                }
+                if ($hour > 0) {
+                    $durationStr .= $hour === 1 ? ' '.$hour.' hour' : ' '.$hour.' hours';
                 }
                 if ($minute === 0 && $seconds === 0){
-                    return $durationStr;
+                    return ltrim($durationStr);
                 }
-                $durationStr .= $minute <= 1 ? $minute.' minute' : $minute.' minutes';
+                $durationStr .= $minute <= 1 ? ' '.$minute.' minute' : ' '.$minute.' minutes';
                 if ($withSeconds && $seconds !== 0) {
                     $durationStr .= ' '.$seconds.' seconds';
                 }
+            } else {
+                return $time;
             }
-            return $durationStr;
+            return ltrim($durationStr);
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

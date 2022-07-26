@@ -17,17 +17,12 @@
 <script type="text/javascript">
 
     $.ajax({
-        //url: 'api/m_ppm.php',
-        url: 'gamification/gmi_monthly_top_5_m/2022/7',
+        //url: 'att_transaction/mobile/main_info',
+        url: 'att_transaction/mobile/calendar_dot/2022/7',
         type: 'GET',
-        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2NTc1NDQwMjQsImV4cCI6MTY1NzU0NDAzNH0.k87J7yTwIi-lBrr4dsWytnjJe31SLS1kTF00Ie3F7-M',
+        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiODQ0IiwidXNlcm5hbWUiOiJKYWNpbnRoYSIsImlhdCI6MTY1ODc3MzYwNCwiZXhwIjoxNjU4NzczNjE0fQ.S6r95KavJukIotU1WH29grKhjhgEEXoZgnaXBlCbOpw',
             deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-        data:
-        {
-            ppmTaskId: '771266',
-            assistant: '950'
-        }
-        ,
+        //data: { ppmTaskId: '771266', assistant: '950' },
         dataType: 'json',
         success: function (resp) {
             console.log(resp);
@@ -42,7 +37,7 @@
          type: 'POST',
          //contentType: 'application/json',
          headers: '',
-         data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+         data: {action:'login', username:'Jacintha', password:'password', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
          dataType: 'json',
          success: function (resp) {
              console.log(resp);

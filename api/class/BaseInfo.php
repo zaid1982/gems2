@@ -2,9 +2,9 @@
 
 
 class BaseInfo extends General {
-    public static $userId = '';
-    public static $userName = '';
-    public static $redis;
+    public $userId = '';
+    public $userName = '';
+    public $redis;
 
     /**
      * @throws Exception

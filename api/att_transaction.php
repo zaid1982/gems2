@@ -9,6 +9,7 @@ $apiName = 'att_transaction';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $fnAttTransaction = new AttTransaction();
 
@@ -25,6 +26,12 @@ try {
     if ('GET' === $requestMethod) {
         if (isset($urlArr[1]) && $urlArr[1] === 'monthly' && isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3]) && isset($urlArr[4]) && isset($urlArr[5])) {
             $result = $fnAttTransaction->getMonthlySite(intval($urlArr[3]), intval($urlArr[4]), intval($urlArr[5]));
+        } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'main_info') {
+            $result = $fnAttTransaction->getMobileInfo();
+        } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'calendar_daily_info' && isset($urlArr[3])) {
+            $result = $fnAttTransaction->getMobileCalendarInfo($urlArr[3]);
+        } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'calendar_dot' && isset($urlArr[3]) && isset($urlArr[4])) {
+            $result = $fnAttTransaction->getMobileCalendarDot(intval($urlArr[3]), intval($urlArr[4]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -70,6 +77,7 @@ try {
     } catch (Exception $ex) {
         $fnAttTransaction->logError('API', $apiName, __LINE__, $e->getMessage());
     }
+    $formData['error'] = substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2);
     $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
     $fnAttTransaction->logError('API', $apiName, __LINE__, $e->getMessage());
 }

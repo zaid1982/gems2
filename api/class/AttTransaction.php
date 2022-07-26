@@ -135,7 +135,6 @@ class AttTransaction extends General {
             $today = new DateTime();
             $today->setTime(0, 0);
             $dayOfWeek = intval($currentDate->format('w'));
-
             if ($holiday === 'Sunday' && $dayOfWeek === 0) {
                 $attTypeId = 12;
             } else if ($holiday === 'Saturday & Sunday' && ($dayOfWeek === 0 || $dayOfWeek === 6)) {
@@ -163,7 +162,6 @@ class AttTransaction extends General {
                     $attTypeId = $this->shiftCurrent;
                 }
             }
-
             if ($attTypeId === 0) {
                 throw new Exception('Invalid $attTypeId for $shiftMode = '.$shiftMode.', $shiftCurrent = '.$this->shiftCurrent);
             }
@@ -306,6 +304,299 @@ class AttTransaction extends General {
             $columns['attTransactionShiftEnd'] = $shiftTime[1];
             DbMysql::update('att_transaction', $columns, array('attTransactionId'=>$attTransactionId));
             $this->set($attTransactionId);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $timestamp
+     * @param bool $withSecond
+     * @return string|null
+     * @throws Exception
+     */
+    private function getTimeDisplay ($timestamp, bool $withSecond=false): ?string {
+        try {
+            if (empty($timestamp)) {
+                return null;
+            }
+            $dateTime = new DateTime($timestamp);
+            if ($withSecond) {
+                return $dateTime->format('j/n/Y g:i:s A');
+            }
+            return $dateTime->format('j/n/Y g:i A');
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getMobileInfo (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $dateNow = new DateTime();
+            $dateProcess = new DateTime();
+            $infoArr = array('date'=>null, 'attTransactionId'=>null, 'currentTime'=>$dateProcess->format('j/n/Y g:i:s A'), 'currentShift'=>null, 'button'=>null, 'status'=>null, 'shiftStart'=>null, 'shiftEnd'=>null, 'timeClockIn'=>null, 'timeClockOut'=>null,
+                'duration'=>null, 'weeklyRequiredHours'=>null, 'weeklyDuration'=>null, 'weeklyProgress'=>null, 'nextShiftStart'=>null, 'remark'=>null);
+            $nextCheckIn = false;
+
+            if (intval($dateProcess->format('g')) < 12) {
+                $dateTemp = new DateTime();
+                $dateTemp->sub(new DateInterval('P1D'));
+                $attTransactionTemp = DbMysql::select('att_transaction', array('userId'=>$this->userId, 'attTransactionDate'=>$dateTemp->format('Y-m-d'), 'attTypeId'=>'IN|3,10,11'));
+                if (!empty($attTransactionTemp)) {
+                    $shiftStart = new DateTime($attTransactionTemp['attTransactionShiftStart']);
+                    $intervalStart = $dateProcess->diff($shiftStart);
+                    $diffStart = floatval($intervalStart->format('%r%h.%I'));
+                    $shiftEnd = new DateTime($attTransactionTemp['attTransactionShiftEnd']);
+                    $intervalEnd = $dateProcess->diff($shiftEnd);
+                    $diffEnd = floatval($intervalEnd->format('%r%h.%I'));
+                    if ($attTransactionTemp['attTransactionStatus'] === 'Ready' && $diffStart <= 2 && $diffEnd > 0) {
+                        $dateProcess->sub(new DateInterval('P1D'));
+                    } else if ($attTransactionTemp['attTransactionStatus'] === 'Checked In' && $diffEnd >= -3) {
+                        $dateProcess->sub(new DateInterval('P1D'));
+                    }
+                }
+            }
+            $infoArr['date'] = $dateProcess->format('j/n/Y');
+
+            $attTransaction = DbMysql::select('att_transaction', array('userId'=>$this->userId, 'attTransactionDate'=>$dateProcess->format('Y-m-d')));
+            if (empty($attTransaction)) {
+                $infoArr['status'] = 'Not Available';
+            }
+            else {
+                $attTransactionId = $attTransaction['attTransactionId'];
+                $dbDuration = DbMysql::selectSql(
+                    /** @lang text */
+                    "SELECT 
+                        WEEK(att_transaction_date) AS week_no,
+                        SEC_TO_TIME(SUM(TO_SECONDS(att_transaction_time_out) - TO_SECONDS(att_transaction_time_in))) AS time_diff,	
+                        SUM(TO_SECONDS(att_transaction_time_out) - TO_SECONDS(att_transaction_time_in)) AS time_diff_sec	
+                    FROM att_transaction t
+                    INNER JOIN (SELECT user_id, WEEK(att_transaction_date) AS week_no FROM att_transaction WHERE att_transaction_id = $attTransactionId) a ON a.week_no = WEEK(t.att_transaction_date) AND a.user_id = t.user_id
+                    GROUP BY week_no",
+                    array(), true);
+                $infoArr['attTransactionId'] = $attTransactionId;
+                $infoArr['weeklyDuration'] = parent::timeDisplay($dbDuration['timeDiff'], true);
+                $infoArr['weeklyRequiredHours'] = DbMysql::selectColumn('att_participant', array('attParticipantId'=>$attTransaction['attParticipantId']), 'attParticipantReqWeekHours', true).' hours';
+                $infoArr['weeklyProgress'] = !empty($dbDuration['timeDiff']) ? round(intval($dbDuration['timeDiffSec'])/(intval($infoArr['weeklyRequiredHours'])*60*60)*100, 2).'%' : '0%';
+
+                $infoArr['shiftStart'] = $this->getTimeDisplay($attTransaction['attTransactionShiftStart']);
+                $infoArr['shiftEnd'] = $this->getTimeDisplay($attTransaction['attTransactionShiftEnd']);
+                $infoArr['timeClockIn'] = $this->getTimeDisplay($attTransaction['attTransactionTimeIn'], true);
+                $infoArr['timeClockOut'] = $this->getTimeDisplay($attTransaction['attTransactionTimeOut'], true);
+                $infoArr['currentShift'] = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeName', true);
+
+                if ($attTransaction['attTransactionResult'] === 'Leave' || $attTransaction['attTransactionResult'] === 'Training') {
+                    $infoArr['status'] = $attTransaction['attTransactionResult'];
+                    $nextCheckIn = true;
+                }
+                else if ($attTransaction['attTransactionStatus'] === 'Checked Out') {
+                    $infoArr['status'] = 'Checked Out';
+                    $nextCheckIn = true;
+                    parent::checkEmptyString($attTransaction['attTransactionTimeIn'], 'attTransactionTimeIn');
+                    parent::checkEmptyString($attTransaction['attTransactionTimeOut'], 'attTransactionTimeOut');
+                    $timeIn = new DateTime($attTransaction['attTransactionTimeIn']);
+                    $timeOut = new DateTime($attTransaction['attTransactionTimeOut']);
+                    $intervalDuration = $timeIn->diff($timeOut);
+                    $infoArr['duration'] = parent::timeDisplay($intervalDuration->format('%H:%i:%s'), true);
+                }
+                else {
+                    $shiftStart = new DateTime($attTransaction['attTransactionShiftStart']);
+                    $intervalStart = $dateNow->diff($shiftStart);
+                    $diffStart = floatval($intervalStart->format('%r%h.%I'));
+                    $shiftEnd = new DateTime($attTransaction['attTransactionShiftEnd']);
+                    $intervalEnd = $dateNow->diff($shiftEnd);
+                    $diffEnd = floatval($intervalEnd->format('%r%h.%I'));
+                    if ($attTransaction['attTransactionStatus'] === 'Ready') {
+                        if ($diffStart > 2) {
+                            $infoArr['status'] = 'Not Available';
+                            $infoArr['remark'] = 'Check in started 2 hours before working / shift start time';
+                        } else if ($diffEnd <= 0) {
+                            $infoArr['status'] = 'Not Available';
+                            $infoArr['remark'] = 'Check in should be before working / shift end time';
+                            $nextCheckIn = true;
+                        } else {
+                            $infoArr['status'] = 'Ready';
+                            $infoArr['button'] = 'Check In';
+                        }
+                    } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
+                        parent::checkEmptyString($attTransaction['attTransactionTimeIn'], 'attTransactionTimeIn');
+                        $timeIn = new DateTime($attTransaction['attTransactionTimeIn']);
+                        $intervalDuration = $timeIn->diff($dateNow);
+                        $infoArr['duration'] = parent::timeDisplay($intervalDuration->format('%H:%i:%s'), true);
+                        if ($diffEnd < -3) {
+                            $infoArr['status'] = 'Not Available';
+                            $infoArr['remark'] = 'Check out only available 3 hours after working / shift end time';
+                            $nextCheckIn = true;
+                        } else {
+                            $infoArr['status'] = 'Ready';
+                            $infoArr['button'] = 'Check Out';
+                        }
+                    } else {
+                        $infoArr['status'] = 'Not Available';
+                        $nextCheckIn = true;
+                    }
+                }
+            }
+
+            if ($nextCheckIn) {
+                $nextCheckIn = DbMysql::selectColumn('att_transaction', array('userId'=>$this->userId, 'attTransactionDate'=>'>|'.$dateNow->format('Y-m-d H:i:s'), 'attTransactionShiftStart'=>'IS NOT NULL'), 'attTransactionShiftStart');
+                $infoArr['nextShiftStart'] = !empty($nextCheckIn) ? 'Next shift started at '.$this->getTimeDisplay($nextCheckIn) : null;
+            }
+
+            return $infoArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $date
+     * @return array
+     * @throws Exception
+     */
+    public function getMobileCalendarInfo (string $date): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $dateProcess = DateTime::createFromFormat('Y-m-d', $date);
+            if ($dateProcess === false) {
+                throw new Exception('Invalid date format - '.$date);
+            }
+            $dateNow = new DateTime();
+            $infoArr = array('date'=>null, 'currentTime'=>$dateProcess->format('j/n/Y g:i:s A'), 'currentShift'=>null, 'status'=>null, 'shiftStart'=>null, 'shiftEnd'=>null, 'timeClockIn'=>null, 'timeClockOut'=>null, 'duration'=>null);
+            $infoArr['date'] = $dateProcess->format('j/n/Y');
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, '$dateProcess = '.$dateProcess->format('c'));
+
+            $attTransaction = DbMysql::select('att_transaction', array('userId'=>$this->userId, 'attTransactionDate'=>$dateProcess->format('Y-m-d')));
+            if (empty($attTransaction)) {
+                $infoArr['status'] = 'Not Available';
+            }
+            else {
+                $infoArr['shiftStart'] = $this->getTimeDisplay($attTransaction['attTransactionShiftStart']);
+                $infoArr['shiftEnd'] = $this->getTimeDisplay($attTransaction['attTransactionShiftEnd']);
+                $infoArr['timeClockIn'] = $this->getTimeDisplay($attTransaction['attTransactionTimeIn'], true);
+                $infoArr['timeClockOut'] = $this->getTimeDisplay($attTransaction['attTransactionTimeOut'], true);
+                $infoArr['currentShift'] = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeName', true);
+
+                if ($attTransaction['attTransactionResult'] === 'Leave' || $attTransaction['attTransactionResult'] === 'Training') {
+                    $infoArr['status'] = $attTransaction['attTransactionResult'];
+                }
+                else if ($attTransaction['attTransactionStatus'] === 'Checked Out') {
+                    $infoArr['status'] = 'Checked Out';
+                    parent::checkEmptyString($attTransaction['attTransactionTimeIn'], 'attTransactionTimeIn');
+                    parent::checkEmptyString($attTransaction['attTransactionTimeOut'], 'attTransactionTimeOut');
+                    $timeIn = new DateTime($attTransaction['attTransactionTimeIn']);
+                    $timeOut = new DateTime($attTransaction['attTransactionTimeOut']);
+                    $intervalDuration = $timeIn->diff($timeOut);
+                    $infoArr['duration'] = parent::timeDisplay($intervalDuration->format('%H:%i:%s'), true);
+                }
+                else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
+                    $infoArr['status'] = 'Checked In';
+                    parent::checkEmptyString($attTransaction['attTransactionTimeIn'], 'attTransactionTimeIn');
+                    $timeIn = new DateTime($attTransaction['attTransactionTimeIn']);
+                    $intervalDuration = $timeIn->diff($dateNow);
+                    $infoArr['duration'] = parent::timeDisplay($intervalDuration->format('%H:%i:%s'), true);
+                }
+                else {
+                    $infoArr['status'] = 'Ready';
+                }
+            }
+
+            return $infoArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $year
+     * @param int $month
+     * @return array
+     * @throws Exception
+     */
+    public function getMobileCalendarDot (int $year, int $month): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($year, 'year');
+            parent::checkEmptyInteger($month, 'month');
+            parent::checkEmptyInteger($this->userId, 'userId');
+
+            $returnArr = array();
+            $dateNow = new DateTime();
+            $dateNow->setTime(0, 0);
+            $dateProcess = new DateTime();
+            $dateProcess->setTime(0, 0);
+            $endOfMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            for ($day = 1; $day <= $endOfMonth; $day++) {
+                $dateProcess->setDate($year, $month, $day);
+                $returnArr[$day] = array('date'=>$dateProcess->format('Y-m-d'), 'status'=>null, 'color'=>null);
+            }
+
+            $attTransactionArr = DbMysql::selectAll('att_transaction', array('userId'=>$this->userId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 0, false, 'att_transaction_date');
+            foreach ($attTransactionArr as $attTransaction) {
+                $dateTransaction = new DateTime($attTransaction['attTransactionDate']);
+                $dateIndex = intval($dateTransaction->format('d'));
+                $status = !empty($attTransaction['attTransactionResult']) ? $attTransaction['attTransactionResult'] : $attTransaction['attTransactionStatus'];
+                $returnArr[$dateIndex]['status'] = $status;
+                if ($attTransaction['attTypeId'] === 12) {
+                    $returnArr[$dateIndex]['color'] = null;
+                    $returnArr[$dateIndex]['status'] = 'Weekend';
+                } else if ($status === 'Leave') {
+                    $returnArr[$dateIndex]['color'] = 'orange';
+                } else if ($status === 'Present') {
+                    $returnArr[$dateIndex]['color'] = 'green';
+                } else if ($status === 'Absent') {
+                    $returnArr[$dateIndex]['color'] = 'red';
+                } else if ($status === 'Ready') {
+                    $intervalDuration = $dateNow->diff($dateTransaction);
+                    if ($intervalDuration->format('%r') === '-') {
+                        $returnArr[$dateIndex]['status'] = 'Absent';
+                        $returnArr[$dateIndex]['color'] = 'red';
+                    } else {
+                        $returnArr[$dateIndex]['color'] = 'blue';
+                    }
+                }
+            }
+            return $returnArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $attTransactionId
+     * @throws Exception
+     */
+    public function checkIn (int $attTransactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
+            // check status ready
+            DbMysql::update('att_transaction', array('attTransactionId'=>$attTransactionId), array('attTransactionId'=>$attTransactionId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $attTransactionId
+     * @throws Exception
+     */
+    public function checkOut (int $attTransactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
+            // check status check in
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -9,6 +9,7 @@ $apiName = 'fca_defect_category_site';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $fnDefectCategorySite = new FcaDefectCategorySite();
 
