@@ -391,7 +391,7 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            $notiSends = Class_db::getInstance()->db_select('noti_send', array(), 'noti_id', '20');
+            $notiSends = Class_db::getInstance()->db_select('noti_send', array(), 'noti_id', '100');
             foreach ($notiSends as $notiSend) {
                 $status = '23'; // fail
                 try {
