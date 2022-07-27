@@ -317,14 +317,7 @@ class Class_user {
                     $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                     foreach ($checkpoints as $checkpoint) {
                         $checkpointId = $checkpoint['checkpoint_id'];
-                        if ($checkpointId == '3' && $role == '4') {
-                            $groupId_ = $groupId;
-                        } else {
-                            $groupId_ = $checkpoint['group_id'];
-                        }
-                        if ($groupId_ === $groupId || empty($groupId_)) {
-                            Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId_));
-                        }
+                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }
                 }
             }
@@ -519,14 +512,7 @@ class Class_user {
                 $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                 foreach ($checkpoints as $checkpoint) {
                     $checkpointId = $checkpoint['checkpoint_id'];
-                    if ($checkpointId == '3' && $role == '4') {
-                        $groupId_ = $groupId;
-                    } else {
-                        $groupId_ = $checkpoint['group_id'];
-                    }
-                    if ($groupId_ === $groupId || empty($groupId_)) {
-                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
-                    }
+                    Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                 }
             }
 
