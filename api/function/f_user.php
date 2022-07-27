@@ -322,7 +322,7 @@ class Class_user {
                         } else {
                             $groupId_ = $checkpoint['group_id'];
                         }
-                        if ($groupId_ === $groupId || is_null($groupId_)) {
+                        if ($groupId_ === $groupId || empty($groupId_)) {
                             Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId_));
                         }
                     }
@@ -524,7 +524,7 @@ class Class_user {
                     } else {
                         $groupId_ = $checkpoint['group_id'];
                     }
-                    if ($groupId_ === $groupId || is_null($groupId_)) {
+                    if ($groupId_ === $groupId || empty($groupId_)) {
                         Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }
                 }
