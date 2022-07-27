@@ -82,6 +82,8 @@ class Constant {
 
     public static $attTransaction = array(
         'update' => 'Employee _1 daily status for date _2 successfully updated!',
+        'checkIn' => 'You successfully checked in!',
+        'checkOut' => 'You successfully checked out!',
         'errUpdateValidation' => 'Please make sure either Daily Status or Attendance Status selected!'
     );
 }

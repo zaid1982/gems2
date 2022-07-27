@@ -33,7 +33,7 @@ try {
         } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'calendar_dot' && isset($urlArr[3]) && isset($urlArr[4])) {
             $result = $fnAttTransaction->getMobileCalendarDot(intval($urlArr[3]), intval($urlArr[4]));
         } else {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
+            throw new Exception('[line: ' . __LINE__ . '] Wrong GET Request');
         }
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -43,29 +43,36 @@ try {
         $params = array();
         parse_str($putData, $params);
         if (!isset ($urlArr[1])) {
-            throw new Exception('[line: ' . __LINE__ . '] - Empty url parameter 1');
+            throw new Exception('[line: ' . __LINE__ . '] Empty url parameter 1');
         }
         DbMysql::beginTransaction();
         $isTransaction = true;
 
-        if ($urlArr[1] === 'check_in') {
-            // TODO check in
+        if ($urlArr[1] === 'check_in' && isset($urlArr[2]) && is_numeric($urlArr[2])) {
+            $fnAttTransaction->checkIn(intval($urlArr[2]));
+            $fnAttTransaction->saveAudit(211, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
+            $formData['errmsg'] = Constant::$attTransaction['checkIn'];
+        }
+        else if ($urlArr[1] === 'check_out' && isset($urlArr[2]) && is_numeric($urlArr[2])) {
+            $fnAttTransaction->checkOut(intval($urlArr[2]));
+            $fnAttTransaction->saveAudit(212, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
+            $formData['errmsg'] = Constant::$attTransaction['checkOut'];
         }
         else if (is_numeric($urlArr[1])) {
             $fnAttTransaction->update(intval($urlArr[1]), $params);
-            $fnAttTransaction->saveAudit(211, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
+            $fnAttTransaction->saveAudit(212, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
             $errorMsg = str_replace('_1', $fnAttTransaction->attParticipantName, Constant::$attTransaction['update']);
             $formData['errmsg'] = str_replace('_2', $fnAttTransaction->attTransactionDate, $errorMsg);
         }
         else {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request - '.$urlArr[1]);
+            throw new Exception('[line: ' . __LINE__ . '] Wrong PUT Request - '.$urlArr[1]);
         }
 
         DbMysql::commit();
         $formData['result'] = $result;
         $formData['success'] = true;
     } else {
-        throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
+        throw new Exception('[line: ' . __LINE__ . '] Wrong Request Method');
     }
     DbMysql::close();
 } catch (Exception $e) {

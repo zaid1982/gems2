@@ -434,7 +434,7 @@ class AttTransaction extends General {
                             $infoArr['remark'] = 'Check out only available 3 hours after working / shift end time';
                             $nextCheckIn = true;
                         } else {
-                            $infoArr['status'] = 'Ready';
+                            $infoArr['status'] = 'Checked In';
                             $infoArr['button'] = 'Check Out';
                         }
                     } else {
@@ -571,6 +571,7 @@ class AttTransaction extends General {
 
     /**
      * @param int $attTransactionId
+     * @return void
      * @throws Exception
      */
     public function checkIn (int $attTransactionId): void {
@@ -579,8 +580,23 @@ class AttTransaction extends General {
             parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
             parent::checkEmptyInteger($this->userId, 'userId');
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
-            // check status ready
-            DbMysql::update('att_transaction', array('attTransactionId'=>$attTransactionId), array('attTransactionId'=>$attTransactionId));
+            if ($attTransaction['attTransactionStatus'] === 'Ready') {
+                if ($attTransaction['userId'] !== $this->userId) {
+                    throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
+                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13))) {
+                    throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
+                } else if ($attTransaction['attTypeId'] === 8) {
+                    throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
+                }
+                DbMysql::update('att_transaction', array('attTransactionTimeIn'=>'NOW()', 'attTransactionResult'=>'Present', 'attTransactionStatus'=>'Checked In'), array('attTransactionId'=>$attTransactionId));
+                $this->set($attTransactionId);
+            } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
+                throw new Exception('This attendance already checked in. Please refresh the page!', 31);
+            } else if ($attTransaction['attTransactionStatus'] === 'Checked Out') {
+                throw new Exception('This attendance already checked out. Please refresh the page!', 31);
+            } else {
+                throw new Exception('Invalid Attendance Transaction Status');
+            }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -588,6 +604,7 @@ class AttTransaction extends General {
 
     /**
      * @param int $attTransactionId
+     * @return void
      * @throws Exception
      */
     public function checkOut (int $attTransactionId): void {
@@ -596,7 +613,23 @@ class AttTransaction extends General {
             parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
             parent::checkEmptyInteger($this->userId, 'userId');
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
-            // check status check in
+            if ($attTransaction['attTransactionStatus'] === 'Ready') {
+                throw new Exception('This attendance not yet checked in. Please refresh the page!', 31);
+            } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
+                if ($attTransaction['userId'] !== $this->userId) {
+                    throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
+                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13))) {
+                    throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
+                } else if ($attTransaction['attTypeId'] === 8) {
+                    throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
+                }
+                DbMysql::update('att_transaction', array('attTransactionTimeOut'=>'NOW()', 'attTransactionStatus'=>'Checked Out'), array('attTransactionId'=>$attTransactionId));
+                $this->set($attTransactionId);
+            } else if ($attTransaction['attTransactionStatus'] === 'Checked Out') {
+                throw new Exception('This attendance already checked out. Please refresh the page!', 31);
+            } else {
+                throw new Exception('Invalid Attendance Transaction Status');
+            }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
