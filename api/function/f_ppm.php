@@ -343,7 +343,7 @@ class Class_ppm {
                 $row_result['ppmCreatedBy'] = $this->fn_general->clear_null($dataLocal['ppm_created_by']);
                 $row_result['ppmTimeCreated'] = $this->fn_general->clear_null($dataLocal['ppm_time_created']);
                 $row_result['ppmStatus'] = $this->fn_general->clear_null($dataLocal['ppm_status']);
-                $row_result['assignedStatus'] = is_null($dataLocal['ppm_id']) ? '11' : '10';
+                $row_result['assignedStatus'] = empty($dataLocal['ppm_id']) ? '11' : '10';
                 array_push($result, $row_result);
             }
 

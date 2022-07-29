@@ -86,7 +86,7 @@ class AttTransaction extends General {
                 LEFT JOIN att_participant p ON p.att_participant_id = t.att_participant_id
                 LEFT JOIN att_type y ON y.att_type_id = t.att_type_id
                 LEFT JOIN sys_user_profile f ON f.user_id = t.user_id AND f.user_profile_status = 1",
-                array('g.siteId'=>$siteId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 2, false, 'userIds, days');
+                array('g.siteId'=>$siteId, 'p.attParticipantStatus'=>1, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 2, false, 'userIds, days');
             foreach ($transactionList as $i=>$transactions) {
                 $newArray = array();
                 foreach ($transactions as $transaction) {

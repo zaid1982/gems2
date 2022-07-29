@@ -112,7 +112,8 @@ function SectionAttendancePlanner () {
             const shiftMode = refAttType[attTypeId]['attTypeMode'];
             if (shiftMode === 'Normal' || shiftMode === '2 Shifts' || shiftMode === '3 Shifts') {
                 if (_data[_day]['result'] === 'Present') {
-                    colorHoover = 'success-lighter-hover';
+                    //colorHoover = 'success-lighter-hover';
+                    colorHoover = 'white-darker-hover';
                 } else if (_data[_day]['result'] === 'Absent') {
                     colorHoover = 'danger-lighter-hover';
                 } else {
@@ -121,7 +122,7 @@ function SectionAttendancePlanner () {
             }
             const dayName = _data[_day]['dayName'];
             $('#thStxDay'+_day).text(dayName.substr(0, 2));
-            return '<a><span class="' + colorHoover + ' font-weight-bold lnkStxInfo" id="lnkStxInfo_' + _metaRow + '_' + _day + '" data-toggle="tooltip" data-placement="top" title="Click to view / edit daily details">' + refAttType[attTypeId]['attTypeShort'] + '</span></a>';
+            return '<a><span class="' + colorHoover + ' lnkStxInfo" id="lnkStxInfo_' + _metaRow + '_' + _day + '" data-toggle="tooltip" data-placement="top" title="Click to view / edit daily details">' + refAttType[attTypeId]['attTypeShort'] + '</span></a>';
         } catch (e) {
             throw new Error(e.message);
         }
