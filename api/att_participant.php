@@ -30,8 +30,8 @@ try {
         if (!isset ($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'by_site' && isset ($urlArr[2])) {
-            $result = $fnAttParticipant->getListSite(intval($urlArr[2]));
+        if ($urlArr[1] === 'by_site' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
+            $result = $fnAttParticipant->getListSite(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
         } else if (is_numeric($urlArr[1])) {
             $result = $fnAttParticipant->get(intval($urlArr[1]));
         } else {

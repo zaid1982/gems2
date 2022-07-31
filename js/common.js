@@ -36,15 +36,22 @@ const _DATATABLE_LANGUAGE =  {
 
 const mzUrlDownload = '//gems.globalfm.com.my/api/';
 //const mzUrlDownload = '//localhost:8081/gems2/api/';
-let mzCnt;
+let mzCnt = 0;
 const mzExportOpt = {
     columns: ':visible',
     format: {
         body: function ( data, row, column ) {
+            if (row === 0 && column === 0) {
+                mzCnt = 1;
+            }
             if (column === 0) {
                 return mzCnt++;
             } else if (data.length > 3 && data.substr(0, 3) === '<a>') {
                 return '';
+            } else if (data.toString().indexOf('red-text') > 0) {
+                return data.replace('<span class="red-text">', '').replace('</span>', '');
+            } else if (data.toString().indexOf('green-text') > 0) {
+                return data.replace('<span class="green-text">', '').replace('</span>', '');
             }
             return data;
         }
@@ -53,10 +60,17 @@ const mzExportOpt = {
 const mzExportExcelOpt = {
     format: {
         body: function ( data, row, column ) {
+            if (row === 0 && column === 0) {
+                mzCnt = 1;
+            }
             if (column === 0) {
                 return mzCnt++;
             } else if (data.length > 3 && data.substr(0, 3) === '<a>') {
                 return '';
+            } else if (data.toString().indexOf('red-text') > 0) {
+                return data.replace('<span class="red-text">', '').replace('</span>', '');
+            } else if (data.toString().indexOf('green-text') > 0) {
+                return data.replace('<span class="green-text">', '').replace('</span>', '');
             }
             return data;
         }

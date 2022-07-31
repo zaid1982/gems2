@@ -70,9 +70,9 @@ class AttGroup extends General {
             $absentArr = array();
             $punctualArr = array();
             $insideArr = array();
-            $dataArr = DbMysql::selectSqlAll("
-                    /** @lang text */
-                    SELECT 
+            $dataArr = DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT 
                     g.att_group_name, 
                     COUNT(*) AS total,
                     ROUND(SUM(IF(att_transaction_result = 'Present' || att_transaction_status <> 'Ready', 1, 0)) / COUNT(*) * 100, 2) AS absent,
@@ -80,7 +80,7 @@ class AttGroup extends General {
                     ROUND(SUM(ST_CONTAINS(g.att_group_polygon, att_transaction_location_in) + ST_CONTAINS(g.att_group_polygon, att_transaction_location_out)) / COUNT(*) * 50, 2) AS inside
                 FROM att_transaction t
                 LEFT JOIN att_group g ON g.att_group_id = t.att_group_id 
-                WHERE g.site_id = ".$siteId." AND att_type_id IN (1,2,3,9,10,11) AND att_transaction_date <= CURDATE()
+                WHERE g.site_id = $siteId AND att_type_id IN (1,2,3,9,10,11) AND att_transaction_date <= CURDATE()
                 GROUP BY t.att_group_id", array());
             foreach ($dataArr AS $data) {
                 $attGroupName = $data['attGroupName'];

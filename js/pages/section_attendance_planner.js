@@ -138,7 +138,7 @@ function SectionAttendancePlanner () {
                 month = _month;
                 thisDate = moment();
                 thisDate.set({'year': year, 'month': parseInt(month) - 1});
-                $('#h4StxTitle').text('Monthly Attendance Sheet ' + thisDate.format('(MMMM, YYYY)'));
+                //$('#h4StxTitle').text('Monthly Attendance Sheet ' + thisDate.format('(MMMM, YYYY)'));
                 self.genTable();
                 self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});

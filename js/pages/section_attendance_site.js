@@ -56,7 +56,7 @@ function SectionAttendanceSite () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 100,
             autoWidth: false,
-            dom: "<'row'<'col-7 px-0'B><'col-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
@@ -68,10 +68,10 @@ function SectionAttendanceSite () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 ', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 ', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacGroupHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacGroupHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacGroupHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Group List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: 'Add Attendance Group', className: 'btn btn-outline-red btn-sm px-2 ml-3', attr: { id: 'btnSacAddGroup' }}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
@@ -110,6 +110,8 @@ function SectionAttendanceSite () {
                     $(this).DataTable().column(5).visible(false);
                     $(this).DataTable().column(6).visible(false);
                     $(this).DataTable().column(13).visible(false);
+                    $(this).DataTable().column(16).visible(false);
+                    $('.btnSacGroupHide').hide();
                 }
             },
             aoColumns: [
@@ -159,21 +161,21 @@ function SectionAttendanceSite () {
             language: _DATATABLE_LANGUAGE,
             pageLength: 100,
             autoWidth: false,
-            dom: "<'row'<'col-7 px-0 pb-2'B><'col-5 pb-0'f>>" +
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { bSortable: false, targets: [0, 15] },
-                { className: 'text-center', targets: [0, 3, 5, 8, 11, 12, 13, 14, 15] },
-                { className: 'text-right', targets: [10] },
-                { visible: false, targets: [5, 6, 7, 8, 9, 10, 13] },
-                { className: 'noVis', targets: [0, 15] }
+                { bSortable: false, targets: [0, 27] },
+                { className: 'text-center', targets: [0, 3, 5, 8, 11, 12, 13, 14, 27] },
+                { className: 'text-right', targets: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26] },
+                { visible: false, targets: [5, 6, 7, 8, 9, 10, 11, 12, 13, 21, 22, 23, 24, 25] },
+                { className: 'noVis', targets: [0, 27] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacParticipantHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: 'All', className: 'btn btn-outline-blue btn-sm px-2 ml-3', attr: { id: 'btnSacParticipantStatusAll' }},
                 { text: 'Assigned', className: 'btn btn-outline-success btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusAssigned' }},
@@ -187,17 +189,17 @@ function SectionAttendanceSite () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#btnSacParticipantStatusAll').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('').draw();
-                    $('#dtSacParticipantTitle').text('Employee List')
+                    $('#dtSacParticipantTitle').text('Monthly Employee Summary')
                 });
                 $('#btnSacParticipantStatusAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Employee List (Assigned)')
+                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)')
                 });
                 $('#btnSacParticipantStatusNotAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Unregistered)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Employee List (Unregistered)')
+                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Unregistered)')
                 });
                 $('.lnkSacParticipantEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
@@ -228,7 +230,14 @@ function SectionAttendanceSite () {
                     $(this).DataTable().column(3).visible(false);
                     $(this).DataTable().column(4).visible(false);
                     $(this).DataTable().column(5).visible(false);
-                    $(this).DataTable().column(12).visible(false);
+                    $(this).DataTable().column(15).visible(false);
+                    $(this).DataTable().column(16).visible(false);
+                    $(this).DataTable().column(17).visible(false);
+                    $(this).DataTable().column(18).visible(false);
+                    $(this).DataTable().column(19).visible(false);
+                    $(this).DataTable().column(20).visible(false);
+                    $(this).DataTable().column(26).visible(false);
+                    $('.btnSacParticipantHide').hide();
                 }
             },
             aoColumns: [
@@ -244,16 +253,62 @@ function SectionAttendanceSite () {
                 {mData: 'attParticipantCompetency'},
                 {mData: 'attParticipantCidbCardExpiry'},
                 {mData: 'assetGroupId', mRender: function(data) {
-                        return  data !== null ? refAssetGroup[data]['assetGroupName'] : '';
+                        return data !== null ? refAssetGroup[data]['assetGroupName'] : '';
                     }},
-                {mData: 'attParticipantReqWeekHours'},
+                {mData: 'attParticipantReqWeekHours'}, // 10
                 {mData: 'attParticipantShiftMode'},
                 {mData: 'attTypeId', mRender: function(data) {
-                        return  data !== null ? refAttType[data]['attTypeName'] : '';
+                        return data !== null ? refAttType[data]['attTypeName'] : '';
                     }},
                 {mData: 'attParticipantHoliday'},
                 {mData: 'participantStatus', width: '8%', mRender: function(data) {
                         return refStatus[data]['statusDesc'];
+                    }},
+                {mData: 'totalPresent', mRender: function(data, type, row) { // 15
+                        return row['participantStatus'] === 1 ? (data !== '0' ? '<span class="green-text">'+data+'</span>' : '0') : '';
+                    }},
+                {mData: 'totalAbsent', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? (data !== '0' ? '<span class="red-text">'+data+'</span>' : '0') : '';
+                    }},
+                {mData: 'totalMc', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalAl', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalOd', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalRd', mRender: function(data, type, row) { // 20
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalPh', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalTraining', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? data : '';
+                    }},
+                {mData: 'totalInLate', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? (data !== '0' ? '<span class="red-text">'+data+'</span>' : '0') : '';
+                    }},
+                {mData: 'totalOutEarly', mRender: function(data, type, row) {
+                        return row['participantStatus'] === 1 ? (data !== '0' ? '<span class="red-text">'+data+'</span>' : '0') : '';
+                    }},
+                {mData: 'totalOutside', mRender: function(data, type, row) { // 25
+                        return row['participantStatus'] === 1 ? (data !== '0' ? '<span class="red-text">'+data+'</span>' : '0') : '';
+                    }},
+                {mData: 'totalHours', mRender: function(data, type, row) {
+                        let str = '';
+                        if (data !== null) {
+                            if (parseInt(data) > row['attParticipantReqWeekHours']) {
+                                str = '<span class="green-text">'+data+'</span>';
+                            } else {
+                                str = '<span class="red-text">'+data+'</span>';
+                            }
+                        } else if (row['participantStatus'] === 1) {
+                            str = '<span class="red-text">0</span>';
+                        }
+                        return str;
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
@@ -295,12 +350,12 @@ function SectionAttendanceSite () {
             $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
             if (attSite['siteIsAttendance']==='1') {
                 $('#lblSacSiteStatus').html('Enabled');
-                $('#btnSacActivate').hide();
-                $('#btnSacDeactivate').show();
+                $('#divSacActivate').hide();
+                $('#divSacDeactivate').show();
             } else {
                 $('#lblSacSiteStatus').html('Disabled');
-                $('#btnSacActivate').show();
-                $('#btnSacDeactivate').hide();
+                $('#divSacActivate').show();
+                $('#divSacDeactivate').hide();
             }
         } catch (e) {
             throw new Error(e.message);
@@ -322,17 +377,21 @@ function SectionAttendanceSite () {
                 $('#lblSacTotalParticipant').html(attSite['totalParticipant']);
                 if (attSite['siteIsAttendance'] === 1) {
                     $('#lblSacSiteStatus').html('Enabled');
-                    $('#btnSacActivate').hide();
-                    $('#btnSacDeactivate').show();
+                    $('#divSacActivate').hide();
+                    $('#divSacDeactivate').show();
                 } else {
                     $('#lblSacSiteStatus').html('Disabled');
-                    $('#btnSacActivate').show();
-                    $('#btnSacDeactivate').hide();
+                    $('#divSacActivate').show();
+                    $('#divSacDeactivate').hide();
                 }
                 modalAttendanceGroupClass.setSiteName(attSite['siteName']);
                 modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
 
                 todayDate = moment();
+                $('.lnkSacYear').removeClass('active').removeClass('text-white');
+                $('.lnkSacMonth').removeClass('active').removeClass('text-white');
+                $('#lnkSacYear_'+todayDate.format('YYYY')).addClass('active').addClass('text-white');
+                $('#lnkSacMonth_'+todayDate.format('M')).addClass('active').addClass('text-white');
                 self.genTableGroup();
                 self.genTableParticipant();
 
@@ -342,7 +401,7 @@ function SectionAttendanceSite () {
                 self.genChart('chartSacValidity', 'Geo-Validity Performance', 'Group Geo-Validity Rate (%)', chartData[2]);
                 oTableSacParticipant.search('').columns().search('').draw();
 
-                $('#dtSacParticipantTitle').text('Employee List');
+                $('#dtSacParticipantTitle').text('Monthly Employee Summary');
                 hasEdit = false;
                 classFrom.hideMain();
                 self.showMain();
@@ -363,14 +422,14 @@ function SectionAttendanceSite () {
                     if (_flag === 'Activate') {
                         mzAjaxRequest2('att_group/activate_site/'+_siteId, 'PUT');
                         $('#lblSacSiteStatus').html('Enabled');
-                        $('#btnSacActivate').hide();
-                        $('#btnSacDeactivate').show();
+                        $('#divSacActivate').hide();
+                        $('#divSacDeactivate').show();
                         hasEdit = true;
                     } else if (_flag === 'Deactivate') {
                         mzAjaxRequest2('att_group/deactivate_site/'+_siteId, 'PUT');
                         $('#lblSacSiteStatus').html('Disabled');
-                        $('#btnSacActivate').show();
-                        $('#btnSacDeactivate').hide();
+                        $('#divSacActivate').show();
+                        $('#divSacDeactivate').hide();
                         hasEdit = true;
                     } else {
                         toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
@@ -399,7 +458,7 @@ function SectionAttendanceSite () {
 
     this.genTableParticipant = function () {
         try {
-            const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId, 'GET');
+            const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId+'/'+todayDate.format('YYYY')+'/'+todayDate.format('M'), 'GET');
             oTableSacParticipant.clear().rows.add(dataDb).draw();
             sectionAttendancePlannerClass.loadSite(siteId, todayDate.format('YYYY'), todayDate.format('M'));
         } catch (e) {

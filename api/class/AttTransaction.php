@@ -241,7 +241,7 @@ class AttTransaction extends General {
                 $dateString = $dateProcess->format('Y-m-d');
                 $attTypeId = $this->getNewType($dateProcess, $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
                 $shiftTime = $this->getShiftTime($dateProcess, $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13)) ? 'Leave' : null;
+                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13, 14)) ? 'Leave' : null;
                 DbMysql::insert('att_transaction', array('attTransactionDate'=>$dateString, 'attParticipantId'=>$attParticipantId, 'attGroupId'=>$attParticipant['attGroupId'],
                     'userId'=>$attParticipant['userId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult));
             }
@@ -274,7 +274,7 @@ class AttTransaction extends General {
             foreach ($attTransactionList as $attTransaction) {
                 $attTypeId = $this->getNewType(new DateTime($attTransaction['attTransactionDate']), $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
                 $shiftTime = $this->getShiftTime(new DateTime($attTransaction['attTransactionDate']), $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13)) ? 'Leave' : null;
+                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13, 14)) ? 'Leave' : null;
                 DbMysql::update('att_transaction', array('attGroupId'=>$attParticipant['attGroupId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult),
                     array('attTransactionId'=>$attTransaction['attTransactionId']));
             }
@@ -583,7 +583,7 @@ class AttTransaction extends General {
             if ($attTransaction['attTransactionStatus'] === 'Ready') {
                 if ($attTransaction['userId'] !== $this->userId) {
                     throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
-                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13))) {
+                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13, 14))) {
                     throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
                 } else if ($attTransaction['attTypeId'] === 8) {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
@@ -618,7 +618,7 @@ class AttTransaction extends General {
             } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
                 if ($attTransaction['userId'] !== $this->userId) {
                     throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
-                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13))) {
+                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13, 14))) {
                     throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
                 } else if ($attTransaction['attTypeId'] === 8) {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
