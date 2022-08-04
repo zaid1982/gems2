@@ -138,7 +138,6 @@ function SectionAttendancePlanner () {
                 month = _month;
                 thisDate = moment();
                 thisDate.set({'year': year, 'month': parseInt(month) - 1});
-                //$('#h4StxTitle').text('Monthly Attendance Sheet ' + thisDate.format('(MMMM, YYYY)'));
                 self.genTable();
                 self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
@@ -153,6 +152,11 @@ function SectionAttendancePlanner () {
         try {
             const dataDb = mzAjaxRequest2('att_transaction/monthly/site/'+siteId+'/'+year+'/'+month, 'GET');
             oTableStx.clear().rows.add(dataDb).draw();
+            if (dataDb.length === 0) {
+                $('#btnStxRunPlanner').show();
+            } else {
+                $('#btnStxRunPlanner').hide();
+            }
         } catch (e) {
             throw new Error(e.message);
         }

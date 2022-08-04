@@ -60,13 +60,18 @@ class AttGroup extends General {
 
     /**
      * @param int $siteId
+     * @param int $year
+     * @param int $month
      * @return array
      * @throws Exception
      */
-    public function getChartsSite (int $siteId): array {
+    public function getChartsSite (int $siteId, int $year, int $month): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
+            parent::checkEmptyInteger($year, 'year');
+            parent::checkEmptyInteger($month, 'month');
+
             $absentArr = array();
             $punctualArr = array();
             $insideArr = array();
@@ -75,12 +80,12 @@ class AttGroup extends General {
                 "SELECT 
                     g.att_group_name, 
                     COUNT(*) AS total,
-                    ROUND(SUM(IF(att_transaction_result = 'Present' || att_transaction_status <> 'Ready', 1, 0)) / COUNT(*) * 100, 2) AS absent,
-                    ROUND(SUM(IF(att_transaction_time_in < att_transaction_shift_start, 1, 0)) / COUNT(*) * 100, 2) AS punctual,
+                    ROUND(SUM(IF(att_transaction_result = 'Present' OR (att_transaction_date < CURDATE() AND att_transaction_status <> 'Ready'), 1, 0)) / COUNT(*) * 100, 2) AS absent,
+                    ROUND(SUM(IF(att_transaction_time_in IS NOT NULL AND att_transaction_time_in <= att_transaction_shift_start, 1, 0)) / COUNT(*) * 100, 2) AS punctual,
                     ROUND(SUM(ST_CONTAINS(g.att_group_polygon, att_transaction_location_in) + ST_CONTAINS(g.att_group_polygon, att_transaction_location_out)) / COUNT(*) * 50, 2) AS inside
                 FROM att_transaction t
                 LEFT JOIN att_group g ON g.att_group_id = t.att_group_id 
-                WHERE g.site_id = $siteId AND att_type_id IN (1,2,3,9,10,11) AND att_transaction_date <= CURDATE()
+                WHERE g.site_id = $siteId AND att_type_id IN (1,2,3,9,10,11) AND YEAR(att_transaction_date) = $year AND MONTH(att_transaction_date) = $month AND DATE(att_transaction_date) <= CURDATE()
                 GROUP BY t.att_group_id", array());
             foreach ($dataArr AS $data) {
                 $attGroupName = $data['attGroupName'];

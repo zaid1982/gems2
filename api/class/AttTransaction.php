@@ -571,14 +571,16 @@ class AttTransaction extends General {
 
     /**
      * @param int $attTransactionId
+     * @param array $params
      * @return void
      * @throws Exception
      */
-    public function checkIn (int $attTransactionId): void {
+    public function checkIn (int $attTransactionId, array $params): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
             parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkMandatoryArray($params, array('latitude', 'longitude'));
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
             if ($attTransaction['attTransactionStatus'] === 'Ready') {
                 if ($attTransaction['userId'] !== $this->userId) {
@@ -588,7 +590,8 @@ class AttTransaction extends General {
                 } else if ($attTransaction['attTypeId'] === 8) {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
                 }
-                DbMysql::update('att_transaction', array('attTransactionTimeIn'=>'NOW()', 'attTransactionResult'=>'Present', 'attTransactionStatus'=>'Checked In'), array('attTransactionId'=>$attTransactionId));
+                DbMysql::update('att_transaction', array('attTransactionTimeIn'=>'NOW()', 'attTransactionResult'=>'Present', 'attTransactionStatus'=>'Checked In', 'attTransactionLocationIn'=>'|ST_GEOMFROMTEXT(\'POINT('.$params['latitude'].' '.$params['longitude'].')\')'),
+                    array('attTransactionId'=>$attTransactionId));
                 $this->set($attTransactionId);
             } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
                 throw new Exception('This attendance already checked in. Please refresh the page!', 31);
@@ -604,14 +607,16 @@ class AttTransaction extends General {
 
     /**
      * @param int $attTransactionId
+     * @param array $params
      * @return void
      * @throws Exception
      */
-    public function checkOut (int $attTransactionId): void {
+    public function checkOut (int $attTransactionId, array $params): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attTransactionId, 'attTransactionId');
             parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkMandatoryArray($params, array('latitude', 'longitude'));
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
             if ($attTransaction['attTransactionStatus'] === 'Ready') {
                 throw new Exception('This attendance not yet checked in. Please refresh the page!', 31);
@@ -623,7 +628,8 @@ class AttTransaction extends General {
                 } else if ($attTransaction['attTypeId'] === 8) {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
                 }
-                DbMysql::update('att_transaction', array('attTransactionTimeOut'=>'NOW()', 'attTransactionStatus'=>'Checked Out'), array('attTransactionId'=>$attTransactionId));
+                DbMysql::update('att_transaction', array('attTransactionTimeOut'=>'NOW()', 'attTransactionStatus'=>'Checked Out', 'attTransactionLocationOut'=>'|ST_GEOMFROMTEXT(\'POINT('.$params['latitude'].' '.$params['longitude'].')\')'),
+                    array('attTransactionId'=>$attTransactionId));
                 $this->set($attTransactionId);
             } else if ($attTransaction['attTransactionStatus'] === 'Checked Out') {
                 throw new Exception('This attendance already checked out. Please refresh the page!', 31);

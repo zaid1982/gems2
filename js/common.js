@@ -1649,7 +1649,7 @@ function mzDisableSelect(fieldId, disable) {
 
 function mzCheckFuncParam (arrParam) {
     for (let i=0; i<arrParam.length; i++) {
-        if (typeof arrParam[i] === 'undefined' || arrParam[i] === '') {
+        if (typeof arrParam[i] === 'undefined' || arrParam[i] === '' || arrParam[i] === null) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);
         }
     }

@@ -22,7 +22,8 @@ function SectionAttendanceSite () {
     let isAdmin;
     let isSiteAdmin;
     let isSupervisor;
-    let todayDate;
+    let currentYear = 0;
+    let currentMonth = 0;
 
     this.init = function () {
         $('#btnSacBack').on('click', function () {
@@ -194,12 +195,12 @@ function SectionAttendanceSite () {
                 $('#btnSacParticipantStatusAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)')
+                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
                 });
                 $('#btnSacParticipantStatusNotAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Unregistered)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Unregistered)')
+                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Unregistered)');
                 });
                 $('.lnkSacParticipantEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
@@ -321,6 +322,44 @@ function SectionAttendanceSite () {
             ]
         });
 
+        $('.lnkSacYear').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const linkArray = linkId.split('_');
+                    if (linkArray.length === 2 && linkArray[0] === 'lnkSacYear') {
+                        self.setMonthYear(parseInt(linkArray[1]), currentMonth);
+                        self.setPageByMonth();
+                    } else {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('.lnkSacMonth').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const linkArray = linkId.split('_');
+                    if (linkArray.length === 2 && linkArray[0] === 'lnkSacMonth') {
+                        self.setMonthYear(currentYear, parseInt(linkArray[1]));
+                        self.setPageByMonth();
+                    } else {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
         $('#btnSacActivate').on('click', function () {
             try {
                 modalConfirmSubmitClass.setClassFrom(self);
@@ -387,21 +426,11 @@ function SectionAttendanceSite () {
                 modalAttendanceGroupClass.setSiteName(attSite['siteName']);
                 modalAttendanceGroupClass.setSiteCode(attSite['siteCode']);
 
-                todayDate = moment();
-                $('.lnkSacYear').removeClass('active').removeClass('text-white');
-                $('.lnkSacMonth').removeClass('active').removeClass('text-white');
-                $('#lnkSacYear_'+todayDate.format('YYYY')).addClass('active').addClass('text-white');
-                $('#lnkSacMonth_'+todayDate.format('M')).addClass('active').addClass('text-white');
+                const todayDate = moment();
+                self.setMonthYear(parseInt(todayDate.format('YYYY')), parseInt(todayDate.format('M')));
                 self.genTableGroup();
-                self.genTableParticipant();
+                self.setPageByMonth();
 
-                const chartData = mzAjaxRequest2('att_group/chart_site/'+siteId, 'GET');
-                self.genChart('chartSacAbsent', 'Absenteeism Performance', 'Group Absenteeism Rate (%)', chartData[0]);
-                self.genChart('chartSacLateness', 'Punctuality Performance', 'Group Punctuality Rate (%)', chartData[1]);
-                self.genChart('chartSacValidity', 'Geo-Validity Performance', 'Group Geo-Validity Rate (%)', chartData[2]);
-                oTableSacParticipant.search('').columns().search('').draw();
-
-                $('#dtSacParticipantTitle').text('Monthly Employee Summary');
                 hasEdit = false;
                 classFrom.hideMain();
                 self.showMain();
@@ -413,35 +442,75 @@ function SectionAttendanceSite () {
         }, 200);
     };
 
-    this.confirmSubmit = function (_siteId, _flag) {
+    this.setPageByMonth = function () {
         try {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    mzCheckFuncParam([_siteId, _flag]);
-                    if (_flag === 'Activate') {
-                        mzAjaxRequest2('att_group/activate_site/'+_siteId, 'PUT');
-                        $('#lblSacSiteStatus').html('Enabled');
-                        $('#divSacActivate').hide();
-                        $('#divSacDeactivate').show();
-                        hasEdit = true;
-                    } else if (_flag === 'Deactivate') {
-                        mzAjaxRequest2('att_group/deactivate_site/'+_siteId, 'PUT');
-                        $('#lblSacSiteStatus').html('Disabled');
-                        $('#divSacActivate').show();
-                        $('#divSacDeactivate').hide();
-                        hasEdit = true;
-                    } else {
-                        toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-                    }
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 200);
+            self.genTableParticipant();
+
+            const chartData = mzAjaxRequest2('att_group/chart_site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
+            self.genChart('chartSacAbsent', 'Attendance Performance', 'Group Attendance Rate (%)', chartData[0]);
+            self.genChart('chartSacLateness', 'Punctuality Performance', 'Group Punctuality Rate (%)', chartData[1]);
+            self.genChart('chartSacValidity', 'Geo-Validity Performance', 'Inside Parameter Rate (%)', chartData[2]);
+
+            oTableSacParticipant.search('').columns().search('');
+            oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
+            $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
         } catch (e) {
-            throw new Error(e.message);
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
+    };
+
+    this.setMonthYear = function (_year, _month) {
+        try {
+            mzCheckFuncParam([_year, _month]);
+            if (typeof _year !== 'number' || typeof _month !== 'number') {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            if (_year < 2022 || _month < 1 || _month > 12) {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            if (currentMonth !== _month) {
+                currentMonth = _month;
+                $('.lnkSacMonth').removeClass('active').removeClass('text-white');
+                $('#lnkSacMonth_'+currentMonth).addClass('active').addClass('text-white');
+            }
+            if (currentYear !== _year) {
+                currentYear = _year;
+                $('.lnkSacYear').removeClass('active').removeClass('text-white');
+                $('#lnkSacYear_' + currentYear).addClass('active').addClass('text-white');
+            }
+            let m = moment();
+            m.set({'year': currentYear, 'month': currentMonth - 1});
+            $('#lblSacSelected').text(m.format('MMMM, YYYY'));
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+    };
+
+    this.confirmSubmit = function (_siteId, _flag) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                mzCheckFuncParam([_siteId, _flag]);
+                if (_flag === 'Activate') {
+                    mzAjaxRequest2('att_group/activate_site/'+_siteId, 'PUT');
+                    $('#lblSacSiteStatus').html('Enabled');
+                    $('#divSacActivate').hide();
+                    $('#divSacDeactivate').show();
+                    hasEdit = true;
+                } else if (_flag === 'Deactivate') {
+                    mzAjaxRequest2('att_group/deactivate_site/'+_siteId, 'PUT');
+                    $('#lblSacSiteStatus').html('Disabled');
+                    $('#divSacActivate').show();
+                    $('#divSacDeactivate').hide();
+                    hasEdit = true;
+                } else {
+                    toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+                }
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
     };
 
     this.genTableGroup = function () {
@@ -458,9 +527,9 @@ function SectionAttendanceSite () {
 
     this.genTableParticipant = function () {
         try {
-            const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId+'/'+todayDate.format('YYYY')+'/'+todayDate.format('M'), 'GET');
+            const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
             oTableSacParticipant.clear().rows.add(dataDb).draw();
-            sectionAttendancePlannerClass.loadSite(siteId, todayDate.format('YYYY'), todayDate.format('M'));
+            sectionAttendancePlannerClass.loadSite(siteId, currentYear, currentMonth);
         } catch (e) {
             throw new Error(e.message);
         }

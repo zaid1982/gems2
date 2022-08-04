@@ -49,12 +49,12 @@ try {
         $isTransaction = true;
 
         if ($urlArr[1] === 'check_in' && isset($urlArr[2]) && is_numeric($urlArr[2])) {
-            $fnAttTransaction->checkIn(intval($urlArr[2]));
+            $fnAttTransaction->checkIn(intval($urlArr[2]), $params);
             $fnAttTransaction->saveAudit(211, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
             $formData['errmsg'] = Constant::$attTransaction['checkIn'];
         }
         else if ($urlArr[1] === 'check_out' && isset($urlArr[2]) && is_numeric($urlArr[2])) {
-            $fnAttTransaction->checkOut(intval($urlArr[2]));
+            $fnAttTransaction->checkOut(intval($urlArr[2]), $params);
             $fnAttTransaction->saveAudit(212, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
             $formData['errmsg'] = Constant::$attTransaction['checkOut'];
         }
