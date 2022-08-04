@@ -324,14 +324,24 @@ class Class_gamification {
                 $gmiId = $gmi['gmiId'];
                 $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
                 $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
-                $allOnTime = $gmi['gmiPpmOnTime'] + $gmi['gmiPpmWithin'] + $gmi['gmiWoOnTime'];
+                $allOnTime = $gmi['gmiPpmWithin'] + $gmi['gmiWoOnTime'];
                 $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
-                $tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
-                $gmi['gmiPointCompleted'] = (($allCompleted/$allTotal)*$tierDivider)*0.3*10000;
+				$mbv = $allOnTime - $allLate;
+				if ($mbv <= 50) {
+					$tierDivider = 1;
+				} else if ($mbv <= 100) {
+					$tierDivider = 3;
+				} else {
+					$tierDivider = 5;
+				}
+                //$tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
+                $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal)*0.3*10000;
                 $gmi['gmiPointOnTime'] = (($allOnTime/$allTotal)*$tierDivider)*0.7*10000;
-                $gmi['gmiPointLate'] = -(($allLate/$allTotal)*$tierDivider)*0.15*10000;
+                $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted)*$tierDivider)*0.15*10000;
                 $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * 5;
                 $gmi['gmiPointTotal'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointOnTime'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'];
+				$gmi['gmiMbv'] = $mbv;
+				$gmi['gmiTierPoint'] = $tierDivider;
                 unset($gmi['gmiId']);
                 if ($gmiId === '') {
                     Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
