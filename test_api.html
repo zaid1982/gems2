@@ -18,11 +18,15 @@
 
     $.ajax({
         //url: 'att_transaction/mobile/main_info',
-        url: 'att_transaction/mobile/calendar_dot/2022/7',
-        type: 'GET',
-        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiODQ0IiwidXNlcm5hbWUiOiJKYWNpbnRoYSIsImlhdCI6MTY1ODc3MzYwNCwiZXhwIjoxNjU4NzczNjE0fQ.S6r95KavJukIotU1WH29grKhjhgEEXoZgnaXBlCbOpw',
+        url: 'att_transaction/check_out/122',
+        type: 'PUT',
+        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiODQ0IiwidXNlcm5hbWUiOiJKYWNpbnRoYSIsImlhdCI6MTY1OTYyNTAxMSwiZXhwIjoxNjU5NjI1MDIxfQ.MmW3YXsgrotMYYrKefJOlg2Op_bs0AXRMCvVwckHlnU',
             deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-        //data: { ppmTaskId: '771266', assistant: '950' },
+        data:
+            {
+                latitude: 3.139003,
+                longitude: 101.686852
+            },
         dataType: 'json',
         success: function (resp) {
             console.log(resp);

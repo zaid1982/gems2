@@ -49,7 +49,7 @@ try {
         $now = new DateTime();
         $year = intval($now->format('Y'));
         $month = intval($now->format('n'));
-        $fnAttTransaction->insertMonthly($fnAttParticipant->attParticipantId, $year, $month);
+        $fnAttTransaction->insertMonthly($fnAttParticipant->attParticipantId, $year, $month, intval($params['generateType']));
         $fnAttParticipant->saveAudit(191, $fnAttParticipant->attParticipantName);
         $errorMsg = str_replace('_1', $fnAttParticipant->attParticipantName, Constant::$attParticipant['add']);
         $formData['errmsg'] = str_replace('_2', $fnAttParticipant->attGroupName, $errorMsg);
@@ -76,7 +76,7 @@ try {
             $now = new DateTime();
             $year = intval($now->format('Y'));
             $month = intval($now->format('n'));
-            $fnAttTransaction->updateMonthly($fnAttParticipant->attParticipantId, $year, $month);
+            $fnAttTransaction->updateMonthly($fnAttParticipant->attParticipantId, $year, $month, intval($params['generateType']));
         }
         $fnAttParticipant->saveAudit(192, $fnAttParticipant->attParticipantName);
         $formData['errmsg'] = str_replace('__', $fnAttParticipant->attParticipantName, Constant::$attParticipant['update']);

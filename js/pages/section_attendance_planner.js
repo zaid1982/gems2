@@ -3,6 +3,7 @@ function SectionAttendancePlanner () {
     const className = 'SectionAttendancePlanner';
     let self = this;
     let classFrom;
+    let plannerType;
     let attGroupId;
     let siteId;
     let oTableStx;
@@ -100,6 +101,21 @@ function SectionAttendancePlanner () {
                 {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 31, meta.row); }}
             ]
         });
+
+        $('#btnStxRunPlanner').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (plannerType === 'site') {
+                        mzAjaxRequest2('att_transaction/reschedule/site/'+siteId+'/'+year+'/'+month, 'PUT');
+                        self.genTableSite();
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
     };
 
     this.getCellDisplay = function (_data, _day, _metaRow) {
@@ -136,9 +152,10 @@ function SectionAttendancePlanner () {
                 siteId = _siteId;
                 year = _year;
                 month = _month;
+                plannerType = 'site';
                 thisDate = moment();
                 thisDate.set({'year': year, 'month': parseInt(month) - 1});
-                self.genTable();
+                self.genTableSite();
                 self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) {
@@ -148,20 +165,18 @@ function SectionAttendancePlanner () {
         }, 200);
     };
 
-    this.genTable = function () {
+    this.genTableSite = function () {
         try {
             const dataDb = mzAjaxRequest2('att_transaction/monthly/site/'+siteId+'/'+year+'/'+month, 'GET');
             oTableStx.clear().rows.add(dataDb).draw();
-            if (dataDb.length === 0) {
-                $('#btnStxRunPlanner').show();
-            } else {
-                $('#btnStxRunPlanner').hide();
-            }
         } catch (e) {
             throw new Error(e.message);
         }
     };
 
+    this.getPlannerType = function () {
+        return plannerType;
+    };
 
     this.getClassName = function () {
         return className;

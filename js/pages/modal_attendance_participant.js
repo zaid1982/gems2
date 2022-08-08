@@ -143,6 +143,14 @@ function ModalAttendanceParticipant () {
                 validator: {
                     notEmptyCheck: true
                 }
+            },
+            {
+                field_id: 'radMtpGenerateType',
+                type: 'radio',
+                name: 'Generate Schedule starting from',
+                validator: {
+                    notEmptyCheck: true
+                }
             }
         ];
 
@@ -167,6 +175,7 @@ function ModalAttendanceParticipant () {
                         formValidate.clearInvalid('optMtpShiftMode');
                         formValidate.clearInvalid('optMtpHoliday');
                         formValidate.clearInvalid('radMtpStatus');
+                        formValidate.clearInvalid('radMtpGenerateType');
                         if (refAttGroup[attGroupId]['attGroupStatus'] === 2) {
                             toastr['warning']('The selected group '+refAttGroup[attGroupId]['attGroupName']+' currently is disable. However you can still register this staff under this group.', _ALERT_TITLE_WARNING);
                         }
@@ -255,7 +264,8 @@ function ModalAttendanceParticipant () {
                 attParticipantShiftMode: $('#optMtpShiftMode').val(),
                 attTypeId: $('#optMtpShift').val(),
                 attParticipantHoliday: $('#optMtpHoliday').val(),
-                attParticipantStatus: $("input[name='radMtpStatus']:checked").val()
+                attParticipantStatus: $("input[name='radMtpStatus']:checked").val(),
+                generateType: $("input[name='radMtpGenerateType']:checked").val()
             };
         } catch (e) {
             throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -295,7 +305,8 @@ function ModalAttendanceParticipant () {
                 mzOptionStopV2('optMtpGroup', refAttGroup, 'Choose Attendance Group', 'attGroupName', {siteId: siteId}, 'required');
                 mzSetFieldValue('MtpContactNo', userProfile['userContactNo'], 'text');
                 mzSetFieldValue('MtpEmail', userProfile['userEmail'], 'text');
-                mzSetFieldValue('MtpDesignation', userProfile['designationId'], 'select');
+                mzSetFieldValue('MtpDesignation', userProfile['designationId'] !== null ? userProfile['designationId'] : '', 'select');
+                mzSetFieldValue('MtpGenerateType', 1, 'radio');
                 if (attParticipantId !== null) {
                     const attParticipant = mzAjaxRequest2('att_participant/'+attParticipantId, 'GET');
                     attGroupId = attParticipant['attGroupId'];

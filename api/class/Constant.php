@@ -84,6 +84,7 @@ class Constant {
         'update' => 'Employee _1 daily status for date _2 successfully updated!',
         'checkIn' => 'You successfully checked in!',
         'checkOut' => 'You successfully checked out!',
-        'errUpdateValidation' => 'Please make sure either Daily Status or Attendance Status selected!'
+        'errUpdateValidation' => 'Please make sure either Daily Status or Attendance Status selected!',
+        'rescheduleSite' => 'Site _1 attendance planner for year _2 and month _3 successfully rescheduled!',
     );
 }

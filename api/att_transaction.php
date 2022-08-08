@@ -58,9 +58,17 @@ try {
             $fnAttTransaction->saveAudit(212, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
             $formData['errmsg'] = Constant::$attTransaction['checkOut'];
         }
+        else if ($urlArr[1] === 'reschedule' && $urlArr[2] === 'site' && isset($urlArr[3]) && is_numeric($urlArr[3]) && isset($urlArr[4]) && is_numeric($urlArr[4]) && isset($urlArr[5]) && is_numeric($urlArr[5])) {
+            $fnAttTransaction->rescheduleSite(intval($urlArr[3]), intval($urlArr[4]), intval($urlArr[5]));
+            $siteName = $fnAttTransaction->getSiteName(intval($urlArr[3]));
+            $fnAttTransaction->saveAudit(214, $siteName.', year '.$urlArr[4].', month '.$urlArr[5]);
+            $errorMsg = str_replace('_1', $siteName, Constant::$attTransaction['rescheduleSite']);
+            $errorMsg = str_replace('_2', $urlArr[4], $errorMsg);
+            $formData['errmsg'] = str_replace('_3', $urlArr[5], $errorMsg);
+        }
         else if (is_numeric($urlArr[1])) {
             $fnAttTransaction->update(intval($urlArr[1]), $params);
-            $fnAttTransaction->saveAudit(212, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
+            $fnAttTransaction->saveAudit(213, $fnAttTransaction->attParticipantName.', '.$fnAttTransaction->attTransactionDate);
             $errorMsg = str_replace('_1', $fnAttTransaction->attParticipantName, Constant::$attTransaction['update']);
             $formData['errmsg'] = str_replace('_2', $fnAttTransaction->attTransactionDate, $errorMsg);
         }

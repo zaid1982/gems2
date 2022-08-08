@@ -219,29 +219,35 @@ class AttTransaction extends General {
      * @param int $attParticipantId
      * @param int $year
      * @param int $month
+     * @param int $generateType
+     * @param int $shiftCurrent
      * @throws Exception
      */
-    public function insertMonthly (int $attParticipantId, int $year, int $month): void {
+    public function insertMonthly (int $attParticipantId, int $year, int $month, int $generateType, int $shiftCurrent = 0): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attParticipantId, 'attParticipantId');
             parent::checkEmptyInteger($year, 'year');
             parent::checkEmptyInteger($month, 'month');
+            parent::checkEmptyInteger($generateType, 'generateType');
             if ($month < 1 || $month > 12) {
                 throw new Exception('Invalid month = '.$month);
             }
             $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), true);
             $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), true);
-            DbMysql::delete('att_Transaction', array('userId'=>$attParticipant['userId'], 'attGroupId'=>$attParticipant['attGroupId'], 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month));
-            $this->shiftCurrent = 0;
+            DbMysql::delete('att_transaction', array('userId'=>$attParticipant['userId'], 'attGroupId'=>$attParticipant['attGroupId'], 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month));
+            $this->shiftCurrent = $shiftCurrent;
+            $dateNow = new DateTime();
+            $dateNow->setTime(0, 0);
             $dateProcess = new DateTime();
             $endOfMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             for ($day = 1; $day <= $endOfMonth; $day++) {
                 $dateProcess->setDate($year, $month, $day);
                 $dateString = $dateProcess->format('Y-m-d');
-                $attTypeId = $this->getNewType($dateProcess, $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
+                $checkPastDay = $dateNow->diff($dateProcess);
+                $attTypeId = $generateType === 1 && $checkPastDay->format('%r') === '-' ? 13 : $this->getNewType($dateProcess, $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
                 $shiftTime = $this->getShiftTime($dateProcess, $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13, 14)) ? 'Leave' : null;
+                $shiftResult = DbMysql::count('att_type', array('attTypeId'=>$attTypeId, 'attTypeMode'=>'Leave')) === 1 ? 'Leave' : null;
                 DbMysql::insert('att_transaction', array('attTransactionDate'=>$dateString, 'attParticipantId'=>$attParticipantId, 'attGroupId'=>$attParticipant['attGroupId'],
                     'userId'=>$attParticipant['userId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult));
             }
@@ -254,29 +260,76 @@ class AttTransaction extends General {
      * @param int $attParticipantId
      * @param int $year
      * @param int $month
+     * @param int $generateType
+     * @param int $shiftCurrent
      * @throws Exception
      */
-    public function updateMonthly (int $attParticipantId, int $year, int $month): void {
+    public function updateMonthly (int $attParticipantId, int $year, int $month, int $generateType, int $shiftCurrent = 0): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($attParticipantId, 'attParticipantId');
             parent::checkEmptyInteger($year, 'year');
             parent::checkEmptyInteger($month, 'month');
+            parent::checkEmptyInteger($generateType, 'generateType');
             if ($month < 1 || $month > 12) {
                 throw new Exception('Invalid month = '.$month);
             }
             $attParticipant = DbMysql::select('att_participant', array('attParticipantId'=>$attParticipantId), true);
             $attGroup = DbMysql::select('att_group', array('attGroupId'=>$attParticipant['attGroupId']), true);
-            $this->shiftCurrent = 0;
+            $this->shiftCurrent = $shiftCurrent;
+            $dateNow = new DateTime();
+            $dateNow->setTime(0, 0);
+            $attTransactionList = DbMysql::selectAll('att_transaction', array('attParticipantId'=>$attParticipantId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 0, true, 'attTransactionDate');
+            foreach ($attTransactionList as $attTransaction) {
+                $dateProcess = new DateTime($attTransaction['attTransactionDate']);
+                $checkPastDay = $dateNow->diff($dateProcess);
+                if ($generateType === 1 && $checkPastDay->format('%r') === '-') {
+                    // skip
+                } else {
+                    $attTypeId = $this->getNewType($dateProcess, $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
+                    $shiftTime = $this->getShiftTime($dateProcess, $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
+                    $shiftResult = DbMysql::count('att_type', array('attTypeId'=>$attTypeId, 'attTypeMode'=>'Leave')) === 1 ? 'Leave' : null;
+                    DbMysql::update('att_transaction', array('attGroupId'=>$attParticipant['attGroupId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult),
+                        array('attTransactionId'=>$attTransaction['attTransactionId']));
+                }
+            }
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $siteId
+     * @param int $year
+     * @param int $month
+     * @throws Exception
+     */
+    public function rescheduleSite (int $siteId, int $year, int $month): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
+            parent::checkEmptyInteger($year, 'year');
+            parent::checkEmptyInteger($month, 'month');
             $dateStart = new DateTime();
             $dateStart->setDate($year, $month, 1);
-            $attTransactionList = DbMysql::selectAll('att_Transaction', array('attParticipantId'=>$attParticipantId, 'attTransactionDate'=>'>=|'.$dateStart->format('Y-m-d')), 0, true, 'attTransactionDate');
-            foreach ($attTransactionList as $attTransaction) {
-                $attTypeId = $this->getNewType(new DateTime($attTransaction['attTransactionDate']), $attParticipant['attParticipantShiftMode'], $attParticipant['attTypeId'], $attParticipant['attParticipantHoliday']);
-                $shiftTime = $this->getShiftTime(new DateTime($attTransaction['attTransactionDate']), $attGroup, $attParticipant['attParticipantShiftMode'], $attTypeId);
-                $shiftResult = in_array($attTypeId, array(4, 5, 6, 7, 12, 13, 14)) ? 'Leave' : null;
-                DbMysql::update('att_transaction', array('attGroupId'=>$attParticipant['attGroupId'], 'attTypeId'=>$attTypeId, 'attTransactionShiftStart'=>$shiftTime[0], 'attTransactionShiftEnd'=>$shiftTime[1], 'attTransactionResult'=>$shiftResult),
-                    array('attTransactionId'=>$attTransaction['attTransactionId']));
+            $participantList = DbMysql::selectSqlAll(
+            /** @lang text */
+                "SELECT
+                    g.att_group_id, p.att_participant_id, p.att_participant_shift_mode, COUNT(t.att_transaction_id) AS total
+                FROM att_group g
+                LEFT JOIN att_participant p ON p.att_group_id = g.att_group_id
+                LEFT JOIN att_transaction t ON t.att_participant_id = p.att_participant_id AND YEAR(t.att_transaction_date) = $year AND MONTH(t.att_transaction_date) = $month
+                WHERE g.att_group_status = 1 AND g.site_id = $siteId AND p.att_participant_id IS NOT NULL AND p.att_participant_status = 1 
+                GROUP BY g.att_group_id, p.att_participant_id ORDER BY g.att_group_id, p.att_participant_id");
+            foreach ($participantList as $participant) {
+                $attParticipantId = $participant['attParticipantId'];
+                $shiftCurrent = DbMysql::selectColumn('att_transaction', array('attParticipantId'=>$attParticipantId, 'attTransactionDate'=>'<|'.$dateStart->format('Y-m-d'), 'attTypeId'=>'IN|1,2,3,9,10,11'),
+                    'attTypeId', false, 'attTransactionDate', 'DESC');
+                if ($participant['total'] === 0) {
+                    $this->insertMonthly($attParticipantId, $year, $month, 2, !empty($shiftCurrent) ? $shiftCurrent : 0);
+                } else {
+                    $this->updateMonthly($attParticipantId, $year, $month, 2, !empty($shiftCurrent) ? $shiftCurrent : 0);
+                }
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -544,7 +597,7 @@ class AttTransaction extends General {
                 $dateIndex = intval($dateTransaction->format('d'));
                 $status = !empty($attTransaction['attTransactionResult']) ? $attTransaction['attTransactionResult'] : $attTransaction['attTransactionStatus'];
                 $returnArr[$dateIndex]['status'] = $status;
-                if ($attTransaction['attTypeId'] === 12) {
+                if ($attTransaction['attTypeId'] === 12 || $attTransaction['attTypeId'] === 13) {
                     $returnArr[$dateIndex]['color'] = null;
                     $returnArr[$dateIndex]['status'] = 'Weekend';
                 } else if ($status === 'Leave') {
@@ -582,12 +635,13 @@ class AttTransaction extends General {
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkMandatoryArray($params, array('latitude', 'longitude'));
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
+            $attTypeMode = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeMode', true);
             if ($attTransaction['attTransactionStatus'] === 'Ready') {
                 if ($attTransaction['userId'] !== $this->userId) {
                     throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
-                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13, 14))) {
+                } else if ($attTypeMode === 'Leave') {
                     throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
-                } else if ($attTransaction['attTypeId'] === 8) {
+                } else if ($attTypeMode === 'Training') {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
                 }
                 DbMysql::update('att_transaction', array('attTransactionTimeIn'=>'NOW()', 'attTransactionResult'=>'Present', 'attTransactionStatus'=>'Checked In', 'attTransactionLocationIn'=>'|ST_GEOMFROMTEXT(\'POINT('.$params['latitude'].' '.$params['longitude'].')\')'),
@@ -618,14 +672,15 @@ class AttTransaction extends General {
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkMandatoryArray($params, array('latitude', 'longitude'));
             $attTransaction = DbMysql::select('att_transaction', array('attTransactionId'=>$attTransactionId), true);
+            $attTypeMode = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeMode', true);
             if ($attTransaction['attTransactionStatus'] === 'Ready') {
                 throw new Exception('This attendance not yet checked in. Please refresh the page!', 31);
             } else if ($attTransaction['attTransactionStatus'] === 'Checked In') {
                 if ($attTransaction['userId'] !== $this->userId) {
                     throw new Exception('You are not allowed to check in this attendance. Please contact administrator!', 31);
-                } else if (in_array($attTransaction['attTypeId'], array(4, 5, 6, 7, 12, 13, 14))) {
+                } else if ($attTypeMode === 'Leave') {
                     throw new Exception('No need to perform attendance check in because your current status is on leave. Please contact administrator!', 31);
-                } else if ($attTransaction['attTypeId'] === 8) {
+                } else if ($attTypeMode === 'Training') {
                     throw new Exception('No need to perform attendance check in because you are currently in training. Please contact administrator!', 31);
                 }
                 DbMysql::update('att_transaction', array('attTransactionTimeOut'=>'NOW()', 'attTransactionStatus'=>'Checked Out', 'attTransactionLocationOut'=>'|ST_GEOMFROMTEXT(\'POINT('.$params['latitude'].' '.$params['longitude'].')\')'),
@@ -636,6 +691,21 @@ class AttTransaction extends General {
             } else {
                 throw new Exception('Invalid Attendance Transaction Status');
             }
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $siteId
+     * @return string
+     * @throws Exception
+     */
+    public function getSiteName (int $siteId): string {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
+            return DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteName', true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

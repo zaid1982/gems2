@@ -508,6 +508,9 @@ class DbMysql {
             if ($throwEmpty && empty($result)) {
                 throw new Exception('Select query result empty');
             }
+            if (empty($result)) {
+                return '';
+            }
             $resultConvert = self::convertFromDbIndex($result);
             if (!array_key_exists($columnOut, $resultConvert)) {
                 throw new Exception('Column '.$columnOut.' in result query not found');

@@ -88,17 +88,10 @@
                             <label for="optMtpGroup" id="lblMtpGroup">Attendance Group *</label>
                             <p class="font-small text-danger" id="optMtpGroupErr"></p>
                         </div>
-                        <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpCategory_">
+                        <div class="col-lg-12 select-outline mb-2 divMtpGroupSelected" id="optMtpCategory_">
                             <select id="optMtpCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpCategory" id="lblMtpCategory">Category *</label>
                             <p class="font-small text-danger" id="optMtpCategoryErr"></p>
-                        </div>
-                        <div class="col-lg-6 divMtpGroupSelected">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMtpReqWeekHours" class="form-control">
-                                <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
-                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
-                            </div>
                         </div>
                         <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpShiftMode_">
                             <select id="optMtpShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
@@ -115,6 +108,13 @@
                             <label for="optMtpShift" id="lblMtpShift">Initial Shift *</label>
                             <p class="font-small text-danger" id="optMtpShiftErr"></p>
                         </div>
+                        <div class="col-lg-6 divMtpGroupSelected">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMtpReqWeekHours" class="form-control">
+                                <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
+                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
+                            </div>
+                        </div>
                         <div class="col-lg-6 select-outline mb-0 divMtpGroupSelected" id="optMtpHoliday_">
                             <select id="optMtpHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
                                 <option selected value="" disabled>Please Select</option>
@@ -126,7 +126,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-12 divMtpGroupSelected">
+                        <div class="col-lg-6 divMtpGroupSelected">
                             <p class="mb-0 font-radio">Status :</p>
                             <div class="md-form mt-0 mb-3 ml-1">
                                 <div class="form-check form-check-inline">
@@ -139,6 +139,20 @@
                                 </div>
                             </div>
                             <p class="font-small text-danger mt-0" id="radMtpStatusErr"></p>
+                        </div>
+                        <div class="col-lg-6 divMtpGroupSelected">
+                            <p class="mb-0 font-radio">Generate Schedule starting from :</p>
+                            <div class="md-form mt-0 mb-3 ml-1">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMtpGenerateType" id="radMtpGenerateType1" value="1">
+                                    <label class="form-check-label" for="radMtpGenerateType1">Today</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMtpGenerateType" id="radMtpGenerateType2" value="2">
+                                    <label class="form-check-label" for="radMtpGenerateType2">1st day of current month</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMtpGenerateTypeErr"></p>
                         </div>
                     </div>
                 </form>
