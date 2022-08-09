@@ -212,7 +212,7 @@
                 //sectionAttendanceSiteClass.setClassFrom(attendanceClass_);
                 sectionAttendanceSiteClass.init();
 
-                if (mzIsRoleExist('19')) {
+                if (mzIsRoleExist('19') || mzIsRoleExist('2')) {
                     const siteId = mzGetUserInfoByParam('siteId');
                     sectionAttendanceSiteClass.load(siteId);
                 } else {
