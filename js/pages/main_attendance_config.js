@@ -6,7 +6,7 @@ function MainAttendance () {
     let refClient;
     let oTableAtc;
     let modalConfirmSubmitClass;
-    let sectionAttendanceConfigSiteClass;
+    let sectionAttendanceSiteClass;
 
     this.init = function () {
         oTableAtc = $('#dtAtcData').DataTable({
@@ -91,7 +91,7 @@ function MainAttendance () {
             const data = $('#dtAtcData').DataTable().row(this).data();
             const cell = $(evt.target).closest('td');
             if (cell.index() < 9) {
-                sectionAttendanceConfigSiteClass.load(data['siteId']);
+                sectionAttendanceSiteClass.load(data['siteId']);
             }
         });
         oTableAtcTbody.delegate('tr', 'mouseenter', function (evt) {
@@ -162,7 +162,7 @@ function MainAttendance () {
         modalConfirmSubmitClass = _modalConfirmSubmitClass;
     };
 
-    this.setSectionAttendanceConfigSiteClass = function (_sectionAttendanceConfigSiteClass) {
-        sectionAttendanceConfigSiteClass = _sectionAttendanceConfigSiteClass;
+    this.setSectionAttendanceSiteClass = function (_sectionAttendanceSiteClass) {
+        sectionAttendanceSiteClass = _sectionAttendanceSiteClass;
     };
 }

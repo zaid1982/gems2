@@ -432,7 +432,11 @@ function SectionAttendanceSite () {
                 self.setPageByMonth();
 
                 hasEdit = false;
-                classFrom.hideMain();
+                $('#divSacBack').hide();
+                if (typeof classFrom !== 'undefined') {
+                    classFrom.hideMain();
+                    $('#divSacBack').show();
+                }
                 self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) {
