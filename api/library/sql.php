@@ -1420,7 +1420,9 @@ class Class_sql
                     COUNT(*) AS ppm_total,
                     SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
                     SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
-                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late,
+					SUM(IF(p.ppm_task_min_exec_time IS NOT NULL AND p.ppm_task_max_exec_time IS NOT NULL AND p.ppm_task_time_start IS NOT NULL AND p.ppm_task_time_serviced IS NOT NULL 
+						AND TIMEDIFF(p.ppm_task_time_serviced, p.ppm_task_time_start) >= p.ppm_task_min_exec_time AND TIMEDIFF(p.ppm_task_time_serviced, p.ppm_task_time_start) <= p.ppm_task_max_exec_time, 1, 0)) AS ppm_within
                 FROM ppm_task_assist a
                 LEFT JOIN ppm_task p ON p.ppm_task_id = a.ppm_task_id
                 LEFT JOIN sys_user u ON u.user_id = a.user_id

@@ -271,6 +271,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmCompleted'] += intval($ppmAssist['ppmCompleted']);
                 $gmiMonthly[$userId]['gmiPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
                 $gmiMonthly[$userId]['gmiPpmLate'] += intval($ppmAssist['ppmLate']);
+                $gmiMonthly[$userId]['gmiPpmWithin'] = intval($ppm['ppmWithin']);
                 if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
@@ -324,7 +325,7 @@ class Class_gamification {
                 $gmiId = $gmi['gmiId'];
                 $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
                 $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
-                $allOnTime = $gmi['gmiPpmWithin'] + $gmi['gmiWoOnTime'];
+                $allOnTime = $gmi['gmiPpmOnTime'] + $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
                 $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
 				$mbv = $allOnTime - $allLate;
 				if ($mbv <= 50) {
