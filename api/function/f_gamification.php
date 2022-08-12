@@ -271,7 +271,7 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmCompleted'] += intval($ppmAssist['ppmCompleted']);
                 $gmiMonthly[$userId]['gmiPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
                 $gmiMonthly[$userId]['gmiPpmLate'] += intval($ppmAssist['ppmLate']);
-                $gmiMonthly[$userId]['gmiPpmWithin'] = intval($ppm['ppmWithin']);
+                $gmiMonthly[$userId]['gmiPpmWithin'] += intval($ppmAssist['ppmWithin']);
                 if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
