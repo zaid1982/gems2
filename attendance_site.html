@@ -77,9 +77,8 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid" id="divPageWidth">
-
         <div class="includeHtml" id="h-section_attendance_site"></div>
-        <div class="includeHtml" id="h-section_attendance_planner"></div>
+        <div class="includeHtml" id="h-section_attendance_group"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
@@ -93,6 +92,10 @@
     $('.includeHtml').each(function () {
         const divId = $(this).attr('id');
         $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+        const title = $(this).attr('title');
+        if (typeof title !== 'undefined') {
+            console.log($('#' + divId).attr('title'));
+        }
     });
 </script>
 
@@ -143,7 +146,7 @@
     let modalAttendanceParticipantClass_;
     let modalAttendanceDailyClass_;
     let sectionAttendanceSiteClass;
-    let sectionAttendancePlannerClass_;
+    let sectionAttendanceGroupClass;
     let googleMapsDrawingPolygonClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -159,7 +162,7 @@
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 modalAttendanceDailyClass_ = new ModalAttendanceDaily();
                 sectionAttendanceSiteClass = new SectionAttendanceSite();
-                sectionAttendancePlannerClass_ = new SectionAttendancePlanner();
+                sectionAttendanceGroupClass = new SectionAttendanceGroup();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
@@ -191,14 +194,11 @@
                 modalAttendanceDailyClass_.setRefAttGroup(refAttGroup_);
                 modalAttendanceDailyClass_.setRefAttType(refAttType_);
                 modalAttendanceDailyClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
-                modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
+                //modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
                 modalAttendanceDailyClass_.init();
 
-                sectionAttendancePlannerClass_.setRefUser(refUser_);
-                sectionAttendancePlannerClass_.setRefAttType(refAttType_);
-                sectionAttendancePlannerClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
-                sectionAttendancePlannerClass_.setClassFrom(sectionAttendanceSiteClass);
-                sectionAttendancePlannerClass_.init();
+                sectionAttendanceGroupClass.setClassFrom(sectionAttendanceSiteClass);
+                sectionAttendanceGroupClass.init();
 
                 sectionAttendanceSiteClass.setRefStatus(refStatus_);
                 sectionAttendanceSiteClass.setRefUser(refUser_);
@@ -207,7 +207,7 @@
                 sectionAttendanceSiteClass.setModalConfirmSubmitClass(confirmSubmitClass_);
                 sectionAttendanceSiteClass.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceSiteClass.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
-                sectionAttendanceSiteClass.setSectionAttendancePlannerClass(sectionAttendancePlannerClass_);
+                sectionAttendanceSiteClass.setSectionAttendanceGroupClass(sectionAttendanceGroupClass);
                 sectionAttendanceSiteClass.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
                 //sectionAttendanceSiteClass.setClassFrom(attendanceClass_);
                 sectionAttendanceSiteClass.init();
@@ -231,6 +231,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_planner.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

@@ -1,0 +1,274 @@
+<section class="section sectionAttendanceGroup">
+    <form id="formSag" class="mt-2" autocomplete="off">
+        <nav class="navbar navbar-expand navbar-dark light-blue z-depth-3 mt-3 mb-4">
+            <div class="collapse navbar-collapse" id="basicExampleNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
+                        <a class="nav-link dropdown-toggle" id="navSagYear" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">Year</a>
+                        <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagYear" id="divSagYear">
+                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2022">2022</a>
+                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2023">2023</a>
+                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2024">2024</a>
+                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2025">2025</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
+                        <a class="nav-link dropdown-toggle" id="navSagMonth" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">Month</a>
+                        <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagMonth" id="divSagMonth">
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_1">January</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_2">February</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_3">March</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_4">April</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_5">May</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_6">June</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_7">July</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_8">August</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_9">September</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_10">October</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_11">November</a>
+                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_12">December</a>
+                        </div>
+                    </li>
+                    <a class="navbar-brand d-none d-md-block font-weight-500" href="#" id="lblSagSelected"></a>
+                </ul>
+            </div>
+            <div class="light-blue lighten-2 navbar-custom px-1" id="divSagActivate"><a class="nav-link text-white" href="#" id="btnSagActivate"><i class="fas fa-toggle-off mr-1"></i> Activate Site</a></div>
+            <div class="light-blue lighten-2 navbar-custom px-1" id="divSagDeactivate"><a class="nav-link text-white" href="#" id="btnSagDeactivate"><i class="fas fa-toggle-on mr-1"></i> Deactivate</a></div>
+            <div class="light-blue lighten-2 navbar-custom px-1 ml-3" id="divSagBack"><a class="nav-link text-white" href="#" id="btnSagBack"><i class="fas fa-arrow-left mr-1"></i> Back</a></div>
+        </nav>
+        <div class="row mb-2">
+            <div class="col-md-6 col-lg-3">
+                <div class="card z-depth-3 mb-3">
+                    <div class="pt-2 px-3 light-blue text-white">
+                        <h6>Attendance Group</h6>
+                        <h2 class="mt-3 mb-1" id="lblSagSiteCode">Test Zaid</h2>
+                        <p class="mb-3" id="lblSagSiteName">PPNS</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card z-depth-2 mb-3">
+                    <div class="pr-3">
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-check light-blue-text"></i></h1>
+                        <p class="card-text text-right mt-2 mb-0">Total Absent</p>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                    </div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="progress mb-1" style="height: 10px">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p class="card-text ">25% out of 14</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card z-depth-2 mb-3">
+                    <div class="pr-3">
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-clock light-blue-text"></i></h1>
+                        <p class="card-text text-right mt-2 mb-0">Total Lateness</p>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                    </div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="progress mb-1" style="height: 10px">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p class="card-text ">25% out of 14</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card z-depth-2 mb-3">
+                    <div class="pr-3">
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-street-view light-blue-text"></i></h1>
+                        <p class="card-text text-right mt-2 mb-0">Outside Parameter</p>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                    </div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="progress mb-1" style="height: 10px">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p class="card-text ">25% out of 14</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-lg-4">
+                <div class="card z-depth-3 mb-4_5">
+                    <div class="card-header white p-0 z-depth-1">
+                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Group Information</h4>
+                    </div>
+                    <div class="card-body pb-0">
+                        <div class="row">
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-users prefix text-info"></i>
+                                <label class="active pl-3">Group Name</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagName">Test Zaid</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-tag prefix text-info"></i>
+                                <label class="active pl-3">Category</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Mechanical</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-user-tie prefix text-info"></i>
+                                <label class="active pl-3">Supervisor</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Muhammad Amin Muhammad Zaid</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-user-clock prefix text-info"></i>
+                                <label class="active pl-3">Weekly Required Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">48 hours</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-umbrella-beach prefix text-info"></i>
+                                <label class="active pl-3">Default Holiday</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Saturday & Sunday</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-user-secret prefix text-info"></i>
+                                <label class="active pl-3">OT Approver</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Nur Syafiqah Muhammad Rusli</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-clock prefix text-info"></i>
+                                <label class="active pl-3">Normal Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="far fa-clock prefix text-info"></i>
+                                <label class="active pl-3">2-shift AM Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="far fa-clock prefix text-info"></i>
+                                <label class="active pl-3">2-shift PM Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-clock prefix text-info"></i>
+                                <label class="active pl-3">3-shift Morning Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-clock prefix text-info"></i>
+                                <label class="active pl-3">3-shift Evening Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-12 my-1">
+                                <i class="fas fa-clock prefix text-info"></i>
+                                <label class="active pl-3">3-shift Night Working Hours</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card z-depth-3 mb-4_5">
+                    <div class="card-header white p-0 z-depth-1">
+                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Location</h4>
+                    </div>
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-8">
+                <div class="card z-depth-3 mb-4_5">
+                    <div class="card-header white p-0 z-depth-1">
+                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily Information></h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-8 col-sm-6 col-md-7 col-lg-6 col-xl-4 pr-2">
+                                <div class="md-form md-outline mt-1">
+                                    <input type="text" id="txtSagGroupName" class="form-control">
+                                    <label for="txtSagGroupName" id="lblSagGroupName">Attendance Date *</label>
+                                    <p class="font-small text-danger" id="txtSagGroupNameErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-6 col-md-5 col-lg-6 col-xl-8 pl-0">
+                                <a class="btn btn-outline-danger btn-sm px-2 mt-2" id="btnSagRunPlanner">Go <i class="fas fa-search ml-2"></i></a>
+                            </div>
+                            <div class="col-md-12 px-0">
+                                <div class="table-responsive">
+                                    <table id="dtSagGroup" class="table table-hover table-sm mb-0 display responsive">
+                                        <thead>
+                                        <tr class="th-strong">
+                                            <th>#</th>
+                                            <th>Employee's Name</th>
+                                            <th>Shift Mode</th>
+                                            <th>Shift Type</th>
+                                            <th>Time In</th>
+                                            <th>Time Out</th>
+                                            <th>Location In</th>
+                                            <th>Location Out</th>
+                                            <th>Total Hours</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card z-depth-3 mb-4_5">
+                    <div class="card-header white p-0 z-depth-1">
+                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Employee Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 px-0">
+                                <div class="table-responsive">
+                                    <table id="dtSagGroup" class="table table-hover table-sm mb-0 display responsive">
+                                        <thead>
+                                        <tr class="th-strong">
+                                            <th>#</th>
+                                            <th>Group Name</th>
+                                            <th>Supervisor</th>
+                                            <th>Category</th>
+                                            <th>Required Hours</th>
+                                            <th>Shift Mode</th> <!--5-->
+                                            <th>Holiday</th>
+                                            <th>Normal Hours</th>
+                                            <th>AM Hours</th>
+                                            <th>PM Hours</th>
+                                            <th>Morning Hours</th>  <!--10-->
+                                            <th>Evening Hours</th>
+                                            <th>Night Hours</th>
+                                            <th>OT Approver</th>
+                                            <th>Remark</th>
+                                            <th>Total Employees</th>  <!--15-->
+                                            <th>Status</th>
+                                            <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
