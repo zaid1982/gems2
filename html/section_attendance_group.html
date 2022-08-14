@@ -1,209 +1,224 @@
-<section class="section sectionAttendanceGroup">
-    <form id="formSag" class="mt-2" autocomplete="off">
-        <nav class="navbar navbar-expand navbar-dark light-blue z-depth-3 mt-3 mb-4">
-            <div class="collapse navbar-collapse" id="basicExampleNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
-                        <a class="nav-link dropdown-toggle" id="navSagYear" data-toggle="dropdown"
-                           aria-haspopup="true" aria-expanded="false">Year</a>
-                        <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagYear" id="divSagYear">
-                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2022">2022</a>
-                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2023">2023</a>
-                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2024">2024</a>
-                            <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2025">2025</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
-                        <a class="nav-link dropdown-toggle" id="navSagMonth" data-toggle="dropdown"
-                           aria-haspopup="true" aria-expanded="false">Month</a>
-                        <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagMonth" id="divSagMonth">
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_1">January</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_2">February</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_3">March</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_4">April</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_5">May</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_6">June</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_7">July</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_8">August</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_9">September</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_10">October</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_11">November</a>
-                            <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_12">December</a>
-                        </div>
-                    </li>
-                    <a class="navbar-brand d-none d-md-block font-weight-500" href="#" id="lblSagSelected"></a>
-                </ul>
+<section class="section sectionAttendanceGroup mb-4">
+    <form id="formSag" autocomplete="off">
+        <div class="row">
+            <div class="col-12 p-2">
+                <nav class="navbar navbar-expand navbar-dark teal z-depth-3 m-0 p-2">
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item dropdown teal lighten-2 navbar-custom px-2 mr-2" id="liSagGroup">
+                                <a class="nav-link dropdown-toggle" id="navSagGroup" data-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">Group</a>
+                                <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagGroup" id="divSagGroup"></div>
+                            </li>
+                            <li class="nav-item dropdown teal lighten-2 navbar-custom px-2 mr-2" id="liSagYear">
+                                <a class="nav-link dropdown-toggle" id="navSagYear" data-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">Year</a>
+                                <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagYear" id="divSagYear">
+                                    <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2022">2022</a>
+                                    <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2023">2023</a>
+                                    <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2024">2024</a>
+                                    <a class="dropdown-item lnkSagYear" href="#" id="lnkSagYear_2025">2025</a>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown teal lighten-2 navbar-custom px-2 mr-2" id="liSagMonth">
+                                <a class="nav-link dropdown-toggle" id="navSagMonth" data-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">Month</a>
+                                <div class="dropdown-menu dropdown-danger" aria-labelledby="navSagMonth" id="divSagMonth">
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_1">January</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_2">February</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_3">March</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_4">April</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_5">May</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_6">June</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_7">July</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_8">August</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_9">September</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_10">October</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_11">November</a>
+                                    <a class="dropdown-item lnkSagMonth" href="#" id="lnkSagMonth_12">December</a>
+                                </div>
+                            </li>
+                            <a class="navbar-brand font-weight-500 ml-2" href="#" id="lblSagSelected"></a>  <!--d-none d-md-block-->
+                        </ul>
+                    </div>
+                    <div class="teal lighten-2 navbar-custom px-1" id="divSagEdit"><a class="nav-link text-white" href="#" id="btnSagActivate"><i class="fas fa-edit mr-1"></i> Edit</a></div>
+                    <div class="teal lighten-2 navbar-custom px-1 ml-2" id="divSagBack"><a class="nav-link text-white" href="#" id="btnSagBack"><i class="fas fa-arrow-left mr-1"></i> Back</a></div>
+                </nav>
             </div>
-            <div class="light-blue lighten-2 navbar-custom px-1" id="divSagActivate"><a class="nav-link text-white" href="#" id="btnSagActivate"><i class="fas fa-toggle-off mr-1"></i> Activate Site</a></div>
-            <div class="light-blue lighten-2 navbar-custom px-1" id="divSagDeactivate"><a class="nav-link text-white" href="#" id="btnSagDeactivate"><i class="fas fa-toggle-on mr-1"></i> Deactivate</a></div>
-            <div class="light-blue lighten-2 navbar-custom px-1 ml-3" id="divSagBack"><a class="nav-link text-white" href="#" id="btnSagBack"><i class="fas fa-arrow-left mr-1"></i> Back</a></div>
-        </nav>
-        <div class="row mb-2">
-            <div class="col-md-6 col-lg-3">
-                <div class="card z-depth-3 mb-3">
-                    <div class="pt-2 px-3 light-blue text-white">
-                        <h6>Attendance Group</h6>
-                        <h2 class="mt-3 mb-1" id="lblSagSiteCode">Test Zaid</h2>
-                        <p class="mb-3" id="lblSagSiteName">PPNS</p>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-lg-3 p-2">
+                <div class="card z-depth-3">
+                    <div class="pt-2 px-3 teal text-white">
+                        <h6 id="lblSagSiteName"></h6>
+                        <h2 class="mt-3 mb-1" id="lblSagGroupName"></h2>
+                        <p class="mb-3" id="lblSagTotalActive"></p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card z-depth-2 mb-3">
+            <div class="col-md-6 col-lg-3 p-2">
+                <div class="card z-depth-2">
                     <div class="pr-3">
-                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-check light-blue-text"></i></h1>
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-slash teal-text"></i></h1>
                         <p class="card-text text-right mt-2 mb-0">Total Absent</p>
-                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalAbsent"></h1>
                     </div>
                     <div class="card-body pt-0 pb-2">
                         <div class="progress mb-1" style="height: 10px">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" id="progressSagAbsent" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="card-text ">25% out of 14</p>
+                        <p class="card-text" id="pSagTotalAbsent"></p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card z-depth-2 mb-3">
+            <div class="col-md-6 col-lg-3 p-2">
+                <div class="card z-depth-2">
                     <div class="pr-3">
-                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-clock light-blue-text"></i></h1>
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-user-clock teal-text"></i></h1>
                         <p class="card-text text-right mt-2 mb-0">Total Lateness</p>
-                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalLateness"></h1>
                     </div>
                     <div class="card-body pt-0 pb-2">
                         <div class="progress mb-1" style="height: 10px">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" id="progressSagLateness" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="card-text ">25% out of 14</p>
+                        <p class="card-text" id="pSagTotalLateness"></p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card z-depth-2 mb-3">
+            <div class="col-md-6 col-lg-3 p-2">
+                <div class="card z-depth-2">
                     <div class="pr-3">
-                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-street-view light-blue-text"></i></h1>
+                        <h1 class="float-left ml-4 mt-4"><i class="fas fa-street-view teal-text"></i></h1>
                         <p class="card-text text-right mt-2 mb-0">Outside Parameter</p>
-                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalParticipant">4</h1>
+                        <h1 class="text-right font-weight-bold mb-0 text-danger" id="lblSagTotalOutside"></h1>
                     </div>
                     <div class="card-body pt-0 pb-2">
                         <div class="progress mb-1" style="height: 10px">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" id="progressSagOutside" role="progressbar" style="width: 25%; height: 10px" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="card-text ">25% out of 14</p>
+                        <p class="card-text" id="pSagTotalOutside"></p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4 col-lg-4">
-                <div class="card z-depth-3 mb-4_5">
+            <div class="col-lg-4 p-2">
+                <div class="card z-depth-3">
                     <div class="card-header white p-0 z-depth-1">
-                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <div class="float-left teal" style="width: 24px; height: 48px">&nbsp;</div>
                         <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Group Information</h4>
                     </div>
                     <div class="card-body pb-0">
                         <div class="row">
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-users prefix text-info"></i>
+                            <div class="md-form col-md-12 my-1 mb-4">
+                                <div id="mapSagPerimeter" class="z-depth-1" style="height: 350px; width: 100%"></div>
+                            </div>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-users prefix teal-text"></i>
                                 <label class="active pl-3">Group Name</label>
                                 <p class="pt-2-5 mb-0 pl-4_5" id="pSagName">Test Zaid</p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-tag prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-tag prefix teal-text"></i>
                                 <label class="active pl-3">Category</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Mechanical</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">Mechanical</p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-user-tie prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-user-tie prefix teal-text"></i>
                                 <label class="active pl-3">Supervisor</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Muhammad Amin Muhammad Zaid</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagSupervisor"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-user-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-user-clock prefix teal-text"></i>
                                 <label class="active pl-3">Weekly Required Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">48 hours</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagRequiredHours"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-umbrella-beach prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-umbrella-beach prefix teal-text"></i>
                                 <label class="active pl-3">Default Holiday</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Saturday & Sunday</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagHoliday"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-user-secret prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-user-secret prefix teal-text"></i>
                                 <label class="active pl-3">OT Approver</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagDesignation">Nur Syafiqah Muhammad Rusli</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagOtApprover"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-business-time prefix teal-text"></i>
                                 <label class="active pl-3">Normal Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagNormalHour"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="far fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="far fa-clock prefix teal-text"></i>
                                 <label class="active pl-3">2-shift AM Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagAmHour"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="far fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="far fa-clock prefix teal-text"></i>
                                 <label class="active pl-3">2-shift PM Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagPmHour"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-clock prefix teal-text"></i>
                                 <label class="active pl-3">3-shift Morning Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagMorningHour"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-clock prefix teal-text"></i>
                                 <label class="active pl-3">3-shift Evening Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagEveningHour"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
-                            <div class="md-form col-12 my-1">
-                                <i class="fas fa-clock prefix text-info"></i>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-clock prefix teal-text"></i>
                                 <label class="active pl-3">3-shift Night Working Hours</label>
-                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagCategory">8:00 AM to 5:00 PM</p>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagNightHour"></p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-comment prefix teal-text"></i>
+                                <label class="active pl-3">Remark</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagRemark"></p>
+                                <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                            </div>
+                            <div class="md-form col-md-6 col-lg-12 my-1">
+                                <i class="fas fa-toggle-on prefix teal-text"></i>
+                                <label class="active pl-3">Status</label>
+                                <p class="pt-2-5 mb-0 pl-4_5" id="pSagStatus"></p>
                                 <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card z-depth-3 mb-4_5">
-                    <div class="card-header white p-0 z-depth-1">
-                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Location</h4>
-                    </div>
-                    <div class="card-body">
-                    </div>
-                </div>
             </div>
-            <div class="col-md-8 col-lg-8">
-                <div class="card z-depth-3 mb-4_5">
+            <div class="col-lg-8 p-2">
+                <div class="card z-depth-3 mb-3">
                     <div class="card-header white p-0 z-depth-1">
-                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily Information></h4>
+                        <div class="float-left teal" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily Information</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-8 col-sm-6 col-md-7 col-lg-6 col-xl-4 pr-2">
                                 <div class="md-form md-outline mt-1">
-                                    <input type="text" id="txtSagGroupName" class="form-control">
-                                    <label for="txtSagGroupName" id="lblSagGroupName">Attendance Date *</label>
-                                    <p class="font-small text-danger" id="txtSagGroupNameErr"></p>
+                                    <input type="text" id="txtSagDailyDate" class="form-control">
+                                    <label for="txtSagDailyDate" id="lblSagDailyDate">Attendance Date *</label>
+                                    <p class="font-small text-danger" id="txtSagDailyDateErr"></p>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-6 col-md-5 col-lg-6 col-xl-8 pl-0">
-                                <a class="btn btn-outline-danger btn-sm px-2 mt-2" id="btnSagRunPlanner">Go <i class="fas fa-search ml-2"></i></a>
+                                <a class="btn btn-outline-danger btn-sm px-2 mt-2" id="btnSagDailyDate">Go <i class="fas fa-search ml-2"></i></a>
                             </div>
                             <div class="col-md-12 px-0">
                                 <div class="table-responsive">
@@ -229,36 +244,135 @@
                         </div>
                     </div>
                 </div>
-                <div class="card z-depth-3 mb-4_5">
+                <div class="card z-depth-3 mb-3">
                     <div class="card-header white p-0 z-depth-1">
-                        <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
+                        <div class="float-left teal" style="width: 24px; height: 48px">&nbsp;</div>
                         <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Employee Summary</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-12 px-0">
                                 <div class="table-responsive">
-                                    <table id="dtSagGroup" class="table table-hover table-sm mb-0 display responsive">
+                                    <table id="dtSagParticipant" class="table table-hover table-sm mb-0 display responsive">
                                         <thead>
                                         <tr class="th-strong">
                                             <th>#</th>
-                                            <th>Group Name</th>
-                                            <th>Supervisor</th>
+                                            <th>Employee's Name</th>
+                                            <th>GF ID</th>
+                                            <th>Designation</th>
+                                            <th>Contact Number</th>
+                                            <th>Email</th> <!--5-->
+                                            <th>Competency</th>
+                                            <th>CIDB Expiry</th>
                                             <th>Category</th>
                                             <th>Required Hours</th>
-                                            <th>Shift Mode</th> <!--5-->
-                                            <th>Holiday</th>
-                                            <th>Normal Hours</th>
-                                            <th>AM Hours</th>
-                                            <th>PM Hours</th>
-                                            <th>Morning Hours</th>  <!--10-->
-                                            <th>Evening Hours</th>
-                                            <th>Night Hours</th>
-                                            <th>OT Approver</th>
-                                            <th>Remark</th>
-                                            <th>Total Employees</th>  <!--15-->
+                                            <th>Shift Mode</th> <!--10-->
+                                            <th>Shift Initial</th>
+                                            <th>Weekly Holiday</th>
                                             <th>Status</th>
+                                            <th>Present</th>
+                                            <th>Absent</th> <!--15-->
+                                            <th>MC</th>
+                                            <th>Annual Leave</th>
+                                            <th>Off Day</th>
+                                            <th>Rest Day</th>
+                                            <th>Public Holiday</th> <!--20-->
+                                            <th>Training</th>
+                                            <th>In Late</th>
+                                            <th>Out Early</th>
+                                            <th>Off Area</th>
+                                            <th>Total Hours</th> <!--25-->
                                             <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card z-depth-3 mb-3">
+                    <div class="card-header white p-0 z-depth-1">
+                        <div class="float-left teal" style="width: 24px; height: 48px">&nbsp;</div>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Attendance Sheet</h4>
+                    </div>
+                    <div class="card-body pt-2">
+                        <div class="row">
+                            <div class="col-md-12 mt-2">
+                                <a class="btn btn-outline-danger btn-sm px-2" id="btnSagRunPlanner">Reschedule Planner <i class="far fa-calendar-plus ml-2"></i></a>
+                            </div>
+                            <div class="col-md-12 px-1">
+                                <div class="table-responsive">
+                                    <table id="dtSagData" class="table table-bordered table-sm table-grid-small-text mb-0 display responsive" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                        <thead>
+                                        <tr class="th-strong text-center">
+                                            <th rowspan="2" style="width: 32px">No</th>
+                                            <th rowspan="2" style="min-width: 142px">Name</th>
+                                            <th class="table-grid-width">1</th>
+                                            <th class="table-grid-width">2</th>
+                                            <th class="table-grid-width">3</th>
+                                            <th class="table-grid-width">4</th>
+                                            <th class="table-grid-width">5</th>
+                                            <th class="table-grid-width">6</th>
+                                            <th class="table-grid-width">7</th>
+                                            <th class="table-grid-width">8</th>
+                                            <th class="table-grid-width">9</th>
+                                            <th class="table-grid-width">10</th>
+                                            <th class="table-grid-width">11</th>
+                                            <th class="table-grid-width">12</th>
+                                            <th class="table-grid-width">13</th>
+                                            <th class="table-grid-width">14</th>
+                                            <th class="table-grid-width">15</th>
+                                            <th class="table-grid-width">16</th>
+                                            <th class="table-grid-width">17</th>
+                                            <th class="table-grid-width">18</th>
+                                            <th class="table-grid-width">19</th>
+                                            <th class="table-grid-width">20</th>
+                                            <th class="table-grid-width">21</th>
+                                            <th class="table-grid-width">22</th>
+                                            <th class="table-grid-width">23</th>
+                                            <th class="table-grid-width">24</th>
+                                            <th class="table-grid-width">25</th>
+                                            <th class="table-grid-width">26</th>
+                                            <th class="table-grid-width">27</th>
+                                            <th class="table-grid-width">28</th>
+                                            <th class="table-grid-width">29</th>
+                                            <th class="table-grid-width">30</th>
+                                            <th class="table-grid-width">31</th>
+                                        </tr>
+                                        <tr class="th-strong">
+                                            <th id="thSagDay1">Su</th>
+                                            <th id="thSagDay2">Mo</th>
+                                            <th id="thSagDay3">Tu</th>
+                                            <th id="thSagDay4">We</th>
+                                            <th id="thSagDay5">Th</th>
+                                            <th id="thSagDay6">Fr</th>
+                                            <th id="thSagDay7">Sa</th>
+                                            <th id="thSagDay8">Su</th>
+                                            <th id="thSagDay9">Mo</th>
+                                            <th id="thSagDay10">Tu</th>
+                                            <th id="thSagDay11">We</th>
+                                            <th id="thSagDay12">Th</th>
+                                            <th id="thSagDay13">Fr</th>
+                                            <th id="thSagDay14">Sa</th>
+                                            <th id="thSagDay15">Su</th>
+                                            <th id="thSagDay16">Mo</th>
+                                            <th id="thSagDay17">Tu</th>
+                                            <th id="thSagDay18">We</th>
+                                            <th id="thSagDay19">Th</th>
+                                            <th id="thSagDay20">Fr</th>
+                                            <th id="thSagDay21">Sa</th>
+                                            <th id="thSagDay22">Su</th>
+                                            <th id="thSagDay23">Mo</th>
+                                            <th id="thSagDay24">Tu</th>
+                                            <th id="thSagDay25">We</th>
+                                            <th id="thSagDay26">Th</th>
+                                            <th id="thSagDay27">Fr</th>
+                                            <th id="thSagDay28">Sa</th>
+                                            <th id="thSagDay29">Su</th>
+                                            <th id="thSagDay30">Mo</th>
+                                            <th id="thSagDay31">Tu</th>
                                         </tr>
                                         </thead>
                                         <tbody></tbody>

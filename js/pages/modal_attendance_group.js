@@ -14,6 +14,7 @@ function ModalAttendanceGroup () {
     let isSupervisor;
 	
 	this.init = function () {
+        googleMapsDrawingPolygonClass.initMapDrawing('mapMtgGroup');
         isAdmin = mzIsRoleExist('1');
         isSupervisor = mzIsRoleExist('20');
         mzOptionV2('optMtgGroupCategory', refAssetGroup, 'Please Select', 'assetGroupName', {assetGroupStatus: 1}, 'required');

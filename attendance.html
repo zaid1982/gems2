@@ -117,6 +117,7 @@
             </div>
         </section>
         <div class="includeHtml" id="h-section_attendance_site"></div>
+        <div class="includeHtml" id="h-section_attendance_group"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
@@ -178,9 +179,11 @@
     let modalAttendanceGroupClass_;
     let modalAttendanceParticipantClass_;
     let modalAttendanceDailyClass_;
-    let sectionAttendanceSiteClass;
+    let sectionAttendanceSiteClass_;
+    let sectionAttendanceGroupClass_;
     let attendanceClass_;
     let googleMapsDrawingPolygonClass_;
+    let googleMapsDrawingPolygonClass2_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -194,9 +197,11 @@
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 modalAttendanceDailyClass_ = new ModalAttendanceDaily();
-                sectionAttendanceSiteClass = new SectionAttendanceSite();
+                sectionAttendanceSiteClass_ = new SectionAttendanceSite();
+                sectionAttendanceGroupClass_ = new SectionAttendanceGroup();
                 attendanceClass_ = new MainAttendance();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
+                googleMapsDrawingPolygonClass2_ = new GoogleMapsDrawingPolygon();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refClient_ = mzGetLocalArrayV2('gems_client2', versionLocal_, 'client/ref');
@@ -205,20 +210,19 @@
                 const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
                 const refAttGroup_ = mzGetLocalArrayV2('gems_attGroup', versionLocal_, 'att_group/ref');
                 const refAttType_ = mzGetLocalArrayV2('gems_attType', versionLocal_, 'att_type/ref');
-
-                googleMapsDrawingPolygonClass_.initMapDrawing('mapMtgGroup');
+                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
 
                 modalAttendanceGroupClass_.setRefUser(refUser_);
                 modalAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
                 modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
-                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass);
+                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass_);
                 modalAttendanceGroupClass_.init();
 
                 modalAttendanceParticipantClass_.setRefDesignation(refDesignation_);
                 modalAttendanceParticipantClass_.setRefAttGroup(refAttGroup_);
                 modalAttendanceParticipantClass_.setRefAttType(refAttType_);
                 modalAttendanceParticipantClass_.setRefAssetGroup(refAssetGroup_);
-                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceSiteClass)
+                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceSiteClass_)
                 modalAttendanceParticipantClass_.init();
 
                 modalAttendanceDailyClass_.setRefStatus(refStatus_);
@@ -231,21 +235,32 @@
                 //modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
                 modalAttendanceDailyClass_.init();
 
-                sectionAttendanceSiteClass.setRefStatus(refStatus_);
-                sectionAttendanceSiteClass.setRefUser(refUser_);
-                sectionAttendanceSiteClass.setRefAssetGroup(refAssetGroup_);
-                sectionAttendanceSiteClass.setRefAttType(refAttType_);
-                sectionAttendanceSiteClass.setModalConfirmSubmitClass(confirmSubmitClass_);
-                sectionAttendanceSiteClass.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
-                sectionAttendanceSiteClass.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
-                sectionAttendanceSiteClass.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
-                sectionAttendanceSiteClass.setClassFrom(attendanceClass_);
-                sectionAttendanceSiteClass.init();
+                sectionAttendanceSiteClass_.setRefStatus(refStatus_);
+                sectionAttendanceSiteClass_.setRefUser(refUser_);
+                sectionAttendanceSiteClass_.setRefAssetGroup(refAssetGroup_);
+                sectionAttendanceSiteClass_.setRefAttType(refAttType_);
+                sectionAttendanceSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
+                sectionAttendanceSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
+                sectionAttendanceSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
+                sectionAttendanceSiteClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
+                sectionAttendanceSiteClass_.setSectionAttendanceGroupClass(sectionAttendanceGroupClass_);
+                sectionAttendanceSiteClass_.setClassFrom(attendanceClass_);
+                sectionAttendanceSiteClass_.init();
+
+                sectionAttendanceGroupClass_.setRefStatus(refStatus_);
+                sectionAttendanceGroupClass_.setRefUser(refUser_);
+                sectionAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
+                sectionAttendanceGroupClass_.setRefAttType(refAttType_);
+                sectionAttendanceGroupClass_.setRefAttGroup(refAttGroup_);
+                sectionAttendanceGroupClass_.setRefSite(refSite_);
+                sectionAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass2_);
+                sectionAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass_);
+                sectionAttendanceGroupClass_.init();
 
                 attendanceClass_.setRefStatus(refStatus_);
                 attendanceClass_.setRefClient(refClient_);
                 attendanceClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
-                attendanceClass_.setSectionAttendanceSiteClass(sectionAttendanceSiteClass);
+                attendanceClass_.setSectionAttendanceSiteClass(sectionAttendanceSiteClass_);
                 attendanceClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -260,6 +275,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

@@ -6,7 +6,7 @@ function SectionAttendanceSite () {
     let hasEdit = false;
     let siteId;
     let siteName;
-    let userId;
+    let userId = 0;
     let refStatus;
     let refUser;
     let refAssetGroup;
@@ -20,7 +20,6 @@ function SectionAttendanceSite () {
     let modalAttendanceDailyClass;
     let modalConfirmSubmitClass;
     let sectionAttendanceGroupClass;
-    let isAdmin;
     let isSiteAdmin;
     let isSupervisor;
     let currentYear = 0;
@@ -45,8 +44,7 @@ function SectionAttendanceSite () {
             }, 200);
         });
 
-        userId = mzGetUserId();
-        isAdmin = mzIsRoleExist('1');
+        userId = parseInt(mzGetUserId());
         isSiteAdmin = mzIsRoleExist('19');
         isSupervisor = mzIsRoleExist('20');
         thisDate = moment();
@@ -83,7 +81,7 @@ function SectionAttendanceSite () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                if (isAdmin) {
+                if (isSiteAdmin) {
                     $('#btnSacAddGroup').off('click').on('click', function () {
                         modalAttendanceGroupClass.add(siteId);
                     });
@@ -96,7 +94,12 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
-                        modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
+                        if (isSiteAdmin) {
+                            modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
+                        } else {
+                            toastr['error']('You don\'t have permission as Site Admin role to perform this task!', _ALERT_TITLE_ERROR);
+                            return false;
+                        }
                     }
                 });
                 $('.lnkSacGroupDetail').off('click').on('click', function () {
@@ -105,7 +108,7 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
-                        sectionAttendanceGroupClass.load(currentRow['attGroupId']);
+                        sectionAttendanceGroupClass.load(currentRow['attGroupId'], currentYear, currentMonth);
                     }
                 });
                 if ($('#divPageWidth').width() < 880) {
@@ -147,7 +150,7 @@ function SectionAttendanceSite () {
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
-                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                        if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
                             label = '<a><i class="fas fa-edit mr-1 lnkSacGroupEdit" id="lnkSacGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
                         }
                         label += '<a><i class="fas fa-users lnkSacGroupDetail" id="lnkSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['attGroupName'] + ' informations"></i></a>';
@@ -176,10 +179,10 @@ function SectionAttendanceSite () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacParticipantHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacParticipantHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: 'All', className: 'btn btn-outline-blue btn-sm px-2 ml-3', attr: { id: 'btnSacParticipantStatusAll' }},
                 { text: 'Assigned', className: 'btn btn-outline-success btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusAssigned' }},
                 { text: 'Unregistered', className: 'btn btn-outline-grey btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusNotAssigned' }}
@@ -210,7 +213,7 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacParticipant.row(parseInt(rowId)).data();
-                        if (isAdmin || isSupervisor) {
+                        if (isSiteAdmin || isSupervisor) {
                             modalAttendanceParticipantClass.setParticipantName(currentRow['userFirstName']);
                             modalAttendanceParticipantClass.setSiteName(siteName);
                             modalAttendanceParticipantClass.load(currentRow['userIds'], currentRow['attParticipantId'], siteId);
@@ -315,7 +318,7 @@ function SectionAttendanceSite () {
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
-                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                        if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
                             label = '<a><i class="fas fa-edit mr-1 lnkSacParticipantEdit" id="lnkSacParticipantEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['userFirstName'] + ' configuration"></i></a>';
                         }
                         label += '<a><i class="fas fa-user lnkSacParticipantDetail" id="lnkSacParticipantDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['userFirstName'] + ' informations"></i></a>';

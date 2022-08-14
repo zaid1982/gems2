@@ -32,6 +32,8 @@ try {
         }
         if ($urlArr[1] === 'by_site' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
             $result = $fnAttParticipant->getListSite(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
+        } else if ($urlArr[1] === 'by_group' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
+            $result = $fnAttParticipant->getListGroup(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
         } else if (is_numeric($urlArr[1])) {
             $result = $fnAttParticipant->get(intval($urlArr[1]));
         } else {
