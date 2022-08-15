@@ -192,6 +192,7 @@ function SectionAttendancePlanner () {
 
     this.showMain = function () {
         $('.sectionAttendancePlanner').show();
+        //$("div[title~=site]").hide();
     };
 
     this.hideMain = function () {

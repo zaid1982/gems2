@@ -188,6 +188,25 @@ class AttGroup extends General {
     }
 
     /**
+     * @return array
+     * @throws Exception
+     */
+    public function getSupervisorList (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $supervisorArr = array();
+            $attGroupArr = DbMysql::selectAll('att_group', array('attGroupSupervisor'=>$this->userId), 0, false, 'attGroupName');
+            foreach ($attGroupArr as $attGroup) {
+                $supervisorArr[] = $attGroup['attGroupId'];
+            }
+            return $supervisorArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $siteId
      * @return void
      * @throws Exception

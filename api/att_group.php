@@ -38,6 +38,8 @@ try {
             $result = $fnAttGroup->getList(intval($urlArr[2]));
         } else if ($urlArr[1] === 'chart_site' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
             $result = $fnAttGroup->getChartsSite(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
+        } else if ($urlArr[1] === 'supervisor') {
+            $result = $fnAttGroup->getSupervisorList();
         } else {
             $fnAttGroup->set(intval($urlArr[1]));
             $result = $fnAttGroup->attGroup;

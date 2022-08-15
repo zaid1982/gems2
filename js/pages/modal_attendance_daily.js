@@ -83,10 +83,9 @@ function ModalAttendanceDaily () {
                             }
                         }
                         mzAjaxRequest2('att_transaction/'+attTransactionId, 'PUT', data);
-                        if (classFrom.getClassName() === 'SectionAttendancePlanner') {
-                            if (classFrom.getPlannerType() === 'site') {
-                                classFrom.genTableSite();
-                            }
+                        classFrom.genTablePlanner();
+                        if (classFrom.getClassName() === 'SectionAttendanceGroup') {
+                            classFrom.setHasEditPlanner(true);
                         }
                         $('#modal_attendance_daily').modal('hide');
                     } catch (e) {

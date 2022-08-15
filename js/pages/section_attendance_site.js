@@ -6,7 +6,7 @@ function SectionAttendanceSite () {
     let hasEdit = false;
     let siteId;
     let siteName;
-    let userId;
+    let userId = 0;
     let refStatus;
     let refUser;
     let refAssetGroup;
@@ -14,16 +14,17 @@ function SectionAttendanceSite () {
     let refAttType;
     let oTableSacGroup;
     let oTableSacParticipant;
+    let oTableSacPlanner;
     let modalAttendanceGroupClass;
     let modalAttendanceParticipantClass;
     let modalAttendanceDailyClass;
     let modalConfirmSubmitClass;
-    let sectionAttendancePlannerClass;
-    let isAdmin;
+    let sectionAttendanceGroupClass;
     let isSiteAdmin;
     let isSupervisor;
     let currentYear = 0;
     let currentMonth = 0;
+    let thisDate;
 
     this.init = function () {
         $('#btnSacBack').on('click', function () {
@@ -34,7 +35,6 @@ function SectionAttendanceSite () {
                         classFrom.genTable();
                     }
                     self.hideMain();
-                    sectionAttendancePlannerClass.hideMain();
                     classFrom.showMain();
                     $(window).scrollTop(0);
                 } catch (e) {
@@ -44,10 +44,10 @@ function SectionAttendanceSite () {
             }, 200);
         });
 
-        userId = mzGetUserId();
-        isAdmin = mzIsRoleExist('1');
+        userId = parseInt(mzGetUserId());
         isSiteAdmin = mzIsRoleExist('19');
         isSupervisor = mzIsRoleExist('20');
+        thisDate = moment();
 
         oTableSacGroup = $('#dtSacGroup').DataTable({
             bLengthChange: false,
@@ -81,7 +81,7 @@ function SectionAttendanceSite () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                if (isAdmin) {
+                if (isSiteAdmin) {
                     $('#btnSacAddGroup').off('click').on('click', function () {
                         modalAttendanceGroupClass.add(siteId);
                     });
@@ -94,7 +94,12 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
-                        modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
+                        if (isSiteAdmin) {
+                            modalAttendanceGroupClass.edit(currentRow['attGroupId'], siteId);
+                        } else {
+                            toastr['error']('You don\'t have permission as Site Admin role to perform this task!', _ALERT_TITLE_ERROR);
+                            return false;
+                        }
                     }
                 });
                 $('.lnkSacGroupDetail').off('click').on('click', function () {
@@ -103,7 +108,7 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacGroup.row(parseInt(rowId)).data();
-                        //sectionAttendancePlannerClass.load(currentRow['attGroupId']);
+                        sectionAttendanceGroupClass.load(currentRow['attGroupId'], currentYear, currentMonth);
                     }
                 });
                 if ($('#divPageWidth').width() < 880) {
@@ -145,7 +150,7 @@ function SectionAttendanceSite () {
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
-                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                        if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
                             label = '<a><i class="fas fa-edit mr-1 lnkSacGroupEdit" id="lnkSacGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
                         }
                         label += '<a><i class="fas fa-users lnkSacGroupDetail" id="lnkSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['attGroupName'] + ' informations"></i></a>';
@@ -174,10 +179,10 @@ function SectionAttendanceSite () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacParticipantHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Attendance Participant List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnSacParticipantHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnSacParticipantHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Monthly Employee Summary', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: 'All', className: 'btn btn-outline-blue btn-sm px-2 ml-3', attr: { id: 'btnSacParticipantStatusAll' }},
                 { text: 'Assigned', className: 'btn btn-outline-success btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusAssigned' }},
                 { text: 'Unregistered', className: 'btn btn-outline-grey btn-sm px-2 ml-0', attr: { id: 'btnSacParticipantStatusNotAssigned' }}
@@ -208,7 +213,7 @@ function SectionAttendanceSite () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSacParticipant.row(parseInt(rowId)).data();
-                        if (isAdmin || isSupervisor) {
+                        if (isSiteAdmin || isSupervisor) {
                             modalAttendanceParticipantClass.setParticipantName(currentRow['userFirstName']);
                             modalAttendanceParticipantClass.setSiteName(siteName);
                             modalAttendanceParticipantClass.load(currentRow['userIds'], currentRow['attParticipantId'], siteId);
@@ -313,13 +318,111 @@ function SectionAttendanceSite () {
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
                         let label = '';
-                        if (isAdmin || (!isAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
+                        if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
                             label = '<a><i class="fas fa-edit mr-1 lnkSacParticipantEdit" id="lnkSacParticipantEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['userFirstName'] + ' configuration"></i></a>';
                         }
                         label += '<a><i class="fas fa-user lnkSacParticipantDetail" id="lnkSacParticipantDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['userFirstName'] + ' informations"></i></a>';
                         return label;
                     }}
             ]
+        });
+
+        oTableSacPlanner = $('#dtSacPlanner').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            bInfo: false,
+            aaSorting: [[1, 'asc']],
+            ordering: false,
+            language: _DATATABLE_LANGUAGE,
+            bPaginate: false,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                for (let i = 1; i <= parseInt(thisDate.endOf('month').format('D')); i++) {
+                    const attTypeId = aData['data'][i]['attTypeId'];
+                    $('td', nRow).eq(i+1).addClass(refAttType[attTypeId]['attTypeColor']);
+                }
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                const lastDay = parseInt(thisDate.endOf('month').format('D'));
+                $(this).DataTable().column(30).visible(true);
+                $(this).DataTable().column(31).visible(true);
+                $(this).DataTable().column(32).visible(true);
+                if (lastDay === 28) {
+                    $(this).DataTable().column(30).visible(false);
+                    $(this).DataTable().column(31).visible(false);
+                    $(this).DataTable().column(32).visible(false);
+                } else if (lastDay === 29) {
+                    $(this).DataTable().column(31).visible(false);
+                    $(this).DataTable().column(32).visible(false);
+                } else if (lastDay === 30) {
+                    $(this).DataTable().column(32).visible(false);
+                }
+                $('.lnkSacPlannerInfo').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkArray = linkId.split('_');
+                    if (linkArray.length === 3 && linkArray[0] === 'lnkSacPlannerInfo') {
+                        const currentRow = oTableSacPlanner.row(parseInt(linkArray[1])).data();
+                        modalAttendanceDailyClass.setClassFrom(self);
+                        modalAttendanceDailyClass.load(currentRow['data'][parseInt(linkArray[2])]);
+                    }
+                });
+            },
+            columnDefs: [
+                { className: 'text-left', targets: [1] }
+            ],
+            aoColumns: [
+                {mData: null},
+                {mData: 'userId', mRender: function(data) {
+                        return '<div class="table-grid-cut-text">'+refUser[data]['userFirstName']+'</div>';
+                    }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 1, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 2, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 3, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 4, meta.row); }}, // 5
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 5, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 6, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 7, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 8, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 9, meta.row); }}, // 10
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 10, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 11, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 12, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 13, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 14, meta.row); }}, // 15
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 15, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 16, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 17, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 18, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 19, meta.row); }}, // 20
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 20, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 21, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 22, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 23, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 24, meta.row); }}, // 25
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 25, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 26, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 27, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 28, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 29, meta.row); }}, // 30
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 30, meta.row); }},
+                {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 31, meta.row); }}
+            ]
+        });
+
+        $('#btnSacRunPlanner').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    mzAjaxRequest2('att_transaction/reschedule/site/'+siteId+'/'+currentYear+'/'+currentMonth, 'PUT');
+                    self.genTablePlanner();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
         });
 
         $('.lnkSacYear').off('click').on('click', function () {
@@ -449,15 +552,16 @@ function SectionAttendanceSite () {
     this.setPageByMonth = function () {
         try {
             self.genTableParticipant();
+            oTableSacParticipant.search('').columns().search('');
+            oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
+            $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
 
             const chartData = mzAjaxRequest2('att_group/chart_site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
             self.genChart('chartSacAbsent', 'Attendance Performance', 'Group Attendance Rate (%)', chartData[0]);
             self.genChart('chartSacLateness', 'Punctuality Performance', 'Group Punctuality Rate (%)', chartData[1]);
             self.genChart('chartSacValidity', 'Geo-Validity Performance', 'Inside Parameter Rate (%)', chartData[2]);
 
-            oTableSacParticipant.search('').columns().search('');
-            oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
-            $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
+            self.genTablePlanner();
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -482,9 +586,8 @@ function SectionAttendanceSite () {
                 $('.lnkSacYear').removeClass('active').removeClass('text-white');
                 $('#lnkSacYear_' + currentYear).addClass('active').addClass('text-white');
             }
-            let m = moment();
-            m.set({'year': currentYear, 'month': currentMonth - 1});
-            $('#lblSacSelected').text(m.format('MMMM, YYYY'));
+            thisDate.set({'year': currentYear, 'month': currentMonth - 1});
+            $('#lblSacSelected').text(thisDate.format('MMMM, YYYY'));
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -533,7 +636,41 @@ function SectionAttendanceSite () {
         try {
             const dataDb = mzAjaxRequest2('att_participant/by_site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
             oTableSacParticipant.clear().rows.add(dataDb).draw();
-            sectionAttendancePlannerClass.loadSite(siteId, currentYear, currentMonth);
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    };
+
+    this.genTablePlanner = function () {
+        try {
+            const dataDb = mzAjaxRequest2('att_transaction/monthly/site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
+            oTableSacPlanner.clear().rows.add(dataDb).draw();
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    };
+
+    this.getCellDisplay = function (_data, _day, _metaRow) {
+        try {
+            if (typeof _day !== 'number' || _day < 1 || _day > parseInt(thisDate.endOf('month').format('D'))) {
+                return '';
+            }
+            const attTypeId = _data[_day]['attTypeId'];
+            let colorHoover = 'white-darker-hover';
+            const shiftMode = refAttType[attTypeId]['attTypeMode'];
+            if (shiftMode === 'Normal' || shiftMode === '2 Shifts' || shiftMode === '3 Shifts') {
+                if (_data[_day]['result'] === 'Present') {
+                    //colorHoover = 'success-lighter-hover';
+                    colorHoover = 'white-darker-hover';
+                } else if (_data[_day]['result'] === 'Absent') {
+                    colorHoover = 'danger-lighter-hover';
+                } else {
+                    colorHoover = moment().isAfter(_data[_day]['attTransactionDate']) ? 'danger-lighter-hover' : 'white-darker-hover';
+                }
+            }
+            const dayName = _data[_day]['dayName'];
+            $('#thSacPlannerDay'+_day).text(dayName.substr(0, 2));
+            return '<a><span class="' + colorHoover + ' lnkSacPlannerInfo" id="lnkSacPlannerInfo_' + _metaRow + '_' + _day + '" data-toggle="tooltip" data-placement="top" title="Click to view / edit daily details">' + refAttType[attTypeId]['attTypeShort'] + '</span></a>';
         } catch (e) {
             throw new Error(e.message);
         }
@@ -651,8 +788,8 @@ function SectionAttendanceSite () {
         modalConfirmSubmitClass = _modalConfirmSubmitClass;
     };
 
-    this.setSectionAttendancePlannerClass = function (_sectionAttendancePlannerClass) {
-        sectionAttendancePlannerClass = _sectionAttendancePlannerClass;
+    this.setSectionAttendanceGroupClass = function (_sectionAttendanceGroupClass) {
+        sectionAttendanceGroupClass = _sectionAttendanceGroupClass;
     };
 
     this.setHasEdit = function (_hasEdit) {

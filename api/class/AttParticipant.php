@@ -33,7 +33,7 @@ class AttParticipant extends General {
      * @return array
      * @throws Exception
      */
-    public function getListSite(int $siteId, int $year, int $month): array {
+    public function getListSite (int $siteId, int $year, int $month): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
@@ -46,6 +46,7 @@ class AttParticipant extends General {
                         up.user_email,
                         d.designation_desc,
                         IFNULL(p.att_participant_status, 52) AS participant_status,   
+                        g.att_group_supervisor,
                         u.user_id AS user_ids,
                         SUM(IF(att_transaction_result = 'Present' OR (att_transaction_date < CURDATE() AND y.att_type_mode IN ('Normal', '2 Shifts', '3 Shifts') AND att_transaction_status <> 'Ready'), 1, 0)) AS total_present,
                         SUM(IF(att_transaction_result = 'Absent' OR (att_transaction_date < CURDATE() AND y.att_type_mode IN ('Normal', '2 Shifts', '3 Shifts') AND att_transaction_status = 'Ready'), 1, 0)) AS total_absent,
@@ -69,6 +70,55 @@ class AttParticipant extends General {
                     LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
                     WHERE u.site_id = $siteId
                     GROUP BY u.user_id");
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $attGroupId
+     * @param int $year
+     * @param int $month
+     * @return array
+     * @throws Exception
+     */
+    public function getListGroup (int $attGroupId, int $year, int $month): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($attGroupId, 'attGroupId');
+            parent::checkEmptyInteger($year, 'year');
+            parent::checkEmptyInteger($month, 'month');
+            return DbMysql::selectSqlAll(/** @lang text */
+                "SELECT
+                        u.user_first_name,
+                        up.user_contact_no,
+                        up.user_email,
+                        d.designation_desc,
+                        IFNULL(p.att_participant_status, 52) AS participant_status,   
+                        g.att_group_supervisor,
+                        u.user_id AS user_ids,
+                        SUM(IF(att_transaction_result = 'Present' OR (att_transaction_date < CURDATE() AND y.att_type_mode IN ('Normal', '2 Shifts', '3 Shifts') AND att_transaction_status <> 'Ready'), 1, 0)) AS total_present,
+                        SUM(IF(att_transaction_result = 'Absent' OR (att_transaction_date < CURDATE() AND y.att_type_mode IN ('Normal', '2 Shifts', '3 Shifts') AND att_transaction_status = 'Ready'), 1, 0)) AS total_absent,
+                        SUM(IF(y.att_type_id = 7, 1, 0)) AS total_mc,
+                        SUM(IF(y.att_type_id = 6, 1, 0)) AS total_al,
+                        SUM(IF(y.att_type_id = 5, 1, 0)) AS total_od,
+                        SUM(IF(y.att_type_id = 4, 1, 0)) AS total_rd,
+                        SUM(IF(y.att_type_id = 14, 1, 0)) AS total_ph,
+                        SUM(IF(y.att_type_id = 8, 1, 0)) AS total_training,
+                        FLOOR(SUM(TO_SECONDS(att_transaction_time_out) - TO_SECONDS(att_transaction_time_in)) / 3600) AS total_hours,
+                        SUM(IF(att_transaction_time_in IS NOT NULL AND att_transaction_time_in > att_transaction_shift_start, 1, 0)) AS total_in_late,
+                        SUM(IF(att_transaction_time_out IS NOT NULL AND att_transaction_time_out < att_transaction_shift_end, 1, 0)) AS total_out_early,
+                        SUM(IF(att_transaction_location_in IS NOT NULL AND ST_CONTAINS(g.att_group_polygon, att_transaction_location_in) = FALSE, 1, 0) + IF(att_transaction_location_out IS NOT NULL AND ST_CONTAINS(g.att_group_polygon, att_transaction_location_out) = FALSE, 1, 0)) AS total_outside,
+                        p.*
+                    FROM att_participant p
+                    LEFT JOIN sys_user u ON u.user_id = p.user_id
+                    LEFT JOIN sys_user_profile up ON up.user_id = u.user_id
+                    LEFT JOIN ref_designation d ON d.designation_id = up.designation_id
+                    LEFT JOIN att_transaction t ON t.att_participant_id = p.att_participant_id AND YEAR(t.att_transaction_date) = $year AND MONTH(t.att_transaction_date) = $month
+                    LEFT JOIN att_type y ON y.att_type_id = t.att_type_id
+                    LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
+                    WHERE p.att_group_id = $attGroupId
+                    GROUP BY p.att_participant_id");
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

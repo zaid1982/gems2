@@ -77,46 +77,6 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid" id="divPageWidth">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionAtcMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1 pb-1">
-                Attendance - All Site List
-            </h5>
-        </nav>
-        <section class="mt-4 mb-4 sectionAtcMain">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-4">
-                        <div class="card-body pb-1 px-3">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="table-responsive">
-                                        <table id="dtAtcData" class="table table-hover table-striped table-sm mt-3 mb-0 display responsive" style="width: 100%">
-                                            <thead>
-                                            <tr class="th-strong">
-                                                <th>#</th>
-                                                <th>Client</th>
-                                                <th>Site Name</th>
-                                                <th>Site Code</th>
-                                                <th>Description</th>
-                                                <th>Site Status</th>
-                                                <th>Total Groups</th>
-                                                <th>Total Employees</th>
-                                                <th>Attendance Enabled</th>
-                                                <th>Enable / Disable</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <div class="includeHtml" id="h-section_attendance_site"></div>
         <div class="includeHtml" id="h-section_attendance_group"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
@@ -167,7 +127,8 @@
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
 <!-- Google Maps -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCe-2LZ0JETWPTXcBkdnz8LuMltiTIhbyE&libraries=drawing&v=weekly&channel=2" async></script>
-<script type="text/javascript" src="js/google-map.js?7"></script>
+<script type="text/javascript" src="js/google-map.js?8"></script>
+
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -179,9 +140,7 @@
     let modalAttendanceGroupClass_;
     let modalAttendanceParticipantClass_;
     let modalAttendanceDailyClass_;
-    let sectionAttendanceSiteClass_;
     let sectionAttendanceGroupClass_;
-    let attendanceClass_;
     let googleMapsDrawingPolygonClass_;
     let googleMapsDrawingPolygonClass2_;
 
@@ -197,14 +156,11 @@
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 modalAttendanceDailyClass_ = new ModalAttendanceDaily();
-                sectionAttendanceSiteClass_ = new SectionAttendanceSite();
                 sectionAttendanceGroupClass_ = new SectionAttendanceGroup();
-                attendanceClass_ = new MainAttendance();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
                 googleMapsDrawingPolygonClass2_ = new GoogleMapsDrawingPolygon();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refClient_ = mzGetLocalArrayV2('gems_client2', versionLocal_, 'client/ref');
                 const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
                 const refDesignation_ = mzGetLocalArrayV2('gems_designation2', versionLocal_, 'designation/ref');
                 const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
@@ -215,14 +171,14 @@
                 modalAttendanceGroupClass_.setRefUser(refUser_);
                 modalAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
                 modalAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
-                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass_);
+                modalAttendanceGroupClass_.setClassFrom(sectionAttendanceGroupClass_);
                 modalAttendanceGroupClass_.init();
 
                 modalAttendanceParticipantClass_.setRefDesignation(refDesignation_);
                 modalAttendanceParticipantClass_.setRefAttGroup(refAttGroup_);
                 modalAttendanceParticipantClass_.setRefAttType(refAttType_);
                 modalAttendanceParticipantClass_.setRefAssetGroup(refAssetGroup_);
-                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceSiteClass_)
+                modalAttendanceParticipantClass_.setClassFrom(sectionAttendanceGroupClass_);
                 modalAttendanceParticipantClass_.init();
 
                 modalAttendanceDailyClass_.setRefStatus(refStatus_);
@@ -232,20 +188,8 @@
                 modalAttendanceDailyClass_.setRefAttGroup(refAttGroup_);
                 modalAttendanceDailyClass_.setRefAttType(refAttType_);
                 modalAttendanceDailyClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass_);
-                //modalAttendanceDailyClass_.setClassFrom(sectionAttendancePlannerClass_);
+                modalAttendanceDailyClass_.setClassFrom(sectionAttendanceGroupClass_);
                 modalAttendanceDailyClass_.init();
-
-                sectionAttendanceSiteClass_.setRefStatus(refStatus_);
-                sectionAttendanceSiteClass_.setRefUser(refUser_);
-                sectionAttendanceSiteClass_.setRefAssetGroup(refAssetGroup_);
-                sectionAttendanceSiteClass_.setRefAttType(refAttType_);
-                sectionAttendanceSiteClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
-                sectionAttendanceSiteClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
-                sectionAttendanceSiteClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
-                sectionAttendanceSiteClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
-                sectionAttendanceSiteClass_.setSectionAttendanceGroupClass(sectionAttendanceGroupClass_);
-                sectionAttendanceSiteClass_.setClassFrom(attendanceClass_);
-                sectionAttendanceSiteClass_.init();
 
                 sectionAttendanceGroupClass_.setRefStatus(refStatus_);
                 sectionAttendanceGroupClass_.setRefUser(refUser_);
@@ -253,15 +197,16 @@
                 sectionAttendanceGroupClass_.setRefAttType(refAttType_);
                 sectionAttendanceGroupClass_.setRefAttGroup(refAttGroup_);
                 sectionAttendanceGroupClass_.setRefSite(refSite_);
+                sectionAttendanceGroupClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
                 sectionAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass2_);
-                sectionAttendanceGroupClass_.setClassFrom(sectionAttendanceSiteClass_);
                 sectionAttendanceGroupClass_.init();
 
-                attendanceClass_.setRefStatus(refStatus_);
-                attendanceClass_.setRefClient(refClient_);
-                attendanceClass_.setModalConfirmSubmitClass(confirmSubmitClass_);
-                attendanceClass_.setSectionAttendanceSiteClass(sectionAttendanceSiteClass_);
-                attendanceClass_.init();
+                if (mzIsRoleExist('20')) {
+                    //const siteId = mzGetUserInfoByParam('siteId');
+                    sectionAttendanceGroupClass_.load(0, 2022, 8);
+                } else {
+                    throw new Error('You do not have a Group Supervisor role therefore not eligible to preview this page');
+                }
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -274,9 +219,6 @@
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_attendance_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_attendance_config.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
-

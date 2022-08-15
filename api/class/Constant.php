@@ -86,5 +86,6 @@ class Constant {
         'checkOut' => 'You successfully checked out!',
         'errUpdateValidation' => 'Please make sure either Daily Status or Attendance Status selected!',
         'rescheduleSite' => 'Site _1 attendance planner for year _2 and month _3 successfully rescheduled!',
+        'rescheduleGroup' => 'Group _1 attendance planner for year _2 and month _3 successfully rescheduled!'
     );
 }
