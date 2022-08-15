@@ -339,27 +339,26 @@ function SectionAttendanceGroup () {
                         });
                         if (attGroupId === 0) {
                             attGroupId = groupArr[0];
-                        } else {
-                            $('.lnkSagGroup').off('click').on('click', function () {
-                                const linkId = $(this).attr('id');
-                                ShowLoader();
-                                setTimeout(function () {
-                                    try {
-                                        const linkArray = linkId.split('_');
-                                        if (linkArray.length === 2 && linkArray[0] === 'lnkSagGroup') {
-                                            self.load(parseInt(linkArray[1]), currentYear, currentMonth);
-                                            $('.lnkSagGroup').removeClass('active').removeClass('text-white');
-                                            $('#lnkSagGroup_' + linkArray[1]).addClass('active').addClass('text-white');
-                                        } else {
-                                            throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-                                        }
-                                    } catch (e) {
-                                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                                    }
-                                    HideLoader();
-                                }, 300);
-                            });
                         }
+                        $('.lnkSagGroup').off('click').on('click', function () {
+                            const linkId = $(this).attr('id');
+                            ShowLoader();
+                            setTimeout(function () {
+                                try {
+                                    const linkArray = linkId.split('_');
+                                    if (linkArray.length === 2 && linkArray[0] === 'lnkSagGroup') {
+                                        self.load(parseInt(linkArray[1]), currentYear, currentMonth);
+                                        $('.lnkSagGroup').removeClass('active').removeClass('text-white');
+                                        $('#lnkSagGroup_' + linkArray[1]).addClass('active').addClass('text-white');
+                                    } else {
+                                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                                    }
+                                } catch (e) {
+                                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                                }
+                                HideLoader();
+                            }, 300);
+                        });
                     } else if (groupArr.length === 1) {
                         attGroupId = groupArr[0];
                     } else {
