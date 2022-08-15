@@ -30,16 +30,18 @@ class AttTransaction extends General {
     }
 
     /**
-     * @param int $siteId
+     * @param int $id
+     * @param string $typeIndex
      * @param int $year
      * @param int $month
      * @return array
      * @throws Exception
      */
-    public function getMonthlySite (int $siteId, int $year, int $month): array {
+    public function getMonthlySheet (int $id, string $typeIndex, int $year, int $month): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            parent::checkEmptyInteger($siteId, 'siteId');
+            parent::checkEmptyInteger($id, 'id');
+            parent::checkEmptyString($typeIndex, 'typeIndex');
             parent::checkEmptyInteger($year, 'year');
             parent::checkEmptyInteger($month, 'month');
             $returnArr = array();
@@ -86,7 +88,7 @@ class AttTransaction extends General {
                 LEFT JOIN att_participant p ON p.att_participant_id = t.att_participant_id
                 LEFT JOIN att_type y ON y.att_type_id = t.att_type_id
                 LEFT JOIN sys_user_profile f ON f.user_id = t.user_id AND f.user_profile_status = 1",
-                array('g.siteId'=>$siteId, 'p.attParticipantStatus'=>1, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 2, false, 'userIds, days');
+                array($typeIndex=>$id, 'p.attParticipantStatus'=>1, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 2, false, 'userIds, days');
             foreach ($transactionList as $i=>$transactions) {
                 $newArray = array();
                 foreach ($transactions as $transaction) {
@@ -299,15 +301,16 @@ class AttTransaction extends General {
     }
 
     /**
-     * @param int $siteId
+     * @param int $id
      * @param int $year
      * @param int $month
      * @throws Exception
      */
-    public function rescheduleSite (int $siteId, int $year, int $month): void {
+    public function rescheduleSite (int $id, string $typeIndex, int $year, int $month): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            parent::checkEmptyInteger($siteId, 'siteId');
+            parent::checkEmptyInteger($id, 'id');
+            parent::checkEmptyString($typeIndex, 'typeIndex');
             parent::checkEmptyInteger($year, 'year');
             parent::checkEmptyInteger($month, 'month');
             $dateStart = new DateTime();
@@ -319,7 +322,7 @@ class AttTransaction extends General {
                 FROM att_group g
                 LEFT JOIN att_participant p ON p.att_group_id = g.att_group_id
                 LEFT JOIN att_transaction t ON t.att_participant_id = p.att_participant_id AND YEAR(t.att_transaction_date) = $year AND MONTH(t.att_transaction_date) = $month
-                WHERE g.att_group_status = 1 AND g.site_id = $siteId AND p.att_participant_id IS NOT NULL AND p.att_participant_status = 1 
+                WHERE g.att_group_status = 1 AND $typeIndex = $id AND p.att_participant_id IS NOT NULL AND p.att_participant_status = 1 
                 GROUP BY g.att_group_id, p.att_participant_id ORDER BY g.att_group_id, p.att_participant_id");
             foreach ($participantList as $participant) {
                 $attParticipantId = $participant['attParticipantId'];
@@ -706,6 +709,21 @@ class AttTransaction extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
             return DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteName', true);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $attGroupId
+     * @return string
+     * @throws Exception
+     */
+    public function getAttGroupName (int $attGroupId): string {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attGroupId, 'attGroupId');
+            return DbMysql::selectColumn('att_group', array('attGroupId'=>$attGroupId), 'attGroupName', true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

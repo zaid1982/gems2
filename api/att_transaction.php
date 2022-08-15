@@ -25,7 +25,9 @@ try {
 
     if ('GET' === $requestMethod) {
         if (isset($urlArr[1]) && $urlArr[1] === 'monthly' && isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3]) && isset($urlArr[4]) && isset($urlArr[5])) {
-            $result = $fnAttTransaction->getMonthlySite(intval($urlArr[3]), intval($urlArr[4]), intval($urlArr[5]));
+            $result = $fnAttTransaction->getMonthlySheet(intval($urlArr[3]), 'g.siteId', intval($urlArr[4]), intval($urlArr[5]));
+        } else if (isset($urlArr[1]) && $urlArr[1] === 'monthly' && isset($urlArr[2]) && $urlArr[2] === 'group' && isset($urlArr[3]) && isset($urlArr[4]) && isset($urlArr[5])) {
+            $result = $fnAttTransaction->getMonthlySheet(intval($urlArr[3]), 'g.att_group_id', intval($urlArr[4]), intval($urlArr[5]));
         } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'main_info') {
             $result = $fnAttTransaction->getMobileInfo();
         } else if (isset($urlArr[1]) && $urlArr[1] === 'mobile' && isset($urlArr[2]) && $urlArr[2] === 'calendar_daily_info' && isset($urlArr[3])) {
@@ -59,10 +61,18 @@ try {
             $formData['errmsg'] = Constant::$attTransaction['checkOut'];
         }
         else if ($urlArr[1] === 'reschedule' && $urlArr[2] === 'site' && isset($urlArr[3]) && is_numeric($urlArr[3]) && isset($urlArr[4]) && is_numeric($urlArr[4]) && isset($urlArr[5]) && is_numeric($urlArr[5])) {
-            $fnAttTransaction->rescheduleSite(intval($urlArr[3]), intval($urlArr[4]), intval($urlArr[5]));
+            $fnAttTransaction->rescheduleSite(intval($urlArr[3]), 'g.site_id', intval($urlArr[4]), intval($urlArr[5]));
             $siteName = $fnAttTransaction->getSiteName(intval($urlArr[3]));
-            $fnAttTransaction->saveAudit(214, $siteName.', year '.$urlArr[4].', month '.$urlArr[5]);
+            $fnAttTransaction->saveAudit(214, 'Site '.$siteName.', year '.$urlArr[4].', month '.$urlArr[5]);
             $errorMsg = str_replace('_1', $siteName, Constant::$attTransaction['rescheduleSite']);
+            $errorMsg = str_replace('_2', $urlArr[4], $errorMsg);
+            $formData['errmsg'] = str_replace('_3', $urlArr[5], $errorMsg);
+        }
+        else if ($urlArr[1] === 'reschedule' && $urlArr[2] === 'group' && isset($urlArr[3]) && is_numeric($urlArr[3]) && isset($urlArr[4]) && is_numeric($urlArr[4]) && isset($urlArr[5]) && is_numeric($urlArr[5])) {
+            $fnAttTransaction->rescheduleSite(intval($urlArr[3]), 'g.att_group_id', intval($urlArr[4]), intval($urlArr[5]));
+            $attGroupName = $fnAttTransaction->getAttGroupName(intval($urlArr[3]));
+            $fnAttTransaction->saveAudit(214, 'Group '.$attGroupName.', year '.$urlArr[4].', month '.$urlArr[5]);
+            $errorMsg = str_replace('_1', $attGroupName, Constant::$attTransaction['rescheduleGroup']);
             $errorMsg = str_replace('_2', $urlArr[4], $errorMsg);
             $formData['errmsg'] = str_replace('_3', $urlArr[5], $errorMsg);
         }

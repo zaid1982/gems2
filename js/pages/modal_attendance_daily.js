@@ -84,6 +84,9 @@ function ModalAttendanceDaily () {
                         }
                         mzAjaxRequest2('att_transaction/'+attTransactionId, 'PUT', data);
                         classFrom.genTablePlanner();
+                        if (classFrom.getClassName() === 'SectionAttendanceGroup') {
+                            classFrom.setHasEditPlanner(true);
+                        }
                         $('#modal_attendance_daily').modal('hide');
                     } catch (e) {
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
