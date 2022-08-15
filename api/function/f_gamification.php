@@ -325,7 +325,8 @@ class Class_gamification {
                 $gmiId = $gmi['gmiId'];
                 $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
                 $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
-                $allOnTime = $gmi['gmiPpmOnTime'] + $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
+                $allOnTime = $gmi['gmiPpmOnTime'] + (2*$gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
+				$allWithin = $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
                 $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
 				$mbv = $allOnTime - $allLate;
 				if ($mbv <= 50) {
@@ -337,7 +338,7 @@ class Class_gamification {
 				}
                 //$tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
                 $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal)*0.3*10000;
-                $gmi['gmiPointOnTime'] = (($allOnTime/$allTotal)*$tierDivider)*0.7*10000;
+                $gmi['gmiPointOnTime'] = (($allWithin/$allTotal)*$tierDivider)*0.7*10000;
                 $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted)*$tierDivider)*0.15*10000;
                 $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * 5;
                 $gmi['gmiPointTotal'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointOnTime'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'];
