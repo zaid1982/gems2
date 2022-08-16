@@ -197,13 +197,15 @@
                 sectionAttendanceGroupClass_.setRefAttType(refAttType_);
                 sectionAttendanceGroupClass_.setRefAttGroup(refAttGroup_);
                 sectionAttendanceGroupClass_.setRefSite(refSite_);
+                sectionAttendanceGroupClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
+                sectionAttendanceGroupClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
                 sectionAttendanceGroupClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
                 sectionAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass2_);
                 sectionAttendanceGroupClass_.init();
 
                 if (mzIsRoleExist('20')) {
-                    //const siteId = mzGetUserInfoByParam('siteId');
-                    sectionAttendanceGroupClass_.load(0, 2022, 8);
+                    const todayDate = moment();
+                    sectionAttendanceGroupClass_.load(0, parseInt(todayDate.format('YYYY')), parseInt(todayDate.format('M')));
                 } else {
                     throw new Error('You do not have a Group Supervisor role therefore not eligible to preview this page');
                 }

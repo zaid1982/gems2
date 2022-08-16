@@ -627,6 +627,7 @@ function SectionAttendanceSite () {
             refAttGroup = mzGetLocalArrayV2('gems_attGroup', mzGetDataVersion(), 'att_group/ref');
             modalAttendanceParticipantClass.setRefAttGroup(refAttGroup);
             modalAttendanceDailyClass.setRefAttGroup(refAttGroup);
+            sectionAttendanceGroupClass.setRefAttGroup(refAttGroup);
         } catch (e) {
             throw new Error(e.message);
         }

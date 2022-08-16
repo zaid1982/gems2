@@ -211,6 +211,7 @@ function ModalAttendanceParticipant () {
                         if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.genTableParticipant();
+                            classFrom.genTablePlanner();
                             classFrom.reloadTopStatistic();
                             classFrom.setHasEdit(true);
                         }
@@ -234,8 +235,14 @@ function ModalAttendanceParticipant () {
                         if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.genTableParticipant();
+                            classFrom.genTablePlanner();
                             classFrom.reloadTopStatistic();
                             classFrom.setHasEdit(true);
+                        } else if (classFrom.getClassName() === 'SectionAttendanceGroup') {
+                            classFrom.genTableParticipant();
+                            classFrom.genTablePlanner();
+                            classFrom.setHasEditParticipant(true);
+                            classFrom.setHasEditPlanner(true);
                         }
                         $('#modal_attendance_participant').modal('hide');
                     } catch (e) {

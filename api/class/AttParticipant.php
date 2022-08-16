@@ -67,7 +67,7 @@ class AttParticipant extends General {
                     LEFT JOIN ref_designation d ON d.designation_id = up.designation_id
                     LEFT JOIN att_transaction t ON t.att_participant_id = p.att_participant_id AND YEAR(t.att_transaction_date) = $year AND MONTH(t.att_transaction_date) = $month
                     LEFT JOIN att_type y ON y.att_type_id = t.att_type_id
-                    LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
+                    LEFT JOIN att_group g ON g.att_group_id = p.att_group_id
                     WHERE u.site_id = $siteId
                     GROUP BY u.user_id");
         } catch (Exception|Throwable $ex) {
@@ -116,7 +116,7 @@ class AttParticipant extends General {
                     LEFT JOIN ref_designation d ON d.designation_id = up.designation_id
                     LEFT JOIN att_transaction t ON t.att_participant_id = p.att_participant_id AND YEAR(t.att_transaction_date) = $year AND MONTH(t.att_transaction_date) = $month
                     LEFT JOIN att_type y ON y.att_type_id = t.att_type_id
-                    LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
+                    LEFT JOIN att_group g ON g.att_group_id = p.att_group_id
                     WHERE p.att_group_id = $attGroupId
                     GROUP BY p.att_participant_id");
         } catch (Exception|Throwable $ex) {

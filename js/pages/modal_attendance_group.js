@@ -10,13 +10,9 @@ function ModalAttendanceGroup () {
     let refUser;
     let refAssetGroup;
     let googleMapsDrawingPolygonClass;
-    let isAdmin;
-    let isSupervisor;
 	
 	this.init = function () {
         googleMapsDrawingPolygonClass.initMapDrawing('mapMtgGroup');
-        isAdmin = mzIsRoleExist('1');
-        isSupervisor = mzIsRoleExist('20');
         mzOptionV2('optMtgGroupCategory', refAssetGroup, 'Please Select', 'assetGroupName', {assetGroupStatus: 1}, 'required');
 
         vData = [
@@ -231,6 +227,11 @@ function ModalAttendanceGroup () {
                         if (classFrom.getClassName() === 'SectionAttendanceSite') {
                             classFrom.genTableGroup();
                             classFrom.reloadTopStatistic();
+                        } else if (classFrom.getClassName() === 'SectionAttendanceGroup') {
+                            classFrom.load(attGroupId);
+                            classFrom.setHasEditGroup(true);
+                            classFrom.setHasEditParticipant(true);
+                            classFrom.setHasEditPlanner(true);
                         }
                         $('#modal_attendance_group').modal('hide');
                     } catch (e) {
@@ -287,8 +288,8 @@ function ModalAttendanceGroup () {
 		ShowLoader();
         setTimeout(function () {
             try {
-                if (!isAdmin) {
-                    throw new Error('Your Role is disallowed to add Attendance Group');
+                if (!mzIsRoleExist('19')) {
+                    throw new Error('You do not have Site Admin role to perform this task.');
                 }
 
                 mzCheckFuncParam([_siteId]);
@@ -337,18 +338,16 @@ function ModalAttendanceGroup () {
                 siteId = _siteId;
                 formValidate.clearValidation();
 
-                if (isAdmin) {
+                if (classFrom.getClassName() === 'SectionAttendanceSite') {
                     formValidate.enableField('txtMtgGroupName');
                     formValidate.enableField('optMtgSupervisor');
                     $('.divMtgAdminView').show();
                     $('.divMtgAdminHide').hide();
-                } else if (isSupervisor) {
+                } else if (classFrom.getClassName() === 'SectionAttendanceGroup') {
                     formValidate.disableField('txtMtgGroupName');
                     formValidate.disableField('optMtgSupervisor');
                     $('.divMtgAdminView').hide();
                     $('.divMtgAdminHide').show();
-                } else {
-                    throw new Error('Your Role is disallowed to configure this Attendance Group');
                 }
 
                 mzOptionStopV2('optMtgSupervisor', refUser, 'Please Select', 'userFirstName', {userType: 1, userStatus: 1, siteId: siteId, roles: '#20'}, 'required');

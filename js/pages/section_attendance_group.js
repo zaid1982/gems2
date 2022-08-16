@@ -7,6 +7,7 @@ function SectionAttendanceGroup () {
     let attGroup = {};
     let currentYear = 0;
     let currentMonth = 0;
+    let siteId = 0;
     let thisDate;
     let refStatus;
     let refUser;
@@ -22,6 +23,8 @@ function SectionAttendanceGroup () {
     let oTableSagPlanner;
     let userId = 0;
     let isSupervisor = false;
+    let modalAttendanceGroupClass;
+    let modalAttendanceParticipantClass;
     let modalAttendanceDailyClass;
 
     this.init = function () {
@@ -98,9 +101,9 @@ function SectionAttendanceGroup () {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSagParticipant.row(parseInt(rowId)).data();
                         if (isSupervisor && userId === currentRow['attGroupSupervisor']) {
-                            //modalAttendanceParticipantClass.setParticipantName(currentRow['userFirstName']);
-                            //modalAttendanceParticipantClass.setSiteName(siteName);
-                            //modalAttendanceParticipantClass.load(currentRow['userIds'], currentRow['attParticipantId'], siteId);
+                            modalAttendanceParticipantClass.setParticipantName(currentRow['userFirstName']);
+                            modalAttendanceParticipantClass.setSiteName(refSite[siteId]['siteName']);
+                            modalAttendanceParticipantClass.load(currentRow['userIds'], currentRow['attParticipantId'], siteId);
                         } else {
                             toastr['error']('You don\'t have permission as Supervisor role to perform this task!', _ALERT_TITLE_ERROR);
                             return false;
@@ -304,21 +307,96 @@ function SectionAttendanceGroup () {
                 HideLoader();
             }, 200);
         });
+
+        $('.lnkSagYear').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const linkArray = linkId.split('_');
+                    if (linkArray.length === 2 && linkArray[0] === 'lnkSagYear') {
+                        currentYear = parseInt(linkArray[1]);
+                        thisDate.set({'year': currentYear});
+                        $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
+                        $('.lnkSagYear').removeClass('active').removeClass('text-white');
+                        $('#lnkSagYear_' + currentYear).addClass('active').addClass('text-white');
+                        self.genTableParticipant();
+                        self.genTablePlanner();
+                    } else {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('.lnkSagMonth').off('click').on('click', function () {
+            const linkId = $(this).attr('id');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    const linkArray = linkId.split('_');
+                    if (linkArray.length === 2 && linkArray[0] === 'lnkSagMonth') {
+                        currentMonth = parseInt(linkArray[1]);
+                        thisDate.set({'month': currentMonth - 1});
+                        $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
+                        $('.lnkSagMonth').removeClass('active').removeClass('text-white');
+                        $('#lnkSagMonth_' + currentMonth).addClass('active').addClass('text-white');
+                        self.genTableParticipant();
+                        self.genTablePlanner();
+                    } else {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 300);
+        });
+
+        $('#btnSagEdit').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    if (isSupervisor && userId === refAttGroup[attGroupId]['attGroupSupervisor']) {
+                        modalAttendanceGroupClass.setSiteName(refSite[siteId]['siteName']);
+                        modalAttendanceGroupClass.setSiteCode(refSite[siteId]['siteCode']);
+                        modalAttendanceGroupClass.edit(attGroupId, siteId);
+                    } else {
+                        toastr['error']('You don\'t have permission as Supervisor role for this group to perform this task!', _ALERT_TITLE_ERROR);
+                        return false;
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
     };
 
     this.load = function (_attGroupId, _year, _month) {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzCheckFuncParam([_attGroupId, _year, _month]);
+                mzCheckFuncParam([_attGroupId]);
                 attGroupId = _attGroupId;
-                currentYear = _year;
-                currentMonth = _month;
+                if (typeof _year !== 'undefined') {
+                    currentYear = _year;
+                }
+                if (typeof _month !== 'undefined') {
+                    currentMonth = _month;
+                }
                 hasEditGroup = false;
                 hasEditParticipant = false;
                 hasEditPlanner = false;
                 thisDate.set({'year': currentYear, 'month': currentMonth - 1});
                 $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
+                $('.lnkSagYear').removeClass('active').removeClass('text-white');
+                $('#lnkSagYear_' + currentYear).addClass('active').addClass('text-white');
+                $('.lnkSagMonth').removeClass('active').removeClass('text-white');
+                $('#lnkSagMonth_' + currentMonth).addClass('active').addClass('text-white');
 
                 if (jQuery.isEmptyObject(attGroup)) {
                     $('#liSagGroup').hide();
@@ -367,11 +445,11 @@ function SectionAttendanceGroup () {
                 }
 
                 attGroup = mzAjaxRequest2('att_group/'+attGroupId, 'GET');
-                console.log(attGroup);
-                $('#lblSagSiteName').text(refSite[attGroup['siteId']]['siteName']);
+                siteId = attGroup['siteId'];
+                $('#lblSagSiteName').text(refSite[siteId]['siteName']);
                 $('#lblSagGroupName').text(attGroup['attGroupName']);
                 $('#lblSagTotalActive').text(mzReplaceNull(attGroup['totalParticipantActive'], '0')+' active employee'+(attGroup['totalParticipantActive']>1?'s':''));
-                $('#pSagName').text(refSite[attGroup['siteId']]['siteName']);
+                $('#pSagName').text(refSite[siteId]['siteName']);
                 $('#pSagCategory').text(refAssetGroup[attGroup['assetGroupId']]['assetGroupName']);
                 $('#pSagSupervisor').text(refUser[attGroup['attGroupSupervisor']]['userFirstName']);
                 $('#pSagRequiredHours').text(attGroup['attGroupReqWeekHours']);
@@ -536,7 +614,15 @@ function SectionAttendanceGroup () {
         googleMapsDrawingPolygonClass = _googleMapsDrawingPolygonClass;
     };
 
+    this.setModalAttendanceGroupClass = function (_modalAttendanceGroupClass) {
+        modalAttendanceGroupClass = _modalAttendanceGroupClass;
+    };
+
     this.setModalAttendanceDailyClass = function (_modalAttendanceDailyClass) {
         modalAttendanceDailyClass = _modalAttendanceDailyClass;
+    };
+
+    this.setModalAttendanceParticipantClass = function (_modalAttendanceParticipantClass) {
+        modalAttendanceParticipantClass = _modalAttendanceParticipantClass;
     };
 }
