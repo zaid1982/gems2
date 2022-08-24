@@ -206,13 +206,13 @@
                 <div class="card z-depth-3 mb-3">
                     <div class="card-header white p-0 z-depth-1">
                         <div class="float-left teal" style="width: 24px; height: 48px">&nbsp;</div>
-                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily Information</h4>
+                        <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily Information <span class="font-italic h5 font-weight-500" id="h4SagDailyDate"></span></h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-8 col-sm-6 col-md-7 col-lg-6 col-xl-4 pr-2">
                                 <div class="md-form md-outline mt-1">
-                                    <input type="text" id="txtSagDailyDate" class="form-control">
+                                    <input type="text" id="txtSagDailyDate" class="form-control datepicker">
                                     <label for="txtSagDailyDate" id="lblSagDailyDate">Attendance Date *</label>
                                     <p class="font-small text-danger" id="txtSagDailyDateErr"></p>
                                 </div>
@@ -222,19 +222,25 @@
                             </div>
                             <div class="col-md-12 px-0">
                                 <div class="table-responsive">
-                                    <table id="dtSagGroup" class="table table-hover table-sm mb-0 display responsive">
+                                    <table id="dtSagDaily" class="table table-hover table-sm mb-0 display responsive">
                                         <thead>
                                         <tr class="th-strong">
                                             <th>#</th>
                                             <th>Employee's Name</th>
                                             <th>Shift Mode</th>
-                                            <th>Shift Type</th>
-                                            <th>Time In</th>
+                                            <th>Current Shift</th>
+                                            <th>Shift Start</th>
+                                            <th>Time In</th> <!--5-->
+                                            <th>Difference In</th>
+                                            <th>Shift End</th>
                                             <th>Time Out</th>
+                                            <th>Difference Out</th>
+                                            <th>Required Hours</th> <!--10-->
+                                            <th>Working Hours</th>
                                             <th>Location In</th>
                                             <th>Location Out</th>
-                                            <th>Total Hours</th>
-                                            <th>Status</th>
+                                            <th>Clock Status</th>
+                                            <th>Status</th> <!--15-->
                                         </tr>
                                         </thead>
                                         <tbody></tbody>

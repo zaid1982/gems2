@@ -239,6 +239,7 @@ function ModalAttendanceParticipant () {
                             classFrom.reloadTopStatistic();
                             classFrom.setHasEdit(true);
                         } else if (classFrom.getClassName() === 'SectionAttendanceGroup') {
+                            classFrom.genTableDaily();
                             classFrom.genTableParticipant();
                             classFrom.genTablePlanner();
                             classFrom.setHasEditParticipant(true);

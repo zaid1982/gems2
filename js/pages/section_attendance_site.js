@@ -195,17 +195,17 @@ function SectionAttendanceSite () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#btnSacParticipantStatusAll').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('').draw();
-                    $('#dtSacParticipantTitle').text('Monthly Employee Summary')
+                    $('#dtSacParticipantTitle').text('')
                 });
                 $('#btnSacParticipantStatusAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
+                    $('#dtSacParticipantTitle').text('(Assigned)');
                 });
                 $('#btnSacParticipantStatusNotAssigned').off('click').on('click', function () {
                     oTableSacParticipant.search('').columns().search('');
                     oTableSacParticipant.column(14).search('^(Unregistered)$', true, false).draw();
-                    $('#dtSacParticipantTitle').text('Monthly Employee Summary (Unregistered)');
+                    $('#dtSacParticipantTitle').text('(Unregistered)');
                 });
                 $('.lnkSacParticipantEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
@@ -554,7 +554,7 @@ function SectionAttendanceSite () {
             self.genTableParticipant();
             oTableSacParticipant.search('').columns().search('');
             oTableSacParticipant.column(14).search('^(Active|Disabled)$', true, false).draw();
-            $('#dtSacParticipantTitle').text('Monthly Employee Summary (Assigned)');
+            $('#dtSacParticipantTitle').text('(Assigned)');
 
             const chartData = mzAjaxRequest2('att_group/chart_site/'+siteId+'/'+currentYear+'/'+currentMonth, 'GET');
             self.genChart('chartSacAbsent', 'Attendance Performance', 'Group Attendance Rate (%)', chartData[0]);

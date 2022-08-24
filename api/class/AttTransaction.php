@@ -728,4 +728,84 @@ class AttTransaction extends General {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * @param int $attGroupId
+     * @param string $attTransactionDate
+     * @return array
+     * @throws Exception
+     */
+    public function getDailyGroup (int $attGroupId, string $attTransactionDate): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($attGroupId, 'attGroupId');
+            parent::checkEmptyString($attTransactionDate, 'attTransactionDate');
+            $transactionList = DbMysql::selectSqlAll(
+            /** @lang text */
+                "SELECT
+                    CASE 
+                        WHEN att_transaction_result IS NOT NULL THEN att_transaction_result					
+                        WHEN att_transaction_status <> 'Ready' THEN 'Present'	
+                        WHEN y.att_type_mode IN ('Leave', 'Training') THEN y.att_type_name
+                        WHEN att_transaction_date < CURDATE() AND y.att_type_mode IN ('Normal', '2 Shifts', '3 Shifts') THEN 'Absent'
+                        ELSE NULL 
+                    END AS result,
+                    TIMEDIFF(att_transaction_shift_start, att_transaction_time_in) AS duration_in,
+                    TIMEDIFF(att_transaction_shift_end, att_transaction_time_out) AS duration_out,		
+                    TIMEDIFF(att_transaction_shift_end, att_transaction_shift_start) AS duration_needed,
+                    TIMEDIFF(att_transaction_time_out, att_transaction_time_in) AS duration_work,
+                    ST_X(att_transaction_location_in) AS location_in_x,
+                    ST_Y(att_transaction_location_in) AS location_in_y,
+                    ST_X(att_transaction_location_out) AS location_out_x,
+                    ST_Y(att_transaction_location_out) AS location_out_y,
+                    ST_CONTAINS(g.att_group_polygon, att_transaction_location_in) AS location_inside_in,
+                    ST_CONTAINS(g.att_group_polygon, att_transaction_location_out) AS location_inside_out,
+                    t.att_transaction_id,
+                    t.att_transaction_date,
+                    t.att_participant_id,
+                    t.user_id, 
+                    t.att_group_id,
+                    p.asset_group_id,
+                    t.att_type_id,                    
+                    p.att_participant_shift_mode,
+                    t.att_transaction_shift_start,
+                    t.att_transaction_shift_end,
+                    t.att_transaction_time_in,
+                    t.att_transaction_time_out,
+                    t.att_transaction_result,
+                    t.att_transaction_status,
+					p.att_participant_status
+                FROM att_transaction t
+                LEFT JOIN att_group g ON g.att_group_id = t.att_group_id
+                LEFT JOIN att_participant p ON p.att_participant_id = t.att_participant_id
+                LEFT JOIN att_type y ON y.att_type_id = t.att_type_id",
+                array('t.attGroupId'=>$attGroupId, 'attTransactionDate'=>$attTransactionDate));
+            foreach ($transactionList as $i=>$transaction) {
+                $transaction['durationInLate'] = null;
+                if ($transaction['durationIn'] !== null) {
+                    $transaction['durationInLate'] = substr($transaction['durationIn'], 0, 1) === '-' ? 'Late' : 'Early';
+                    $transaction['durationIn'] = parent::timeDisplay($transaction['durationIn'], true);
+                }
+                $transaction['durationOutLate'] = null;
+                if ($transaction['durationOut'] !== null) {
+                    $transaction['durationOutLate'] = substr($transaction['durationOut'], 0, 1) === '-' ? 'Late' : 'Early';
+                    $transaction['durationOut'] = parent::timeDisplay($transaction['durationOut'], true);
+                }
+                $transaction['locationInsideIn'] = $transaction['locationInsideIn'] !== null ? ($transaction['locationInsideIn'] === 1 ? 'Inside Parameter' : 'Outside Parameter') : null;
+                $transaction['locationInsideOut'] = $transaction['locationInsideOut'] !== null ? ($transaction['locationInsideOut'] === 1 ? 'Inside Parameter' : 'Outside Parameter') : null;
+                $transaction['durationEnoughHour'] = null;
+                if ($transaction['durationNeeded'] !== null) {
+                    if ($transaction['durationWork'] !== null) {
+                        $transaction['durationEnoughHour'] = $transaction['durationWork'] >= $transaction['durationNeeded'] ? 'Yes' : 'No';
+                        $transaction['durationWork'] = parent::timeDisplay($transaction['durationWork'], true);
+                    }
+                    $transaction['durationNeeded'] = parent::timeDisplay($transaction['durationNeeded'], true);
+                }
+                $transactionList[$i] = $transaction;
+            }
+            return $transactionList;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }

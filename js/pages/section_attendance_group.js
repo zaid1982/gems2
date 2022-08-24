@@ -2,6 +2,7 @@ function SectionAttendanceGroup () {
 
     const className = 'SectionAttendanceGroup';
     let self = this;
+    let formValidate;
     let classFrom = {};
     let attGroupId = 0;
     let attGroup = {};
@@ -9,6 +10,8 @@ function SectionAttendanceGroup () {
     let currentMonth = 0;
     let siteId = 0;
     let thisDate;
+    let todayDate;
+    let dailyDate;
     let refStatus;
     let refUser;
     let refAssetGroup;
@@ -19,6 +22,7 @@ function SectionAttendanceGroup () {
     let hasEditParticipant = false;
     let hasEditPlanner = false;
     let googleMapsDrawingPolygonClass = {};
+    let oTableSagDaily;
     let oTableSagParticipant;
     let oTableSagPlanner;
     let userId = 0;
@@ -30,10 +34,26 @@ function SectionAttendanceGroup () {
     this.init = function () {
         self.hideMain();
         thisDate = moment();
+        todayDate = moment();
+        dailyDate = moment();
         googleMapsDrawingPolygonClass.initMapDrawing('mapSagPerimeter');
         googleMapsDrawingPolygonClass.setDrawingControl(false);
         userId = parseInt(mzGetUserId());
         isSupervisor = mzIsRoleExist('20');
+
+        const vData = [
+            {
+                field_id: 'txtSagDailyDate',
+                type: 'text',
+                name: 'Attendance Date',
+                validator: {
+                    notEmpty: true
+                }
+            }
+        ];
+
+        formValidate = new MzValidate('formSag');
+        formValidate.registerFields(vData);
 
         $('#btnSagBack').on('click', function () {
             ShowLoader();
@@ -63,10 +83,109 @@ function SectionAttendanceGroup () {
             }, 200);
         });
 
+        oTableSagDaily = $('#dtSagDaily').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'asc']],
+            ordering: true,
+            language: _DATATABLE_LANGUAGE,
+            pageLength: 100,
+            autoWidth: false,
+            dom: "<'row'<'col-12 col-sm-6 px-0 pb-2'B><'col-sm-6 d-none d-sm-block pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0] },
+                { className: 'text-center', targets: [0, 2, 3, 4, 5, 7, 8, 10, 11, 12, 13, 14, 15] },
+                { visible: false, targets: [1, 4, 6, 7, 9, 10, 14] },
+                { className: 'noVis', targets: [0] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2', text:'<i class="fas fa-print"></i>', title:'GEMS - Daily Summary', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - Daily Summary', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Daily Summary', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Daily Summary', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                if ($('#divPageWidth').width() < 880) {
+                    $(this).DataTable().column(2).visible(false);
+                }
+            },
+            aoColumns: [
+                {mData: null},
+                {mData: 'userId', mRender: function(data) {
+                        return refUser[data]['userFirstName'];
+                    }},
+                {mData: 'attParticipantShiftMode'},
+                {mData: 'attTypeId', mRender: function(data) {
+                        return data !== null ? refAttType[data]['attTypeName'] : '';
+                    }},
+                {mData: 'attTransactionShiftStart'},
+                {mData: 'attTransactionTimeIn', mRender: function(data, type, row) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = row['durationInLate'] === 'Early' ? 'green' : 'red';
+                        return '<span class="'+color+'-text">'+data+'</span>';
+                    }}, // 5
+                {mData: 'durationIn', mRender: function(data, type, row) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = row['durationInLate'] === 'Early' ? 'green' : 'red';
+                        return '<span class="'+color+'-text">'+data+' '+row['durationInLate']+'</span>';
+                    }},
+                {mData: 'attTransactionShiftEnd'},
+                {mData: 'attTransactionTimeOut', mRender: function(data, type, row) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = row['durationOutLate'] === 'Early' ? 'red' : 'green';
+                        return '<span class="'+color+'-text">'+data+'</span>';
+                    }},
+                {mData: 'durationOut', mRender: function(data, type, row) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = row['durationOutLate'] === 'Early' ? 'red' : 'green';
+                        return '<span class="'+color+'-text">'+data+' '+row['durationOutLate']+'</span>';
+                    }},
+                {mData: 'durationNeeded'}, // 10
+                {mData: 'durationWork'},
+                {mData: 'locationInsideIn', mRender: function(data) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = data === 'Inside Parameter' ? 'green' : 'red';
+                        return '<span class="'+color+'-text">'+data+'</span>';
+                    }},
+                {mData: 'locationInsideOut', mRender: function(data) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = data === 'Inside Parameter' ? 'green' : 'red';
+                        return '<span class="'+color+'-text">'+data+'</span>';
+                    }},
+                {mData: 'attTransactionStatus'},
+                {mData: 'result', mRender: function(data) {
+                        if (data === null) {
+                            return '';
+                        }
+                        const color = data === 'Present' ? 'green' : 'red';
+                        return '<span class="'+color+'-text">'+data+'</span>';
+                    }}
+            ]
+        });
+
         oTableSagParticipant = $('#dtSagParticipant').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[13, 'asc'], [1, 'asc']],
+            aaSorting: [[1, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 100,
@@ -316,12 +435,21 @@ function SectionAttendanceGroup () {
                     const linkArray = linkId.split('_');
                     if (linkArray.length === 2 && linkArray[0] === 'lnkSagYear') {
                         currentYear = parseInt(linkArray[1]);
-                        thisDate.set({'year': currentYear});
+                        thisDate.set({'year': currentYear, 'month': currentMonth - 1, 'date': 1});
+                        dailyDate.set(thisDate.format('YYYY') === todayDate.format('YYYY') && thisDate.format('M') === todayDate.format('M') ? todayDate.toObject() : thisDate.toObject());
                         $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
                         $('.lnkSagYear').removeClass('active').removeClass('text-white');
                         $('#lnkSagYear_' + currentYear).addClass('active').addClass('text-white');
+                        self.genTableDaily();
                         self.genTableParticipant();
                         self.genTablePlanner();
+                        let tempDate = moment();
+                        tempDate.set(dailyDate.toObject());
+                        tempDate.set({'date': 1});
+                        mzDateSetMin('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                        tempDate.set({'date': parseInt(tempDate.endOf('month').format('D'))});
+                        mzDateSetMax('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                        mzSetFieldValue('SagDailyDate', dailyDate.format('YYYY-MM-DD'), 'date');
                     } else {
                         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                     }
@@ -340,12 +468,21 @@ function SectionAttendanceGroup () {
                     const linkArray = linkId.split('_');
                     if (linkArray.length === 2 && linkArray[0] === 'lnkSagMonth') {
                         currentMonth = parseInt(linkArray[1]);
-                        thisDate.set({'month': currentMonth - 1});
+                        thisDate.set({'year': currentYear, 'month': currentMonth - 1, 'date': 1});
+                        dailyDate.set(thisDate.format('YYYY') === todayDate.format('YYYY') && thisDate.format('M') === todayDate.format('M') ? todayDate.toObject() : thisDate.toObject());
                         $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
                         $('.lnkSagMonth').removeClass('active').removeClass('text-white');
                         $('#lnkSagMonth_' + currentMonth).addClass('active').addClass('text-white');
+                        self.genTableDaily();
                         self.genTableParticipant();
                         self.genTablePlanner();
+                        let tempDate = moment();
+                        tempDate.set(dailyDate.toObject());
+                        tempDate.set({'date': 1});
+                        mzDateSetMin('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                        tempDate.set({'date': parseInt(tempDate.endOf('month').format('D'))});
+                        mzDateSetMax('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                        mzSetFieldValue('SagDailyDate', dailyDate.format('YYYY-MM-DD'), 'date');
                     } else {
                         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                     }
@@ -374,6 +511,23 @@ function SectionAttendanceGroup () {
                 HideLoader();
             }, 200);
         });
+
+        $('#btnSagDailyDate').on('click', function () {
+            if (!formValidate.validateNow()) {
+                toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+            }  else {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        dailyDate = moment(mzConvertDate($('#txtSagDailyDate').val()));
+                        self.genTableDaily();
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
+        });
     };
 
     this.load = function (_attGroupId, _year, _month) {
@@ -391,12 +545,16 @@ function SectionAttendanceGroup () {
                 hasEditGroup = false;
                 hasEditParticipant = false;
                 hasEditPlanner = false;
-                thisDate.set({'year': currentYear, 'month': currentMonth - 1});
+                thisDate.set({'year': currentYear, 'month': currentMonth - 1, 'date': 1});
                 $('#lblSagSelected').text(thisDate.format('MMMM, YYYY'));
                 $('.lnkSagYear').removeClass('active').removeClass('text-white');
                 $('#lnkSagYear_' + currentYear).addClass('active').addClass('text-white');
                 $('.lnkSagMonth').removeClass('active').removeClass('text-white');
                 $('#lnkSagMonth_' + currentMonth).addClass('active').addClass('text-white');
+
+                if (typeof _month !== 'undefined') {
+                    dailyDate.set(thisDate.format('YYYY') === todayDate.format('YYYY') && thisDate.format('M') === todayDate.format('M') ? todayDate.toObject() : thisDate.toObject());
+                }
 
                 if (jQuery.isEmptyObject(attGroup)) {
                     $('#liSagGroup').hide();
@@ -425,7 +583,7 @@ function SectionAttendanceGroup () {
                                 try {
                                     const linkArray = linkId.split('_');
                                     if (linkArray.length === 2 && linkArray[0] === 'lnkSagGroup') {
-                                        self.load(parseInt(linkArray[1]), currentYear, currentMonth);
+                                        self.load(parseInt(linkArray[1]));
                                         $('.lnkSagGroup').removeClass('active').removeClass('text-white');
                                         $('#lnkSagGroup_' + linkArray[1]).addClass('active').addClass('text-white');
                                     } else {
@@ -467,8 +625,17 @@ function SectionAttendanceGroup () {
                 googleMapsDrawingPolygonClass.setDrawingManager('mapSagPerimeter', attGroup['attGroupMapCenterLat'], attGroup['attGroupMapCenterLng'], attGroup['attGroupMapZoom']-1);
                 googleMapsDrawingPolygonClass.drawPolygon('mapSagPerimeter', polygon['coordinates'][0]);
 
+                self.genTableDaily();
                 self.genTableParticipant();
                 self.genTablePlanner();
+
+                let tempDate = moment();
+                tempDate.set(dailyDate.toObject());
+                tempDate.set({'date': 1});
+                mzDateSetMin('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                tempDate.set({'date': parseInt(tempDate.endOf('month').format('D'))});
+                mzDateSetMax('txtSagDailyDate', tempDate.format('YYYY-MM-DD'));
+                mzSetFieldValue('SagDailyDate', dailyDate.format('YYYY-MM-DD'), 'date');
 
                 if (jQuery.isEmptyObject(classFrom)) {
                     $('#liSagYear, #liSagMonth, #divSagEdit').show();
@@ -485,6 +652,16 @@ function SectionAttendanceGroup () {
             }
             HideLoader();
         }, 200);
+    };
+
+    this.genTableDaily = function () {
+        try {
+            $('#h4SagDailyDate').text(dailyDate.format('(dddd, D/M/YYYY)'));
+            const dataDb = mzAjaxRequest2('att_transaction/daily/'+attGroupId+'/'+dailyDate.format('YYYY-MM-DD'), 'GET');
+            oTableSagDaily.clear().rows.add(dataDb).draw();
+        } catch (e) {
+            throw new Error(e.message);
+        }
     };
 
     this.genTableParticipant = function () {

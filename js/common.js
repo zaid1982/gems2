@@ -923,7 +923,7 @@ function mzConvertMonth(monthInput) {
 }
 
 function mzSetDate(id, dateInput) {
-    const dateSplit = dateInput.split('/');
+    const dateSplit = dateInput.split('-');
     if (dateSplit.length === 3) {
         let day = parseInt(dateSplit[2]);
         let month = parseInt(dateSplit[1]);
@@ -1659,7 +1659,7 @@ function mzDateSetMin(fieldId, dateStr) {
     const dateInput = $('#'+fieldId).pickadate();
     const datePicker = dateInput.pickadate('picker');
 
-    const dateSplit = dateStr.split("/");
+    const dateSplit = dateStr.split("-");
     if (dateSplit.length !== 3) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -1673,7 +1673,7 @@ function mzDateSetMax(fieldId, dateStr) {
     const dateInput = $('#'+fieldId).pickadate();
     const datePicker = dateInput.pickadate('picker');
 
-    const dateSplit = dateStr.split("/");
+    const dateSplit = dateStr.split("-");
     if (dateSplit.length !== 3) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
