@@ -223,7 +223,7 @@
 
                 if (mzIsRoleExist('19,2')) {
                     const siteId = mzGetUserInfoByParam('siteId');
-                    sectionAttendanceSiteClass_.load(siteId);
+                    sectionAttendanceSiteClass_.load(parseInt(siteId));
                 } else {
                     throw new Error('You do not have a Site Admin role therefore not eligible to preview this page');
                 }
