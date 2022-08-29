@@ -269,7 +269,8 @@ class Class_login {
             }
             //$result['menu'] = $fn_login->get_menu_list($arr_roles);
 
-            $arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token);
+            $arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'');
+            //$arrUpdate = array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token);
             if ($deviceId !== '') {
                 $arrUpdate['user_device_id'] = $deviceId;
             }
@@ -332,7 +333,8 @@ class Class_login {
             $result['clientId'] = $upload = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$profile['site_id']), 'client_id', null, 1);
 
             $result['menu'] = $this->get_menu_list($arr_roles);
-            Class_db::getInstance()->db_update('sys_user', array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token), array('user_id'=>$userId));
+            //Class_db::getInstance()->db_update('sys_user', array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>'', 'user_token'=>$token), array('user_id'=>$userId));
+            Class_db::getInstance()->db_update('sys_user', array('user_time_login'=>'Now()', 'user_fail_attempt'=>'0', 'user_time_block'=>''), array('user_id'=>$userId));
 
             return $result;
         }

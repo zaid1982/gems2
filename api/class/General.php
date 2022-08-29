@@ -276,8 +276,11 @@ class General {
             $data = JWT::decode($token, $key, array('HS256'));
             $this->userId = intval($data->userId);
             DbMysql::$userId = $this->userId;
-            if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userToken'=>$token)) !== 1) {
-                throw new Exception('Expired token', 31);
+            //if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userToken'=>$token)) !== 1) {
+            //    throw new Exception('Expired token', 31);
+            //}
+            if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userStatus'=>1)) !== 1) {
+                throw new Exception('User not exist', 31);
             }
             if (isset($headers['authorization']) && DbMysql::count('sys_user', array('userId'=>$this->userId, 'userDeviceId'=>$headers['deviceid'])) !== 1) {
                 throw new Exception('Device ID invalid with this login');
