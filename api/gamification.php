@@ -70,6 +70,12 @@ try {
             $result = $fn_gamification->getGmiMonthlyTop5ProjectM($urlArr[2], $urlArr[3]);
         } else if ($urlArr[1] === 'gmi_monthly_history') {
             $result = $fn_gamification->getGmiMonthlyHistory($urlArr[2], $urlArr[3], $urlArr[4]);
+        } else if ($urlArr[1] === 'current_score') {
+            $now = new DateTime();
+            $year = intval($now->format('Y'));
+            $month = intval($now->format('n'));
+            $fn_gamification->runMonthly($year, $month);
+            $result = $fn_gamification->getCurrentScore($userId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
