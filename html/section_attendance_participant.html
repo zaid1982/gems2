@@ -1,0 +1,254 @@
+<section class="section sectionAttendanceParticipant mb-4">
+    <form id="formSap" autocomplete="off">
+        <div class="row">
+            <div class="col-12 p-2">
+                <nav class="navbar navbar-expand navbar-dark red z-depth-3 m-0 p-2">
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav mr-auto">
+                            <a class="navbar-brand font-weight-500 ml-2" href="#">Employee's Attendance Details - <span id="lblMonthYear" class="font-italic font-weight-normal">July 2022</span></a>
+                        </ul>
+                    </div>
+                    <div class="red lighten-2 navbar-custom px-1 ml-2" id="divSapBack"><a class="nav-link text-white" href="#" id="btnSapBack"><i class="fas fa-arrow-left mr-1"></i> Back</a></div>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-lg-3">
+                <div class="row">
+                    <div class="col-12 p-2">
+                        <div class="card z-depth-3 text-center px-3 py-3" id="cardSapPicture">
+                            <div class="w-80 mx-auto mb-4">
+                                <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg" class="z-depth-1 rounded-circle img-fluid" id="imgSapProfile">
+                            </div>
+                            <h6 class="font-weight-bold mb-1" id="h6SapFullName">Muhammad Zaid Shaharil</h6>
+                            <small class="text-muted" id="smallSapDesignation">CEO</small>
+                        </div>
+                    </div>
+                    <div class="col-12 p-2">
+                        <div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Information</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-user prefix red-text"></i>
+                                        <label class="active pl-3">Employee's Name</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapFullName">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-id-card prefix red-text"></i>
+                                        <label class="active pl-3">GF ID</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapGfId">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-user-tag prefix red-text"></i>
+                                        <label class="active pl-3">Designation</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapDesignation">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-phone prefix red-text"></i>
+                                        <label class="active pl-3">Contact No.</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapContactNo">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-envelope prefix red-text"></i>
+                                        <label class="active pl-3">Email</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapEmail">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-calendar-alt prefix red-text"></i>
+                                        <label class="active pl-3">Year Start Service</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapYearStartService">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-id-card-alt prefix red-text"></i>
+                                        <label class="active pl-3">CIDB Card Expiry</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapCidbExpiry">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-chart-line prefix red-text"></i>
+                                        <label class="active pl-3">Competency</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapCompetency">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-md-6 col-lg-12 my-1">
+                                        <i class="fas fa-users prefix red-text"></i>
+                                        <label class="active pl-3">Group Name</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapName">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-user-tie prefix red-text"></i>
+                                        <label class="active pl-3">Supervisor</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapSupervisor">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-user-clock prefix red-text"></i>
+                                        <label class="active pl-3">Weekly Required Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapRequiredHours">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-umbrella-beach prefix red-text"></i>
+                                        <label class="active pl-3">Default Holiday</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapHoliday">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-business-time prefix red-text"></i>
+                                        <label class="active pl-3">Shift Mode</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapShiftMode">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <!--<div class="md-form col-12 my-1">
+                                        <i class="fas fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">Normal Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapNormalHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="far fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">2-shift AM Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapAmHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="far fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">2-shift PM Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapPmHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>-->
+                                    <div class="md-form col-12 my-1">
+                                        <i class="far fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">3-shift Morning Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapMorningHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">3-shift Evening Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapEveningHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-clock prefix red-text"></i>
+                                        <label class="active pl-3">3-shift Night Working Hours</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapNightHour">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-user-secret prefix red-text"></i>
+                                        <label class="active pl-3">OT Approver</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapOtApprover">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                    <div class="md-form col-12 my-1">
+                                        <i class="fas fa-toggle-on prefix red-text"></i>
+                                        <label class="active pl-3">Status</label>
+                                        <p class="pt-2-5 mb-0 pl-4_5" id="pSapStatus">-</p>
+                                        <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-9">
+                <div class="row">
+                    <div class="col-12 p-2">
+                        <div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Summary</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div id="chartSapStatus" style="height: 190px; margin: 0"></div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div id="chartSapLeaveType" style="height: 190px; margin: 0"></div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div id="chartSapWorkingHours" style="height: 190px; margin: 0"></div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div id="chartSapCheckIn" style="height: 160px; margin: 0"></div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div id="chartSapCheckOut" style="height: 160px; margin: 0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 p-2">
+                        <div class="card card-form md-calendar danger-color z-depth-3" id="chartSapCalendar"></div>
+                        <!--<div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Calendar</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>-->
+                    </div>
+                    <div class="col-lg-6 p-2">
+                        <div id="mapSapLocation" class="z-depth-3" style="width: 100%"></div>
+                        <!--<div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Attendance's Distribution</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>-->
+                    </div>
+                    <div class="col-12 p-2">
+                        <div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Daily's Report</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 p-2">
+                        <div class="card z-depth-3">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left red" style="width: 24px; height: 48px">&nbsp;</div>
+                                <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly History</h4>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
