@@ -151,7 +151,8 @@ try {
             $fn_wo->__set('woTaskId', $woTaskId);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
             foreach ($nextUsers as $userId) {
-                $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo), $isWr === '1');
+                //$fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo), $isWr === '1');
+                $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5, array('task_no' => $woTaskNo));
             }
             $fn_wo->save_respond_time_m();
