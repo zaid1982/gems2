@@ -3101,6 +3101,7 @@ class Class_wo {
             $isRespondTimeExceeded = false;
             $isExecutionTimeExceeded = false;
             $now = new DateTime();
+			$woAssignTime = '';
 
             $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId));
             if ($woTask['woTaskSeverity'] !== '' && $woTask['woTaskTimeCreated'] !== '') {
@@ -3117,7 +3118,7 @@ class Class_wo {
 
                 $woAssignTime = $woTask['woTaskTimeAssigned'];
                 $completionTime = new DateTime($woAssignTime);
-                if ($woAssignTime !== '') {
+                if (!empty($woAssignTime)) {
                     $isRespondTimeExceeded = $completionTime > $respondTime;
                 } else {
                     $isRespondTimeExceeded = $now > $respondTime;
@@ -3125,7 +3126,7 @@ class Class_wo {
 
                 $woExecuteTime = $woTask['woTaskTimeExecuted'];
                 $executeTime = new DateTime($woExecuteTime);
-                if ($woTask['woTaskType'] === '2' && $woAssignTime !== '') {
+                if ($woTask['woTaskType'] === '2' && !empty($woAssignTime)) {
                     $completionTime = new DateTime($woAssignTime);
                     $completionTime->modify($executionTimeStr);
                     $completionTimeDisplay = $completionTime->format('Y-m-d H:i:s');

@@ -560,7 +560,8 @@ class AttTransaction extends General {
                     $infoArr['duration'] = parent::timeDisplay($intervalDuration->format('%H:%i:%s'), true);
                 }
                 else {
-                    $infoArr['status'] = 'Ready';
+                    $shiftStart = new DateTime($attTransaction['attTransactionShiftStart']);
+                    $infoArr['status'] = $dateNow > $shiftStart ? 'Absent' : 'Ready';
                 }
             }
 
@@ -605,6 +606,7 @@ class AttTransaction extends General {
                     $returnArr[$dateIndex]['status'] = 'Weekend';
                 } else if ($status === 'Leave') {
                     $returnArr[$dateIndex]['color'] = 'orange';
+                    $returnArr[$dateIndex]['color'] = null;
                 } else if ($status === 'Present') {
                     $returnArr[$dateIndex]['color'] = 'green';
                 } else if ($status === 'Absent') {

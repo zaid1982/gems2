@@ -499,7 +499,7 @@ class General {
             $durationStr = '';
             $pieces = explode(':', $time);
             if (count($pieces) === 3) {
-                $hour = intval($pieces[0]);
+                $hour = abs(intval($pieces[0]));
                 $minute = intval($pieces[1]);
                 $seconds = intval($pieces[2]);
                 if ($hour >= 24) {
