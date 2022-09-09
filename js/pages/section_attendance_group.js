@@ -30,6 +30,7 @@ function SectionAttendanceGroup () {
     let modalAttendanceGroupClass;
     let modalAttendanceParticipantClass;
     let modalAttendanceDailyClass;
+    let sectionAttendanceParticipantClass;
 
     this.init = function () {
         self.hideMain();
@@ -235,7 +236,8 @@ function SectionAttendanceGroup () {
                     if (linkIndex > 0) {
                         const rowId = linkId.substr(linkIndex+1);
                         const currentRow = oTableSagParticipant.row(parseInt(rowId)).data();
-                        //sectionAttendancePlannerClass.load(currentRow['attParticipantId']);
+                        sectionAttendanceParticipantClass.setClassFrom(self);
+                        sectionAttendanceParticipantClass.load(currentRow['attParticipantId'], currentYear, currentMonth);
                     }
                 });
                 if ($('#divPageWidth').width() < 880) {
@@ -801,5 +803,9 @@ function SectionAttendanceGroup () {
 
     this.setModalAttendanceParticipantClass = function (_modalAttendanceParticipantClass) {
         modalAttendanceParticipantClass = _modalAttendanceParticipantClass;
+    };
+
+    this.setSectionAttendanceParticipantClass = function (_sectionAttendanceParticipantClass) {
+        sectionAttendanceParticipantClass = _sectionAttendanceParticipantClass;
     };
 }

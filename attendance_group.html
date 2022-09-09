@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
     <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- Extended Card -->
+    <link rel="stylesheet" href="css/addons-pro/cards-extended.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
@@ -78,6 +80,7 @@
 <main>
     <div class="container-fluid" id="divPageWidth">
         <div class="includeHtml" id="h-section_attendance_group"></div>
+        <div class="includeHtml" id="h-section_attendance_participant"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_submit"></div>
@@ -141,6 +144,7 @@
     let modalAttendanceParticipantClass_;
     let modalAttendanceDailyClass_;
     let sectionAttendanceGroupClass_;
+    let sectionAttendanceParticipantClass_;
     let googleMapsDrawingPolygonClass_;
     let googleMapsDrawingPolygonClass2_;
 
@@ -151,11 +155,13 @@
             try {
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
+
                 changePasswordClass_ = new ModalChangePassword();
                 confirmSubmitClass_ = new ModalConfirmSubmit();
                 modalAttendanceGroupClass_ = new ModalAttendanceGroup();
                 modalAttendanceParticipantClass_ = new ModalAttendanceParticipant();
                 modalAttendanceDailyClass_ = new ModalAttendanceDaily();
+                sectionAttendanceParticipantClass_ = new SectionAttendanceParticipant();
                 sectionAttendanceGroupClass_ = new SectionAttendanceGroup();
                 googleMapsDrawingPolygonClass_ = new GoogleMapsDrawingPolygon();
                 googleMapsDrawingPolygonClass2_ = new GoogleMapsDrawingPolygon();
@@ -191,6 +197,8 @@
                 modalAttendanceDailyClass_.setClassFrom(sectionAttendanceGroupClass_);
                 modalAttendanceDailyClass_.init();
 
+                sectionAttendanceParticipantClass_.init();
+
                 sectionAttendanceGroupClass_.setRefStatus(refStatus_);
                 sectionAttendanceGroupClass_.setRefUser(refUser_);
                 sectionAttendanceGroupClass_.setRefAssetGroup(refAssetGroup_);
@@ -200,6 +208,7 @@
                 sectionAttendanceGroupClass_.setModalAttendanceGroupClass(modalAttendanceGroupClass_);
                 sectionAttendanceGroupClass_.setModalAttendanceParticipantClass(modalAttendanceParticipantClass_);
                 sectionAttendanceGroupClass_.setModalAttendanceDailyClass(modalAttendanceDailyClass_);
+                sectionAttendanceGroupClass_.setSectionAttendanceParticipantClass(sectionAttendanceParticipantClass_);
                 sectionAttendanceGroupClass_.setGoogleMapsDrawingPolygon(googleMapsDrawingPolygonClass2_);
                 sectionAttendanceGroupClass_.init();
 
@@ -222,5 +231,6 @@
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_attendance_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_attendance_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_attendance_participant.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
