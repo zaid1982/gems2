@@ -343,8 +343,10 @@ function SectionAttendanceGroup () {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
                 for (let i = 1; i <= parseInt(thisDate.endOf('month').format('D')); i++) {
-                    const attTypeId = aData['data'][i]['attTypeId'];
-                    $('td', nRow).eq(i+1).addClass(refAttType[attTypeId]['attTypeColor']);
+                    if (typeof aData['data'][i] !== 'undefined') {
+                        const attTypeId = aData['data'][i]['attTypeId'];
+                        $('td', nRow).eq(i+1).addClass(refAttType[attTypeId]['attTypeColor']);
+                    }
                 }
             },
             drawCallback: function () {
@@ -379,6 +381,9 @@ function SectionAttendanceGroup () {
             aoColumns: [
                 {mData: null},
                 {mData: 'userId', mRender: function(data) {
+                        if (typeof refUser[data] === 'undefined') {
+                            return '';
+                        }
                         return '<div class="table-grid-cut-text">'+refUser[data]['userFirstName']+'</div>';
                     }},
                 {mData: 'data', mRender: function(data, type, row, meta) {   return self.getCellDisplay(data, 1, meta.row); }},
@@ -600,7 +605,7 @@ function SectionAttendanceGroup () {
                     } else if (groupArr.length === 1) {
                         attGroupId = groupArr[0];
                     } else {
-                        throw Error('You have no Attendance Group assigned to you as Supervisor. Please contact Site Admin!');
+                        throw Error('-You have no Attendance Group assigned to you as Supervisor. Please contact Site Admin!');
                     }
                 }
 
@@ -650,7 +655,8 @@ function SectionAttendanceGroup () {
                 self.showMain();
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                const errMsg = e.message;
+                toastr['error'](errMsg.substr(0, 1) === '-' ? errMsg.substr(1) : _ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
             }
             HideLoader();
         }, 200);
@@ -702,6 +708,7 @@ function SectionAttendanceGroup () {
         try {
             const dataDb = mzAjaxRequest2('att_transaction/monthly/group/'+attGroupId+'/'+currentYear+'/'+currentMonth, 'GET');
             oTableSagPlanner.clear().rows.add(dataDb).draw();
+            console.log(2);
         } catch (e) {
             throw new Error(e.message);
         }
@@ -710,6 +717,9 @@ function SectionAttendanceGroup () {
     this.getCellDisplay = function (_data, _day, _metaRow) {
         try {
             if (typeof _day !== 'number' || _day < 1 || _day > parseInt(thisDate.endOf('month').format('D'))) {
+                return '';
+            }
+            if (typeof _data[_day] === 'undefined') {
                 return '';
             }
             const attTypeId = _data[_day]['attTypeId'];
