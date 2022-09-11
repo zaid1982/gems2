@@ -359,14 +359,16 @@ class Class_gamification {
 
     /**
      * @param $userId
+     * @param $year
+     * @param $month
      * @return string
      * @throws Exception
      */
-    public function getCurrentScore ($userId) {
+    public function getCurrentScore ($userId, $year, $month) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId));
-            return Class_db::getInstance()->db_select_single2('gmi_monthly', array('user_id'=>$userId));
+            return Class_db::getInstance()->db_select_single2('gmi_monthly', array('user_id'=>$userId, 'gmi_year'=>$year, 'gmi_month'=>$month));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

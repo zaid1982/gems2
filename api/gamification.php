@@ -75,7 +75,7 @@ try {
             $year = intval($now->format('Y'));
             $month = intval($now->format('n'));
             $fn_gamification->runMonthly($year, $month);
-            $result = $fn_gamification->getCurrentScore($userId);
+            $result = $fn_gamification->getCurrentScore($userId, $year, $month);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
