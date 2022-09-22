@@ -17,16 +17,20 @@
 <script type="text/javascript">
 
     $.ajax({
+        url: 'gamification/current_score',
         //url: 'att_transaction/mobile/main_info',
-        url: 'att_transaction/check_out/122',
-        type: 'PUT',
-        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiODQ0IiwidXNlcm5hbWUiOiJKYWNpbnRoYSIsImlhdCI6MTY1OTYyNTAxMSwiZXhwIjoxNjU5NjI1MDIxfQ.MmW3YXsgrotMYYrKefJOlg2Op_bs0AXRMCvVwckHlnU',
+        //url: 'att_transaction/mobile/calendar_dot/2022/8',
+        //url: 'att_transaction/mobile/calendar_daily_info/2022-08-29',
+        //url: 'att_transaction/check_in/1054',
+        //url: 'att_transaction/check_out/1054',
+        type: 'GET',
+        headers: {'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiNTI0IiwidXNlcm5hbWUiOiJhYmR3YWZpIiwiaWF0IjoxNjYyOTI0NDAxLCJleHAiOjE2NjI5MjQ0MTF9.8XiM3ou3zufYYWPtvrNCmNh9TVo9IGEMsLH5lG2Gr-E',
             deviceid:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-        data:
-            {
-                latitude: 3.139003,
-                longitude: 101.686852
-            },
+        /*data:
+        {
+            latitude: 3.139003,
+            longitude: 101.686852
+        },*/
         dataType: 'json',
         success: function (resp) {
             console.log(resp);
@@ -36,19 +40,19 @@
         }
     });
 
-    /*$.ajax({
-         url: 'api/m_login.php',
-         type: 'POST',
-         //contentType: 'application/json',
-         headers: '',
-         data: {action:'login', username:'Jacintha', password:'password', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
-         dataType: 'json',
-         success: function (resp) {
-             console.log(resp);
-         },
-         error: function () {
-             errMsg = _ALERT_MSG_ERROR_DEFAULT;
-         }
-     });*/
+/*$.ajax({
+     url: 'api/m_login.php',
+     type: 'POST',
+     //contentType: 'application/json',
+     headers: '',
+     data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+     dataType: 'json',
+     success: function (resp) {
+         console.log(resp);
+     },
+     error: function () {
+         errMsg = _ALERT_MSG_ERROR_DEFAULT;
+     }
+ });*/
 //https://gems.globalfm.com.my/api/m_login.php
 </script>

@@ -56,7 +56,7 @@ function SectionAttendanceParticipant () {
         self.generateCalendar('chartSapCalendar');
 
         const divCardCalendar = $('#chartSapCalendar').height();
-        console.log(divCardCalendar);
+        //console.log(divCardCalendar);
         $('#mapSapLocation').css('minHeight', divCardCalendar+'px');
 
         window.scrollTo({top: 0, behavior: 'smooth'});
