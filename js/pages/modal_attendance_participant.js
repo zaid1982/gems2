@@ -286,7 +286,7 @@ function ModalAttendanceParticipant () {
             try {
                 mzCheckFuncParam([_userId]);
                 if (!isEditor) {
-                    throw new Error(_ALERT_MSG_ROLES_NO_ACCESS);
+                    //throw new Error(_ALERT_MSG_ROLES_NO_ACCESS);
                 }                
                 userId = _userId;
                 attParticipantId = _attParticipantId;
