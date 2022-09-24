@@ -16,7 +16,7 @@ function ModalAttendanceParticipant () {
     let isEditor;
 
     this.init = function () {
-        isEditor = mzIsRoleExist('1,10');
+        isEditor = mzIsRoleExist('19,20');
         mzOptionV2('optMtpDesignation', refDesignation, 'Please Select', 'designationDesc', {designationStatus: 1}, 'required');
         mzOptionV2('optMtpCategory', refAssetGroup, 'Please Select', 'assetGroupName', {assetGroupStatus: 1}, 'required');
 
@@ -286,7 +286,7 @@ function ModalAttendanceParticipant () {
             try {
                 mzCheckFuncParam([_userId]);
                 if (!isEditor) {
-                    //throw new Error(_ALERT_MSG_ROLES_NO_ACCESS);
+                    throw new Error(_ALERT_MSG_ROLES_NO_ACCESS);
                 }                
                 userId = _userId;
                 attParticipantId = _attParticipantId;
