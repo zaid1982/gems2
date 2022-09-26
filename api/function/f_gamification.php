@@ -138,7 +138,7 @@ class Class_gamification {
             foreach ($top5Arr as $top5) {
                 $row['individualName'] = $arrUserFullName[intval($top5['userId'])];
                 $row['projectName'] = $arrSite[intval($top5['siteId'])];
-                $row['individualCategory'] = Class_db::getInstance()->db_select_col('att_participant', array('user_id'=>$top5['userId']), 'att_participant_category');
+                $row['individualCategory'] = '';//Class_db::getInstance()->db_select_col('att_participant', array('user_id'=>$top5['userId']), 'att_participant_category');
                 $row['totalScore'] = $top5['gmiPointTotal'];
                 $result[] = $row;
             }
