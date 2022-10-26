@@ -50,7 +50,7 @@ function SectionAssetDetails() {
                 name: 'Asset No',
                 validator: {
                     notEmpty: true,
-                    maxLength: 30
+                    maxLength: 100
                 }
             },
             {
