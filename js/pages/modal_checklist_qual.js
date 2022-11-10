@@ -27,7 +27,7 @@ function ModalChecklistQual() {
                 name: 'Description',
                 validator: {
                     notEmpty: true,
-                    maxLength: 255
+                    maxLength: 1000
                 }
             },
             {
