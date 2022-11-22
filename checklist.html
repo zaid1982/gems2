@@ -151,7 +151,7 @@
                                         <th>Maximum Total Assistant</th>
                                         <th>Registered Time</th>
                                         <th style="max-width: 70px">Status</th>
-                                        <th style="width: 64px; min-width: 64px"></th>
+                                        <th style="width: 80px; min-width: 80px"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -168,6 +168,7 @@
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_checklist_qual"></div>
     <div class="includeHtml" id="h-modal_checklist_quan"></div>
+    <div class="includeHtml" id="h-modal_checklist_duplicate"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
 </main>
@@ -209,6 +210,7 @@
     let sectionChecklistClass_;
     let modalChecklistQualClass_;
     let modalChecklistQuanClass_;
+    let modalChecklistDuplicateClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -223,6 +225,7 @@
                 sectionChecklistClass_ = new SectionChecklist();
                 modalChecklistQualClass_ = new ModalChecklistQual();
                 modalChecklistQuanClass_ = new ModalChecklistQuan();
+                modalChecklistDuplicateClass_ = new ModalChecklistDuplicate();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
@@ -251,11 +254,15 @@
                 sectionChecklistClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 sectionChecklistClass_.init();
 
+                modalChecklistDuplicateClass_.setClassFrom(checklistClass_);
+                modalChecklistDuplicateClass_.init();
+
                 checklistClass_.setRefStatus(refStatus_);
                 checklistClass_.setRefAssetGroup(refAssetGroup_);
                 checklistClass_.setRefAssetCategory(refAssetCategory_);
                 checklistClass_.setRefAssetType(refAssetType_);
                 checklistClass_.setSectionChecklistClass(sectionChecklistClass_);
+                checklistClass_.setModalChecklistDuplicateClass(modalChecklistDuplicateClass_);
                 checklistClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 checklistClass_.init();
             } catch (e) {
@@ -269,6 +276,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_checklist_qual.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_checklist_quan.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_checklist_duplicate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_checklist.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

@@ -53,9 +53,9 @@ function SectionAttendanceParticipant () {
         self.generateChartBar('chartSapCheckIn', 'Time Validity', dataChartTime);
         self.generateChartBar('chartSapCheckOut', 'Perimeter Validity', dataChartPerimeter);
         self.generateChartGauge('chartSapWorkingHours', 'Total Working Hours', 123, 23);
-        self.generateCalendar('chartSapCalendar');
+        self.generateCalendar('divSapCalendar');
 
-        const divCardCalendar = $('#chartSapCalendar').height();
+        const divCardCalendar = $('#divSapCalendar').height();
         //console.log(divCardCalendar);
         $('#mapSapLocation').css('minHeight', divCardCalendar+'px');
 

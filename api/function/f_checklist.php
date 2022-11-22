@@ -189,6 +189,49 @@ class Class_checklist {
 
     /**
      * @param $checklistId
+     * @param $checklistDocumentNo
+     * @param $checklistName
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function duplicate_checklist ($checklistId, $checklistDocumentNo, $checklistName, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter checklistId empty');
+            }
+            $checklist = Class_db::getInstance()->db_select_single('ppm_checklist', array('checklist_id'=>$checklistId), null, 1);
+            if (Class_db::getInstance()->db_count('ppm_checklist', array('checklist_name'=>$checklistName, 'asset_type_id'=>$checklist['asset_type_id'], 'checklist_id'=>'<>'.$checklistId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_SIMILAR, 31);
+            }
+
+            $checklistIdNew = Class_db::getInstance()->db_insert('ppm_checklist', array('checklist_type'=>$checklist['checklist_type'], 'checklist_name'=>$checklistName, 'checklist_document_no'=>$checklistDocumentNo, 'checklist_issue_no'=>1,
+                'checklist_desc'=>$checklist['checklist_desc'], 'checklist_guideline'=>$checklist['checklist_guideline'], 'asset_type_id'=>$checklist['asset_type_id'], 'checklist_min_exec_time'=>$checklist['checklist_min_exec_time'],
+                'checklist_max_exec_time'=>$checklist['checklist_max_exec_time'], 'checklist_max_assistant'=>$checklist['checklist_max_assistant'], 'checklist_registered_by'=>$userId, 'checklist_status'=>1));
+
+            $arrChecklistQual = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId));
+            foreach ($arrChecklistQual as $checklistQual) {
+                Class_db::getInstance()->db_insert('ppm_checklist_qual', array('checklist_id'=>$checklistIdNew, 'checklist_qual_desc'=>$checklistQual['checklist_qual_desc'], 'checklist_qual_numb'=>$checklistQual['checklist_qual_numb'],
+                    'frequency_id'=>$checklistQual['frequency_id'], 'checklist_qual_status'=>$checklistQual['checklist_qual_status']));
+            }
+            $arrChecklistQuan = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId));
+            foreach ($arrChecklistQuan as $checklistQuan) {
+                Class_db::getInstance()->db_insert('ppm_checklist_quan', array('checklist_id'=>$checklistIdNew, 'checklist_quan_desc'=>$checklistQuan['checklist_quan_desc'], 'checklist_quan_numb'=>$checklistQuan['checklist_quan_numb'],
+                    'checklist_quan_unit'=>$checklistQuan['checklist_quan_unit'], 'checklist_quan_set_values'=>$checklistQuan['checklist_quan_set_values'], 'frequency_id'=>$checklistQuan['frequency_id'], 'checklist_quan_status'=>$checklistQuan['checklist_quan_status']));
+            }
+            return $checklistIdNew;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
      * @param $put_vars
      * @throws Exception
      */

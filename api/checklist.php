@@ -55,15 +55,27 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
+        $action = filter_input(INPUT_GET, 'action');
 
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
+        if ($action === 'duplicate') {
+            $checklistId = filter_input(INPUT_GET, 'checklistId');
+            $checklistDocumentNo = filter_input(INPUT_POST, 'checklistDocumentNo');
+            $checklistName = filter_input(INPUT_POST, 'checklistName');
+            Class_db::getInstance()->db_beginTransaction();
+            $result = $fn_checklist->duplicate_checklist($checklistId, $checklistDocumentNo, $checklistName, $jwt_data->userId);
+            $fn_general->save_audit('215', $jwt_data->userId, 'Checklist Id = ' . $result);
+            Class_db::getInstance()->db_commit();
+            $form_data['errmsg'] = $constant::SUC_CHECKLIST_DUPLICATED.$checklistId;
+        }
+        else {
+            $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $result = $fn_checklist->create_checklist($assetTypeId);
+            $fn_general->save_audit('63', $jwt_data->userId, 'Checklist Id = ' . $result);
+            Class_db::getInstance()->db_commit();
+        }
 
-        $result = $fn_checklist->create_checklist($assetTypeId);
-        $fn_general->save_audit('63', $jwt_data->userId, 'Checklist Id = ' . $result);
-
-        Class_db::getInstance()->db_commit();
         $form_data['result'] = $result;
         $form_data['success'] = true;
     }

@@ -12,6 +12,8 @@ function MainChecklist() {
     let assetTypeIdSelected;
     let rowIdChecklistGroup;
     let sectionChecklistClass;
+    let modalChecklistDuplicateClass;
+    let labelTitle = '';
 
     this.init = function () {
         $('#divPcmChecklistSelected').hide();
@@ -226,6 +228,18 @@ function MainChecklist() {
                         }, 200);
                     }
                 });
+                $('.lnkPcmChecklistDuplicate').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableChecklist.row(parseInt(rowId)).data();
+                        modalChecklistDuplicateClass.setDocumentNo(currentRow['checklistDocumentNo']);
+                        modalChecklistDuplicateClass.setChecklistName(currentRow['checklistName']);
+                        modalChecklistDuplicateClass.setAssetType(labelTitle);
+                        modalChecklistDuplicateClass.add(parseInt(currentRow['checklistId']));
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -256,6 +270,7 @@ function MainChecklist() {
                             if (row['pdfId'] != '') {
                                 label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkPcmChecklistPdf" id="lnkPcmChecklistPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist PDF"></i></a>';
                             }
+                            label += '&nbsp;&nbsp;<a><i class="far fa-copy lnkPcmChecklistDuplicate" id="lnkPcmChecklistDuplicate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Duplicate Checklist"></i></a>';
                             return label;
                         }
                     }
@@ -343,11 +358,16 @@ function MainChecklist() {
 
         const assetCategoryId = refAssetType[_assetTypeId]['assetCategoryId'];
         const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
-        const labelTitle = refAssetGroup[assetGroupId]['assetGroupName'] + ' -> ' +
+        labelTitle = refAssetGroup[assetGroupId]['assetGroupName'] + ' -> ' +
             refAssetCategory[assetCategoryId]['assetCategoryName'] + ' -> ' +
             refAssetType[_assetTypeId]['assetTypeName'];
         $('#lblPcmChecklistTitle').html(labelTitle);
         $('#divPcmChecklistSelected').show();
+    };
+
+    this.genTablePcmChecklistRefresh = function (_dataAdd) {
+        const dataChecklist = mzAjaxRequest('checklist.php?assetTypeId='+assetTypeIdSelected, 'GET');
+        oTableChecklist.clear().rows.add(dataChecklist).draw();
     };
 
     this.addTablePcmChecklist = function (_dataAdd) {
@@ -403,5 +423,9 @@ function MainChecklist() {
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+
+    this.setModalChecklistDuplicateClass = function (_modalChecklistDuplicateClass) {
+        modalChecklistDuplicateClass = _modalChecklistDuplicateClass;
     };
 }
