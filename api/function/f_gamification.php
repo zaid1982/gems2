@@ -345,7 +345,7 @@ class Class_gamification {
 				$gmi['gmiMbv'] = $mbv;
 				$gmi['gmiTierPoint'] = $tierDivider;
                 unset($gmi['gmiId']);
-                if ($gmiId === '') {
+                if (empty($gmiId)) {
                     Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
                 } else {
                     Class_db::getInstance()->db_update('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi), array('gmi_id'=>$gmiId));
