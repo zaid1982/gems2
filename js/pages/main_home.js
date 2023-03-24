@@ -13,7 +13,7 @@ function MainHome() {
     let refAssetType;
     let refStatus;
     let userClient;
-    let clientId = '1';
+    let clientId = '19';
     let siteId = '0';
     let currentMonth;
     let currentYear;
