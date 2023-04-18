@@ -160,11 +160,11 @@ function MainGamification () {
         }
 
         let exportGmiStatsPdf = Object.assign({}, mzExportOpt);
-        exportGmiStatsPdf['columns'] = [0, 1, 2, 3, 4, 5, 20, 21, 22, 23, 28];
+        exportGmiStatsPdf['columns'] = [0, 1, 2, 3, 4, 5, 20, 21, 22, 23, 28, 29, 32];
         oTableGmiStats = $('#dtGmiStats').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[27, 'desc']],
+            aaSorting: [[28, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             autoWidth: false,
@@ -174,7 +174,7 @@ function MainGamification () {
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [4, 5] },
-                { className: 'text-right', targets: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28] },
+                { className: 'text-right', targets: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -271,6 +271,18 @@ function MainGamification () {
                     }},
                 {mData: 'gmiPointTotal', width: '6%', mRender: function (data) {
                         return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiProductivityLevel', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data, 2) + '%';
+                    }},
+                {mData: 'gmiProductivityDeduction', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data, 2) + '%';
+                    }},
+                {mData: 'gmiPointLessProductive', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointAfterMinus', width: '6%', mRender: function (data) {
+                        return mzFormatNumber(data);
                     }}
             ]
         });
@@ -293,6 +305,8 @@ function MainGamification () {
         oTableGmiStats.column(25).visible(false);
         oTableGmiStats.column(26).visible(false);
         oTableGmiStats.column(27).visible(false);
+        oTableGmiStats.column(30).visible(false);
+        oTableGmiStats.column(31).visible(false);
 
         let oTableGmiStatsTbody = $('#dtGmiStats tbody');
         oTableGmiStatsTbody.delegate('tr', 'click', function (evt) {

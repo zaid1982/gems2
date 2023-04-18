@@ -31,7 +31,7 @@ function SectionUserGame () {
 
         monthArray = mzGetMonthArray();
         let exportSugHistoryPdf = Object.assign({}, mzExportOpt);
-        exportSugHistoryPdf['columns'] = [0, 1, 2, 3, 4, 17, 18, 19, 20, 25];
+        exportSugHistoryPdf['columns'] = [0, 1, 2, 3, 4, 17, 18, 19, 20, 25, 26, 29];
         oTableSugHistory = $('#dtSugHistory').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -43,7 +43,7 @@ function SectionUserGame () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [1, 2] },
-                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
+                { className: 'text-right', targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -57,8 +57,8 @@ function SectionUserGame () {
                 {mData: null, mRender: function (data, type, row) {
                         return monthArray[parseInt(row['gmiMonth'])-1]['monthName'] + ' ' + row['gmiYear'];
                     }},
-                {mData: 'gmiWoTierName', width: '14%'},
-                {mData: 'gmiPpmTierName', width: '14%'},
+                {mData: 'gmiWoTierName', width: '12%'},
+                {mData: 'gmiPpmTierName', width: '12%'},
                 {mData: 'gmiWoTierPoint', width: '8%', mRender: function (data) {
                         return mzFormatNumber(data, 1);
                     }},
@@ -127,6 +127,18 @@ function SectionUserGame () {
                     }},
                 {mData: 'gmiPointTotal', width: '10%', mRender: function (data) {
                         return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiProductivityLevel', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data, 2) + '%';
+                    }},
+                {mData: 'gmiProductivityDeduction', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data, 2) + '%';
+                    }},
+                {mData: 'gmiPointLessProductive', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
+                    }},
+                {mData: 'gmiPointAfterMinus', width: '8%', mRender: function (data) {
+                        return mzFormatNumber(data);
                     }}
             ]
         });
@@ -149,6 +161,8 @@ function SectionUserGame () {
         oTableSugHistory.column(22).visible(false);
         oTableSugHistory.column(23).visible(false);
         oTableSugHistory.column(24).visible(false);
+        oTableSugHistory.column(27).visible(false);
+        oTableSugHistory.column(28).visible(false);
     };
 
     this.load = function (_gmiId, _userId) {
@@ -171,6 +185,10 @@ function SectionUserGame () {
                 self.generateChartPpmType('chartSugPpmType', parseInt(data['gmiPpmTotal']), parseInt(data['gmiPpmAssist']))
                 $('#h4SugWoTierName').html(data['gmiWoTierName']);
                 $('#h4SugWoCompleted').html(mzFormatNumber(data['gmiWoCompleted']));
+                $('#h3SugProductivityLevel').html(mzFormatNumber(parseInt(data['gmiProductivityLevel']), 2)+'%');
+                $('#h3SugProductivityDeduction').html(mzFormatNumber(parseInt(data['gmiProductivityDeduction']), 2)+'%');
+                $('#h3SugLessProductivePoint').html(mzFormatNumber(parseInt(data['gmiPointLessProductive'])));
+                $('#h3SugPointAfterMinus').html(mzFormatNumber(parseInt(data['gmiPointAfterMinus'])));
                 self.generateChartPerformance('chartSugWoPerformance', 'Work Order', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
                 self.generateChartWoLateness('chartSugWoLateness', parseInt(data['gmiWoOnTime']), parseInt(data['gmiWoLate']));
                 self.generateChartWoType('chartSugWoType', parseInt(data['gmiWoTotal']), parseInt(data['gmiWoSelfFinding']), parseInt(data['gmiWoAssist']))

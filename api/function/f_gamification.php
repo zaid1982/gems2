@@ -323,6 +323,7 @@ class Class_gamification {
 
             foreach ($gmiMonthly as $gmi) {
                 $gmiId = $gmi['gmiId'];
+                // ---- total ---- \\
                 $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
                 $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
                 $allOnTime = $gmi['gmiPpmOnTime'] + (2*$gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
@@ -336,14 +337,22 @@ class Class_gamification {
 				} else {
 					$tierDivider = 5;
 				}
+                // ---- point ---- \\
                 //$tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
-                $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal)*0.3*10000;
-                $gmi['gmiPointOnTime'] = (($allWithin/$allTotal)*$tierDivider)*0.7*10000;
-                $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted)*$tierDivider)*0.15*10000;
+                $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal) * 0.3 * 10000;
+                $gmi['gmiPointOnTime'] = (($allWithin/$allTotal) * $tierDivider) * 0.7 * 10000;
+                $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted) * $tierDivider) * 0.15 * 10000;
                 $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * 5;
                 $gmi['gmiPointTotal'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointOnTime'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'];
 				$gmi['gmiMbv'] = $mbv;
 				$gmi['gmiTierPoint'] = $tierDivider;
+                // ---- productivity ---- \\
+                $gmi['gmiProductivityLevel'] = $allWithin / $allTotal * 90;
+                $gmi['gmiProductivityDeduction'] = 90 - $gmi['gmiProductivityLevel'];
+                $gmi['gmiPointLessProductive'] = ($allWithin/$allTotal) * $gmi['gmiTierPoint'] * ($gmi['gmiProductivityDeduction']/100) * 10000;
+                $gmi['gmiPointBeforeMinus'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'] + $gmi['gmiPointOnTime'];
+                $gmi['gmiPointAfterMinus'] = $gmi['gmiPointBeforeMinus'] -  $gmi['gmiPointLessProductive'];
+                // ---- done ---- \\
                 unset($gmi['gmiId']);
                 if (empty($gmiId)) {
                     Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
