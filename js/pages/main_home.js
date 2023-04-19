@@ -267,7 +267,22 @@ function MainHome() {
                     {mData: 'woTaskTimeAssigned', visible: false},
                     {mData: 'woTaskTimeExecuted', visible: false},
                     {mData: 'woTaskTimeVerified', visible: false},
-                    {mData: 'woTaskFixedBy', visible: false}
+                    {mData: 'woTaskFixedBy', visible: false},
+                    {mData: 'assistants', visible: false,
+                        mRender: function (data) {
+                            let label = '';
+                            let rowData = data;
+                            if (rowData !== '') {
+                                label = '<ul style="padding-left: 20px; margin-bottom: 0px !important;">';
+                                const dataSplit = rowData.split(',');
+                                for (let j=0; j<dataSplit.length; j++) {
+                                    label += '<li>' + refUser[dataSplit[j]]['userFirstName'] + '</li>';
+                                }
+                                label += '</ul>';
+                            }
+                            return label;
+                        }
+                    }
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
@@ -292,7 +307,7 @@ function MainHome() {
         let cntWo;
         let btnWoOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 25, 26, 27, 28],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 25, 26, 27, 28, 30],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
@@ -302,6 +317,8 @@ function MainHome() {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
+                        } else if (column === 23) {
+                            return data.replace('<ul style="padding-left: 20px; margin-bottom: 0px !important;"><li>', '').replaceAll('</li><li>', ', ').replace('</li></ul>', '');
                         }
                         return column === 0 ? cntWo++ : data;
                     }

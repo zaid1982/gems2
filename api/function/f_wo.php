@@ -1848,7 +1848,7 @@ class Class_wo {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('wo_task', $arrWhere);
+            $arr_dataLocal = Class_db::getInstance()->db_select('vg_wo_dashboard', $arrWhere);
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['woTaskId'] = $dataLocal['wo_task_id'];
                 $row_result['woTaskNoOri'] = $dataLocal['wo_task_no'];
@@ -1904,6 +1904,7 @@ class Class_wo {
                         $row_result['kpiMitigateResult'] = $durationMitigated <= 168 ? 'Success' : 'Fail';
                     }
                 }
+                $row_result['assistants'] = $dataLocal['assistants'];
                 array_push($result, $row_result);
             }
 
