@@ -183,10 +183,23 @@ class Class_pdf_wo {
             $pdf->Cell(35, 5, 'Severity : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))], 1, 0, 'L');
             $pdf->Ln();
-            $pdf->Cell(30, 5, 'Work Order No : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, $woTask['wo_task_no'], 1, 0, 'L');
-            $pdf->Cell(35, 5, 'Location : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $this->fn_general->clear_null($woTask['wo_task_location']), 1, 0, 'L');
+
+            $maxnocells = 0;
+            $startX = $pdf->GetX();
+            $startY = $pdf->GetY();
+            $cellcount = $pdf->MultiCell(30,4,'Work Order No : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(60,4, $woTask['wo_task_no'],0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(35,4,'Location : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(55,4, $this->fn_general->clear_null($woTask['wo_task_location']),0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $pdf->SetXY($startX,$startY);
+            $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(60, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(35, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(55, $maxnocells*4, '', 1, 'L', 0, 0);
             $pdf->Ln();
 
             $pdf->SetFont('helvetica', '', 11);

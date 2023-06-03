@@ -123,12 +123,12 @@ function MainHelpdesk() {
                             if (mzIsRoleExist('1')) {
                                 label += '&nbsp;<a><i class="fas fa-trash-alt lnkHdkWoDelete" id="lnkHdkWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>&nbsp;';
                             }
-                            if (row['woTaskIsWr'] === '1') {
-                                label += '&nbsp;<a><i class="fas fa-file-signature lnkHdkWoPdfWr" id="lnkHdkWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
-                            }
-                            if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
-                                label += '&nbsp;<a><i class="far fa-file-pdf lnkHdkWoPdf" id="lnkHdkWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
-                            }
+                            //if (row['woTaskIsWr'] === '1') {
+                            //    label += '&nbsp;<a><i class="fas fa-file-signature lnkHdkWoPdfWr" id="lnkHdkWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            //}
+                            //if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
+                            //    label += '&nbsp;<a><i class="far fa-file-pdf lnkHdkWoPdf" id="lnkHdkWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
+                            //}
                             return label;
                         }
                     },

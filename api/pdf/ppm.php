@@ -271,8 +271,10 @@ class Class_pdf_ppm {
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $cellcount = $pdf->MultiCell(60,4, $asset['asset_type_name'],0,'L',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
-            $pdf->MultiCell(35,4,'Location Code : ',0,'R',0,0);
-            $pdf->MultiCell(55,4,$this->fn_general->clear_null($asset['location_code_id']),0,'L',0,0);
+            $cellcount = $pdf->MultiCell(35,4,'Location Code : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(55,4,$this->fn_general->clear_null($asset['location_code_id']),0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $pdf->SetXY($startX,$startY);
             $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
             $pdf->MultiCell(60, $maxnocells*4, '', 1, 'L', 0, 0);
@@ -280,11 +282,24 @@ class Class_pdf_ppm {
             $pdf->MultiCell(55, $maxnocells*4, '', 1, 'L', 0, 0);
             $pdf->Ln();
 
-            $pdf->Cell(30, 5, 'Task No : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, $ppm['ppm_task_no'], 1, 0, 'L');
-            $pdf->Cell(35, 5, 'Location Description : ', 1, 0, 'R');
-            $pdf->Cell(55, 5, $asset['asset_location_desc'], 1, 0, 'L');
+            $maxnocells = 0;
+            $startX = $pdf->GetX();
+            $startY = $pdf->GetY();
+            $cellcount = $pdf->MultiCell(30,4,'Task No : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(60,4, $ppm['ppm_task_no'],0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(35,4,'Location Description : ',0,'R',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $cellcount = $pdf->MultiCell(55,4, $asset['asset_location_desc'],0,'L',0,0);
+            if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+            $pdf->SetXY($startX,$startY);
+            $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(60, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(35, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(55, $maxnocells*4, '', 1, 'L', 0, 0);
             $pdf->Ln();
+
             $pdf->Cell(30, 5, 'Work Order No : ', 1, 0, 'R');
             $pdf->Cell(60, 5, $ppmTask['ppm_task_no'], 1, 0, 'L');
             $pdf->Cell(35, 5, 'PM Start Date/Time : ', 1, 0, 'R');
@@ -345,6 +360,10 @@ class Class_pdf_ppm {
             $qualTasks = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
             if (!empty($qualTasks)) {
                 for ($i = 0; $i<(count($qualTasks)<=2?3:count($qualTasks)+1); $i++) {
+                    if ($pdf->GetY() > 265) {
+                        $pdf->AddPage();
+                        $pdf->setPage($pdf->getPage());
+                    }
                     if ($i >= count($qualTasks)) {
                         $this->TaskQualEmpty($pdf);
                         continue;
@@ -421,6 +440,10 @@ class Class_pdf_ppm {
             $quanTasks = Class_db::getInstance()->db_select('ppm_task_quan', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
             if (!empty($quanTasks)) {
                 for ($i = 0; $i<(count($quanTasks)<=2?3:count($quanTasks)+1); $i++) {
+                    if ($pdf->GetY() > 265) {
+                        $pdf->AddPage();
+                        $pdf->setPage($pdf->getPage());
+                    }
                     if ($i >= count($quanTasks)) {
                         $this->TaskQuanEmpty($pdf);
                         continue;
@@ -455,12 +478,6 @@ class Class_pdf_ppm {
 					
                     $pdf->SetXY($startX,$startY);
                     $this->TaskQuanSetHeight($pdf, $maxnocells);
-
-                    //$this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $quanTasks[$i]['ppm_task_quan_numb'] .' - '. $pdf->GetY());
-                    if ($pdf->GetY() > 260) {
-                        $pdf->AddPage();
-                        $pdf->setPage($pdf->getPage());
-                    }
                 }
             } else {
                 for ($i = 0; $i<3; $i++) {
