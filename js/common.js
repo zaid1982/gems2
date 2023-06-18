@@ -52,6 +52,8 @@ const mzExportOpt = {
                 return data.replace('<span class="red-text">', '').replace('</span>', '');
             } else if (data.toString().indexOf('green-text') > 0) {
                 return data.replace('<span class="green-text">', '').replace('</span>', '');
+            } else if (data.toString().indexOf('ul style') > 0) {
+                return data.replace('<ul style="padding-left: 20px; margin-bottom: 0px !important;"><li>', '').replaceAll('</li><li>', ', ').replace('</li></ul>', '');
             }
             return data;
         }
@@ -71,6 +73,8 @@ const mzExportExcelOpt = {
                 return data.replace('<span class="red-text">', '').replace('</span>', '');
             } else if (data.toString().indexOf('green-text') > 0) {
                 return data.replace('<span class="green-text">', '').replace('</span>', '');
+            } else if (data.toString().indexOf('ul style') > 0) {
+                return data.replace('<ul style="padding-left: 20px; margin-bottom: 0px !important;"><li>', '').replaceAll('</li><li>', ', ').replace('</li></ul>', '');
             }
             return data;
         }

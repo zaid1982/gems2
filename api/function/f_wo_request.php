@@ -273,8 +273,8 @@ class Class_wo_request {
             $this->fn_general->checkEmptyParams(array($woTaskId, $transactionId, $woTaskRequestNo));
 
             $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$woTaskId, 'wo_task_request_status'=>'32'), 'wo_task_request_id', 'wo_task_request_id DESC');
-            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_no'=>$woTaskRequestNo, 'transaction_id'=>$transactionId, 'wo_task_request_time_ordered'=>'Now()', 'wo_task_request_status'=>'33'),
-                array('wo_task_request_id'=>$woRequestId));
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_no'=>$woTaskRequestNo, 'transaction_id'=>$transactionId, 'wo_task_request_time_ordered'=>'Now()', 'wo_task_request_status'=>'33',
+                'wo_task_request_mrf_generate'=>'1'), array('wo_task_request_id'=>$woRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'33'), array('wo_task_request_id'=>$woRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'33'), array('transaction_id'=>$transactionId));
             Class_db::getInstance()->db_update('wo_task', array('wo_task_has_parts'=>'1'), array('wo_task_id'=>$woTaskId));
@@ -341,7 +341,7 @@ class Class_wo_request {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId));
 
-            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'34', 'wo_task_request_mrf_generate'=>'1'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'34'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'34'), array('transaction_id'=>$transactionId));
         } catch (Exception $ex) {
@@ -361,7 +361,7 @@ class Class_wo_request {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskRequestId, $transactionId, $remark));
 
-            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'50', 'wo_task_request_remark'=>$remark, 'wo_task_request_time_rejected'=>'Now()'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'50', 'wo_task_request_remark'=>$remark, 'wo_task_request_time_rejected'=>'Now()', 'wo_task_request_mrf_generate'=>'1'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'50'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'50'), array('transaction_id'=>$transactionId));
         } catch (Exception $ex) {
@@ -393,7 +393,7 @@ class Class_wo_request {
                         'part_sub_time_reserved'=>'Now()', 'part_sub_status'=>'51'), array('part_sub_id'=>$partSub['partSubId']));
                 }
             }
-            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'38'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'38', 'wo_task_request_mrf_generate'=>'1'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'38'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'38'), array('transaction_id'=>$transactionId));
         } catch (Exception $ex) {
@@ -421,7 +421,7 @@ class Class_wo_request {
                 Class_db::getInstance()->db_update('ast_part', array('part_count'=>strval($partCount), 'part_locked'=>strval($partLocked)), array('part_id'=>$requestPart['partId']));
                 Class_db::getInstance()->db_update('ast_part_sub', array('part_sub_collected_by'=>$userId, 'part_sub_time_check_out'=>'Now()', 'part_sub_status'=>'36'), array('wo_task_parts_id'=>$requestPart['woTaskPartsId']));
             }
-            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'36', 'wo_task_request_time_collected'=>'Now()'), array('wo_task_request_id'=>$woTaskRequestId));
+            Class_db::getInstance()->db_update('wo_task_request', array('wo_task_request_status'=>'36', 'wo_task_request_time_collected'=>'Now()', 'wo_task_request_mrf_generate'=>'1'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wo_task_parts', array('wo_task_parts_status'=>'36'), array('wo_task_request_id'=>$woTaskRequestId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'36'), array('transaction_id'=>$transactionId));
         } catch (Exception $ex) {

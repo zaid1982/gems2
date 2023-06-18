@@ -732,3 +732,19 @@ input:-webkit-autofill {
     -webkit-transition: .4s;
     transition: .4s;
     color: black; }
+
+.section-header-style {
+    float: left!important;
+    width: 22px;
+    height: 45px;
+}
+.section-header-title {
+    font-weight: 700!important;
+    padding-left: 2.3rem !important;
+    margin-top: 12px;
+    margin-bottom: 0!important;
+}
+.form-control:disabled {
+    background-color: #e4e7e8 !important;
+    opacity: 1;
+}

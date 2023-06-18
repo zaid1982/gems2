@@ -925,6 +925,9 @@ class Class_sql
                 $sql = "SELECT 
                     a.*,
                     w.wo_task_no,
+                    r.wo_task_request_no,
+                    r.wo_task_request_mrf_pdf,
+                    r.wo_task_request_mrf_generate,
                     r.wo_task_request_order_by,
                     r.wo_task_request_time_ordered,
                     r.wo_task_request_time_collected
