@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Google Maps -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css?1" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid pt-3" id="divPageWidth">
+        <section class="sectionMrfMain mb-4">
+            <div class="row">
+                <div class="col-12 p-2">
+                    <nav class="navbar gradient-card-header aqua-gradient darken-3 z-depth-3 rounded mb-2">
+                        <h4 class="navbar-text white-text font-weight-bold ml-3 pb-0">
+                            <i class="fas fa-file-pdf mr-2"></i> MRF List
+                        </h4>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 p-2 pb-3">
+                    <div class="card z-depth-3">
+                        <div class="card-body pb-0">
+                            <form id="formMrf" autocomplete="off">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 class="font-weight-500 mb-4">Filter by Site & Month :</h6>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 select-outline mb-2" id="optMrfClient_">
+                                        <select id="optMrfClient" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                                        <label for="optMrfClient" id="lblMrfClient">Client *</label>
+                                        <p class="font-small text-danger" id="optMrfClientErr"></p>
+                                    </div>
+                                    <div class="col-md-6 select-outline mb-2" id="optMrfSite_">
+                                        <select id="optMrfSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0">
+                                            <option value="" disabled>(Select Client first)</option>
+                                        </select>
+                                        <label for="optMrfSite" id="lblMrfSite">Site *</label>
+                                        <p class="font-small text-danger" id="optMrfSiteErr"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6 select-outline mb-2" id="optMrfYear_">
+                                        <select id="optMrfYear" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                                        <label for="optMrfYear" id="lblMrfYear">Year *</label>
+                                        <p class="font-small text-danger" id="optMrfYearErr"></p>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 select-outline mb-2" id="optMrfMonth_">
+                                        <select id="optMrfMonth" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                                        <label for="optMrfMonth" id="lblMrfMonth">Month *</label>
+                                        <p class="font-small text-danger" id="optMrfMonthErr"></p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer py-1">
+                            <button id="btnMrfSearch" class="btn btn-success waves-effect z-depth-2 pb-2">Search <i class="fas fa-search ml-1"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 p-2" id="divMrfTable">
+                    <div class="card z-depth-3">
+                        <div class="card-header white p-0 z-depth-1">
+                            <div class="section-header-style aqua-gradient lighten-1">&nbsp;</div>
+                            <h5 class="section-header-title">Material Request Form list</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 px-0 pt-2">
+                                    <div class="table-responsive">
+                                        <table id="dtMrfList" class="table table-hover table-sm mb-0 display responsive">
+                                            <thead>
+                                            <tr class="th-strong">
+                                                <th>#</th>
+                                                <th>Time Request</th>
+                                                <th>Request No</th>
+                                                <th>Word Order No</th>
+                                                <th>Requester</th>
+                                                <th>Remark</th>
+                                                <th>Status</th>
+                                                <th>MRF</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let mrfClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+
+                mrfClass_ = new MainMrf();
+
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+
+                mrfClass_.setRefStatus(refStatus_);
+                mrfClass_.setRefClient(refClient_);
+                mrfClass_.setRefSite(refSite_);
+                mrfClass_.setRefUser(refUser_);
+                mrfClass_.init();
+            } catch (e) {
+                toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
+    });
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_mrf.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+</body>
+</html>

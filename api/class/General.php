@@ -10,6 +10,10 @@ class General {
 
     public $userId = 0;
     public $isLogged = false;
+    public $pdfFontSize = 10;
+    public $pdfPageWidth = 180;
+    public $pdfLineSize = 0.1;
+    public $pdfLineBoldSize = 0.6;
 
     /**
      * @param $class
@@ -283,7 +287,7 @@ class General {
                 throw new Exception('User not exist', 31);
             }
             if (isset($headers['authorization']) && DbMysql::count('sys_user', array('userId'=>$this->userId, 'userDeviceId'=>$headers['deviceid'])) !== 1) {
-                throw new Exception('Device ID invalid with this login');
+                throw new Exception('Device ID invalid with this login', 31);
             }
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -644,5 +648,154 @@ class General {
         $pdf->MultiCell(58, ($maxNoCells*4)+2, '', 1, 'L', 0, 0);
         $pdf->Ln();
         $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
+    }
+
+    /**
+     * @param array $fontSize
+     * @return int
+     * @throws Exception
+     */
+    private function pdfGetFontSizeMax (array $fontSize= array()): int {
+        try {
+            if (array_key_exists(0, $fontSize)) {
+                $fontSizeMax = 5;
+                foreach ($fontSize as $size) {
+                    if (is_int($size) && $size > $fontSizeMax) {
+                        $fontSizeMax = $size;
+                    }
+                }
+            } else {
+                $fontSizeMax = $this->pdfFontSize;
+            }
+            return $fontSizeMax;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param object $pdf
+     * @param array $labels
+     * @param array $columnWidths
+     * @param array $aligns
+     * @param array $styles
+     * @param string $boldBorders
+     * @param float $startXAxis
+     * @param float $defaultHeight
+     * @param string $vAlign
+     * @return void
+     */
+    public function pdfWriteColumn (object $pdf, array $labels, array $columnWidths, array $aligns, array $styles, string $boldBorders = '', float $startXAxis = 0.0, float $defaultHeight = 0.0, string $vAlign = 'M'): void {
+        $totalCells = count($labels);
+        $maxNoCells = 0;
+        $pdf->SetLineWidth($this->pdfLineSize);
+        $startX = $startXAxis > 0 ? $pdf->GetX() + $startXAxis : $pdf->GetX();
+        $startY = $pdf->GetY();
+        $pdf->SetXY($startX, $startY);
+        $pdf->MultiCell(10, '', '', 0, '', 0, 1);
+        $oneLineHeight = $pdf->GetY() - $startY;
+        $pdf->SetXY($startX, $startY);
+        for ($i = 0; $i < $totalCells; $i++) {
+            $pdf->SetFont('helvetica', $styles[$i]);
+            if ($defaultHeight > 0) {
+                $cellCount = $pdf->MultiCell($columnWidths[$i], $defaultHeight, $labels[$i], 0, $aligns[$i], 0, 0,'', '', true, 0, false, true, $defaultHeight, $vAlign);
+            } else {
+                $cellCount = $pdf->MultiCell($columnWidths[$i], '', $labels[$i], 0, $aligns[$i], 0, 0);
+            }
+            if ($cellCount > $maxNoCells ) {
+                $maxNoCells = $cellCount;
+            }
+        }
+        $cellHeight = $maxNoCells * ($oneLineHeight - 1) + 1;
+        if ($defaultHeight > $cellHeight) {
+            $cellHeight = $defaultHeight;
+        }
+        $pdf->SetXY($startX,$startY);
+        for ($i = 0; $i < $totalCells; $i++) {
+            $pdf->MultiCell($columnWidths[$i], $cellHeight, '', 1, '', 0, 0);
+        }
+        if ($boldBorders !== '') {
+            $pdf->SetXY($startX, $startY);
+            $pdf->SetLineWidth($this->pdfLineBoldSize);
+            $pdf->MultiCell(array_sum($columnWidths), $cellHeight, '', $boldBorders, '', 0, 0);
+            $pdf->SetLineWidth($this->pdfLineSize);
+        }
+        $pdf->Ln();
+        $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
+    }
+
+    /**
+     * @param object $pdf
+     * @param array $labels
+     * @param array $columnWidths
+     * @param array $aligns
+     * @param array $borders
+     * @param array $styles
+     * @param array $fontSize
+     * @param string $boldBorders
+     * @param float $startXAxis
+     * @param float $defaultHeight
+     * @param string $vAlign
+     * @return void
+     * @throws Exception
+     */
+    public function pdfWriteColumnV2 (object $pdf, array $labels, array $columnWidths, array $aligns, array $borders = array(), array $styles = array(), array $fontSize = array(), string $boldBorders = '', float $startXAxis = 0.0, float $defaultHeight = 0, string $vAlign = 'M'): void {
+        try {
+            $totalCells = count($labels);
+            $maxNoCells = 0;
+            $pdf->SetLineWidth($this->pdfLineSize);
+            $startX = $startXAxis > 0 ? $pdf->GetX() + $startXAxis : $pdf->GetX();
+            $startY = $pdf->GetY();
+            $pdf->SetXY($startX, $startY);
+            $pdf->SetFontSize($this->pdfGetFontSizeMax($fontSize));
+            $pdf->MultiCell(10, '', '', 0, '', 0, 1);
+            $oneLineHeight = $pdf->GetY() - $startY;
+            $pdf->SetXY($startX, $startY);
+            if ($vAlign !== 'T' && count($labels) > 1) {
+                $pdf->SetTextColor(255, 255, 255);
+                for ($i = 0; $i < $totalCells; $i++) {
+                    $pdf->SetFont('helvetica', array_key_exists($i, $styles) ? $styles[$i] : '', array_key_exists($i, $fontSize) && $fontSize[$i] !== '' ? $fontSize[$i] : $this->pdfFontSize);
+                    $cellCount = $pdf->MultiCell($columnWidths[$i], '', $labels[$i], 0, $aligns[$i], 0, 0);
+                    if ($cellCount > $maxNoCells ) {
+                        $maxNoCells = $cellCount;
+                    }
+                }
+                $tempHeight = $maxNoCells * ($oneLineHeight - $this->pdfLineSize) + 0.5;
+                if ($tempHeight > $defaultHeight) {
+                    $defaultHeight = $tempHeight;
+                }
+            }
+            $pdf->SetXY($startX, $startY);
+            $pdf->SetTextColor(0, 0, 0);
+            for ($i = 0; $i < $totalCells; $i++) {
+                $pdf->SetFont('helvetica', array_key_exists($i, $styles) ? $styles[$i] : '', array_key_exists($i, $fontSize) && $fontSize[$i] !== '' ? $fontSize[$i] : $this->pdfFontSize);
+                if ($defaultHeight > 0) {
+                    $cellCount = $pdf->MultiCell($columnWidths[$i], $defaultHeight, $labels[$i], 0, $aligns[$i], 0, 0,'', '', true, 0, false, true, $defaultHeight, $vAlign);
+                } else {
+                    $cellCount = $pdf->MultiCell($columnWidths[$i], '', $labels[$i], 0, $aligns[$i], 0, 0);
+                }
+                if ($cellCount > $maxNoCells ) {
+                    $maxNoCells = $cellCount;
+                }
+            }
+            $cellHeight = ($maxNoCells * ($oneLineHeight - $this->pdfLineSize)) + 0.5;
+            if ($defaultHeight > $cellHeight) {
+                $cellHeight = $defaultHeight;
+            }
+            $pdf->SetXY($startX,$startY);
+            for ($i = 0; $i < $totalCells; $i++) {
+                $pdf->MultiCell($columnWidths[$i], $cellHeight, '', array_key_exists($i, $borders) ? $borders[$i] : 1, '', 0, 0);
+            }
+            if ($boldBorders !== '') {
+                $pdf->SetXY($startX, $startY);
+                $pdf->SetLineWidth($this->pdfLineBoldSize);
+                $pdf->MultiCell(array_sum($columnWidths), $cellHeight, '', $boldBorders, '', 0, 0);
+                $pdf->SetLineWidth($this->pdfLineSize);
+            }
+            $pdf->Ln();
+            $this->pdfCheckYRow($pdf, $startY, $maxNoCells);
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
     }
 }

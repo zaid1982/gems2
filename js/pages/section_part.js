@@ -18,8 +18,10 @@ function SectionPart () {
     let oTableSptPending;
     let oTableSptCheckIn;
     let oTableSptCheckOut;
+    let checkOutTableWidth;
 
     this.init = function () {
+        checkOutTableWidth = $('#divSptCheckOutTable').width();
         $('.sectionPart').hide();
 
         $('#btnSptBack').on('click', function () {
@@ -206,12 +208,50 @@ function SectionPart () {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                if (checkOutTableWidth < 774) {
+                    $(this).DataTable().column(6).visible(false);
+                }
+                if (checkOutTableWidth < 713) {
+                    $(this).DataTable().column(3).visible(false);
+                }
+                if (checkOutTableWidth < 554) {
+                    $(this).DataTable().column(4).visible(false);
+                }
+                $('.lnkSptPendingPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTableSptPending.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['woTaskRequestMrfPdf'];
+                                let pdfSrc;
+                                if (pdfId !== null && currentRow['woTaskRequestMrfGenerate'] === 0) {
+                                    pdfSrc = mzAjaxRequest2('wo_task_request/get_mrf_pdf_link/'+pdfId, 'GET');
+                                } else {
+                                    pdfSrc = mzAjaxRequest2('wo_task_request/preview_mrf_pdf/'+currentRow['woTaskRequestId'], 'GET');
+                                }
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Material Request Form (MRF): '+currentRow['woTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
+            },
             dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { className: 'text-center', targets: [0, 1, 2, 6] },
-                { className: 'text-right', targets: [4] },
+                { className: 'text-center', targets: [0, 1, 2, 3, 7, 8] },
+                { className: 'text-right', targets: [5] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -224,15 +264,21 @@ function SectionPart () {
             aoColumns: [
                 {mData: null, bSortable: false},
                 {mData: 'woTaskRequestTimeOrdered'},
+                {mData: 'woTaskRequestNo'},
                 {mData: 'woTaskNo'},
                 {mData: 'woTaskRequestOrderBy', mRender: function (data){
                         return data !== '' ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'woTaskPartsQuantity'},
-                {mData: 'woTaskPartsRemark', visible: false},
+                {mData: 'woTaskPartsRemark'},
                 {mData: 'woTaskPartsStatus', mRender: function (data){
                         return data !== '' ? refStatus[data]['statusDesc'] : '';
-                    }}
+                    }},
+                {mData: null, sClass: 'text-center',
+                    mRender: function (data, type, row, meta) {
+                        return '<a><i class="far fa-file-pdf lnkSptPendingPdf" id="lnkSptPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="MRF PDF"></i></a>';
+                    }
+                }
             ]
         });
 
@@ -289,12 +335,47 @@ function SectionPart () {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                if (checkOutTableWidth < 729) {
+                    $(this).DataTable().column(5).visible(false);
+                }
+                if (checkOutTableWidth < 641) {
+                    $(this).DataTable().column(3).visible(false);
+                }
+                $('.lnkSptCheckOutPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = oTableSptCheckOut.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['woTaskRequestMrfPdf'];
+                                let pdfSrc;
+                                if (pdfId !== null && currentRow['woTaskRequestMrfGenerate'] === 0) {
+                                    pdfSrc = mzAjaxRequest2('wo_task_request/get_mrf_pdf_link/'+pdfId, 'GET');
+                                } else {
+                                    pdfSrc = mzAjaxRequest2('wo_task_request/preview_mrf_pdf/'+currentRow['woTaskRequestId'], 'GET');
+                                }
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Material Request Form (MRF): '+currentRow['woTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
+            },
             dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
-                { className: 'text-center', targets: [0, 1, 2] },
-                { className: 'text-right', targets: [5] },
+                { className: 'text-center', targets: [0, 1, 2, 3, 7] },
+                { className: 'text-right', targets: [6] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -307,12 +388,18 @@ function SectionPart () {
             aoColumns: [
                 {mData: null, bSortable: false},
                 {mData: 'woTaskRequestTimeCollected'},
+                {mData: 'woTaskRequestNo'},
                 {mData: 'woTaskNo'},
                 {mData: 'woTaskRequestOrderBy', mRender: function (data){
                         return data !== '' ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'woTaskPartsRemark'},
-                {mData: 'woTaskPartsQuantity'}
+                {mData: 'woTaskPartsQuantity'},
+                {mData: null, sClass: 'text-center',
+                    mRender: function (data, type, row, meta) {
+                        return '<a><i class="far fa-file-pdf lnkSptCheckOutPdf" id="lnkSptCheckOutPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="MRF PDF"></i></a>';
+                    }
+                }
             ]
         });
     };

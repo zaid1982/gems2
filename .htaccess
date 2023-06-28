@@ -22,6 +22,7 @@ RewriteRule ^p_fca_all/?$ fca_all.html
 RewriteRule ^p_fca_zone/?$ fca_zone.html
 RewriteRule ^p_fca_defect/?$ fca_defect.html
 RewriteRule ^p_fca_report/?$ fca_report.html
+RewriteRule ^p_mrf/?$ mrf.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
@@ -99,5 +100,9 @@ RewriteRule ^wo_parts/?$ api/wo_parts.php
 RewriteRule ^wo_parts/(.+)/?$ api/wo_parts.php
 RewriteRule ^wo_v2/?$ api/wo_v2.php
 RewriteRule ^wo_v2/(.+)/?$ api/wo_v2.php
+RewriteRule ^wo_v3/?$ api/wo_v3.php
+RewriteRule ^wo_v3/(.+)/?$ api/wo_v3.php
 RewriteRule ^wo_task_assist/?$ api/wo_task_assist.php
 RewriteRule ^wo_task_assist/(.+)/?$ api/wo_task_assist.php
+RewriteRule ^wo_task_request/?$ api/wo_task_request.php
+RewriteRule ^wo_task_request/(.+)/?$ api/wo_task_request.php
