@@ -24,7 +24,7 @@ class General {
     public function logDebug ($class, $function, $line, $msg) {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa")." (".$this->userId.") [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-            error_log($debugMsg, 3, Constant::$folderDebug.'debug\debug_'.date("Ymd").'.log');
+            error_log($debugMsg, 3, Constant::$folderDebug.'debug_'.date("Ymd").'.log');
         }
     }
 
@@ -37,9 +37,9 @@ class General {
     public function logError ($class, $function, $line, $msg) {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa") . " (" . $this->userId . ") [" . $class . ":" . $function . ":" . $line . "] - (ERROR) " . $msg . "\r\n";
-            error_log($debugMsg, 3, Constant::$folderDebug . 'debug\debug_' . date("Ymd") . '.log');
+            error_log($debugMsg, 3, Constant::$folderDebug . 'debug_' . date("Ymd") . '.log');
             $debugMsg = date("Y/m/d h:i:sa") . " (" . $this->userId . ") [" . $class . ":" . $function . ":" . $line . "] - " . $msg . "\r\n";
-            error_log($debugMsg, 3, Constant::$folderDebug . 'error\error_' . date("Ymd") . '.log');
+            error_log($debugMsg, 3, Constant::$folderError . 'error_' . date("Ymd") . '.log');
         }
     }
 

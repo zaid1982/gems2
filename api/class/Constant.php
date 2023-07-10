@@ -2,18 +2,19 @@
 
 class Constant {
     public static $dbUserName = 'root';
-    //public static $dbUserPassword = 'Globalfm@19';
     public static $dbUserPassword = 'password';
+    //public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems';
-    //public static $dbHost = '10.101.11.71';
     public static $dbHost = 'localhost';
+    //public static $dbHost = '10.101.11.71';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
+    public static $folderDebug = '../../../logs/gems/debug/';
     //public static $folderDebug = 'C:\xampp\logs\gems\\';
-    public static $folderDebug = 'C:\Users\User\logs\gems\\';
+    public static $folderError = '../../../logs/gems/error/';
+    public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//localhost:8082/gems2/api/';
 
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
