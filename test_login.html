@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+<body>
+<div id="token"></div>
+</body>
+
+<script type="text/javascript">
+
+
+$.ajax({
+     url: 'api/m_login.php',
+     type: 'POST',
+     //contentType: 'application/json',
+     headers: '',
+     data: {action:'login', username:'admin', password:'gemS@2000', deviceId:'C2F67171-9F84-4941-97BD-CA4896E5FE09'},
+     dataType: 'json',
+     success: function (resp) {
+         console.log(resp);
+         $('#token').text(resp.result.token);
+     },
+     error: function () {
+         errMsg = _ALERT_MSG_ERROR_DEFAULT;
+     }
+ });
+//https://gems.globalfm.com.my/api/m_login.php
+</script>

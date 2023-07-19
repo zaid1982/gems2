@@ -11,25 +11,25 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnFcaZone = new FcaZone();
+$fnMain = new FcaZone();
 
 try {
     DbMysql::connect();
-    $fnFcaZone->checkJwt(apache_request_headers());
-    $fnFcaZone->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnFcaZone->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnFcaZone->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            $result = $fnFcaZone->getList();
+            $result = $fnMain->getList();
         } else if ($urlArr[1] === 'ref') {
-            $result = $fnFcaZone->getRef();
+            $result = $fnMain->getRef();
         } else if (is_numeric($urlArr[1])) {
-            $result = $fnFcaZone->get(intval($urlArr[1]));
+            $result = $fnMain->get(intval($urlArr[1]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -41,10 +41,10 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
 
-        $fnFcaZone->insert($params);
-        $fnFcaZone->updateVersion(33);
-        $fnFcaZone->saveAudit(196, $fnFcaZone->fcaZoneName);
-        $formData['errmsg'] = str_replace('__', $fnFcaZone->fcaZoneName, Constant::$fcaZone['add']);
+        $fnMain->insert($params);
+        $fnMain->updateVersion(33);
+        $fnMain->saveAudit(196, $fnMain->fcaZoneName);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaZoneName, Constant::$fcaZone['add']);
 
         DbMysql::commit();
         $formData['result'] = $result;
@@ -60,11 +60,11 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnFcaZone->update(intval($urlArr[1]), $params);
-        $fnFcaZone->updateVersion(33);
-        $fnFcaZone->saveAudit(197, $fnFcaZone->fcaZoneName);
+        $fnMain->update(intval($urlArr[1]), $params);
+        $fnMain->updateVersion(33);
+        $fnMain->saveAudit(197, $fnMain->fcaZoneName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnFcaZone->fcaZoneName, Constant::$fcaZone['update']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaZoneName, Constant::$fcaZone['update']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -76,12 +76,12 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnFcaZone->set(intval($urlArr[1]));
-        $fnFcaZone->delete();
-        $fnFcaZone->updateVersion(33);
-        $fnFcaZone->saveAudit(198, $fnFcaZone->fcaZoneName);
+        $fnMain->set(intval($urlArr[1]));
+        $fnMain->delete();
+        $fnMain->updateVersion(33);
+        $fnMain->saveAudit(198, $fnMain->fcaZoneName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnFcaZone->fcaZoneName, Constant::$fcaZone['delete']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaZoneName, Constant::$fcaZone['delete']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -97,10 +97,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnFcaZone->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnFcaZone->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

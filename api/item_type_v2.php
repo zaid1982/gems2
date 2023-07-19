@@ -3,15 +3,15 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/AttType.php';
+require_once 'class/RefItemType.php';
 
-$apiName = 'att_type';
+$apiName = 'item_type_v2';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnMain = new AttType();
+$fnMain = new RefItemType();
 
 try {
     DbMysql::connect();
@@ -28,7 +28,11 @@ try {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
         if ($urlArr[1] === 'ref') {
-            $result = $fnMain->getRef();
+            if (isset ($urlArr[2]) && $urlArr[2] === 'm' && isset ($urlArr[3])) {
+                $result = $fnMain->getRef(true, $urlArr[3]);
+            } else {
+                $result = $fnMain->getRef();
+            }
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

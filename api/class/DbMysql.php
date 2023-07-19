@@ -39,8 +39,8 @@ class DbMysql {
      */
     public static function connect () {
         try {
-            //self::$DBH = new PDO("mysql:host=".Constant::$dbHost.";dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
-            self::$DBH = new PDO("mysql:host=".Constant::$dbHost.";port=3307;dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
+            self::$DBH = new PDO("mysql:host=".Constant::$dbHost.";dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
+            //self::$DBH = new PDO("mysql:host=".Constant::$dbHost.";port=3307;dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
             //self::$DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$DBH->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             self::$DBH->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);

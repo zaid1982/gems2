@@ -11,25 +11,25 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnDefectCategory = new FcaDefectCategory();
+$fnMain = new FcaDefectCategory();
 
 try {
     DbMysql::connect();
-    $fnDefectCategory->checkJwt(apache_request_headers());
-    $fnDefectCategory->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnDefectCategory->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnDefectCategory->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            $result = $fnDefectCategory->getList();
+            $result = $fnMain->getList();
         } else if ($urlArr[1] === 'ref') {
-            $result = $fnDefectCategory->getRef();
+            $result = $fnMain->getRef();
         } else if (is_numeric($urlArr[1])) {
-            $result = $fnDefectCategory->get(intval($urlArr[1]));
+            $result = $fnMain->get(intval($urlArr[1]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -44,11 +44,11 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnDefectCategory->insert($params);
-        $fnDefectCategory->updateVersion(28);
-        $fnDefectCategory->saveAudit(199, $fnDefectCategory->fcaDefectCategoryName);
+        $fnMain->insert($params);
+        $fnMain->updateVersion(28);
+        $fnMain->saveAudit(199, $fnMain->fcaDefectCategoryName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['add']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaDefectCategoryName, Constant::$fcaDefectCategory['add']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -63,11 +63,11 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnDefectCategory->update(intval($urlArr[1]), $params);
-        $fnDefectCategory->updateVersion(28);
-        $fnDefectCategory->saveAudit(200, $fnDefectCategory->fcaDefectCategoryName);
+        $fnMain->update(intval($urlArr[1]), $params);
+        $fnMain->updateVersion(28);
+        $fnMain->saveAudit(200, $fnMain->fcaDefectCategoryName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['update']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaDefectCategoryName, Constant::$fcaDefectCategory['update']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -79,12 +79,12 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnDefectCategory->set(intval($urlArr[1]));
-        $fnDefectCategory->delete();
-        $fnDefectCategory->updateVersion(28);
-        $fnDefectCategory->saveAudit(201, $fnDefectCategory->fcaDefectCategoryName);
+        $fnMain->set(intval($urlArr[1]));
+        $fnMain->delete();
+        $fnMain->updateVersion(28);
+        $fnMain->saveAudit(201, $fnMain->fcaDefectCategoryName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnDefectCategory->fcaDefectCategoryName, Constant::$fcaDefectCategory['delete']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaDefectCategoryName, Constant::$fcaDefectCategory['delete']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -100,10 +100,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnDefectCategory->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnDefectCategory->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

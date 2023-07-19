@@ -10,27 +10,28 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnGeneral = new General();
+$fnMain = new General();
 
 try {
     DbMysql::connect();
-    $fnGeneral->checkJwt(apache_request_headers());
-    $fnGeneral->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnGeneral->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnGeneral->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
-        } else if ($urlArr[1] === 'upload' && isset ($urlArr[2])) {
-            $result = $fnGeneral->getUpload(intval($urlArr[2]));
+        }
+        if ($urlArr[1] === 'upload' && isset ($urlArr[2])) {
+            $result = $fnMain->getUpload(intval($urlArr[2]));
         } else if ($urlArr[1] === 'upload_link' && isset ($urlArr[2])) {
-            $result = $fnGeneral->getUploadLink(intval($urlArr[2]));
+            $result = $fnMain->getUploadLink(intval($urlArr[2]));
         } else if ($urlArr[1] === 'pdf_link' && isset ($urlArr[2])) {
-            $result = $fnGeneral->getPdfLink(intval($urlArr[2]));
+            $result = $fnMain->getPdfLink(intval($urlArr[2]));
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -48,10 +49,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnGeneral->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnGeneral->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

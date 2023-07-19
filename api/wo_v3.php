@@ -13,19 +13,19 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnWoTask = new WoTask();
+$fnMain = new WoTask();
 
 try {
     DbMysql::connect();
-    $fnWoTask->checkJwt(apache_request_headers());
-    $fnWoTask->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnWoTask->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnWoTask->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
-    $fnWoMrfPdf = new WoMrfPdf($fnWoTask->userId, Constant::$isLogged);
+    $fnWoMrfPdf = new WoMrfPdf($fnMain->userId, Constant::$isLogged);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
@@ -33,12 +33,12 @@ try {
         }
         if ($urlArr[1] === 'preview_mrf_pdf' && isset ($urlArr[2])) {
             $woTaskId = intval($urlArr[2]);
-            $woTask = $fnWoTask->get($woTaskId);
+            $woTask = $fnMain->get($woTaskId);
             $pdfMrfId = $woTask['pdfIdMrf'];
             if (empty($pdfMrfId) || $woTask['woTaskMrfGenerate'] === 0) {
                 $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskId);
             }
-            $result = $fnWoTask->getPdfLink($pdfMrfId);
+            $result = $fnMain->getPdfLink($pdfMrfId);
         }
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -53,10 +53,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnWoTask->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnWoTask->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

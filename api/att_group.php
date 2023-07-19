@@ -11,38 +11,39 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnAttGroup = new AttGroup();
+$fnMain = new AttGroup();
 
 try {
     DbMysql::connect();
-    $fnAttGroup->checkJwt(apache_request_headers());
-    $fnAttGroup->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnAttGroup->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnAttGroup->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
-            //TODO - get all att Group
-        } else if ($urlArr[1] === 'ref') {
-            $result = $fnAttGroup->getRef();
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
+        }
+        if ($urlArr[1] === 'ref') {
+            $result = $fnMain->getRef();
         } else if ($urlArr[1] === 'site') {
             if (isset ($urlArr[2])) {
-                $result = $fnAttGroup->getAttSite(intval($urlArr[2]));
+                $result = $fnMain->getAttSite(intval($urlArr[2]));
             } else {
-                $result = $fnAttGroup->getAttSiteList();
+                $result = $fnMain->getAttSiteList();
             }
         } else if ($urlArr[1] === 'by_site') {
-            $result = $fnAttGroup->getList(intval($urlArr[2]));
+            $result = $fnMain->getList(intval($urlArr[2]));
         } else if ($urlArr[1] === 'chart_site' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
-            $result = $fnAttGroup->getChartsSite(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
+            $result = $fnMain->getChartsSite(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
         } else if ($urlArr[1] === 'supervisor') {
-            $result = $fnAttGroup->getSupervisorList();
+            $result = $fnMain->getSupervisorList();
         } else {
-            $fnAttGroup->set(intval($urlArr[1]));
-            $result = $fnAttGroup->attGroup;
+            $fnMain->set(intval($urlArr[1]));
+            $result = $fnMain->attGroup;
         }
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -52,10 +53,10 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
 
-        $fnAttGroup->insert($params['data'], $params['maps']);
-        $fnAttGroup->updateVersion(27);
-        $fnAttGroup->saveAudit(182, $fnAttGroup->attGroupName);
-        $formData['errmsg'] = str_replace('__', $fnAttGroup->attGroupName, Constant::$attGroup['add']);
+        $fnMain->insert($params['data'], $params['maps']);
+        $fnMain->updateVersion(27);
+        $fnMain->saveAudit(182, $fnMain->attGroupName);
+        $formData['errmsg'] = str_replace('__', $fnMain->attGroupName, Constant::$attGroup['add']);
 
         DbMysql::commit();
         $formData['result'] = $result;
@@ -74,25 +75,25 @@ try {
 
         if ($urlArr[1] === 'activate_site') {
             $siteId = intval($urlArr[2]);
-            $fnAttGroup->setSiteName($siteId);
-            $fnAttGroup->activate($siteId);
-            $fnAttGroup->updateVersion(6);
-            $fnAttGroup->saveAudit(180, $fnAttGroup->siteName);
-            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroup['siteEnabled']);
+            $fnMain->setSiteName($siteId);
+            $fnMain->activate($siteId);
+            $fnMain->updateVersion(6);
+            $fnMain->saveAudit(180, $fnMain->siteName);
+            $formData['errmsg'] = str_replace('__', $fnMain->siteName, Constant::$attGroup['siteEnabled']);
         }
         else if ($urlArr[1] === 'deactivate_site') {
             $siteId = intval($urlArr[2]);
-            $fnAttGroup->setSiteName($siteId);
-            $fnAttGroup->deactivate($siteId);
-            $fnAttGroup->updateVersion(6);
-            $fnAttGroup->saveAudit(181, $fnAttGroup->siteName);
-            $formData['errmsg'] = str_replace('__', $fnAttGroup->siteName, Constant::$attGroup['siteDisabled']);
+            $fnMain->setSiteName($siteId);
+            $fnMain->deactivate($siteId);
+            $fnMain->updateVersion(6);
+            $fnMain->saveAudit(181, $fnMain->siteName);
+            $formData['errmsg'] = str_replace('__', $fnMain->siteName, Constant::$attGroup['siteDisabled']);
         }
         else {
-            $fnAttGroup->update(intval($urlArr[1]), $params['data'], $params['maps']);
-            $fnAttGroup->updateVersion(27);
-            $fnAttGroup->saveAudit(190, $fnAttGroup->attGroupName);
-            $formData['errmsg'] = str_replace('__', $fnAttGroup->attGroupName, Constant::$attGroup['update']);
+            $fnMain->update(intval($urlArr[1]), $params['data'], $params['maps']);
+            $fnMain->updateVersion(27);
+            $fnMain->saveAudit(190, $fnMain->attGroupName);
+            $formData['errmsg'] = str_replace('__', $fnMain->attGroupName, Constant::$attGroup['update']);
         }
 
         DbMysql::commit();
@@ -109,10 +110,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnAttGroup->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnAttGroup->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);

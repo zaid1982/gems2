@@ -12,32 +12,32 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnFcaReport = new FcaReport();
+$fnMain = new FcaReport();
 
 try {
     DbMysql::connect();
-    $fnFcaReport->checkJwt(apache_request_headers());
-    $fnFcaReport->isLogged = Constant::$isLogged;
+    $fnMain->checkJwt(apache_request_headers());
+    $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
-    $fnFcaReport->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
-    $urlArr = $fnFcaReport->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+    $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
+    $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
-        $result = $fnFcaReport->getList();
+        $result = $fnMain->getList();
         $formData['result'] = $result;
         $formData['success'] = true;
     }
     else if ('POST' === $requestMethod) {
         $params = $_POST;
-        $result = $fnFcaReport->createPdf($params);
+        $result = $fnMain->createPdf($params);
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnFcaReport->insert($result);
-        $fnFcaReport->saveAudit(209, $fnFcaReport->fcaReportName);
-        $formData['errmsg'] = str_replace('__', $fnFcaReport->fcaReportName, Constant::$fcaReport['add']);
+        $fnMain->insert($result);
+        $fnMain->saveAudit(209, $fnMain->fcaReportName);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaReportName, Constant::$fcaReport['add']);
         DbMysql::commit();
 
         $formData['result'] = '';
@@ -50,11 +50,11 @@ try {
 
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnFcaReport->set(intval($urlArr[1]));
-        $fnFcaReport->delete();
-        $fnFcaReport->saveAudit(210, $fnFcaReport->fcaReportName);
+        $fnMain->set(intval($urlArr[1]));
+        $fnMain->delete();
+        $fnMain->saveAudit(210, $fnMain->fcaReportName);
         DbMysql::commit();
-        $formData['errmsg'] = str_replace('__', $fnFcaReport->fcaReportName, Constant::$fcaReport['delete']);
+        $formData['errmsg'] = str_replace('__', $fnMain->fcaReportName, Constant::$fcaReport['delete']);
 
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -70,10 +70,11 @@ try {
         }
         DbMysql::close();
     } catch (Exception $ex) {
-        $fnFcaReport->logError('API', $apiName, __LINE__, $e->getMessage());
+        $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['errmsg'] = $e->getCode() === 31 ? substr($e->getMessage(), strpos($e->getMessage(), '] ') + 2) : Constant::$err['default'];
-    $fnFcaReport->logError('API', $apiName, __LINE__, $e->getMessage());
+    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 
 echo json_encode($formData);
