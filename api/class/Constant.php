@@ -90,4 +90,8 @@ class Constant {
         'rescheduleSite' => 'Site _1 attendance planner for year _2 and month _3 successfully rescheduled!',
         'rescheduleGroup' => 'Group _1 attendance planner for year _2 and month _3 successfully rescheduled!'
     );
+
+    public static $woTaskRequest = array(
+        'draft' => 'New draft material request successfully created!'
+    );
 }

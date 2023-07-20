@@ -5,6 +5,7 @@ require_once 'class/General.php';
 require_once 'class/DbMysql.php';
 require_once 'class/WoTaskRequest.php';
 require_once 'class/WoMrfPdf.php';
+require_once 'class/WflTask.php';
 require_once 'pdf/tcpdf_include.php';
 
 $apiName = 'wo_task_request';
@@ -25,13 +26,14 @@ try {
     $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
     $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
+    $fnTask = new WflTask($fnMain->userId, Constant::$isLogged);
     $fnWoMrfPdf = new WoMrfPdf($fnMain->userId, Constant::$isLogged);
 
     if ('GET' === $requestMethod) {
-        if (!isset ($urlArr[1])) {
+        if (!isset($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'preview_mrf_pdf' && isset ($urlArr[2])) {
+        if ($urlArr[1] === 'preview_mrf_pdf' && isset($urlArr[2])) {
             $woTaskRequestId = intval($urlArr[2]);
             $woTaskRequest = $fnMain->get($woTaskRequestId);
             $pdfMrfId = $woTaskRequest['woTaskRequestMrfPdf'];
@@ -40,11 +42,35 @@ try {
             }
             $result = $fnMain->getPdfLink($pdfMrfId);
         }
-        else if ($urlArr[1] === 'get_mrf_pdf_link' && isset ($urlArr[2])) {
+        else if ($urlArr[1] === 'get_mrf_pdf_link' && isset($urlArr[2])) {
             $pdfMrfId = intval($urlArr[2]);
             $result = $fnMain->getPdfLink($pdfMrfId);
-        } else if ($urlArr[1] === 'list_mrf' && isset ($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
+        } else if ($urlArr[1] === 'list_mrf' && isset($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
             $result = $fnMain->getListMrf(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
+        } else if ($urlArr[1] === 'list_pending' && isset($urlArr[2]) && $urlArr[2] === 'm') {
+            $result = $fnMain->getPendingTaskMobile();
+        } else if ($urlArr[1] === 'list_history' && isset($urlArr[2]) && $urlArr[2] === 'm') {
+            $result = $fnMain->getHistoryTaskMobile();
+        } else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
+        }
+        $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else if ('POST' === $requestMethod) {
+        if (!isset($urlArr[1])) {
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $draftNo = $fnMain->getRequestNoDraft();
+            $fnTask->createNew(4, $draftNo, 46);
+            $fnTask->set($fnTask->wflTaskNew['taskId']);
+            $fnMain->createDraft($draftNo, $fnTask->transactionId);
+            $fnMain->saveAudit(216, $draftNo);
+            DbMysql::commit();
+            $result = $draftNo;
+            $formData['errmsg'] = Constant::$woTaskRequest['draft'];
+        } else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
         }
         $formData['result'] = $result;
         $formData['success'] = true;
