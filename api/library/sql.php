@@ -376,10 +376,8 @@ class Class_sql
                      WHEN wo_task_type = 3 THEN 'Request'
                      WHEN wo_task_type = 4 THEN 'Breakdown'
                      WHEN wo_task_type = 5 THEN 'Defect'
-                     ELSE '' END AS wo_task_type,                     
-                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
-                     WHEN wo_task_severity = 2 THEN 'Critical'
-                     ELSE '' END AS wo_task_severity,
+                     ELSE '' END AS wo_task_type,          
+                    ref_severity.severity_name AS wo_task_severity,
                     wo_task_assigned_to,
                     wo_task.site_id,
                     wfl_flow.flow_desc,
@@ -395,7 +393,8 @@ class Class_sql
                 LEFT JOIN wfl_checkpoint ON wfl_checkpoint.checkpoint_id = wfl_task.checkpoint_id
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user user_assigned ON user_assigned.user_id = wo_task.wo_task_assigned_to
-                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status";
+                LEFT JOIN ref_status ON ref_status.status_id = wfl_transaction.transaction_status
+                LEFT JOIN ref_severity ON ref_severity.severity_id = wo_task.wo_task_severity";
             } else if ($title === 'vw_track_monitoring_ppm_m') {
                 $sql = "SELECT
                     transaction_no,
@@ -486,14 +485,12 @@ class Class_sql
                         WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
                     END AS wo_task_type_desc,
-                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
-                        WHEN wo_task_severity = 2 THEN 'Critical'
-                        ELSE ''
-                    END AS wo_task_severity_desc,
+                    ref_severity.severity_name AS wo_task_severity_desc,
                     IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'WR', 'WO') AS wo_type
                 FROM wo_task 
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wo_task.wo_task_assigned_to
+                LEFT JOIN ref_severity ON ref_severity.severity_id = wo_task.wo_task_severity
                 WHERE wo_task_created_by = [user_id] 
                 HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%') AND wo_type LIKE '%[wo_type]%'";
             } else if ($title === 'mw_wo_pending_m') {
@@ -508,10 +505,7 @@ class Class_sql
                         WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
                     END AS wo_task_type_desc,
-                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
-                        WHEN wo_task_severity = 2 THEN 'Critical'
-                        ELSE ''
-                    END AS wo_task_severity_desc,
+                    ref_severity.severity_name AS wo_task_severity_desc,
                     wfl_task.checkpoint_id,
                     IF(wo_task_is_wr = 1 AND wo_task_wr_confirm = 0, 'WR', 'WO') AS wo_type
                 FROM wfl_task
@@ -519,6 +513,7 @@ class Class_sql
                 INNER JOIN wfl_checkpoint_user ON wfl_checkpoint_user.checkpoint_id = wfl_task.checkpoint_id AND wfl_checkpoint_user.role_id = wfl_task.role_id AND wfl_checkpoint_user.group_id = wfl_task.group_id AND wfl_checkpoint_user.user_id = [user_id]
                 LEFT JOIN sys_user ON sys_user.user_id = wo_task.wo_task_created_by
                 LEFT JOIN sys_user sys_user_assigned ON sys_user_assigned.user_id = wfl_checkpoint_user.user_id
+                LEFT JOIN ref_severity ON ref_severity.severity_id = wo_task.wo_task_severity
                 WHERE task_current = 1 AND (task_claimed_user IS NULL OR task_claimed_user = [user_id]) 
                 AND wo_task.site_id = sys_user_assigned.site_id
                 HAVING (wo_task_no LIKE '%[search_text]%' OR wo_task_location LIKE '%[search_text]%' OR sys_user.user_first_name LIKE '%[search_text]%' OR assigned_to LIKE '%[search_text]%' OR wo_task_type_desc LIKE '%[search_text]%' OR wo_task_severity_desc LIKE '%[search_text]%') AND wo_type LIKE '%[wo_type]%'";
@@ -1130,11 +1125,8 @@ class Class_sql
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
-                    END AS wo_type_desc,
-                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
-                        WHEN wo_task_severity = 2 THEN 'Critical'
-                        ELSE ''
-                    END AS wo_severity_desc,
+                    END AS wo_type_desc,                    
+                    sv.severity_name AS wo_severity_desc,
                     s.status_id,
                     s.status_desc
                 FROM wfl_task t
@@ -1144,6 +1136,7 @@ class Class_sql
                 LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
                 LEFT JOIN cli_site l ON l.site_id = w.site_id
+                LEFT JOIN ref_severity sv ON sv.severity_id = r.wo_task_request_severity
                 WHERE checkpoint_id IN ([checkpoints]) AND w.site_id = [siteId] AND [taskCurrent] 
                 HAVING (wo_task_request_no LIKE '%[search_text]%' OR wo_task_no LIKE '%[search_text]%' OR task_from LIKE '%[search_text]%' OR wo_type_desc LIKE '%[search_text]%' OR wo_severity_desc LIKE '%[search_text]%' OR status_desc LIKE '%[search_text]%')";
             } else if ($title === 'vw_wo_request_task_detail_m') {
@@ -1162,17 +1155,15 @@ class Class_sql
                         WHEN wo_task_type = 5 THEN 'Defect'
                         ELSE ''
                     END AS wo_type_desc,
-                    CASE WHEN wo_task_severity = 1 THEN 'Non-Critical'
-                        WHEN wo_task_severity = 2 THEN 'Critical'
-                        ELSE ''
-                    END AS wo_severity_desc,
+                    sv.severity_name AS wo_severity_desc,
                     s.status_id,
                     s.status_desc
                 FROM wo_task_request r 
                 LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
                 LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
-                LEFT JOIN cli_site l ON l.site_id = w.site_id";
+                LEFT JOIN cli_site l ON l.site_id = w.site_id
+                LEFT JOIN ref_severity sv ON sv.severity_id = r.wo_task_request_severity";
             } else if ($title === 'vw_part_tree_category_m') {
                 $sql = "SELECT 
                     p.part_id,

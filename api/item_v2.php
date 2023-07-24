@@ -27,12 +27,8 @@ try {
         if (!isset ($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'ref') {
-            if (isset ($urlArr[2]) && $urlArr[2] === 'm' && isset ($urlArr[3])) {
-                $result = $fnMain->getRef(true, $urlArr[3]);
-            } else {
-                $result = $fnMain->getRef();
-            }
+        if ($urlArr[1] === 'ref' && !isset($urlArr[2])) {
+            $result = $fnMain->getRef();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

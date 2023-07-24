@@ -3,15 +3,15 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/RefItemType.php';
+require_once 'class/CliStore.php';
 
-$apiName = 'item_type_v2';
+$apiName = 'store_v2';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnMain = new RefItemType();
+$fnMain = new CliStore();
 
 try {
     DbMysql::connect();
@@ -24,12 +24,12 @@ try {
     $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
-        if (!isset($urlArr[1])) {
+        if (!isset ($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'ref' && isset($urlArr[2]) && $urlArr[2] === 'request' && isset($urlArr[3]) && $urlArr[3] === 'm' && isset($urlArr[4]) && isset($urlArr[5])) {
-            $result = $fnMain->getRefRequestMobile($urlArr[4], $urlArr[5]);
-        } else if ($urlArr[1] === 'ref' && !isset($urlArr[2])) {
+        if ($urlArr[1] === 'ref' && isset ($urlArr[2]) && $urlArr[2] === 'request' && isset ($urlArr[3]) && $urlArr[3] === 'm') {
+            $result = $fnMain->getRefRequestMobile();
+        } else if ($urlArr[1] === 'ref') {
             $result = $fnMain->getRef();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');

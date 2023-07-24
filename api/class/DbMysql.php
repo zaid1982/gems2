@@ -606,10 +606,11 @@ class DbMysql {
      * @param string $orderBy
      * @param string $orderDirection
      * @param string $limit
+     * @param string $groupBy
      * @return array
      * @throws Exception
      */
-    public static function selectSqlAll (string $query, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $orderDirection='', string $limit=''): array {
+    public static function selectSqlAll (string $query, array $columns=array(), int $fetchType=0, bool $throwEmpty=false, string $orderBy='', string $orderDirection='', string $limit='', string $groupBy=''): array {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');
@@ -618,9 +619,10 @@ class DbMysql {
                 throw new Exception('Empty $statement');
             }
             $order = !empty($orderBy) ? ' ORDER BY '.self::convertToDbString($orderBy).' '.$orderDirection : '';
+            $grouped = !empty($groupBy) ? ' GROUP BY '.self::convertToDbString($groupBy) : '';
             $limit = !empty($limit) ? ' LIMIT '.$limit : '';
             $preparedWheres = self::getPreparedWhere($columns);
-            $statement = $query.self::getWhereString($columns).$order.$limit;
+            $statement = $query.self::getWhereString($columns).$grouped.$order.$limit;
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'sql = '.$statement);
             self::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'params = '.json_encode($preparedWheres));
             $stmt = self::$DBH->prepare($statement);

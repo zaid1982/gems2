@@ -366,27 +366,6 @@ class AttTransaction extends General {
     }
 
     /**
-     * @param $timestamp
-     * @param bool $withSecond
-     * @return string|null
-     * @throws Exception
-     */
-    private function getTimeDisplay ($timestamp, bool $withSecond=false): ?string {
-        try {
-            if (empty($timestamp)) {
-                return null;
-            }
-            $dateTime = new DateTime($timestamp);
-            if ($withSecond) {
-                return $dateTime->format('j/n/Y g:i:s A');
-            }
-            return $dateTime->format('j/n/Y g:i A');
-        } catch (Exception|Throwable $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
-        }
-    }
-
-    /**
      * @return array
      * @throws Exception
      */
@@ -441,10 +420,10 @@ class AttTransaction extends General {
                 $infoArr['weeklyRequiredHours'] = DbMysql::selectColumn('att_participant', array('attParticipantId'=>$attTransaction['attParticipantId']), 'attParticipantReqWeekHours', true).' hours';
                 $infoArr['weeklyProgress'] = !empty($dbDuration['timeDiff']) ? round(intval($dbDuration['timeDiffSec'])/(intval($infoArr['weeklyRequiredHours'])*60*60)*100, 2).'%' : '0%';
 
-                $infoArr['shiftStart'] = $this->getTimeDisplay($attTransaction['attTransactionShiftStart']);
-                $infoArr['shiftEnd'] = $this->getTimeDisplay($attTransaction['attTransactionShiftEnd']);
-                $infoArr['timeClockIn'] = $this->getTimeDisplay($attTransaction['attTransactionTimeIn'], true);
-                $infoArr['timeClockOut'] = $this->getTimeDisplay($attTransaction['attTransactionTimeOut'], true);
+                $infoArr['shiftStart'] = parent::timeDisplayPretty($attTransaction['attTransactionShiftStart']);
+                $infoArr['shiftEnd'] = parent::timeDisplayPretty($attTransaction['attTransactionShiftEnd']);
+                $infoArr['timeClockIn'] = parent::timeDisplayPretty($attTransaction['attTransactionTimeIn'], true);
+                $infoArr['timeClockOut'] = parent::timeDisplayPretty($attTransaction['attTransactionTimeOut'], true);
                 $infoArr['currentShift'] = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeName', true);
 
                 if ($attTransaction['attTransactionResult'] === 'Leave' || $attTransaction['attTransactionResult'] === 'Training') {
@@ -502,7 +481,7 @@ class AttTransaction extends General {
 
             if ($nextCheckIn) {
                 $nextCheckIn = DbMysql::selectColumn('att_transaction', array('userId'=>$this->userId, 'attTransactionDate'=>'>|'.$dateNow->format('Y-m-d H:i:s'), 'attTransactionShiftStart'=>'IS NOT NULL'), 'attTransactionShiftStart');
-                $infoArr['nextShiftStart'] = !empty($nextCheckIn) ? 'Next shift started at '.$this->getTimeDisplay($nextCheckIn) : null;
+                $infoArr['nextShiftStart'] = !empty($nextCheckIn) ? 'Next shift started at '.parent::timeDisplayPretty($nextCheckIn) : null;
             }
 
             return $infoArr;
@@ -534,10 +513,10 @@ class AttTransaction extends General {
                 $infoArr['status'] = 'Not Available';
             }
             else {
-                $infoArr['shiftStart'] = $this->getTimeDisplay($attTransaction['attTransactionShiftStart']);
-                $infoArr['shiftEnd'] = $this->getTimeDisplay($attTransaction['attTransactionShiftEnd']);
-                $infoArr['timeClockIn'] = $this->getTimeDisplay($attTransaction['attTransactionTimeIn'], true);
-                $infoArr['timeClockOut'] = $this->getTimeDisplay($attTransaction['attTransactionTimeOut'], true);
+                $infoArr['shiftStart'] = parent::timeDisplayPretty($attTransaction['attTransactionShiftStart']);
+                $infoArr['shiftEnd'] = parent::timeDisplayPretty($attTransaction['attTransactionShiftEnd']);
+                $infoArr['timeClockIn'] = parent::timeDisplayPretty($attTransaction['attTransactionTimeIn'], true);
+                $infoArr['timeClockOut'] = parent::timeDisplayPretty($attTransaction['attTransactionTimeOut'], true);
                 $infoArr['currentShift'] = DbMysql::selectColumn('att_type', array('attTypeId'=>$attTransaction['attTypeId']), 'attTypeName', true);
 
                 if ($attTransaction['attTransactionResult'] === 'Leave' || $attTransaction['attTransactionResult'] === 'Training') {

@@ -26,6 +26,8 @@ RewriteRule ^p_mrf/?$ mrf.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
+RewriteRule ^ast_part/?$ api/ast_part.php
+RewriteRule ^ast_part/(.+)/?$ api/ast_part.php
 RewriteRule ^att_group/?$ api/att_group.php
 RewriteRule ^att_group/(.+)/?$ api/att_group.php
 RewriteRule ^att_participant/?$ api/att_participant.php
@@ -88,6 +90,8 @@ RewriteRule ^status/?$ api/status.php
 RewriteRule ^status/(.+)/?$ api/status.php
 RewriteRule ^store/?$ api/store.php
 RewriteRule ^store/(.+)/?$ api/store.php
+RewriteRule ^store_v2/?$ api/store_v2.php
+RewriteRule ^store_v2/(.+)/?$ api/store_v2.php
 RewriteRule ^utility/?$ api/utility.php
 RewriteRule ^utility/(.+)/?$ api/utility.php
 RewriteRule ^utility_meter/?$ api/utility_meter.php
@@ -108,5 +112,7 @@ RewriteRule ^wo_v3/?$ api/wo_v3.php
 RewriteRule ^wo_v3/(.+)/?$ api/wo_v3.php
 RewriteRule ^wo_task_assist/?$ api/wo_task_assist.php
 RewriteRule ^wo_task_assist/(.+)/?$ api/wo_task_assist.php
+RewriteRule ^wo_task_parts/?$ api/wo_task_parts.php
+RewriteRule ^wo_task_parts/(.+)/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_request/?$ api/wo_task_request.php
 RewriteRule ^wo_task_request/(.+)/?$ api/wo_task_request.php

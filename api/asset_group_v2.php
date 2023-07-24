@@ -24,11 +24,13 @@ try {
     $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     if ('GET' === $requestMethod) {
-        if (!isset ($urlArr[1])) {
+        if (!isset($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'ref') {
-            $result = $urlArr[2] === 'm' ? $fnMain->getRef(true) : $fnMain->getRef();
+        if ($urlArr[1] === 'ref' && isset($urlArr[2]) && $urlArr[2] === 'request' && isset($urlArr[3]) && $urlArr[3] === 'm' && isset($urlArr[4])) {
+            $result = $fnMain->getRefRequestMobile($urlArr[4]);
+        } else if ($urlArr[1] === 'ref' && !isset($urlArr[2])) {
+            $result = $fnMain->getRef();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

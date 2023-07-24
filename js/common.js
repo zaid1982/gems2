@@ -630,6 +630,65 @@ function mzAjaxRequest2(url, type, data, functionStr) {
     return returnVal;
 }
 
+function mzAjaxRequest3 (url, type, data, functionStr) {
+    let returnVal = '';
+    if (typeof url === 'undefined' || typeof type === 'undefined' || url === '' || type === '') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    if (type !== 'GET' && type !== 'POST' && type !== 'PUT' && type !== 'DELETE') {
+        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+    }
+    data = typeof data === 'undefined' ? '' : data; // JSON.stringify(data)
+    const async = (typeof functionStr !== 'undefined' && functionStr !== '');
+
+    let header = {};
+    if (sessionStorage.getItem('token') !== null) {
+        header = {'Authorization': 'Bearer ' + sessionStorage.getItem('token')};
+    }
+    if (type === 'GET' && data !== '') {
+        jQuery.extend(header, data);
+        data = '';
+    }
+
+    let errMsg = '';
+    $.ajax({
+        url: url,
+        type: type,
+        contentType: 'application/json; charset=utf-8',
+        headers: header,
+        data: JSON.stringify(data),
+        dataType: 'json',
+        async: async,
+        success: function (resp) {
+            if (resp.success) {
+                returnVal = resp.result;
+                if (typeof functionStr !== 'undefined' && functionStr !== '') {
+                    if (functionStr.slice(-2) === '()') {
+                        eval(functionStr.slice(0, -1) + '\'' + JSON.stringify(returnVal) + '\');');
+                    } else {
+                        eval(functionStr.slice(0, -1) + ',\'' + JSON.stringify(returnVal) + '\');');
+                    }
+                }
+                if (resp['errmsg'] !== '') {
+                    toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
+                }
+            } else if (resp.errmsg === 'Expired token') {
+                window.location.href = 'login.html?f=2';
+            } else {
+                errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
+            }
+        },
+        error: function () {
+            errMsg = _ALERT_MSG_ERROR_DEFAULT;
+        }
+    });
+
+    if (errMsg !== '') {
+        throw new Error(errMsg);
+    }
+    return returnVal;
+}
+
 function mzGetUrlVars() {
     let vars = {};
     window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,

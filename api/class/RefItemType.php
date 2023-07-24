@@ -2,8 +2,8 @@
 
 class RefItemType extends General {
 
-    public $itemTypeId = 0;
-    private static $tableName = 'ref_item_type';
+    public int $itemTypeId = 0;
+    private static string $tableName = 'ref_item_type';
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;
@@ -11,20 +11,36 @@ class RefItemType extends General {
     }
 
     /**
-     * @param bool $isMobile
+     * @return array
+     * @throws Exception
+     */
+    public function getRef (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            return DbMysql::selectAll($this::$tableName, array(), 1);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $storeId
      * @param int $assetGroupId
      * @return array
      * @throws Exception
      */
-    public function getRef (bool $isMobile = false, int $assetGroupId = 0): array {
+    public function getRefRequestMobile (int $storeId, int $assetGroupId): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            if ($isMobile) {
-                parent::checkEmptyInteger($assetGroupId, 'assetGroupId');
-                return DbMysql::selectAll($this::$tableName, array('assetGroupId'=>$assetGroupId, 'itemTypeStatus'=>1), 0, false, 'itemTypeTurn');
-            } else {
-                return DbMysql::selectAll($this::$tableName, array(), 1);
-            }
+            parent::checkEmptyInteger($storeId, 'storeId');
+            parent::checkEmptyInteger($assetGroupId, 'assetGroupId');
+            return DbMysql::selectSqlAll(/** @lang text */
+                    "SELECT 
+                        pt.item_type_id,
+                        it.item_type_desc
+                    FROM ast_part pt
+                    LEFT JOIN ref_item_type it ON it.item_type_id = pt.item_type_id",
+                array('pt.storeId'=>$storeId, 'pt.assetGroupId'=>$assetGroupId, 'it.itemTypeStatus'=>1), 0, false, 'itemTypeDesc', '', '', 'itemTypeId');
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

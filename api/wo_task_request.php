@@ -41,16 +41,19 @@ try {
                 $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskRequestId);
             }
             $result = $fnMain->getPdfLink($pdfMrfId);
-        }
-        else if ($urlArr[1] === 'get_mrf_pdf_link' && isset($urlArr[2])) {
+        } else if ($urlArr[1] === 'get_mrf_pdf_link' && isset($urlArr[2])) {
             $pdfMrfId = intval($urlArr[2]);
             $result = $fnMain->getPdfLink($pdfMrfId);
+        } else if ($urlArr[1] === 'ref_severity' && isset($urlArr[2]) && $urlArr[2] === 'm') {
+            $result = $fnMain->getRefSeverity(true);
         } else if ($urlArr[1] === 'list_mrf' && isset($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
             $result = $fnMain->getListMrf(intval($urlArr[2]), intval($urlArr[3]), intval($urlArr[4]));
         } else if ($urlArr[1] === 'list_pending' && isset($urlArr[2]) && $urlArr[2] === 'm') {
-            $result = $fnMain->getPendingTaskMobile();
+            $result = $fnMain->getListPendingMobile();
         } else if ($urlArr[1] === 'list_history' && isset($urlArr[2]) && $urlArr[2] === 'm') {
-            $result = $fnMain->getHistoryTaskMobile();
+            $result = $fnMain->getListHistoryMobile();
+        } else if ($urlArr[1] === 'm' && isset($urlArr[2])) {
+            $result = $fnMain->getDetailsMobile($urlArr[2]);
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
@@ -59,12 +62,13 @@ try {
     }
     else if ('POST' === $requestMethod) {
         if (!isset($urlArr[1])) {
+            $bodyParams = json_decode(file_get_contents("php://input"), true);
             DbMysql::beginTransaction();
             $isTransaction = true;
             $draftNo = $fnMain->getRequestNoDraft();
             $fnTask->createNew(4, $draftNo, 46);
             $fnTask->set($fnTask->wflTaskNew['taskId']);
-            $fnMain->createDraft($draftNo, $fnTask->transactionId);
+            $fnMain->insertDraft($draftNo, $fnTask->transactionId, $bodyParams);
             $fnMain->saveAudit(216, $draftNo);
             DbMysql::commit();
             $result = $draftNo;

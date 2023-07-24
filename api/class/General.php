@@ -8,12 +8,13 @@ use \Firebase\JWT\JWT;
 
 class General {
 
-    public $userId = 0;
-    public $isLogged = false;
-    public $pdfFontSize = 10;
-    public $pdfPageWidth = 180;
-    public $pdfLineSize = 0.1;
-    public $pdfLineBoldSize = 0.6;
+    public int $userId = 0;
+    public bool $isLogged = false;
+    public int $userSite = 0;
+    public float $pdfFontSize = 10;
+    public float $pdfPageWidth = 180;
+    public float $pdfLineSize = 0.1;
+    public float $pdfLineBoldSize = 0.6;
 
     /**
      * @param $class
@@ -21,7 +22,7 @@ class General {
      * @param $line
      * @param $msg
      */
-    public function logDebug ($class, $function, $line, $msg) {
+    public function logDebug ($class, $function, $line, $msg): void {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa")." (".$this->userId.") [".$class.":".$function.":".$line."] - ".$msg."\r\n";
             error_log($debugMsg, 3, Constant::$folderDebug.'debug_'.date("Ymd").'.log');
@@ -34,7 +35,7 @@ class General {
      * @param $line
      * @param $msg
      */
-    public function logError ($class, $function, $line, $msg) {
+    public function logError ($class, $function, $line, $msg): void {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa") . " (" . $this->userId . ") [" . $class . ":" . $function . ":" . $line . "] - (ERROR) " . $msg . "\r\n";
             error_log($debugMsg, 3, Constant::$folderDebug . 'debug_' . date("Ymd") . '.log');
@@ -44,12 +45,12 @@ class General {
     }
 
     /**
-     * @param  $string
+     * @param string|null $string
      * @param string $stringName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyString ($string, string $stringName=''): bool {
+    public function checkEmptyString (string|null $string, string $stringName=''): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if ($string === '' || $string === null) {
@@ -62,12 +63,12 @@ class General {
     }
 
     /**
-     * @param $integer
+     * @param int|null $integer
      * @param string $integerName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyInteger ($integer, string $integerName): bool {
+    public function checkEmptyInteger (int|null $integer, string $integerName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($integer)) {
@@ -80,12 +81,12 @@ class General {
     }
 
     /**
-     * @param $float $float
+     * @param float|null $float
      * @param string $floatName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyFloat ($float, string $floatName): bool {
+    public function checkEmptyFloat (float|null $float, string $floatName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($float)) {
@@ -163,6 +164,35 @@ class General {
                 } else if (gettype($param) === 'integer' && $param === 0) {
                     throw new Exception('[' . __LINE__ . '] - Integer '.$index.' 0', $throwCode);
                 }
+            }
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string|int|bool|null $input
+     * @param array $optionArr
+     * @param string $inputName
+     * @param bool $isAlert
+     * @return void
+     * @throws Exception
+     */
+    public function checkMandatoryOption (string|int|bool|null $input, array $optionArr, string $inputName, bool $isAlert=false): void {
+        try {
+            //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyArray($optionArr, 'optionArr');
+            $this->checkEmptyString($inputName);
+            $throwCode = $isAlert ? 31 : 30;
+            $check = false;
+            foreach ($optionArr as $option) {
+                if ($input === $option) {
+                    $check = true;
+                    break;
+                }
+            }
+            if (!$check) {
+                throw new Exception('[' . __LINE__ . '] - '.$inputName.' not in the options', $throwCode);
             }
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -283,12 +313,15 @@ class General {
             //if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userToken'=>$token)) !== 1) {
             //    throw new Exception('Expired token', 31);
             //}
-            if (DbMysql::count('sys_user', array('userId'=>$this->userId, 'userStatus'=>1)) !== 1) {
-                throw new Exception('User not exist', 31);
+            $user = DbMysql::select('sys_user', array('userId'=>$this->userId));
+            if (empty($user)) {
+                throw new Exception('User not exist!', 31);
+            } else if ($user['userStatus'] !== 1) {
+                throw new Exception('Your account is deactivated. Please contact Administrator!', 31);
+            } else if (isset($headers['authorization']) && $user['userDeviceId'] !== $headers['deviceid']) {
+                throw new Exception('Your Device is invalid!', 31);
             }
-            if (isset($headers['authorization']) && DbMysql::count('sys_user', array('userId'=>$this->userId, 'userDeviceId'=>$headers['deviceid'])) !== 1) {
-                throw new Exception('Device ID invalid with this login', 31);
-            }
+            $this->userSite = $user['siteId'];
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -335,7 +368,7 @@ class General {
     /**
      * @param array $inputArr
      * @param array $indexArr
-     * @return void
+     * @return array
      * @throws Exception
      */
     public function arraySpliceAssoc (array $inputArr, array $indexArr): array {
@@ -351,6 +384,34 @@ class General {
                 $outputArr[$index] = $inputArr[$index];
             }
             return $outputArr;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $arrayList
+     * @param array $indexArr
+     * @return array
+     * @throws Exception
+     */
+    public function arraySpliceAssocMultiple (array $arrayList, array $indexArr): array {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->checkEmptyArray($arrayList, 'arrayList');
+            $this->checkEmptyArray($indexArr, 'indexArr');
+            $outputList = array();
+            foreach ($arrayList as $n => $row) {
+                $outputArr = array();
+                foreach ($indexArr as $index) {
+                    if ($n === 0 && !array_key_exists($index, $row)) {
+                        throw new Exception('Index '.$index.' not exist');
+                    }
+                    $outputArr[$index] = $row[$index];
+                }
+                $outputList[] = $outputArr;
+            }
+            return $outputList;
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -525,6 +586,28 @@ class General {
             }
             return ltrim($durationStr);
         } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string|null $timestamp
+     * @param bool $withSecond
+     * @return string|null
+     * @throws Exception
+     */
+    public function timeDisplayPretty (string|null $timestamp, bool $withSecond=false): ?string {
+        try {
+            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (empty($timestamp)) {
+                return null;
+            }
+            $dateTime = new DateTime($timestamp);
+            if ($withSecond) {
+                return $dateTime->format('j/n/Y g:i:s A');
+            }
+            return $dateTime->format('j/n/Y g:i A');
+        } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }

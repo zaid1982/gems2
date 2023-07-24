@@ -11,20 +11,13 @@ class RefItem extends General {
     }
 
     /**
-     * @param bool $isMobile
-     * @param int $itemTypeId
      * @return array
      * @throws Exception
      */
-    public function getRef (bool $isMobile = false, int $itemTypeId = 0): array {
+    public function getRef (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            if ($isMobile) {
-                parent::checkEmptyInteger($itemTypeId, 'itemTypeId');
-                return DbMysql::selectAll($this::$tableName, array('itemTypeId'=>$itemTypeId, 'itemStatus'=>1), 0, false, 'itemTurn');
-            } else {
-                return DbMysql::selectAll($this::$tableName, array(), 1);
-            }
+            return DbMysql::selectAll($this::$tableName, array(), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

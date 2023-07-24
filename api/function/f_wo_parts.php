@@ -244,7 +244,9 @@ class Class_wo_parts {
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             $woRequestId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_status'=>'32'), 'wo_task_request_id', 'wo_task_request_id DESC');
             if (empty($woRequestId)) {
-                $woRequestId = Class_db::getInstance()->db_insert('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_order_by'=>$userId, 'wo_task_request_status'=>'32'));
+                $woTask = Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$params['woTaskId']));
+                $woRequestId = Class_db::getInstance()->db_insert('wo_task_request', array('wo_task_id'=>$params['woTaskId'], 'wo_task_request_order_by'=>$userId, 'wo_task_no'=>$woTask['woTaskNo'], 'wo_task_request_severity'=>$woTask['woTaskSeverity'],
+                    'wo_task_request_status'=>'32'));
             }
             $partId = Class_db::getInstance()->db_select_col('ast_part', array('item_id'=>$params['itemId'], 'site_id'=>$siteId), 'part_id', 'part_count DESC', 1);
             if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woRequestId, 'part_id'=>$partId)) > 0) {
