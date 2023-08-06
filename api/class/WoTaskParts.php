@@ -58,6 +58,31 @@ class WoTaskParts extends General {
     }
 
     /**
+     * @param int $woTaskPartsId
+     * @return array
+     * @throws Exception
+     */
+    public function getDetailsMobile (int $woTaskPartsId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($woTaskPartsId, 'woTaskPartsId');
+            $arrDetails = array();
+            $woTaskParts = DbMysql::select($this::$tableName, array('woTaskPartsId'=>$woTaskPartsId), 1);
+            $astPart = DbMysql::select('ast_part', array('partId'=>$woTaskParts['partId']), 1);
+            $arrDetails['woTaskPartsId'] = $woTaskPartsId;
+            $arrDetails['assetGroupId'] = $astPart['assetGroupId'];
+            $arrDetails['itemTypeId'] = $astPart['itemTypeId'];
+            $arrDetails['partId'] = $woTaskParts['partId'];
+            $arrDetails['woTaskPartsQuantity'] = $woTaskParts['woTaskPartsQuantity'];
+            $arrDetails['woTaskPartsRemark'] = $woTaskParts['woTaskPartsRemark'];
+            $arrDetails['status'] = DbMysql::selectColumn('ref_status', array('statusId'=>$woTaskParts['woTaskPartsStatus']), 'statusDesc', true);
+            return $arrDetails;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $woTaskRequestId
      * @param array $inputParams
      * @return int

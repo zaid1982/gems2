@@ -78,7 +78,8 @@ ul.striped li:last-child {
     z-index: 2 !important;
 }
 .select-wrapper.md-form.md-outline input.select-dropdown {
-    margin-bottom: 0px;
+    /*margin-bottom: 0px;*/
+    padding: 0rem .75rem;
 }
 .select-wrapper.md-form.md-outline+label {
     top: -1.7em!important;

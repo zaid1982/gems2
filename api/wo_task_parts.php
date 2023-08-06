@@ -34,6 +34,8 @@ try {
         }
         if ($urlArr[1] === 'list' && isset($urlArr[2]) && $urlArr[2] === 'm' && isset($urlArr[3])) {
             $result = $fnMain->getListMobile($urlArr[3]);
+        } else if ($urlArr[1] === 'm' && isset($urlArr[2])) {
+            $result = $fnMain->getDetailsMobile($urlArr[2]);
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
