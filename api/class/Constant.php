@@ -24,7 +24,9 @@ class Constant {
         'errAlreadySubmitted' => 'This task already submitted!',
         'errClaimed' => 'This task currently assigned to other user!',
         'errNotClaimed' => 'This task should be claimed before submission!',
-        'errInvalidRole' => 'You do not have __ role to perform this task!'
+        'errInvalidRole' => 'You do not have __ role to perform this task!',
+        'errAlreadySubmitted2' => 'This task __ already submitted!',
+        'errNotAllowed' => 'You are not allowed to perform this action!'
     );
 
     public static array $fcaTask = array(
@@ -92,7 +94,11 @@ class Constant {
     );
 
     public static array $woTaskRequest = array(
-        'draft' => 'New draft material request successfully created!'
+        'draft' => 'New draft material request successfully created!',
+        'delete' => 'Request __ successfully removed!',
+        'errAlreadySubmitted' => 'Request __ already submitted!',
+        'errNotAllowed' => 'You are not allowed to perform this action!',
+        'errAlreadyRemoved' => 'Request already removed!'
     );
 
     public static array $woTaskParts = array(

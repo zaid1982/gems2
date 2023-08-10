@@ -12,12 +12,17 @@ class WoTaskRequest extends General {
         $this->isLogged = $isLogged;
     }
 
-    public function set (int $woTaskRequestId): void {
+    /**
+     * @param int $woTaskRequestId
+     * @param bool $throwEmpty
+     * @throws Exception
+     */
+    public function set (int $woTaskRequestId, bool $throwEmpty = true): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($woTaskRequestId, 'woTaskRequestId');
             $this->woTaskRequestId = $woTaskRequestId;
-            $this->woTaskRequest = $this->get($woTaskRequestId);
+            $this->woTaskRequest = $this->get($woTaskRequestId, $throwEmpty);
             $this->woTaskRequestNo = $this->woTaskRequest['woTaskRequestNo'];
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
@@ -26,15 +31,20 @@ class WoTaskRequest extends General {
 
     /**
      * @param int $woTaskRequestId
+     * @param bool $throwEmpty
      * @return array
      * @throws Exception
      */
-    public function get (int $woTaskRequestId): array {
+    public function get (int $woTaskRequestId, bool $throwEmpty = true): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($woTaskRequestId, 'woTaskRequestId');
             $this->woTaskRequestId = $woTaskRequestId;
-            return DbMysql::select($this::$tableName, array('woTaskRequestId'=>$woTaskRequestId), 1);
+            $woTaskRequest = DbMysql::select($this::$tableName, array('woTaskRequestId'=>$woTaskRequestId), $throwEmpty);
+            if (!$throwEmpty && empty($woTaskRequest)) {
+                throw new Exception(Constant::$woTaskRequest['errAlreadyRemoved'], 31);
+            }
+            return $woTaskRequest;
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -225,6 +235,28 @@ class WoTaskRequest extends General {
             parent::checkMandatoryOption($params['woTaskRequestSeverity'], array_keys($this->getRefSeverity()), 'Request Severity', true);
             $sqlInsert = array('woTaskRequestNo'=>$draftNo, 'transactionId'=>$transactionId, 'woTaskRequestOrderBy'=>$this->userId, 'woTaskRequestIsStandalone'=>1, 'woTaskRequestStatus'=>32);
             $this->woTaskRequestId = DbMysql::insert($this::$tableName, array_merge($sqlInsert, $params));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $woTaskRequestId
+     * @throws Exception
+     */
+    public function delete (int $woTaskRequestId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($woTaskRequestId, 'woTaskRequestId');
+            parent::checkEmptyArray($this->woTaskRequest, 'woTaskRequest');
+            if ($this->woTaskRequest['woTaskRequestStatus'] !== 32) {
+                throw new Exception(str_replace('__', $this->woTaskRequestNo, Constant::$woTaskRequest['errAlreadySubmitted']), 31);
+            } else if ($this->woTaskRequest['woTaskRequestOrderBy'] !== $this->userId) {
+                throw new Exception(Constant::$woTaskRequest['errNotAllowed'], 31);
+            }
+            DbMysql::delete('wo_task_parts', array('woTaskRequestId'=>$woTaskRequestId));
+            DbMysql::delete($this::$tableName, array('woTaskRequestId'=>$woTaskRequestId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

@@ -78,6 +78,20 @@ try {
         }
         $formData['result'] = $result;
         $formData['success'] = true;
+    }
+    else if ('DELETE' === $requestMethod) {
+        if (!isset ($urlArr[1]) || !is_numeric($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
+        }
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $woTaskRequestId = intval($urlArr[1]);
+        $fnMain->set($woTaskRequestId, false);
+        $fnMain->delete($woTaskRequestId);
+        $fnTask->deleteDraft($fnMain->woTaskRequest['transactionId']);
+        $fnMain->saveAudit(217, $fnMain->woTaskRequestNo);
+        DbMysql::commit();
+        $formData['errmsg'] = str_replace('__', $fnMain->woTaskRequestNo, Constant::$woTaskRequest['delete']);
     } else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }

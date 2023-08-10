@@ -3,11 +3,11 @@
 
 class WflTask extends General {
 
-    public $taskId = 0;
-    public $transactionId = 0;
-    public $transactionNo = 0;
-    public $wflTask = array();
-    public $wflTaskNew = array();
+    public int $taskId = 0;
+    public int $transactionId = 0;
+    public string $transactionNo = '';
+    public array $wflTask = array();
+    public array $wflTaskNew = array();
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;
@@ -276,6 +276,28 @@ class WflTask extends General {
                 $returnArr[] = array('checkpointDesc'=>$checkpoint['checkpointDesc'], 'checkpointColor'=>$checkpoint['checkpointColor'], 'taskTimeSubmit'=>null, 'duration', 'barPercent'=>0, 'duration'=>'');
             }
             return $returnArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $transactionId
+     * @throws Exception
+     */
+    public function deleteDraft (int $transactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            $this->setByTransaction($transactionId);
+            if ($this->wflTask['taskStatus'] !== 5) {
+                throw new Exception(str_replace('__', $this->transactionNo, Constant::$task['errAlreadySubmitted2']), 31);
+            } else if ($this->wflTask['taskCreatedUser'] !== $this->userId) {
+                throw new Exception(Constant::$task['errNotAllowed'], 31);
+            }
+            DbMysql::delete('wfl_task_assign', array('transactionId'=>$transactionId));
+            DbMysql::delete('wfl_task', array('transactionId'=>$transactionId));
+            DbMysql::delete('wfl_transaction', array('transactionId'=>$transactionId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
