@@ -92,7 +92,7 @@ class WoTaskParts extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($woTaskRequestId, 'woTaskRequestId');
-            $params = $this->arraySpliceAssoc($inputParams, array('partId', 'woTaskPartsQuantity', 'woTaskPartsRemark'));
+            $params = parent::arraySpliceAssoc($inputParams, array('partId', 'woTaskPartsQuantity', 'woTaskPartsRemark'));
             parent::checkMandatoryArray($params, array('partId', 'woTaskPartsQuantity'), true);
             $params['woTaskRequestId'] = $woTaskRequestId;
             $params['woTaskPartsStatus'] = 32;
