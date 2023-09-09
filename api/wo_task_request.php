@@ -63,9 +63,9 @@ try {
     else if ('POST' === $requestMethod) {
         if (!isset($urlArr[1])) {
             $bodyParams = json_decode(file_get_contents("php://input"), true);
+            $draftNo = $fnMain->getRequestNoDraft();
             DbMysql::beginTransaction();
             $isTransaction = true;
-            $draftNo = $fnMain->getRequestNoDraft();
             $fnTask->createNew(4, $draftNo, 46);
             $fnTask->set($fnTask->wflTaskNew['taskId']);
             $fnMain->insertDraft($draftNo, $fnTask->transactionId, $bodyParams);
@@ -77,6 +77,29 @@ try {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
         }
         $formData['result'] = $result;
+        $formData['success'] = true;
+    }
+    else if ('PUT' === $requestMethod) {
+        if (!isset($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
+        }
+        if ($urlArr[1] === 'submit' && isset ($urlArr[2]) && is_numeric($urlArr[2])) {
+            $woTaskRequestId = intval($urlArr[2]);
+            $requestNo = $fnMain->getRequestNo();
+            $fnMain->set($woTaskRequestId);
+            $fnTask->setByTransaction($fnMain->woTaskRequest['transactionId']);
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $fnMain->logDebug('API', $apiName, __LINE__, 'woTaskRequestRemark = '.$fnMain->woTaskRequest['woTaskRequestRemark']);
+            $fnTask->submit($fnMain->woTaskRequest['woTaskRequestRemark'], 9, 33);
+            $fnMain->submit($woTaskRequestId, $requestNo);
+            $fnMain->saveAudit(171, $fnMain->woTaskRequestNo);
+            $fnMain->errMsg = str_replace('__', $requestNo, Constant::$woTaskRequest['submit']);
+        } else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
+        }
+        DbMysql::commit();
+        $formData['errmsg'] = $fnMain->errMsg;
         $formData['success'] = true;
     }
     else if ('DELETE' === $requestMethod) {

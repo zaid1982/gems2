@@ -137,7 +137,7 @@ class WflTask extends General {
     }
 
     /**
-     * @param string $remark
+     * @param string|null $remark
      * @param int $status
      * @param int $statusNew
      * @param int $next
@@ -146,7 +146,7 @@ class WflTask extends General {
      * @return void
      * @throws Exception
      */
-    public function submit (string $remark, int $status=9, int $statusNew=8, int $next=0, int $toGroup=0, int $toUser=0): void {
+    public function submit (string|null $remark, int $status=9, int $statusNew=8, int $next=0, int $toGroup=0, int $toUser=0): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
@@ -203,7 +203,7 @@ class WflTask extends General {
 
             // ********* process task assigned ********* \\
             $groupId = !empty($wflCheckpointNext['groupId']) ? $wflCheckpointNext['groupId'] : 0;
-            $claimedUser = 0;
+            $claimedUser = null;
             $wflTaskAssign = DbMysql::select('wfl_task_assign', array('transactionId'=>$this->transactionId, 'checkpointId'=>$checkpointIdNext, 'roleId'=>$wflCheckpointNext['roleId']), false, 'taskAssignId', 'DESC');
             if ($wflCheckpointNext['checkpointClaimType'] === 3) {
                 parent::checkEmptyArray($wflTaskAssign, 'wflTaskAssign when set to assigned user');
@@ -225,7 +225,7 @@ class WflTask extends General {
             // ********* insert new task ********* \\
             $whereTaskDueDay = !empty($wflCheckpointNext['checkpointDueDay']) ? '|CURDATE() + INTERVAL '.$wflCheckpointNext['checkpointDueDay'].' DAY' : '';
             $taskIdNew = DbMysql::insert('wfl_task', array('transactionId'=>$this->transactionId, 'checkpointId'=>$checkpointIdNext, 'roleId'=>$wflCheckpointNext['roleId'], 'groupId'=>$groupId, 'taskCreatedUser'=>$this->userId,
-                'taskCreatedGroup'=>$this->wflTask['groupId'], 'taskClaimedUser'=>$claimedUser, 'taskDateDue'=>$whereTaskDueDay, 'taskStatusPrevious'=>$this->wflTask['taskStatus'], 'taskStatus'=>$statusNew));
+                'taskCreatedGroup'=>$this->wflTask['groupId'], 'taskClaimedUser'=>$claimedUser, 'taskDateDue'=>$whereTaskDueDay, 'taskStatusPrevious'=>$status, 'taskStatus'=>$statusNew));
             DbMysql::update('wfl_transaction', array('transactionStatus'=>$statusNew), array('transactionId'=>$this->transactionId));
             $this->wflTaskNew = DbMysql::select('wfl_task', array('taskId'=>$taskIdNew), true);
         } catch (Exception|Throwable $ex) {

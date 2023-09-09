@@ -96,6 +96,7 @@ class Constant {
     public static array $woTaskRequest = array(
         'draft' => 'New draft material request successfully created!',
         'delete' => 'Request __ successfully removed!',
+        'submit' => 'Request __ successfully submitted!',
         'errAlreadySubmitted' => 'Request __ already submitted!',
         'errNotAllowed' => 'You are not allowed to perform this action!',
         'errAlreadyRemoved' => 'Request already removed!'

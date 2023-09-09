@@ -161,6 +161,27 @@ class WoTaskRequest extends General {
     }
 
     /**
+     * @return string
+     * @throws Exception
+     */
+    public function getRequestNo (): string {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $site = DbMysql::select('cli_site', array('siteId'=>$this->userSite), 1);
+            $runningNo = $site['siteRunningNoReq'];
+            $runningNoTemp = 100000 + $runningNo;
+            $runningNoStr = substr(strval($runningNoTemp), 1);
+            $runningNo++;
+            $curDates = new DateTime();
+            DbMysql::update('cli_site', array('siteRunningNoReq'=>++$runningNo), array('siteId'=>$this->userSite));
+            return 'RQ'.$site['siteCode'].$curDates->format("ymd").$runningNoStr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param bool $isMobile
      * @return array
      * @throws Exception
@@ -257,6 +278,32 @@ class WoTaskRequest extends General {
             }
             DbMysql::delete('wo_task_parts', array('woTaskRequestId'=>$woTaskRequestId));
             DbMysql::delete($this::$tableName, array('woTaskRequestId'=>$woTaskRequestId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $woTaskRequestId
+     * @param string $woTaskRequestNo
+     * @param int $transactionId
+     * @throws Exception
+     */
+    public function submit (int $woTaskRequestId, string $woTaskRequestNo): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($woTaskRequestId, 'woTaskRequestId');
+            parent::checkEmptyString($woTaskRequestNo, 'woTaskRequestNo');
+            parent::checkEmptyArray($this->woTaskRequest, 'woTaskRequest');
+            if ($this->woTaskRequest['woTaskRequestStatus'] !== 32) {
+                throw new Exception(str_replace('__', $this->woTaskRequestNo, Constant::$woTaskRequest['errAlreadySubmitted']), 31);
+            } else if ($this->woTaskRequest['woTaskRequestOrderBy'] !== $this->userId) {
+                throw new Exception(Constant::$woTaskRequest['errNotAllowed'], 31);
+            }
+            DbMysql::update($this::$tableName, array('woTaskRequestNo'=>$woTaskRequestNo, 'woTaskRequestTimeOrdered'=>'NOW()', 'woTaskRequestStatus'=>33, 'woTaskRequestMrfGenerate'=>1), array('woTaskRequestId'=>$woTaskRequestId));
+            DbMysql::update('wo_task_parts', array('woTaskPartsStatus'=>33), array('woTaskRequestId'=>$woTaskRequestId));
+            DbMysql::update('wfl_transaction', array('transactionNo'=>$woTaskRequestNo), array('transactionId'=>$this->woTaskRequest['transactionId']));
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

@@ -11,6 +11,8 @@ class General {
     public int $userId = 0;
     public bool $isLogged = false;
     public int $userSite = 0;
+    public string $auditRemark;
+    public string $errMsg;
     public float $pdfFontSize = 10;
     public float $pdfPageWidth = 180;
     public float $pdfLineSize = 0.1;
