@@ -1,0 +1,49 @@
+<div class="modal animated lightSpeedIn" id="modal_waste_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2" id="h4MwaTitle"><i class="fas fa-plus text-white"></i> &nbsp;Add New Waste Collection Schedule</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMwa" class="mt-3">
+                    <div class="row">
+                        <div class="col-12 select-outline mb-2" id="optMwaSite_">
+                            <select id="optMwaSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0">
+                                <option disabled>Please Choose</option>
+                                <option value="1">Type A</option>
+                                <option value="2">Type B</option>
+                                <option value="3">Type C</option>
+                            </select>
+                            <label for="optMwaSite" id="lblMwaSite">Waste Type *</label>
+                            <p class="font-small text-danger" id="optMwaSiteErr"></p>
+                        </div>
+                        <div class="col-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwaDate" class="form-control datepicker" readonly>
+                                <label for="txtMwaDate" id="lblMwaDate">Collection Date *</label>
+                                <p class="font-small text-danger" id="txtMwaDateErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwaDue" class="form-control datepicker" readonly>
+                                <label for="txtMwaDue" id="lblMwaDue">Due Date *</label>
+                                <p class="font-small text-danger" id="txtMwaDueErr"></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMwaSave" class="btn btn-info waves-effect"><i class="far fa-save mr-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>

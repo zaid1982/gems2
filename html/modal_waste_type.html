@@ -1,0 +1,46 @@
+<div class="modal animated lightSpeedIn" id="modal_waste_type" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2" id="h4MwtTitle"><i class="fas fa-plus text-white"></i> &nbsp;Add New Waste Type</h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMwt" class="mt-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwtName" class="form-control" readonly>
+                                <label for="txtMwtName" id="lblMwtName">Waste Type Name *</label>
+                                <p class="font-small text-danger" id="txtMwtNameErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <p class="mb-0">Status :</p>
+                            <div class="md-form mt-0 mb-3 ml-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMwtStatus" id="radMwtStatus1" value="1">
+                                    <label class="form-check-label" for="radMwtStatus1">Active</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radMwtStatus" id="radMwtStatus2" value="2">
+                                    <label class="form-check-label" for="radMwtStatus2">Disabled</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger mt-0" id="radMwtStatusErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMwtSave" class="btn btn-info waves-effect"><i class="far fa-save mr-1"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>

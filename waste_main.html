@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+        .nav-dropdown-a {
+            padding: 0.36rem 1.3rem 0 !important;
+            font-size: 0.64rem;
+        }
+        .dropdown-item {
+            padding: 0.36rem 0.5rem !important;
+            font-size: 0.64rem;
+        }
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <section class="mb-4" id="sectionWtmMain">
+            <div class="row">
+                <div class="col-12 p-1 pb-2">
+                    <nav class="navbar mdb-color darken-1 z-depth-3 rounded mb-1">
+                        <h4 class="navbar-text white-text font-weight-bold ml-3 pb-0 mb-1">
+                            <i class="fas fa-dumpster mr-2"></i> Waste Collection
+                        </h4>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 p-1 pb-0">
+                    <nav class="navbar navbar-expand navbar-dark mdb-color lighten-1 z-depth-3 m-0 p-2">
+                        <div class="collapse navbar-collapse">
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item dropdown btn-outline-white px-2 mr-2" id="liWtmYear">
+                                    <a class="nav-link dropdown-toggle nav-dropdown-a" id="navWtmYear" data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false">YEAR</a>
+                                    <div class="dropdown-menu dropdown-danger p-1" aria-labelledby="navWtmYear" id="divWtmYear">
+                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2022">2022</a>
+                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2023">2023</a>
+                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2024">2024</a>
+                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2025">2025</a>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown btn-outline-white px-2 mr-2" id="liWtmMonth">
+                                    <a class="nav-link dropdown-toggle nav-dropdown-a" id="navWtmMonth" data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false">MONTH</a>
+                                    <div class="dropdown-menu dropdown-danger p-1" aria-labelledby="navWtmMonth" id="divWtmMonth">
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_1">January</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_2">February</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_3">March</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_4">April</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_5">May</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_6">June</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_7">July</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_8">August</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_9">September</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_10">October</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_11">November</a>
+                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_12">December</a>
+                                    </div>
+                                </li>
+                                <a class="btn btn-sm btn-outline-white my-2 my-sm-0 ml-0 px-3" id="btnWtmAddWaste"><i class="fas fa-plus mr-1"></i>Schedule New Collection</a>
+                            </ul>
+                            <a class="navbar-brand font-weight-500 ml-2 py-0 float-right" href="#" id="lblWtmSelected">August 2023</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 p-1">
+                    <div class="card z-depth-3">
+                        <div class="card-body pb-2">
+                            <div class="row">
+                                <div class="col-12 px-0">
+                                    <div class="table-responsive">
+                                        <table id="dtWtm" class="table table-hover display responsive">
+                                            <thead>
+                                            <tr class="th-strong">
+                                                <th>#</th>
+                                                <th>Date</th>
+                                                <th>Waste Type</th>
+                                                <th>Due Collection</th>
+                                                <th>Person In Charge</th>
+                                                <th>Weightage</th>
+                                                <th>Date Collected</th>
+                                                <th>Status</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_waste_add"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalWasteAddClass_;
+    let wasteMainClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalWasteAddClass_ = new ModalWasteAdd();
+                wasteMainClass_ = new MainWasteMain();
+
+                modalWasteAddClass_.init();
+
+                wasteMainClass_.setModalWasteAdd(modalWasteAddClass_);
+                wasteMainClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_waste_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_waste_main.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+
+</body>
+</html>
