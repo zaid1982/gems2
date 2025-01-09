@@ -2,10 +2,10 @@
 
 class WoTaskRequest extends General {
 
-    public int $woTaskRequestId = 0;
-    public string $woTaskRequestNo;
-    public array $woTaskRequest;
-    private static string $tableName = 'wo_task_request';
+    public $woTaskRequestId = 0;
+    public $woTaskRequestNo;
+    public $woTaskRequest;
+    private static $tableName = 'wo_task_request';
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

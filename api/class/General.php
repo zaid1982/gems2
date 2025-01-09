@@ -8,15 +8,15 @@ use \Firebase\JWT\JWT;
 
 class General {
 
-    public int $userId = 0;
-    public bool $isLogged = false;
-    public int $userSite = 0;
-    public string $auditRemark;
-    public string $errMsg;
-    public float $pdfFontSize = 10;
-    public float $pdfPageWidth = 180;
-    public float $pdfLineSize = 0.1;
-    public float $pdfLineBoldSize = 0.6;
+    public $userId = 0;
+    public $isLogged = false;
+    public $userSite = 0;
+    public $auditRemark;
+    public $errMsg;
+    public $pdfFontSize = 10;
+    public $pdfPageWidth = 180;
+    public $pdfLineSize = 0.1;
+    public $pdfLineBoldSize = 0.6;
 
     /**
      * @param $class
@@ -47,12 +47,12 @@ class General {
     }
 
     /**
-     * @param string|null $string
+     * @param $string
      * @param string $stringName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyString (string|null $string, string $stringName=''): bool {
+    public function checkEmptyString ($string, string $stringName=''): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if ($string === '' || $string === null) {
@@ -65,12 +65,12 @@ class General {
     }
 
     /**
-     * @param int|null $integer
+     * @param $integer
      * @param string $integerName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyInteger (int|null $integer, string $integerName): bool {
+    public function checkEmptyInteger ($integer, string $integerName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($integer)) {
@@ -83,12 +83,12 @@ class General {
     }
 
     /**
-     * @param float|null $float
+     * @param $float
      * @param string $floatName
      * @return bool
      * @throws Exception
      */
-    public function checkEmptyFloat (float|null $float, string $floatName): bool {
+    public function checkEmptyFloat ($float, string $floatName): bool {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($float)) {
@@ -173,14 +173,14 @@ class General {
     }
 
     /**
-     * @param string|int|bool|null $input
+     * @param $input
      * @param array $optionArr
      * @param string $inputName
      * @param bool $isAlert
      * @return void
      * @throws Exception
      */
-    public function checkMandatoryOption (string|int|bool|null $input, array $optionArr, string $inputName, bool $isAlert=false): void {
+    public function checkMandatoryOption ($input, array $optionArr, string $inputName, bool $isAlert=false): void {
         try {
             //$this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->checkEmptyArray($optionArr, 'optionArr');
@@ -593,12 +593,12 @@ class General {
     }
 
     /**
-     * @param string|null $timestamp
+     * @param $timestamp
      * @param bool $withSecond
      * @return string|null
      * @throws Exception
      */
-    public function timeDisplayPretty (string|null $timestamp, bool $withSecond=false): ?string {
+    public function timeDisplayPretty ($timestamp, bool $withSecond=false): ?string {
         try {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (empty($timestamp)) {

@@ -1,26 +1,26 @@
 <?php
 
 class Constant {
-    public static string $dbUserName = 'root';
-    public static string $dbUserPassword = 'password';
+    public static $dbUserName = 'root';
+    public static $dbUserPassword = 'password';
     //public static string $dbUserPassword = 'Globalfm@19';
-    public static string $dbName = 'gems';
-    public static string $dbHost = 'localhost';
+    public static $dbName = 'gems';
+    public static $dbHost = 'localhost';
     //public static string $dbHost = '10.101.11.71';
-    public static string $redisHost = '127.0.0.1';
-    public static int $redisPort = 6379;
-    public static bool $isLogged = true;
-    public static string $folderDebug = '../../../logs/gems/debug/';
+    public static $redisHost = '127.0.0.1';
+    public static $redisPort = 6379;
+    public static $isLogged = true;
+    public static $folderDebug = '../../../logs/gems/debug/';
     //public static string $folderDebug = 'C:\xampp\logs\gems\\';
-    public static string $folderError = '../../../logs/gems/error/';
-    public static string $url = '//localhost/gems2/api/';
+    public static $folderError = '../../../logs/gems/error/';
+    public static $url = '//localhost/gems2/api/';
     //public static string $url = '//gems.globalfm.com.my/api/';
 
-    public static array $err = array(
+    public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
     );
 
-    public static array $task = array(
+    public static $task = array(
         'errAlreadySubmitted' => 'This task already submitted!',
         'errClaimed' => 'This task currently assigned to other user!',
         'errNotClaimed' => 'This task should be claimed before submission!',
@@ -29,7 +29,7 @@ class Constant {
         'errNotAllowed' => 'You are not allowed to perform this action!'
     );
 
-    public static array $fcaTask = array(
+    public static $fcaTask = array(
         'submitNew' => 'New FCA Audit successfully submitted for recommendation process!',
         'submitRecommend' => 'FCA Audit Recommendation successfully submitted for validation process!',
         'submitCorrection' => 'FCA Audit Recommendation successfully returned to auditor for correction!',
@@ -40,7 +40,7 @@ class Constant {
         'delete' => 'FCA Audit No. __ successfully been deleted!'
     );
 
-    public static array $fcaZone = array(
+    public static $fcaZone = array(
         'add' => 'Zone __ successfully registered!',
         'update' => 'Zone __ successfully updated!',
         'delete' => 'Zone __ successfully removed!',
@@ -48,7 +48,7 @@ class Constant {
         'errAlreadyExist' => 'Zone __ already exist under similar site!'
     );
 
-    public static array $fcaDefectCategory = array(
+    public static $fcaDefectCategory = array(
         'add' => 'Defect Category __ successfully registered!',
         'update' => 'Defect Category __ successfully updated!',
         'delete' => 'Defect Category __ successfully removed!',
@@ -56,19 +56,19 @@ class Constant {
         'errAlreadyExist' => 'Defect Category __ already exist!'
     );
 
-    public static array $fcaDefectCategorySite = array(
+    public static $fcaDefectCategorySite = array(
         'add' => 'Defect Category __ successfully registered from ___ site!',
         'delete' => 'Defect Category __ successfully removed from ___ site!',
         'errAlreadyExist' => 'Defect Category __ already exist in ___ site!'
     );
 
-    public static array $fcaReport = array(
+    public static $fcaReport = array(
         'add' => 'FCA Report __ successfully generated. Please check the PDF from the FCA PDF Report List',
         'delete' => 'FCA Report __ successfully removed!',
         'errEmpty' => 'The requested report is empty!'
     );
 
-    public static array $attGroup = array(
+    public static $attGroup = array(
         'add' => 'Attendance Group __ successfully registered!',
         'update' => 'Attendance Group __ successfully updated!',
         'siteEnabled' => 'Site __ successfully enabled!',
@@ -78,13 +78,13 @@ class Constant {
         'errAlreadyExist' => 'Attendance Group __ already exist under similar site!'
     );
 
-    public static array $attParticipant = array(
+    public static $attParticipant = array(
         'add' => 'Employee _1 successfully assigned to _2 group!',
         'update' => 'Employee __ attendance configuration successfully updated!',
         'errAlreadyAssigned' => 'Employee _1 already assigned to _2 group!'
     );
 
-    public static array $attTransaction = array(
+    public static $attTransaction = array(
         'update' => 'Employee _1 daily status for date _2 successfully updated!',
         'checkIn' => 'You successfully checked in!',
         'checkOut' => 'You successfully checked out!',
@@ -93,7 +93,7 @@ class Constant {
         'rescheduleGroup' => 'Group _1 attendance planner for year _2 and month _3 successfully rescheduled!'
     );
 
-    public static array $woTaskRequest = array(
+    public static $woTaskRequest = array(
         'draft' => 'New draft material request successfully created!',
         'delete' => 'Request __ successfully removed!',
         'submit' => 'Request __ successfully submitted!',
@@ -102,7 +102,7 @@ class Constant {
         'errAlreadyRemoved' => 'Request already removed!'
     );
 
-    public static array $woTaskParts = array(
+    public static $woTaskParts = array(
         'add' => 'Material __ successfully added into Request List!',
         'update' => 'Material __ successfully updated!',
         'delete' => 'Material __ successfully removed!',

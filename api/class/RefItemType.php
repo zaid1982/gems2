@@ -2,8 +2,8 @@
 
 class RefItemType extends General {
 
-    public int $itemTypeId = 0;
-    private static string $tableName = 'ref_item_type';
+    public $itemTypeId = 0;
+    private static $tableName = 'ref_item_type';
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

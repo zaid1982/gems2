@@ -3,11 +3,11 @@
 
 class WflTask extends General {
 
-    public int $taskId = 0;
-    public int $transactionId = 0;
-    public string $transactionNo = '';
-    public array $wflTask = array();
-    public array $wflTaskNew = array();
+    public $taskId = 0;
+    public $transactionId = 0;
+    public $transactionNo = '';
+    public $wflTask = array();
+    public $wflTaskNew = array();
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

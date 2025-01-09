@@ -2,8 +2,8 @@
 
 class AstAssetGroup extends General {
 
-    public int $assetGroupId = 0;
-    private static string $tableName = 'ast_asset_group';
+    public $assetGroupId = 0;
+    private static $tableName = 'ast_asset_group';
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;

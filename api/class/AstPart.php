@@ -2,8 +2,8 @@
 
 class AstPart extends General {
 
-    public int $partId = 0;
-    private static string $tableName = 'ast_part';
+    public $partId = 0;
+    private static $tableName = 'ast_part';
 
     function __construct (int $userId=0, bool $isLogged=false) {
         $this->userId = $userId;
