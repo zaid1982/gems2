@@ -137,8 +137,8 @@ function MainGamification () {
                     }},
                 {mData: 'gmiWoTierName'},
                 {mData: 'gmiPpmTierName'},
-                {mData: 'gmiPointTotal', mRender: function (data) {
-                        return mzFormatNumber(data);
+                {mData: null, mRender: function (data, type, row) {
+                        return mzFormatNumber(parseInt(row['gmiWoTotal']) + parseInt(row['gmiPpmTotal']));
                     }}
             ]
         });

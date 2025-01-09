@@ -63,11 +63,11 @@ try {
                 $result = $fn_gamification->getGmiMonthly($urlArr[2]);
             }
         } else if ($urlArr[1] === 'gmi_monthly_top_5') {
-            $result = $fn_gamification->getGmiMonthlyTop5($urlArr[2], $urlArr[3]);
-        } else if ($urlArr[1] === 'gmi_monthly_top_5_m') {
-            $result = $fn_gamification->getGmiMonthlyTop5M($urlArr[2], $urlArr[3]);
-        } else if ($urlArr[1] === 'gmi_monthly_top_5_project_m') {
-            $result = $fn_gamification->getGmiMonthlyTop5ProjectM($urlArr[2], $urlArr[3]);
+           $result = $fn_gamification->getGmiMonthlyTop5($urlArr[2], $urlArr[3]);
+#		} else if ($urlArr[1] === 'gmi_monthly_top_5_m') {
+#            $result = $fn_gamification->getGmiMonthlyTop5M($urlArr[2], $urlArr[3]);
+#       } else if ($urlArr[1] === 'gmi_monthly_top_5_project_m') {
+#            $result = $fn_gamification->getGmiMonthlyTop5ProjectM($urlArr[2], $urlArr[3]);
         } else if ($urlArr[1] === 'gmi_monthly_history') {
             $result = $fn_gamification->getGmiMonthlyHistory($urlArr[2], $urlArr[3], $urlArr[4]);
         } else if ($urlArr[1] === 'current_score') {

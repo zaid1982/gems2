@@ -773,7 +773,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '500', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_pending', array(), 'ppm_task_start_date', '30', null, array('user_id'=>$userId, 'rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = $dataLocal['task_id'];
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
@@ -791,35 +791,6 @@ class Class_ppm {
             }
 
             return $result;
-        } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param $userId
-     * @param string $assetNo
-     * @param string $searchTxt
-     * @return array
-     * @throws Exception
-     */
-    public function get_pending_task_scan_m ($userId, $assetNo='') {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
-
-            if (empty($userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
-            }
-            if (empty($assetNo)) {
-                throw new Exception('[' . __LINE__ . '] - Scanned Asset No is empty', 31);
-            }
-
-            $assetId = Class_db::getInstance()->db_select_col('ast_asset', array('asset_no'=>$assetNo), 'asset_id');
-            if (empty($assetId)) {
-                throw new Exception('[' . __LINE__ . '] - Scanned Asset No is not valid', 31);
-            }
-            return Class_db::getInstance()->db_select('mw_task_ppm_pending_scan', array(), 'ppm_task_start_date', '500', null, array('user_id'=>$userId, 'asset_id'=>$assetId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -880,7 +851,7 @@ class Class_ppm {
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();
             $arrUserFullName[0] = 'Not yet claimed';
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '500', null, array('rest_filter'=>$restFilter));
+            $arr_dataLocal = Class_db::getInstance()->db_select('mw_task_ppm_all', array(), 'ppm_task_start_date', '30', null, array('rest_filter'=>$restFilter));
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['taskId'] = '';
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
