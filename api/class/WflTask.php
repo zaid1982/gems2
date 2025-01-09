@@ -137,7 +137,7 @@ class WflTask extends General {
     }
 
     /**
-     * @param string|null $remark
+     * @param string $remark
      * @param int $status
      * @param int $statusNew
      * @param int $next
@@ -146,7 +146,7 @@ class WflTask extends General {
      * @return void
      * @throws Exception
      */
-    public function submit (string|null $remark, int $status=9, int $statusNew=8, int $next=0, int $toGroup=0, int $toUser=0): void {
+    public function submit (string $remark, int $status=9, int $statusNew=8, int $next=0, int $toGroup=0, int $toUser=0): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
