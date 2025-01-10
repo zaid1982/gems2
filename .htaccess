@@ -12,6 +12,7 @@ RewriteRule ^p_item_management/?$ item_management.html
 RewriteRule ^p_item_type_management/?$ item_type_management.html
 RewriteRule ^p_store_management/?$ store_management.html
 RewriteRule ^p_kpi_in/?$ kpi_in.html
+RewriteRule ^p_kpi_ppns/?$ kpi_ppns.html
 RewriteRule ^p_utility/?$ utility.html
 RewriteRule ^p_attendance/?$ attendance.html
 RewriteRule ^p_attendance_site/?$ attendance_site.html

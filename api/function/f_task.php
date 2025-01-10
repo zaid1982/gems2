@@ -133,7 +133,7 @@ class Class_task {
      * @param string $userId
      * @throws Exception
      */
-    private function check_assign ($checkpoint, $transactionId, $assignedGroup = '', $assignedUser = '', $userId) {
+    private function check_assign ($checkpoint, $transactionId, $assignedGroup = '', $assignedUser = '', $userId = '') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
