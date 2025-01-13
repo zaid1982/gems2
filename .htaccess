@@ -26,6 +26,8 @@ RewriteRule ^p_fca_report/?$ fca_report.html
 RewriteRule ^p_mrf/?$ mrf.html
 RewriteRule ^p_waste_main/?$ waste_main.html
 RewriteRule ^p_waste_type/?$ waste_type.html
+RewriteRule ^p_complaint/?$ complaint.html
+RewriteRule ^p_complaint/(.+)/?$ complaint.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
