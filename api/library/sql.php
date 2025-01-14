@@ -226,7 +226,7 @@ class Class_sql
                 LEFT JOIN ppm_task_frequency ON ppm_task_frequency.ppm_task_id = ppm_task.ppm_task_id
                 LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id               
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
-                INNER JOIN ppm_group_user ON ppm_group_user.ppm_group_id = ppm.ppm_group_id AND ppm_group_user.user_id = [user_id]
+                LEFT JOIN ppm_group_user ON ppm_group_user.ppm_group_id = ppm.ppm_group_id AND ppm_group_user.user_id = [user_id]
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
