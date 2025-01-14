@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--  Required meta tags always come first  -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!--  Font Awesome  -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <style>
+        html,
+        body,
+        header,
+        .view {
+            height: 100%;
+        }
+        @media (max-width: 740px) {
+            html,
+            body,
+            header,
+            .view {
+                /*height: 1000px;*/
+            }
+        }
+        @media (min-width: 800px) and (max-width: 850px) {
+            html,
+            body,
+            header,
+            .view {
+                /*height: 650px;*/
+            }
+        }
+        .rgba-gradient {
+            background: -webkit-linear-gradient(45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
+            background: -webkit-gradient(linear, 45deg, from(rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%));
+            background: linear-gradient(to 45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
+        }
+        .card {
+            background-color: rgba(126, 123, 215, 0.2);
+        }
+        .md-form label {
+            color: #ffffff;
+        }
+        h5 {
+            line-height: 0.8;
+        }
+
+        input[type='radio']{
+            display:none;
+        }
+
+        input[type='radio'] + label{
+            display:inline-block;
+            position:relative;
+            padding-left: 30px;
+            cursor: pointer;
+        }
+
+        input[type='radio']:checked + label:after {
+            width: 9px;
+            height: 9px;
+            border-radius: 15px;
+            top: 4px;
+            left: 7px;
+            position: absolute;
+            background-color: #bbbbbb;
+            content: "";
+        }
+
+        input[type=radio] + label:before {
+            content: "";
+            border-color: #bbbbbb;
+            border: solid 2px;
+            width: 17px;
+            position: absolute;
+            left: 3px;
+            height: 17px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <!-- Full Page Intro -->
+    <div class="view" style="background-image: url('img/background/buildings.png'); background-repeat: no-repeat; background-size: cover; background-position: center center;">
+        <!-- Mask & flexbox options-->
+        <div class="mask rgba-gradient align-items-center flex-center">
+            <!-- Content -->
+            <div class="container">
+                <!--Grid row-->
+                <div class="row">
+                    <!--Grid column-->
+                    <div class="col-lg-5 mb-4 white-text">
+                        <div class="row">
+                            <div class="col-12">
+                                <h1 class="h1-responsive font-weight-bold mt-lg-5 wow fadeInLeft" data-wow-delay="0.3s">GEMS : GFM Enterprise Management System</h1>
+                                <hr class="hr-light wow fadeInLeft mt-1" data-wow-delay="0.3s">
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3" data-wow-delay="0.6s" id="lblPsaSiteName">Site : UITM Tapah</h4>
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3" data-wow-delay="0.6s" id="lblPsaZoneName">Zone : Zone A</h4>
+                                <p class="font-weight-bold wow fadeInLeft mt-3 d-lg-flex d-none" data-wow-delay="0.6s">
+                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Grid column-->
+                    <!--Grid column-->
+                    <div class="col-lg-7 divPsaForm">
+                        <!--Form-->
+                        <div class="card wow fadeInRight" data-wow-delay="0.3s">
+                            <div class="card-body">
+                                <form id="formPsaDetails">
+                                    <!--Header-->
+                                    <div class="text-center pb-2">
+                                        <h3 class="white-text" id="lblPsaTitleResult"><i class="fas fa-headset white-text"></i> &nbsp;COMPLAINT FORM</h3>
+                                        <hr class="hr-light">
+                                    </div>
+                                    <!--Body-->
+                                    <div class="md-form mt-3 mx-2 pb-0">
+                                        <i class="fas fa-user prefix white-text active"></i>
+                                        <input type="text" id="txtPsaApplicationNo" class="white-text form-control" value="Muhammad Zaid Shaharil">
+                                        <label for="txtPsaApplicationNo">Your Name *</label>
+                                    </div>
+                                    <div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-id-card prefix white-text active"></i>
+                                        <input type="text" id="txtPsaIcNo" class="white-text form-control" value="820319085733">
+                                        <label for="txtPsaIcNo">IC No.</label>
+                                    </div>
+                                    <div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-building prefix white-text active"></i>
+                                        <input type="text" id="txtPsaAgency" class="white-text form-control" value="Syabas Indah Water Bhd">
+                                        <label for="txtPsaAgency">Agency</label>
+                                    </div>
+                                    <div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-phone prefix white-text active"></i>
+                                        <input type="text" id="txtPsaPhoneNo" class="white-text form-control" value="0102203917">
+                                        <label for="txtPsaPhoneNo">Phone No.</label>
+                                    </div>
+                                    <div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-envelope prefix white-text active"></i>
+                                        <input type="text" id="txtPsaEmail" class="white-text form-control" value="hemppok.kembong@gmail.com">
+                                        <label for="txtPsaEmail">Email Address *</label>
+                                    </div>
+                                    <!--<div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-tools prefix white-text active"></i>
+                                        <h6 class="font-small white-text pl-4_5">Category *</h6>
+                                        &lt;!&ndash; <h6 class="font-small white-text">Status:</h6>&ndash;&gt;
+                                        <div class="form-check pl-4 ml-3" style="top: -10px">
+                                            <input type="radio" id="chkMzbStatus1" name="chkMzbStatus" value="1">
+                                            <label class="form-check-label white-text" for="chkMzbStatus1">Electrical</label>
+                                        </div>
+                                        <div class="form-check pl-4 ml-3" style="top: -7px">
+                                            <input type="radio" id="chkMzbStatus2" name="chkMzbStatus" value="2">
+                                            <label class="form-check-label white-text" for="chkMzbStatus2">Mechanical</label>
+                                        </div>
+                                    </div>-->
+                                    <!--<div class="select-outline md-form mx-2 pb-0">
+                                        <i class="fas fa-tools prefix white-text active"></i>
+                                        <select id="optPsaCategory" class="md-form colorful-select mt-0 mb-0 white-text"></select>
+                                        <label for="optPsaCategory">Category *</label>
+                                    </div>-->
+                                    <div class="md-form mx-2 pb-1">
+                                        <i class="fas fa-pen prefix white-text active"></i>
+                                        <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="5"></textarea>
+                                        <label for="txaPsaComplaint" class="white-text">Complaint Details *</label>
+                                    </div>
+                                    <div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-image prefix white-text active"></i>
+                                        <h6 class="font-small white-text pl-4_5">Picture</h6>
+                                        <div class="file-field pl-4_5">
+                                            <div class="z-depth-1-half mb-2">
+                                                <img src="img/background/upload_placeholder.png" width="100%" id="imgPsaImage" class="img-fluid" alt="example placeholder">
+                                            </div>
+                                            <div class="d-flex justify-content-center pl-4_5">
+                                                <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
+                                                    <span>Choose image 1<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                                    <input type="file" id="txfPsaImage">
+                                                    <input type="hidden" id="txfPsaImageBlob">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!--/.Form-->
+                    </div>
+                    <!--Grid column-->
+                </div>
+                <!--Grid row-->
+            </div>
+            <!-- Content -->
+        </div>
+        <!-- Mask & flexbox options-->
+    </div>
+    <!-- Full Page Intro -->
+</header>
+<!-- Main navigation -->
+
+<!--  SCRIPTS  -->
+<!-- JQuery -->
+<!-- JQuery -->
+<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<!--JQuery Migrate-->
+<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/addons/md5.min.js"></script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    new WOW().init();
+    document.addEventListener('DOMContentLoaded', function () {
+        //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
+        const urlParams = window.location.href.split('?s=');
+        const siteId = parseInt(urlParams[1]);
+        if (!Number.isInteger(siteId)) {
+            // error site id
+        }
+
+        document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
+
+        $('#txfPsaImage').on('change', function () {
+            $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
+            mzDisplayImageFileInput(this, 'imgPsaImage');
+            if ($('#txfPsaImage1').val() === '') {
+                $('#txaPsaImgDesc').val('').removeClass('invalid');
+            }
+        });
+    });
+
+    function checkRecord (data) {
+        try {
+            const code = window.location.search;
+            data['key'] = code.substring(1);
+            const resp = mzAjaxRequest('license/qr_check_license', 'POST', data);
+            mzSetFieldValue('PsaApplicationNo', resp['licenseNo'], 'text');
+            mzSetFieldValue('PsaCompanyName', resp['licenseCompanyName'], 'text');
+            mzSetFieldValue('PsaCompanyRegNo', resp['licenseCompanyRegNo'], 'text');
+            mzSetFieldValue('PsaValidity', moment(resp['licenseDateStart']).format('D/M/YYYY') + ' - ' + moment(resp['licenseDateEnd']).format('D/M/YYYY'), 'text');
+            if (resp['licensePremiseName'] !== '') {
+                mzSetFieldValue('PsaPremiseName', resp['licensePremiseName'], 'text');
+                $('#divPsaPremiseName').show();
+            }
+            if (resp['branchName'] !== '') {
+                mzSetFieldValue('PsaBranchName', resp['branchName'], 'text');
+                $('#divPsaBranchName').show();
+            }
+            if (resp['branchAddress'] !== '') {
+                mzSetFieldValue('PsaBranchAddress', resp['branchAddress'], 'text');
+                $('#divPsaBranchAddress').show();
+            }
+            if (resp['licenseStatus'] === '1') {
+                if (moment().isBetween(resp['licenseDateStart'], resp['licenseDateEnd'])) {
+                    $('#lblPsaTitleResult').html('<i class="fas fa-thumbs-up white-text"></i> &nbsp;SIJIL AKTIF !!');
+                } else {
+                    $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle white-text"></i> &nbsp;SIJIL TAMAT TEMPOH !!');
+                }
+            } else {
+                $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle white-text"></i> &nbsp;SIJIL TIDAK AKTIF !!');
+            }
+            sessionStorage.setItem('id', data['username']);
+            sessionStorage.setItem('password', data['password']);
+            $('#formPsaDetails').show();
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    }
+</script>
+
+</body>
+</html>
