@@ -109,10 +109,13 @@
                             <div class="col-12">
                                 <h1 class="h1-responsive font-weight-bold mt-lg-5 wow fadeInLeft" data-wow-delay="0.3s">GEMS : GFM Enterprise Management System</h1>
                                 <hr class="hr-light wow fadeInLeft mt-1" data-wow-delay="0.3s">
-                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3" data-wow-delay="0.6s" id="lblPsaSiteName">Site : UITM Tapah</h4>
-                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3" data-wow-delay="0.6s" id="lblPsaZoneName">Zone : Zone A</h4>
-                                <p class="font-weight-bold wow fadeInLeft mt-3 d-lg-flex d-none" data-wow-delay="0.6s">
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Site : <span id="lblPsaSiteName"></span></h4>
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Zone : <span id="lblPsaZoneName"></span></h4>
+                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">
                                     <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
+                                </p>
+                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaErr" data-wow-delay="0.6s">
+                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> The link from the QR code is not valid!! Please contact Administrator!
                                 </p>
                             </div>
                         </div>
@@ -187,7 +190,7 @@
                                             </div>
                                             <div class="d-flex justify-content-center pl-4_5">
                                                 <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
-                                                    <span>Choose image 1<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                                    <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
                                                     <input type="file" id="txfPsaImage">
                                                     <input type="hidden" id="txfPsaImageBlob">
                                                 </div>
@@ -230,23 +233,40 @@
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     new WOW().init();
     document.addEventListener('DOMContentLoaded', function () {
-        //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
-        const urlParams = window.location.href.split('?z=');
-        const zoneId = parseInt(urlParams[1]);
-        if (!Number.isInteger(zoneId)) {
-            // error site id
-        }
-        // check site id validity
-
-        document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
-
-        $('#txfPsaImage').on('change', function () {
-            $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
-            mzDisplayImageFileInput(this, 'imgPsaImage');
-            if ($('#txfPsaImage1').val() === '') {
-                $('#txaPsaImgDesc').val('').removeClass('invalid');
+        try {
+            //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
+            const urlParams = window.location.href.split('?z=');
+            if (!mzValidNumeric(urlParams[1])) {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
             }
-        });
+            const zoneId = parseInt(urlParams[1]);
+            const zone = mzAjaxRequest2('zone/ext/'+zoneId, 'GET');
+            // check site id validity
+            if (zone['zoneStatus'] !== 1) {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            const site = mzAjaxRequest('site.php?external=1&siteId='+zone['siteId'], 'GET');
+            console.log(site);
+            if (site['siteIsPublic'] !== '1') {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            $('#lblPsaSiteName').text(site['siteName']);
+            $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
+
+            $('.divPsaErr').hide();
+            document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
+
+            $('#txfPsaImage').on('change', function () {
+                $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
+                mzDisplayImageFileInput(this, 'imgPsaImage');
+                if ($('#txfPsaImage1').val() === '') {
+                    $('#txaPsaImgDesc').val('').removeClass('invalid');
+                }
+            });
+        } catch (e) {
+            $('.divPsaForm').hide();
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
     });
 
     function checkRecord (data) {

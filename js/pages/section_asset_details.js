@@ -16,6 +16,7 @@ function SectionAssetDetails() {
     let refSite;
     let refClient;
     let refPpmGroup;
+    let refZone;
     let formValidate;
     let versionLocal;
     let qrCodeImg;
@@ -120,6 +121,14 @@ function SectionAssetDetails() {
                 type: 'select',
                 name: 'PPM Group',
                 validator: {
+                }
+            },
+            {
+                field_id: 'optSszZoneId',
+                type: 'select',
+                name: 'Zone',
+                validator: {
+                    notEmpty: false
                 }
             },
             {
@@ -450,6 +459,7 @@ function SectionAssetDetails() {
         const assetBrandId = $('#optSszAssetBrandId').val();
         const assetModelId = $('#optSszAssetModelId').val();
         const ppmGroupId = $('#optSszPpmGroupId').val();
+        const zoneId = $('#optSszZoneId').val();
         return {
             action: '',
             assetId: assetId,
@@ -463,6 +473,7 @@ function SectionAssetDetails() {
             assetBrandId: assetBrandId !== null ? assetBrandId : '',
             assetModelId: assetModelId !== null ? assetModelId : '',
             ppmGroupId: ppmGroupId !== null ? ppmGroupId : '',
+            zoneId: zoneId !== null ? zoneId : '',
             assetCapacity: $('#txtSszAssetCapacity').val(),
             assetLocationCode: $('#txtSszAssetLocationCode').val(),
             assetLocationDesc: $('#txtSszAssetLocationDesc').val(),
@@ -507,6 +518,7 @@ function SectionAssetDetails() {
         assetStatus = dataSsz['assetStatus'];
         const siteId = refContract[contractId]['siteId'];
         const clientId = refSite[siteId]['clientId'];
+        const zoneId = dataSsz['zoneId'];
 
         mzOptionStop('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
         mzOptionStop('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: assetGroupId, assetCategoryStatus: '1'}, 'required');
@@ -515,18 +527,21 @@ function SectionAssetDetails() {
         mzOptionStop('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'});
         mzOptionStop('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'});
         mzOptionStop('optSszPpmGroupId', refPpmGroup, 'Choose PPM Group', 'ppmGroupId', 'ppmGroupName', {siteId: siteId, roleId: '5', ppmGroupStatus: '1'});
-
+        mzOptionStopV2('optSszZoneId', refZone, 'Choose Zone', 'zoneCode', {siteId: parseInt(siteId), zoneStatus: 1});
+        console.log(refZone);
         mzDisableSelect('optSszAssetGroupId', false);
         mzDisableSelect('optSszAssetCategoryId', false);
         mzDisableSelect('optSszAssetTypeId', false);
         mzDisableSelect('optSszAssetBrandId', false);
         mzDisableSelect('optSszAssetModelId', false);
+        mzDisableSelect('optSszZoneId', false);
 
         formValidate.enableField('optSszAssetGroupId');
         formValidate.enableField('optSszAssetCategoryId');
         formValidate.enableField('optSszAssetTypeId');
         formValidate.enableField('optSszAssetBrandId');
         formValidate.enableField('optSszAssetModelId');
+        formValidate.enableField('optSszZoneId');
 
         mzSetFieldValue('SszAssetName', dataSsz['assetName'], 'text');
         mzSetFieldValue('SszAssetNo', dataSsz['assetNo'], 'text');
@@ -542,6 +557,7 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
+        mzSetFieldValue('SszZoneId', zoneId, 'select', 'Zone');
         mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
         mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
         mzSetFieldValue('SszAssetManufacturer', dataSsz['assetManufacturer'], 'text');
@@ -785,6 +801,10 @@ function SectionAssetDetails() {
 
     this.setRefPpmGroup = function (_refPpmGroup) {
         refPpmGroup = _refPpmGroup;
+    };
+
+    this.setRefZone = function (_refZone) {
+        refZone = _refZone;
     };
 
     this.setVersionLocal = function (_versionLocal) {

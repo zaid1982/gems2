@@ -103,6 +103,7 @@ class Class_asset {
                 $row_result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
                 $row_result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
                 $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['zoneId'] = $this->fn_general->clear_null($dataLocal['zone_id']);
                 $row_result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
                 $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
                 $row_result['assetManufacturer'] = $this->fn_general->clear_null($dataLocal['asset_manufacturer']);
@@ -170,6 +171,7 @@ class Class_asset {
             $result['assetModelId'] = $this->fn_general->clear_null($dataLocal['asset_model_id']);
             $result['contractId'] = $this->fn_general->clear_null($dataLocal['contract_id']);
             $result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+            $result['zoneId'] = $this->fn_general->clear_null($dataLocal['zone_id']);
             $result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
             $result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
             $result['assetManufacturer'] = $this->fn_general->clear_null($dataLocal['asset_manufacturer']);
@@ -275,6 +277,7 @@ class Class_asset {
             if (isset($putVars['assetTypeId'])) {               $params['asset_type_id'] = $putVars['assetTypeId']; }
             if (isset($putVars['assetBrandId'])) {              $params['asset_brand_id'] = $putVars['assetBrandId']; }
             if (isset($putVars['assetModelId'])) {              $params['asset_model_id'] = $putVars['assetModelId']; }
+            if (isset($putVars['zoneId'])) {                    $params['zone_id'] = $putVars['zoneId']; }
             if (isset($putVars['assetLocationCode'])) {         $params['asset_location_code'] = $putVars['assetLocationCode']; }
             if (isset($putVars['assetLocationDesc'])) {         $params['asset_location_desc'] = $putVars['assetLocationDesc']; }
             if (isset($putVars['ppmGroupId'])) {                $params['ppm_group_id'] = $putVars['ppmGroupId']; }

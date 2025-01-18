@@ -14,14 +14,19 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 $fnMain = new Zone();
 
 try {
-    DbMysql::connect();
-    $fnMain->checkJwt(apache_request_headers());
     $fnMain->isLogged = Constant::$isLogged;
     DbMysql::$isLogged = Constant::$isLogged;
 
     $requestMethod = $_SERVER['REQUEST_METHOD'];
     $fnMain->logDebug('API', $apiName, __LINE__, 'Request method = '.$requestMethod.', URL = '.$_SERVER['REQUEST_URI']);
     $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
+
+    DbMysql::connect();
+    if ($urlArr[1] === 'ext') {
+        array_shift($urlArr);
+    } else {
+        $fnMain->checkJwt(apache_request_headers());
+    }
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
@@ -42,7 +47,7 @@ try {
         $isTransaction = true;
 
         $fnMain->insert($params);
-        $fnMain->updateVersion(37);
+        $fnMain->updateVersion(38);
         $fnMain->saveAudit(217, $fnMain->zoneName);
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['add']);
 
@@ -61,7 +66,7 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
         $fnMain->update(intval($urlArr[1]), $params);
-        $fnMain->updateVersion(37);
+        $fnMain->updateVersion(38);
         $fnMain->saveAudit(218, $fnMain->zoneName);
         DbMysql::commit();
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['update']);
@@ -78,7 +83,7 @@ try {
         $isTransaction = true;
         $fnMain->set(intval($urlArr[1]));
         $fnMain->delete();
-        $fnMain->updateVersion(37);
+        $fnMain->updateVersion(38);
         $fnMain->saveAudit(219, $fnMain->zoneName);
         DbMysql::commit();
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['delete']);

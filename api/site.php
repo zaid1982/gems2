@@ -9,6 +9,7 @@ $api_name = 'api_site';
 $is_transaction = false;
 $form_data = array('success' => false, 'result' => '', 'error' => '', 'errmsg' => '');
 $result = '';
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
@@ -27,10 +28,14 @@ try {
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = ' . $request_method);
 
     $headers = apache_request_headers();
-    if (!isset($headers['Authorization'])) {
-        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+    $external = filter_input(INPUT_GET, 'external');
+    $fn_general->log_debug('API', $api_name, __LINE__, '$external = ' . $external);
+    if ($external !== '1') {
+        if (!isset($headers['Authorization'])) {
+            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+        }
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     }
-    $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
         $siteId = filter_input(INPUT_GET, 'siteId');

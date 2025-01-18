@@ -184,6 +184,9 @@ function MainSite() {
         if (typeof _dataEdit['siteIsWr'] !== 'undefined') {
             currentRow['siteIsWr'] = _dataEdit['siteIsWr'];
         }
+        if (typeof _dataEdit['siteIsPublic'] !== 'undefined') {
+            currentRow['siteIsPublic'] = _dataEdit['siteIsPublic'];
+        }
         if (typeof _dataEdit['siteStatus'] !== 'undefined') {
             currentRow['siteStatus'] = _dataEdit['siteStatus'];
         }
