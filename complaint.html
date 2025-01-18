@@ -231,9 +231,9 @@
     new WOW().init();
     document.addEventListener('DOMContentLoaded', function () {
         //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
-        const urlParams = window.location.href.split('?s=');
-        const siteId = parseInt(urlParams[1]);
-        if (!Number.isInteger(siteId)) {
+        const urlParams = window.location.href.split('?z=');
+        const zoneId = parseInt(urlParams[1]);
+        if (!Number.isInteger(zoneId)) {
             // error site id
         }
         // check site id validity

@@ -28,6 +28,7 @@ RewriteRule ^p_waste_main/?$ waste_main.html
 RewriteRule ^p_waste_type/?$ waste_type.html
 RewriteRule ^p_complaint/?$ complaint.html
 RewriteRule ^p_complaint/(.+)/?$ complaint.html
+RewriteRule ^p_zone/?$ zone.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
@@ -121,3 +122,5 @@ RewriteRule ^wo_task_parts/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_parts/(.+)/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_request/?$ api/wo_task_request.php
 RewriteRule ^wo_task_request/(.+)/?$ api/wo_task_request.php
+RewriteRule ^zone/?$ api/zone.php
+RewriteRule ^zone/(.+)/?$ api/zone.php

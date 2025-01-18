@@ -111,4 +111,12 @@ class Constant {
         'errAlreadyExist' => 'Material __ already exist in this Request List. You can add quantity by modify the similar material.',
         'errNotAllowed' => 'You are not allowed to perform this action!',
     );
+
+    public static $zone = array(
+        'add' => 'Zone __ successfully registered!',
+        'update' => 'Zone __ successfully updated!',
+        'delete' => 'Zone __ successfully removed!',
+        'errStillExist' => 'Zone __ cannot be deleted because it already exist in WO/WR record! Please deactivate the zone if you want to disable from form selection.',
+        'errAlreadyExist' => 'Zone __ already exist under similar site!'
+    );
 }

@@ -35,9 +35,10 @@ try {
     if ('GET' === $request_method) {
         $siteProblemTypeId = filter_input(INPUT_GET, 'siteProblemTypeId');
         $siteId = filter_input(INPUT_GET, 'siteId');
-        if (!is_null($siteId)) {
-            $fn_siteProblemType->__set('siteId', $siteId);
-            $result = $fn_siteProblemType->get_site_problem_type_list();
+        if (is_numeric($siteId)) {
+            $result = $fn_siteProblemType->get_site_problem_type_list(intval($siteId));
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

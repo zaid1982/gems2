@@ -746,6 +746,6 @@ input:-webkit-autofill {
     margin-bottom: 0!important;
 }
 .form-control:disabled {
-    background-color: #e4e7e8 !important;
+    background-color: #f6f3f3 !important;
     opacity: 1;
 }

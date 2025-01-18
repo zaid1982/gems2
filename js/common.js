@@ -1871,3 +1871,9 @@ function mzOpenPdfUpload2 (pdfId, title) {
         HideLoader();
     }, 200);
 }
+
+function mzRowYesNo (data) {
+    const returnText = data === '1' ? 'Yes' : 'No';
+    const returnColor = data === '1' ? 'green' : 'red';
+    return '<p class="font-weight-bold '+returnColor+'-text">'+returnText+'</p>';
+}

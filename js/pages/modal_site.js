@@ -54,6 +54,13 @@ function ModalSite() {
                 }
             },
             {
+                field_id: 'chkMstPublic',
+                type: 'checkSingle',
+                name: 'Public QR Scan',
+                validator: {
+                }
+            },
+            {
                 field_id: 'chkMstStatus',
                 type: 'checkSingle',
                 name: 'Status',
@@ -88,6 +95,7 @@ function ModalSite() {
                         const txtCode = $('#txtMstCode').val();
                         const txtDesc = $('#txaMstDesc').val();
                         const siteIsWr = $("input[name='chkMstWorkRequest']").is(":checked") ? '1' : '0';
+                        const siteIsPublic = $("input[name='chkMstPublic']").is(":checked") ? '1' : '0';
                         const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
                         const data = {
                             clientId :clientId,
@@ -95,6 +103,7 @@ function ModalSite() {
                             siteCode: txtCode,
                             siteDesc: txtDesc,
                             siteIsWr: siteIsWr,
+                            siteIsPublic: siteIsPublic,
                             siteStatus: statusVal
                         };
 
@@ -108,6 +117,7 @@ function ModalSite() {
                                 tempRow['siteCode'] = txtCode;
                                 tempRow['siteDesc'] = txtDesc;
                                 tempRow['siteIsWr'] = siteIsWr;
+                                tempRow['siteIsPublic'] = siteIsPublic;
                                 tempRow['siteStatus'] = statusVal;
                                 classFrom.addTableSte(tempRow);
                             }
@@ -120,6 +130,7 @@ function ModalSite() {
                                 tempRow['siteCode'] = txtCode;
                                 tempRow['siteDesc'] = txtDesc;
                                 tempRow['siteIsWr'] = siteIsWr;
+                                tempRow['siteIsPublic'] = siteIsPublic;
                                 tempRow['siteStatus'] = statusVal;
                                 classFrom.updateTableSte(tempRow, rowRefresh);
                             }
@@ -245,6 +256,7 @@ function ModalSite() {
                 mzSetFieldValue('MstCode', dataMst['siteCode'], 'text');
                 mzSetFieldValue('MstDesc', dataMst['siteDesc'], 'textarea');
                 mzSetFieldValue('MstWorkRequest', dataMst['siteIsWr'], 'checkSingle', '1');
+                mzSetFieldValue('MstPublic', dataMst['siteIsPublic'], 'checkSingle', '1');
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
                 mzDisableSelect('optMstClientId', true);

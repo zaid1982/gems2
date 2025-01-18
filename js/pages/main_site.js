@@ -67,11 +67,9 @@ function MainSite() {
                         }},
                     {mData: 'siteName'},
                     {mData: 'siteCode'},
-                    {mData: 'siteDesc'},
-                    {mData: 'siteIsWr', mRender: function (data){
-                            return data === '1' ? 'Yes' : 'No';
-                        }},
-                    {mData: null,
+                    {mData: 'siteIsWr', sClass: 'text-center', mRender: function (data){ return mzRowYesNo(data); }},
+                    {mData: 'siteIsPublic', sClass: 'text-center', mRender: function (data){ return mzRowYesNo(data); }},
+                    {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['siteStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteStatus']]['statusDesc']+'</span></h6>';
                         }

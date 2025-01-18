@@ -74,15 +74,15 @@ class Class_site_problem_type {
     }
 
     /**
+     * @param int $siteId
      * @return array
      * @throws Exception
      */
-    public function get_site_problem_type_list () {
+    public function get_site_problem_type_list (int $siteId): array {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-
-            $this->fn_general->checkEmptyParams(array($this->siteId));
-            $result = Class_db::getInstance()->db_select('cli_site_problem_type');
+            $this->fn_general->checkEmptyParams(array($siteId));
+            $result = Class_db::getInstance()->db_select('cli_site_problem_type', array('site_id'=>$siteId));
             return $this->fn_general->convertDbIndexs($result);
         }
         catch(Exception $ex) {
