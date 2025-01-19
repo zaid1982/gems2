@@ -104,7 +104,7 @@
                 <!--Grid row-->
                 <div class="row">
                     <!--Grid column-->
-                    <div class="col-lg-5 mb-4 white-text">
+                    <div class="col-lg-6 mb-4 white-text">
                         <div class="row">
                             <div class="col-12">
                                 <h1 class="h1-responsive font-weight-bold mt-lg-5 wow fadeInLeft" data-wow-delay="0.3s">GEMS : GFM Enterprise Management System</h1>
@@ -122,7 +122,7 @@
                     </div>
                     <!--Grid column-->
                     <!--Grid column-->
-                    <div class="col-lg-7 divPsaForm">
+                    <div class="col-lg-6 divPsaForm">
                         <!--Form-->
                         <div class="card wow fadeInRight" data-wow-delay="0.3s">
                             <div class="card-body">
@@ -135,28 +135,33 @@
                                     <!--Body-->
                                     <div class="md-form mt-3 mx-2 pb-0">
                                         <i class="fas fa-user prefix white-text active"></i>
-                                        <input type="text" id="txtPsaApplicationNo" class="white-text form-control" value="Muhammad Zaid Shaharil">
-                                        <label for="txtPsaApplicationNo">Your Name *</label>
+                                        <input type="text" id="txtPsaName" class="white-text form-control" value="Muhammad Zaid Shaharil">
+                                        <label for="txtPsaName">Your Name *</label>
+                                        <p class="font-small text-danger pl-4_5" id="txtPsaNameErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
                                         <i class="fas fa-id-card prefix white-text active"></i>
                                         <input type="text" id="txtPsaIcNo" class="white-text form-control" value="820319085733">
                                         <label for="txtPsaIcNo">IC No.</label>
+                                        <p class="font-small text-danger pl-4_5" id="txtPsaIcNoErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
                                         <i class="fas fa-building prefix white-text active"></i>
                                         <input type="text" id="txtPsaAgency" class="white-text form-control" value="Syabas Indah Water Bhd">
                                         <label for="txtPsaAgency">Agency</label>
+                                        <p class="font-small text-danger pl-4_5" id="txtPsaAgencyErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
                                         <i class="fas fa-phone prefix white-text active"></i>
                                         <input type="text" id="txtPsaPhoneNo" class="white-text form-control" value="0102203917">
                                         <label for="txtPsaPhoneNo">Phone No.</label>
+                                        <p class="font-small text-danger pl-4_5" id="txtPsaPhoneNoErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
                                         <i class="fas fa-envelope prefix white-text active"></i>
                                         <input type="text" id="txtPsaEmail" class="white-text form-control" value="hemppok.kembong@gmail.com">
                                         <label for="txtPsaEmail">Email Address *</label>
+                                        <p class="font-small text-danger pl-4_5" id="txtPsaEmailErr"></p>
                                     </div>
                                     <!--<div class="md-form mx-2 pb-0">
                                         <i class="fas fa-tools prefix white-text active"></i>
@@ -176,26 +181,30 @@
                                         <select id="optPsaCategory" class="md-form colorful-select mt-0 mb-0 white-text"></select>
                                         <label for="optPsaCategory">Category *</label>
                                     </div>-->
-                                    <div class="md-form mx-2 pb-1">
+                                    <div class="md-form mx-2 mb-3 pb-0">
                                         <i class="fas fa-pen prefix white-text active"></i>
                                         <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="5"></textarea>
                                         <label for="txaPsaComplaint" class="white-text">Complaint Details *</label>
+                                        <p class="font-small text-danger pl-4_5" id="txaPsaComplaintErr"></p>
                                     </div>
-                                    <div class="md-form mx-2 pb-0">
+                                    <div class="md-form mx-2 mt-0 pb-4">
                                         <i class="fas fa-image prefix white-text active"></i>
                                         <h6 class="font-small white-text pl-4_5">Picture</h6>
                                         <div class="file-field pl-4_5">
-                                            <div class="z-depth-1-half mb-2">
+                                            <div class="z-depth-1-half mb-1">
                                                 <img src="img/background/upload_placeholder.png" width="100%" id="imgPsaImage" class="img-fluid" alt="example placeholder">
                                             </div>
-                                            <div class="d-flex justify-content-center pl-4_5">
-                                                <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
-                                                    <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
-                                                    <input type="file" id="txfPsaImage">
-                                                    <input type="hidden" id="txfPsaImageBlob">
-                                                </div>
+                                            <div class="btn btn-outline-white w-100" style="left: -6px">
+                                                <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                                <input type="file" id="txfPsaImage">
+                                                <input type="hidden" id="txfPsaImageBlob">
                                             </div>
+                                            <p class="font-small text-danger" id="txfPsaImageErr"></p>
                                         </div>
+                                    </div>
+                                    <hr class="hr-light mt-5 mb-2">
+                                    <div class="text-right">
+                                        <button type="button" class="btn btn-outline-white" id="btnPsaSubmit">SUBMIT COMPLAINT NOW !!</button>
                                     </div>
                                 </form>
                             </div>
@@ -232,6 +241,7 @@
 <script type="text/javascript">
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     new WOW().init();
+
     document.addEventListener('DOMContentLoaded', function () {
         try {
             //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
@@ -245,24 +255,134 @@
             if (zone['zoneStatus'] !== 1) {
                 throw new Error(_ALERT_MSG_ERROR_DEFAULT);
             }
-            const site = mzAjaxRequest('site.php?external=1&siteId='+zone['siteId'], 'GET');
-            console.log(site);
+            const siteId = zone['siteId'];
+            const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
             if (site['siteIsPublic'] !== '1') {
                 throw new Error(_ALERT_MSG_ERROR_DEFAULT);
             }
             $('#lblPsaSiteName').text(site['siteName']);
             $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
-
             $('.divPsaErr').hide();
-            document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
+
+            const vData = [
+                {
+                    field_id: 'txtPsaName',
+                    type: 'text',
+                    name: 'Name',
+                    validator: {
+                        notEmpty: true,
+                        maxLength: 200
+                    }
+                },
+                {
+                    field_id: 'txtPsaIcNo',
+                    type: 'text',
+                    name: 'IC No.',
+                    validator: {
+                        notEmpty: false,
+                        digit: true,
+                        eqLength: 12
+                    }
+                },
+                {
+                    field_id: 'txtPsaAgency',
+                    type: 'text',
+                    name: 'Agency',
+                    validator: {
+                        notEmpty: false,
+                        maxLength: 200
+                    }
+                },
+                {
+                    field_id: 'txtPsaPhoneNo',
+                    type: 'text',
+                    name: 'Phone No.',
+                    validator: {
+                        notEmpty: false,
+                        digit: true,
+                        minLength: 8,
+                        maxLength: 15
+                    }
+                },
+                {
+                    field_id: 'txtPsaEmail',
+                    type: 'text',
+                    name: 'Email Address',
+                    validator: {
+                        notEmpty: true,
+                        email: true,
+                        maxLength: 100
+                    }
+                },
+                {
+                    field_id: 'txaPsaComplaint',
+                    type: 'text',
+                    name: 'Complaint Details',
+                    validator: {
+                        notEmpty: true,
+                        maxLength: 1000
+                    }
+                },
+                {
+                    field_id: 'txfPsaImage',
+                    type: 'file',
+                    name: 'Picture',
+                    validator: {
+                        notEmptyFile: false
+                    }
+                }
+            ];
+
+            let formValidate = new MzValidate('formMus');
+            formValidate.registerFields(vData);
 
             $('#txfPsaImage').on('change', function () {
                 $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
                 mzDisplayImageFileInput(this, 'imgPsaImage');
-                if ($('#txfPsaImage1').val() === '') {
-                    $('#txaPsaImgDesc').val('').removeClass('invalid');
-                }
             });
+
+            document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
+
+            $('#btnPsaSubmit').on('click', function () {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        if (!formValidate.validateNow()) {
+                            toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                        }
+                        else {
+                            const image = $('#txfPsaImage').prop('files')[0];
+                            const fileUpload = typeof image === 'undefined' ? {} : {
+                                name: 'Complaint Image',
+                                filename: image.name,
+                                size: image.size,
+                                type: image.type,
+                                data: $('#txfPsaImageBlob').val(),
+                                description: ''
+                            };
+                            const data = {
+                                action: 'submit_public_complaint',
+                                siteId: siteId,
+                                name: $('#txtPsaName').val(),
+                                icNo: $('#txtPsaIcNo').val(),
+                                agency: $('#txtPsaAgency').val(),
+                                phoneNo: $('#txtPsaPhoneNo').val(),
+                                email: $('#txtPsaEmail').val(),
+                                complaint: $('#txaPsaComplaint').val(),
+                                complaintImages: fileUpload,
+                            };
+                            console.log(data);
+                            //mzAjaxRequest('wo.php', 'POST', data);
+                            formValidate.clearValidation();
+                            $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
+                            mzDisplayImageFileInput(this, 'imgPsaImage');
+                        }
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                HideLoader();
+            }, 300);
+        });
         } catch (e) {
             $('.divPsaForm').hide();
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
