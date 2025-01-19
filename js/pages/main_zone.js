@@ -68,10 +68,11 @@ function MainZone () {
         });
         oTableZneTbody.delegate('tr', 'mouseenter', function (evt) {
             const data = $('#dtZneData').DataTable().row(this).data();
+            const zoneName = typeof data['zoneName'] !== 'undefined' ? data['zoneName'] : '';
             const cell = $(evt.target).closest('td');
             cell.css('cursor', 'pointer');
             cell.attr('data-toggle', 'tooltip');
-            cell.attr('title', 'Click to edit '+data['zoneName']+' details');
+            cell.attr('title', 'Click to edit '+zoneName+' details');
             $('[data-toggle="tooltip"]').tooltip();
         });
 
