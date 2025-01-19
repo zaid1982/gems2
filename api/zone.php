@@ -22,7 +22,7 @@ try {
     $urlArr = $fnMain->getUrlArr($_SERVER['REQUEST_URI'], $apiName);
 
     DbMysql::connect();
-    if ($urlArr[1] === 'ext') {
+    if (isset($urlArr[1]) && $urlArr[1] === 'ext') {
         array_shift($urlArr);
     } else {
         $fnMain->checkJwt(apache_request_headers());
