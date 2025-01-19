@@ -265,7 +265,7 @@ try {
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
-            $fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId);
+            //$fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId);
             $uploadId = '';
             $nextUser = '';
             if ($result == '1') {
