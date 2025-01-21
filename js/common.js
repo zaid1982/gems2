@@ -689,6 +689,58 @@ function mzAjaxRequest3 (url, type, data, functionStr) {
     return returnVal;
 }
 
+async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
+    if (typeof isHideLoader === 'undefined') {
+        isHideLoader = true;
+    }
+    if (typeof isHideSuccess === 'undefined') {
+        isHideSuccess = false;
+    }
+    if (typeof type === 'undefined') {
+        type = 'GET';
+    }
+    try {
+        let header = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+        if (sessionStorage.getItem('t') !== null) {
+            header = {'Authorization': 'Bearer ' + sessionStorage.getItem('token')};
+        }
+        let params = {
+            method: type,
+            headers: header
+        };
+        if (type !== 'GET') {
+            params['body'] = JSON.stringify(data)
+        }
+        const response = await fetch(url, params);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        const resp = await response.json();
+        if (resp.success) {
+            if (resp['errmsg'] !== '' && !isHideSuccess) {
+                toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
+            }
+        } else if (resp['errmsg'] === 'Expired token') {
+            window.location.href = 'login.html?f=2';
+        } else {
+            const errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
+            throw new Error(errMsg);
+        }
+        if (isHideLoader) {
+            HideLoader();
+        }
+        return resp.result;
+    } catch (error) {
+        if (isHideLoader) {
+            HideLoader();
+        }
+        throw new Error(error.message);
+    }
+}
+
 function mzGetUrlVars() {
     let vars = {};
     window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,

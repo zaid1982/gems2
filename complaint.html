@@ -242,28 +242,11 @@
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     new WOW().init();
 
+    let imageSize = [0,0];
     document.addEventListener('DOMContentLoaded', function () {
         try {
             //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
-            const urlParams = window.location.href.split('?z=');
-            if (!mzValidNumeric(urlParams[1])) {
-                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-            }
-            const zoneId = parseInt(urlParams[1]);
-            const zone = mzAjaxRequest2('zone/ext/'+zoneId, 'GET');
-            // check site id validity
-            if (zone['zoneStatus'] !== 1) {
-                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-            }
-            const siteId = zone['siteId'];
-            const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
-            if (site['siteIsPublic'] !== '1') {
-                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-            }
-            $('#lblPsaSiteName').text(site['siteName']);
-            $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
-            $('.divPsaErr').hide();
-
+            let siteId;
             const vData = [
                 {
                     field_id: 'txtPsaName',
@@ -328,66 +311,105 @@
                     type: 'file',
                     name: 'Picture',
                     validator: {
-                        notEmptyFile: false
+                        notEmptyFile: false,
+                        imageType: true
                     }
                 }
             ];
+            $('.divPsaForm').hide();
+
+            const urlParams = window.location.href.split('?z=');
+            if (!mzValidNumeric(urlParams[1])) {
+                throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+            }
+            const zoneId = parseInt(urlParams[1]);
+
+            ShowLoader(); setTimeout(function () { mzFetch('zone/ext/'+zoneId).then(zone => {
+                if (zone['zoneStatus'] !== 1) {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+                siteId = zone['siteId'];
+                const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
+                if (site['siteIsPublic'] !== '1') {
+                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                }
+                $('#lblPsaSiteName').text(site['siteName']);
+                $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
+                $('.divPsaErr').hide();
+                $('.divPsaForm').show();
+            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
 
             let formValidate = new MzValidate('formMus');
             formValidate.registerFields(vData);
 
             $('#txfPsaImage').on('change', function () {
-                $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
-                mzDisplayImageFileInput(this, 'imgPsaImage');
+                try {
+                    saveImageSize(this.files[0], 0);
+                    $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
+                    mzDisplayImageFileInput(this, 'imgPsaImage');
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
             });
 
             document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
 
             $('#btnPsaSubmit').on('click', function () {
-                ShowLoader();
-                setTimeout(function () {
-                    try {
-                        if (!formValidate.validateNow()) {
-                            toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
-                        }
-                        else {
-                            const image = $('#txfPsaImage').prop('files')[0];
-                            const fileUpload = typeof image === 'undefined' ? {} : {
-                                name: 'Complaint Image',
-                                filename: image.name,
-                                size: image.size,
-                                type: image.type,
-                                data: $('#txfPsaImageBlob').val(),
-                                description: ''
-                            };
-                            const data = {
-                                action: 'submit_public_complaint',
-                                siteId: siteId,
-                                name: $('#txtPsaName').val(),
-                                icNo: $('#txtPsaIcNo').val(),
-                                agency: $('#txtPsaAgency').val(),
-                                phoneNo: $('#txtPsaPhoneNo').val(),
-                                email: $('#txtPsaEmail').val(),
-                                complaint: $('#txaPsaComplaint').val(),
-                                complaintImages: fileUpload,
-                            };
-                            console.log(data);
-                            //mzAjaxRequest('wo.php', 'POST', data);
+                try {
+                    if (!formValidate.validateNow()) {
+                        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                    }
+                    else {
+                        const image = $('#txfPsaImage').prop('files')[0];
+                        const fileUpload = typeof image === 'undefined' ? {} : {
+                            name: 'Complaint Image',
+                            filename: image.name,
+                            size: image.size,
+                            width: imageSize[0],
+                            height: imageSize[1],
+                            type: image.type,
+                            data: $('#txfPsaImageBlob').val(),
+                            description: ''
+                        };
+                        const data = {
+                            siteId: siteId,
+                            zoneId: zoneId,
+                            name: $('#txtPsaName').val(),
+                            icNo: $('#txtPsaIcNo').val(),
+                            agency: $('#txtPsaAgency').val(),
+                            phoneNo: $('#txtPsaPhoneNo').val(),
+                            email: $('#txtPsaEmail').val(),
+                            complaint: $('#txaPsaComplaint').val(),
+                            image: fileUpload,
+                        };
+                        console.log(data);
+                        ShowLoader(); setTimeout(function () { mzFetch('wo_v3/ext', 'POST', data).then(res => {
                             formValidate.clearValidation();
                             $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
                             mzDisplayImageFileInput(this, 'imgPsaImage');
-                        }
-                    } catch (e) {
-                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            imageSize = [0,0];
+                        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
                     }
-                HideLoader();
-            }, 300);
-        });
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+            });
         } catch (e) {
-            $('.divPsaForm').hide();
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
     });
+
+    function saveImageSize (files) {
+        let reader = new FileReader();
+        let img = new Image();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+            img.onload = function () {
+                imageSize = [this.width, this.height];
+            };
+        };
+        reader.readAsDataURL(files);
+    }
 
     function checkRecord (data) {
         try {

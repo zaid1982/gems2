@@ -481,10 +481,10 @@ class DbMysql {
      * @param bool $throwEmpty
      * @param string $orderBy
      * @param string $orderDirection
-     * @return string
+     * @return mixed|string
      * @throws Exception
      */
-    public static function selectColumn (string $tableName, array $columns=array(), string $columnOut='', bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC'): string {
+    public static function selectColumn (string $tableName, array $columns=array(), string $columnOut='', bool $throwEmpty=false, string $orderBy='', string $orderDirection='ASC') {
         try {
             if (empty(self::$DBH)) {
                 throw new Exception('Connection lost');

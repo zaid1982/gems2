@@ -92,7 +92,7 @@ class WflTask extends General {
                 $whereArr['checkpointId'] = $checkpointStart;
             }
             $checkpoint = DbMysql::select('wfl_checkpoint', $whereArr, true);
-            $groupId = empty($checkpoint['groupId']) ? DbMysql::selectColumn('sys_user_group', array('userId'=>$this->userId), 'groupId', true, 'userGroupId DESC') : $checkpoint['groupId'];
+            $groupId = empty($checkpoint['groupId']) ? DbMysql::selectColumn('sys_user_group', array('userId'=>$this->userId), 'groupId', true, 'userGroupId', 'DESC') : $checkpoint['groupId'];
             if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$checkpoint['roleId'], 'groupId'=>$groupId)) === 0) {
                 $roleName = DbMysql::selectColumn('ref_role', array('roleId'=>$checkpoint['roleId']), 'roleDesc', true);
                 throw new Exception(str_replace('__', $roleName, Constant::$task['errInvalidRole']), 31);

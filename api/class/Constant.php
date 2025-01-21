@@ -3,18 +3,20 @@
 class Constant {
     public static $dbUserName = 'root';
     public static $dbUserPassword = 'password';
-    //public static string $dbUserPassword = 'Globalfm@19';
+    //public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems';
     public static $dbHost = 'localhost';
-    //public static string $dbHost = '10.101.11.71';
+    //public static $dbHost = '10.101.11.71';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
     public static $folderDebug = '../../../logs/gems/debug/';
-    //public static string $folderDebug = 'C:\xampp\logs\gems\\';
+    //public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderError = '../../../logs/gems/error/';
+    //public static string $folderError = 'C:\xampp\logs\gems\error\\';
     public static $url = '//localhost/gems2/api/';
     //public static string $url = '//gems.globalfm.com.my/api/';
+    public static $publicUser = 'Public User';
 
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
@@ -118,5 +120,11 @@ class Constant {
         'delete' => 'Zone __ successfully removed!',
         'errStillExist' => 'Zone __ cannot be deleted because it already exist in WO/WR record! Please deactivate the zone if you want to disable from form selection.',
         'errAlreadyExist' => 'Zone __ already exist under similar site!'
+    );
+
+
+
+    public static $wo = array(
+        'submitPublic' => 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your email.'
     );
 }

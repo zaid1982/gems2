@@ -47,6 +47,34 @@ class General {
     }
 
     /**
+     * @param string $requestUri
+     * @param string $apiName
+     * @return array
+     * @throws Exception
+     */
+    public function getUrlArr (string $requestUri, string $apiName): array {
+        try {
+            $this->checkEmptyParams(array($requestUri, $apiName));
+            $requestUri = str_replace('?%22%22', '', $requestUri);
+            $urlArr = explode('/', $requestUri);
+            $isApiName = false;
+            foreach ($urlArr as $param) {
+                if ($param === $apiName) {
+                    $isApiName = true;
+                    break;
+                }
+                array_shift($urlArr);
+            }
+            if (empty($urlArr) || !$isApiName) {
+                throw new Exception('Wrong Request');
+            }
+            return $urlArr;
+        } catch(Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $string
      * @param string $stringName
      * @return bool
@@ -325,29 +353,6 @@ class General {
             }
             $this->userSite = $user['siteId'];
         } catch(Exception $ex) {
-            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
-        }
-    }
-
-    /**
-     * @param string $requestUri
-     * @param string $apiName
-     * @return array
-     * @throws Exception
-     */
-    public function getUrlArr (string $requestUri, string $apiName): array {
-        try {
-            $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->checkEmptyParams(array($requestUri, $apiName));
-            $urlArr = explode('/', $_SERVER['REQUEST_URI']);
-            foreach ($urlArr as $param) {
-                if ($param === $apiName) {
-                    break;
-                }
-                array_shift($urlArr);
-            }
-            return $urlArr;
-        } catch(Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
