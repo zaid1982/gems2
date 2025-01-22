@@ -84,6 +84,8 @@ class WoTask extends General {
             }
             $this->woTaskId = DbMysql::insert($this::$tableName, $params);
 
+            DbMysql::insert('wo_task_public', array('woTaskId'=>$this->woTaskId, 'transactionId'=>$transactionId, 'userId'=>$this->userId, 'woTaskPublicName'=>$columns['name'],
+                'woTaskPublicIcNo'=>$columns['icNo'], 'woTaskPublicAgency'=>$columns['agency'], 'woTaskPublicPhoneNo'=>$columns['phoneNo'], 'woTaskPublicEmail'=>$columns['email'], 'woTaskPublicComplaint'=>$columns['complaint']));
             if (!empty($uploadId)) {
                 DbMysql::insert('wo_task_upload', array('woTaskId'=>$this->woTaskId, 'uploadId'=>$uploadId));
             }
