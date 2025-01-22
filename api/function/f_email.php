@@ -77,7 +77,7 @@ class Class_email {
      * @param bool $isExpress
      * @return bool
      */
-    public function setup_email ($userId='', $emailTemplateId=0, $emailParam=array(), $isExpress=false) {
+    public function setup_email ($userId='', $emailTemplateId=0, $emailParam=array(), $isExpress=false, $fullName='', $emailAddress='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -92,7 +92,7 @@ class Class_email {
             }
 
             $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), NULL, 1);
-            $sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), NULL, 1);
+            //$sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), NULL, 1);
             $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>$emailTemplateId), NULL, 1);
             $emailTitle = $email_template['email_template_title'];
             $emailHtml = $email_template['email_template_html'];
@@ -110,12 +110,14 @@ class Class_email {
                     $emailHtml = str_replace ("[".$paramCode."]", $emailParam[$paramCode], $emailHtml);
                 }
             }
-            $emailHtml = str_replace ("[fullName]", $sys_user['user_first_name'], $emailHtml);
+            $recipientName = !empty($fullName) ? $fullName : $sys_user['user_first_name'];
+            $emailHtml = str_replace ("[fullName]", $recipientName, $emailHtml);
 
+            $recipientEMail = !empty($emailAddress) ? $emailAddress : $sys_user['user_email'];
             if ($isExpress) {
-                $this->send_email_express($sys_profile['user_email'], $emailTitle, $emailHtml);
+                $this->send_email_express($recipientEMail, $emailTitle, $emailHtml);
             } else {
-                Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$sys_profile['user_email'], 'email_title'=>$emailTitle,
+                Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$recipientEMail, 'email_title'=>$emailTitle,
                     'email_html'=>$emailHtml, 'user_id'=>$userId));
             }
             return true;

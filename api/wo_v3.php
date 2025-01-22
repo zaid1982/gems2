@@ -85,7 +85,7 @@ try {
         $fnTask->userId = $fnMain->userId;
         $fnTask->createNew(2, $fnMain->woTaskNo, 11);
         $fnTask->set($fnTask->wflTaskNew['taskId']);
-        $fnTask->submit($bodyParams['complaint'], 8, 9, 0, $groupId);
+        $fnTask->submit($bodyParams['complaint'], 8, 9, $fnMain->woTaskIsWr, $groupId);
         $fnMain->submitPublic($bodyParams, $fnTask->transactionId, $uploadId);
         DbMysql::commit();
 

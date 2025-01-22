@@ -374,6 +374,7 @@ class Class_sql
                      WHEN wo_task_type = 3 THEN 'Request'
                      WHEN wo_task_type = 4 THEN 'Breakdown'
                      WHEN wo_task_type = 5 THEN 'Defect'
+                     WHEN wo_task_type = 6 THEN 'Public Complaint'
                      ELSE '' END AS wo_task_type,      
                     wo_task_severity,
                     wo_task_assigned_to,
@@ -396,6 +397,7 @@ class Class_sql
                      WHEN wo_task_type = 3 THEN 'Request'
                      WHEN wo_task_type = 4 THEN 'Breakdown'
                      WHEN wo_task_type = 5 THEN 'Defect'
+                     WHEN wo_task_type = 6 THEN 'Public Complaint'
                      ELSE '' END AS wo_task_type,          
                     ref_severity.severity_name AS wo_task_severity,
                     wo_task_assigned_to,
@@ -503,6 +505,7 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
+                        WHEN wo_task_type = 6 THEN 'Public Complaint'
                         ELSE ''
                     END AS wo_task_type_desc,
                     ref_severity.severity_name AS wo_task_severity_desc,
@@ -523,6 +526,7 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
+                        WHEN wo_task_type = 6 THEN 'Public Complaint'
                         ELSE ''
                     END AS wo_task_type_desc,
                     ref_severity.severity_name AS wo_task_severity_desc,
@@ -681,6 +685,7 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
+                        WHEN wo_task_type = 6 THEN 'Public Complaint'
                         ELSE '' END AS task_type
                         [sum_site_str]
                 FROM wo_task
@@ -726,7 +731,9 @@ class Class_sql
                     SUM(IF(wo_task_type = 4, 1, 0)) AS open4, 
                     SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
                     SUM(IF(wo_task_type = 5, 1, 0)) AS open5, 
-                    SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
+                    SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5, 
+                    SUM(IF(wo_task_type = 6, 1, 0)) AS open6, 
+                    SUM(IF(wo_task_type = 6 AND wo_task_status IN (16, 25), 1, 0)) AS closed6
                 FROM cli_site 
                 LEFT JOIN wo_task ON cli_site.site_id = wo_task.site_id AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
                 WHERE site_is_launched = 1
@@ -791,7 +798,9 @@ class Class_sql
                         SUM(IF(wo_task_type = 4, 1, 0)) AS open4, 
                         SUM(IF(wo_task_type = 4 AND wo_task_status IN (16, 25), 1, 0)) AS closed4, 
                         SUM(IF(wo_task_type = 5, 1, 0)) AS open5, 
-                        SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5
+                        SUM(IF(wo_task_type = 5 AND wo_task_status IN (16, 25), 1, 0)) AS closed5, 
+                        SUM(IF(wo_task_type = 6, 1, 0)) AS open6, 
+                        SUM(IF(wo_task_type = 6 AND wo_task_status IN (16, 25), 1, 0)) AS closed6
                     FROM wo_task 
                     WHERE site_id = [site_id] AND YEAR(wo_task_time_created) = [selected_year] AND MONTH(wo_task_time_created) = [selected_month]
                     GROUP BY dates
@@ -804,7 +813,8 @@ class Class_sql
                         0 AS open2, 0 AS closed2,
                         0 AS open3, 0 AS closed3,
                         0 AS open4, 0 AS closed4,
-                        0 AS open5, 0 AS closed5
+                        0 AS open5, 0 AS closed5,
+                        0 AS open6, 0 AS closed6
                     FROM ppm_task 
                     LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                     LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
@@ -1144,6 +1154,7 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
+                        WHEN wo_task_type = 6 THEN 'Public Complaint'
                         ELSE ''
                     END AS wo_type_desc,                    
                     sv.severity_name AS wo_severity_desc,
@@ -1173,6 +1184,7 @@ class Class_sql
                         WHEN wo_task_type = 3 THEN 'Request'
                         WHEN wo_task_type = 4 THEN 'Breakdown'
                         WHEN wo_task_type = 5 THEN 'Defect'
+                        WHEN wo_task_type = 6 THEN 'Public Complaint'
                         ELSE ''
                     END AS wo_type_desc,
                     sv.severity_name AS wo_severity_desc,

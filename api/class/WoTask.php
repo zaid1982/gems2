@@ -61,11 +61,11 @@ class WoTask extends General {
     /**
      * @param array $columns
      * @param int $transactionId
-     * @param int $uploadId
+     * @param $uploadId
      * @return void
      * @throws Exception
      */
-    public function submitPublic (array $columns, int $transactionId, int $uploadId): void {
+    public function submitPublic (array $columns, int $transactionId, $uploadId): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');

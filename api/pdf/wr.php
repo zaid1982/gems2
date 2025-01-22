@@ -129,7 +129,7 @@ class Class_pdf_wr {
 
             $arrSiteName = $this->fn_general->getSiteName();
             $arrUserFullName = $this->fn_general->getUserFullName();
-            $arrCategory = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect');
+            $arrCategory = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect', 'Public Complaint');
             $arrSeverity = $this->fn_general->getSeverityName(); //array('', 'Non-Critical', 'Critical');
 
             //$arrSeverity = array('', 'Non-Critical', 'Critical');

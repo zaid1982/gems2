@@ -91,7 +91,7 @@ class Class_wo {
      * @return array
      */
     public function get_wo_type () {
-        return array('', 'Client Complaint', 'Self Finding', 'Request', 'Breakdown', 'Defect');
+        return array('', 'Client Complaint', 'Self Finding', 'Request', 'Breakdown', 'Defect', 'Public Complaint');
     }
 
     /**
@@ -104,6 +104,22 @@ class Class_wo {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($woTaskId));
             return Class_db::getInstance()->db_select_single2('wo_task', array('wo_task_id'=>$woTaskId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function getWoTaskPublic ($woTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($woTaskId));
+            return Class_db::getInstance()->db_select_single2('wo_task_public', array('wo_task_id'=>$woTaskId));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -865,6 +881,11 @@ class Class_wo {
             }
             if (empty($woTaskType)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskCategory empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['wo_task_is_public'] === '1' && intval($woTaskType) !== 6) {
+                throw new Exception('[' . __LINE__ . '] - This complaint category must set to Public Complaint only!', 31);
             }
 
             $arrUserFullName = $this->fn_general->getUserFullName();
@@ -2144,7 +2165,8 @@ class Class_wo {
                 array('name'=>'Finding', 'woTaskType'=>'2', 'data'=>$dataEmpty),
                 array('name'=>'Request', 'woTaskType'=>'3', 'data'=>$dataEmpty),
                 array('name'=>'Breakdown', 'woTaskType'=>'4', 'data'=>$dataEmpty),
-                array('name'=>'Defect', 'woTaskType'=>'5', 'data'=>$dataEmpty)
+                array('name'=>'Defect', 'woTaskType'=>'5', 'data'=>$dataEmpty),
+                array('name'=>'Public Complaint', 'woTaskType'=>'6', 'data'=>$dataEmpty)
             );
             if (!empty($siteIds)) {
                 $siteIdStr = implode(',', $siteIds);
@@ -2163,6 +2185,8 @@ class Class_wo {
                         $series[3]['data'][$siteIndex] = intval($total);
                     } else if ($woType === '5') {
                         $series[4]['data'][$siteIndex] = intval($total);
+                    } else if ($woType === '6') {
+                        $series[5]['data'][$siteIndex] = intval($total);
                     }
                 }
             }
@@ -2213,7 +2237,8 @@ class Class_wo {
                 array('name'=>'Finding', 'woTaskType'=>'2', 'y'=>0),
                 array('name'=>'Request', 'woTaskType'=>'3', 'y'=>0),
                 array('name'=>'Breakdown', 'woTaskType'=>'4', 'y'=>0),
-                array('name'=>'Defect', 'woTaskType'=>'5', 'y'=>0)
+                array('name'=>'Defect', 'woTaskType'=>'5', 'y'=>0),
+                array('name'=>'Public Complaint', 'woTaskType'=>'6', 'y'=>0)
             );
             $woByTypes = Class_db::getInstance()->db_select('vg_count_wo_by_site_type', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
             foreach ($woByTypes as $woByType) {
@@ -2229,6 +2254,8 @@ class Class_wo {
                     $series[3]['y'] += intval($total);
                 } else if ($woType === '5') {
                     $series[4]['y'] += intval($total);
+                } else if ($woType === '6') {
+                    $series[5]['y'] += intval($total);
                 }
             }
 
