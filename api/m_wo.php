@@ -306,9 +306,15 @@ try {
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '25', $remark, '1');
             $returnVal = $fn_wo->reject_complaint($currentTask['transactionId']);
             $fn_general->save_audit('122', $jwt_data->userId, 'Work Order no. = '.$returnVal);
+            $woTask = $fn_wo->getWoTask($woTaskId);
             $complainer = $fn_wo->get_complainer();
-            $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal, 'comment'=>$remark));
-            $fn_email->setup_mobile_notification($complainer, 11, array('task_no' => $returnVal, 'comment'=>$remark));
+            if ($woTask['woTaskIsPublic'] === '1') {
+                $woTaskPublic = $fn_wo->getWoTaskPublic($woTaskId);
+                $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+            } else {
+                $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal, 'comment'=>$remark));
+                $fn_email->setup_mobile_notification($complainer, 11, array('task_no' => $returnVal, 'comment'=>$remark));
+            }
             $form_data['errmsg'] = $constant::SUC_REJECTED;
         }
         else if ($action === 'save_wo_repair_work') {
