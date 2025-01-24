@@ -402,6 +402,10 @@ try {
             $fn_general->save_audit('121', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             $fn_email->setup_email($returnVal['woTaskTechnician'], 9, array('task_no'=>$returnVal['woTaskNo']));
             $fn_email->setup_mobile_notification($returnVal['woTaskTechnician'], 10, array('task_no'=>$returnVal['woTaskNo']));
+            if ($woType === '6') {
+                $woTaskPublic = $fn_wo->getWoTaskPublic($woTaskId);
+                $fn_email->setup_email(1, 25, array('task_no' => $returnVal['woTaskNo']), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+            }
             $form_data['errmsg'] = $constant::SUC_VERIFIED_AND_CLOSED;
         }
         else if ($action === 'save_wo_rate') {
