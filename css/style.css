@@ -749,3 +749,11 @@ input:-webkit-autofill {
     background-color: #f6f3f3 !important;
     opacity: 1;
 }
+
+.table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+    bottom: 0.5em !important;
+}
+.table-custom-badge > tbody > tr > td {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.05rem !important;
+}

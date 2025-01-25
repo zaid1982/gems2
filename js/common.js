@@ -704,7 +704,7 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
-        if (sessionStorage.getItem('t') !== null) {
+        if (sessionStorage.getItem('token') !== null) {
             header = {'Authorization': 'Bearer ' + sessionStorage.getItem('token')};
         }
         let params = {

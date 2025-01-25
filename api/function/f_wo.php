@@ -158,7 +158,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
             }
 
-            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_type_init', null, 1);
+            return Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$this->woTaskId), 'wo_task_type', null, 1);
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

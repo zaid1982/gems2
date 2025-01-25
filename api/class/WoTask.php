@@ -94,4 +94,33 @@ class WoTask extends General {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function pendingAssign (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                 wo.wo_task_id,  
+                 wo.wo_task_no,
+                 wo.wo_task_request_no,
+                 wo.wo_task_location,
+                 wo.wo_task_type,
+                 wo.wo_task_is_wr,
+                 wo.wo_task_time_wr_verified,
+                 wo.wo_task_created_by,
+                 wo.wo_task_status,
+                 tsk.*
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 1 AND wo.site_id = 19"
+            );
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }

@@ -49,6 +49,8 @@ try {
                 $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskId);
             }
             $result = $fnMain->getPdfLink($pdfMrfId);
+        } else if ($urlArr[1] === 'pending_assign') {
+            $result = $fnMain->pendingAssign();
         }
         $formData['result'] = $result;
         $formData['success'] = true;
