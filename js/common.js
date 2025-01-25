@@ -874,7 +874,8 @@ function initiatePages() {
 
 function mzProfile() {
     let userInfo = sessionStorage.getItem('userInfo');
-    userInfo = JSON.parse(userInfo);
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    userInfo = JSON.parse(objEncrypted);
     loadModalProfile('Top', userInfo['userId']);
 }
 
@@ -883,6 +884,12 @@ function mzGetUserId() {
     const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
     userInfo = JSON.parse(objEncrypted);
     return userInfo['userId'];
+}
+
+function mzGetProfile() {
+    let userInfo = sessionStorage.getItem('userInfo');
+    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
+    return JSON.parse(objEncrypted);
 }
 
 function mzDateFromTo(startId, endId) {

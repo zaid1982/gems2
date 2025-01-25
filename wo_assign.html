@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.css?4">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid" id="divWssPageWidth">
+        <div id="mdb-lightbox-ui"></div>
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionWssMain">
+            <h5 class="navbar-text white-text font-weight-bold ml-3 mt-1">
+                <i class="fa fa-file-alt mr-1"></i> Assign Work Order / Work Request
+            </h5>
+            <h6 class="navbar-text white-text font-weight-bold ml-3 mt-1">
+                <i class="fa fa-building mr-1"></i> Site: <span id="lblWssSiteName"></span>
+            </h6>
+        </nav>
+        <section class="mt-4 mb-3 sectionWssMain">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4_5">
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="dtWssData" class="table table-hover table-sm mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Timestamp</th>
+                                        <th>WO/WR No</th>
+                                        <th>Type</th>
+                                        <th>Complainant</th>
+                                        <th>Severity</th> <!--5-->
+                                        <th>Trade</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                        <th>Action</th> <!--9-->
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="includeHtml" id="h-section_wo_info"></div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let woAssignClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                initPhotoSwipeFromDOM('.mdb-lightbox');
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                woAssignClass_ = new MainWoAssign();
+
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+
+                const userInfo = mzGetProfile();
+                $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_wo_assign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+</body>
+</html>

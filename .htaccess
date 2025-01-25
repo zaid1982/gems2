@@ -29,6 +29,7 @@ RewriteRule ^p_waste_type/?$ waste_type.html
 RewriteRule ^p_complaint/?$ complaint.html
 RewriteRule ^p_complaint/(.+)/?$ complaint.html
 RewriteRule ^p_zone/?$ zone.html
+RewriteRule ^p_wo_assign/?$ wo_assign.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
