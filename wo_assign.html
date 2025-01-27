@@ -8,7 +8,7 @@
     <!-- Browser icon -->
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css?2" rel="stylesheet">
+    <link href="css/style.css?4" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
 
@@ -121,7 +121,7 @@
                 </div>
             </div>
         </section>
-        <!--<div class="includeHtml" id="h-section_wo_info"></div>-->
+        <div class="includeHtml" id="h-section_wo"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
 </main>
@@ -163,6 +163,7 @@
 
     let versionLocal_;
     let changePasswordClass_;
+    let sectionWoClass_;
     let woAssignClass_;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -173,6 +174,7 @@
                 initPhotoSwipeFromDOM('.mdb-lightbox');
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
+                sectionWoClass_ = new SectionWo();
                 woAssignClass_ = new MainWoAssign();
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
@@ -182,16 +184,19 @@
                 const userInfo = mzGetProfile();
                 $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
 
+                sectionWoClass_.init();
+
                 woAssignClass_.setRefStatus(refStatus_);
                 woAssignClass_.setRefUser(refUser_);
                 woAssignClass_.init();
-                woAssignClass_.genTable();
+                //woAssignClass_.genTable();
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             HideLoader();
         }, 200);
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_wo_assign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
 </body>

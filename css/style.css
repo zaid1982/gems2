@@ -1,9 +1,15 @@
 /* Your custom styles */
+.pl-3_5 {
+    padding-left: 1.2rem !important;
+}
 .pl-4_1 {
     padding-left: 2.1rem !important;
 }
 .pl-4_5 {
     padding-left: 2.5rem !important;
+}
+.pl-4_6 {
+    padding-left: 2.6rem !important;
 }
 .pb-1_2 {
     padding-bottom: 1px !important;
@@ -12,7 +18,7 @@
     padding-bottom: 8px !important;
 }
 .pt-2-5 {
-    padding-top: 0.8rem !important;
+    padding-top: 0.6rem !important;
 }
 .mb-4_5 {
     margin-bottom: 27px !important;
