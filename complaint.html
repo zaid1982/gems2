@@ -183,7 +183,7 @@
                                     </div>-->
                                     <div class="md-form mx-2 mb-3 pb-0">
                                         <i class="fas fa-pen prefix white-text active"></i>
-                                        <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="5"></textarea>
+                                        <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="3"></textarea>
                                         <label for="txaPsaComplaint" class="white-text">Complaint Details *</label>
                                         <p class="font-small text-danger pl-4_5" id="txaPsaComplaintErr"></p>
                                     </div>
@@ -191,11 +191,11 @@
                                         <i class="fas fa-image prefix white-text active"></i>
                                         <h6 class="font-small white-text pl-4_5">Picture</h6>
                                         <div class="file-field pl-4_5">
-                                            <div class="z-depth-1-half mb-1">
-                                                <img src="img/background/upload_placeholder.png" width="100%" id="imgPsaImage" class="img-fluid" alt="example placeholder">
+                                            <div class="z-depth-1-half mb-1 w-50">
+                                                <img src="img/background/upload_placeholder.png" id="imgPsaImage" class="img-fluid" alt="example placeholder">
                                             </div>
-                                            <div class="btn btn-outline-white w-100" style="left: -6px">
-                                                <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
+                                            <div class="btn btn-outline-white w-50 py-2" style="left: -6px">
+                                                <span>Choose<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
                                                 <input type="file" id="txfPsaImage">
                                                 <input type="hidden" id="txfPsaImageBlob">
                                             </div>
@@ -324,20 +324,22 @@
             }
             const zoneId = parseInt(urlParams[1]);
 
-            ShowLoader(); setTimeout(function () { mzFetch('zone/ext/'+zoneId).then(zone => {
-                if (zone['zoneStatus'] !== 1) {
-                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-                }
-                siteId = zone['siteId'];
-                const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
-                if (site['siteIsPublic'] !== '1') {
-                    throw new Error(_ALERT_MSG_ERROR_DEFAULT);
-                }
-                $('#lblPsaSiteName').text(site['siteName']);
-                $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
-                $('.divPsaErr').hide();
-                $('.divPsaForm').show();
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+            ShowLoader(); setTimeout(function () {
+                mzFetch('zone/ext/'+zoneId).then(zone => {
+                    if (zone['zoneStatus'] !== 1) {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                    siteId = zone['siteId'];
+                    const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
+                    if (site['siteIsPublic'] !== '1') {
+                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    }
+                    $('#lblPsaSiteName').text(site['siteName']);
+                    $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
+                    $('.divPsaErr').hide();
+                    $('.divPsaForm').show();
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+            } , 200);
 
             let formValidate = new MzValidate('formMus');
             formValidate.registerFields(vData);
@@ -383,12 +385,14 @@
                             image: fileUpload,
                         };
                         console.log(data);
-                        ShowLoader(); setTimeout(function () { mzFetch('wo_v3/ext', 'POST', data).then(res => {
-                            formValidate.clearValidation();
-                            $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
-                            mzDisplayImageFileInput(this, 'imgPsaImage');
-                            imageSize = [0,0];
-                        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+                        ShowLoader(); setTimeout(function () {
+                            mzFetch('wo_v3/ext', 'POST', data).then(res => {
+                                formValidate.clearValidation();
+                                $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
+                                mzDisplayImageFileInput(this, 'imgPsaImage');
+                                imageSize = [0,0];
+                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                        }, 200);
                     }
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);

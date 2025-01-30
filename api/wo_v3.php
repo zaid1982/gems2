@@ -51,6 +51,8 @@ try {
             $result = $fnMain->getPdfLink($pdfMrfId);
         } else if ($urlArr[1] === 'pending_assign') {
             $result = $fnMain->pendingAssign();
+        } else {
+            $result = $fnMain->get(intval($urlArr[1]));
         }
         $formData['result'] = $result;
         $formData['success'] = true;

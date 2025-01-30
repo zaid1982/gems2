@@ -1936,3 +1936,41 @@ function mzRowYesNo (data) {
     const returnColor = data === '1' ? 'green' : 'red';
     return '<p class="font-weight-bold '+returnColor+'-text">'+returnText+'</p>';
 }
+
+function mzGetLinkRow (selector, dtTable) {
+    if (typeof selector === 'undefined' || typeof dtTable === 'undefined') {
+        return false;
+    }
+    const linkId = selector.attr('id');
+    const linkIndex = linkId.indexOf('_');
+    if (linkIndex > 0) {
+        const rowId = linkId.substring(linkIndex + 1);
+        return dtTable.row(parseInt(rowId)).data();
+    } else {
+        toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+    }
+    return false;
+}
+
+function mzGetLinkId (selector, dtTable, idName) {
+    if (typeof selector === 'undefined' || typeof dtTable === 'undefined' || typeof idName === 'undefined' || idName === '') {
+        return false;
+    }
+    const linkId = selector.attr('id');
+    const linkIndex = linkId.indexOf('_');
+    if (linkIndex > 0) {
+        const rowId = linkId.substring(linkIndex + 1);
+        const currentRow = dtTable.row(parseInt(rowId)).data();
+        return currentRow[idName];
+    } else {
+        toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+    }
+    return false;
+}
+
+function mzNullToValue (data, value) {
+    if (data === '' || data === null) {
+        return value;
+    }
+    return data;
+}

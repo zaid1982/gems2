@@ -123,5 +123,7 @@ RewriteRule ^wo_task_parts/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_parts/(.+)/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_request/?$ api/wo_task_request.php
 RewriteRule ^wo_task_request/(.+)/?$ api/wo_task_request.php
+RewriteRule ^wo_task_public/?$ api/wo_task_public.php
+RewriteRule ^wo_task_public/(.+)/?$ api/wo_task_public.php
 RewriteRule ^zone/?$ api/zone.php
 RewriteRule ^zone/(.+)/?$ api/zone.php

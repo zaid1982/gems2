@@ -152,6 +152,8 @@
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
@@ -184,10 +186,15 @@
                 const userInfo = mzGetProfile();
                 $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
 
+                sectionWoClass_.setRefStatus(refStatus_);
+                sectionWoClass_.setRefUser(refUser_);
+                sectionWoClass_.setRefSite(refSite_);
+                sectionWoClass_.setClassFrom(woAssignClass_);
                 sectionWoClass_.init();
 
                 woAssignClass_.setRefStatus(refStatus_);
                 woAssignClass_.setRefUser(refUser_);
+                woAssignClass_.setSectionWoClass(sectionWoClass_);
                 woAssignClass_.init();
                 woAssignClass_.genTable();
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }

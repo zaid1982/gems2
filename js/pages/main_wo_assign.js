@@ -3,6 +3,7 @@ function MainWoAssign () {
     const className = 'MainWoAssign';
     let self = this;
     let oTableWssPending;
+    let sectionWoClass;
     let refStatus;
     let refUser;
     let refWoType = {
@@ -13,8 +14,12 @@ function MainWoAssign () {
         5: 'Defect',
         6: 'Public Complaint'
     };
+    let currentTab;
 
     this.init = function () {
+        currentTab = 'Pending';
+        self.showMain();
+        
         oTableWssPending = $('#dtWssPending').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -48,6 +53,10 @@ function MainWoAssign () {
                 $('#btnWssPendingRefresh').off('click').on('click', function () {
                     self.genTable();
                 });
+                $('.lnkWssPendingEdit').off('click').on('click', function () {
+                    const woTaskId = mzGetLinkId($(this), oTableWssPending, 'woTaskId');
+                    sectionWoClass.assign(woTaskId);
+                });
             },
             aoColumns: [
                 { mData: null},
@@ -69,9 +78,9 @@ function MainWoAssign () {
                             label += '<a><i class="fas fa-file-alt lnkWssPendingPdfWr" id="lnkWssPendingPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
+                            label += '<a><i class="far fa-file-pdf lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                         }
-                        label += '<a><i class="fas fa-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Process"></i></a>';
+                        label += '&nbsp;<a><i class="fas fa-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Process"></i></a>';
                         return label;
                     }}
             ]
@@ -107,6 +116,20 @@ function MainWoAssign () {
 
     this.getClassName = function () {
         return className;
+    };
+    
+    this.showMain = function () {
+        $('.sectionWssMain').show();
+        $('.sectionWssTask').hide();
+        $('.sectionWss'+currentTab).show();
+    };
+    
+    this.hideMain = function () {
+        $('.sectionWssMain').hide();
+    };
+    
+    this.setSectionWoClass = function (_sectionWoClass) {
+        sectionWoClass = _sectionWoClass;
     };
 
     this.setRefStatus = function (_refStatus) {
