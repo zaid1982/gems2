@@ -12,7 +12,7 @@
             <div class="card z-depth-4 mb-3">
                 <div class="p-3 info-color text-white">
                     <h5>Work Request No.</h5>
-                    <h1 class="mt-3 mb-0 font-weight-bold"><span id="lblSwoAuditNo">WRDEMO25012600133</span></h1>
+                    <h2 class="mt-3 mb-0 font-weight-bold"><span id="lblSwoAuditNo">WRDEMO25012600133</span></h2>
                     <p class="mt-1 mb-0">Status - <span class="font-weight-bold" id="lblSwoStatus">DSVSDV</span></p>
                 </div>
             </div>
@@ -33,11 +33,11 @@
                 <div class="card-body">
                     <div class="media">
                         <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-eye fa-2x text-info"></i>
+                            <i class="fa-duotone fa-memo-circle-info fa-2x text-info"></i>
                         </span>
                         <div class="media-body">
-                            <h5 class="dark-grey-text mt-1 mb-2">SLA</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSwoSla">13h Respond</p>
+                            <h5 class="dark-grey-text mt-1 mb-2">Description of Complaint</h5>
+                            <p class="font-weight-light text-muted mb-0" id="pSwoComplaint">djhfjkhs fjhdjfhkugeruf bhjadfbhjbds dfbbdf dfb df vf fvfdvdvdf jkhfkjsajf bwgekufhvh fbhjsdbhjfbhj,sd</p>
                         </div>
                     </div>
                 </div>
@@ -78,93 +78,57 @@
         <div class="col-md-7">
             <div class="card z-depth-3 mb-3">
                 <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left info-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2">Work Request Information</h5>
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Complaint Details</h6>
                 </div>
                 <div class="card-body pb-0">
-                    <div class="row pt-2">
-                        <div class="md-form col-lg-6 my-2">
+                    <div class="row">
+                        <div class="md-form col-lg-5 my-2">
                             <i class="fa-duotone fa-map-marked-alt prefix text-info"></i>
-                            <label class="active pl-3_5">Site</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSite">ccvdsv kuewukf kuwe fku</p>
+                            <label class="active pl-3_5">Client</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoClient">UITM Tapah</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-building prefix text-info"></i>
-                            <label class="active pl-3">Zone</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoZone">vdsvd dsfv  dssd es</p>
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fa-duotone fa-tag prefix text-info"></i>
+                            <label class="active pl-3">Category</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDefectCategory">Public Complaint</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 my-2">
+                            <i class="fa-duotone fa-circle-exclamation prefix text-info"></i>
+                            <label class="active pl-3_5">Severity</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSite">Urgent</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
+                            <label class="active pl-3">Reported Date/Time</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeReported">December 13, 2024; 12:32:43</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-12 my-2">
                             <i class="fa-duotone fa-map-signs prefix text-info"></i>
-                            <label class="active pl-3">Area</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoArea"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-tools prefix text-info"></i>
-                            <label class="active pl-3">Asset Group</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoAssetGroup"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-barcode prefix text-info"></i>
-                            <label class="active pl-3">Asset No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoAssetNo"></p>
+                            <label class="active pl-3">Location</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoALocation">dfsdfdsf</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-12 my-2">
-                            <i class="fa-duotone fa-house-damage prefix text-info"></i>
-                            <label class="active pl-3">Evaluated Asset</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoEvaluatedAsset"></p>
+                            <i class="fa-duotone fa-user prefix text-info"></i>
+                            <label class="active pl-3">Complainer Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerName">breberb</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-tint-slash prefix text-info"></i>
-                            <label class="active pl-3">Defect Item</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDefectItem"></p>
+                        <div class="md-form col-lg-5 my-2">
+                            <i class="fa-duotone fa-phone prefix text-info"></i>
+                            <label class="active pl-3">Complainer Phone No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerPhoneNo">0102203022</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-tag prefix text-info"></i>
-                            <label class="active pl-3">Defect Category</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDefectCategory"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-certificate prefix text-info"></i>
-                            <label class="active pl-3">Condition Scale</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoConditionScale"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-hammer prefix text-info"></i>
-                            <label class="active pl-3">Evaluation Scale</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoEvaluationType"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-12 my-2">
-                            <i class="fa-duotone fa-user-tie prefix text-info"></i>
-                            <label class="active pl-3">Auditor</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoAuditor"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-12 my-2">
-                            <i class="fa-duotone fa-user-check prefix text-info"></i>
-                            <label class="active pl-3">Validator</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoValidator"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
-                            <label class="active pl-3">Audit Date</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoAuditDate"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-2">
-                            <i class="fa-duotone fa-calendar-check prefix text-info"></i>
-                            <label class="active pl-3">Validate Date</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoValidateDate"></p>
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fa-duotone fa-envelope prefix text-info"></i>
+                            <label class="active pl-3">Complainer Email</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerEmail">vdsv@fdsvsd.dsv</p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                     </div>
@@ -172,19 +136,152 @@
             </div>
             <div class="card z-depth-3 mb-3">
                 <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2">WO Sections</h5>
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Complaint Images</h6>
                 </div>
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                    </div>
+                    <div class="mdb-lightbox no-margin" id="divSwoImageComplaint"></div>
                 </div>
             </div>
             <div class="card z-depth-3 mb-3">
                 <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2">Repair Images</h5>
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Work Assessment & Technician Involved</h6>
+                </div>
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="md-form col-lg-5 my-2">
+                            <i class="fa-duotone fa-people-group prefix text-info"></i>
+                            <label class="active pl-3">WO Group</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoGroup">DM ferferre</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fa-duotone fa-user-helmet-safety prefix text-info"></i>
+                            <label class="active pl-3">Person in Charge</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianName">Ali bin Abu bkakar</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 my-2">
+                            <i class="fa-duotone fa-phone prefix text-info"></i>
+                            <label class="active pl-3">Complainer Phone No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianPhoneNo">0102203022</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-2">
+                            <i class="fa-duotone fa-envelope prefix text-info"></i>
+                            <label class="active pl-3">Complainer Email</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianEmail">vdsv@fdsvsd.dsv</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
+                            <label class="active pl-3">SLA Respond</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoSlaRespond">vdsv@fdsvsd.dsv</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
+                            <label class="active pl-3">SLA Execution</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoSlaExecution">vdsv@fdsvsd.dsv</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
+                            <label class="active pl-3">Time Respond</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeRespond">December 13, 2024; 12:32:43</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
+                            <label class="active pl-3">Work Completed</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDurationRespond">December 13, 2024; 12:32:43</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-timer prefix text-info"></i>
+                            <label class="active pl-3">Respond Duration</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeExecution">December 13, 2024; 12:32:43</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-timer prefix text-info"></i>
+                            <label class="active pl-3">Work Duration</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDurationExecution">December 13, 2024; 12:32:43</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-2">
+                            <i class="fa-duotone fa-star-sharp-half prefix text-info"></i>
+                            <label class="active pl-3">Rating</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoRating">December 13, 2024; 12:32:43</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Description of Repair</h6>
                 </div>
                 <div class="card-body">
-                    <div class="mdb-lightbox no-margin" id="divSwoImageAudit"></div>
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                        <div class="md-form col-lg-12 my-2">
+                            <i class="fa-duotone fa-clipboard-list prefix text-info"></i>
+                            <label class="active pl-3">Description of Repair</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoRepair">reaijh ihweijf rjkhfjkhrwafhij arhjl ghkjr kjrrj sjk fsk kjdfs kdsfk dfs dsfjkhdsjkhfjhh erh lerl lrehlg her</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Repair Images</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                    </div>
+                    <div class="mdb-lightbox no-margin" id="divSwoImageRepair"></div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Asset No</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Assistant</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">Material Space Parts</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12"><i>- empty -</i></div>
+                    </div>
                 </div>
             </div>
         </div>
