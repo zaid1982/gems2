@@ -45,6 +45,8 @@ RewriteRule ^att_transaction/?$ api/att_transaction.php
 RewriteRule ^att_transaction/(.+)/?$ api/att_transaction.php
 RewriteRule ^client/?$ api/client_v2.php
 RewriteRule ^client/(.+)/?$ api/client_v2.php
+RewriteRule ^client_severity/?$ api/client_severity.php
+RewriteRule ^client_severity/(.+)/?$ api/client_severity.php
 RewriteRule ^designation/?$ api/designation_v2.php
 RewriteRule ^designation/(.+)/?$ api/designation_v2.php
 RewriteRule ^do/?$ api/do.php

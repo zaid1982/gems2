@@ -285,6 +285,7 @@ function MainWoAssign () {
                 $('#badgeWssTotalSubmitted').text(res.length);
                 oTableWssSubmitted.clear().rows.add(res).draw();
                 runSubmitted = false;
+                currentTab = 'Submitted';
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
         }
     };

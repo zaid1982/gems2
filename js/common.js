@@ -1968,9 +1968,12 @@ function mzGetLinkId (selector, dtTable, idName) {
     return false;
 }
 
-function mzNullToValue (data, value, valueReturn) {
+function mzNullToValue (data, value, valueReturn, refData) {
     if (data === '' || data === null) {
         return value;
+    }
+    if (typeof refData !== 'undefined') {
+        return typeof refData[data] !== 'undefined' ? refData[data][valueReturn] : value;
     }
     return typeof valueReturn !== 'undefined' ? valueReturn : data;
 }
