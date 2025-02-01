@@ -30,7 +30,12 @@ function SectionWo () {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
             woTaskId = _woTaskId;
-            mzFetch('wo_v3/'+woTaskId).then(woTask => {
+            Promise.all([
+                mzFetch('wo_v3/'+woTaskId),
+                mzFetch('wo_task_upload/by_woTaskId/'+woTaskId)
+            ]).then(responses => {
+                const woTask = responses[0];
+                const images = responses[1];
                 console.log(woTask);
                 $('#divSwoWo, #divSwoWr, .divSwoPublic').hide();
                 $('#lblSwoWoMainName').text('Work Order No.');
@@ -55,7 +60,7 @@ function SectionWo () {
                 $('#pSwoSite').text(refSite[woTask['siteId']]['siteName']);
                 $('#pSwoCategory').text(refWoType[woTask['woTaskType']]);
                 $('#pSwoSeverity').text(mzNullToValue(woTask['woTaskSeverity'], '-'));
-                $('#pSwoTimeReported').text(moment(woTask['woTaskTimeCreated']).format('MMMM Do YYYY, hh:mm:ss'));
+                $('#pSwoTimeReported').text(moment(woTask['woTaskTimeCreated']).format('MMMM Do, YYYY, hh:mm:ss'));
                 $('#pSwoLocation').text(woTask['woTaskLocation']);
                 if (woTask['woTaskIsPublic'] === 1) {
                     mzFetch('wo_task_public/by_woTaskId/'+woTaskId).then(woTaskPublic => {
@@ -71,6 +76,27 @@ function SectionWo () {
                     $('#pSwoComplainerName').text(createdBy['userFirstName']);
                     $('#pSwoComplainerPhoneNo').text(createdBy['userContactNo']);
                     $('#pSwoComplainerEmail').text(createdBy['userEmail']);
+                }
+                let divImageComplaint = $('#divSwoImageComplaint');
+                if (images[1].length > 0) {
+                    divImageComplaint.html('');
+                    let cnt = 0;
+                    for (const image of images[1]) {
+                        const imageSize = image['uploadFileWidth'] !== null ? image['uploadFileWidth']+'x'+image['uploadFileHeight'] : '500x500'
+                        divImageComplaint.append('<figure class="mx-1">\n' +
+                            '   <a href="'+image['url']+'" data-size="'+imageSize+'">\n' +
+                            '     <img src="'+image['url']+'" style="height: 200px" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
+                            '   </a>\n' +
+                            '   <p class="mb-0 font-small text-center">Complaint Image '+(++cnt)+'</p>\n' +
+                            '</figure>\n');
+                    }
+                } else {
+                    divImageComplaint.html('<i>- empty -</i>');
+                }
+                if (woTask['woTaskStatus'] === 24) {
+                    $('.divSwoAssigned').hide();
+                } else {
+                    $('.divSwoAssigned').show();
                 }
                 classFrom.hideMain();
                 self.showSection();

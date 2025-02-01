@@ -15,6 +15,8 @@ function MainWoAssign () {
         6: 'Public Complaint'
     };
     let currentTab;
+    let runPending = true;
+    let runSubmitted = false;
 
     this.init = function () {
         currentTab = 'Pending';
@@ -37,7 +39,7 @@ function MainWoAssign () {
                 { className: 'noVis', targets: [0, 7] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
                 { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Print', exportOptions: mzExportOpt},
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
@@ -51,7 +53,8 @@ function MainWoAssign () {
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#btnWssPendingRefresh').off('click').on('click', function () {
-                    self.genTable();
+                    runPending = true;
+                    self.genTablePending();
                 });
                 $('.lnkWssPendingEdit').off('click').on('click', function () {
                     const woTaskId = mzGetLinkId($(this), oTableWssPending, 'woTaskId');
@@ -87,31 +90,31 @@ function MainWoAssign () {
         });
 
         $('#btnWssPending').on('click', function () {
-            ShowLoader(); setTimeout(function () {
-                $('.sectionWssTask').hide();
-                $('.sectionWssPending').show();
-                $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
-                $('#btnWssPending').removeClass('lighten-2');
-                window.scrollTo({top: 0, behavior: 'smooth'});
-                HideLoader(); }, 200);
+            $('.sectionWssTask').hide();
+            $('.sectionWssPending').show();
+            $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
+            $('#btnWssPending').removeClass('lighten-2');
+            self.genTablePending();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
 
         $('#btnWssSubmitted').on('click', function () {
-            ShowLoader(); setTimeout(function () {
-                $('.sectionWssTask').hide();
-                $('.sectionWssSubmitted').show();
-                $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
-                $('#btnWssSubmitted').removeClass('lighten-2');
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            HideLoader(); }, 200);
+            $('.sectionWssTask').hide();
+            $('.sectionWssSubmitted').show();
+            $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
+            $('#btnWssSubmitted').removeClass('lighten-2');
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
     };
 
-    this.genTable = function () {
-        ShowLoader(); setTimeout(function () { mzFetch('wo_v3/pending_assign').then(res => {
-            $('#badgeWssTotalPending').text(res.length);
-            oTableWssPending.clear().rows.add(res).draw();
-        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+    this.genTablePending = function () {
+        if (runPending) {
+            ShowLoader(); setTimeout(function () { mzFetch('wo_v3/pending_assign').then(res => {
+                $('#badgeWssTotalPending').text(res.length);
+                oTableWssPending.clear().rows.add(res).draw();
+                runPending = false;
+            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+        }
     };
 
     this.getClassName = function () {

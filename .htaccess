@@ -125,5 +125,7 @@ RewriteRule ^wo_task_request/?$ api/wo_task_request.php
 RewriteRule ^wo_task_request/(.+)/?$ api/wo_task_request.php
 RewriteRule ^wo_task_public/?$ api/wo_task_public.php
 RewriteRule ^wo_task_public/(.+)/?$ api/wo_task_public.php
+RewriteRule ^wo_task_upload/?$ api/wo_task_upload.php
+RewriteRule ^wo_task_upload/(.+)/?$ api/wo_task_upload.php
 RewriteRule ^zone/?$ api/zone.php
 RewriteRule ^zone/(.+)/?$ api/zone.php
