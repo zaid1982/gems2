@@ -57,31 +57,89 @@
                     <div class="float-left danger-color" style="width: 16px; height: 41px">&nbsp;</div>
                     <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Assign Work Request</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row mt-3">
-                        <div class="col-md-6 select-outline mb-2" id="optSwoaSite_">
-                            <select id="optSwoaSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Filter Site"></select>
-                            <label for="optSwoaSite" id="lblSwoaSite">Site *</label>
-                            <p class="font-small text-danger" id="optSwoaSiteErr"></p>
+                <div class="card-body pb-0 px-4">
+                    <div class="row mt-2">
+                        <div class="col-lg-12 select-outline mb-2 px-2">
+                            <select id="optSwoaType" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
+                                <option value="" selected disabled>Select Category</option>
+                                <option value="1">Client Complaint</option>
+                                <option value="3">Request</option>
+                                <option value="4">Breakdown</option>
+                                <option value="5">Defect</option>
+                                <option value="6">Public Complaint</option>
+                            </select>
+                            <label for="optSwoaType" id="lblSwoaType">Category *</label>
+                            <p class="font-small text-danger" id="optSwoaTypeErr"></p>
                         </div>
-                        <div class="col-md-6 select-outline mb-2" id="optSwoaZone_">
-                            <select id="optSwoaZone" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optSwoaZone" id="lblSwoaZone">Zone</label>
-                            <p class="font-small text-danger" id="optSwoaZoneErr"></p>
+                        <div class="col-lg-6 select-outline mb-2 px-2">
+                            <select id="optSwoaSeverity" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
+                            <label for="optSwoaSeverity" id="lblSwoaSeverity">Severity *</label>
+                            <p class="font-small text-danger" id="optSwoaSeverityErr"></p>
                         </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSwoaArea" class="form-control">
-                                <label for="txtSwoaArea" id="lblSwoaArea">Area *</label>
-                                <p class="font-small text-danger" id="txtSwoaAreaErr"></p>
-                            </div>
+                        <div class="col-md-6 select-outline mb-2 px-2" id="optSwoaMaxAssistants_">
+                            <select id="optSwoaMaxAssistants" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
+                                <option value="" selected disabled>Select Max. Assistants</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <label for="optSwoaMaxAssistants" id="lblSwoaMaxAssistants">Maximum Assistants *</label>
+                            <p class="font-small text-danger" id="optSwoaMaxAssistantsErr"></p>
                         </div>
-                        <div class="col-md-6 select-outline mb-2" id="optSwoaAssetGroup_">
-                            <select id="optSwoaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optSwoaAssetGroup" id="lblSwoaAssetGroup">Asset Group *</label>
-                            <p class="font-small text-danger" id="optSwoaAssetGroupErr"></p>
+                        <div class="col-md-12 select-outline mb-2 px-2" id="optSwoaPpmGroup_">
+                            <select id="optSwoaPpmGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optSwoaPpmGroup" id="lblSwoaPpmGroup">Executor Group *</label>
+                            <p class="font-small text-danger" id="optSwoaPpmGroupErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2 px-2" id="optSwoaAssignedTo_">
+                            <select id="optSwoaAssignedTo" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
+                            <label for="optSwoaAssignedTo" id="lblSwoaAssignedTo">Executor *</label>
+                            <p class="font-small text-danger" id="optSwoaAssignedToErr"></p>
                         </div>
                     </div>
+                    <hr class="mt-0 divSwoaExecutorDetails">
+                    <div class="row divSwoaExecutorDetails">
+                        <div class="col-md-12 mb-3 px-2">
+                            <h6 class="font-weight-500">Executor Details :</h6>
+                        </div>
+                        <div class="col-md-12 px-2">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSwoaUserName" class="form-control" disabled>
+                                <label for="txtSwoaUserName" id="lblSwoaUserName">Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 px-2">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSwoaUserContactNo" class="form-control" disabled>
+                                <label for="txtSwoaUserContactNo" id="lblSwoaUserContactNo">Phone No.</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 px-2">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSwoaUserEmail" class="form-control" disabled>
+                                <label for="txtSwoaUserEmail" id="lblSwoaUserEmail">Email</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 px-2 pb-2">
+                            <div class="table-responsive">
+                                <table id="dtSwoaCurrentTask" class="table table-hover table-custom-badge mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th class="pt-2">#</th>
+                                        <th class="pt-2">Current Task in Hands</th>
+                                        <th class="pt-2">Date Received</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-1">
+                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSwoaSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i> Submit</button>
                 </div>
             </div>
         </div>
@@ -128,43 +186,43 @@
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
                             <label class="active pl-3">Reported Date/Time</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeReported"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeReported"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-12 my-1">
                             <i class="fa-duotone fa-map-signs prefix text-info"></i>
                             <label class="active pl-3">Location</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoLocation"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoLocation"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-12 my-1">
                             <i class="fa-duotone fa-user prefix text-info"></i>
                             <label class="active pl-3">Complainer Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerName"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerName"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-5 my-1">
                             <i class="fa-duotone fa-phone prefix text-info"></i>
                             <label class="active pl-3">Complainer Phone No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerPhoneNo"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerPhoneNo"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-7 my-1">
                             <i class="fa-duotone fa-envelope prefix text-info"></i>
                             <label class="active pl-3">Complainer Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerEmail"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerEmail"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-5 my-1 divSwoPublic">
                             <i class="fa-duotone fa-id-card prefix text-info"></i>
                             <label class="active pl-3">Complainer IC No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerIcNo"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerIcNo"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-7 my-1 divSwoPublic">
                             <i class="fa-duotone fa-building prefix text-info"></i>
                             <label class="active pl-3">Agency Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoComplainerAgency"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerAgency"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                     </div>
@@ -191,67 +249,67 @@
                         <div class="md-form col-lg-5 my-1">
                             <i class="fa-duotone fa-people-group prefix text-info"></i>
                             <label class="active pl-3">WO Group</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoGroup"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoGroup"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-7 my-1">
                             <i class="fa-duotone fa-user-helmet-safety prefix text-info"></i>
                             <label class="active pl-3">Technician Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianName"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianName"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-5 my-1">
                             <i class="fa-duotone fa-phone prefix text-info"></i>
                             <label class="active pl-3">Technician Phone No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianPhoneNo"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianPhoneNo"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-7 my-1">
                             <i class="fa-duotone fa-envelope prefix text-info"></i>
                             <label class="active pl-3">Technician Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTechnicianEmail"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianEmail"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
                             <label class="active pl-3">SLA Respond</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoSlaRespond"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSlaRespond"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
                             <label class="active pl-3">SLA Execution</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoSlaExecution"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSlaExecution"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
                             <label class="active pl-3">Time Respond</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeRespond"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeRespond"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
                             <label class="active pl-3">Work Completed</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoTimeExecution"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeExecution"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-timer prefix text-info"></i>
                             <label class="active pl-3">Respond Duration</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDurationRespond"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoDurationRespond"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-timer prefix text-info"></i>
                             <label class="active pl-3">Work Duration</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoDurationExecution"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoDurationExecution"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                         <div class="md-form col-lg-6 my-1">
                             <i class="fa-duotone fa-star-sharp-half prefix text-info"></i>
                             <label class="active pl-3">Rating</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoRating"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoRating"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                     </div>
@@ -267,7 +325,7 @@
                         <div class="md-form col-lg-12 my-1">
                             <i class="fa-duotone fa-clipboard-list prefix text-info"></i>
                             <label class="active pl-3">Description of Repair</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoRepair"></p>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoRepair"></p>
                             <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                         </div>
                     </div>

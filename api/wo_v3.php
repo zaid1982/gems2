@@ -107,6 +107,19 @@ try {
         $formData['errmsg'] = Constant::$wo['submitPublic'];
         $formData['result'] = $result;
         $formData['success'] = true;
+    }
+    else if ('PUT' === $requestMethod) { // public complaint
+        $bodyParams = json_decode(file_get_contents("php://input"), true);
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        if ($urlArr[1] === 'submit_assign') {
+
+        } else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
+        }
+        DbMysql::commit();
+        $formData['result'] = $result;
+        $formData['success'] = true;
     } else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }

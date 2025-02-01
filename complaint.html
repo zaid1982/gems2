@@ -349,9 +349,7 @@
                     saveImageSize(this.files[0], 0);
                     $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
                     mzDisplayImageFileInput(this, 'imgPsaImage');
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
+                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             });
 
             document.getElementById('txfPsaImage').addEventListener('change', mzHandleFileSelect, false);
@@ -384,7 +382,6 @@
                             complaint: $('#txaPsaComplaint').val(),
                             image: fileUpload,
                         };
-                        console.log(data);
                         ShowLoader(); setTimeout(function () {
                             mzFetch('wo_v3/ext', 'POST', data).then(res => {
                                 formValidate.clearValidation();
@@ -394,13 +391,9 @@
                             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }, 200);
                     }
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
+                } catch (e) { oastr['error'](e.message, _ALERT_TITLE_ERROR); }
             });
-        } catch (e) {
-            toastr['error'](e.message, _ALERT_TITLE_ERROR);
-        }
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     });
 
     function saveImageSize (files) {

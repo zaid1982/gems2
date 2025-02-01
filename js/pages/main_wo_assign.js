@@ -22,7 +22,7 @@ function MainWoAssign () {
 
     this.init = function () {
         currentTab = 'Pending';
-        self.showMain();
+        self.showMain(false);
         
         oTableWssPending = $('#dtWssPending').DataTable({
             bLengthChange: false,
@@ -300,10 +300,15 @@ function MainWoAssign () {
         return className;
     };
     
-    this.showMain = function () {
+    this.showMain = function (_runPending) {
         $('.sectionWssMain').show();
         $('.sectionWssTask').hide();
         $('.sectionWss'+currentTab).show();
+        if (_runPending) {
+            runPending = true;
+            runSubmitted = true;
+            self.genTableSubmitted();
+        }
     };
     
     this.hideMain = function () {

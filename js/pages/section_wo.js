@@ -7,6 +7,7 @@ function SectionWo () {
     let refUser;
     let refSite;
     let refSeverity;
+    let refPpmGroup;
     let refWoType = {
         1: 'Client Complaint',
         2: 'Self Finding',
@@ -16,14 +17,130 @@ function SectionWo () {
         6: 'Public Complaint'
     };
     let woTaskId;
+    let formValidateSwoa;
+    let arrPpmGroupUser;
+    let oTableCurrentTask;
+    let isSubmitted = false;
+
+    const vDataSwoa = [
+        {
+            field_id: 'optSwoaType',
+            type: 'select',
+            name: 'Category',
+            validator: {
+                notEmpty: true
+            }
+        },
+        {
+            field_id: 'optSwoaSeverity',
+            type: 'select',
+            name: 'Severity',
+            validator: {
+                notEmpty: true
+            }
+        },
+        {
+            field_id: 'optSwoaPpmGroup',
+            type: 'select',
+            name: 'Executor Group',
+            validator: {
+                notEmpty: true
+            }
+        },
+        {
+            field_id: 'optSwoaAssignedTo',
+            type: 'select',
+            name: 'Executor',
+            validator: {
+                notEmpty: true
+            }
+        },
+        {
+            field_id: 'optSwoaMaxAssistants',
+            type: 'select',
+            name: 'Maximum Assistants',
+            validator: {
+                notEmpty: true,
+            }
+        }
+    ];
 
     this.init = function () {
         self.hideSection();
         
         $('#btnSwoBack').on('click', function () {
             self.hideSection();
-            classFrom.showMain();
+            classFrom.showMain(isSubmitted);
             $(window).scrollTop(0);
+        });
+
+        formValidateSwoa = new MzValidate('formSwoa');
+        formValidateSwoa.registerFields(vDataSwoa);
+
+        $('#optSwoaPpmGroup').on('change', function () {
+            const ppmGroupId = $(this).val();
+            ShowLoader(); setTimeout(function () {
+                try {
+                    arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId='+ppmGroupId, 'GET');
+                    mzOptionStop('optSwoaAssignedTo', arrPpmGroupUser, 'Select Executor', 'userId', 'userFirstName', {}, 'required');
+                    mzDisableSelect('optSwoaAssignedTo', false);
+                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+            HideLoader(); }, 200);
+        });
+
+        $('#optSwoaAssignedTo').on('change', function () {
+            const assignedTo = parseInt($(this).val());
+            console.log(assignedTo);
+            ShowLoader(); setTimeout(function () {
+                try {
+                    mzSetFieldValue('SwoaUserName', refUser[assignedTo]['userFirstName'], 'text');
+                    mzSetFieldValue('SwoaUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
+                    mzSetFieldValue('SwoaUserEmail', refUser[assignedTo]['userEmail'], 'text');
+                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId='+assignedTo, 'GET');
+                    oTableCurrentTask.clear().rows.add(dataResult).draw();
+                    $('.divSwoaExecutorDetails').show();
+                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+            HideLoader(); }, 200);
+        });
+
+        oTableCurrentTask =  $('#dtSwoaCurrentTask').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            bInfo: false,
+            ordering: false,
+            bPaginate: true,
+            language: _DATATABLE_LANGUAGE,
+            aaSorting: [2, 'asc'],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                $('td', nRow).eq(0).html(iDisplayIndex + 1);
+            },
+            aoColumns: [
+                { mData: null, sClass: 'text-center'},
+                { mData: 'woTaskNo', sClass: 'text-center'},
+                { mData: 'dateReceived', sClass: 'text-center'}
+            ]
+        });
+
+        $('#btnSwoaSubmit').on('click', function () {
+            try {
+                if (!formValidateSwoa.validateNow()) {
+                    toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                } else {
+                    const data = {
+                        woTaskType: $('#optSwoaType').val(),
+                        woTaskSeverity: $('#optSwoaSeverity').val(),
+                        ppmGroupId: $('#optSwoaPpmGroup').val(),
+                        woTaskAssignedTo: mzParseInt($('#optMfaSite').val()),
+                        woTaskMaxAssistant: $('#optSwoaMaxAssistants').val()
+                    };
+                    ShowLoader(); setTimeout(function () {
+                        mzFetch('wo_v3/submit_assign/'+woTaskId, 'PUT', data).then(res => {
+                            self.assign(woTaskId);
+                            isSubmitted = true;
+                        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                    }, 200);
+                }
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
     };
     
@@ -31,6 +148,7 @@ function SectionWo () {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
             woTaskId = _woTaskId;
+            isSubmitted = false;
             Promise.all([
                 mzFetch('wo_v3/'+woTaskId),
                 mzFetch('wo_task_upload/by_woTaskId/'+woTaskId)
@@ -78,6 +196,7 @@ function SectionWo () {
                     $('#pSwoComplainerPhoneNo').text(createdBy['userContactNo']);
                     $('#pSwoComplainerEmail').text(createdBy['userEmail']);
                 }
+
                 let divImageComplaint = woTask['woTaskStatus'] === 24 || woTask['woTaskStatus'] === 26 ? $('#divSwoImageComplaint') : $('#divSwoImageComplaintLeft');
                 if (images[1].length > 0) {
                     divImageComplaint.html('');
@@ -95,17 +214,26 @@ function SectionWo () {
                 } else {
                     divImageComplaint.html('<i>- empty -</i>');
                 }
+
                 if (woTask['woTaskStatus'] === 24 || woTask['woTaskStatus'] === 26) {
                     $('.divSwoAssign').show();
                     $('.divSwoAssigned').hide();
                     $('.divSwoImageLeft').hide();
+                    $('.divSwoaExecutorDetails').hide();
+                    const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId='+woTask['siteId'], 'GET');
+                    mzOptionStop('optSwoaSeverity', arrSeverity, 'Select Severity', 'severityId', 'severityName', {}, 'required');
+                    mzOptionStop('optSwoaPpmGroup', refPpmGroup, 'Select Executor Group', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: woTask['siteId'].toString(), roleId:'8'}, 'required');
+                    mzOptionStopClear('optSwoaAssignedTo', '', 'required');
+                    mzDisableSelect('optSwoaAssignedTo', true);
+                    formValidateSwoa.clearValidation();
                 } else {
                     $('.divSwoAssign').hide();
                     $('.divSwoAssigned').show();
                     $('.divSwoImageLeft').show();
                 }
+
                 if (woTask['woTaskStatus'] !== 24) {
-                    $('#pSwoGroup').text(woTask['ppmGroupId']);
+                    $('#pSwoGroup').text(mzNullToValue(woTask['ppmGroupId'], '-', 'ppmGroupName', refPpmGroup));
                     $('#pSwoTechnicianName').text(mzNullToValue(woTask['woTaskAssignedTo'], '-', 'userFirstName', refUser));
                     $('#pSwoTechnicianPhoneNo').text(mzNullToValue(woTask['woTaskAssignedTo'], '-', 'userContactNo', refUser));
                     $('#pSwoTechnicianEmail').text(mzNullToValue(woTask['woTaskAssignedTo'], '-', 'userEmail', refUser));
@@ -129,7 +257,7 @@ function SectionWo () {
                     $('#pSwoRating').text(mzNullToValue(woTask['woTaskRate'], '-'));
                     $('#pSwoRepair').text(mzNullToValue(woTask['woTaskRepairDesc'], '-'));
                     if (woTask['woTaskStatus'] === 26) {
-                        $('.divSwoAssigned').hide();
+                        $('.divSwoAssign').hide();
                         $('.divSwoAssessment').show();
                     } else {
                         let divImageRepair = $('#divSwoImageRepair');
@@ -208,5 +336,9 @@ function SectionWo () {
 
     this.setRefSeverity = function (_refSeverity) {
         refSeverity = _refSeverity;
+    };
+
+    this.setRefPpmGroup = function (_refPpmGroup) {
+        refPpmGroup = _refPpmGroup;
     };
 }
