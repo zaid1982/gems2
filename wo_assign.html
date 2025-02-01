@@ -73,13 +73,13 @@
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
-                                        <th>Timestamp</th>
                                         <th>WO/WR No</th>
                                         <th>Location</th>
                                         <th>Type</th>
-                                        <th>Complainant</th> <!--5-->
+                                        <th>Complainant</th>
+                                        <th>Received Time</th> <!--5-->
                                         <th>Status</th>
-                                        <th style="width: 24px">&nbsp;</th> <!--7-->
+                                        <th style="width: 24px">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -104,13 +104,17 @@
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
-                                        <th>Timestamp</th>
                                         <th>WO/WR No</th>
                                         <th>Location</th>
                                         <th>Type</th>
-                                        <th>Complainant</th> <!--5-->
-                                        <th>Status</th>
-                                        <th style="width: 24px">&nbsp;</th> <!--7-->
+                                        <th>Complainant</th>
+                                        <th>Severity</th> <!--5-->
+                                        <th>Received Time</th>
+                                        <th>Submitted Time</th>
+                                        <th style="width: 30px; min-width: 30px">SLA</th>
+                                        <th>Respond Duration</th>
+                                        <th>Status</th> <!--10-->
+                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -124,6 +128,7 @@
         <div class="includeHtml" id="h-section_wo"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -182,6 +187,7 @@
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
                 const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
 
                 const userInfo = mzGetProfile();
                 $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
@@ -189,14 +195,17 @@
                 sectionWoClass_.setRefStatus(refStatus_);
                 sectionWoClass_.setRefUser(refUser_);
                 sectionWoClass_.setRefSite(refSite_);
+                sectionWoClass_.setRefSeverity(refSeverity_);
                 sectionWoClass_.setClassFrom(woAssignClass_);
                 sectionWoClass_.init();
 
                 woAssignClass_.setRefStatus(refStatus_);
                 woAssignClass_.setRefUser(refUser_);
+                woAssignClass_.setRefSeverity(refSeverity_);
                 woAssignClass_.setSectionWoClass(sectionWoClass_);
                 woAssignClass_.init();
                 woAssignClass_.genTablePending();
+                woAssignClass_.assignTotalSubmitted();
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             HideLoader();
         }, 200);

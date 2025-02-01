@@ -81,6 +81,9 @@ class WoTask extends General {
             if ($this->woTaskIsWr === 1) {
                 $params['woTaskIsWr'] = 1;
                 $params['woTaskRequestNo'] = $this->woTaskNo;
+                $params['woTaskIsPdfWr'] = 1;
+            } else {
+                $params['woTaskIsPdf'] = 1;
             }
             $this->woTaskId = DbMysql::insert($this::$tableName, $params);
 
@@ -102,23 +105,74 @@ class WoTask extends General {
     public function pendingAssign (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $siteId = $this->userSite;
             return DbMysql::selectSqlAll(
                 /** @lang text */
                 "SELECT
-                 wo.wo_task_id,  
-                 wo.wo_task_no,
-                 wo.wo_task_request_no,
-                 wo.wo_task_location,
-                 wo.wo_task_type,
-                 wo.wo_task_is_wr,
-                 wo.wo_task_time_wr_verified,
-                 wo.wo_task_created_by,
-                 wo.wo_task_status,
-                 tsk.*
+                     wo.*,
+                     tsk.task_id,
+                     tsk.checkpoint_id,
+                     tsk.task_time_created,
+                     tsk.task_status
                 FROM wfl_task tsk 
                 INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
-                WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 1 AND wo.site_id = 19"
+                WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 1 AND wo.site_id = $siteId"
             );
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function submittedTask (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $userId = $this->userId;
+            $siteId = $this->userSite;
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                     wo.*,
+                     tsk.task_id,
+                     tsk.checkpoint_id,
+                     tsk.task_time_created,
+                     tsk.task_time_submit,
+                     tsk.task_status,
+                     sev.client_severity_respond_time
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                LEFT JOIN cli_site ste ON ste.site_id = wo.site_id
+                LEFT JOIN cli_client_severity sev ON sev.severity_id = wo.wo_task_severity AND sev.client_id = ste.client_id
+                WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId"
+            );
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return int
+     * @throws Exception
+     */
+    public function submittedTotal (): int {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $userId = $this->userId;
+            $siteId = $this->userSite;
+            return DbMysql::selectSql(
+            /** @lang text */
+                "SELECT
+                     COUNT(*) AS total
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId",
+            )['total'];
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

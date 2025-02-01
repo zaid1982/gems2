@@ -154,7 +154,7 @@ function MainSeverity() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const refSeverity = mzGetLocalRaw('gems_severity', versionLocal, [], 'asset_group');
+        const refSeverity = mzGetLocalRaw('gems_severity', versionLocal, [], 'severity');
         oTableSeverity.clear().rows.add(refSeverity).draw();
     };
 

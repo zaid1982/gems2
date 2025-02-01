@@ -255,9 +255,12 @@ class Class_wo {
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
-            if ($woTaskType === '1' && $this->get_wo_is_wr($groupId) === '1') {
+            if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
                 $arrWhere['wo_task_request_no'] = $woTaskNo;
+                $arrWhere['wo_task_is_pdf_wr'] = '1';
+            } else {
+                $arrWhere['wo_task_is_pdf'] = '1';
             }
 
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', $arrWhere);
@@ -1133,7 +1136,7 @@ class Class_wo {
             }
             $woStatus = $this->get_wo_is_wr() === '1' ? '27' : '13';
 
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>$woStatus), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_is_pdf'=>($woStatus==='13'?'1':'0'), 'wo_task_is_pdf_wr'=>($woStatus==='27'?'1':'0'), 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>$woStatus), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$woStatus), array('transaction_id'=>$transactionId));
 
             return $woTask['wo_task_no'];
@@ -1166,7 +1169,7 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'25'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'25', 'wo_task_is_pdf'=>'1'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'25'), array('transaction_id'=>$transactionId));
 
             return $woTask['wo_task_no'];
@@ -1443,7 +1446,7 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'26'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>'', 'wo_task_is_pdf'=>'1', 'wo_task_time_assigned'=>'',  'wo_task_status'=>'26'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'26'), array('transaction_id'=>$transactionId));
             Class_db::getInstance()->db_delete('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'(13, 16)'));
 
@@ -1524,7 +1527,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'9', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_is_invalid'=>$isRejected, 'wo_task_wr_check'=>$remark, 'wo_task_is_wr_verified_together'=>$isVerified, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_wr_checked_by'=>$this->userId, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_invalid'=>$isRejected, 'wo_task_wr_check'=>$remark, 'wo_task_is_wr_verified_together'=>$isVerified, 'wo_task_time_wr_checked'=>'Now()', 'wo_task_status'=>'28'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'28'), array('transaction_id'=>$transactionId));
 
             return array(
@@ -1581,7 +1584,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'10', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$status), array('transaction_id'=>$transactionId));
 
             return array(
@@ -1618,7 +1621,7 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'31'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'31', 'wo_task_is_pdf_wr'=>'1'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'31'), array('transaction_id'=>$transactionId));
 
             $technician = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId), 'user_id', null, 1);
@@ -1660,7 +1663,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'7', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_fixed_by'=>$this->userId, 'wo_task_time_executed'=>'Now()', 'wo_task_status'=>'15'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_fixed_by'=>$this->userId, 'wo_task_is_pdf'=>'1', 'wo_task_time_executed'=>'Now()', 'wo_task_status'=>'15'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'15'), array('transaction_id'=>$transactionId));
 
             return array(
@@ -1693,7 +1696,7 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'21', 'wo_task_time_executed'=>''), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_status'=>'21', 'wo_task_time_executed'=>'', 'wo_task_is_pdf'=>'1'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
 
             $woTaskUploads = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'7'));
@@ -1745,7 +1748,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'8', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_rate'=>$woTaskRate, 'wo_task_verified_by'=>$this->userId, 'wo_task_time_verified'=>'Now()', 'wo_task_status'=>'16'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_rate'=>$woTaskRate, 'wo_task_is_pdf'=>'1', 'wo_task_verified_by'=>$this->userId, 'wo_task_time_verified'=>'Now()', 'wo_task_status'=>'16'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'16'), array('transaction_id'=>$transactionId));
 
             $woTaskTechnician = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13', 'role_id'=>'8'), 'user_id');
@@ -1775,7 +1778,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskRate empty');
             }
 
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_rate'=>$woTaskRate), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_rate'=>$woTaskRate, 'wo_task_is_pdf'=>'1'), array('wo_task_id'=>$this->woTaskId));
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return $woTask['wo_task_no'];

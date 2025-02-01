@@ -99,6 +99,8 @@ RewriteRule ^store/?$ api/store.php
 RewriteRule ^store/(.+)/?$ api/store.php
 RewriteRule ^store_v2/?$ api/store_v2.php
 RewriteRule ^store_v2/(.+)/?$ api/store_v2.php
+RewriteRule ^severity_v2/?$ api/severity_v2.php
+RewriteRule ^severity_v2/(.+)/?$ api/severity_v2.php
 RewriteRule ^utility/?$ api/utility.php
 RewriteRule ^utility/(.+)/?$ api/utility.php
 RewriteRule ^utility_meter/?$ api/utility_meter.php

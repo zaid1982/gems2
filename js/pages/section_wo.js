@@ -6,6 +6,7 @@ function SectionWo () {
     let refStatus;
     let refUser;
     let refSite;
+    let refSeverity;
     let refWoType = {
         1: 'Client Complaint',
         2: 'Self Finding',
@@ -59,7 +60,7 @@ function SectionWo () {
                 $('#pSwoComplaint').text(woTask['woTaskComplaint']);
                 $('#pSwoSite').text(refSite[woTask['siteId']]['siteName']);
                 $('#pSwoCategory').text(refWoType[woTask['woTaskType']]);
-                $('#pSwoSeverity').text(mzNullToValue(woTask['woTaskSeverity'], '-'));
+                $('#pSwoSeverity').text(mzNullToValue(woTask['woTaskSeverity'], '-', refSeverity[woTask['woTaskSeverity']]['severityName']));
                 $('#pSwoTimeReported').text(moment(woTask['woTaskTimeCreated']).format('MMMM Do, YYYY, hh:mm:ss'));
                 $('#pSwoLocation').text(woTask['woTaskLocation']);
                 if (woTask['woTaskIsPublic'] === 1) {
@@ -97,6 +98,7 @@ function SectionWo () {
                     $('.divSwoAssigned').hide();
                 } else {
                     $('.divSwoAssigned').show();
+                    $('#pSwoRepair').text(mzNullToValue(woTask['woTaskRepairDesc'], '-'));
                 }
                 classFrom.hideMain();
                 self.showSection();
@@ -131,5 +133,9 @@ function SectionWo () {
     
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    this.setRefSeverity = function (_refSeverity) {
+        refSeverity = _refSeverity;
     };
 }

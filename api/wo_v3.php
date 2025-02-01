@@ -51,6 +51,10 @@ try {
             $result = $fnMain->getPdfLink($pdfMrfId);
         } else if ($urlArr[1] === 'pending_assign') {
             $result = $fnMain->pendingAssign();
+        } else if ($urlArr[1] === 'submitted_task') {
+            $result = $fnMain->submittedTask();
+        } else if ($urlArr[1] === 'submitted_total') {
+            $result = $fnMain->submittedTotal();
         } else {
             $result = $fnMain->get(intval($urlArr[1]));
         }

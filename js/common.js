@@ -1968,9 +1968,37 @@ function mzGetLinkId (selector, dtTable, idName) {
     return false;
 }
 
-function mzNullToValue (data, value) {
+function mzNullToValue (data, value, valueReturn) {
     if (data === '' || data === null) {
         return value;
     }
-    return data;
+    return typeof valueReturn !== 'undefined' ? valueReturn : data;
+}
+
+function mzDurationStr (type, timeStart, timeEnd) {
+    if (timeStart === null || timeEnd === null) {
+        return null;
+    }
+    const timeCreated = moment(timeStart);
+    const timeSubmit = moment(timeEnd);
+    const duration = moment.duration(timeSubmit.diff(timeCreated));
+    if (type === 'sort') {
+        return duration.asSeconds();
+    }
+    const minutes = duration.minutes();
+    const strMin = minutes + ' minute' + (minutes > 1 ? 's' : '');
+    if (minutes === 0) {
+        const seconds = duration.seconds();
+        return seconds + ' second' + (seconds > 1 ? 's' : '');
+    } else if (minutes < 60) {
+        return strMin;
+    }
+    const hours = duration.hours();
+    const strHrs = hours + ' hour' + (hours > 1 ? 's' : '');
+    if (hours < 24) {
+        return strHrs + ' ' + strMin;
+    }
+    const days = duration.days();
+    const strDay = days + ' day' + (days > 1 ? 's' : '');
+    return strDay + ' ' + strHrs + ' ' + strMin;
 }

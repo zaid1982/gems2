@@ -415,7 +415,7 @@ class Class_pdf_wr {
             } else {
                 Class_db::getInstance()->db_update('sys_pdf', array('pdf_filename'=>$filename, 'pdf_type'=>'wr', 'pdf_folder'=>$folder, 'pdf_timeCreated'=>'Now()'), array('pdf_id'=>$pdfId));
             }
-            Class_db::getInstance()->db_update('wo_task', array('pdf_id_wr'=>$pdfId), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('pdf_id_wr'=>$pdfId, 'wo_task_is_pdf_wr'=>'0'), array('wo_task_id'=>$this->woTaskId));
 
             return array(
                 'pdfId'=>$pdfId,
