@@ -21,6 +21,7 @@ class WoTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($woTaskId, 'woTaskId');
+            $this->woTaskId = $woTaskId;
             return DbMysql::select($this::$tableName, array('woTaskId'=>$woTaskId), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
@@ -173,6 +174,69 @@ class WoTask extends General {
                 INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
                 WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId",
             )['total'];
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @param int $transactionId
+     * @return void
+     * @throws Exception
+     */
+    public function submitAssign (array $columns, int $transactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            parent::checkMandatoryArray($columns, array('woTaskType', 'woTaskSeverity', 'ppmGroupId', 'woTaskAssignedTo', 'woTaskMaxAssistant'));
+
+            $columns['woTaskAssignedBy'] = $this->userId;
+            $columns['woTaskTimeAssigned'] = 'NOW()';
+            if ($this->woTaskIsWr === 1) {
+                $woStatus = 27;
+                $columns['woTaskIsPdfWr'] = 1;
+            } else {
+                $woStatus = 13;
+                $columns['woTaskIsPdf'] = 1;
+            }
+            $columns['woTaskStatus'] = $woStatus;
+            DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
+            DbMysql::update('wfl_transaction', array('transactionStatus'=>$woStatus), array('transactionId'=>$transactionId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function materialList (int $woTaskId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($woTaskId, 'woTaskId');
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                    r.wo_task_id,
+                    r.wo_task_request_no,
+                    c.item_description,
+                    d.item_type_desc,
+                    e.asset_group_name,
+                    a.wo_task_parts_remark,
+                    a.wo_task_parts_quantity,
+                    r.wo_task_request_time_ordered,
+                    a.wo_task_parts_status
+                FROM wo_task_parts a
+                LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
+                LEFT JOIN ast_part b ON b.part_id = a.part_id
+                LEFT JOIN ref_item c ON c.item_id = b.item_id
+                LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
+                LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id",
+            array('r.wo_task_id'=>$woTaskId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

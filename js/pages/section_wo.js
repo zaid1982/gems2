@@ -20,6 +20,8 @@ function SectionWo () {
     let formValidateSwoa;
     let arrPpmGroupUser;
     let oTableCurrentTask;
+    let oTableMaterials;
+    let oTableAssistants;
     let isSubmitted = false;
 
     const vDataSwoa = [
@@ -90,7 +92,6 @@ function SectionWo () {
 
         $('#optSwoaAssignedTo').on('change', function () {
             const assignedTo = parseInt($(this).val());
-            console.log(assignedTo);
             ShowLoader(); setTimeout(function () {
                 try {
                     mzSetFieldValue('SwoaUserName', refUser[assignedTo]['userFirstName'], 'text');
@@ -110,7 +111,6 @@ function SectionWo () {
             ordering: false,
             bPaginate: true,
             language: _DATATABLE_LANGUAGE,
-            aaSorting: [2, 'asc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 $('td', nRow).eq(0).html(iDisplayIndex + 1);
             },
@@ -120,6 +120,86 @@ function SectionWo () {
                 { mData: 'dateReceived', sClass: 'text-center'}
             ]
         });
+        
+        oTableAssistants =  $('#dtSwoAssistants').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            bInfo: false,
+            ordering: false,
+            bPaginate: true,
+            language: _DATATABLE_LANGUAGE,
+            autoWidth: false,
+            columnDefs: [
+                { bSortable: false, targets: [0] },
+                //{ visible: false, targets: [5, 6] },
+                { className: 'text-center', targets: [0, 2] },
+                { className: 'noVis', targets: [0] }
+            ],
+            dom: "<'row'<'col-12px-0 pb-2'B>>" +
+                "<'row'<'col-sm-12'tr>>",
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                $('td', nRow).eq(0).html(iDisplayIndex + 1);
+            },
+            aoColumns: [
+                { mData: null},
+                { mData: 'userId', mRender: function (data) {
+                        return data !== null ? refUser[data]['userFirstName'] : '';
+                    }},
+                { mData: 'userId', mRender: function (data) {
+                        return data !== null ? refUser[data]['userContactNo'] : '';
+                    }},
+                { mData: 'userId', mRender: function (data) {
+                        return data !== null ? refUser[data]['userEmail'] : '';
+                    }}
+            ]
+        });
+        
+        oTableMaterials =  $('#dtSwoMaterials').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            bInfo: false,
+            ordering: false,
+            bPaginate: true,
+            language: _DATATABLE_LANGUAGE,
+            autoWidth: false,
+            columnDefs: [
+                { bSortable: false, targets: [0, 6] },
+                { visible: false, targets: [5, 6] },
+                { className: 'text-center', targets: [0, 1, 5, 6] },
+                { className: 'text-right', targets: [4] },
+                { className: 'noVis', targets: [0] }
+            ],
+            dom: "<'row'<'col-12px-0 pb-2'B>>" +
+                "<'row'<'col-sm-12'tr>>",
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                $('td', nRow).eq(0).html(iDisplayIndex + 1);
+            },
+            aoColumns: [
+                { mData: null},
+                { mData: 'woTaskRequestNo'},
+                { mData: 'itemTypeDesc'},
+                { mData: 'itemDescription'},
+                { mData: 'woTaskPartsQuantity'},
+                { mData: 'woTaskRequestTimeOrdered'},
+                { mData: 'woTaskPartsStatus', mRender: function (data) {
+                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                    }}
+            ]
+        });
 
         $('#btnSwoaSubmit').on('click', function () {
             try {
@@ -127,16 +207,19 @@ function SectionWo () {
                     toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                 } else {
                     const data = {
-                        woTaskType: $('#optSwoaType').val(),
-                        woTaskSeverity: $('#optSwoaSeverity').val(),
-                        ppmGroupId: $('#optSwoaPpmGroup').val(),
-                        woTaskAssignedTo: mzParseInt($('#optMfaSite').val()),
-                        woTaskMaxAssistant: $('#optSwoaMaxAssistants').val()
+                        woTaskType: mzParseInt($('#optSwoaType').val()),
+                        woTaskSeverity: mzParseInt($('#optSwoaSeverity').val()),
+                        ppmGroupId: mzParseInt($('#optSwoaPpmGroup').val()),
+                        woTaskAssignedTo: mzParseInt($('#optSwoaAssignedTo').val()),
+                        woTaskMaxAssistant: mzParseInt($('#optSwoaMaxAssistants').val())
                     };
                     ShowLoader(); setTimeout(function () {
                         mzFetch('wo_v3/submit_assign/'+woTaskId, 'PUT', data).then(res => {
-                            self.assign(woTaskId);
                             isSubmitted = true;
+                            self.loadDetails(woTaskId);
+                            $('.divSwoAssign').hide();
+                            $('.divSwoAssigned').show();
+                            $('.divSwoImageLeft').show();
                         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                     }, 200);
                 }
@@ -148,14 +231,40 @@ function SectionWo () {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
             woTaskId = _woTaskId;
+            $('.divSwoAssign').show();
+            $('.divSwoAssigned').hide();
+            $('.divSwoImageLeft').hide();
+            $('.divSwoaExecutorDetails').hide();
             isSubmitted = false;
+            self.loadDetails('assign');
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
+    };
+    
+    
+    this.view = function (_woTaskId) {
+        ShowLoader(); setTimeout(function () { try {
+            mzCheckFuncParam([_woTaskId]);
+            woTaskId = _woTaskId;
+            $('.divSwoAssign').hide();
+            $('.divSwoAssigned').show();
+            $('.divSwoImageLeft').show();
+            isSubmitted = false;
+            self.loadDetails('view');
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
+    };
+    
+    this.loadDetails = function (_type) {
+        try {
             Promise.all([
                 mzFetch('wo_v3/'+woTaskId),
-                mzFetch('wo_task_upload/by_woTaskId/'+woTaskId)
+                mzFetch('wo_task_upload/by_woTaskId/'+woTaskId),
+                mzFetch('wo_task_assist_v2/by_woTaskId/'+woTaskId),
+                mzFetch('wo_v3/material_list/'+woTaskId)
             ]).then(responses => {
                 const woTask = responses[0];
                 const images = responses[1];
-                console.log(woTask);
+                const assistants = responses[2];
+                const materials = responses[3];
                 $('#divSwoWo, #divSwoWr, .divSwoPublic').hide();
                 $('#lblSwoWoMainName').text('Work Order No.');
                 if (woTask['woTaskRequestNo'] !== null) {
@@ -215,21 +324,15 @@ function SectionWo () {
                     divImageComplaint.html('<i>- empty -</i>');
                 }
 
-                if (woTask['woTaskStatus'] === 24 || woTask['woTaskStatus'] === 26) {
-                    $('.divSwoAssign').show();
-                    $('.divSwoAssigned').hide();
-                    $('.divSwoImageLeft').hide();
-                    $('.divSwoaExecutorDetails').hide();
+                if (_type === 'assign') {
                     const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId='+woTask['siteId'], 'GET');
                     mzOptionStop('optSwoaSeverity', arrSeverity, 'Select Severity', 'severityId', 'severityName', {}, 'required');
                     mzOptionStop('optSwoaPpmGroup', refPpmGroup, 'Select Executor Group', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: woTask['siteId'].toString(), roleId:'8'}, 'required');
                     mzOptionStopClear('optSwoaAssignedTo', '', 'required');
                     mzDisableSelect('optSwoaAssignedTo', true);
                     formValidateSwoa.clearValidation();
-                } else {
-                    $('.divSwoAssign').hide();
-                    $('.divSwoAssigned').show();
-                    $('.divSwoImageLeft').show();
+                    mzSetFieldValue('SwoaType', woTask['woTaskType'], 'select');
+                    mzDisableSelect('optSwoaType', woTask['woTaskType'] === 6);
                 }
 
                 if (woTask['woTaskStatus'] !== 24) {
@@ -256,6 +359,7 @@ function SectionWo () {
                     $('#pSwoTimeExecution').text(mzNullToValue(woTask['woTaskTimeExecuted'], '-', moment(woTask['woTaskTimeExecuted']).format('MMMM Do, YYYY, hh:mm:ss')));
                     $('#pSwoRating').text(mzNullToValue(woTask['woTaskRate'], '-'));
                     $('#pSwoRepair').text(mzNullToValue(woTask['woTaskRepairDesc'], '-'));
+                    
                     if (woTask['woTaskStatus'] === 26) {
                         $('.divSwoAssign').hide();
                         $('.divSwoAssessment').show();
@@ -298,12 +402,39 @@ function SectionWo () {
                             divImageRepair.text('- empty -');
                         }
                     }
+                    
+                    $('#divSwoAsset, #divSwoAssetEmpty').hide();
+                    if (woTask['assetId'] !== null) {
+                        $('#divSwoAsset').show();
+                        const asset = mzAjaxRequest('asset.php?assetId='+woTask['assetId'], 'GET');
+                        console.log(asset);
+                        $('#pSwoAssetNo').text(asset['assetNo']);
+                        $('#pSwoAssetName').text(asset['assetName']);
+                    } else {
+                        $('#divSwoAssetEmpty').show();
+                    }
+                    
+                    $('#divSwoAssistants, #divSwoAssistantsEmpty').hide();
+                    if (assistants.length > 0) {
+                        $('#divSwoAssistants').show();
+                        oTableAssistants.clear().rows.add(assistants).draw();
+                    } else {
+                        $('#divSwoAssistantsEmpty').show();
+                    }
+                    
+                    $('#divSwoMaterials, #divSwoMaterialsEmpty').hide();
+                    if (materials.length > 0) {
+                        $('#divSwoMaterials').show();
+                        oTableMaterials.clear().rows.add(materials).draw();
+                    } else {
+                        $('#divSwoMaterialsEmpty').show();
+                    }
                 }
                 classFrom.hideMain();
                 self.showSection();
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
-        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     };
 
     this.showSection = function () {
@@ -340,5 +471,13 @@ function SectionWo () {
 
     this.setRefPpmGroup = function (_refPpmGroup) {
         refPpmGroup = _refPpmGroup;
+    };
+    
+    this.setIsSubmitted = function (_isSubmitted) {
+        isSubmitted = _isSubmitted;
+    };
+    
+    this.getIsSubmitted = function () {
+        return isSubmitted;
     };
 }

@@ -347,31 +347,78 @@
                     <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
                     <h6 class="font-weight-bold pl-4 mt-2">Asset No</h6>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="card-body pb-0">
+                    <div class="row" id="divSwoAssetEmpty">
                         <div class="col-12"><i>- empty -</i></div>
+                    </div>
+                    <div class="row" id="divSwoAsset">
+                        <div class="md-form col-lg-5 my-1">
+                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
+                            <label class="active pl-3">Asset No</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoAssetNo"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-1">
+                            <i class="fa-duotone fa-chair-office prefix text-info"></i>
+                            <label class="active pl-3">Asset Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoAssetName"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="card z-depth-3 mb-3 divSwoAssigned">
                 <div class="card-header white p-0">
                     <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Assistant</h6>
+                    <h6 class="font-weight-bold pl-4 mt-2">List of Assisted Technicians</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-2">
                     <div class="row">
-                        <div class="col-12"><i>- empty -</i></div>
+                        <div class="col-12" id="divSwoAssistantsEmpty"><i>- empty -</i></div>
+                        <div class="col-12 px-0" id="divSwoAssistants">
+                            <div class="table-responsive">
+                                <table id="dtSwoAssistants" class="table table-hover table-custom-badge mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Contact No.</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="card z-depth-3 mb-3 divSwoAssigned">
                 <div class="card-header white p-0">
                     <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Material Space Parts</h6>
+                    <h6 class="font-weight-bold pl-4 mt-2">Material Spare Parts</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-2">
                     <div class="row">
-                        <div class="col-12"><i>- empty -</i></div>
+                        <div class="col-12" id="divSwoMaterialsEmpty"><i>- empty -</i></div>
+                        <div class="col-12 px-0" id="divSwoMaterials">
+                            <div class="table-responsive">
+                                <table id="dtSwoMaterials" class="table table-hover table-custom-badge mb-0 display responsive w-100">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th style="width: 50px">Request No.</th>
+                                        <th>Item</th>
+                                        <th>Item Description</th>
+                                        <th>Qty.</th>
+                                        <th>Time Ordered</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

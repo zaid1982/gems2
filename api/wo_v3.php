@@ -55,6 +55,8 @@ try {
             $result = $fnMain->submittedTask();
         } else if ($urlArr[1] === 'submitted_total') {
             $result = $fnMain->submittedTotal();
+        } else if ($urlArr[1] === 'material_list' && isset ($urlArr[2])) {
+            $result = $fnMain->materialList($urlArr[2]);
         } else {
             $result = $fnMain->get(intval($urlArr[1]));
         }
@@ -93,7 +95,7 @@ try {
         $fnTask->userId = $fnMain->userId;
         $fnTask->createNew(2, $fnMain->woTaskNo, 11);
         $fnTask->set($fnTask->wflTaskNew['taskId']);
-        $fnTask->submit($bodyParams['complaint'], 8, 9, $fnMain->woTaskIsWr, $groupId);
+        $fnTask->submit($bodyParams['complaint'], 9, 8, $fnMain->woTaskIsWr, $groupId);
         $fnMain->submitPublic($bodyParams, $fnTask->transactionId, $uploadId);
         DbMysql::commit();
 
@@ -112,8 +114,21 @@ try {
         $bodyParams = json_decode(file_get_contents("php://input"), true);
         DbMysql::beginTransaction();
         $isTransaction = true;
-        if ($urlArr[1] === 'submit_assign') {
-
+        if ($urlArr[1] === 'submit_assign' && isset($urlArr[2])) {
+            $woTaskId = intval($urlArr[2]);
+            $woTask = $fnMain->get($woTaskId);
+            $fnTask->userId = $fnMain->userId;
+            $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
+            $fnTask->setByTransaction($woTask['transactionId']);
+            $fnTask->checkValidity($fnMain->woTaskIsWr === 1 ? 17 : 12);
+            $fnTask->submit('', 10, 8, 0, 0, $bodyParams['woTaskAssignedTo']);
+            $fnMain->submitAssign($bodyParams, $woTask['transactionId']);
+            $emailTemplateId = $fnMain->woTaskIsWr === 1 ? 11 : 5;
+            $notiTextId = $fnMain->woTaskIsWr === 1 ? 12 : 6;
+            $fnEmail->prepare($bodyParams['woTaskAssignedTo'], $emailTemplateId, array('task_no'=>$woTask['woTaskNo']));
+            $fnNoti->prepare($bodyParams['woTaskAssignedTo'], $notiTextId, array('task_no'=>$woTask['woTaskNo']));
+            $fnMain->saveAudit(129, 'Work '.($fnMain->woTaskIsWr ===1?'Request':'Order').' no. = '.$woTask['woTaskNo']);
+            $formData['errmsg'] = Constant::$wo['assign'];
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
         }

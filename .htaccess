@@ -123,6 +123,8 @@ RewriteRule ^wo_v3/?$ api/wo_v3.php
 RewriteRule ^wo_v3/(.+)/?$ api/wo_v3.php
 RewriteRule ^wo_task_assist/?$ api/wo_task_assist.php
 RewriteRule ^wo_task_assist/(.+)/?$ api/wo_task_assist.php
+RewriteRule ^wo_task_assist_v2/?$ api/wo_task_assist_v2.php
+RewriteRule ^wo_task_assist_v2/(.+)/?$ api/wo_task_assist_v2.php
 RewriteRule ^wo_task_parts/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_parts/(.+)/?$ api/wo_task_parts.php
 RewriteRule ^wo_task_request/?$ api/wo_task_request.php

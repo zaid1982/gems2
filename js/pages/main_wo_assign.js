@@ -148,10 +148,10 @@ function MainWoAssign () {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
                 { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0', attr: { id: 'btnWssSubmittedRefresh' }, titleAttr: 'Refresh'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
@@ -166,7 +166,7 @@ function MainWoAssign () {
                 });
                 $('.lnkWssSubmittedInfo').off('click').on('click', function () {
                     const woTaskId = mzGetLinkId($(this), oTableWssSubmitted, 'woTaskId');
-                    sectionWoClass.assign(woTaskId);
+                    sectionWoClass.view(woTaskId);
                 });
                 $('.lnkWssSubmittedPdf').off('click').on('click', function () {
                     const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
@@ -187,7 +187,7 @@ function MainWoAssign () {
                         HideLoader();
                     }, 200);
                 });
-                $('.lnkWssPendingPdfWr').off('click').on('click', function () {
+                $('.lnkWssSubmittedPdfWr').off('click').on('click', function () {
                     const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
                     ShowLoader(); setTimeout(function () {
                         try {
@@ -307,7 +307,7 @@ function MainWoAssign () {
         if (_runPending) {
             runPending = true;
             runSubmitted = true;
-            self.genTableSubmitted();
+            self.genTablePending();
         }
     };
     
