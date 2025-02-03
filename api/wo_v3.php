@@ -51,10 +51,16 @@ try {
             $result = $fnMain->getPdfLink($pdfMrfId);
         } else if ($urlArr[1] === 'pending_assign') {
             $result = $fnMain->pendingAssign();
-        } else if ($urlArr[1] === 'submitted_task') {
-            $result = $fnMain->submittedTask();
-        } else if ($urlArr[1] === 'submitted_total') {
-            $result = $fnMain->submittedTotal();
+        } else if ($urlArr[1] === 'submitted_assign') {
+            $result = $fnMain->submittedAssign();
+        } else if ($urlArr[1] === 'submitted_assign_total') {
+            $result = $fnMain->submittedAssignTotal();
+        } else if ($urlArr[1] === 'pending_verify') {
+            $result = $fnMain->pendingVerify();
+        } else if ($urlArr[1] === 'submitted_verify') {
+            $result = $fnMain->submittedVerify();
+        } else if ($urlArr[1] === 'submitted_verify_total') {
+            $result = $fnMain->submittedVerifyTotal();
         } else if ($urlArr[1] === 'material_list' && isset ($urlArr[2])) {
             $result = $fnMain->materialList($urlArr[2]);
         } else {

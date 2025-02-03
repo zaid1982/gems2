@@ -129,7 +129,37 @@ class WoTask extends General {
      * @return array
      * @throws Exception
      */
-    public function submittedTask (): array {
+    public function pendingVerify (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $siteId = $this->userSite;
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                     wo.*,
+                     tsk.task_id,
+                     tsk.checkpoint_id,
+                     tsk.task_time_created,
+                     tsk.task_status,
+                     sev.client_severity_respond_time,
+                     sev.client_severity_hour
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                LEFT JOIN cli_site ste ON ste.site_id = wo.site_id
+                LEFT JOIN cli_client_severity sev ON sev.severity_id = wo.wo_task_severity AND sev.client_id = ste.client_id
+                WHERE tsk.checkpoint_id = 16 AND tsk.task_current = 1 AND wo.site_id = $siteId"
+            );
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function submittedAssign (): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($this->userSite, 'userSite');
@@ -157,10 +187,42 @@ class WoTask extends General {
     }
 
     /**
+     * @return array
+     * @throws Exception
+     */
+    public function submittedVerify (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $userId = $this->userId;
+            $siteId = $this->userSite;
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                     wo.*,
+                     tsk.task_id,
+                     tsk.checkpoint_id,
+                     tsk.task_time_created,
+                     tsk.task_time_submit,
+                     tsk.task_status,
+                     sev.client_severity_respond_time,
+                     sev.client_severity_hour
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                LEFT JOIN cli_site ste ON ste.site_id = wo.site_id
+                LEFT JOIN cli_client_severity sev ON sev.severity_id = wo.wo_task_severity AND sev.client_id = ste.client_id
+                WHERE tsk.checkpoint_id = 16 AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId"
+            );
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @return int
      * @throws Exception
      */
-    public function submittedTotal (): int {
+    public function submittedAssignTotal (): int {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($this->userSite, 'userSite');
@@ -173,6 +235,29 @@ class WoTask extends General {
                 FROM wfl_task tsk 
                 INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
                 WHERE tsk.checkpoint_id IN (12, 17) AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId",
+            )['total'];
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return int
+     * @throws Exception
+     */
+    public function submittedVerifyTotal (): int {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userSite, 'userSite');
+            $userId = $this->userId;
+            $siteId = $this->userSite;
+            return DbMysql::selectSql(
+            /** @lang text */
+                "SELECT
+                     COUNT(*) AS total
+                FROM wfl_task tsk 
+                INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
+                WHERE tsk.checkpoint_id = 16 AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId",
             )['total'];
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
