@@ -55,7 +55,7 @@
             <div class="card z-depth-3 mb-3 divSwoAssign">
                 <div class="card-header white p-0 z-depth-1">
                     <div class="float-left danger-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Assign Work Request</h5>
+                    <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Assign Work Request / Work Request</h5>
                 </div>
                 <div class="card-body pb-0 px-4">
                     <div class="row mt-2">
@@ -140,6 +140,66 @@
                 </div>
                 <div class="card-footer p-1">
                     <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSwoaSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i> Submit</button>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3 divSwoVerify">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left danger-color" style="width: 16px; height: 41px">&nbsp;</div>
+                    <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Verify Work Order</h5>
+                </div>
+                <div class="card-body pb-0 px-4">
+                    <div class="row mt-2">
+                        <div class="col-12 px-2 mb-3">
+                            <p class="mb-0 ml-1 font-small">Action * :</p>
+                            <div class="md-form mt-0 mb-3 ml-1">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovAction" id="radSwovAction1" value="1">
+                                    <label class="form-check-label" for="radSwovAction1">Verify</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovAction" id="radSwovAction2" value="2">
+                                    <label class="form-check-label" for="radSwovAction2">Return to Technician</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger ml-1 my-0" id="radSwovActionErr"></p>
+                        </div>
+                        <div class="col-12 px-2 mb-3" id="optSwovRating_">
+                            <p class="mb-0 ml-1 font-small">Rating * :</p>
+                            <div class="md-form mt-0 mb-3 ml-1">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating1" value="1">
+                                    <label class="form-check-label" for="radSwovRating1">1</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating2" value="2">
+                                    <label class="form-check-label" for="radSwovRating2">2</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating3" value="3">
+                                    <label class="form-check-label" for="radSwovRating3">3</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating4" value="4">
+                                    <label class="form-check-label" for="radSwovRating4">4</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating5" value="5">
+                                    <label class="form-check-label" for="radSwovRating5">5</label>
+                                </div>
+                            </div>
+                            <p class="font-small text-danger ml-1 my-0" id="radSwovRatingErr"></p>
+                        </div>
+                        <div class="col-12 px-2">
+                            <div class="md-form md-outline mt-0">
+                                <textarea id="txaSwovRemark" class="md-textarea form-control" rows="5"></textarea>
+                                <label for="txaSwovRemark" id="lblSwovRemark" class="text-muted">Remark / Comment</label>
+                                <p class="font-small text-danger" id="txaSwovRemarkErr"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-1">
+                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSwovSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i> Submit</button>
                 </div>
             </div>
         </div>

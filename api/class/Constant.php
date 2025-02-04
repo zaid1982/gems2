@@ -125,6 +125,8 @@ class Constant {
 
 
     public static $wo = array(
-        'submitPublic' => 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your email.'
+        'submitPublic' => 'We have received your Complaint. You will be contacted soon. You will receive notification soon on your email.',
+        'returnVerify' => 'Work Order successfully returned to technician!',
+        'submitVerify' => 'Work Order successfully verified and closed!'
     );
 }

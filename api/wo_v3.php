@@ -131,10 +131,44 @@ try {
             $fnMain->submitAssign($bodyParams, $woTask['transactionId']);
             $emailTemplateId = $fnMain->woTaskIsWr === 1 ? 11 : 5;
             $notiTextId = $fnMain->woTaskIsWr === 1 ? 12 : 6;
-            $fnEmail->prepare($bodyParams['woTaskAssignedTo'], $emailTemplateId, array('task_no'=>$woTask['woTaskNo']));
-            $fnNoti->prepare($bodyParams['woTaskAssignedTo'], $notiTextId, array('task_no'=>$woTask['woTaskNo']));
-            $fnMain->saveAudit(129, 'Work '.($fnMain->woTaskIsWr ===1?'Request':'Order').' no. = '.$woTask['woTaskNo']);
+            $fnEmail->prepare($bodyParams['woTaskAssignedTo'], $emailTemplateId, array('task_no' => $woTask['woTaskNo']));
+            $fnNoti->prepare($bodyParams['woTaskAssignedTo'], $notiTextId, array('task_no' => $woTask['woTaskNo']));
+            $fnMain->saveAudit(129, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTask['woTaskNo']);
             $formData['errmsg'] = Constant::$wo['assign'];
+        }
+        else if ($urlArr[1] === 'return_verify' && isset($urlArr[2])) { // only for self-finding and public complaint
+            $woTaskId = intval($urlArr[2]);
+            $woTask = $fnMain->get($woTaskId);
+            $fnTask->userId = $fnMain->userId;
+            $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
+            $fnTask->setByTransaction($woTask['transactionId']);
+            $fnTask->checkValidity(16);
+            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'user_id', true);
+            $fnTask->submit($bodyParams['remark'], 20, 20, 1);
+            $fnMain->returnVerify($bodyParams, $woTask['transactionId']);
+            $fnEmail->prepare($woTaskAssignedTo, 8, array('task_no' => $woTask['woTaskNo'], 'comment'=>$bodyParams['remark']));
+            $fnNoti->prepare($woTaskAssignedTo, 9, array('task_no' => $woTask['woTaskNo'], 'comment'=>$bodyParams['remark']));
+            $fnMain->saveAudit(120, 'Work Order no. = ' . $woTask['woTaskNo']);
+            $formData['errmsg'] = Constant::$wo['returnVerify'];
+        }
+        else if ($urlArr[1] === 'submit_verify' && isset($urlArr[2])) { // only for self-finding and public complaint
+            $woTaskId = intval($urlArr[2]);
+            $woTask = $fnMain->get($woTaskId);
+            $fnTask->userId = $fnMain->userId;
+            $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
+            $fnTask->setByTransaction($woTask['transactionId']);
+            $fnTask->checkValidity(16);
+            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'user_id', true);
+            $fnTask->submit($bodyParams['remark']);
+            $fnMain->submitVerify($bodyParams, $woTask['transactionId'], $bodyParams['rating']);
+            $fnEmail->prepare($woTaskAssignedTo, 9, array('task_no' => $woTask['woTaskNo']));
+            $fnNoti->prepare($woTaskAssignedTo, 10, array('task_no' => $woTask['woTaskNo']));
+            if ($woTask['woTaskType'] === 6) {
+                $woTaskPublic = DbMysql::select('wo_task_public', array('woTaskId'=>$woTaskId), true);
+                $fnEmail->prepare(1, 25, array('task_no' => $woTask['woTaskNo']), $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+            }
+            $fnMain->saveAudit(121, 'Work Order no. = ' . $woTask['woTaskNo']);
+            $formData['errmsg'] = Constant::$wo['submitVerify'];
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong PUT Request');
         }

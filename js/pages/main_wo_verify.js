@@ -61,7 +61,7 @@ function MainWoVerify () {
                 });
                 $('.lnkWvrPendingEdit').off('click').on('click', function () {
                     const woTaskId = mzGetLinkId($(this), oTableWvrPending, 'woTaskId');
-                    sectionWoClass.assign(woTaskId);
+                    sectionWoClass.verify(woTaskId);
                 });
                 $('.lnkWvrPendingPdf').off('click').on('click', function () {
                     const woTask = mzGetLinkRow($(this), oTableWvrPending);
@@ -152,7 +152,7 @@ function MainWoVerify () {
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
                             label += '<a><i class="far fa-file-pdf lnkWvrPendingPdf" id="lnkWvrPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                         }
-                        label += '&nbsp;<a><i class="far fa-edit lnkWvrPendingEdit" id="lnkWvrPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Process"></i></a>';
+                        label += '&nbsp;<a><i class="far fa-edit lnkWvrPendingEdit" id="lnkWvrPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Verify"></i></a>';
                         return label;
                     }}
             ]

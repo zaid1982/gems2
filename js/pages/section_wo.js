@@ -18,6 +18,7 @@ function SectionWo () {
     };
     let woTaskId;
     let formValidateSwoa;
+    let formValidateSwov;
     let arrPpmGroupUser;
     let oTableCurrentTask;
     let oTableMaterials;
@@ -67,6 +68,34 @@ function SectionWo () {
         }
     ];
 
+    const vDataSwov = [
+        {
+            field_id: 'radSwovAction',
+            type: 'radio',
+            name: 'Action',
+            validator: {
+                notEmptyCheck: true
+            }
+        },
+        {
+            field_id: 'radSwovRating',
+            type: 'radio',
+            name: 'Rating',
+            validator: {
+                notEmptyCheck: true
+            }
+        },
+        {
+            field_id: 'txaSwovRemark',
+            type: 'text',
+            name: 'Remark / Comment',
+            validator: {
+                notEmpty: false,
+                maxLength: 1000
+            }
+        },
+    ];
+
     this.init = function () {
         self.hideSection();
         
@@ -78,6 +107,9 @@ function SectionWo () {
 
         formValidateSwoa = new MzValidate('formSwoa');
         formValidateSwoa.registerFields(vDataSwoa);
+
+        formValidateSwov = new MzValidate('formSwov');
+        formValidateSwov.registerFields(vDataSwov);
 
         $('#optSwoaPpmGroup').on('change', function () {
             const ppmGroupId = $(this).val();
@@ -102,6 +134,19 @@ function SectionWo () {
                     $('.divSwoaExecutorDetails').show();
                 } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             HideLoader(); }, 200);
+        });
+
+        $("input[name='radSwovAction']:radio").on('change', function () {
+            const action = parseInt($(this).val());
+            try {
+                if (action === 1) {
+                    $('#optSwovRating_').show();
+                    formValidateSwov.enableField('radSwovRating');
+                } else {
+                    $('#optSwovRating_').hide();
+                    formValidateSwov.disableField('radSwovRating');
+                }
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
         oTableCurrentTask =  $('#dtSwoaCurrentTask').DataTable({
@@ -225,6 +270,32 @@ function SectionWo () {
                 }
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
+
+        $('#btnSwovSubmit').on('click', function () {
+            try {
+                if (!formValidateSwov.validateNow()) {
+                    toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                } else {
+                    const action = $("input[name='radSwovAction']:checked").val();
+                    const rating = $("input[name='radSwovRating']:checked").val();
+                    const url = action === '2' ? 'submit_return' : 'return_verify';
+                    const data = {
+                        remark: mzNullString('txaSwovRemark'),
+                        rating: parseInt(rating)
+                    };
+                    ShowLoader(); setTimeout(function () {
+                        mzFetch('wo_v3/'+url+'/'+woTaskId, 'PUT', data).then(res => {
+                            isSubmitted = true;
+                            self.loadDetails(woTaskId);
+                            $('.divSwoAssign').hide();
+                            $('.divSwoVerify').hide();
+                            $('.divSwoAssigned').show();
+                            $('.divSwoImageLeft').show();
+                        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                    }, 200);
+                }
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
     };
     
     this.assign = function (_woTaskId) {
@@ -232,6 +303,7 @@ function SectionWo () {
             mzCheckFuncParam([_woTaskId]);
             woTaskId = _woTaskId;
             $('.divSwoAssign').show();
+            $('.divSwoVerify').hide();
             $('.divSwoAssigned').hide();
             $('.divSwoImageLeft').hide();
             $('.divSwoaExecutorDetails').hide();
@@ -239,13 +311,26 @@ function SectionWo () {
             self.loadDetails('assign');
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
     };
-    
+
+    this.verify = function (_woTaskId) {
+        ShowLoader(); setTimeout(function () { try {
+            mzCheckFuncParam([_woTaskId]);
+            woTaskId = _woTaskId;
+            $('.divSwoVerify').show();
+            $('.divSwoAssign').hide();
+            $('.divSwoAssigned').show();
+            $('.divSwoImageLeft').show();
+            isSubmitted = false;
+            self.loadDetails('verify');
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
+    };
     
     this.view = function (_woTaskId) {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
             woTaskId = _woTaskId;
             $('.divSwoAssign').hide();
+            $('.divSwoVerify').hide();
             $('.divSwoAssigned').show();
             $('.divSwoImageLeft').show();
             isSubmitted = false;
@@ -333,6 +418,10 @@ function SectionWo () {
                     formValidateSwoa.clearValidation();
                     mzSetFieldValue('SwoaType', woTask['woTaskType'], 'select');
                     mzDisableSelect('optSwoaType', woTask['woTaskType'] === 6);
+                } else if (_type === 'verify') {
+                    formValidateSwov.clearValidation();
+                    $('#optSwovRating_').hide();
+                    formValidateSwov.disableField('optSwovRating_');
                 }
 
                 if (woTask['woTaskStatus'] !== 24) {

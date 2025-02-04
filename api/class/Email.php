@@ -15,15 +15,15 @@ class Email extends General {
      * @return void
      * @throws Exception
      */
-    public function prepare (int $receiverId, int $emailTemplateId, array $emailParams=array(), bool $isExpress=false): void {
+    public function prepare (int $receiverId, int $emailTemplateId, array $emailParams=array(), $fullName='', $emailAddress=''): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($receiverId, 'receiverId');
             parent::checkEmptyInteger($emailTemplateId, 'emailTemplateId');
 
             $emailTemplate = DbMysql::select('email_template', array('emailTemplateId'=>$emailTemplateId));
-            $receiverName = DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userFirstName');
-            $emailAddress = DbMysql::selectColumn('sys_user_profile', array('userId'=>$receiverId, 'user_profile_status'=>'1'), 'userEmail');
+            $receiverName = !empty($fullName) ? $fullName : DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userFirstName');
+            $emailAddress = !empty($emailAddress) ? $emailAddress : DbMysql::selectColumn('sys_user_profile', array('userId'=>$receiverId, 'user_profile_status'=>'1'), 'userEmail');
 
             if (!empty($emailTemplate) && !empty($emailAddress) && !empty($receiverName)) {
                 $emailTitle = $emailTemplate['emailTemplateTitle'];

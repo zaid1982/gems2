@@ -2005,3 +2005,23 @@ function mzDurationStr (type, timeStart, timeEnd) {
     const strDay = days + ' day' + (days > 1 ? 's' : '');
     return strDay + ' ' + strHrs + ' ' + strMin;
 }
+
+function mzNullInt (id) {
+    let val = $('#'+id).val();
+    if (val !== null) {
+        val = val.replaceAll(',', '');
+    }
+    const returnVal = parseInt(val);
+    if (isNaN(returnVal)) {
+        return null;
+    }
+    return returnVal;
+}
+
+function mzNullString (id) {
+    const value = $('#'+id).val();
+    if (value === '') {
+        return null;
+    }
+    return value;
+}

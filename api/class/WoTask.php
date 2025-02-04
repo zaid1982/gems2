@@ -265,6 +265,39 @@ class WoTask extends General {
     }
 
     /**
+     * @param int $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function materialList (int $woTaskId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($woTaskId, 'woTaskId');
+            return DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT
+                    r.wo_task_id,
+                    r.wo_task_request_no,
+                    c.item_description,
+                    d.item_type_desc,
+                    e.asset_group_name,
+                    a.wo_task_parts_remark,
+                    a.wo_task_parts_quantity,
+                    r.wo_task_request_time_ordered,
+                    a.wo_task_parts_status
+                FROM wo_task_parts a
+                LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
+                LEFT JOIN ast_part b ON b.part_id = a.part_id
+                LEFT JOIN ref_item c ON c.item_id = b.item_id
+                LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
+                LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id",
+            array('r.wo_task_id'=>$woTaskId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $columns
      * @param int $transactionId
      * @return void
@@ -296,32 +329,51 @@ class WoTask extends General {
     }
 
     /**
-     * @return array
+     * @param array $columns
+     * @param int $transactionId
+     * @return void
      * @throws Exception
      */
-    public function materialList (int $woTaskId): array {
+    public function returnVerify (array $columns, int $transactionId): void {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            parent::checkEmptyInteger($woTaskId, 'woTaskId');
-            return DbMysql::selectSqlAll(
-                /** @lang text */
-                "SELECT
-                    r.wo_task_id,
-                    r.wo_task_request_no,
-                    c.item_description,
-                    d.item_type_desc,
-                    e.asset_group_name,
-                    a.wo_task_parts_remark,
-                    a.wo_task_parts_quantity,
-                    r.wo_task_request_time_ordered,
-                    a.wo_task_parts_status
-                FROM wo_task_parts a
-                LEFT JOIN wo_task_request r ON r.wo_task_request_id = a.wo_task_request_id
-                LEFT JOIN ast_part b ON b.part_id = a.part_id
-                LEFT JOIN ref_item c ON c.item_id = b.item_id
-                LEFT JOIN ref_item_type d ON d.item_type_id = b.item_type_id
-                LEFT JOIN ast_asset_group e ON e.asset_group_id = b.asset_group_id",
-            array('r.wo_task_id'=>$woTaskId));
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+
+            $columns['woTaskTimeExecuted'] = null;
+            $columns['woTaskIsPdf'] = 1;
+            $columns['woTaskStatus'] = 21;
+            DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
+            DbMysql::update('wfl_transaction', array('transactionStatus'=>21), array('transactionId'=>$transactionId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @param int $transactionId
+     * @return void
+     * @throws Exception
+     */
+    public function submitVerify (array $columns, int $transactionId, int $rating): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            parent::checkEmptyInteger($rating, 'rating');
+
+            $signatureId = DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'userSignature', true);
+            $columns['woTaskRate'] = $rating;
+            $columns['woTaskVerifiedBy'] = $this->userId;
+            $columns['woTaskTimeVerified'] = null;
+            $columns['woTaskIsPdf'] = 1;
+            $columns['woTaskStatus'] = 16;
+            DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
+            DbMysql::insert('wo_task_upload', array('woTaskId'=>$this->woTaskId, 'woTaskUploadType'=>8, 'uploadId'=>$signatureId));
+            DbMysql::update('wfl_transaction', array('transactionStatus'=>16), array('transactionId'=>$transactionId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

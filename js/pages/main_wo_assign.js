@@ -123,7 +123,7 @@ function MainWoAssign () {
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
                             label += '<a><i class="far fa-file-pdf lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                         }
-                        label += '&nbsp;<a><i class="far fa-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Process"></i></a>';
+                        label += '&nbsp;<a><i class="far fa-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
                         return label;
                     }}
             ]
