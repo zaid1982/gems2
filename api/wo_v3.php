@@ -143,9 +143,9 @@ try {
             $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
             $fnTask->setByTransaction($woTask['transactionId']);
             $fnTask->checkValidity(16);
-            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'user_id', true);
+            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'userId', true);
             $fnTask->submit($bodyParams['remark'], 20, 20, 1);
-            $fnMain->returnVerify($bodyParams, $woTask['transactionId']);
+            $fnMain->returnVerify($woTask['transactionId']);
             $fnEmail->prepare($woTaskAssignedTo, 8, array('task_no' => $woTask['woTaskNo'], 'comment'=>$bodyParams['remark']));
             $fnNoti->prepare($woTaskAssignedTo, 9, array('task_no' => $woTask['woTaskNo'], 'comment'=>$bodyParams['remark']));
             $fnMain->saveAudit(120, 'Work Order no. = ' . $woTask['woTaskNo']);
@@ -158,9 +158,9 @@ try {
             $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
             $fnTask->setByTransaction($woTask['transactionId']);
             $fnTask->checkValidity(16);
-            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'user_id', true);
+            $woTaskAssignedTo = DbMysql::selectColumn('wfl_task_assign', array('transactionId'=>$woTask['transactionId'], 'checkpointId'=>13, 'roleId'=>8), 'userId', true);
             $fnTask->submit($bodyParams['remark']);
-            $fnMain->submitVerify($bodyParams, $woTask['transactionId'], $bodyParams['rating']);
+            $fnMain->submitVerify($woTask['transactionId'], $bodyParams['rating']);
             $fnEmail->prepare($woTaskAssignedTo, 9, array('task_no' => $woTask['woTaskNo']));
             $fnNoti->prepare($woTaskAssignedTo, 10, array('task_no' => $woTask['woTaskNo']));
             if ($woTask['woTaskType'] === 6) {

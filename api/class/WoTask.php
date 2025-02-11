@@ -133,6 +133,7 @@ class WoTask extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($this->userSite, 'userSite');
+            $userId = $this->userId;
             $siteId = $this->userSite;
             return DbMysql::selectSqlAll(
                 /** @lang text */
@@ -148,7 +149,7 @@ class WoTask extends General {
                 INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
                 LEFT JOIN cli_site ste ON ste.site_id = wo.site_id
                 LEFT JOIN cli_client_severity sev ON sev.severity_id = wo.wo_task_severity AND sev.client_id = ste.client_id
-                WHERE tsk.checkpoint_id = 16 AND tsk.task_current = 1 AND wo.site_id = $siteId"
+                WHERE tsk.checkpoint_id IN (16, 19) AND tsk.task_current = 1 AND wo.site_id = $siteId AND task_claimed_user = $userId"
             );
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -211,7 +212,7 @@ class WoTask extends General {
                 INNER JOIN wo_task wo ON wo.transaction_id = tsk.transaction_id
                 LEFT JOIN cli_site ste ON ste.site_id = wo.site_id
                 LEFT JOIN cli_client_severity sev ON sev.severity_id = wo.wo_task_severity AND sev.client_id = ste.client_id
-                WHERE tsk.checkpoint_id = 16 AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId"
+                WHERE tsk.checkpoint_id IN (16, 19) AND tsk.task_current = 2 AND task_claimed_user = $userId AND wo.site_id = $siteId"
             );
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -329,12 +330,11 @@ class WoTask extends General {
     }
 
     /**
-     * @param array $columns
      * @param int $transactionId
      * @return void
      * @throws Exception
      */
-    public function returnVerify (array $columns, int $transactionId): void {
+    public function returnVerify (int $transactionId): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');
@@ -352,12 +352,11 @@ class WoTask extends General {
     }
 
     /**
-     * @param array $columns
      * @param int $transactionId
      * @return void
      * @throws Exception
      */
-    public function submitVerify (array $columns, int $transactionId, int $rating): void {
+    public function submitVerify (int $transactionId, int $rating): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($this->userId, 'userId');

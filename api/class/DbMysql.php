@@ -311,7 +311,7 @@ class DbMysql {
                 $index = self::convertToDbString($columnIndex);
                 if ($columnValue === '++') {
                     $setString .= "$index = $index + 1, ";
-                } else if (substr($columnValue, 0, 1) === '|') {
+                } else if ($columnValue !== null && substr($columnValue, 0, 1) === '|') {
                     $setString.= "$index = ".substr($columnValue, 1).", ";
                 } else if ($columnValue === 'NOW()' || $columnValue === 'CURDATE()') {
                     $setString .= "$index = $columnValue, ";

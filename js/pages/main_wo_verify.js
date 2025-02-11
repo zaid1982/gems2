@@ -27,7 +27,7 @@ function MainWoVerify () {
         oTableWvrPending = $('#dtWvrPending').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[5, 'desc']],
+            aaSorting: [[7, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,

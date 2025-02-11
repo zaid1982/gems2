@@ -92,7 +92,7 @@ class Class_email {
             }
 
             $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), NULL, 1);
-            //$sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), NULL, 1);
+            $sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), NULL, 1);
             $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>$emailTemplateId), NULL, 1);
             $emailTitle = $email_template['email_template_title'];
             $emailHtml = $email_template['email_template_html'];
@@ -113,7 +113,7 @@ class Class_email {
             $recipientName = !empty($fullName) ? $fullName : $sys_user['user_first_name'];
             $emailHtml = str_replace ("[fullName]", $recipientName, $emailHtml);
 
-            $recipientEMail = !empty($emailAddress) ? $emailAddress : $sys_user['user_email'];
+            $recipientEMail = !empty($emailAddress) ? $emailAddress : $sys_profile['user_email'];
             if ($isExpress) {
                 $this->send_email_express($recipientEMail, $emailTitle, $emailHtml);
             } else {

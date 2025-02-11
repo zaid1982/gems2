@@ -278,7 +278,7 @@ function SectionWo () {
                 } else {
                     const action = $("input[name='radSwovAction']:checked").val();
                     const rating = $("input[name='radSwovRating']:checked").val();
-                    const url = action === '2' ? 'submit_return' : 'return_verify';
+                    const url = action === '2' ? 'return_verify' : 'submit_verify';
                     const data = {
                         remark: mzNullString('txaSwovRemark'),
                         rating: parseInt(rating)
