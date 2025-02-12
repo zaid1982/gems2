@@ -1668,7 +1668,8 @@ class Class_wo {
 
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
-                'woTaskCreatedBy'=>$woTask['wo_task_created_by']
+                'woTaskCreatedBy'=>$woTask['wo_task_created_by'],
+                'woTaskAssignedBy'=>$woTask['wo_task_assigned_by']
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

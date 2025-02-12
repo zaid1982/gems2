@@ -8,6 +8,7 @@ require_once 'class/WoMrfPdf.php';
 require_once 'class/WflTask.php';
 require_once 'class/Email.php';
 require_once 'class/Noti.php';
+require_once 'class/NotiWeb.php';
 require_once 'pdf/tcpdf_include.php';
 
 $apiName = 'wo_v3';
@@ -36,6 +37,7 @@ try {
     $fnEmail = new Email($fnMain->userId, Constant::$isLogged);
     $fnNoti = new Noti($fnMain->userId, Constant::$isLogged);
     $fnWoMrfPdf = new WoMrfPdf($fnMain->userId, Constant::$isLogged);
+    $fnNotiWeb = new NotiWeb($fnMain->userId, Constant::$isLogged);
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
@@ -109,6 +111,7 @@ try {
         foreach ($fnTask->getRecipients(true) as $recipient) {
             $fnEmail->prepare($recipient, 4, array('task_no'=>$fnMain->woTaskNo));
             $fnNoti->prepare($recipient, 5, array('task_no'=>$fnMain->woTaskNo));
+            $fnNotiWeb->insert($fnMain->woTaskIsWr === 1 ? 2 : 1, $recipient, $fnMain->woTaskNo);
         }
         $fnMain->saveAudit(104, 'Work '.($fnMain->woTaskIsWr===1?'Request':'Order').' no. = '.$fnMain->woTaskNo);
         DbMysql::commit();
@@ -116,7 +119,7 @@ try {
         $formData['result'] = $result;
         $formData['success'] = true;
     }
-    else if ('PUT' === $requestMethod) { // public complaint
+    else if ('PUT' === $requestMethod) {
         $bodyParams = json_decode(file_get_contents("php://input"), true);
         DbMysql::beginTransaction();
         $isTransaction = true;

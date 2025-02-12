@@ -10,6 +10,10 @@ require_once 'function/f_wo.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/wo.php';
 require_once 'pdf/wr.php';
+require_once 'class/Constant.php';
+require_once 'class/General.php';
+require_once 'class/DbMysql.php';
+require_once 'class/NotiWeb.php';
 
 $api_name = 'api_m_wo';
 $is_transaction = false;
@@ -25,6 +29,7 @@ $fn_email = new Class_email();
 $fn_wo = new Class_wo();
 $fn_pdf_wo = new Class_pdf_wo();
 $fn_pdf_wr = new Class_pdf_wr();
+$fn_noti_web = new NotiWeb();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -37,6 +42,8 @@ try {
     $fn_wo->__set('fn_general', $fn_general);
     $fn_pdf_wo->__set('fn_general', $fn_general);
     $fn_pdf_wr->__set('fn_general', $fn_general);
+    $fn_noti_web->isLogged = Constant::$isLogged;
+    DbMysql::$isLogged = Constant::$isLogged;
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -48,6 +55,8 @@ try {
     }
     $jwt_data = $fn_login->check_jwt($headers['authorization']);
     $fn_wo->__set('userId', $jwt_data->userId);
+    $fn_noti_web->userId = $jwt_data->userId;
+    DbMysql::$userId = $jwt_data->userId;
 
     if (!isset($headers['deviceid'])) {
         throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
@@ -154,6 +163,7 @@ try {
                 //$fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo), $isWr === '1');
                 $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5, array('task_no' => $woTaskNo));
+                $fn_noti_web->insert($isWr === '1' ? 2 : 1, $userId, $woTaskNo);
             }
             $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
@@ -352,6 +362,7 @@ try {
                 $fn_general->save_audit('117', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
                 $fn_email->setup_email($returnVal['woTaskAssignedBy'], 6, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
                 $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 7, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+                $fn_noti_web->insert(1, $returnVal['woTaskAssignedBy'], $returnVal['woTaskNo']);
             }
             else if ($currentTask['checkpointId'] === '18') {
                 $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '29', $remark, '2');
@@ -359,6 +370,7 @@ try {
                 $fn_general->save_audit('133', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
                 $fn_email->setup_email($returnVal['woTaskAssignedBy'], 13, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
                 $fn_email->setup_mobile_notification($returnVal['woTaskAssignedBy'], 14, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+                $fn_noti_web->insert(2, $returnVal['woTaskAssignedBy'], $returnVal['woTaskNo']);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter checkpointId invalid');
             }
@@ -374,8 +386,10 @@ try {
             $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
             $fn_wo->saveWoTaskDoneAssistant($woTaskId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
-            $fn_email->setup_email($returnVal['woTaskCreatedBy'], 7, array('task_no'=>$returnVal['woTaskNo']));
-            $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 8, array('task_no'=>$returnVal['woTaskNo']));
+            $receiver = $woType==='2'||$woType==='6' ? $returnVal['woTaskAssignedBy'] : $returnVal['woTaskCreatedBy'];
+            $fn_email->setup_email($receiver, 7, array('task_no'=>$returnVal['woTaskNo']));
+            $fn_email->setup_mobile_notification($receiver, 8, array('task_no'=>$returnVal['woTaskNo']));
+            $fn_noti_web->insert(3, $receiver, $returnVal['woTaskNo']);
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'return_verify') {

@@ -353,6 +353,7 @@ class WoTask extends General {
 
     /**
      * @param int $transactionId
+     * @param int $rating
      * @return void
      * @throws Exception
      */

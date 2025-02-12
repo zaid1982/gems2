@@ -705,8 +705,9 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
             'Content-Type': 'application/json'
         };
         if (sessionStorage.getItem('token') !== null) {
-            header = {'Authorization': 'Bearer ' + sessionStorage.getItem('token')};
+            header['Authorization'] = 'Bearer ' + sessionStorage.getItem('token');
         }
+        console.log(header);
         let params = {
             method: type,
             headers: header
@@ -870,6 +871,38 @@ function initiatePages() {
     $('#btnChangePassword').on('click', function () {
         changePasswordClass_.edit('Top', userInfo['userId']);
     });
+
+    mzNotificationGenerate ();
+}
+
+function mzNotificationGenerate () {
+    $('#navNotificationTotal').text(0);
+    mzFetch('noti_web/by_userId').then(res => {
+        const divElement = $('#navNotification');
+        divElement.html('');
+        if (typeof res['total'] !== 'undefined' && typeof res['data'] !== 'undefined') {
+            for (const row of res['data']) {
+                divElement.append('<div class="dropdown-item ' + row['notiWebColor'] + ' z-depth-1 my-2">\n' +
+                    '<i class="fa fa-duotone fa-lg ' + row['notiWebIcon'] + ' mr-1"></i>\n' +
+                    '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\')"><span>' + row['notiWebText'] + '</span></a>\n' +
+                    '<p class="float-left" style="font-size: 12px">' + row['notiWebTitle'] + '</p>\n' +
+                    '<p class="text-right mb-0" style="font-size: 12px"><i class="fa fa-regular fa-clock"></i> ' + mzDurationSimple (row['notiWebTimestamp'], '') + ' ago <a onclick="mzNotificationDelete('+row['notiWebId']+')"><i class="fa fa-trash fa-duotone ml-1"></i></a></p>\n' +
+                    '</div>');
+            }
+            const totalLatest = res['total'] > 50 ? 50 : res['total'];
+            $('#navNotificationTotal').text(totalLatest);
+            divElement.append('<a class="dropdown-item mt-1 py-0" href="#">\n' +
+                '<span class="mb-0" style="font-size: 12px">latest '+totalLatest+' out of '+res['total']+' notifications</span>\n' +
+                '</a>')
+        }
+    }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+}
+
+function mzNotificationDelete (notiWebId) {
+    ShowLoader(); setTimeout(function () { mzFetch('noti_web/'+notiWebId, 'DELETE').then(res => {
+        $('#badgeWvrTotalSubmitted').text(res.length);
+        mzNotificationGenerate ();
+    }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
 }
 
 function mzProfile() {
@@ -1983,7 +2016,7 @@ function mzDurationStr (type, timeStart, timeEnd) {
         return null;
     }
     const timeCreated = moment(timeStart);
-    const timeSubmit = moment(timeEnd);
+    const timeSubmit = timeEnd === '' ? moment() : moment(timeEnd);
     const duration = moment.duration(timeSubmit.diff(timeCreated));
     if (type === 'sort') {
         return duration.asSeconds();
@@ -2004,6 +2037,31 @@ function mzDurationStr (type, timeStart, timeEnd) {
     const days = duration.days();
     const strDay = days + ' day' + (days > 1 ? 's' : '');
     return strDay + ' ' + strHrs + ' ' + strMin;
+}
+
+function mzDurationSimple (timeStart, timeEnd) {
+    if (timeStart === null || timeEnd === null) {
+        return null;
+    }
+    const timeCreated = moment(timeStart);
+    const timeSubmit = timeEnd === '' ? moment() : moment(timeEnd);
+    const duration = moment.duration(timeSubmit.diff(timeCreated));
+    const minutes = duration.minutes();
+    const strMin = minutes + ' min';
+    if (minutes === 0) {
+        const seconds = duration.seconds();
+        return seconds + ' sec';
+    } else if (minutes < 60) {
+        return strMin;
+    }
+    const hours = duration.hours();
+    const strHrs = hours + ' hour' + (hours > 1 ? 's' : '');
+    if (hours < 24) {
+        return strHrs + ' ' + strMin;
+    }
+    const days = duration.days();
+    const strDay = days + ' day' + (days > 1 ? 's' : '');
+    return strDay + ' ' + strHrs;
 }
 
 function mzNullInt (id) {

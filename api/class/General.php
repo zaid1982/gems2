@@ -329,7 +329,7 @@ class General {
             $this->checkEmptyArray($headers, 'headers');
             if (isset($headers['Authorization'])) {
                 $jwt = $headers['Authorization'];
-            } else if (isset($headers['authorization']) && isset($headers['deviceid'])) {
+            } else if (isset($headers['authorization'])) {  //  && isset($headers['deviceid'])
                 $jwt = $headers['authorization'];
             } else {
                 throw new Exception('Parameter Authorization empty');
@@ -349,7 +349,7 @@ class General {
             } else if ($user['userStatus'] !== 1) {
                 throw new Exception('Your account is deactivated. Please contact Administrator!', 31);
             } else if (isset($headers['authorization']) && $user['userDeviceId'] !== $headers['deviceid']) {
-                throw new Exception('Your Device is invalid!', 31);
+                //throw new Exception('Your Device is invalid!', 31);
             }
             $this->userSite = $user['siteId'];
         } catch(Exception $ex) {
