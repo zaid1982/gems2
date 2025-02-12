@@ -707,7 +707,6 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
         if (sessionStorage.getItem('token') !== null) {
             header['Authorization'] = 'Bearer ' + sessionStorage.getItem('token');
         }
-        console.log(header);
         let params = {
             method: type,
             headers: header

@@ -17,22 +17,22 @@
                 </div>
                 <div class="card-body card-body-cascade">
                     <form id="formSsz">
-                        <div class="row">
-                            <div class="col-md-12 px-2">
-                                <div class="md-form md-outline mt-4">
+                        <div class="row mt-4">
+                            <div class="col-md-4 px-2">
+                                <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetName" class="form-control">
                                     <label for="txtSszAssetName" id="lblSszAssetName">Asset Name *</label>
                                     <p class="font-small text-danger" id="txtSszAssetNameErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-6 px-2">
+                            <div class="col-md-4 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetNo" class="form-control">
                                     <label for="txtSszAssetNo" id="lblSszAssetNo">Asset No *</label>
                                     <p class="font-small text-danger" id="txtSszAssetNoErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-6 px-2">
+                            <div class="col-md-4 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetSerialNo" class="form-control">
                                     <label for="txtSszAssetSerialNo" id="lblSszAssetSerialNo">Asset Serial No.</label>
@@ -309,10 +309,38 @@
                     </button>-->
                 </div>
             </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header py-1 teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">Work Order Information</h5>
+                </div>
+                <div class="card-body mt-0 px-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtSszWo" class="table table-custom-badge table-hover mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>WO/WR No</th>
+                                        <th>Type</th>
+                                        <th>Severity</th>
+                                        <th>PIC Name</th>
+                                        <th>Received Time</th>
+                                        <th>Status</th> <!--10-->
+                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-md-4">
             <div class="card profile-card mt-4" id="divSszQrCode">
-                <div class="card-header teal lighten-4">
+                <div class="card-header py-1 teal lighten-4">
                     <h5 class="font-weight-bold text-center mt-2"> Asset QR Code</h5>
                 </div>
                 <div class="card-body">
@@ -322,7 +350,7 @@
                 </div>
             </div>
             <div class="card profile-card mt-4">
-                <div class="card-header teal lighten-4">
+                <div class="card-header py-1 teal lighten-4">
                     <h5 class="font-weight-bold text-center mt-2">Contract Information</h5>
                 </div>
                 <div class="card-body mt-2 pb-0 px-3">
@@ -349,7 +377,7 @@
                 </div>
             </div>
             <div class="card profile-card mt-4">
-                <div class="card-header teal lighten-4">
+                <div class="card-header py-1 teal lighten-4">
                     <h5 class="font-weight-bold text-center mt-2">Asset Information</h5>
                 </div>
                 <div class="card-body mt-2 pb-0 px-3">

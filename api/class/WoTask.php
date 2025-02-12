@@ -29,6 +29,21 @@ class WoTask extends General {
     }
 
     /**
+     * @param int $assetId
+     * @return array
+     * @throws Exception
+     */
+    public function getByAssetId (int $assetId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($assetId, 'assetId');
+            return DbMysql::selectAll($this::$tableName, array('assetId'=>$assetId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $siteId
      * @return void
      * @throws Exception

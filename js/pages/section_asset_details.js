@@ -17,10 +17,19 @@ function SectionAssetDetails() {
     let refClient;
     let refPpmGroup;
     let refZone;
+    let refSeverity;
     let formValidate;
     let versionLocal;
     let qrCodeImg;
-    let assetStatus;
+    let oTableSszWo;
+    let assetStatus;let refWoType = {
+        1: 'Client Complaint',
+        2: 'Self Finding',
+        3: 'Request',
+        4: 'Breakdown',
+        5: 'Defect',
+        6: 'Public Complaint'
+    };
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -450,6 +459,63 @@ function SectionAssetDetails() {
                 HideLoader();
             }, 200);
         });
+
+        oTableSszWo = $('#dtSszWo').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[5, 'desc']],
+            ordering: true,
+            language: _DATATABLE_LANGUAGE,
+            pageLength: 10,
+            autoWidth: false,
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0, 7] },
+                { className: 'text-center', targets: [0, 1, 5, 6, 7] },
+                { className: 'noVis', targets: [0, 7] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            aoColumns: [
+                { mData: null},
+                { mData: 'woTaskNo'},
+                { mData: 'woTaskType', mRender: function (data) {
+                        return data !== null ? refWoType[data] : '';
+                    }},
+                { mData: 'woTaskSeverity', mRender: function (data) {
+                        return data !== null ? refSeverity[data]['severityName'] : '';
+                    }},
+                { mData: 'woTaskAssignedTo', mRender: function (data) {
+                        return data !== null ? refUser[data]['userFirstName'] : '';
+                    }},
+                { mData: 'woTaskTimeCreated'},
+                { mData: 'woTaskStatus', mRender: function (data) {
+                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                    }},
+                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
+                        let label = '';
+                        if (row['woTaskIsWr'] === 1) {
+                            label += '<a><i class="far fa-file-alt lnkSszWoPdfWr" id="lnkSszWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                        }
+                        if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
+                            label += '<a><i class="far fa-file-pdf lnkSszWoPdf" id="lnkSszWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                        }
+                        label += '&nbsp;<a><i class="far fa-edit lnkSszWoEdit" id="lnkSszWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
+                        return label;
+                    }}
+            ]
+        });
     };
 
     this.setFieldData = function () {
@@ -605,6 +671,7 @@ function SectionAssetDetails() {
 
                 formValidate.clearValidation();
                 self.getDetails();
+                oTableSszWo.clear().draw();
                 $('#divSszQrCode').hide();
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
 
@@ -651,8 +718,9 @@ function SectionAssetDetails() {
                     formValidate.disableField('optSszAssetCategoryId');
                     formValidate.disableField('optSszAssetTypeId');
                 }
-                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
+                self.genTableWo();
 
+                $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
                 $('#btnSszUpdate').prop('disabled', true);
                 $('.sectionAssetDetails').show();
 
@@ -684,6 +752,7 @@ function SectionAssetDetails() {
                 mzDisableSelect('optSszAssetTypeId', true);
                 mzDisableSelect('optSszAssetBrandId', true);
                 mzDisableSelect('optSszAssetModelId', true);
+                self.genTableWo();
 
                 $('#btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
                 $('.sectionAssetDetails, .divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
@@ -751,6 +820,13 @@ function SectionAssetDetails() {
         }, 200);
     };
 
+    this.genTableWo = function () {
+        ShowLoader(); setTimeout(function () { mzFetch('wo_v3/by_assetId/'+assetId).then(res => {
+            console.log(res);
+            oTableSszWo.clear().rows.add(res).draw();
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+    };
+
     this.getClassName = function () {
         return className;
     };
@@ -809,5 +885,9 @@ function SectionAssetDetails() {
 
     this.setVersionLocal = function (_versionLocal) {
         versionLocal = _versionLocal;
+    };
+
+    this.setRefSeverity = function (_refSeverity) {
+        refSeverity = _refSeverity;
     };
 }

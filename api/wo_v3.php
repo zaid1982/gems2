@@ -65,6 +65,8 @@ try {
             $result = $fnMain->submittedVerifyTotal();
         } else if ($urlArr[1] === 'material_list' && isset ($urlArr[2])) {
             $result = $fnMain->materialList($urlArr[2]);
+        } else if ($urlArr[1] === 'by_assetId') {
+            $result = $fnMain->getByAssetId(intval($urlArr[2]));
         } else {
             $result = $fnMain->get(intval($urlArr[1]));
         }
