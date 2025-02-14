@@ -511,7 +511,7 @@ function SectionAssetDetails() {
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
                             label += '<a><i class="far fa-file-pdf lnkSszWoPdf" id="lnkSszWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                         }
-                        label += '&nbsp;<a><i class="far fa-edit lnkSszWoEdit" id="lnkSszWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
+                        //label += '&nbsp;<a><i class="far fa-edit lnkSszWoEdit" id="lnkSszWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
                         return label;
                     }}
             ]

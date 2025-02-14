@@ -1892,15 +1892,15 @@ class Class_ppm {
     }
 
     /**
-     * @param string $month
-     * @param string $year
+     * @param string $dateStart
+     * @param string $dateEnd
      * @param string $clientId
      * @param string $siteId
      * @param string $contractId
      * @return mixed
      * @throws Exception
      */
-    public function get_total_ppm_task ($month='', $year='', $clientId='', $siteId='', $contractId='') {
+    public function get_total_ppm_task ($dateStart='', $dateEnd='', $clientId='', $siteId='', $contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1924,10 +1924,8 @@ class Class_ppm {
             if (!empty($contractId)) {
                 $arrWhere['contract_id'] = $contractId;
             }
-            if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere['MONTH(ppm_task_start_date)'] = intval($month)+1;
-                $arrWhere['YEAR(ppm_task_start_date)'] = $year;
-            }
+            $arrWhere['DATE(ppm_task_start_date)'] = '>='.$dateStart;
+            $arrWhere['DATE(ppm_task_start_date) '] = '<='.$dateEnd;
             return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
         }
         catch(Exception $ex) {
@@ -1937,15 +1935,15 @@ class Class_ppm {
     }
 
     /**
-     * @param string $month
-     * @param string $year
+     * @param string $dateStart
+     * @param string $dateEnd
      * @param string $clientId
      * @param string $siteId
      * @param string $contractId
      * @return mixed
      * @throws Exception
      */
-    public function get_total_ppm_late ($month='', $year='', $clientId='', $siteId='', $contractId='') {
+    public function get_total_ppm_late ($dateStart='', $dateEnd='', $clientId='', $siteId='', $contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1969,10 +1967,8 @@ class Class_ppm {
             if (!empty($contractId)) {
                 $arrWhere['contract_id'] = $contractId;
             }
-            if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere['MONTH(ppm_task_start_date)'] = intval($month)+1;
-                $arrWhere['YEAR(ppm_task_start_date)'] = $year;
-            }
+            $arrWhere['DATE(ppm_task_start_date)'] = '>='.$dateStart;
+            $arrWhere['DATE(ppm_task_start_date) '] = '<='.$dateEnd;
             return Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
         }
         catch(Exception $ex) {
@@ -1982,15 +1978,15 @@ class Class_ppm {
     }
 
     /**
-     * @param string $month
-     * @param string $year
+     * @param string $dateStart
+     * @param string $dateEnd
      * @param string $clientId
      * @param string $siteId
      * @param string $contractId
      * @return float|int
      * @throws Exception
      */
-    public function get_perc_ppm_done ($month='', $year='', $clientId='', $siteId='', $contractId='') {
+    public function get_perc_ppm_done ($dateStart='', $dateEnd='', $clientId='', $siteId='', $contractId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -2014,10 +2010,8 @@ class Class_ppm {
             if (!empty($contractId)) {
                 $arrWhere['contract_id'] = $contractId;
             }
-            if (intval($month) >= 0 && intval($month) <= 12 && intval($year) >= 2019) {
-                $arrWhere['MONTH(ppm_task_schedule_date)'] = intval($month)+1;
-                $arrWhere['YEAR(ppm_task_schedule_date)'] = $year;
-            }
+            $arrWhere['DATE(ppm_task_start_date)'] = '>='.$dateStart;
+            $arrWhere['DATE(ppm_task_start_date) '] = '<='.$dateEnd;
             $total = Class_db::getInstance()->db_select_col('vw_count_ppm_task', $arrWhere, 'total');
             if ($total == '0') {
                 return 0;
@@ -2095,23 +2089,23 @@ class Class_ppm {
 
     /**
      * @param string $clientId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return mixed
      * @throws Exception
      */
-    public function get_total_ppm_by_site_status ($clientId='', $year='', $month='') {
+    public function get_total_ppm_by_site_status ($clientId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
@@ -2129,7 +2123,7 @@ class Class_ppm {
             );
             if (!empty($siteIds)) {
                 $siteIdStr = implode(',', $siteIds);
-                $ppmBySites = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                $ppmBySites = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('date_start'=>$dateStart, 'date_end'=>$dateEnd));
                 foreach ($ppmBySites as $ppmBySite) {
                     $status = $ppmBySite['ppm_task_status'];
                     $total = $ppmBySite['total'];
@@ -2158,23 +2152,23 @@ class Class_ppm {
 
     /**
      * @param string $clientId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return mixed
      * @throws Exception
      */
-    public function get_total_ppm_by_site_trade ($clientId='', $year='', $month='') {
+    public function get_total_ppm_by_site_trade ($clientId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
@@ -2191,7 +2185,7 @@ class Class_ppm {
 
             if (!empty($siteIds)) {
                 $siteIdStr = implode(',', $siteIds);
-                $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+                $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>'('.$siteIdStr.')'), null, null, null, array('date_start'=>$dateStart, 'date_end'=>$dateEnd));
                 foreach ($ppmByTrades as $ppmByTrade) {
                     $assetGroupId = $ppmByTrade['asset_group_id'];
                     $total = $ppmByTrade['total'];
@@ -2216,23 +2210,23 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_total_ppm_by_trade ($clientId='', $siteId='', $year='', $month='') {
+    public function get_total_ppm_by_trade ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             if (empty($siteId)) {
@@ -2252,7 +2246,7 @@ class Class_ppm {
                 array('name'=>'Mechanical', 'assetGroupId'=>'3', 'y'=>0),
                 array('name'=>'ICT', 'assetGroupId'=>'4', 'y'=>0)
             );
-            $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            $ppmByTrades = Class_db::getInstance()->db_select('vg_count_ppm_by_site_trade', array('site_id'=>$siteId), null, null, null, array('date_start'=>$dateStart, 'date_end'=>$dateEnd));
             foreach ($ppmByTrades as $ppmByTrade) {
                 $assetGroupId = $ppmByTrade['asset_group_id'];
                 $total = $ppmByTrade['total'];
@@ -2278,23 +2272,23 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_total_ppm_by_status ($clientId='', $siteId='', $year='', $month='') {
+    public function get_total_ppm_by_status ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             if (empty($siteId)) {
@@ -2316,7 +2310,7 @@ class Class_ppm {
                 array('y'=>0, 'ppmTaskStatus'=>'15'),
                 array('y'=>0, 'ppmTaskStatus'=>'16')
             );
-            $ppmByStatus = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>$siteId), null, null, null, array('cur_year'=>$year, 'cur_month'=>$month));
+            $ppmByStatus = Class_db::getInstance()->db_select('vg_count_ppm_by_site_status', array('site_id'=>$siteId), null, null, null, array('date_start'=>$dateStart, 'date_end'=>$dateEnd));
             foreach ($ppmByStatus as $ppmStatus) {
                 $status = $ppmStatus['ppm_task_status'];
                 $total = $ppmStatus['total'];
@@ -2344,23 +2338,23 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_ppm_top5_execute ($clientId='', $siteId='', $year='', $month='') {
+    public function get_ppm_top5_execute ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             if (empty($siteId)) {
@@ -2381,7 +2375,7 @@ class Class_ppm {
             $arrColor = array('#1b5e20', '#388e3c', '#4caf50', '#81c784', '#c8e6c9');
             $arrUserFullName = $this->fn_general->getUserFullName();
 
-            $ppmByTop5Executes = Class_db::getInstance()->db_select('vg_ppm_top5_execute', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            $ppmByTop5Executes = Class_db::getInstance()->db_select('vg_ppm_top5_execute', array(), null, null, null, array('site_id'=>$siteId, 'date_start'=>$dateStart, 'date_end'=>$dateEnd));
             foreach ($ppmByTop5Executes as $key => $ppmByTop5Execute) {
                 array_push($categories, $arrUserFullName[intval($ppmByTop5Execute['ppm_task_serviced_by'])]);
                 array_push($data,
@@ -2404,23 +2398,23 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_ppm_bottom5_execute ($clientId='', $siteId='', $year='', $month='') {
+    public function get_ppm_bottom5_execute ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             if (empty($siteId)) {
@@ -2441,7 +2435,7 @@ class Class_ppm {
             $arrColor = array('#ffccbc', '#ff8a65', '#ff5722', '#e64a19', '#bf360c');
             $arrUserFullName = $this->fn_general->getUserFullName();
 
-            $ppmByBottom5Executes = Class_db::getInstance()->db_select('vg_ppm_bottom5_execute', array(), 'total DESC', null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            $ppmByBottom5Executes = Class_db::getInstance()->db_select('vg_ppm_bottom5_execute', array(), 'total DESC', null, null, array('site_id'=>$siteId, 'date_start'=>$dateStart, 'date_end'=>$dateEnd));
             foreach ($ppmByBottom5Executes as $key => $ppmByBottom5Execute) {
                 array_push($categories, $arrUserFullName[intval($ppmByBottom5Execute['ppm_task_serviced_by'])]);
                 array_push($data,
@@ -2464,23 +2458,23 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_ppm_average_execute_by_trade ($clientId='', $siteId='', $year='', $month='') {
+    public function get_ppm_average_execute_by_trade ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
             if (empty($clientId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
             }
-            if (empty($year)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter year empty');
+            if (empty($dateStart)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateStart empty');
             }
-            if ($month === '') {
-                throw new Exception('[' . __LINE__ . '] - Parameter month empty');
+            if (empty($dateEnd)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter dateEnd empty');
             }
 
             if (empty($siteId)) {
@@ -2499,7 +2493,7 @@ class Class_ppm {
             $categories = array();
             $data = array();
 
-            $ppmByAverageExecutes = Class_db::getInstance()->db_select('vg_ppm_average_execute_by_trade', array(), null, null, null, array('site_id'=>$siteId, 'cur_year'=>$year, 'cur_month'=>$month));
+            $ppmByAverageExecutes = Class_db::getInstance()->db_select('vg_ppm_average_execute_by_trade', array(), null, null, null, array('site_id'=>$siteId, 'date_start'=>$dateStart, 'date_end'=>$dateEnd));
             foreach ($ppmByAverageExecutes as $ppmByAverageExecute) {
                 array_push($categories, $ppmByAverageExecute['asset_group_name']);
                 array_push($data,
@@ -2563,12 +2557,12 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $year
-     * @param string $month
+     * @param string $dateStart
+     * @param string $dateEnd
      * @return array
      * @throws Exception
      */
-    public function get_ppm_list ($clientId='', $siteId='', $year='', $month='') {
+    public function get_ppm_list ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -2584,7 +2578,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month));
+            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'DATE(ppm_task_start_date)'=>'>='.$dateStart, 'DATE(ppm_task_start_date) '=>'<='.$dateEnd));
             foreach ($dataLocals as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];

@@ -56,73 +56,73 @@ try {
             } else if ($type === 'scheduled_ppm') {
                 $result = $fn_ppm->get_ppm_scheduled_list($ppmId);
             } else if ($type === 'total_ppm_task') {
-                $month = filter_input(INPUT_GET, 'month');
-                $year = filter_input(INPUT_GET, 'year');
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $result = $fn_ppm->get_total_ppm_task($month, $year, $clientId, $siteId, $contractId);
+                $result = $fn_ppm->get_total_ppm_task($dateFrom, $dateTo, $clientId, $siteId, $contractId);
             } else if ($type === 'total_ppm_late') {
-                $month = filter_input(INPUT_GET, 'month');
-                $year = filter_input(INPUT_GET, 'year');
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $result = $fn_ppm->get_total_ppm_late($month, $year, $clientId, $siteId, $contractId);
+                $result = $fn_ppm->get_total_ppm_late($dateFrom, $dateTo, $clientId, $siteId, $contractId);
             } else if ($type === 'perc_ppm_done') {
-                $month = filter_input(INPUT_GET, 'month');
-                $year = filter_input(INPUT_GET, 'year');
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $contractId = filter_input(INPUT_GET, 'contractId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $result = $fn_ppm->get_perc_ppm_done($month, $year, $clientId, $siteId, $contractId);
+                $result = $fn_ppm->get_perc_ppm_done($dateFrom, $dateTo, $clientId, $siteId, $contractId);
             }
             else if ($type === 'total_by_site_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_total_ppm_by_site_status($clientId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_total_ppm_by_site_status($clientId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_site_trade') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_total_ppm_by_site_trade($clientId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_total_ppm_by_site_trade($clientId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_trade') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_total_ppm_by_trade($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_total_ppm_by_trade($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_total_ppm_by_status($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_total_ppm_by_status($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'top5_execute') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_ppm_top5_execute($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_ppm_top5_execute($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'bottom5_execute') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_ppm_bottom5_execute($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_ppm_bottom5_execute($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'average_execute_by_trade') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_ppm_average_execute_by_trade($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_ppm_average_execute_by_trade($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'report_ppm_summary') {
                 $siteId = filter_input(INPUT_GET, 'siteId');
@@ -133,9 +133,9 @@ try {
             else if ($type === 'dashboard_list') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_ppm->get_ppm_list($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_ppm->get_ppm_list($clientId, $siteId, $dateFrom, $dateTo);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }

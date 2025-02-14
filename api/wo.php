@@ -56,64 +56,64 @@ try {
             if ($type === 'dashboard_list') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
                 $kpiType = filter_input(INPUT_GET, 'kpiType');
-                $result = $fn_wo->get_wo_task_dashboard_list($clientId, $siteId, $year, $month, '', $kpiType);
+                $result = $fn_wo->get_wo_task_dashboard_list2($clientId, $siteId, $dateFrom, $dateTo, '', $kpiType);
             }
             else if ($type === 'total_by_site_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_total_wo_by_site_status($clientId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_total_wo_by_site_status($clientId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_site_type') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_total_wo_by_site_type($clientId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_total_wo_by_site_type($clientId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_type') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_total_wo_by_type($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_total_wo_by_type($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_total_wo_by_status($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_total_wo_by_status($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'total_by_group') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_total_wo_by_group($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_total_wo_by_group($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'top5_execute') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_wo_top5_execute($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_wo_top5_execute($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'bottom5_execute') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_wo_bottom5_execute($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_wo_bottom5_execute($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'average_execute_by_trade') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $year = filter_input(INPUT_GET, 'year');
-                $month = filter_input(INPUT_GET, 'month');
-                $result = $fn_wo->get_wo_average_execute_by_trade($clientId, $siteId, $year, $month);
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $result = $fn_wo->get_wo_average_execute_by_trade($clientId, $siteId, $dateFrom, $dateTo);
             }
             else if ($type === 'report_wo_summary') {
                 $clientId = filter_input(INPUT_GET, 'clientId');

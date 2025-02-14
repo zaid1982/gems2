@@ -348,7 +348,7 @@ class General {
                 throw new Exception('User not exist!', 31);
             } else if ($user['userStatus'] !== 1) {
                 throw new Exception('Your account is deactivated. Please contact Administrator!', 31);
-            } else if (isset($headers['authorization']) && $user['userDeviceId'] !== $headers['deviceid']) {
+            //} else if (isset($headers['authorization']) && $user['userDeviceId'] !== $headers['deviceid']) {
                 //throw new Exception('Your Device is invalid!', 31);
             }
             $this->userSite = $user['siteId'];

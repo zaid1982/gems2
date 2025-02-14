@@ -18,19 +18,22 @@ function MainHome() {
     let currentMonth;
     let currentYear;
     let reportId = '2';
-    let reportType = 'Work Order';
+    let reportType = 'Work Order Report';
     let oTableWo;
     let oTablePpm;
     let totalPpm = 0;
     let totalLate = 0;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
+    let dateFrom;
+    let dateTo;
+    
     this.init = function () {
         $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
         userClient = mzGetUserInfoByParam('clientId');
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
         $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
-
+        mzDateFromTo('txtHmeDateFrom', 'txtHmeDateTo');
+        
         $.each(refClient, function (_clientId, _client) {
             if (typeof _client !== 'undefined') {
                 if (mzIsRoleExist('1,10')) {
@@ -49,23 +52,20 @@ function MainHome() {
         $('.lnkHmeClient').off('click').on('click', function () {
             const linkId = $(this).attr('id');
             const linkIndex = linkId.indexOf('_');
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    if (linkIndex > 0) {
-                        $('#lnkHmeClient_'+clientId).removeClass('active').removeClass('text-white');
-                        clientId = linkId.substr(linkIndex + 1);
-                        $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
-                        $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
-                        siteId = '0';
-                        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-                        self.setOptionSite();
-                        self.runChart();}
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            try {
+                if (linkIndex > 0) {
+                    $('#lnkHmeClient_'+clientId).removeClass('active').removeClass('text-white');
+                    clientId = linkId.substr(linkIndex + 1);
+                    $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
+                    $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
+                    siteId = '0';
+                    $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+                    self.setOptionSite();
+                    //self.runChart();
                 }
-                HideLoader();
-            }, 200);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         let dateEarliest = new Date();
@@ -74,7 +74,8 @@ function MainHome() {
         currentMonth = dateCtr.getMonth();
         currentYear = dateCtr.getFullYear();
         dateCtr.setDate(1);
-        for (let i = 0; i < 100; i++) {
+        
+        /*for (let i = 0; i < 100; i++) {
             if (dateCtr < dateEarliest) {
                 break;
             }
@@ -103,30 +104,35 @@ function MainHome() {
                 }
                 HideLoader();
             }, 300);
-        });
+        });*/
+        
+        const dateX = moment();
+        const daysInCurrentMonth = dateX.daysInMonth();
+        dateX.set('date', 1);
+        dateFrom = dateX.format('YYYY-MM-DD');
+        dateX.set('date', daysInCurrentMonth);
+        dateTo = dateX.format('YYYY-MM-DD');
+        mzSetDate('txtHmeDateFrom', dateFrom);
+        mzSetDate('txtHmeDateTo', dateTo);
 
         $('.lnkHmeReportType').off('click').on('click', function () {
             const linkId = $(this).attr('id');
             const linkIndex = linkId.indexOf('_');
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    if (linkIndex > 0) {
-                        $('#lnkHmeReportType_'+reportId).removeClass('active').removeClass('text-white');
-                        reportId = linkId.substr(linkIndex + 1);
-                        $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
-                        if (reportId === '1') {
-                            reportType = 'PPM';
-                        } else if (reportId === '2') {
-                            reportType = 'Work Order';
-                        }
-                        self.runChart();
+            try {
+                if (linkIndex > 0) {
+                    $('#lnkHmeReportType_'+reportId).removeClass('active').removeClass('text-white');
+                    reportId = linkId.substr(linkIndex + 1);
+                    $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
+                    if (reportId === '1') {
+                        reportType = 'Planned Preventive Maintenance (PPM) Report';
+                    } else if (reportId === '2') {
+                        reportType = 'Work Order Report';
                     }
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    //self.runChart();
                 }
-                HideLoader();
-            }, 200);
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         self.setOptionSite();
@@ -560,29 +566,51 @@ function MainHome() {
     };
 
     this.setOptionSite = function () {
+        $('#liHmeSite').show();
         siteId = '0';
         $('#divHmeSite').html('');
+        let siteList = [];
         $.each(refSite, function (_siteId, _site) {
             if (typeof _site !== 'undefined') {
                 if (_site['clientId'] === clientId) {
-                    $('#divHmeSite').append('<a class="dropdown-item lnkHmeSite" href="#" id="lnkHmeSite_'+_siteId+'">'+_site['siteDesc']+'</a>');
+                    siteList.push(_siteId);
                 }
             }
         });
-        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-
-        $('.lnkHmeSite').off('click').on('click', function () {
-            const linkId = $(this).attr('id');
-            const linkIndex = linkId.indexOf('_');
-            ShowLoader();
-            setTimeout(function () {
+        
+        if (siteList.length > 1) {
+            for (const _siteId of siteList) {
+                $('#divHmeSite').append('<a class="dropdown-item lnkHmeSite" href="#" id="lnkHmeSite_'+_siteId+'">'+refSite[_siteId]['siteDesc']+'</a>');
+            }
+            $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+            
+            $('.lnkHmeSite').off('click').on('click', function () {
+                const linkId = $(this).attr('id');
+                const linkIndex = linkId.indexOf('_');
                 try {
                     if (linkIndex > 0) {
                         $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
-                        self.runChart();
+                        //self.runChart();
                     }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+            });
+        } else {
+            $('#liHmeSite').hide();
+        }
+        
+        $('#btnHmeSearch').on('click', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    dateFrom = mzConvertDate($('#txtHmeDateFrom').val());
+                    dateTo = mzConvertDate($('#txtHmeDateTo').val());
+                    self.runChart();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
@@ -616,16 +644,17 @@ function MainHome() {
             self.generateChartWoBottom5Execute();
             self.genTableHmeDataWo();
         }
-        $('#lblHmeSelected').html(reportType+' <i>('+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+', '+monthFull[currentMonth]+' '+currentYear+')</i>');
+        $('#lblHmeReportType').text(reportType);
+        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+'</i>');
     };
 
     this.genTableHmeDataWo = function () {
-        const dataWo = mzAjaxRequest('wo.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth, 'GET');
+        const dataWo = mzAjaxRequest('wo.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo, 'GET');
         oTableWo.clear().rows.add(dataWo).draw();
     };
 
     this.genTableHmeDataPpm = function () {
-        const dataPpm = mzAjaxRequest('ppm.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth, 'GET');
+        const dataPpm = mzAjaxRequest('ppm.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo, 'GET');
         oTablePpm.clear().rows.add(dataPpm).draw();
     };
 
@@ -649,13 +678,13 @@ function MainHome() {
 
     this.generateTotalPpmTask = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_ppm_task&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_ppm_task&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
                     $('#lblHmeTotalPpm').html(mzFormatNumber(resp.result));
-                    $('#lblHmeTotalPpmTitle').html('Total PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                    $('#lblHmeTotalPpmTitle').html('Total PPM');
                     totalPpm = parseInt(resp.result);
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -669,13 +698,13 @@ function MainHome() {
 
     this.generateTotalPpmLate = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_ppm_late&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_ppm_late&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
                     $('#lblHmeTotalPpmLate').html(mzFormatNumber(resp.result));
-                    $('#lblHmeTotalPpmLateTitle').html('Total Late PPM <br/><strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                    $('#lblHmeTotalPpmLateTitle').html('Total Late PPM');
                     totalLate = parseInt(resp.result);
                     self.generateChartPpmByLateness();
                 } else {
@@ -690,7 +719,7 @@ function MainHome() {
 
     this.generatePercPpmDone = function () {
         $.ajax({
-            url: 'api/ppm.php?type=perc_ppm_done&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=perc_ppm_done&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -699,7 +728,7 @@ function MainHome() {
                     const percDone = mzFormatNumber(percPpmDone,2)+'%';
                     $('#lblHmePercPpmDone').html(percDone);
                     $('#divBarHmePercAttendance').css('width', percDone);
-                    $('#lblHmePercPpmDoneTitle').html('PPM done for <strong>'+monthFull[currentMonth]+' '+currentYear+'</strong>');
+                    $('#lblHmePercPpmDoneTitle').html('PPM done for');
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
@@ -712,7 +741,7 @@ function MainHome() {
 
     this.generateChartWoBySite = function () {
         $.ajax({
-            url: 'api/wo.php?type=total_by_site_status&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=total_by_site_status&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -809,7 +838,7 @@ function MainHome() {
 
     this.generateChartWoByCategory = function () {
         $.ajax({
-            url: 'api/wo.php?type=total_by_site_type&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=total_by_site_type&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -886,7 +915,7 @@ function MainHome() {
 
     this.generateChartWoByType = function () {
         $.ajax({
-            url: 'api/wo.php?type=total_by_type&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=total_by_type&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -956,7 +985,7 @@ function MainHome() {
 
     this.generateChartWoByProgress = function () {
         $.ajax({
-            url: 'api/wo.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1033,7 +1062,7 @@ function MainHome() {
 
     this.generateChartWoByTrade = function () {
         $.ajax({
-            url: 'api/wo.php?type=total_by_group&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=total_by_group&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1103,7 +1132,7 @@ function MainHome() {
 
     this.generateChartWoAverageExecuteByTrade = function () {
         $.ajax({
-            url: 'api/wo.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1180,7 +1209,7 @@ function MainHome() {
 
     this.generateChartWoTop5Execute = function () {
         $.ajax({
-            url: 'api/wo.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1255,7 +1284,7 @@ function MainHome() {
 
     this.generateChartWoBottom5Execute = function () {
         $.ajax({
-            url: 'api/wo.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/wo.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1331,7 +1360,7 @@ function MainHome() {
 
     this.generateChartPpmBySite = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_by_site_status&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_by_site_status&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1405,7 +1434,7 @@ function MainHome() {
 
     this.generateChartPpmByTrade = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_by_site_trade&clientId='+clientId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_by_site_trade&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1474,7 +1503,7 @@ function MainHome() {
 
     this.generateChartPpmByTradePerSite = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_by_trade&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1543,7 +1572,7 @@ function MainHome() {
 
     this.generateChartPpmByProgress = function () {
         $.ajax({
-            url: 'api/ppm.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1687,7 +1716,7 @@ function MainHome() {
 
     this.generateChartPpmTop5Execute = function () {
         $.ajax({
-            url: 'api/ppm.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1762,7 +1791,7 @@ function MainHome() {
 
     this.generateChartPpmBottom5Execute = function () {
         $.ajax({
-            url: 'api/ppm.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {
@@ -1838,7 +1867,7 @@ function MainHome() {
 
     this.generateChartPpmAverageExecuteByTrade = function () {
         $.ajax({
-            url: 'api/ppm.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&year='+currentYear+'&month='+currentMonth,
+            url: 'api/ppm.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
             success: function (resp) {

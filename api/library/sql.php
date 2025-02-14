@@ -584,20 +584,20 @@ class Class_sql
                 $sql = "SELECT 
                     site_id, wo_task_status, count(*) AS total 
                 FROM wo_task 
-                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                WHERE DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY site_id, wo_task_status";
             } else if ($title === 'vg_count_wo_by_site_type') {
                 $sql = "SELECT 
                     site_id, wo_task_type, count(*) AS total 
                 FROM wo_task 
-                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                WHERE DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY site_id, wo_task_type";
             } else if ($title === 'vg_count_wo_by_site_group') {
                 $sql = "SELECT 
                     wo_task.site_id, wo_task.ppm_group_id, ppm_group_name, count(*) AS total 
                 FROM wo_task 
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
-                WHERE YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                WHERE DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY wo_task.site_id, wo_task.ppm_group_id ORDER BY wo_task.ppm_group_id";
             } else if ($title === 'vg_wo_top5_execute') {
                 $sql = "SELECT
@@ -605,7 +605,7 @@ class Class_sql
                     COUNT(*) AS total
                 FROM wo_task 
                 WHERE wo_task_fixed_by IS NOT NULL AND site_id [site_id]
-                AND YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                AND DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY wo_task_fixed_by ORDER BY total DESC LIMIT 5";
             } else if ($title === 'vg_wo_bottom5_execute') {
                 $sql = "SELECT
@@ -613,7 +613,7 @@ class Class_sql
                     COUNT(*) AS total
                 FROM wo_task 
                 WHERE wo_task_fixed_by IS NOT NULL AND site_id [site_id]
-                AND YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                AND DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY wo_task_fixed_by ORDER BY total LIMIT 5";
             } else if ($title === 'vg_wo_average_execute_by_trade') {
                 $sql = "SELECT 
@@ -623,7 +623,7 @@ class Class_sql
                 FROM wo_task
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
                 WHERE wo_task.ppm_group_id IS NOT NULL AND wo_task_time_executed IS NOT NULL AND wo_task.site_id [site_id]
-                AND YEAR(wo_task_time_created) = [cur_year] AND MONTH(wo_task_time_created) - 1 = [cur_month]
+                AND DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY ppm_group_name
                 ORDER BY total";
             } else if ($title === 'vg_count_ppm_by_site_status') {
@@ -632,7 +632,7 @@ class Class_sql
                 FROM ppm_task 
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
-                WHERE YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                WHERE DATE(ppm_task_start_date) >= '[date_start]' AND DATE(ppm_task_start_date) <= '[date_end]' 
                 GROUP BY site_id, ppm_task_status";
             } else if ($title === 'vg_count_ppm_by_site_trade') {
                 $sql = "SELECT 
@@ -641,7 +641,7 @@ class Class_sql
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
-                WHERE YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                WHERE DATE(ppm_task_start_date) >= '[date_start]' AND DATE(ppm_task_start_date) <= '[date_end]' 
                 GROUP BY site_id, asset_group_id";
             } else if ($title === 'vg_ppm_top5_execute') {
                 $sql = "SELECT
@@ -651,7 +651,7 @@ class Class_sql
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
                 WHERE ppm_task_serviced_by IS NOT NULL AND site_id [site_id]
-                AND YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                AND DATE(ppm_task_start_date) >= '[date_start]' AND DATE(ppm_task_start_date) <= '[date_end]' 
                 GROUP BY ppm_task_serviced_by ORDER BY total DESC LIMIT 5";
             } else if ($title === 'vg_ppm_bottom5_execute') {
                 $sql = "SELECT
@@ -661,7 +661,7 @@ class Class_sql
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
                 WHERE ppm_task_serviced_by IS NOT NULL AND site_id [site_id]
-                AND YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                AND DATE(ppm_task_start_date) >= '[date_start]' AND DATE(ppm_task_start_date) <= '[date_end]' 
                 GROUP BY ppm_task_serviced_by ORDER BY total LIMIT 5";
             } else if ($title === 'vg_ppm_average_execute_by_trade') {
                 $sql = "SELECT 
@@ -675,7 +675,7 @@ class Class_sql
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 LEFT JOIN ast_asset_group ON ast_asset_group.asset_group_id = ast_asset.asset_group_id
                 WHERE ppm_task_time_serviced IS NOT NULL AND cli_contract.site_id [site_id]
-                AND YEAR(ppm_task_start_date) = [cur_year] AND MONTH(ppm_task_start_date) - 1 = [cur_month]
+                AND DATE(ppm_task_start_date) >= '[date_start]' AND DATE(ppm_task_start_date) <= '[date_end]' 
                 GROUP BY ast_asset.asset_group_id
                 ORDER BY total";
             } else if ($title === 'vg_report_wo_summary') {
