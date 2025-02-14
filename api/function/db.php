@@ -98,7 +98,10 @@ class Class_db{
             } 
             else if ($value == 'is NULL' || $value == 'is not NULL') {
                 $where_str .= "$item $value AND ";
-            } 
+            }
+            else if ($value === 'Curdate()') {
+                $where_str .= "$item = CURDATE() AND ";
+            }
             else if ($l1 == '%') {
                 $where_str .= "$item like '".str_replace("'", "`", $value)."' AND ";
             } 

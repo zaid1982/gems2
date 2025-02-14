@@ -13,8 +13,8 @@ function MainHome() {
     let refAssetType;
     let refStatus;
     let userClient;
-    let clientId = '7';
-    let siteId = '0';
+    let clientId = '18';
+    let siteId = '19';
     let currentMonth;
     let currentYear;
     let reportId = '2';
@@ -26,6 +26,7 @@ function MainHome() {
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     let dateFrom;
     let dateTo;
+    const isAdmin = mzIsRoleExist('1,19');
     
     this.init = function () {
         $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
@@ -48,6 +49,7 @@ function MainHome() {
             }
         });
         $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
+        $('#navHmeClient').text(refClient[clientId]['clientName']);
 
         $('.lnkHmeClient').off('click').on('click', function () {
             const linkId = $(this).attr('id');
@@ -61,6 +63,7 @@ function MainHome() {
                     siteId = '0';
                     $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
                     self.setOptionSite();
+                    $('#navHmeClient').text(refClient[clientId]['clientName']);
                     //self.runChart();
                 }
             } catch (e) {
@@ -125,8 +128,10 @@ function MainHome() {
                     $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
                     if (reportId === '1') {
                         reportType = 'Planned Preventive Maintenance (PPM) Report';
+                        $('#navHmeReportType').text('PPM');
                     } else if (reportId === '2') {
                         reportType = 'Work Order Report';
+                        $('#navHmeReportType').text('Work Order');
                     }
                     //self.runChart();
                 }
@@ -211,11 +216,13 @@ function MainHome() {
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'woTaskTimeCreated', mRender: function (data){
+                    {mData: 'woTaskTimeCreated', sClass: 'text-center', mRender: function (data){
                             return data.substr(0, 10);
                         }},
-                    {mData: 'woTaskRequestNo'},
-                    {mData: 'woTaskNo'},
+                    {mData: 'woTaskRequestNo', sClass: 'text-center'},
+                    {mData: 'woTaskNo', sClass: 'text-center', mRender: function (data, type, row){
+                            return data === '-' ? row['woTaskRequestNo'] : data;
+                        }},
                     {mData: null, mRender: function (data, type, row){
                             return refSite[row['siteId']]['siteDesc'];
                         }},
@@ -234,7 +241,7 @@ function MainHome() {
                         }},
                     {mData: 'woTaskRepairDesc'},
                     {mData: 'woTaskRate'},
-                    {mData: null,
+                    {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
                             return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
                         }
@@ -242,14 +249,20 @@ function MainHome() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             let label = '';
-                            if (mzIsRoleExist('1')) {
-                                label += '&nbsp;<a><i class="fas fa-trash-alt lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>&nbsp;';
-                            }
                             if (row['woTaskIsWr'] === '1') {
-                                label += '&nbsp;<a><i class="fas fa-file-signature lnkHmeDataWoPdfWr" id="lnkHmeDataWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                                label += '<a><i class="fas fa-file-pdf lnkHmeDataWoPdfWr mr-1" id="lnkHmeDataWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>';
                             }
                             if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
-                                label += '&nbsp;<a><i class="far fa-file-pdf lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
+                                label += '<a><i class="far fa-file-pdf lnkHmeDataWoPdf mr-1" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            }
+                            if (isAdmin && row['woTaskAssignedTo'] !== '') {
+                                label += '<a><i class="fa-regular fa-user-pen lnkHmeDataWoReassign mr-1" id="lnkHmeDataWoReassign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reassign"></i></a>';
+                            }
+                            if (isAdmin) {
+                                label += '<a><i class="fa-regular fa-file-pen lnkHmeDataWoEdit mr-1" id="lnkHmeDataWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
+                            }
+                            if (mzIsRoleExist('1')) {
+                                label += '<a><i class="far fa-trash-alt lnkHmeDataWoDelete mr-1" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                             }
                             return label;
                         }
@@ -295,8 +308,10 @@ function MainHome() {
         $('#txtHmeDataWoSearch').on('keyup change', function () {
             oTableWo.search($(this).val()).draw();
         });
-
+        
+        oTableWo.column(2).visible(false);
         oTableWo.column(4).visible(false);
+        oTableWo.column(8).visible(false);
         oTableWo.column(11).visible(false);
         oTableWo.column(12).visible(false);
 
@@ -568,6 +583,7 @@ function MainHome() {
     this.setOptionSite = function () {
         $('#liHmeSite').show();
         siteId = '0';
+        $('#navHmeSite').text(refSite[siteId]['siteDesc']);
         $('#divHmeSite').html('');
         let siteList = [];
         $.each(refSite, function (_siteId, _site) {
@@ -592,6 +608,7 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+                        $('#navHmeSite').text(refSite[siteId]['siteDesc']);
                         //self.runChart();
                     }
                 } catch (e) {

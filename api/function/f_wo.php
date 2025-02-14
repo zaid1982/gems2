@@ -2105,6 +2105,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
             }
 
+            $attTypeArr = Class_db::getInstance()->db_select_cols('att_type', array('att_type_id', 'att_type_name'), array('att_type_mode'=>"('Leave','Training')", 'att_type_status'=>'1'));
             $arrUser = $this->fn_general->getUserFullName();
 
             $result = array();
@@ -2114,6 +2115,10 @@ class Class_wo {
                 $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
                 $row_result['userId'] = $dataLocal['user_id'];
                 $row_result['userFirstName'] = $arrUser[intval($dataLocal['user_id'])];
+                $attendance = Class_db::getInstance()->db_select_single('att_transaction', array('user_id'=>$dataLocal['user_id'], 'att_transaction_date'=>'Curdate()'));
+                if (!empty($attendance) && isset($attTypeArr[$attendance['att_type_id']])) {
+                    $row_result['userFirstName'] .= ' ('.$attTypeArr[$attendance['att_type_id']].')';
+                }
                 array_push($result, $row_result);
             }
             return $result;
