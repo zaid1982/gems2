@@ -26,6 +26,7 @@ function MainHome() {
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     let dateFrom;
     let dateTo;
+    let modalWoReassignClass;
     const isAdmin = mzIsRoleExist('1,19');
     
     this.init = function () {
@@ -211,6 +212,10 @@ function MainHome() {
                         }, 200);
                     }
                 });
+                $('.lnkHmeDataWoReassign').off('click').on('click', function () {
+                    const woTaskId = mzGetLinkId($(this), oTableWo, 'woTaskId');
+                    modalWoReassignClass.load(woTaskId);
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -255,7 +260,7 @@ function MainHome() {
                             if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
                                 label += '<a><i class="far fa-file-pdf lnkHmeDataWoPdf mr-1" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
                             }
-                            if (isAdmin && row['woTaskAssignedTo'] !== '') {
+                            if (isAdmin && row['woTaskAssignedTo'] !== '' && row['woTaskStatus'] === '13') {
                                 label += '<a><i class="fa-regular fa-user-pen lnkHmeDataWoReassign mr-1" id="lnkHmeDataWoReassign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reassign"></i></a>';
                             }
                             if (isAdmin) {
@@ -314,6 +319,7 @@ function MainHome() {
         oTableWo.column(8).visible(false);
         oTableWo.column(11).visible(false);
         oTableWo.column(12).visible(false);
+        oTableWo.column(13).visible(false);
 
         $('#optHmeDataWoColumns').on('change', function () {
             for (let i=1; i<=14; i++) {
@@ -2016,4 +2022,8 @@ function MainHome() {
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
+    
+    this.setModalWoReassignClass = function (_modalWoReassignClass) {
+        modalWoReassignClass = _modalWoReassignClass;
+    }
 }

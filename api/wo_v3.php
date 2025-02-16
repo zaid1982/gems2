@@ -141,6 +141,16 @@ try {
             $fnMain->saveAudit(129, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTask['woTaskNo']);
             $formData['errmsg'] = Constant::$wo['assign'];
         }
+        else if ($urlArr[1] === 'reassign' && isset($urlArr[2])) {
+            $woTaskId = intval($urlArr[2]);
+            $woTask = $fnMain->get($woTaskId);
+            $fnTask->userId = $fnMain->userId;
+            $fnTask->setByTransaction($woTask['transactionId']);
+            $fnTask->checkValidity(13, array(array('roleId'=>1, 'groupId'=>1), array('roleId'=>19, 'groupId'=>1)));
+            $fnTask->submit('', 58, 8, 3, 0, $bodyParams['woTaskAssignedTo']);
+            $fnMain->reassign($bodyParams, $woTask['transactionId']);
+            $formData['errmsg'] = Constant::$wo['reassign'];
+        }
         else if ($urlArr[1] === 'return_verify' && isset($urlArr[2])) { // only for self-finding and public complaint
             $woTaskId = intval($urlArr[2]);
             $woTask = $fnMain->get($woTaskId);

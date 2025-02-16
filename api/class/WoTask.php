@@ -345,6 +345,33 @@ class WoTask extends General {
     }
 
     /**
+     * @param array $columns
+     * @param int $transactionId
+     * @return void
+     * @throws Exception
+     */
+    public function reassign (array $columns, int $transactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            parent::checkMandatoryArray($columns, array('ppmGroupId', 'woTaskAssignedTo'));
+
+            $columns['woTaskAssignedBy'] = $this->userId;
+            $columns['woTaskTimeAssigned'] = 'NOW()';
+            $columns['woTaskIsPdf'] = 1;
+            $columns['woTaskStatus'] = 13;
+            DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
+            DbMysql::delete('wo_task_assist', array('woTaskId'=>$this->woTaskId));
+            DbMysql::update('wfl_task_assign', array('userId'=>$columns['woTaskAssignedTo']), array('transactionId'=>$transactionId, 'roleId'=>8));
+            DbMysql::update('wfl_transaction', array('transactionStatus'=>13), array('transactionId'=>$transactionId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $transactionId
      * @return void
      * @throws Exception

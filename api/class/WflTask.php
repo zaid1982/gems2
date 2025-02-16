@@ -50,9 +50,10 @@ class WflTask extends General {
 
     /**
      * @param int $checkpointId
+     * @param array $roleGroups
      * @throws Exception
      */
-    public function checkValidity (int $checkpointId): void {
+    public function checkValidity (int $checkpointId, array $roleGroups=array()): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($checkpointId, 'checkpointId');
@@ -65,7 +66,19 @@ class WflTask extends General {
             if ($this->wflTask['taskClaimedUser'] !== null && $this->wflTask['taskClaimedUser'] !== $this->userId) {
                 throw new Exception(Constant::$task['errClaimed'], 31);
             }
-            if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$this->wflTask['roleId'], 'groupId'=>$this->wflTask['groupId'])) === 0) {
+            if (!empty($roleGroups)) {
+                $isPass = false;
+                foreach ($roleGroups as $roleGroup) {
+                    if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$roleGroup['roleId'], 'groupId'=>$roleGroup['groupId'])) > 0) {
+                        $isPass = true;
+                        break;
+                    }
+                }
+                if (!$isPass) {
+                    $roleName = DbMysql::selectColumn('ref_role', array('roleId'=>$this->wflTask['roleId'], ), 'roleDesc');
+                    throw new Exception(str_replace('__', $roleName, Constant::$task['errInvalidRole']), 31);
+                }
+            } else if (DbMysql::count('sys_user_role', array('userId'=>$this->userId, 'roleId'=>$this->wflTask['roleId'], 'groupId'=>$this->wflTask['groupId'])) === 0) {
                 $roleName = DbMysql::selectColumn('ref_role', array('roleId'=>$this->wflTask['roleId']), 'roleDesc', true);
                 throw new Exception(str_replace('__', $roleName, Constant::$task['errInvalidRole']), 31);
             }

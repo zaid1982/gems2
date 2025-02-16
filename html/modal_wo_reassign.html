@@ -1,0 +1,89 @@
+<div class="modal fade" id="modal_wo_reassign" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pb-2">
+                <h4 class="text-white mt-2 ml-2" id="h4MwrTitle"></h4>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-2">
+                <form id="formMwr">
+                    <div class="card z-depth-1 mb-4_5">
+                        <div class="card-body blue-grey lighten-5 pt-3 pb-0">
+                            <div class="row">
+                                <div class="md-form col-12 mt-1 mb-0">
+                                    <label class="active pl-3">Group</label>
+                                    <p class="mt-1 pt-2 mb-0" id="pMwrPpmGroup"></p>
+                                    <hr class="grey lighten-1 mt-0">
+                                </div>
+                                <div class="md-form col-12 mt-1 mb-0">
+                                    <label class="active pl-3">Current Executor</label>
+                                    <p class="mt-1 pt-2 mb-0" id="pMwrExecutor"></p>
+                                    <hr class="grey lighten-1 mt-0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline mb-2" id="optMwrPpmGroup_">
+                            <select id="optMwrPpmGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
+                            <label for="optMwrPpmGroup" id="lblMwrPpmGroup">Executor Group <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMwrPpmGroupErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMwrAssignedTo_">
+                            <select id="optMwrAssignedTo" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
+                            <label for="optMwrAssignedTo" id="lblMwrAssignedTo">New Executor <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMwrAssignedToErr"></p>
+                        </div>
+                    </div>
+                    <hr class="mt-0 divMwrExecutorDetails">
+                    <div class="row divMwrExecutorDetails">
+                        <div class="col-md-12 mb-0">
+                            <p class="font-weight-500">Executor Details :</p>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwrUserName" class="form-control" disabled>
+                                <label for="txtMwrUserName" id="lblMwrUserName">Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwrUserContactNo" class="form-control" disabled>
+                                <label for="txtMwrUserContactNo" id="lblMwrUserContactNo">Phone No.</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMwrUserEmail" class="form-control" disabled>
+                                <label for="txtMwrUserEmail" id="lblMwrUserEmail">Email</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 pb-2">
+                            <div class="table-responsive">
+                                <table id="dtMwrCurrentTask" class="table table-hover table-custom-badge mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th class="pt-2">#</th>
+                                        <th class="pt-2">Current Task in Hands</th>
+                                        <th class="pt-2">Date Received</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-1">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMwrSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
