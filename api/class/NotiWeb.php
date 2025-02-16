@@ -43,7 +43,7 @@ class NotiWeb extends General {
                 $columns['notiWebTitle'] = $type === 2 ? 'Work Request' : 'Work Order';
                 $columns['notiWebIcon'] = 'fa-user-plus';
                 $columns['notiWebColor'] = 'winter-neva-gradient';
-                $columns['notiWebTitle'] = 'p_wo_assign';
+                $columns['notiWebLink'] = 'p_wo_assign';
                 $columns['navId'] = 23;
                 $columns['navSecondId'] = 54;
             } else if ($type === 3) {
@@ -51,7 +51,7 @@ class NotiWeb extends General {
                 $columns['notiWebTitle'] = 'Work Order';
                 $columns['notiWebIcon'] = 'fa-list-check';
                 $columns['notiWebColor'] = 'warm-flame-gradient';
-                $columns['notiWebTitle'] = 'p_wo_verify';
+                $columns['notiWebLink'] = 'p_wo_verify';
                 $columns['navId'] = 23;
                 $columns['navSecondId'] = 55;
             }

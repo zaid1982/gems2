@@ -2046,6 +2046,8 @@ class Class_wo {
                     }
                 }
                 $row_result['assistants'] = $dataLocal['assistants'];
+                $row_result['assetId'] = $dataLocal['asset_id'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
                 array_push($result, $row_result);
             }
 

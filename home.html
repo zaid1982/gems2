@@ -237,16 +237,16 @@
                             <select id="optHmeDataWoColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
                                 <option value="" disabled>Choose Column Visibility</option>
                                 <option value="1" selected>Date</option>
-                                <option value="2" selected>Request No.</option>
+                                <option value="2">Request No.</option>
                                 <option value="3" selected>Work Order No.</option>
-                                <option value="4" selected>Site</option>
+                                <option value="4">Site</option>
                                 <option value="5">Location</option>
                                 <option value="6" selected>Complaint Type</option>
                                 <option value="7" selected>Complainant</option>
-                                <option value="8" selected>Complaint Description</option>
+                                <option value="8">Complaint Description</option>
                                 <option value="9" selected>Severity</option>
                                 <option value="10" selected>Trade</option>
-                                <option value="11" selected>PIC Name</option>
+                                <option value="11">PIC Name</option>
                                 <option value="12">Repair Description</option>
                                 <option value="13">Rating</option>
                                 <option value="14" selected>Progress</option>
@@ -422,6 +422,7 @@
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
     <div class="includeHtml" id="h-modal_wo_reassign"></div>
+    <div class="includeHtml" id="h-modal_wo_edit"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -469,6 +470,7 @@
     let changePasswordClass_;
     let modalConfirmDelete_;
     let modalWoReassignClass_;
+    let modalWoEditClass_;
     let homeClass_;
 
     $('.divHmeTopStats_ppm').hide();
@@ -486,6 +488,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDelete_ = new ModalConfirmDelete();
                 modalWoReassignClass_ = new ModalWoReassign();
+                modalWoEditClass_ = new ModalWoEdit();
                 homeClass_ = new MainHome();
 
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
@@ -503,6 +506,12 @@
                 modalWoReassignClass_.setClassFrom(homeClass_);
                 modalWoReassignClass_.init();
 
+                modalWoEditClass_.setRefUser(refUser_);
+                modalWoEditClass_.setRefPpmGroup(refPpmGroup_);
+                modalWoEditClass_.setRefStatus(refStatus_);
+                modalWoEditClass_.setClassFrom(homeClass_);
+                modalWoEditClass_.init();
+
                 homeClass_.setRefClient(refClient_);
                 homeClass_.setRefSite(refSite_);
                 homeClass_.setRefContract(refContract_);
@@ -514,6 +523,7 @@
                 homeClass_.setRefStatus(refStatus_);
                 homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 homeClass_.setModalWoReassignClass(modalWoReassignClass_);
+                homeClass_.setModalWoEditClass(modalWoEditClass_);
                 homeClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -526,6 +536,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_wo_reassign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_wo_edit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_home.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

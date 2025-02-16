@@ -27,6 +27,7 @@ function MainHome() {
     let dateFrom;
     let dateTo;
     let modalWoReassignClass;
+    let modalWoEditClass;
     const isAdmin = mzIsRoleExist('1,19');
     
     this.init = function () {
@@ -213,8 +214,10 @@ function MainHome() {
                     }
                 });
                 $('.lnkHmeDataWoReassign').off('click').on('click', function () {
-                    const woTaskId = mzGetLinkId($(this), oTableWo, 'woTaskId');
-                    modalWoReassignClass.load(woTaskId);
+                    modalWoReassignClass.load(mzGetLinkRow($(this), oTableWo));
+                });
+                $('.lnkHmeDataWoEdit').off('click').on('click', function () {
+                    modalWoEditClass.load(mzGetLinkRow($(this), oTableWo));
                 });
             },
             language: _DATATABLE_LANGUAGE,
@@ -2025,5 +2028,9 @@ function MainHome() {
     
     this.setModalWoReassignClass = function (_modalWoReassignClass) {
         modalWoReassignClass = _modalWoReassignClass;
-    }
+    };
+ 
+    this.setModalWoEditClass = function (_modalWoEditClass) {
+        modalWoEditClass = _modalWoEditClass;
+    };
 }

@@ -1574,9 +1574,11 @@ class Class_sql
             } else if ($title === 'vg_wo_dashboard') {
                 $sql = "SELECT 
                         wo_task.*,
+                        ast_asset.asset_no,
                         GROUP_CONCAT(wo_task_assist.user_id) AS assistants
                     FROM wo_task 
                     LEFT JOIN wo_task_assist ON wo_task_assist.wo_task_id = wo_task.wo_task_id
+                    LEFT JOIN ast_asset ON ast_asset.asset_id = wo_task.asset_id
                     GROUP BY wo_task.wo_task_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));

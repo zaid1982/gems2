@@ -125,7 +125,15 @@ try {
         $bodyParams = json_decode(file_get_contents("php://input"), true);
         DbMysql::beginTransaction();
         $isTransaction = true;
-        if ($urlArr[1] === 'submit_assign' && isset($urlArr[2])) {
+        if ($urlArr[1] === 'update_by_admin' && isset($urlArr[2])) {
+            $woTaskId = intval($urlArr[2]);
+            $result = $fnMain->updateByAdmin($woTaskId, $bodyParams);
+            if ($result) {
+                $fnMain->saveAudit(129, $fnMain->auditRemark);
+                $formData['errmsg'] = Constant::$wo['update'];
+            }
+        }
+        else if ($urlArr[1] === 'submit_assign' && isset($urlArr[2])) {
             $woTaskId = intval($urlArr[2]);
             $woTask = $fnMain->get($woTaskId);
             $fnTask->userId = $fnMain->userId;

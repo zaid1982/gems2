@@ -1,6 +1,6 @@
 function ModalWoReassign () {
     
-    const className = 'ModalZone';
+    const className = 'ModalWoReassign';
     let self = this;
     let formValidate;
     let classFrom;
@@ -30,7 +30,7 @@ function ModalWoReassign () {
     ];
     
     this.init = function () {
-        formValidate = new MzValidate('formMzn');
+        formValidate = new MzValidate('formMwr');
         formValidate.registerFields(vData);
         
         $('#optMwrPpmGroup').on('change', function () {
@@ -71,7 +71,7 @@ function ModalWoReassign () {
                     };
                     ShowLoader(); setTimeout(function () {
                         mzFetch('wo_v3/reassign/'+woTaskId, 'PUT', data).then(res => {
-                            classFrom.genTableHmeDataWo(woTaskId);
+                            classFrom.genTableHmeDataWo();
                             $('#modal_wo_reassign').modal('hide');
                         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                     }, 200);
@@ -97,24 +97,23 @@ function ModalWoReassign () {
         });
     };
     
-    this.load = function (_woTaskId) {
+    this.load = function (_woTask) {
         ShowLoader(); setTimeout(function () { try {
-            mzCheckFuncParam([_woTaskId]);
+            mzCheckFuncParam([_woTask]);
             formValidate.clearValidation();
-            woTaskId = _woTaskId;
-            mzFetch('wo_v3/'+woTaskId).then(woTask => {
-                if (woTask['woTaskStatus'] !== 13) {
-                    throw new Error('Reassign Work Order only allowed in Execution Checkpoint. Please refresh list and try again!');
-                }
-                currentTechnician = woTask['woTaskAssignedTo'];
-                $('#pMwrPpmGroup').text(refPpmGroup[woTask['ppmGroupId']]['ppmGroupName']);
-                $('#pMwrExecutor').text(refUser[currentTechnician]['userFirstName']);
-                mzOptionStop('optMwrPpmGroup', refPpmGroup, 'Select Executor Group', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: woTask['siteId'].toString(), roleId:'8'}, 'required');
-                mzOptionStopClear('optMwrAssignedTo', 'Select New Executor', 'required');
-                $('#h4MwrTitle').html('<i class="fas fa-user-pen text-white"></i> &nbsp;Reassign New Executor');
-                $('#modal_wo_reassign').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
-        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
+            woTaskId = _woTask['woTaskId'];
+            if (_woTask['woTaskStatus'] !== '13') {
+                throw new Error('Reassign Work Order only allowed in Execution Checkpoint. Please refresh list and try again!');
+            }
+            currentTechnician = _woTask['woTaskAssignedTo'];
+            $('#pMwrPpmGroup').text(refPpmGroup[_woTask['ppmGroupId']]['ppmGroupName']);
+            $('#pMwrExecutor').text(refUser[currentTechnician]['userFirstName']);
+            mzOptionStop('optMwrPpmGroup', refPpmGroup, 'Select Executor Group', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: _woTask['siteId'].toString(), roleId:'8'}, 'required');
+            mzOptionStopClear('optMwrAssignedTo', 'Select New Executor', 'required');
+            $('#h4MwrTitle').html('<i class="fas fa-user-pen text-white"></i> &nbsp;Reassign New Executor');
+            $('#modal_wo_reassign').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
+            HideLoader();
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); HideLoader(); }}, 200);
     };
     
     this.getClassName = function () {

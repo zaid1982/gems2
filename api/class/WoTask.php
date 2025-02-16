@@ -420,4 +420,34 @@ class WoTask extends General {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * @param int $woTaskId
+     * @param array $columns
+     * @return bool
+     * @throws Exception
+     */
+    public function updateByAdmin (int $woTaskId, array $columns): bool {
+        try {
+            parent::checkEmptyInteger($woTaskId, 'woTaskId');
+            $woTask = $this->get($woTaskId);
+            $params = parent::arraySpliceAssoc($columns, array('woTaskComplaint'));
+            if (!empty($columns['assetNo'])) {
+                $contractId = DbMysql::selectColumn('cli_contract', array('siteId'=>$woTask['siteId'], 'contractStatus'=>1), 'contractId', true);
+                $assetId = DbMysql::selectColumn('ast_asset', array('assetNo'=>$columns['assetNo'], 'contractId'=>$contractId), 'assetId');
+                if (empty($assetId)) {
+                    return false;
+                }
+                $params['assetId'] = $assetId;
+            }
+            if ($woTask['woTaskType'] !== 2 && $woTask['woTaskType'] !== 6) {
+                $params['woTaskType'] = $columns['woTaskType'];
+            }
+            DbMysql::update($this::$tableName, $params, array('woTaskId'=>$woTaskId));
+            $this->auditRemark = 'Work Order no. = ' . $woTask['woTaskNo'];
+            return true;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
 }

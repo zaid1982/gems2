@@ -93,7 +93,7 @@ function SectionWo () {
                 notEmpty: false,
                 maxLength: 1000
             }
-        },
+        }
     ];
 
     this.init = function () {
@@ -417,7 +417,7 @@ function SectionWo () {
                     mzDisableSelect('optSwoaAssignedTo', true);
                     formValidateSwoa.clearValidation();
                     mzSetFieldValue('SwoaType', woTask['woTaskType'], 'select');
-                    mzDisableSelect('optSwoaType', woTask['woTaskType'] === 6);
+                    mzDisableSelect('optSwoaType', woTask['woTaskType'] === 2 || woTask['woTaskType'] === 6);
                 } else if (_type === 'verify') {
                     formValidateSwov.clearValidation();
                     $('#optSwovRating_').hide();
