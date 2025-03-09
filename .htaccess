@@ -31,6 +31,7 @@ RewriteRule ^p_complaint/(.+)/?$ complaint.html
 RewriteRule ^p_zone/?$ zone.html
 RewriteRule ^p_wo_assign/?$ wo_assign.html
 RewriteRule ^p_wo_verify/?$ wo_verify.html
+RewriteRule ^p_ppm_asset/?$ ppm_asset.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
@@ -92,6 +93,10 @@ RewriteRule ^part_sub/?$ api/part_sub.php
 RewriteRule ^part_sub/(.+)/?$ api/part_sub.php
 RewriteRule ^ppm_v2/?$ api/ppm_v2.php
 RewriteRule ^ppm_v2/(.+)/?$ api/ppm_v2.php
+RewriteRule ^ppm_v3/?$ api/ppm_v3.php
+RewriteRule ^ppm_v3/(.+)/?$ api/ppm_v3.php
+RewriteRule ^ppm_asset/?$ api/ppm_asset.php
+RewriteRule ^ppm_asset/(.+)/?$ api/ppm_asset.php
 RewriteRule ^ppm_task_assist/?$ api/ppm_task_assist.php
 RewriteRule ^ppm_task_assist/(.+)/?$ api/ppm_task_assist.php
 RewriteRule ^pr/?$ api/pr.php

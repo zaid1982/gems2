@@ -133,9 +133,10 @@ try {
             else if ($type === 'dashboard_list') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
-                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
-                $dateTo = filter_input(INPUT_GET, 'dateTo');
-                $result = $fn_ppm->get_ppm_list($clientId, $siteId, $dateFrom, $dateTo);
+                $year = filter_input(INPUT_GET, 'year');
+                $month = filter_input(INPUT_GET, 'month');
+                $isRoutine = filter_input(INPUT_GET, 'isRoutine');
+                $result = $fn_ppm->get_ppm_list($clientId, $siteId, $year, $month, $isRoutine);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }

@@ -1,0 +1,200 @@
+<section class="section mb-5 sectionPpmAsset">
+    <div class="row mb-2 pb-0">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-outline-blue btn-rounded float-right z-depth-3" id="btnSpgBack" data-toggle="tooltip" data-placement="bottom" title="Back to Main Page">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Main Page
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card z-depth-4 mb-3">
+                <div class="p-3 aqua-gradient text-white">
+                    <h5 id="lblSpgWoMainName">PPM Asset Group Name</h5>
+                    <h2 class="mt-1 mb-0 font-weight-bold"><span id="lblSpgWoMainNo">Test Group Group Group Group 4</span></h2>
+                </div>
+            </div>
+            <div class="card z-depth-4 mb-3">
+                <div class="card-body">
+                    <div class="media">
+                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
+                            <i class="fa-duotone fa-diamond-exclamation fa-2x text-info"></i>
+                        </span>
+                        <div class="media-body">
+                            <h5 class="dark-grey-text mt-0 mb-2">PPM Status</h5>
+                            <p class="font-weight-light text-muted mb-0" id="pSpgStatus"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-4 mb-3">
+                <div class="card-body">
+                    <div class="media">
+                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
+                            <i class="fa-duotone fa-computer-classic fa-2x text-info"></i>
+                        </span>
+                        <div class="media-body">
+                            <h5 class="dark-grey-text mt-0 mb-2">Total Asset</h5>
+                            <p class="font-weight-light text-muted mb-0" id="pSpgTotalAsset">32</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-4 mb-3">
+                <div class="card-body">
+                    <div class="media">
+                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
+                            <i class="fa-duotone fa-thin fa-ballot-check fa-2x text-info"></i>
+                        </span>
+                        <div class="media-body">
+                            <h5 class="dark-grey-text mt-0 mb-2">Total PPM Task</h5>
+                            <p class="font-weight-light text-muted mb-0" id="pSpgTotalTask">32</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card z-depth-3 mb-3">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">PPM Asset Group Details</h6>
+                </div>
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="md-form col-lg-6 my-1" id="divSpgWo">
+                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
+                            <label class="active pl-3_5">Work Order No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgWoNo"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-1" id="divSpgWr">
+                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
+                            <label class="active pl-3_5">Work Request No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgWrNo"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="md-form col-lg-12 my-1">
+                            <i class="fa-duotone fa-map-marked-alt prefix text-info"></i>
+                            <label class="active pl-3_5">Site</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgSite"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-1">
+                            <i class="fa-duotone fa-tag prefix text-info"></i>
+                            <label class="active pl-3">Category</label>
+                            <p class="pt-2-5 mb-0 pl-4_5" id="pSpgCategory"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-1">
+                            <i class="fa-duotone fa-circle-exclamation prefix text-info"></i>
+                            <label class="active pl-3_5">Severity</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgSeverity"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-6 my-1">
+                            <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
+                            <label class="active pl-3">Reported Date/Time</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgTimeReported"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-12 my-1">
+                            <i class="fa-duotone fa-map-signs prefix text-info"></i>
+                            <label class="active pl-3">Location</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgLocation"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-12 my-1">
+                            <i class="fa-duotone fa-user prefix text-info"></i>
+                            <label class="active pl-3">Complainer Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgComplainerName"></p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 my-1">
+                            <i class="fa-duotone fa-phone prefix text-info"></i>
+                            <label class="active pl-3">Complainer Phone No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgComplainerPhoneNo">few</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-1">
+                            <i class="fa-duotone fa-envelope prefix text-info"></i>
+                            <label class="active pl-3">Complainer Email</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgComplainerEmail">fwe</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-5 my-1 divSpgPublic">
+                            <i class="fa-duotone fa-id-card prefix text-info"></i>
+                            <label class="active pl-3">Complainer IC No.</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgComplainerIcNo">vfd</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                        <div class="md-form col-lg-7 my-1 divSpgPublic">
+                            <i class="fa-duotone fa-building prefix text-info"></i>
+                            <label class="active pl-3">Agency Name</label>
+                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgComplainerAgency">vdfv</p>
+                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSpgEdit" data-toggle="tooltip" data-placement="bottom" title="Edit Info"><i class="far fa-edit mr-1"></i> Edit Info</button>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3 divSpgAssigned">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">List of Assets</h6>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="row">
+                        <div class="col-12 px-0" id="divSpgAssistants">
+                            <div class="table-responsive">
+                                <table id="dtSpgAssistants" class="table table-hover table-tight mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Contact No.</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card z-depth-3 mb-3 divSpgAssigned">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
+                    <h6 class="font-weight-bold pl-4 mt-2">List of PPM Tasks</h6>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="row">
+                        <div class="col-12 px-0" id="divSpgMaterials">
+                            <div class="table-responsive">
+                                <table id="dtSpgMaterials" class="table table-hover table-tight mb-0 display responsive w-100">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th style="width: 50px">Request No.</th>
+                                        <th>Item</th>
+                                        <th>Item Description</th>
+                                        <th>Qty.</th>
+                                        <th>Time Ordered</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

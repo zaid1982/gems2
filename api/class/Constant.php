@@ -130,4 +130,10 @@ class Constant {
         'reassign' => 'Work Order successfully reassigned!',
         'update' => 'Work Order successfully updated!'
     );
+
+    public static $ppm = array(
+        'addGroup' => 'PPM Asset Group successfully registered!',
+        'updateGroup' => 'PPM Asset Group successfully updated!',
+        'deleteGroup' => 'PPM Asset Group successfully removed!'
+    );
 }

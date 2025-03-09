@@ -45,6 +45,8 @@ try {
         if (!is_null($type)) {
             if ($type === 'checklist_by_type') {
                 $result = $fn_checklist->get_checklist_by_type();
+            } else if ($type === 'frequency') {
+                $result = $fn_checklist->get_frequency($checklistId);
             }
         } else if (!is_null($checklistId)) {
             $result = $fn_checklist->get_checklist($checklistId);

@@ -1,0 +1,78 @@
+<div class="modal fade" id="modal_ppm_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header d-flex justify-content-center pt-3 pb-1">
+                <h3 class="text-white ml-2" id="h4MpaTitle"></h3>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white  pr-3 pt-3" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body pb-0">
+                <form class="pt-2-5" id="formMpa">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpaName" class="form-control">
+                                <label for="txtMpaName" id="lblMpaName">PPM Asset Group Name <span class="text-danger">*</span></label>
+                                <p class="font-small text-danger" id="txtMpaNameErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <textarea id="txaMpaDesc" class="md-textarea form-control" rows="3"></textarea>
+                                <label for="txaMpaDesc" id="lblMpaDesc" class="text-muted">Description</label>
+                                <p class="font-small text-danger" id="txaMpaDescErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetGroup_">
+                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMpaAssetGroupErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetCategory_">
+                            <select id="optMpaAssetCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaAssetCategory" id="lblMpaAssetCategory">Asset Category <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMpaAssetCategoryErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetType_">
+                            <select id="optMpaAssetType" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaAssetType" id="lblMpaAssetType">Asset Type <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMpaAssetTypeErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMpaChecklistId_">
+                            <select id="optMpaChecklistId" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaChecklistId" id="lblMpaChecklistId">PPM Checklist <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMpaChecklistIdErr"></p>
+                        </div>
+                        <div class="col-md-12 select-outline mb-2" id="optMpaPpmGroupId_">
+                            <select id="optMpaPpmGroupId" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                            <label for="optMpaPpmGroupId" id="lblMpaPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger" id="optMpaPpmGroupIdErr"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpaFrequency" class="form-control" disabled>
+                                <label for="txtMpaFrequency" id="lblMpaFrequency">PPM Frequency</label>
+                                <p class="font-small text-danger" id="txtMpaFrequencyErr"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtMpaPpmDateStart" class="form-control datepicker">
+                                <label for="txtMpaPpmDateStart" id="lblMpaPpmDateStart">Start PPM Date <span class="text-danger">*</span></label>
+                                <p class="font-small text-danger" id="txtMpaPpmDateStartErr"></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-1">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMpaSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

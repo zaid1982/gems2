@@ -763,3 +763,22 @@ input:-webkit-autofill {
     padding-top: 0.35rem !important;
     padding-bottom: 0.05rem !important;
 }
+.table-tight {
+    border-collapse: collapse;
+    border-spacing: 1px;
+}
+.table-tight > thead > tr > th {
+    font-size: 13.5px;
+    font-weight: bold !important;
+    text-align: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 7px !important;
+}
+.th-tight-bordered > th {
+    padding-top: 4px !important;
+    padding-bottom: 1px !important;
+}
+.table-tight > tbody > tr > td {
+    font-size: 13.5px;
+    padding: 4px 5px 3px 5px !important;
+}

@@ -1580,6 +1580,24 @@ class Class_sql
                     LEFT JOIN wo_task_assist ON wo_task_assist.wo_task_id = wo_task.wo_task_id
                     LEFT JOIN ast_asset ON ast_asset.asset_id = wo_task.asset_id
                     GROUP BY wo_task.wo_task_id";
+            } else if ($title === 'vw_checklist_frequency') {
+                $sql = "
+                    SELECT GROUP_CONCAT(DISTINCT frequency_name ORDER BY frequency_id SEPARATOR ', ') AS frequency_name FROM (
+                        SELECT 
+                            ppm_frequency.frequency_id AS frequency_id,
+                            ppm_frequency.frequency_name AS frequency_name
+                        FROM ppm_checklist_qual
+                        LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_checklist_qual.frequency_id
+                        WHERE checklist_id = [checklistId]
+                        UNION 
+                        SELECT 
+                            ppm_frequency.frequency_id AS frequency_id,
+                            ppm_frequency.frequency_name AS frequency_name
+                        FROM ppm_checklist_quan
+                        LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_checklist_quan.frequency_id
+                        WHERE checklist_id = [checklistId]
+                    ) aa
+                    WHERE frequency_id IS NOT NULL";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

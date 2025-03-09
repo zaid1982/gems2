@@ -1796,9 +1796,14 @@ function mzGetUserInfoByParam(parameter) {
 }
 
 function mzDisableSelect(fieldId, disable) {
-    $('#'+fieldId).materialSelect('destroy');
-    $('#'+fieldId).prop('disabled', disable);
-    $('#'+fieldId).materialSelect();
+    let selector = $('#'+fieldId);
+    selector.removeClass('grey lighten-4');
+    if (disable) {
+        selector.addClass('grey lighten-4');
+    }
+    selector.materialSelect('destroy');
+    selector.prop('disabled', disable);
+    selector.materialSelect({visibleOptions: 15});
 }
 
 function mzCheckFuncParam (arrParam) {

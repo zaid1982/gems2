@@ -532,7 +532,7 @@ class Class_ppm {
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
-            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId,
+            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId, 'asset_type_id'=>$asset['asset_type_id'],
                 'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
             $currentMonth = array('year'=>'', 'month'=>'');
             //$technicianKpis = array();
@@ -2557,12 +2557,13 @@ class Class_ppm {
     /**
      * @param string $clientId
      * @param string $siteId
-     * @param string $dateStart
-     * @param string $dateEnd
+     * @param string $year
+     * @param string $month
+     * @param string $isRoutine
      * @return array
      * @throws Exception
      */
-    public function get_ppm_list ($clientId='', $siteId='', $dateStart='', $dateEnd='') {
+    public function get_ppm_list ($clientId='', $siteId='', $year='', $month='', $isRoutine='0') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -2578,7 +2579,7 @@ class Class_ppm {
             }
 
             $result = array();
-            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'DATE(ppm_task_start_date)'=>'>='.$dateStart, 'DATE(ppm_task_start_date) '=>'<='.$dateEnd));
+            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month, 'ppm_is_routine'=>$isRoutine));
             foreach ($dataLocals as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];

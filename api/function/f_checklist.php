@@ -132,6 +132,30 @@ class Class_checklist {
         }
     }
 
+    /**
+     * @param $checklistId
+     * @return mixed
+     * @throws Exception
+     */
+    public function get_frequency ($checklistId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (empty($checklistId)) {
+                throw new Exception('[' . __LINE__ . '] - Array checklistId empty');
+            }
+            return Class_db::getInstance()->db_select_single('vw_checklist_frequency', array(), '', 1, array('checklistId'=>$checklistId))['frequency_name'];
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $checklistId
+     * @return array
+     * @throws Exception
+     */
     public function get_checklist ($checklistId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
@@ -157,6 +181,7 @@ class Class_checklist {
             $result['checklistTimeCreated'] = str_replace('-', '/', $dataLocal['checklist_time_created']);
             $result['checklistRegisteredBy'] = $this->fn_general->clear_null($dataLocal['checklist_registered_by']);
             $result['checklistStatus'] = $dataLocal['checklist_status'];
+            $result['frequency'] = Class_db::getInstance()->db_select_single('vw_checklist_frequency', array(), '', 1, array('checklistId'=>$checklistId));
 
             return $result;
         }
