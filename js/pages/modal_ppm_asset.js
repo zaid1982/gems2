@@ -182,11 +182,9 @@ function ModalPpmAsset () {
         mzDisableSelect('optMpaPpmGroupId', true);
     };
 
-    this.add = function (_contractId, _siteId) {
+    this.add = function () {
         try {
-            mzCheckFuncParam([_contractId, _siteId]);
-            contractId = _contractId;
-            siteId = _siteId;
+            //mzCheckFuncParam([_contractId, _siteId]);
             submitType = 'add';
             formValidate.clearValidation();
             self.resetOption();
@@ -217,5 +215,13 @@ function ModalPpmAsset () {
 
     this.setRefPpmGroup = function (_refPpmGroup) {
         refPpmGroup = _refPpmGroup;
+    };
+
+    this.setContractId = function (_contractId) {
+        contractId = _contractId;
+    };
+
+    this.setSiteId = function (_siteId) {
+        siteId = _siteId;
     };
 }

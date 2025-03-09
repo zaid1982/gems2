@@ -5,6 +5,7 @@ function MainPpmAsset () {
     let dtPgr;
     let refStatus;
     let refUser;
+    let refSite;
     let refContract;
     let refAssetGroup;
     let refAssetCategory;
@@ -38,7 +39,13 @@ function MainPpmAsset () {
             });
             $('#lnkPgrContract_'+contractId).addClass('active').addClass('text-white');
         }
+
         $('#lblPgrContractName').text(refContract[contractId]['contractName']);
+        const siteId = refContract[contractId]['siteId'];
+        modalPpmAssetClass.setContractId(contractId);
+        modalPpmAssetClass.setSiteId(siteId);
+        sectionPpmAssetClass.setContractName(refContract[contractId]['contractName']);
+        sectionPpmAssetClass.setSiteName(refSite[siteId]['siteName']);
 
         $('.lnkPgrContract').off('click').on('click', function () {
             const linkId = $(this).attr('id');
@@ -51,6 +58,11 @@ function MainPpmAsset () {
                     $('#lnkPgrContract_'+contractId).addClass('active').addClass('text-white');
                     $('#lblPgrContractName').text(refContract[contractId]['contractName']);
                     self.genTable();
+                    const siteId = refContract[contractId]['siteId'];
+                    modalPpmAssetClass.setContractId(contractId);
+                    modalPpmAssetClass.setSiteId(siteId);
+                    sectionPpmAssetClass.setContractName(refContract[contractId]['contractName']);
+                    sectionPpmAssetClass.setSiteName(refSite[siteId]['siteName']);
                 }
             } catch (e) {  toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
@@ -93,7 +105,6 @@ function MainPpmAsset () {
                 });
                 $('#btnPgrAdd').off('click').on('click', function () {
                     modalPpmAssetClass.setClassFrom(self);
-                    modalPpmAssetClass.add(contractId, refContract[contractId]['siteId']);
                 });
                 $('.lnkPgrEdit').off('click').on('click', function () {
                     const ppmId = mzGetLinkId($(this), dtPgr, 'ppmId');
@@ -157,6 +168,10 @@ function MainPpmAsset () {
 
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
+    };
+
+    this.setRefSite = function (_refSite) {
+        refSite = _refSite;
     };
 
     this.setRefContract = function (_refContract) {

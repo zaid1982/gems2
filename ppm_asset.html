@@ -175,6 +175,7 @@
 
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
@@ -186,10 +187,16 @@
                 modalPpmAssetClass_.setRefAssetType(refAssetType_);
                 modalPpmAssetClass_.setRefPpmGroup(refPpmGroup_);
                 modalPpmAssetClass_.init();
+                sectionPpmAssetClass_.setRefStatus(refStatus_);
+                sectionPpmAssetClass_.setRefAssetGroup(refAssetGroup_);
+                sectionPpmAssetClass_.setRefAssetCategory(refAssetCategory_);
+                sectionPpmAssetClass_.setRefAssetType(refAssetType_);
+                sectionPpmAssetClass_.setRefPpmGroup(refPpmGroup_);
                 sectionPpmAssetClass_.setClassFrom(mainClass_);
                 sectionPpmAssetClass_.init();
                 mainClass_.setRefStatus(refStatus_);
                 mainClass_.setRefUser(refUser_);
+                mainClass_.setRefSite(refSite_);
                 mainClass_.setRefContract(refContract_);
                 mainClass_.setRefAssetGroup(refAssetGroup_);
                 mainClass_.setRefAssetCategory(refAssetCategory_);
