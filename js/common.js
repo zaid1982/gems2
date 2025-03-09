@@ -475,22 +475,24 @@ function MzValidate(name) {
         });
     };
     
-    this.enableField = function (fieldId) {
+    this.enableField = function (fieldId, _isEnable) {
         let arrFields = this.fields;
+        const isEnable = typeof _isEnable !== 'undefined' ? _isEnable : true;
         $.each(arrFields, function (n, u) {
             if (u.field_id === fieldId) {
-                u.enabled = true;
+                u.enabled = isEnable;
                 return false;
             }
         });
         this.fields = arrFields;
     };
     
-    this.disableField = function (fieldId) {
+    this.disableField = function (fieldId, _isDisable) {
         let arrFields = this.fields;
+        const isEnable = typeof _isDisable !== 'undefined' ? !_isDisable : false;
         $.each(arrFields, function (n, u) {
             if (u.field_id === fieldId) {
-                u.enabled = false;
+                u.enabled = isEnable;
                 return false;
             }
         });
@@ -1628,6 +1630,21 @@ function mzChartOption() {
 }
 
 function mzSetFieldValue(name, value, type, label, isInit) {
+    if (typeof type === 'undefined') {
+        const prefix = name.substring(0, 3);
+        if (prefix === 'txt') {
+            type = 'text';
+            name = name.substring(3);
+        } else if (prefix === 'opt') {
+            type = 'select';
+            name = name.substring(3);
+        } else if (prefix === 'txa') {
+            type = 'textarea';
+            name = name.substring(3);
+        } else {
+            throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+        }
+    }
     if (type === 'text') {
         $('#txt'+name).val('');
         $('#lbl'+name).removeClass('active');
@@ -1684,6 +1701,15 @@ function mzSetFieldValue(name, value, type, label, isInit) {
             if (dateSplit.length !== 3) {
                 dateSplit = value.split("-");
             }
+            if (dateSplit.length !== 3) {
+                return '';
+            }
+            const day = parseInt(dateSplit[2]);
+            const month = parseInt(dateSplit[1])-1;
+            const year = parseInt(dateSplit[0]);
+            $('#txt'+name).pickadate('set').set('select', new Date(year, month, day));
+        } else if (type === 'date2') {
+            const dateSplit = value.split("-");
             if (dateSplit.length !== 3) {
                 return '';
             }

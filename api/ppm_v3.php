@@ -44,11 +44,11 @@ try {
         $formData['success'] = true;
     }
     else if ('POST' === $requestMethod) {
-        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmGroupAsset') {
+        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup') {
             $bodyParams = json_decode(file_get_contents("php://input"), true);
             DbMysql::beginTransaction();
             $isTransaction = true;
-            $ppmId = $fnMain->insertGroupAsset($bodyParams);
+            $ppmId = $fnMain->insertAssetGroup($bodyParams);
             $fnMain->saveAudit(222, 'ppmId = '.$ppmId);
             $formData['errmsg'] = Constant::$ppm['addGroup'];
             DbMysql::commit();
@@ -59,13 +59,18 @@ try {
         $formData['success'] = true;
     }
     else if ('PUT' === $requestMethod) {
-        $bodyParams = json_decode(file_get_contents("php://input"), true);
-        DbMysql::beginTransaction();
-        $isTransaction = true;
-        $fnMain->update(intval($urlArr[1]), $bodyParams);
-        //$fnMain->saveAudit(218, $urlArr[1]);
-        DbMysql::commit();
-        $formData['errmsg'] = Constant::$ppm['updateGroup'];
+        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup' && isset($urlArr[2])) {
+            $ppmId = intval($urlArr[2]);
+            $bodyParams = json_decode(file_get_contents("php://input"), true);
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $fnMain->update($ppmId, $bodyParams);
+            $fnMain->saveAudit(222, 'ppmId = '.$ppmId);
+            DbMysql::commit();
+            $formData['errmsg'] = Constant::$ppm['updateGroup'];
+        } else {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
+        }
         $formData['success'] = true;
     }
     else if ('DELETE' === $requestMethod) {

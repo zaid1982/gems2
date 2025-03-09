@@ -34,7 +34,11 @@ class PpmAsset extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($ppmId, 'ppmId');
-            return DbMysql::selectAll($this::$tableName, array('ppmId'=>$ppmId));
+            return DbMysql::selectSqlAll(/** @lang text */
+                "SELECT 
+                    ast.*
+                FROM ppm_asset pst
+                LEFT JOIN ast_asset ast ON ast.asset_id = pst.asset_id", array('pst.ppmId'=>$ppmId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

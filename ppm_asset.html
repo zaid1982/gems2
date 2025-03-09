@@ -156,7 +156,7 @@
 
     let versionLocal_;
     let changePasswordClass_;
-    let modalConfirmDelete_;
+    let modalConfirmDeleteClass_;
     let modalPpmAssetClass_;
     let sectionPpmAssetClass_;
     let mainClass_;
@@ -168,7 +168,7 @@
                 initiatePages();
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
+                modalConfirmDeleteClass_ = new ModalConfirmDelete();
                 modalPpmAssetClass_ = new ModalPpmAsset();
                 sectionPpmAssetClass_ = new SectionPpmAsset();
                 mainClass_ = new MainPpmAsset();
@@ -192,6 +192,8 @@
                 sectionPpmAssetClass_.setRefAssetCategory(refAssetCategory_);
                 sectionPpmAssetClass_.setRefAssetType(refAssetType_);
                 sectionPpmAssetClass_.setRefPpmGroup(refPpmGroup_);
+                sectionPpmAssetClass_.setModalConfirmDeleteClass(modalConfirmDeleteClass_);
+                sectionPpmAssetClass_.setModalPpmAssetClass(modalPpmAssetClass_);
                 sectionPpmAssetClass_.setClassFrom(mainClass_);
                 sectionPpmAssetClass_.init();
                 mainClass_.setRefStatus(refStatus_);

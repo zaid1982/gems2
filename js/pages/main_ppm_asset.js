@@ -105,6 +105,7 @@ function MainPpmAsset () {
                 });
                 $('#btnPgrAdd').off('click').on('click', function () {
                     modalPpmAssetClass.setClassFrom(self);
+                    modalPpmAssetClass.add();
                 });
                 $('.lnkPgrEdit').off('click').on('click', function () {
                     const ppmId = mzGetLinkId($(this), dtPgr, 'ppmId');

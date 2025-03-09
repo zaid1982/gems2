@@ -40,7 +40,7 @@ class Ppm extends General {
                     COUNT(ppt.ppm_task_id) AS total_task,
                     COUNT(ast.ppm_asset_id) AS total_asset
                 FROM ppm
-                LEFT JOIN ppm_task ppt ON ppt.ppm_id = ppm.asset_id
+                LEFT JOIN ppm_task ppt ON ppt.ppm_id = ppm.ppm_id
                 LEFT JOIN ppm_asset ast ON ast.ppm_id = ppm.ppm_id
                 WHERE ppm.ppm_is_group = 1 AND contract_id = $contractId
                 GROUP BY ppm.ppm_id");
@@ -54,7 +54,7 @@ class Ppm extends General {
      * @return int
      * @throws Exception
      */
-    public function insertGroupAsset (array $columns): int {
+    public function insertAssetGroup (array $columns): int {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             if (!isset($columns['checklistId'])) {
@@ -79,7 +79,18 @@ class Ppm extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($id, $this::$idName);
-            DbMysql::update($this::$tableName, $columns, array($this::$idName=>$id));
+            $current = $this->get($id);
+            if ($current['ppmStatus'] === 11) {
+                DbMysql::update($this::$tableName, $columns, array($this::$idName=>$id));
+                if ($current['assetTypeId'] !== $columns['assetTypeId'] && DbMysql::count('ppm_asset', array($this::$idName=>$id)) > 0) {
+                    DbMysql::delete('ppm_asset', array($this::$idName=>$id));
+                }
+            } else if ($current['ppmStatus'] === 1) {
+                $params = $this->arraySpliceAssocMultiple($columns, array('ppmName', 'ppmRemark'));
+                DbMysql::update($this::$tableName, $params, array($this::$idName=>$id));
+            } else {
+                throw new Exception('Invalid current status = '. $current['status']);
+            }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -94,6 +105,16 @@ class Ppm extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($id, $this::$idName);
+            $current = $this->get($id);
+            if ($current['ppmStatus'] === 1) {
+                throw new Exception(Constant::$ppm['errAssigned']);
+            } else if ($current['ppmStatus'] === 11 && $current['ppmIsGroup'] === 1) {
+                if (DbMysql::count('ppm_asset', array($this::$idName=>$id)) > 0) {
+                    DbMysql::delete('ppm_asset', array($this::$idName=>$id));
+                }
+            } else {
+                throw new Exception('Invalid current status = '. $current['status']);
+            }
             DbMysql::delete($this::$tableName, array($this::$idName=>$id));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

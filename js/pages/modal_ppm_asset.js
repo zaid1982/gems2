@@ -9,6 +9,7 @@ function ModalPpmAsset () {
     let refAssetCategory;
     let refAssetType;
     let refPpmGroup;
+    let ppmId;
     let contractId;
     let siteId;
 
@@ -91,6 +92,7 @@ function ModalPpmAsset () {
     ];
 
     this.init = function () {
+        mzDateSetMin('txtMpaPpmDateStart', moment().format('YYYY-MM-DD'));
         mzOption('optMpaAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
         $('#optMpaAssetGroup').on('change', function () {
@@ -118,7 +120,7 @@ function ModalPpmAsset () {
 
         $('#optMpaAssetType').on('change', function () {
             const id = $(this).val();
-            ShowLoader(); setTimeout(function () {
+            //ShowLoader(); setTimeout(function () { try {
             try {
                 const refChecklist = mzAjaxRequest('checklist.php?assetTypeId='+id, 'GET');
                 mzOptionStop('optMpaChecklistId', refChecklist, 'Select PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true);
@@ -127,7 +129,7 @@ function ModalPpmAsset () {
                 mzDisableSelect('optMpaPpmGroupId', false);
                 mzSetFieldValue('txtMpaFrequency', '', 'text');
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
-            HideLoader(); }, 200);
+            //} catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); } HideLoader(); }, 200);
         });
 
         $('#optMpaChecklistId').on('change', function () {
@@ -157,8 +159,14 @@ function ModalPpmAsset () {
                             data['contractId'] = contractId;
                             data['ppmIsGroup'] = 1;
                             data['ppmStatus'] = 11;
-                            mzFetch('ppm_v3/ppmGroupAsset', 'POST', data).then(res => {
+                            mzFetch('ppm_v3/ppmAssetGroup', 'POST', data).then(res => {
                                 classFrom.genTable();
+                                $('#modal_ppm_asset').modal('hide');
+                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                        } else if (submitType === 'put') {
+                            mzFetch('ppm_v3/ppmAssetGroup/'+ppmId, 'PUT', data).then(res => {
+                                classFrom.load(ppmId, true);
+                                classFrom.setIsUpdate(true);
                                 $('#modal_ppm_asset').modal('hide');
                             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }
@@ -180,17 +188,81 @@ function ModalPpmAsset () {
         mzDisableSelect('optMpaChecklistId', true);
         mzOptionStopClear('optMpaPpmGroupId', 'Select PPM Executor Group', 'required');
         mzDisableSelect('optMpaPpmGroupId', true);
+        $('#txtMpaPpmDateStart').prop('disable', false);
     };
 
     this.add = function () {
         try {
-            //mzCheckFuncParam([_contractId, _siteId]);
             submitType = 'add';
             formValidate.clearValidation();
             self.resetOption();
+            mzDisableSelect('optMpaAssetGroup', false);
+            formValidate.enableField('optMpaAssetGroup');
+            formValidate.enableField('optMpaAssetCategory');
+            formValidate.enableField('optMpaAssetType');
+            formValidate.enableField('optMpaPpmGroupId');
+            formValidate.enableField('txtMpaPpmDateStart');
             $('#h4MpaTitle').html('<i class="fa-duotone fa-plus mr-2"></i>Add PPM Asset Group');
             $('#modal_ppm_asset').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
+    };
+
+    this.edit = function (_ppmId) {
+        try {
+            mzCheckFuncParam([_ppmId]);
+            ppmId = _ppmId;
+            submitType = 'put';
+            ShowLoader(); setTimeout(function () {
+                mzFetch('ppm_v3/'+ppmId, 'GET').then(res => {
+                    formValidate.clearValidation();
+                    self.resetOption();
+                    console.log(res);
+                    mzSetFieldValue('txtMpaName', res['ppmName']);
+                    mzSetFieldValue('txaMpaDesc', res['ppmRemark']);
+                    const assetTypeId = res['assetTypeId'];
+                    const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
+                    const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+                    mzSetFieldValue('optMpaAssetGroup', assetGroupId);
+                    $('#optMpaAssetGroup').trigger('change');
+                    mzSetFieldValue('optMpaAssetCategory', assetCategoryId);
+                    $('#optMpaAssetCategory').trigger('change');
+                    mzSetFieldValue('optMpaAssetType', assetTypeId);
+                    $('#optMpaAssetType').trigger('change');
+                    mzSetFieldValue('optMpaChecklistId', res['checklistId']);
+                    mzSetFieldValue('optMpaPpmGroupId', res['ppmGroupId']);
+                    $('#optMpaChecklistId').trigger('change');
+                    mzSetFieldValue('MpaPpmDateStart', res['ppmDateStart'], 'date2');
+                    const isDisable = res['ppmStatus'] !== 11;
+                    mzDisableSelect('optMpaAssetGroup', isDisable);
+                    mzDisableSelect('optMpaAssetCategory', isDisable);
+                    mzDisableSelect('optMpaAssetType', isDisable);
+                    mzDisableSelect('optMpaChecklistId', isDisable);
+                    mzDisableSelect('optMpaPpmGroupId', isDisable);
+                    $('#txtMpaPpmDateStart').prop('disabled', isDisable);
+                    formValidate.disableField('optMpaAssetGroup', isDisable);
+                    formValidate.disableField('optMpaAssetCategory', isDisable);
+                    formValidate.disableField('optMpaAssetType', isDisable);
+                    formValidate.disableField('optMpaChecklistId', isDisable);
+                    formValidate.disableField('optMpaPpmGroupId', isDisable);
+                    formValidate.disableField('txtMpaPpmDateStart', isDisable);
+                    $('#h4MpaTitle').html('<i class="fa-duotone fa-edit mr-2"></i>Edit PPM Asset Group');
+                    $('#modal_ppm_asset').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+            }, 200);
+        } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
+    };
+
+    this.delete = function (_ppmId) {
+        try {
+            mzCheckFuncParam([_ppmId]);
+            ShowLoader(); setTimeout(function () {
+                mzFetch('ppm_v3/'+_ppmId, 'DELETE').then(res => {
+                    classFrom.setIsUpdate(true);
+                    classFrom.hideSection();
+                    $('#modal_ppm_asset').modal('hide');
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+            }, 200);
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     };
 
     this.getClassName = function () {
