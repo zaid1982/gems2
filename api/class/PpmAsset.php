@@ -36,9 +36,25 @@ class PpmAsset extends General {
             parent::checkEmptyInteger($ppmId, 'ppmId');
             return DbMysql::selectSqlAll(/** @lang text */
                 "SELECT 
+                    pst.ppm_asset_id,
                     ast.*
                 FROM ppm_asset pst
                 LEFT JOIN ast_asset ast ON ast.asset_id = pst.asset_id", array('pst.ppmId'=>$ppmId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param int $assetTypeId
+     * @return array
+     * @throws Exception
+     */
+    public function getListSelection (int $assetTypeId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($assetTypeId, 'assetTypeId');
+            return DbMysql::selectAll('ast_asset', array('assetTypeId'=>$assetTypeId), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -53,6 +69,28 @@ class PpmAsset extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             return DbMysql::insert($this::$tableName, $columns);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return void
+     * @throws Exception
+     */
+    public function insertBatch (array $columns): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if (!isset($columns['listAsset'])) {
+                throw new Exception('Parameter listAsset not exist');
+            }
+            $cnt = 0;
+            foreach ($columns['listAsset'] as $assetId) {
+                DbMysql::insert($this::$tableName, array('ppmId'=>$columns['ppmId'], 'assetId'=>$assetId));
+                $cnt++;
+            }
+            $this->errMsg = $cnt.' total Asset successfully added to this PPM Asset Group!';
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

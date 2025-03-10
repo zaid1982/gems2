@@ -131,7 +131,7 @@ function MzValidate(name) {
         const fieldVal = type !== 'notEmptyCheck' ? fieldSelector.val() : '';
         switch (type) {
             case 'notEmpty':
-                if (val === true && (fieldVal === '' || fieldVal === null))
+                if (val === true && (fieldVal === '' || fieldVal === null || fieldVal.length === 0))
                     return false;
                 break;
             case 'eqLength':
@@ -452,6 +452,7 @@ function MzValidate(name) {
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
             }
             else if (u.type === 'selectMultiple') {
+                console.log(3);
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
                 fieldSelector.val(null).change();
                 //fieldLblSelector.html('').removeClass('active');

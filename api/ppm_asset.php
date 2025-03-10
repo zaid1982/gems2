@@ -32,6 +32,8 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'list' && isset($urlArr[2])) {
                 $result = $fnMain->getList(intval($urlArr[2]));
+            } else if ($urlArr[1] === 'listSelection' && isset($urlArr[2])) {
+                $result = $fnMain->getListSelection(intval($urlArr[2]));
             } else if (is_numeric($urlArr[1])) {
                 $result = $fnMain->get(intval($urlArr[1]));
             } else {
@@ -47,9 +49,9 @@ try {
         $bodyParams = json_decode(file_get_contents("php://input"), true);
         DbMysql::beginTransaction();
         $isTransaction = true;
-        $fnMain->insert($bodyParams);
-        //$fnMain->saveAudit(218, $urlArr[1]);
-        $formData['errmsg'] = Constant::$ppm['addGroup'];
+        $fnMain->insertBatch($bodyParams);
+        $fnMain->saveAudit(226, json_encode($bodyParams['listAsset']));
+        $formData['errmsg'] = $fnMain->errMsg;
         DbMysql::commit();
         $formData['result'] = $result;
         $formData['success'] = true;
@@ -71,7 +73,7 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
         $fnMain->delete(intval($urlArr[1]));
-        //$fnMain->saveAudit(217, $urlArr[1]);
+        $fnMain->saveAudit(227, 'ppmAssetId = '.$urlArr[1]);
         DbMysql::commit();
         $formData['errmsg'] = Constant::$ppm['deleteGroup'];
         $formData['success'] = true;

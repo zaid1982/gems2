@@ -58,6 +58,20 @@
                     </h6>
                 </div>
             </nav>
+            <!--<div class="row">
+                <div class="col-md-12 select-outline">
+                    <select class="mdb-select md-form md-outline colorful-select mt-0" searchable="Search here.." multiple>
+                        <option value="" disabled selected>Choose your car</option>
+                        <option value="2" data-secondary-text="Production year: 2012">Volkswagen Passat</option>
+                        <option value="3" data-secondary-text="Production year: 2017">Subaru Legacy</option>
+                        <option value="3" data-secondary-text="Production year: 2015">Hyundai Elantra</option>
+                        <option value="3" data-secondary-text="Production year: 2019">Honda Civic</option>
+                        <option value="3" data-secondary-text="Production year: 2016">Audi A6</option>
+                    </select>
+                    <label class="">Example label</label>
+                    <button class="btn-save btn btn-primary btn-sm">Save</button>
+                </div>
+            </div>-->
             <div class="row">
                 <div class="col-md-12">
                     <div class="card z-depth-3 mb-4_5">
@@ -66,20 +80,6 @@
                             <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-tasks mr-1"></i> PPM Asset Group List</h5>
                         </div>
                         <div class="card-body pt-4">
-                            <!--<div class="row">
-                                <div class="col-md-12 select-outline">
-                                    <select class="mdb-select md-form md-outline colorful-select mt-0" searchable="Search here.." multiple>
-                                        <option value="" disabled selected>Choose your car</option>
-                                        <option value="2" data-secondary-text="Production year: 2012">Volkswagen Passat</option>
-                                        <option value="3" data-secondary-text="Production year: 2017">Subaru Legacy</option>
-                                        <option value="3" data-secondary-text="Production year: 2015">Hyundai Elantra</option>
-                                        <option value="3" data-secondary-text="Production year: 2019">Honda Civic</option>
-                                        <option value="3" data-secondary-text="Production year: 2016">Audi A6</option>
-                                    </select>
-                                    <label class="">Example label</label>
-                                    <button class="btn-save btn btn-primary btn-sm">Save</button>
-                                </div>
-                            </div>-->
                             <div class="table-responsive">
                                 <table id="dtPgr" class="table table-tight table-hover mb-0 display responsive">
                                     <thead>
@@ -115,6 +115,7 @@
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
     <div class="includeHtml" id="h-modal_ppm_asset"></div>
+    <div class="includeHtml" id="h-modal_ppm_asset_select"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -158,6 +159,7 @@
     let changePasswordClass_;
     let modalConfirmDeleteClass_;
     let modalPpmAssetClass_;
+    let modalPpmAssetSelectClass_;
     let sectionPpmAssetClass_;
     let mainClass_;
 
@@ -170,6 +172,7 @@
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDeleteClass_ = new ModalConfirmDelete();
                 modalPpmAssetClass_ = new ModalPpmAsset();
+                modalPpmAssetSelectClass_ = new ModalPpmAssetSelect();
                 sectionPpmAssetClass_ = new SectionPpmAsset();
                 mainClass_ = new MainPpmAsset();
 
@@ -187,6 +190,8 @@
                 modalPpmAssetClass_.setRefAssetType(refAssetType_);
                 modalPpmAssetClass_.setRefPpmGroup(refPpmGroup_);
                 modalPpmAssetClass_.init();
+                modalPpmAssetSelectClass_.setClassFrom(sectionPpmAssetClass_);
+                modalPpmAssetSelectClass_.init();
                 sectionPpmAssetClass_.setRefStatus(refStatus_);
                 sectionPpmAssetClass_.setRefAssetGroup(refAssetGroup_);
                 sectionPpmAssetClass_.setRefAssetCategory(refAssetCategory_);
@@ -194,6 +199,7 @@
                 sectionPpmAssetClass_.setRefPpmGroup(refPpmGroup_);
                 sectionPpmAssetClass_.setModalConfirmDeleteClass(modalConfirmDeleteClass_);
                 sectionPpmAssetClass_.setModalPpmAssetClass(modalPpmAssetClass_);
+                sectionPpmAssetClass_.setModalPpmAssetSelectClass(modalPpmAssetSelectClass_);
                 sectionPpmAssetClass_.setClassFrom(mainClass_);
                 sectionPpmAssetClass_.init();
                 mainClass_.setRefStatus(refStatus_);
@@ -215,6 +221,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_ppm_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm_asset_select.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_ppm_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>

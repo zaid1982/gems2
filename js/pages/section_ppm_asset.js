@@ -10,9 +10,11 @@ function SectionPpmAsset () {
     let refAssetType;
     let modalConfirmDeleteClass;
     let modalPpmAssetClass;
+    let modalPpmAssetSelectClass;
     let dtSpgAsset;
     let dtSpgTask;
     let ppmId;
+    let assetTypeId;
     let isUpdate = false;
 
     this.init = function () {
@@ -47,7 +49,7 @@ function SectionPpmAsset () {
             columnDefs: [
                 { bSortable: false, targets: [0, 6] },
                 { className: 'text-center', targets: [0, 1] },
-                { visible: false, targets: [5] },
+                { visible: false, targets: [3, 5] },
                 { className: 'noVis', targets: [0, 6] }
             ],
             buttons: [
@@ -69,7 +71,13 @@ function SectionPpmAsset () {
                     self.genTableAsset();
                 });
                 $('#btnSpgAssetAdd').off('click').on('click', function () {
-
+                    modalPpmAssetSelectClass.setLabelName($('#pSpgName').text());
+                    modalPpmAssetSelectClass.setLabelDocNo($('#pSpgTaskNo').text());
+                    modalPpmAssetSelectClass.add(ppmId, assetTypeId);
+                });
+                $('.lnkSpgAssetRemove').off('click').on('click', function () {
+                    const ppmAssetId = mzGetLinkId($(this), dtSpgAsset, 'ppmAssetId');
+                    modalConfirmDeleteClass.delete(ppmAssetId, modalPpmAssetSelectClass);
                 });
             },
             aoColumns: [
@@ -91,15 +99,15 @@ function SectionPpmAsset () {
             try {
                 ppmId = _ppmId;
                 const isRefresh = typeof _isRefresh !== 'undefined' && _isRefresh === true;
-                isUpdate = isRefresh ? isUpdate : false;
+                isUpdate = isRefresh ? true : isUpdate;
                 mzFetch('ppm_v3/'+ppmId).then(res => {
                     self.genTableAsset();
-                    if (isRefresh) {
-
+                    if (!isRefresh) {
+                        // table task
                     }
                     const ppm = res;
                     $('#pSpgName, #lblSpgName').text(mzNullToValue(ppm['ppmName'], '-'));
-                    const assetTypeId = ppm['assetTypeId'];
+                    assetTypeId = ppm['assetTypeId'];
                     $('#pSpgAssetType').text(mzNullToValue(assetTypeId, '-', 'assetTypeName', refAssetType));
                     const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
                     $('#pSpgAssetCategory').text(mzNullToValue(assetCategoryId, '-', 'assetCategoryName', refAssetCategory));
@@ -123,6 +131,7 @@ function SectionPpmAsset () {
     this.genTableAsset = function () {
         ShowLoader(); setTimeout(function () { mzFetch('ppm_asset/list/'+ppmId).then(res => {
             dtSpgAsset.clear().rows.add(res).draw();
+            $('#pSpgTotalAsset').text(res.length);
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };
 
@@ -170,8 +179,12 @@ function SectionPpmAsset () {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
 
-    this.setModalPpmAssetClass = function (_modalPpmAssetClasss) {
-        modalPpmAssetClass = _modalPpmAssetClasss;
+    this.setModalPpmAssetClass = function (_modalPpmAssetClass) {
+        modalPpmAssetClass = _modalPpmAssetClass;
+    };
+
+    this.setModalPpmAssetSelectClass = function (_modalPpmAssetSelectClass) {
+        modalPpmAssetSelectClass = _modalPpmAssetSelectClass;
     };
 
     this.setContractName = function (_contractName) {

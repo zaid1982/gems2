@@ -1,0 +1,54 @@
+<div class="modal fade" id="modal_ppm_asset_select" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-notify modal-info modal-lg mt-5 pt-3 mb-5" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-center pt-3 pb-1">
+                <h3 class="text-white ml-2" id="h4MpasTitle"><i class="fa-duotone fa-plus mr-2"></i>Add PPM Asset</h3>
+                <button type="button" class="close waves-effect waves-light mr-0 text-white  pr-3 pt-3" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pb-0">
+                <form class="pt-2-5" id="formMpas">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card z-depth-1 mb-4_5">
+                                <div class="card-body blue-grey lighten-5 pt-3 pb-0">
+                                    <div class="row">
+                                        <div class="md-form col-sm-7 mt-1 mb-0">
+                                            <label class="active pl-3">PPM Group Name</label>
+                                            <p class="mt-1 pt-2 mb-0" id="pMpasName"></p>
+                                            <hr class="grey lighten-1 mt-0">
+                                        </div>
+                                        <div class="md-form col-sm-5 mt-1 mb-0">
+                                            <label class="active pl-3">Document No.</label>
+                                            <p class="mt-1 pt-2 mb-0" id="pMpasDocNo"></p>
+                                            <hr class="grey lighten-1 mt-0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 select-outline" id="optMpasAsset_">
+                            <select id="optMpasAsset" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" searchable="Search here.." multiple>
+                                <!--<option value="" disabled selected>Choose Asset</option>
+                                <option value="2">Volkswagen Passat</option>
+                                <option value="3">Subaru Legacy</option>
+                                <option value="3">Hyundai Elantra</option>
+                                <option value="3">Honda Civic</option>
+                                <option value="3">Audi A6</option>-->
+                            </select>
+                            <label for="optMpasAsset" id="lblMpasAsset">Asset for PPM Asset Group <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger mt-0" id="optMpasAssetErr"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-1">
+                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMpasSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

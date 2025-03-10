@@ -65,7 +65,7 @@ try {
             DbMysql::beginTransaction();
             $isTransaction = true;
             $fnMain->update($ppmId, $bodyParams);
-            $fnMain->saveAudit(222, 'ppmId = '.$ppmId);
+            $fnMain->saveAudit(223, 'ppmId = '.$ppmId);
             DbMysql::commit();
             $formData['errmsg'] = Constant::$ppm['updateGroup'];
         } else {
@@ -80,7 +80,7 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
         $fnMain->delete(intval($urlArr[1]));
-        //$fnMain->saveAudit(217, $urlArr[1]);
+        $fnMain->saveAudit(225, 'ppmId = '.$urlArr[1]);
         DbMysql::commit();
         $formData['errmsg'] = Constant::$ppm['deleteGroup'];
         $formData['success'] = true;
