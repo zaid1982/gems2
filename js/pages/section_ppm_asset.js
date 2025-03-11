@@ -93,11 +93,85 @@ function SectionPpmAsset () {
             ]
         });
 
+        dtSpgTask = $('#dtSpgTask').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'asc']],
+            ordering: true,
+            language: _DATATABLE_LANGUAGE,
+            pageLength: 10,
+            autoWidth: false,
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0, 6] },
+                { className: 'text-center', targets: [0, 1, 2, 4, 5, 6] },
+                { className: 'noVis', targets: [0, 6] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
+                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0 mr-2', attr: { id: 'btnSpgTaskRefresh' }, titleAttr: 'Refresh'}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('#btnSpgTaskRefresh').off('click').on('click', function () {
+                    self.genTableTask();
+                });
+                $('.lnkSpgAssetPdf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                const currentRow = dtSpgTask.row(parseInt(rowId)).data();
+                                let pdfId = currentRow['pdfId'];
+                                if (currentRow['pdfId'] === null) {
+                                    pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
+                                }
+                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
+                                $('#mpdf_iframe').attr('src', pdfSrc);
+                                $('#modal_pdf').modal('show');
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
+            },
+            aoColumns: [
+                { mData: null},
+                { mData: 'ppmTaskNo'},
+                { mData: 'ppmTaskStartDate'},
+                { mData: 'ppmTaskAssignedTo'},
+                { mData: 'ppmTaskTimeServiced'},
+                { mData: 'ppmTaskStatus', mRender: function (data) {
+                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                    }},
+                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
+                        return '<a><i class="far fa-file-pdf lnkSpgAssetPdf" id="lnkSpgAssetPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                    }}
+            ]
+        });
+
         $('#btnSpgSubmit').on('click', function () {
             ShowLoader(); setTimeout(function () {
-                mzFetch('ppm_v3/'+ppmId, 'PUT').then(res => {
+                mzFetch('ppm_v3/ppmAssetGroup/submit/'+ppmId, 'PUT').then(res => {
                     isUpdate = true;
                     self.genTableTask();
+                    $('#pSpgStatus').text(refStatus[1]['statusDesc']);
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             }, 200);
         });
@@ -117,18 +191,18 @@ function SectionPpmAsset () {
                     const ppm = res;
                     $('#pSpgName, #lblSpgName').text(mzNullToValue(ppm['ppmName'], '-'));
                     assetTypeId = ppm['assetTypeId'];
-                    $('#pSpgAssetType').text(mzNullToValue(assetTypeId, '-', 'assetTypeName', refAssetType));
+                    $('#pSpgAssetType').text(refAssetType[assetTypeId]['assetTypeName']);
                     const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
-                    $('#pSpgAssetCategory').text(mzNullToValue(assetCategoryId, '-', 'assetCategoryName', refAssetCategory));
+                    $('#pSpgAssetCategory').text(refAssetCategory[assetCategoryId]['assetCategoryName']);
                     const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
-                    $('#pSpgAssetGroup').text(mzNullToValue(assetGroupId, '-', 'assetGroupName', refAssetGroup));
+                    $('#pSpgAssetGroup').text(refAssetGroup[assetGroupId]['assetGroupName']);
                     $('#pSpgTaskNo').text(mzNullToValue(ppm['ppmTaskNo'], '-'));
                     $('#pSpgIssueNo').text(mzNullToValue(ppm['ppmIssueNo'], '-'));
                     $('#pSpgFrequency').text(mzNullToValue(ppm['ppmFrequency'], '-'));
                     $('#pSpgDateStart').text(mzNullToValue(ppm['ppmDateStart'], '-', moment(ppm['ppmDateStart']).format('MMMM Do, YYYY')));
-                    $('#pSpgTimeCreated').text(mzNullToValue(ppm['ppmTimeCreated'], '-', moment(ppm['ppmTimeCreated']).format('MMMM Do, YYYY, hh:mm:ss')));
+                    $('#pSpgTimeCreated').text(moment(ppm['ppmTimeCreated']).format('MMMM Do, YYYY, hh:mm:ss'));
                     $('#pSpgRemark').text(mzNullToValue(ppm['ppmRemark'], '-'));
-                    $('#pSpgStatus').text(mzNullToValue(ppm['ppmStatus'], '-', 'statusDesc', refStatus));
+                    $('#pSpgStatus').text(refStatus[ppm['ppmStatus']]['statusDesc']);
                     classFrom.hideMain();
                     self.showSection();
                     ppm['ppmStatus'] === 11 ? $('#btnSpgSubmit').show() : $('#btnSpgSubmit').hide();
@@ -147,7 +221,7 @@ function SectionPpmAsset () {
 
     this.genTableTask = function () {
         ShowLoader(); setTimeout(function () { mzFetch('ppm_task/list/'+ppmId).then(res => {
-            //dtSpgTask.clear().rows.add(res).draw();
+            dtSpgTask.clear().rows.add(res).draw();
             $('#pSpgTotalTask').text(res.length);
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };

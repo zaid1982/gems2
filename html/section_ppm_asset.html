@@ -15,40 +15,40 @@
                 </div>
             </div>
             <div class="card z-depth-4 mb-3">
-                <div class="card-body">
+                <div class="card-body py-3">
                     <div class="media">
                         <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
                             <i class="fa-duotone fa-diamond-exclamation fa-2x text-info"></i>
                         </span>
                         <div class="media-body">
-                            <h5 class="dark-grey-text mt-0 mb-2">PPM Status</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSpgStatus"></p>
+                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgStatus"></h4>
+                            <p class="text-muted mb-0">PPM Status</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card z-depth-4 mb-3">
-                <div class="card-body">
+                <div class="card-body py-3">
                     <div class="media">
                         <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
                             <i class="fa-duotone fa-computer-classic fa-2x text-info"></i>
                         </span>
                         <div class="media-body">
-                            <h5 class="dark-grey-text mt-0 mb-2">Total Asset</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSpgTotalAsset">0</p>
+                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgTotalAsset">0</h4>
+                            <p class="text-muted mb-0">Total Assets</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card z-depth-4 mb-3">
-                <div class="card-body">
+                <div class="card-body py-3">
                     <div class="media">
                         <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
                             <i class="fa-duotone fa-thin fa-ballot-check fa-2x text-info"></i>
                         </span>
                         <div class="media-body">
-                            <h5 class="dark-grey-text mt-0 mb-2">Total PPM Task</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSpgTotalTask">0</p>
+                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgTotalTask">0</h4>
+                            <p class="text-muted mb-0">Total PPM Tasks</p>
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                     <div class="float-left aqua-gradient" style="width: 15px; height: 45px">&nbsp;</div>
                     <h5 class="font-weight-bold pl-4 pt-2-5 mt-1">List of Assets</h5>
                 </div>
-                <div class="card-body pt-2">
+                <div class="card-body py-3">
                     <div class="row">
                         <div class="col-12 px-0">
                             <div class="table-responsive">
@@ -169,7 +169,7 @@
                     </div>
                 </div>
                 <div class="card-footer p-0">
-                    <button type="button" class="btn btn-outline-primary btn-sm z-depth-2 float-right" id="btnSpgSubmit" data-toggle="tooltip" data-placement="bottom" title="Edit Info"><i class="far fa-calendar-check mr-1"></i> Submit for PPM Task Scheduling</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm z-depth-2 float-right" id="btnSpgSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-calendar-check mr-1"></i> Submit for PPM Task Scheduling</button>
                 </div>
             </div>
             <div class="card z-depth-3 mb-4 divSpgAssigned">
@@ -177,7 +177,7 @@
                     <div class="float-left aqua-gradient" style="width: 15px; height: 45px">&nbsp;</div>
                     <h5 class="font-weight-bold pl-4 pt-2-5 mt-1">List of PPM Tasks</h5>
                 </div>
-                <div class="card-body pt-2">
+                <div class="card-body py-3">
                     <div class="row">
                         <div class="col-12 px-0">
                             <div class="table-responsive">
@@ -185,12 +185,12 @@
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
-                                        <th style="width: 50px">Request No.</th>
-                                        <th>Item</th>
-                                        <th>Item Description</th>
-                                        <th>Qty.</th>
-                                        <th>Time Ordered</th>
+                                        <th style="width: 50px">PPM Task No.</th>
+                                        <th>Schedule Date</th>
+                                        <th>Executor</th>
+                                        <th>Time Execute</th>
                                         <th>Status</th>
+                                        <th style="width: 12px; min-width: 12px">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>

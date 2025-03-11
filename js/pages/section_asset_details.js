@@ -487,6 +487,47 @@ function SectionAssetDetails() {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkSszWoPdf').off('click').on('click', function () {
+                    const woTask = mzGetLinkRow($(this), oTableSszWo);
+                    ShowLoader(); setTimeout(function () {
+                        try {
+                            let pdfId = woTask['pdfId'];
+                            if (woTask['pdfId'] === null || woTask['woTaskIsPdf'] === 1) {
+                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:woTask['woTaskId']});
+                                pdfId = resultRequest['pdfId'];
+                            }
+                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+woTask['woTaskNo']);
+                            $('#mpdf_iframe').attr('src', pdfSrc);
+                            $('#modal_pdf').modal('show');
+                        } catch (e) {
+                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                        }
+                        HideLoader();
+                    }, 200);
+                });
+                $('.lnkSszWoPdfWr').off('click').on('click', function () {
+                    const woTask = mzGetLinkRow($(this), oTableSszWo);
+                    ShowLoader(); setTimeout(function () {
+                        try {
+                            let pdfId = woTask['pdfIdWr'];
+                            if (woTask['pdfIdWr'] === null || woTask['woTaskIsPdfWr'] === 1) {
+                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf_wr', woTaskId:woTask['woTaskId']});
+                                pdfId = resultRequest['pdfId'];
+                            }
+                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Request Report: '+woTask['woTaskNo']);
+                            $('#mpdf_iframe').attr('src', pdfSrc);
+                            $('#modal_pdf').modal('show');
+                        } catch (e) {
+                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                        }
+                        HideLoader();
+                    }, 200);
+                });
+            },
             aoColumns: [
                 { mData: null},
                 { mData: 'woTaskNo'},

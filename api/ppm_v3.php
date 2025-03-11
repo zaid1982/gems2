@@ -60,14 +60,15 @@ try {
     }
     else if ('PUT' === $requestMethod) {
         if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup' && isset($urlArr[2])) {
-            $ppmId = intval($urlArr[2]);
             DbMysql::beginTransaction();
             $isTransaction = true;
             if ($urlArr[2] === 'submit' && isset($urlArr[3])) {
+                $ppmId = intval($urlArr[3]);
                 $fnMain->submitAssetGroup($ppmId);
                 $fnMain->saveAudit(224, 'ppmId = ' . $ppmId);
                 $formData['errmsg'] = Constant::$ppm['submitGroup'];
             } else if (is_numeric($urlArr[2])) {
+                $ppmId = intval($urlArr[2]);
                 $bodyParams = json_decode(file_get_contents("php://input"), true);
                 $fnMain->update($ppmId, $bodyParams);
                 $fnMain->saveAudit(223, 'ppmId = ' . $ppmId);
