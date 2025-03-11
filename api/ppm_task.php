@@ -3,15 +3,15 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once 'class/Ppm.php';
+require_once 'class/PpmTask.php';
 
-$apiName = 'ppm_v3';
+$apiName = 'ppm_task';
 $isTransaction = false;
 $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-$fnMain = new Ppm();
+$fnMain = new PpmTask();
 
 try {
     $fnMain->isLogged = Constant::$isLogged;
@@ -30,8 +30,8 @@ try {
 
     if ('GET' === $requestMethod) {
         if (isset ($urlArr[1])) {
-            if ($urlArr[1] === 'listPpmGroup' && isset($urlArr[2])) {
-                $result = $fnMain->getListPpmGroup(intval($urlArr[2]));
+            if ($urlArr[1] === 'list' && isset($urlArr[2])) {
+                $result = $fnMain->getList(intval($urlArr[2]));
             } else if (is_numeric($urlArr[1])) {
                 $result = $fnMain->get(intval($urlArr[1]));
             } else {
@@ -44,42 +44,24 @@ try {
         $formData['success'] = true;
     }
     else if ('POST' === $requestMethod) {
-        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup') {
-            $bodyParams = json_decode(file_get_contents("php://input"), true);
-            DbMysql::beginTransaction();
-            $isTransaction = true;
-            $ppmId = $fnMain->insertAssetGroup($bodyParams);
-            $fnMain->saveAudit(222, 'ppmId = '.$ppmId);
-            $formData['errmsg'] = Constant::$ppm['addGroup'];
-            DbMysql::commit();
-        } else {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
-        }
+        $bodyParams = json_decode(file_get_contents("php://input"), true);
+        DbMysql::beginTransaction();
+        $isTransaction = true;
         $formData['result'] = $result;
+        //$fnMain->saveAudit(226, json_encode($bodyParams['listAsset']));
+        DbMysql::commit();
+        //$formData['errmsg'] = Constant::$ppm['add'];
         $formData['success'] = true;
     }
     else if ('PUT' === $requestMethod) {
-        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup' && isset($urlArr[2])) {
-            $ppmId = intval($urlArr[2]);
-            DbMysql::beginTransaction();
-            $isTransaction = true;
-            if ($urlArr[2] === 'submit' && isset($urlArr[3])) {
-                $fnMain->submitAssetGroup($ppmId);
-                $fnMain->saveAudit(224, 'ppmId = ' . $ppmId);
-                $formData['errmsg'] = Constant::$ppm['submitGroup'];
-            } else if (is_numeric($urlArr[2])) {
-                $bodyParams = json_decode(file_get_contents("php://input"), true);
-                $fnMain->update($ppmId, $bodyParams);
-                $fnMain->saveAudit(223, 'ppmId = ' . $ppmId);
-                $formData['errmsg'] = Constant::$ppm['updateGroup'];
-            } else {
-                throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
-            }
-            DbMysql::commit();
-            $formData['success'] = true;
-        } else {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
-        }
+        $bodyParams = json_decode(file_get_contents("php://input"), true);
+        DbMysql::beginTransaction();
+        $isTransaction = true;
+        $fnMain->update(intval($urlArr[1]), $bodyParams);
+        //$fnMain->saveAudit(223, 'ppmId = ' . $ppmId);
+        DbMysql::commit();
+        //$formData['errmsg'] = Constant::$ppm['update'];
+        $formData['success'] = true;
     }
     else if ('DELETE' === $requestMethod) {
         if (!isset ($urlArr[1])) {
@@ -88,9 +70,9 @@ try {
         DbMysql::beginTransaction();
         $isTransaction = true;
         $fnMain->delete(intval($urlArr[1]));
-        $fnMain->saveAudit(225, 'ppmId = '.$urlArr[1]);
+        //$fnMain->saveAudit(227, 'ppmAssetId = '.$urlArr[1]);
         DbMysql::commit();
-        $formData['errmsg'] = Constant::$ppm['deleteGroup'];
+        //$formData['errmsg'] = Constant::$ppm['delete'];
         $formData['success'] = true;
     } else {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
@@ -111,5 +93,3 @@ try {
 }
 
 echo json_encode($formData);
-
-

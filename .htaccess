@@ -3,6 +3,8 @@ RewriteEngine On
 RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
 RewriteRule .* - [F]
 
+RewriteRule ^/?$ login.html
+RewriteRule ^p_login/?$ login.html
 RewriteRule ^p_drawing_records/?$ drawing_records.html
 RewriteRule ^p_drawing_deleted/?$ drawing_deleted.html
 RewriteRule ^p_inventory/?$ inventory.html
@@ -97,6 +99,8 @@ RewriteRule ^ppm_v3/?$ api/ppm_v3.php
 RewriteRule ^ppm_v3/(.+)/?$ api/ppm_v3.php
 RewriteRule ^ppm_asset/?$ api/ppm_asset.php
 RewriteRule ^ppm_asset/(.+)/?$ api/ppm_asset.php
+RewriteRule ^ppm_task/?$ api/ppm_task.php
+RewriteRule ^ppm_task/(.+)/?$ api/ppm_task.php
 RewriteRule ^ppm_task_assist/?$ api/ppm_task_assist.php
 RewriteRule ^ppm_task_assist/(.+)/?$ api/ppm_task_assist.php
 RewriteRule ^pr/?$ api/pr.php

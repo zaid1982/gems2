@@ -92,6 +92,15 @@ function SectionPpmAsset () {
                     }}
             ]
         });
+
+        $('#btnSpgSubmit').on('click', function () {
+            ShowLoader(); setTimeout(function () {
+                mzFetch('ppm_v3/'+ppmId, 'PUT').then(res => {
+                    isUpdate = true;
+                    self.genTableTask();
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+            }, 200);
+        });
     };
 
     this.load = function (_ppmId, _isRefresh) {
@@ -103,7 +112,7 @@ function SectionPpmAsset () {
                 mzFetch('ppm_v3/'+ppmId).then(res => {
                     self.genTableAsset();
                     if (!isRefresh) {
-                        // table task
+                        self.genTableTask();
                     }
                     const ppm = res;
                     $('#pSpgName, #lblSpgName').text(mzNullToValue(ppm['ppmName'], '-'));
@@ -122,6 +131,7 @@ function SectionPpmAsset () {
                     $('#pSpgStatus').text(mzNullToValue(ppm['ppmStatus'], '-', 'statusDesc', refStatus));
                     classFrom.hideMain();
                     self.showSection();
+                    ppm['ppmStatus'] === 11 ? $('#btnSpgSubmit').show() : $('#btnSpgSubmit').hide();
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
@@ -132,6 +142,13 @@ function SectionPpmAsset () {
         ShowLoader(); setTimeout(function () { mzFetch('ppm_asset/list/'+ppmId).then(res => {
             dtSpgAsset.clear().rows.add(res).draw();
             $('#pSpgTotalAsset').text(res.length);
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+    };
+
+    this.genTableTask = function () {
+        ShowLoader(); setTimeout(function () { mzFetch('ppm_task/list/'+ppmId).then(res => {
+            //dtSpgTask.clear().rows.add(res).draw();
+            $('#pSpgTotalTask').text(res.length);
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };
 

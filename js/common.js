@@ -558,7 +558,7 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
                 }
             } else if (resp.error === 'Expired token' || resp.error === 'Token not valid') {
-                window.location.href = 'login.html?f=2';
+                window.location.href = 'p_login?f=2';
             } else {
                 errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
             }
@@ -617,7 +617,7 @@ function mzAjaxRequest2(url, type, data, functionStr) {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
                 }
             } else if (resp.errmsg === 'Expired token') {
-                window.location.href = 'login.html?f=2';
+                window.location.href = 'p_login?f=2';
             } else {
                 errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
             }
@@ -676,7 +676,7 @@ function mzAjaxRequest3 (url, type, data, functionStr) {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
                 }
             } else if (resp.errmsg === 'Expired token') {
-                window.location.href = 'login.html?f=2';
+                window.location.href = 'p_login?f=2';
             } else {
                 errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
             }
@@ -727,7 +727,7 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
                 toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
             }
         } else if (resp['errmsg'] === 'Expired token') {
-            window.location.href = 'login.html?f=2';
+            window.location.href = 'p_login?f=2';
         } else {
             const errMsg = resp['errmsg'] !== '' ? resp['errmsg'] : _ALERT_MSG_ERROR_DEFAULT;
             throw new Error(errMsg);
@@ -762,7 +762,7 @@ function mzSleep(delay) {
 
 function mzLogout() {
     sessionStorage.clear();
-    window.location.href = 'login.html?f=0';
+    window.location.href = 'p_login?f=0';
 }
 
 function mzGoToMenu(url, navId, navSecondId) {
@@ -822,16 +822,16 @@ function initiatePages() {
     const navSecondId = sessionStorage.getItem('navSecondId');
     let userInfo = sessionStorage.getItem('userInfo');
     if (token === null) {
-        window.location.href = 'login.html?f=2';
+        window.location.href = 'p_login?f=2';
     } else if (userInfo === null || navId === null || navSecondId === null) {
         sessionStorage.removeItem('token');
-        window.location.href = 'login.html?f=1';
+        window.location.href = 'p_login?f=1';
     }
     const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
     userInfo = JSON.parse(objEncrypted);
     if (typeof userInfo.menu === 'undefined') {
         sessionStorage.removeItem('token');
-        window.location.href = 'login.html?f=1';
+        window.location.href = 'p_login?f=1';
     }
 
     const menuSet = userInfo.menu;

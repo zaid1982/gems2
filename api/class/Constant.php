@@ -135,6 +135,7 @@ class Constant {
         'addGroup' => 'PPM Asset Group successfully registered!',
         'updateGroup' => 'PPM Asset Group successfully updated!',
         'deleteGroup' => 'PPM Asset Group successfully removed!',
+        'submitGroup' => 'PPM Asset Group successfully submitted for Task Scheduling!',
         'errAssigned' => 'This PPM Asset Group cannot be deleted because it is already assigned the PPM Tasks!'
     );
 }
