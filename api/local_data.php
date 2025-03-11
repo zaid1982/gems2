@@ -42,12 +42,15 @@ try {
     }
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     
-    if ('GET' === $request_method) { 
-        if (!isset($headers['Name']) || empty($headers['Name'])) {
+    if ('GET' === $request_method) {
+        if (isset($headers['name'])) {
+            $name = $headers['name'];
+        } else if (!isset($headers['Name']) || empty($headers['Name'])) {
             throw new Exception('[' . __LINE__ . '] - Parameter Name empty');
+        } else {
+            $name = $headers['Name'];
         }
-        $name = $headers['Name'];    
-            
+
         $result = array();
         switch ($name) {
             case 'gems_status':
