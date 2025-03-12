@@ -536,6 +536,7 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
     }
     
     let errMsg = '';
+    console.log(0);
     $.ajax({
         url: apiBeautify ? url : 'api/'+url,
         type: type,
@@ -551,6 +552,7 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
                     if (functionStr.slice(-2) === '()') {
                         eval(functionStr.slice(0, -1) + '\'' + JSON.stringify(returnVal) + '\');');
                     } else {
+                        console.log(functionStr.slice(0, -1));
                         eval(functionStr.slice(0, -1) + ',\'' + JSON.stringify(returnVal) + '\');');
                     }                    
                 }

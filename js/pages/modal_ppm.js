@@ -78,6 +78,13 @@ function ModalPpm() {
                             ppmDateStart: ppmDateStart
                         };
 
+                        //eval('xxx("2");');
+                        //mzAjaxRequest('test_async.php', 'POST', {action:1}, 'modalPpmAssetSelectClass_.xx()');
+                        //mzAjaxRequest('test_async.php', 'POST', {action:2}, 'modalPpmAssetSelectClass_.xx()');
+                        //mzAjaxRequest('test_async.php', 'POST', {action:3}, 'modalPpmAssetSelectClass_.xx()');
+                        //classFrom.genTablePmg();
+                        //classFrom.displayStatsChart();
+
                         const ppmReturn = mzAjaxRequest('ppm.php', 'POST', data);
                         if (classFrom.getClassName() === 'MainPpmManagement') {
                             data['ppmId'] = ppmReturn['ppmId'];

@@ -113,7 +113,7 @@ function MainPpmManagement() {
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return typeof row['assetSerialNo'] !== 'undefined' ? row['assetSerialNo'] : '';
-                        }},
+                        }}, // 4
                     {mData: null, mRender: function (data, type, row){
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
@@ -128,7 +128,7 @@ function MainPpmManagement() {
                         }},
                     {mData: null, mRender: function (data, type, row){
                             return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
-                        }},
+                        }}, // 9
                     {mData: null, mRender: function (data, type, row){
                             let ppmGroupId = row['ppmGroupIdPpm'];
                             if (ppmGroupId == '') {
@@ -158,12 +158,12 @@ function MainPpmManagement() {
                             return label;
                         }
                     },
-                    {mData: 'assetId', visible: false},
+                    {mData: 'assetId', visible: false}, // 14
                     {mData: 'assetGroupId', visible: false},
                     {mData: 'assetCategoryId', visible: false},
                     {mData: 'assetTypeId', visible: false},
                     {mData: 'assetBrandId', visible: false},
-                    {mData: 'assetModelId', visible: false},
+                    {mData: 'assetModelId', visible: false}, // 19
                     {mData: 'assignedStatus', visible: false}
                 ]
         });
@@ -187,40 +187,40 @@ function MainPpmManagement() {
             mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
             mzOptionStopClear('optPmgModelId', 'All Asset Model');
             //mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
-            oTableAsset.column(15).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(16).search('', false, true, false).draw();
-            oTableAsset.column(17).search('', false, true, false).draw();
-            oTableAsset.column(18).search('', false, true, false).draw();
-            oTableAsset.column(19).search('', false, true, false).draw();
+            oTableAsset.column(15).search("^" + $(this).val() + "$", true, false, true);
+            oTableAsset.column(16).search('');
+            oTableAsset.column(17).search('');
+            oTableAsset.column(18).search('');
+            oTableAsset.column(19).search('').draw();
         });
 
         $('#optPmgCategoryId').on('change', function () {
             mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
             mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
             mzOptionStopClear('optPmgModelId', 'All Asset Model');
-            oTableAsset.column(16).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(17).search('', false, true, false).draw();
-            oTableAsset.column(18).search('', false, true, false).draw();
-            oTableAsset.column(19).search('', false, true, false).draw();
+            oTableAsset.column(16).search($(this).val());
+            oTableAsset.column(17).search('');
+            oTableAsset.column(18).search('');
+            oTableAsset.column(19).search('').draw();
         });
 
         $('#optPmgTypeId').on('change', function () {
             const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: $(this).val()});
             mzOptionStop('optPmgBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName');
             mzOptionStopClear('optPmgModelId', 'All Asset Model');
-            oTableAsset.column(17).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(18).search('', false, true, false).draw();
-            oTableAsset.column(19).search('', false, true, false).draw();
+            oTableAsset.column(17).search("^" + $(this).val() + "$", true, false, true);
+            oTableAsset.column(18).search('');
+            oTableAsset.column(19).search('').draw();
         });
 
         $('#optPmgBrandId').on('change', function () {
             mzOptionStop('optPmgModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: $(this).val(), assetTypeId: $('#optPmgTypeId').val()});
-            oTableAsset.column(18).search($(this).val(), false, true, false).draw();
-            oTableAsset.column(19).search('', false, true, false).draw();
+            oTableAsset.column(18).search("^" + $(this).val() + "$", true, false, true);
+            oTableAsset.column(19).search('').draw();
         });
 
         $('#optPmgModelId').on('change', function () {
-            oTableAsset.column(19).search($(this).val(), false, true, false).draw();
+            oTableAsset.column(19).search("^" + $(this).val() + "$", true, false, true).draw();
         });
 
         let cntAsset;
@@ -297,7 +297,7 @@ function MainPpmManagement() {
             self.displayStatsChart();
         });
 
-        $('#btnPmgAssetSet').on('click', function () {
+        $('#btnPmgAssignBatch').on('click', function () {
             //sectionAssetClass.add(contractId, $('#optPmgGroupId').val(), $('#optPmgCategoryId').val(), $('#optPmgTypeId').val());
         });
 
