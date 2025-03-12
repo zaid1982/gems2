@@ -297,18 +297,34 @@ class Class_sql
                     ast_asset.asset_location_desc,
                     ast_asset.asset_capacity,
                     cli_site.site_name,
+                    ppm.ppm_id,
+                    ppm.ppm_is_group,
                     ppm_task.ppm_task_time_start,
                     ppm_task.ppm_task_time_serviced
                 FROM ppm_task
                 LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
                 LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
-                LEFT JOIN ast_asset_group ON ast_asset_group.asset_group_id = ast_asset.asset_group_id
-                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset.asset_category_id
-                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ppm.asset_type_id
+                LEFT JOIN ast_asset_category ON ast_asset_category.asset_category_id = ast_asset_type.asset_category_id
+                LEFT JOIN ast_asset_group ON ast_asset_group.asset_group_id = ast_asset_category.asset_group_id
                 LEFT JOIN ast_asset_brand ON ast_asset_brand.asset_brand_id = ast_asset.asset_brand_id
                 LEFT JOIN ast_asset_model ON ast_asset_model.asset_model_id = ast_asset.asset_model_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
                 LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id";
+            } else if ($title === 'mw_ppm_section_a_asset_group') {
+                $sql = "SELECT
+                    ast.asset_id,
+                    ast.asset_no,
+                    ast.asset_name,
+                    ast.asset_location_code AS location_code_id,
+                    ast.asset_location_desc,
+                    ast.asset_capacity,
+                    asb.asset_brand_name,
+                    asm.asset_model_name
+                FROM ppm_asset pst
+                LEFT JOIN ast_asset ast ON ast.asset_id = pst.asset_id
+                LEFT JOIN ast_asset_brand asb ON asb.asset_brand_id = ast.asset_brand_id
+                LEFT JOIN ast_asset_model asm ON asm.asset_model_id = ast.asset_model_id";
             } else if ($title === 'mw_ppm_section_h') {
                 $sql = "SELECT 
                     ppm_task_upload_id,

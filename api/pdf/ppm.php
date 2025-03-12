@@ -220,7 +220,7 @@ class Class_pdf_ppm {
             //$locationCodes = $this->fn_general->getLocationCode();
             $ppmTask = Class_db::getInstance()->db_select_single('ppm_task', array('ppm_task_id'=>$this->ppmTaskId), null, 1);
             $ppm = Class_db::getInstance()->db_select_single('ppm', array('ppm_id'=>$ppmTask['ppm_id']), null, 1);
-            $asset = Class_db::getInstance()->db_select_single('mw_ppm_section_a', array('ppm_task_id'=>$this->ppmTaskId), null, 1);
+            $asset = Class_db::getInstance()->db_select_single('mw_ppm_section_a', array('ppm_task_id'=>$this->ppmTaskId), null, 0);
             $pdf->__set('ppmDocumentNo', $ppm['ppm_task_no']);
             $pdf->__set('ppmIssueNo', $ppm['ppm_issue_no']);
 
@@ -247,9 +247,10 @@ class Class_pdf_ppm {
             $pdf->Cell(172, 6, ' Asset Details', 1, 0, 'L', 1);
             $pdf->Ln();
 
+            $assetNo = $ppm['ppm_is_group'] === '1' ? '(Group)' : $asset['asset_no'];
             $pdf->SetFont('helvetica', '', 9);
             $pdf->Cell(30, 5, 'Asset No : ', 1, 0, 'R');
-            $pdf->Cell(60, 5, $asset['asset_no'], 1, 0, 'L');
+            $pdf->Cell(60, 5, $assetNo, 1, 0, 'L');
             $pdf->Cell(35, 5, 'Brand : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $asset['asset_brand_name'], 1, 0, 'L');
             $pdf->Ln();
@@ -310,6 +311,31 @@ class Class_pdf_ppm {
             $pdf->Cell(35, 5, 'PM End Date/Time : ', 1, 0, 'R');
             $pdf->Cell(55, 5, $this->fn_general->convertDateToDisplay($ppmTask['ppm_task_time_serviced']), 1, 0, 'L');
             $pdf->Ln();
+
+            if ($ppm['ppm_is_group'] === '1') {
+                $assetList = '';
+                $assetArr = Class_db::getInstance()->db_select('mw_ppm_section_a_asset_group', array('pst.ppm_id'=>$ppmTask['ppm_id']), 'ast.asset_no');
+                if (count($assetArr) > 0) {
+                    foreach ($assetArr as $i=>$row) {
+                        $assetList .= ($i+1).".  ".$row['asset_no']." : ".$row['asset_name'];
+                        if ($i < count($assetArr) - 1) {
+                            $assetList .= "\n";
+                        }
+                    }
+                    $pdf->SetFont('helvetica', '', 9);
+                    $maxnocells = 0;
+                    $startX = $pdf->GetX();
+                    $startY = $pdf->GetY();
+                    $cellcount = $pdf->MultiCell(30,4,'Asset List : ',0,'R',0,0);
+                    if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+                    $cellcount = $pdf->MultiCell(150,4, $assetList,0,'L',0,0);
+                    if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+                    $pdf->SetXY($startX,$startY);
+                    $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
+                    $pdf->MultiCell(150, $maxnocells*4, '', 1, 'L', 0, 0);
+                    $pdf->Ln();
+                }
+            }
 
             $pdf->SetFont('helvetica', '', 11);
             $pdf->Cell(8, 6, 'B', 1, 0, 'C', 1);

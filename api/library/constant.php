@@ -8,12 +8,12 @@
 
 class Class_constant {
 
-    //const URL = '//metadatasyst.com/gems/api/';
-    //const URL = '//gems.globalfm.com.my/api/';
     const URL = '//localhost/gems2/api/';
-    //const URL_FULL = 'https://gems.globalfm.com.my/api/';
-    //const URL = '//localhost:8081/gems2/api/';
+    //const URL = '//gems.globalfm.com.my/api/';
+    //const URL = '//gems.metadatasystem.my/gems/api/';
     const URL_FULL = 'http://localhost/gems2/api/';
+    //const URL_FULL = 'https://gems.globalfm.com.my/api/';
+    //const URL_FULL = 'https://gems.metadatasystem.my/gems2/api/';
 
     const ERR_DEFAULT = 'Error on system. Please contact Administrator!';
     const ERR_LOGIN_NOT_EXIST = 'Invalid Login ID or Password. Please try again.';
