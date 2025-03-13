@@ -33,7 +33,7 @@ function MainPpmManagement() {
         mzOption('optPmgGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
 
         for(let contract of refContract) {
-            if (typeof contract !== 'undefined') {
+            if (typeof contract !== 'undefined' && contract['contractId'] === '20') {
                 contractId = contract['contractId'];
                 $('#optPmgContractId').val(contractId);
                 $('#lblPmgContractId').html('Contract').addClass('active');
@@ -141,6 +141,9 @@ function MainPpmManagement() {
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
+                            if (row['ppmStatus'] === '6') {
+                                return '<h6><span class="badge badge-pill '+refStatus[row['ppmStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmStatus']]['statusDesc']+'</span></h6>';
+                            }
                             return '<h6><span class="badge badge-pill '+refStatus[row['assignedStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assignedStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
@@ -298,7 +301,12 @@ function MainPpmManagement() {
         });
 
         $('#btnPmgAssignBatch').on('click', function () {
-            //sectionAssetClass.add(contractId, $('#optPmgGroupId').val(), $('#optPmgCategoryId').val(), $('#optPmgTypeId').val());
+            const assetTypeId = $('#optPmgTypeId').val();
+            console.log(assetTypeId);
+            if (assetTypeId === '' || assetTypeId === null) {
+                toastr['error']('To perform PPM Bulk Assign, please make sure Asset Type selected in Search section!', _ALERT_TITLE_ERROR);
+            }
+            modalPpmClass.setBulk(contractId, assetTypeId);
         });
 
         $('#btnDtPmgAssetRefresh').on('click', function () {

@@ -22,11 +22,6 @@ function ModalPpmAssetSelect () {
         formValidate = new MzValidate('formMpas');
         formValidate.registerFields(vData);
 
-        $('#optMpasAsset').on('change', function () {
-            const ids = $(this).val();
-            console.log(ids);
-        });
-
         $('#btnMpasSubmit').on('click', function () {
             try {
                 if (!formValidate.validateNow()) {
@@ -44,7 +39,7 @@ function ModalPpmAssetSelect () {
         });
     };
 
-    this.add = function (_ppmId, _assetTypeId) {
+    this.add = function (_ppmId, _contractId, _assetTypeId) {
         try {
             mzCheckFuncParam([_assetTypeId]);
             ppmId = _ppmId;
@@ -52,7 +47,7 @@ function ModalPpmAssetSelect () {
                 formValidate.clearValidation();
                 if (assetTypeId !== _assetTypeId) {
                     assetTypeId = _assetTypeId;
-                    mzFetch('ppm_asset/listSelection/'+assetTypeId, 'GET').then(res => {
+                    mzFetch('ppm_asset/listSelection/'+_contractId+'/'+assetTypeId, 'GET').then(res => {
                         for (const i in res) {
                             res[i]['display'] = res[i]['assetNo'] + ' - ' + res[i]['assetName'];
                         }

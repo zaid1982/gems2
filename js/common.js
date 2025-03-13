@@ -536,7 +536,6 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
     }
     
     let errMsg = '';
-    console.log(0);
     $.ajax({
         url: apiBeautify ? url : 'api/'+url,
         type: type,

@@ -32,8 +32,8 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'list' && isset($urlArr[2])) {
                 $result = $fnMain->getList(intval($urlArr[2]));
-            } else if ($urlArr[1] === 'listSelection' && isset($urlArr[2])) {
-                $result = $fnMain->getListSelection(intval($urlArr[2]));
+            } else if ($urlArr[1] === 'listSelection' && isset($urlArr[2]) && isset($urlArr[3])) {
+                $result = $fnMain->getListSelection(intval($urlArr[2]), intval($urlArr[3]));
             } else if (is_numeric($urlArr[1])) {
                 $result = $fnMain->get(intval($urlArr[1]));
             } else {

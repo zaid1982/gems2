@@ -15,6 +15,7 @@ function SectionPpmAsset () {
     let dtSpgTask;
     let ppmId;
     let assetTypeId;
+    let contractId;
     let isUpdate = false;
 
     this.init = function () {
@@ -73,7 +74,7 @@ function SectionPpmAsset () {
                 $('#btnSpgAssetAdd').off('click').on('click', function () {
                     modalPpmAssetSelectClass.setLabelName($('#pSpgName').text());
                     modalPpmAssetSelectClass.setLabelDocNo($('#pSpgTaskNo').text());
-                    modalPpmAssetSelectClass.add(ppmId, assetTypeId);
+                    modalPpmAssetSelectClass.add(ppmId, contractId, assetTypeId);
                 });
                 $('.lnkSpgAssetRemove').off('click').on('click', function () {
                     const ppmAssetId = mzGetLinkId($(this), dtSpgAsset, 'ppmAssetId');
@@ -191,6 +192,7 @@ function SectionPpmAsset () {
                     const ppm = res;
                     $('#pSpgName, #lblSpgName').text(mzNullToValue(ppm['ppmName'], '-'));
                     assetTypeId = ppm['assetTypeId'];
+                    contractId = ppm['contractId'];
                     $('#pSpgAssetType').text(refAssetType[assetTypeId]['assetTypeName']);
                     const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
                     $('#pSpgAssetCategory').text(refAssetCategory[assetCategoryId]['assetCategoryName']);

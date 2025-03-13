@@ -95,37 +95,32 @@ class Class_db{
             $l2 = substr($value, 0, 2);
             if ($item === 'w1' || $item === 'w2') {
                 $where_str .= $value." AND ";
-            } 
-            else if ($value == 'is NULL' || $value == 'is not NULL') {
+            } else if ($value == 'is NULL' || $value == 'is not NULL') {
                 $where_str .= "$item $value AND ";
-            }
-            else if ($value === 'Curdate()') {
+            } else if ($value === 'Curdate()') {
                 $where_str .= "$item = CURDATE() AND ";
-            }
-            else if ($l1 == '%') {
+            } else if ($l1 == '%') {
                 $where_str .= "$item like '".str_replace("'", "`", $value)."' AND ";
-            } 
-            else if ($l1 == '(') {
+            }  else if ($l1 == '(') {
                 $where_str .= "$item in $value AND ";
-            } 
-            else if ($l2 == 'N(') {
+            } else if ($l2 == 'N(') {
                 $r1 = substr($value, 1);
                 $where_str .= "$item not in $r1 AND ";
-            } 
-            else if ($l2 == '>=' || $l2 == '<=' || $l2 == '<>') {
+            } else if ($l2 == '>=' || $l2 == '<=' || $l2 == '<>') {
                 $r2 = substr($value, 2);
-                $where_str .= "$item $l2 '$r2' AND "; 
-            } 
-            else if ($l1 == '>' || $l1 == '<') {
-                $r1 = substr($value, 1);
-                if ($r1 == 'Now()') {
-                    $where_str .= "$item $l1 $r1 AND "; 
+                if ($r2 === 'Now()' || $r2 === 'Curdate()') {
+                    $where_str .= "$item $l1 $r2 AND ";
+                } else {
+                    $where_str .= "$item $l2 '$r2' AND ";
                 }
-                else {
+            }  else if ($l1 == '>' || $l1 == '<') {
+                $r1 = substr($value, 1);
+                if ($r1 == 'Now()' || $r1 === 'Curdate()') {
+                    $where_str .= "$item $l1 $r1 AND "; 
+                } else {
                     $where_str .= "$item $l1 '$r1' AND "; 
                 }
-            } 
-            else {
+            }  else {
                 $where_str .= "$item = '".addslashes($value)."' AND ";
             }
         } 

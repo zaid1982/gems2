@@ -46,15 +46,16 @@ class PpmAsset extends General {
     }
 
     /**
+     * @param int $contractId
      * @param int $assetTypeId
      * @return array
      * @throws Exception
      */
-    public function getListSelection (int $assetTypeId): array {
+    public function getListSelection (int $contractId, int $assetTypeId): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($assetTypeId, 'assetTypeId');
-            return DbMysql::selectAll('ast_asset', array('assetTypeId'=>$assetTypeId), 1);
+            return DbMysql::selectAll('ast_asset', array('contractId'=>$contractId, 'assetTypeId'=>$assetTypeId), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

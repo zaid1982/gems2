@@ -33,7 +33,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row pl-2">
+                    <div class="row pl-2 divMpmHideBulk">
                         <div class="col-md-4">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMpmAssetNo" class="form-control" disabled>
@@ -67,7 +67,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row pl-2">
+                    <div class="row pl-2 divMpmHideBulk">
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMpmAssetBrandName" class="form-control" disabled>
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row pl-2">
+                    <div class="row pl-2 divMpmHideBulk">
                         <div class="col-md-6">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMpmLocationCodeName" class="form-control" disabled>
@@ -98,32 +98,37 @@
                     <h6 class="font-small">PPM Form :</h6>
                     <div class="row pl-2 mt-3">
                         <div class="col-md-12 select-outline">
-                            <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                            <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
                                 <option value="" disabled selected>Choose PPM Checklist</option>
                             </select>
-                            <label for="optMpmChecklistId" id="lblMpmChecklistId">PPM Checklist *</label>
+                            <label for="optMpmChecklistId" id="lblMpmChecklistId">PPM Checklist <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpmChecklistIdErr"></p>
                         </div>
                         <div class="col-md-9 select-outline">
-                            <select id="optMpmPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                            <select id="optMpmPpmGroupId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
                                 <option value="" disabled selected>Choose PPM Executor Group</option>
                             </select>
-                            <label for="optMpmPpmGroupId" id="lblMpmPpmGroupId">PPM Executor Group *</label>
+                            <label for="optMpmPpmGroupId" id="lblMpmPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpmPpmGroupIdErr"></p>
                         </div>
                         <div class="col-md-3">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMpmPpmDateStart" class="form-control datepicker">
-                                <label for="txtMpmPpmDateStart" id="lblMpmPpmDateStart">Start PPM Date *</label>
+                                <label for="txtMpmPpmDateStart" id="lblMpmPpmDateStart">Start PPM Date <span class="text-danger">*</span></label>
                                 <p class="font-small text-danger" id="txtMpmPpmDateStartErr"></p>
                             </div>
+                        </div>
+                        <div class="col-md-12 select-outline divMpmShowBulk" id="optMpmAsset_">
+                            <select id="optMpmAsset" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" searchable="Search here.." multiple></select>
+                            <label for="optMpmAsset" id="lblMpmAsset">Asset for PPM Bulk Assign <span class="text-danger">*</span></label>
+                            <p class="font-small text-danger mt-0" id="optMpmAssetErr"></p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer p-2">
                 <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMpmSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+                <button id="btnMpmSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
             </div>
         </div>
     </div>

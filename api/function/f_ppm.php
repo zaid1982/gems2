@@ -532,6 +532,7 @@ class Class_ppm {
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
+            $ppmOld = Class_db::getInstance()->db_select('ppm', array('asset_id'=>$assetId, 'contract_id'=>$contractId, 'ppm_status'=>'1'));
             $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId, 'asset_type_id'=>$asset['asset_type_id'],
                 'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
             $currentMonth = array('year'=>'', 'month'=>'');
@@ -681,9 +682,14 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_claimed'=>''), array('transaction_id'=>$transactionId));
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
             }
-            Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
 
-            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklist_document_no']);
+            Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
+            foreach ($ppmOld as $row) {
+                Class_db::getInstance()->db_update('ppm', array('ppm_status'=>'6'), array('ppm_id'=>$row['ppm_id']));
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'53') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'>='.$ppmDateStart));
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'3') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'<'.$ppmDateStart));
+            }
+            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklist_document_no'], 'assetNo'=>$asset['asset_no']);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -846,6 +852,8 @@ class Class_ppm {
                 $restFilter .= '(ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR ppm_task.ppm_task_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
                     'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\') ';
             }
+            if (!empty($restFilter)) { $restFilter .= ' AND '; }
+            $restFilter .= 'ppm_task_status NOT IN (3, 53)';
 
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrPpmFrequency = $this->fn_general->getPpmFrequency();

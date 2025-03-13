@@ -161,7 +161,8 @@ try {
 
             $result = $fn_ppm->assign_ppm_single($assetId, $checklistId, $ppmDateStart, $jwt_data->userId, $ppmGroupId);
             $fn_general->save_audit('80', $jwt_data->userId, 'PPM Task No = ' . $result['ppmTaskNo']);
-            $form_data['errmsg'] = $constant::SUC_PPM_SAVE;
+            //$form_data['errmsg'] = $constant::SUC_PPM_SAVE;
+            $form_data['errmsg'] = 'PPM Task (Document No. = '.$result['ppmTaskNo'].') for Asset '.$result['assetNo'].' successfully registered and ready to executed by Technician!';
         }
         else if ($action === 'generate_pdf') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
