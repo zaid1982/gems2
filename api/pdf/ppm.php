@@ -342,7 +342,11 @@ class Class_pdf_ppm {
             $pdf->Cell(172, 6, ' Safety Precaution / General Guidelines prior to maintenance activity', 1, 0, 'L', 1);
             $pdf->Ln();
 
+
             $pdf->SetFont('helvetica', '', 9);
+            $pdf->MultiCell(8,4,'','RL','C',0,0);
+            $pdf->MultiCell(172,4,'','R','L',0,0);
+            $pdf->Ln();
             $maxnocells = 0;
             $startX = $pdf->GetX();
             $startY = $pdf->GetY();
@@ -351,8 +355,11 @@ class Class_pdf_ppm {
             $cellcount = $pdf->MultiCell(172,4, $ppmTask['ppm_task_guideline'],0,'L',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $pdf->SetXY($startX,$startY);
-            $pdf->MultiCell(8, $maxnocells*4, '', 1, 'L', 0, 0);
-            $pdf->MultiCell(172, $maxnocells*4, '', 1, 'L', 0, 0);
+            $pdf->MultiCell(8, $maxnocells*4, '', 'RL', 'L', 0, 0);
+            $pdf->MultiCell(172, $maxnocells*4, '', 'R', 'L', 0, 0);
+            $pdf->Ln();
+            $pdf->MultiCell(8,4,'','RL','C',0,0);
+            $pdf->MultiCell(172,4,'','R','L',0,0);
             $pdf->Ln();
 
             $pdf->SetFont('helvetica', '', 11);
@@ -562,16 +569,16 @@ class Class_pdf_ppm {
             $pdf->Cell(8, 10, '', 1, 0, 'C', 0);
             if ($ppmTask['ppm_task_is_additional_report'] === '1') {
                 $pdf->SetFont('helvetica', 'B', 9);
-                $pdf->MultiCell(32, 10, " Yes", 'B', 'L', 0, 0, '','','');
+                $pdf->MultiCell(22, 10, " Yes", 'B', 'L', 0, 0, '','','');
                 $pdf->SetFont('helvetica', '', 9);
-                $pdf->MultiCell(40, 10, "No", 'B', 'L', 0, 0, '','','');
+                $pdf->MultiCell(30, 10, "No", 'B', 'L', 0, 0, '','','');
             } else {
-                $pdf->MultiCell(32, 10, " Yes", 'B', 'L', 0, 0, '','','');
+                $pdf->MultiCell(22, 10, " Yes", 'B', 'L', 0, 0, '','','');
                 $pdf->SetFont('helvetica', 'B', 9);
-                $pdf->MultiCell(40, 10, "No", 'B', 'L', 0, 0, '','','');
+                $pdf->MultiCell(30, 10, "No", 'B', 'L', 0, 0, '','','');
                 $pdf->SetFont('helvetica', '', 9);
             }
-            $pdf->Cell(100, 10, ' Refer to ...............................................', 1, 0, 'L', 0);
+            $pdf->Cell(120, 10, ' Refer to : '.(!empty($ppmTask['ppm_task_refer_to'])?$ppmTask['ppm_task_refer_to']:'...............................................'), 1, 0, 'L', 0);
             $pdf->Ln();
 
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $pdf->GetY());
@@ -589,11 +596,21 @@ class Class_pdf_ppm {
             $pdf->MultiCell(8,4,'','RL','C',0,0);
             $pdf->MultiCell(172,4,'','R','L',0,0);
             $pdf->Ln();
-            $pdf->Cell(8, 4, '', 'RL', 0, 'C', 0);
-            $pdf->MultiCell(172,4, ' '.$ppmTask['ppm_task_remark'], 'R', 'L', 0, 0);
-            $pdf->Ln();
-            $pdf->MultiCell(8,4,'','RLB','C',0,0);
-            $pdf->MultiCell(172,4,'','RB','L',0,0);
+            if (!empty($ppmTask['ppm_task_remark'])) {
+                $maxnocells = 0;
+                $startX = $pdf->GetX();
+                $startY = $pdf->GetY();
+                $cellcount = $pdf->MultiCell(8,4,'',0,'L',false,0);
+                if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+                $cellcount = $pdf->MultiCell(172,4, $ppmTask['ppm_task_remark'],0,'L',false,0);
+                if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
+                $pdf->SetXY($startX,$startY);
+                $pdf->MultiCell(8, $maxnocells*4, '', 'LR', 'L', false, 0);
+                $pdf->MultiCell(172, $maxnocells*4, '', 'R', 'L', false, 0);
+                $pdf->Ln();
+            }
+            $pdf->MultiCell(8,2,'','RLB','C',0,0);
+            $pdf->MultiCell(172,2,'','RB','L',0,0);
             $pdf->Ln();
 
             if ($pdf->GetY() > 240) {
