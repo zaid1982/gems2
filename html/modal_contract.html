@@ -13,9 +13,9 @@
             <div class="modal-body">
                 <form id="formMcr">
                     <div class="row">
-                        <div class="col-md-12 select-outline mt-4">
+                        <div class="col-md-12 select-outline mt-2">
                             <select id="optMcrClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMcrClientId" id="lblMcrClientId">Client *</label>
+                            <label for="optMcrClientId" id="lblMcrClientId">Client <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMcrClientIdErr"></p>
                         </div>
                     </div>
@@ -24,44 +24,54 @@
                             <select id="optMcrSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                 <option value="" disabled selected>Choose Site</option>
                             </select>
-                            <label for="optMcrSiteId" id="lblMcrSiteId">Site *</label>
+                            <label for="optMcrSiteId" id="lblMcrSiteId">Site <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMcrSiteIdErr"></p>
                         </div>
                     </div>
                     <div class="md-form md-outline mt-0">
                         <input type="text" id="txtMcrName" class="form-control">
-                        <label for="txtMcrName" id="lblMcrName">Contract Name *</label>
+                        <label for="txtMcrName" id="lblMcrName">Contract Name <span class="text-danger">*</span></label>
                         <p class="font-small text-danger" id="txtMcrNameErr"></p>
                     </div>
-                    <div class="md-form md-outline">
+                    <div class="md-form md-outline mb-0">
                         <textarea id="txaMcrDesc" class="md-textarea form-control" rows="3"></textarea>
                         <label for="txaMcrDesc" id="lblMcrDesc" class="text-muted">Description</label>
                         <p class="font-small text-danger" id="txaMcrDescErr"></p>
                     </div>
+                    <h6 class="font-small">Contract Modification Type : <span class="text-danger">*</span></h6>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType1" value="1">
+                        <label class="form-check-label" for="radMcrContractType1">Normal Update</label>
+                    </div>
+                    <div class="form-check pl-0 ml-3">
+                        <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType2" value="2">
+                        <label class="form-check-label" for="radMcrContractType2">Contract Extension with PPM Reschedule</label>
+                    </div>
+                    <p class="font-small text-danger" id="radMcrContractTypeErr"></p>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
+                            <div class="md-form md-outline my-0">
                                 <input type="text" id="txtMcrContractDateStart" class="form-control datepicker" readonly>
-                                <label for="txtMcrContractDateStart" id="lblMcrContractDateStart">Contract Date Start *</label>
+                                <label for="txtMcrContractDateStart" id="lblMcrContractDateStart">Date Start *</label>
                                 <p class="font-small text-danger" id="txtMcrContractDateStartErr"></p>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
+                            <div class="md-form md-outline my-0">
                                 <input type="text" id="txtMcrContractDateEnd" class="form-control datepicker" readonly>
-                                <label for="txtMcrContractDateEnd" id="lblMcrContractDateEnd">Contract Date End *</label>
+                                <label for="txtMcrContractDateEnd" id="lblMcrContractDateEnd">Date End *</label>
                                 <p class="font-small text-danger" id="txtMcrContractDateEndErr"></p>
                             </div>
                         </div>
                     </div>
-                    <h6 class="font-small">Status:</h6>
+                    <h6 class="font-small">Status : </h6>
                     <div class="form-check pl-0 ml-3">
                         <input type="checkbox" class="form-check-input" id="chkMcrStatus" name="chkMcrStatus" value="1">
                         <label class="form-check-label" for="chkMcrStatus">Active</label>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer flex-center">
+            <div class="modal-footer flex-center p-1">
                 <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMcrSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
             </div>

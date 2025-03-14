@@ -54,6 +54,20 @@ class Ppm extends General {
      * @return int
      * @throws Exception
      */
+    public function insert (array $columns): int {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            return DbMysql::insert($this::$tableName, $columns);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $columns
+     * @return int
+     * @throws Exception
+     */
     public function insertAssetGroup (array $columns): int {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
@@ -233,15 +247,21 @@ class Ppm extends General {
      * @param int $ppmId
      * @throws Exception
      */
-    public function submitAssetGroup (int $ppmId): void {
+    public function createPpmTask (int $ppmId, string $extensionDateStart=''): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($ppmId, $this::$idName);
             $ppm = $this->get($ppmId);
-            if ($ppm['ppmIsGroup'] !== 1) {
-                throw new Exception('Invalid ppmIsGroup');
-            } else if ($ppm['ppmStatus'] !== 11) {
-                throw new Exception('Invalid current status = '. $ppm['status']);
+            if (empty($extensionDateStart)) {
+                if ($ppm['ppmIsGroup'] !== 1) {
+                    throw new Exception('Invalid ppmIsGroup');
+                } else if ($ppm['ppmStatus'] !== 11) {
+                    throw new Exception('Invalid current status = '. $ppm['status']);
+                }
+            } else {
+                if ($ppm['ppmStatus'] !== 1) {
+                    throw new Exception('Invalid current status = '. $ppm['status']);
+                }
             }
             parent::checkMandatoryArray($ppm, array('checklistId', 'assetTypeId', 'contractId', 'ppmDateStart'));
 
@@ -249,7 +269,7 @@ class Ppm extends General {
             $checklistId = $ppm['checklistId'];
             $contract = DbMysql::select('cli_contract', array('contractId'=>$contractId), true);
             $checklist = DbMysql::select('ppm_checklist', array('checklistId'=>$checklistId), true);
-            $contractDateStart = $contract['contractDateStart'];
+            $contractDateStart = !empty($extensionDateStart) ? $extensionDateStart : $contract['contractDateStart'];
             $contractDateEnd = $contract['contractDateEnd'];
             $siteId = $contract['siteId'];
             $ppmDateStart = $ppm['ppmDateStart'];
@@ -398,12 +418,40 @@ class Ppm extends General {
                     $highestFrequency = 1;
                 }
                 $ppmStartDate = $this->getPpmStartDate($dateStr, $highestFrequency);
-                DbMysql::update('ppm', array('ppmStatus'=>1), array('ppmId'=>$ppmId));
                 DbMysql::update('ppm_task', array('ppmTaskStartDate'=>$ppmStartDate), array('ppmTaskId'=>$ppmTaskId));
                 DbMysql::update('wfl_task', array('taskStatus'=>8, 'taskTimeClaimed'=>null), array('transactionId'=>$transactionId));
                 DbMysql::update('wfl_transaction', array('transactionDateDue'=>$dateStr, 'transactionStatus'=>12, 'assetNo'=>$ppm['ppmName']), array('transactionId'=>$transactionId));
             }
+            if (empty($extensionDateStart)) {
+                DbMysql::update('ppm', array('ppmStatus'=>1), array('ppmId'=>$ppmId));
+            }
             DbMysql::update('cli_site', array('siteRunningNo'=>$runningNo), array('siteId'=>$siteId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $params
+     * @return void
+     * @throws Exception
+     */
+    public function extendContractPpm (array $params): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkMandatoryArray($params, array('contractId', 'contractDateStart', 'contractDateEnd'));
+            $contractId = $params['contractId'];
+            $ppmList = DbMysql::selectAll($this::$tableName, array('contractId'=>$contractId, 'ppmStatus'=>1));
+            foreach ($ppmList as $row) {
+                try {
+                    DbMysql::beginTransaction();
+                    $this->createPpmTask($row['ppmId'], $params['contractDateStart']);
+                    DbMysql::commit();
+                } catch (Exception $ey) {
+                    DbMysql::rollback();
+                    parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Error when execute create ppm task for ppmId = '.$row['ppmId']);
+                }
+            }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -7,6 +7,7 @@ function ModalContract() {
     let classFrom;
     let refClient;
     let refSite;
+    let dataMcr;
 
     this.init = function () {
         mzDateFromTo('txtMcrContractDateStart', 'txtMcrContractDateEnd');
@@ -52,7 +53,7 @@ function ModalContract() {
             {
                 field_id: 'txtMcrContractDateStart',
                 type: 'text',
-                name: 'Contract Date Start',
+                name: 'Date Start',
                 validator: {
                     notEmpty: true
                 }
@@ -60,7 +61,7 @@ function ModalContract() {
             {
                 field_id: 'txtMcrContractDateEnd',
                 type: 'text',
-                name: 'Contract Date Start',
+                name: 'Date Start',
                 validator: {
                     notEmpty: true
                 }
@@ -87,6 +88,20 @@ function ModalContract() {
             mzDateFromToReset('txtMcrContractDateStart', 'txtMcrContractDateEnd');
             mzDisableSelect('optMcrClientId', false);
             mzDisableSelect('optMcrSiteId', false);
+            $('#txtMcrContractDateStart').prop('disabled', false);
+        });
+
+        $("input[name='radMcrContractType']:radio").on('change', function () {
+            const value = $(this).val();
+            if ( value === '1') {
+                mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEnd']);
+                mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStart']);
+                $('#txtMcrContractDateStart').prop('disabled', false);
+            } else if ( value === '2') {
+                mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEndExtend']);
+                mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStartExtend']);
+                $('#txtMcrContractDateStart').prop('disabled', true);
+            }
         });
 
         $('#btnMcrSubmit').on('click', function () {
@@ -104,7 +119,7 @@ function ModalContract() {
                         const contractDateStart = mzConvertDate($('#txtMcrContractDateStart').val());
                         const contractDateEnd = mzConvertDate($('#txtMcrContractDateEnd').val());
                         const statusVal = $("input[name='chkMcrStatus']").is(":checked") ? '1' : '2';
-                        const data = {
+                        let data = {
                             siteId: siteId,
                             contractName: txtName,
                             contractDesc: txtDesc,
@@ -115,6 +130,7 @@ function ModalContract() {
 
                         let tempRow = {};
                         if (contractId === '') {
+                            data['contractDateStart'] = contractDateStart;
                             contractId = mzAjaxRequest('contract.php', 'POST', data);
                             if (classFrom.getClassName() === 'MainContract') {
                                 tempRow['contractId'] = contractId;
@@ -122,23 +138,31 @@ function ModalContract() {
                                 tempRow['siteId'] = siteId;
                                 tempRow['contractName'] = txtName;
                                 tempRow['contractDesc'] = txtDesc;
-                                tempRow['contractDateStart'] = contractDateStart;
-                                tempRow['contractDateEnd'] = contractDateEnd;
+                                tempRow['contractDateStart'] = contractDateStart.replace('-', '/');
+                                tempRow['contractDateEnd'] = contractDateEnd.replace('-', '/');
                                 tempRow['contractStatus'] = statusVal;
                                 classFrom.addTableCcr(tempRow);
                             }
                         } else {
                             data['action'] = 'update';
-                            mzAjaxRequest('contract.php?contractId=' + contractId, 'PUT', data);
-                            if (classFrom.getClassName() === 'MainContract') {
-                                tempRow['contractId'] = contractId;
-                                tempRow['contractName'] = txtName;
-                                tempRow['contractDesc'] = txtDesc;
-                                tempRow['contractDateStart'] = contractDateStart;
-                                tempRow['contractDateEnd'] = contractDateEnd;
-                                tempRow['contractStatus'] = statusVal;
-                                classFrom.updateTableCcr(tempRow, rowRefresh);
+                            const contractType = $("input[name='radMcrContractType']:checked").val();
+                            if (contractType === '1') {
+                                data['contractDateStart'] = contractDateStart;
+                                tempRow['contractDateStart'] = contractDateStart.replaceAll('-', '/');
                             }
+                            mzAjaxRequest('contract.php?contractId=' + contractId, 'PUT', data);
+                            if (contractType === '2') {
+                                data['contractId'] = contractId;
+                                mzFetch('ppm_v3/contractExtension', 'PUT', data);
+                                toastr['info']('PPM Task is currently being processed to the date the contract extended. Please check the PPM task status in the PPM Management menu.', 'INFORMATION');
+                            }
+                            tempRow['contractId'] = contractId;
+                            tempRow['contractName'] = txtName;
+                            tempRow['contractDesc'] = txtDesc;
+                            tempRow['contractDateEnd'] = contractDateEnd.replaceAll('-', '/');
+                            tempRow['contractStatus'] = statusVal;
+                            classFrom.updateTableCcr(tempRow, rowRefresh);
+
                         }
                         $('#modal_contract').modal('hide');
                     }
@@ -153,13 +177,13 @@ function ModalContract() {
     this.add = function () {
         contractId = '';
         rowRefresh = '';
-
         ShowLoader();
         setTimeout(function () {
             try {
                 mzOptionStop('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
-
                 mzSetFieldValue('McrStatus', '1', 'checkSingle', '1');
+                mzSetFieldValue('McrContractType', '1', 'radio');
+                $('input[name="radMcrContractType"]').prop('disabled', true);
                 $('#lblMcrTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Contract');
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
@@ -173,20 +197,22 @@ function ModalContract() {
         ShowLoader();
         setTimeout(function () {
             try {
+                mzSetFieldValue('McrContractType', '1', 'radio');
+                $('input[name="radMcrContractType"]').prop('disabled', false);
                 mzOptionStop('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName');
                 mzOptionStop('optMcrSiteId', refSite, 'Choose Site', 'siteId', 'siteName');
                 mzCheckFuncParam([_contractId, _rowRefresh]);
                 contractId = _contractId;
                 rowRefresh = _rowRefresh;
 
-                const dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
+                dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
                 const siteId = dataMcr['siteId'];
                 mzSetFieldValue('McrSiteId', siteId, 'select', 'Site *');
                 mzSetFieldValue('McrClientId', refSite[siteId]['clientId'], 'select', 'Client *');
                 mzSetFieldValue('McrName', dataMcr['contractName'], 'text');
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');
-                mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStart']);
                 mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEnd']);
+                mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStart']);
                 mzSetFieldValue('McrStatus', dataMcr['contractStatus'], 'checkSingle', '1');
 
                 mzDisableSelect('optMcrClientId', true);

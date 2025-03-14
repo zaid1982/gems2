@@ -125,6 +125,12 @@ class Class_contract {
             $result['siteId'] = $dataLocal['site_id'];
             $result['contractTimeCreated'] = str_replace('-', '/', $dataLocal['contract_time_created']);
             $result['contractStatus'] = $dataLocal['contract_status'];
+            $dateEnd = new DateTime($dataLocal['contract_date_end']);
+            $dateEnd->modify('+1 day');
+            $result['contractDateStartExtend'] = $dateEnd->format("Y/m/d");
+            $dateEnd->modify('+1 year');
+            $dateEnd->modify('-1 day');
+            $result['contractDateEndExtend'] = $dateEnd->format("Y/m/d");
 
             return $result;
         }

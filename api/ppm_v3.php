@@ -59,12 +59,15 @@ try {
         $formData['success'] = true;
     }
     else if ('PUT' === $requestMethod) {
-        if (isset ($urlArr[1]) && $urlArr[1] === 'ppmAssetGroup' && isset($urlArr[2])) {
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
+        }
+        if ($urlArr[1] === 'ppmAssetGroup' && isset($urlArr[2])) {
             DbMysql::beginTransaction();
             $isTransaction = true;
             if ($urlArr[2] === 'submit' && isset($urlArr[3])) {
                 $ppmId = intval($urlArr[3]);
-                $fnMain->submitAssetGroup($ppmId);
+                $fnMain->createPpmTask($ppmId);
                 $fnMain->saveAudit(224, 'ppmId = ' . $ppmId);
                 $formData['errmsg'] = Constant::$ppm['submitGroup'];
             } else if (is_numeric($urlArr[2])) {
@@ -76,11 +79,17 @@ try {
             } else {
                 throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
             }
+            $formData['result'] = $result;
             DbMysql::commit();
-            $formData['success'] = true;
+        } else if ($urlArr[1] === 'contractExtension') {
+            set_time_limit(0);
+            $bodyParams = json_decode(file_get_contents("php://input"), true);
+            $fnMain->logDebug('API', $apiName, __LINE__, 'Start contract extension with params = '.json_encode($bodyParams));
+            $fnMain->extendContractPpm($bodyParams);
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
         }
+        $formData['success'] = true;
     }
     else if ('DELETE' === $requestMethod) {
         if (!isset ($urlArr[1])) {

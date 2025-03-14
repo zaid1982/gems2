@@ -1080,18 +1080,6 @@ function mzConvertMonth(monthInput) {
     }
 }
 
-function mzSetDate(id, dateInput) {
-    const dateSplit = dateInput.split('-');
-    if (dateSplit.length === 3) {
-        let day = parseInt(dateSplit[2]);
-        let month = parseInt(dateSplit[1]);
-        let year = parseInt(dateSplit[0]);
-        const picker_input = $('#'+id).pickadate();
-        let picker_value = picker_input.pickadate('picker');
-        picker_value.set('select', [year, month-1, day]);
-    }    
-}
-
 function mzEmailShort(emailInput, shortLength) {
     let emailNew = '';
     shortLength = typeof shortLength === 'undefined' ? 20 : shortLength;
@@ -1723,6 +1711,21 @@ function mzSetFieldValue(name, value, type, label, isInit) {
         else if (type === 'summernote') {
             $('#txa'+name).summernote('code', value);
         }
+    }
+}
+
+function mzSetDate(id, dateInput) {
+    let dateSplit = dateInput.split('-');
+    if (dateSplit.length !== 3) {
+        dateSplit = dateInput.split("/");
+    }
+    if (dateSplit.length === 3) {
+        let day = parseInt(dateSplit[2]);
+        let month = parseInt(dateSplit[1]);
+        let year = parseInt(dateSplit[0]);
+        const picker_input = $('#'+id).pickadate();
+        let picker_value = picker_input.pickadate('picker');
+        picker_value.set('select', [year, month-1, day]);
     }
 }
 
