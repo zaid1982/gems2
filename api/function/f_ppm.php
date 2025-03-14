@@ -713,40 +713,26 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency empty');
             }
 
-            $ppmStartDate = '';
             $ppmDate = new DateTime($ppmDate);
             if ($frequency === '1') {   // yearly
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-1 month');
-                //$ppmDate->modify('-1 year');
-                //$ppmDate->modify('+1 day');
-                $ppmStartDate = $ppmDate->format("Y-m-d");
+                $ppmDate->modify('-1 year');
             } else if ($frequency === '2') {    // quarterly
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-1 month');
-                //$ppmDate->modify('+1 day');
-                //$ppmDate->modify('-3 month');
-                $ppmStartDate = $ppmDate->format("Y-m-d");
+                $ppmDate->modify('-3 month');
             } else if ($frequency === '3') {    // monthly
                 $ppmDate->modify('+1 day');
                 $ppmDate->modify('-1 month');
-                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '4') {    // weekly
                 $ppmDate->modify('-6 day');
-                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '5') {    // daily
-                $ppmStartDate = $ppmDate->format("Y-m-d");
             } else if ($frequency === '6') {    // half-annually
                 $ppmDate->modify('+1 day');
-                $ppmDate->modify('-1 month');
-                //$ppmDate->modify('+1 day');
-                //$ppmDate->modify('-6 month');
-                $ppmStartDate = $ppmDate->format("Y-m-d");
+                $ppmDate->modify('-6 month');
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter frequency invalid');
             }
-
-            return $ppmStartDate;
+            return $ppmDate->format("Y-m-d");
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
