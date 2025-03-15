@@ -97,7 +97,7 @@ function SectionPpmAsset () {
         dtSpgTask = $('#dtSpgTask').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[1, 'asc']],
+            aaSorting: [[2, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,

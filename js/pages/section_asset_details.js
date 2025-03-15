@@ -22,6 +22,7 @@ function SectionAssetDetails() {
     let versionLocal;
     let qrCodeImg;
     let oTableSszWo;
+    let oTableSszPpm;
     let assetStatus;let refWoType = {
         1: 'Client Complaint',
         2: 'Self Finding',
@@ -478,10 +479,10 @@ function SectionAssetDetails() {
             ],
             buttons: [
                 { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Work Order Asset List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - Work Order List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - Work Order List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Work Order List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -554,6 +555,70 @@ function SectionAssetDetails() {
                         }
                         //label += '&nbsp;<a><i class="far fa-edit lnkSszWoEdit" id="lnkSszWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
                         return label;
+                    }}
+            ]
+        });
+
+        oTableSszPpm = $('#dtSszPpm').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[2, 'asc']],
+            ordering: true,
+            language: _DATATABLE_LANGUAGE,
+            pageLength: 10,
+            autoWidth: false,
+            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            columnDefs: [
+                { bSortable: false, targets: [0, 6] },
+                { className: 'text-center', targets: [0, 1, 2, 4, 5, 6] },
+                { className: 'noVis', targets: [0, 6] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.lnkSszPpmPdf').off('click').on('click', function () {
+                    const row = mzGetLinkRow($(this), oTableSszPpm);
+                    ShowLoader();
+                    setTimeout(function () {
+                        try {
+                            let pdfId = row['pdfId'];
+                            if (row['pdfId'] === null) {
+                                pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:row['ppmTaskId']});
+                            }
+                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+row['ppmTaskNo']);
+                            $('#mpdf_iframe').attr('src', pdfSrc);
+                            $('#modal_pdf').modal('show');
+                        } catch (e) {
+                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                        }
+                        HideLoader();
+                    }, 200);
+                });
+            },
+            aoColumns: [
+                { mData: null},
+                { mData: 'ppmTaskNo'},
+                { mData: 'ppmTaskStartDate'},
+                { mData: 'ppmTaskAssignedTo'},
+                { mData: 'ppmTaskTimeServiced'},
+                { mData: 'ppmTaskStatus', mRender: function (data) {
+                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                    }},
+                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
+                        return '<a><i class="far fa-file-pdf lnkSszPpmPdf" id="lnkSszPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
                     }}
             ]
         });
@@ -760,6 +825,7 @@ function SectionAssetDetails() {
                     formValidate.disableField('optSszAssetTypeId');
                 }
                 self.genTableWo();
+                self.genTablePpm();
 
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
                 $('#btnSszUpdate').prop('disabled', true);
@@ -794,6 +860,7 @@ function SectionAssetDetails() {
                 mzDisableSelect('optSszAssetBrandId', true);
                 mzDisableSelect('optSszAssetModelId', true);
                 self.genTableWo();
+                self.genTablePpm();
 
                 $('#btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
                 $('.sectionAssetDetails, .divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
@@ -863,8 +930,14 @@ function SectionAssetDetails() {
 
     this.genTableWo = function () {
         ShowLoader(); setTimeout(function () { mzFetch('wo_v3/by_assetId/'+assetId).then(res => {
-            console.log(res);
             oTableSszWo.clear().rows.add(res).draw();
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+    };
+
+    this.genTablePpm = function () {
+        ShowLoader(); setTimeout(function () { mzFetch('ppm_task/listByAsset/'+assetId).then(res => {
+            console.log(res);
+            oTableSszPpm.clear().rows.add(res).draw();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };
 

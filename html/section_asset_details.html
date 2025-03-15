@@ -15,7 +15,7 @@
                         <h3 class="font-weight-bold dark-grey-text ml-3">Asset Details</h3>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade">
+                <div class="card-body card-body-cascade pb-0">
                     <form id="formSsz">
                         <div class="row mt-4">
                             <div class="col-md-4 px-2">
@@ -291,14 +291,14 @@
                         </div>
                     </form>
                 </div>
-                <div class="card-footer">
-                    <button type="button" id="btnSszSubmit" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
+                <div class="card-footer p-1">
+                    <button type="button" id="btnSszSubmit" class="btn btn-outline-dark-green waves-effect btn-sm float-right" disabled>
                         <i class="fas fa-paper-plane mr-1"></i> Submit Asset
                     </button>
-                    <button type="button" id="btnSszUpdate" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                    <button type="button" id="btnSszUpdate" class="btn btn-outline-deep-orange waves-effect btn-sm float-right" disabled>
                         <i class="fas fa-edit mr-1"></i> Update Asset
                     </button>
-                    <button type="button" id="btnSszSave" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
+                    <button type="button" id="btnSszSave" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
                         <i class="fas fa-save mr-1"></i> Save Draft
                     </button>
                     <!--<button type="button" id="btnSszQr" class="btn btn-outline-light-blue btn-rounded waves-effect btn-sm float-right">
@@ -326,8 +326,35 @@
                                         <th>Severity</th>
                                         <th>PIC Name</th>
                                         <th>Received Time</th>
-                                        <th>Status</th> <!--10-->
+                                        <th>Status</th>
                                         <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header py-1 teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">PPM Task Information</h5>
+                </div>
+                <div class="card-body mt-0 px-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="dtSszPpm" class="table table-custom-badge table-hover mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th style="width: 50px">PPM Task No.</th>
+                                        <th>Schedule Date</th>
+                                        <th>Executor</th>
+                                        <th>Time Execute</th>
+                                        <th>Status</th>
+                                        <th style="width: 24px; min-width: 24px">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -363,7 +390,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSszSiteName" class="form-control" readonly>
+                                <input type="text" id="txtSszSiteName" class="form-control" disabled>
                                 <label for="txtSszSiteName" id="lblSszSiteName">Site Name</label>
                             </div>
                         </div>
@@ -373,15 +400,6 @@
                                 <label for="txtSszClientName" id="lblSszClientName">Client Name</label>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card profile-card mt-4">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Asset Information</h5>
-                </div>
-                <div class="card-body mt-2 pb-0 px-3">
-                    <div class="row">
                         <div class="col-md-12 divSszRegisterInfo">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
@@ -401,6 +419,26 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card profile-card mt-4">
+                <div class="card-header py-1 teal lighten-4">
+                    <h5 class="font-weight-bold text-center mt-2">Costing Information</h5>
+                </div>
+                <div class="card-body mt-2 pb-0 px-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSszAssetValue" class="form-control">
+                                <label for="txtSszAssetValue" id="lblSszAssetValue">Value</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-1">
+                    <button type="button" id="btnSszCostingUpdate" class="btn btn-outline-deep-orange waves-effect btn-sm float-right" disabled>
+                        <i class="fas fa-edit mr-1"></i> Update Costing
+                    </button>
                 </div>
             </div>
         </div>

@@ -41,6 +41,36 @@ class PpmTask extends General {
     }
 
     /**
+     * @param int $assetId
+     * @return array
+     * @throws Exception
+     */
+    public function getListByAsset (int $assetId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($assetId, 'assetId');
+            $ppmTaskArr = array();
+            $ppmArr = DbMysql::selectAll('ppm', array('assetId'=>$assetId));
+            foreach ($ppmArr as $ppm) {
+                $ppmTaskArr2 = DbMysql::selectAll($this::$tableName, array('ppmId'=>$ppm['ppmId']));
+                foreach ($ppmTaskArr2 as $ppmTask2) {
+                    $ppmTaskArr[] = $ppmTask2;
+                }
+            }
+            $ppmAssetArr = DbMysql::selectAll('ppm_asset', array('assetId'=>$assetId));
+            foreach ($ppmAssetArr as $ppmAsset) {
+                $ppmTaskArr2 = DbMysql::selectAll($this::$tableName, array('ppmId'=>$ppmAsset['ppmId']));
+                foreach ($ppmTaskArr2 as $ppmTask2) {
+                    $ppmTaskArr[] = $ppmTask2;
+                }
+            }
+            return $ppmTaskArr;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $columns
      * @return int
      * @throws Exception

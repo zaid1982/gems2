@@ -32,6 +32,8 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'list' && isset($urlArr[2])) {
                 $result = $fnMain->getList(intval($urlArr[2]));
+            } else if ($urlArr[1] === 'listByAsset' && isset($urlArr[2])) {
+                $result = $fnMain->getListByAsset(intval($urlArr[2]));
             } else if (is_numeric($urlArr[1])) {
                 $result = $fnMain->get(intval($urlArr[1]));
             } else {
