@@ -352,6 +352,14 @@ function SectionAssetDetails() {
                 validator: {
                     maxLength: 30
                 }
+            },
+            {
+                field_id: 'txtSsz5',
+                type: 'text',
+                name: 'Service Cost',
+                validator: {
+                    notEmpty: true
+                }
             }
         ];
 
