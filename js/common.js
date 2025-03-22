@@ -452,7 +452,6 @@ function MzValidate(name) {
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
             }
             else if (u.type === 'selectMultiple') {
-                console.log(3);
                 //$('#' + fieldId).prevAll('.select-dropdown').children('li:contains(\'\')').trigger('click');
                 fieldSelector.val(null).change();
                 //fieldLblSelector.html('').removeClass('active');
@@ -494,6 +493,22 @@ function MzValidate(name) {
         $.each(arrFields, function (n, u) {
             if (u.field_id === fieldId) {
                 u.enabled = isEnable;
+                let fieldSelector;
+                let fieldErrSelector;
+                if (u.type === 'check') {
+                    fieldSelector = $("input[name='"+fieldId+"']:checkbox");
+                    fieldErrSelector = $('#' + fieldId.substring(0, fieldId.length-2) + 'Err');
+                }
+                else if (u.type === 'radio') {
+                    fieldSelector = $("input[name='"+fieldId+"']:radio");
+                    fieldErrSelector = $('#' + u.field_id + 'Err');
+                }
+                else {
+                    fieldSelector = $('#' + fieldId);
+                    fieldErrSelector = $('#' + fieldId + 'Err');
+                }
+                fieldSelector.removeClass('invalid');
+                fieldErrSelector.html('');
                 return false;
             }
         });
@@ -1696,6 +1711,9 @@ function mzSetFieldValue(name, value, type, label, isInit) {
         }
         else if (type === 'checkSingle') {
             $('#chk'+name).prop('checked', value === label);
+        }
+        else if (type === 'radioSingle') {
+            $('#rad'+name).prop('checked', value === label);
         }
         else if (type === 'check') {
             for (let i = 0; i < value.length; i++) {

@@ -29,8 +29,14 @@ try {
     }
 
     if ('GET' === $requestMethod) {
-        if (isset ($urlArr[1]) && is_numeric($urlArr[1])) {
-            $result = $fnMain->get(intval($urlArr[1]));
+        if (isset ($urlArr[1])) {
+            if ($urlArr[1] === 'repairCost' && isset ($urlArr[2])) {
+                $result = $fnMain->getRepairCost(intval($urlArr[2]));
+            } else if (is_numeric($urlArr[1])) {
+                $result = $fnMain->get(intval($urlArr[1]));
+            } else {
+                throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
+            }
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }

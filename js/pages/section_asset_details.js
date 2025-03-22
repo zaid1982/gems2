@@ -19,6 +19,7 @@ function SectionAssetDetails() {
     let refZone;
     let refSeverity;
     let formValidate;
+    let formValidate2;
     let formValidateLifespan;
     let formValidateValue;
     let versionLocal;
@@ -33,6 +34,7 @@ function SectionAssetDetails() {
         5: 'Defect',
         6: 'Public Complaint'
     };
+    let cntLiftCycleCost = 0
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -357,6 +359,86 @@ function SectionAssetDetails() {
             },*/
         ];
 
+        const vData2 = [
+            {
+                field_id: 'txtSszRepairCost',
+                type: 'text',
+                name: 'Repair Cost',
+                validator: {
+                    notEmpty: false
+                }
+            },
+            {
+                field_id: 'txtSszRepairAlert',
+                type: 'text',
+                name: 'Cost Alert',
+                validator: {
+                    notEmpty: false,
+                    numeric: true,
+                    max: 100000000,
+                    min: 0
+                }
+            },
+            {
+                field_id: 'txtSszRunningHours',
+                type: 'text',
+                name: 'Running Hours',
+                validator: {
+                    notEmpty: false,
+                    digit: true,
+                    max: 10000,
+                    min: 0
+                }
+            },
+            {
+                field_id: 'txtSszLifeCycleCost',
+                type: 'text',
+                name: 'Life Cycle Cost',
+                validator: {
+                    notEmpty: false
+                }
+            },
+            {
+                field_id: 'chkSszDisposalStatus',
+                type: 'checkSingle',
+                name: 'Disposed Status',
+                validator: {
+                    notEmptyCheck: false
+                }
+            },
+            {
+                field_id: 'txtSszDisposalServiceCost',
+                type: 'text',
+                name: 'Service Cost',
+                validator: {
+                    notEmpty: false,
+                    numeric: true,
+                    max: 100000000,
+                    min: 0
+                }
+            },
+            {
+                field_id: 'txtSszDisposalItemCost',
+                type: 'text',
+                name: 'Item Cost',
+                validator: {
+                    notEmpty: false,
+                    numeric: true,
+                    max: 100000000,
+                    min: 0
+                }
+            },
+            {
+                field_id: 'txtSszDisposalDate',
+                type: 'text',
+                name: 'Disposal Date',
+                validator: {
+                    notEmpty: false,
+                    maxLength: 30
+                }
+            }
+        ];
+
         const vDataLifespan = [
             {
                 field_id: 'txtSszLifespanYear',
@@ -450,6 +532,9 @@ function SectionAssetDetails() {
 
         formValidate = new MzValidate('formAsz');
         formValidate.registerFields(vData);
+
+        formValidate2 = new MzValidate('');
+        formValidate2.registerFields(vData2);
 
         formValidateLifespan = new MzValidate('formSszLifespan');
         formValidateLifespan.registerFields(vDataLifespan);
@@ -561,7 +646,8 @@ function SectionAssetDetails() {
 
         $('#btnSszUpdateCosting').on('click', function () {
             try {
-                let validate = formValidateLifespan.validateNow();
+                let validate = formValidate2.validateNow();
+                validate = formValidateLifespan.validateNow() && validate;
                 validate = formValidateValue.validateNow() && validate;
                 if (!validate) {
                     toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
@@ -572,7 +658,13 @@ function SectionAssetDetails() {
                         assetLifespanStartDate: mzConvertDate2('txtSszLifespanStartDate'),
                         assetPurchasePrice: mzNullFloat('txtSszValuePurchasePrice'),
                         assetValueDepreciation: mzNullInt('txtSszValueDepreciation'),
-                        assetValueAlert: mzNullFloat('txtSszValueAlert')
+                        assetValueAlert: mzNullFloat('txtSszValueAlert'),
+                        assetRepairAlert: mzNullFloat('txtSszRepairAlert'),
+                        assetRunningHours: mzNullInt('txtSszRunningHours'),
+                        assetDisposalStatus: $("input[name='chkSszDisposalStatus']:checkbox").is(":checked") ? 1 : null,
+                        assetDisposalDate: mzConvertDate2('txtSszDisposalDate'),
+                        assetDisposalItemCost: mzNullFloat('txtSszDisposalItemCost'),
+                        assetDisposalServiceCost: mzNullFloat('txtSszDisposalServiceCost')
                     };
                     ShowLoader(); setTimeout(function () {
                         mzFetch('ast_asset/'+assetId, 'PUT', data).then(res => {
@@ -598,6 +690,26 @@ function SectionAssetDetails() {
         $('#txtSszValuePurchasePrice, #txtSszValueDepreciation, #txtSszValueAlert').on('keyup', function () {
             try {
                 self.calculateDepreciation();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszRepairAlert').on('keyup', function () {
+            try {
+                self.calculateRepair();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $("input[name='chkSszDisposalStatus']:checkbox").on('click', function () {
+            const statusChecked = $(this).is(":checked");
+            try {
+                self.checkDisposal(statusChecked);
+                self.calculateLifeCycleCost();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszDisposalServiceCost').on('keyup', function () {
+            try {
+                self.calculateLifeCycleCost();
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
@@ -818,6 +930,11 @@ function SectionAssetDetails() {
     };
 
     this.getDetails = function () {
+        formValidate.clearValidation();
+        formValidate2.clearValidation();
+        formValidateLifespan.clearValidation();
+        formValidateValue.clearValidation();
+
         const dataSsz = mzAjaxRequest('asset.php?assetId='+assetId, 'GET');
         const registeredBy = dataSsz['assetRegisteredBy']!==''?refUser[dataSsz['assetRegisteredBy']]['userFullName']:'';
         const assetGroupId = dataSsz['assetGroupId'];
@@ -899,6 +1016,7 @@ function SectionAssetDetails() {
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
 
+        cntLiftCycleCost = 0
         mzFetch('ast_asset/'+assetId).then(res => {
             mzSetFieldValue('txtSszLifespanYear', res['assetLifespanYear']);
             mzSetFieldValue('txtSszLifespanAlert', res['assetLifespanAlert']);
@@ -908,6 +1026,25 @@ function SectionAssetDetails() {
             mzSetFieldValue('txtSszValueDepreciation', res['assetValueDepreciation']);
             mzSetFieldValue('txtSszValueAlert', res['assetValueAlert']);
             self.calculateDepreciation();
+            mzSetFieldValue('txtSszRepairAlert', res['assetRepairAlert']);
+            mzSetFieldValue('txtSszRunningHours', res['assetRunningHours']);
+            mzSetFieldValue('SszDisposalStatus', res['assetDisposalStatus'], 'checkSingle', 1);
+            mzSetFieldValue('txtSszDisposalDate', mzConvertDateDisplay(res['assetDisposalDate']));
+            mzSetFieldValue('txtSszDisposalItemCost', res['assetDisposalItemCost']);
+            mzSetFieldValue('txtSszDisposalServiceCost', res['assetDisposalServiceCost']);
+            self.checkDisposal(res['assetDisposalStatus'] === 1);
+            cntLiftCycleCost++;
+            self.calculateLifeCycleCost();
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+
+        mzFetch('ast_asset/repairCost/'+assetId).then(res => {
+            if (res !== null) {
+                mzSetFieldValue('txtSszRepairCost', mzFormatNumber(res, 2));
+                mzSetFieldValue('txtSszLifeCycleCost', mzFormatNumber(res, 2)); // to be put in disposal calculation function
+            }
+            self.calculateRepair();
+            cntLiftCycleCost++;
+            self.calculateLifeCycleCost();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
     };
 
@@ -942,7 +1079,6 @@ function SectionAssetDetails() {
                 const alert = mzNullInt('txtSszValueAlert');
                 const depreciation = mzNullFloat('txtSszValueDepreciation', true);
                 const start = mzConvertDate2('txtSszLifespanStartDate');
-                console.log(purchase);
                 if (purchase > 0) {
                     let remaining = 0;
                     if (start !== null) {
@@ -953,7 +1089,6 @@ function SectionAssetDetails() {
                     } else {
                         remaining = purchase - (purchase*depreciation/100);
                     }
-                    console.log(remaining);
                     const value = remaining.toString();
                     if (remaining < alert) {
                         $('#spanSszDepreciationAlert').show();
@@ -961,6 +1096,43 @@ function SectionAssetDetails() {
                     mzSetFieldValue('txtSszValueRemaining', mzFormatNumber(value, 2));
                 }
             }
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
+
+    this.calculateRepair = function () {
+        try {
+            $('#spanSszRepairAlert').hide();
+            const repairCost = mzNullFloat('txtSszRepairCost', true);
+            const repairAlert = mzNullFloat('txtSszRepairAlert', true);
+            if (repairCost > 0 && repairAlert > 0 && repairCost > repairAlert) {
+                $('#spanSszRepairAlert').show();
+            }
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
+
+    this.calculateLifeCycleCost = function () {
+        try {
+            if (cntLiftCycleCost === 2) {
+                const repairCost = mzNullFloat('txtSszRepairCost', true);
+                const disposalCost = mzNullFloat('txtSszDisposalServiceCost', true);
+                mzSetFieldValue('txtSszLifeCycleCost', mzFormatNumber(repairCost + disposalCost, 2));
+            }
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
+
+    this.checkDisposal = function (isChecked) {
+        try {
+            $('#txtSszDisposalDate').prop('disabled', !isChecked);
+            $('#txtSszDisposalItemCost').prop('disabled', !isChecked);
+            $('#txtSszDisposalServiceCost').prop('disabled', !isChecked);
+            if (!isChecked) {
+                mzSetFieldValue('txtSszDisposalDate', '');
+                mzSetFieldValue('txtSszDisposalItemCost', '');
+                mzSetFieldValue('txtSszDisposalServiceCost', '');
+            }
+            formValidate2.disableField('txtSszDisposalDate', !isChecked);
+            formValidate2.disableField('txtSszDisposalItemCost', !isChecked);
+            formValidate2.disableField('txtSszDisposalServiceCost', !isChecked);
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
     }
 
@@ -978,8 +1150,6 @@ function SectionAssetDetails() {
                 };
                 assetId = mzAjaxRequest('asset.php', 'POST', data);
 
-                formValidate.clearValidation();
-                formValidateLifespan.clearValidation();
                 self.getDetails();
                 oTableSszWo.clear().draw();
                 $('#divSszQrCode').hide();
@@ -1010,8 +1180,6 @@ function SectionAssetDetails() {
                 assetId = _assetId;
                 rowRefresh = _rowRefresh;
 
-                formValidate.clearValidation();
-                formValidateLifespan.clearValidation();
                 self.getDetails();
                 if (assetStatus === '5') {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').hide();
@@ -1054,8 +1222,6 @@ function SectionAssetDetails() {
                 mzCheckFuncParam([_assetId]);
                 assetId = _assetId;
 
-                formValidate.clearValidation();
-                formValidateLifespan.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').show();
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', true);

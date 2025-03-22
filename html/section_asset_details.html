@@ -501,21 +501,21 @@
                         </div>
                     </div>
                     <div class="title-box mb-3">
-                        <div class="title-box-title">&nbsp;Asset Repair&nbsp;</div>
+                        <div class="title-box-title">&nbsp;Asset Repair<span class="text-danger ml-3" id="spanSszRepairAlert"><i class="far fa-exclamation-triangle"></i> Repair Cost Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
                             <div class="row">
                                 <div class="col-xl-6 px-2">
                                     <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszRepairCost" class="form-control">
+                                        <input type="text" id="txtSszRepairCost" class="form-control" disabled>
                                         <label for="txtSszRepairCost" id="lblSszRepairCost">Repair Cost (RM)</label>
                                         <p class="font-small text-danger" id="txtSszRepairCostErr"></p>
                                     </div>
                                 </div>
                                 <div class="col-xl-6 px-2">
                                     <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszCostAlert" class="form-control">
-                                        <label for="txtSszCostAlert" id="lblSszCostAlert">Cost Alert</label>
-                                        <p class="font-small text-danger" id="txtSszCostAlertErr"></p>
+                                        <input type="text" id="txtSszRepairAlert" class="form-control">
+                                        <label for="txtSszRepairAlert" id="lblSszRepairAlert">Cost Alert</label>
+                                        <p class="font-small text-danger" id="txtSszRepairAlertErr"></p>
                                     </div>
                                 </div>
                             </div>
@@ -539,10 +539,24 @@
                         <div class="title-box-title">&nbsp;Asset Disposal&nbsp;</div>
                         <div class="title-box-content">
                             <div class="row">
+                                <div class="col-12 px-2">
+                                    <div class="form-check pl-0 mt-0 mb-3">
+                                        <input type="checkbox" class="form-check-input" name="chkSszDisposalStatus" id="chkSszDisposalStatus" value="1">
+                                        <label class="form-check-label" for="chkSszDisposalStatus">Disposed?</label>
+                                    </div>
+                                </div>
                                 <div class="col-xl-6 px-2">
-                                    <div class="form-check pl-0 mt-2">
-                                        <input type="radio" class="form-check-input" id="radSszDisposalStatus" name=radSszDisposalStatus" value="1">
-                                        <label class="form-check-label" for="radSszDisposalStatus">Disposed?</label>
+                                    <div class="md-form md-outline mt-0">
+                                        <input type="text" id="txtSszDisposalDate" class="form-control datepicker">
+                                        <label for="txtSszDisposalDate" id="lblSszDisposalDate">Disposal Date</label>
+                                        <p class="font-small text-danger" id="txtSszDisposalDateErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 px-2">
+                                    <div class="md-form md-outline my-0">
+                                        <input type="text" id="txtSszDisposalItemCost" class="form-control">
+                                        <label for="txtSszDisposalItemCost" id="lblSszDisposalItemCost">Item Cost (RM)</label>
+                                        <p class="font-small text-danger" id="txtSszDisposalItemCostErr"></p>
                                     </div>
                                 </div>
                                 <div class="col-xl-6 px-2">
@@ -550,20 +564,6 @@
                                         <input type="text" id="txtSszDisposalServiceCost" class="form-control">
                                         <label for="txtSszDisposalServiceCost" id="lblSszDisposalServiceCost" style="font-size: 14px !important;">Service Cost (RM)</label>
                                         <p class="font-small text-danger" id="txtSszDisposalServiceCostErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszDisposalItemCost" class="form-control">
-                                        <label for="txtSszDisposalItemCost" id="lblSszDisposalItemCost">Item Cost</label>
-                                        <p class="font-small text-danger" id="txtSszDisposalItemCostErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline mt-0">
-                                        <input type="text" id="txtSszDisposalDate" class="form-control">
-                                        <label for="txtSszDisposalDate" id="lblSszDisposalDate">Disposal Date</label>
-                                        <p class="font-small text-danger" id="txtSszDisposalDateErr"></p>
                                     </div>
                                 </div>
                             </div>
@@ -575,9 +575,9 @@
                             <div class="row">
                                 <div class="col-xl-6 px-2">
                                     <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszLifeCycle" class="form-control">
-                                        <label for="txtSszLifeCycle" id="lblSszLifeCycle" style="font-size: 12px !important;">Life Cycle Cost (RM)</label>
-                                        <p class="font-small text-danger" id="txtSszLifeCycleErr"></p>
+                                        <input type="text" id="txtSszLifeCycleCost" class="form-control" disabled>
+                                        <label for="txtSszLifeCycleCost" id="lblSszLifeCycleCost" style="font-size: 12px !important;">Life Cycle Cost (RM)</label>
+                                        <p class="font-small text-danger" id="txtSszLifeCycleCostErr"></p>
                                     </div>
                                 </div>
                             </div>

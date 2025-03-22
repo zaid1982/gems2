@@ -26,6 +26,28 @@ class AstAsset extends General {
     }
 
     /**
+     * @param int $id
+     * @throws Exception
+     */
+    public function getRepairCost (int $id) {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($id, 'id');
+            return DbMysql::selectSql(
+                /** @lang text */
+                "SELECT
+                    SUM(wp.wo_task_parts_quantity * asb.part_sub_cost) AS total_cost
+                FROM wo_task_request wr
+                LEFT JOIN wo_task wo ON wo.wo_task_id = wr.wo_task_id
+                LEFT JOIN wo_task_parts wp ON wp.wo_task_request_id = wr.wo_task_request_id
+                LEFT JOIN ast_part_sub asb ON asb.wo_task_parts_id = wp.wo_task_parts_id
+                WHERE wo.asset_id = $id AND asb.part_sub_status IN (36, 37)")['totalCost'];
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $columns
      * @return int
      * @throws Exception
