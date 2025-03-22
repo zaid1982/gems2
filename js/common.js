@@ -1003,6 +1003,25 @@ function mzConvertDate(dateInput) {
     return dateNew;
 }
 
+function mzConvertDate2(id) {
+    let dateInput = $('#'+id).val();
+    if (dateInput === '') {
+        return null;
+    }
+    let dateNew = null;
+    const dateSplit = dateInput.split(" ");
+    if (dateSplit.length === 3) {
+        let day = dateSplit[0];
+        let month = dateSplit[1];
+        let year = dateSplit[2];
+        if (day.length === 1) {
+            day = '0' + day;
+        }
+        dateNew = year + '-' + mzConvertMonth(month.slice(0, -1)) + '-' + day;
+    }
+    return dateNew;
+}
+
 function mzConvertDateDisplay(dateInput) {
     if (typeof dateInput === 'undefined' || dateInput === null || (dateInput.length !== 10 && dateInput.length !== 19)) {
         return '';
@@ -2101,9 +2120,6 @@ function mzDurationSimple (timeStart, timeEnd) {
 
 function mzNullInt (id) {
     let val = $('#'+id).val();
-    if (val !== null) {
-        val = val.replaceAll(',', '');
-    }
     const returnVal = parseInt(val);
     if (isNaN(returnVal)) {
         return null;

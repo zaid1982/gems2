@@ -19,6 +19,7 @@ function SectionAssetDetails() {
     let refZone;
     let refSeverity;
     let formValidate;
+    let formValidateLifespan;
     let versionLocal;
     let qrCodeImg;
     let oTableSszWo;
@@ -363,8 +364,51 @@ function SectionAssetDetails() {
             }
         ];
 
+        const vDataLifespan = [
+            {
+                field_id: 'txtSszLifespanYear',
+                type: 'text',
+                name: 'Lifespan Years',
+                validator: {
+                    notEmpty: false,
+                    numeric: true,
+                    max: 100
+                }
+            },
+            {
+                field_id: 'txtSszLifespanAlert',
+                type: 'text',
+                name: 'Lifespan Alert',
+                validator: {
+                    notEmpty: false,
+                    numeric: true,
+                    max: 100
+                }
+            },
+            {
+                field_id: 'txtSszLifespanStartDate',
+                type: 'text',
+                name: 'Lifespan Start Date',
+                validator: {
+                    notEmpty: false,
+                    maxLength: 30
+                }
+            },
+            {
+                field_id: 'txtSszLifespanRemaining',
+                type: 'text',
+                name: 'Remaining Lifespan',
+                validator: {
+                    notEmpty: false
+                }
+            }
+        ];
+
         formValidate = new MzValidate('formAsz');
         formValidate.registerFields(vData);
+
+        formValidateLifespan = new MzValidate('formSszLifespan');
+        formValidateLifespan.registerFields(vDataLifespan);
 
         $('#formSsz').on('keyup change', function () {
             $('#btnSszSubmit, #btnSszUpdate').attr('disabled', !formValidate.validateForm());
@@ -467,6 +511,37 @@ function SectionAssetDetails() {
                 }
                 HideLoader();
             }, 200);
+        });
+
+        $('#btnSszUpdateCosting').on('click', function () {
+            try {
+                if (!formValidateLifespan.validateForm()) {
+                    toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                } else {
+                    const data = {
+                        assetLifespanYear: mzNullInt('txtSszLifespanYear'),
+                        assetLifespanAlert: mzNullInt('txtSszLifespanAlert'),
+                        assetLifespanStartDate: mzConvertDate2('txtSszLifespanStartDate')
+                    };
+                    ShowLoader(); setTimeout(function () {
+                        mzFetch('ast_asset/'+assetId, 'PUT', data).then(res => {
+                            //
+                        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                    }, 200);
+                }
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszLifespanYear, #txtSszLifespanAlert').on('keyup', function () {
+            try {
+                self.calculateLifespan();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszLifespanStartDate').on('change', function () {
+            try {
+                self.calculateLifespan();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
         oTableSszWo = $('#dtSszWo').DataTable({
@@ -708,7 +783,6 @@ function SectionAssetDetails() {
         mzOptionStop('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'});
         mzOptionStop('optSszPpmGroupId', refPpmGroup, 'Choose PPM Group', 'ppmGroupId', 'ppmGroupName', {siteId: siteId, roleId: '5', ppmGroupStatus: '1'});
         mzOptionStopV2('optSszZoneId', refZone, 'Choose Zone', 'zoneCode', {siteId: parseInt(siteId), zoneStatus: 1});
-        console.log(refZone);
         mzDisableSelect('optSszAssetGroupId', false);
         mzDisableSelect('optSszAssetCategoryId', false);
         mzDisableSelect('optSszAssetTypeId', false);
@@ -767,7 +841,36 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
+
+        mzFetch('ast_asset/'+assetId).then(res => {
+            mzSetFieldValue('SszLifespanYear', res['assetLifespanYear'], 'text');
+            mzSetFieldValue('SszLifespanAlert', res['assetLifespanAlert'], 'text');
+            mzSetFieldValue('SszLifespanStartDate', mzConvertDateDisplay(res['assetLifespanStartDate']), 'text');
+            self.calculateLifespan();
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
     };
+
+    this.calculateLifespan = function () {
+        try {
+            let value = '';
+            $('#spanSszLifespanAlert').hide();
+            if (formValidateLifespan.validateNow()) {
+                const years = mzNullInt('txtSszLifespanYear');
+                const start = mzConvertDate2('txtSszLifespanStartDate');
+                const alert = mzNullInt('txtSszLifespanAlert');
+                if (start !== null && years !== null) {
+                    const dateStart = moment(mzConvertDate2('txtSszLifespanStartDate'));
+                    const dateCurrent = moment();
+                    const lifespanYear = years - dateCurrent.diff(dateStart, 'year');
+                    value = lifespanYear.toString();
+                    if (lifespanYear < 0 || (alert !== null && lifespanYear - alert < 0)) {
+                        $('#spanSszLifespanAlert').show();
+                    }
+                }
+            }
+            mzSetFieldValue('SszLifespanRemaining', value, 'text');
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
 
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         ShowLoader();
@@ -784,6 +887,7 @@ function SectionAssetDetails() {
                 assetId = mzAjaxRequest('asset.php', 'POST', data);
 
                 formValidate.clearValidation();
+                formValidateLifespan.clearValidation();
                 self.getDetails();
                 oTableSszWo.clear().draw();
                 $('#divSszQrCode').hide();
@@ -815,6 +919,7 @@ function SectionAssetDetails() {
                 rowRefresh = _rowRefresh;
 
                 formValidate.clearValidation();
+                formValidateLifespan.clearValidation();
                 self.getDetails();
                 if (assetStatus === '5') {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').hide();
@@ -858,6 +963,7 @@ function SectionAssetDetails() {
                 assetId = _assetId;
 
                 formValidate.clearValidation();
+                formValidateLifespan.clearValidation();
                 self.getDetails();
                 $('#divSszQrCode').show();
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', true);
@@ -944,7 +1050,6 @@ function SectionAssetDetails() {
 
     this.genTablePpm = function () {
         ShowLoader(); setTimeout(function () { mzFetch('ppm_task/listByAsset/'+assetId).then(res => {
-            console.log(res);
             oTableSszPpm.clear().rows.add(res).draw();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };

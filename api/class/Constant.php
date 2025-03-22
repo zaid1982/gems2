@@ -143,4 +143,10 @@ class Constant {
         'submitGroup' => 'PPM Asset Group successfully submitted for Task Scheduling!',
         'errAssigned' => 'This PPM Asset Group cannot be deleted because it is already assigned the PPM Tasks!'
     );
+
+    public static $asset = array(
+        'add' => 'Asset successfully assigned to _2 group!',
+        'update' => 'Asset Information successfully updated!',
+        'delete' => 'Asset successfully removed!'
+    );
 }

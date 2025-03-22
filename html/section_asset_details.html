@@ -296,7 +296,7 @@
                         <i class="fas fa-paper-plane mr-1"></i> Submit Asset
                     </button>
                     <button type="button" id="btnSszUpdate" class="btn btn-outline-deep-orange waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-edit mr-1"></i> Update Asset
+                        <i class="fas fa-edit mr-1"></i> Update Asset Details
                     </button>
                     <button type="button" id="btnSszSave" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
                         <i class="fas fa-save mr-1"></i> Save Draft
@@ -427,38 +427,40 @@
                 </div>
                 <div class="card-body mt-2 p-2">
                     <div class="title-box mb-3">
-                        <div class="title-box-title">&nbsp;Asset Lifespan&nbsp;</div>
+                        <div class="title-box-title">&nbsp;Asset Lifespan<span class="text-danger ml-3" id="spanSszLifespanAlert"><i class="far fa-exclamation-triangle"></i> Lifespan Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
-                            <div class="row">
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszLifespanYears" class="form-control">
-                                        <label for="txtSszLifespanYears" id="lblSszLifespanYears">Lifespan Years</label>
-                                        <p class="font-small text-danger" id="txtSszLifespanYearsErr"></p>
+                            <form id="formSszLifespan">
+                                <div class="row">
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszLifespanYear" class="form-control">
+                                            <label for="txtSszLifespanYear" id="lblSszLifespanYear">Lifespan Years</label>
+                                            <p class="font-small text-danger" id="txtSszLifespanYearErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszLifespanAlert" class="form-control">
+                                            <label for="txtSszLifespanAlert" id="lblSszLifespanAlert">Lifespan Alert</label>
+                                            <p class="font-small text-danger" id="txtSszLifespanAlertErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszLifespanStartDate" class="form-control datepicker">
+                                            <label for="txtSszLifespanStartDate" id="lblSszLifespanStartDate" style="font-size: 13px !important;">Lifespan Start Date</label>
+                                            <p class="font-small text-danger" id="txtSszLifespanStartDateErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszLifespanRemaining" class="form-control" disabled>
+                                            <label for="txtSszLifespanRemaining" id="lblSszLifespanRemaining" style="font-size: 13px !important;">Remaining Lifespan</label>
+                                            <p class="font-small text-danger" id="txtSszLifespanRemainingErr"></p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszLifespanAlert" class="form-control">
-                                        <label for="txtSszLifespanAlert" id="lblSszLifespanAlert">Lifespan Alert</label>
-                                        <p class="font-small text-danger" id="txtSszLifespanAlertErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszLifespanStartDate" class="form-control">
-                                        <label for="txtSszLifespanStartDate" id="lblSszLifespanStartDate" style="font-size: 13px !important;">Lifespan Start Date</label>
-                                        <p class="font-small text-danger" id="txtSszLifespanStartDateErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszLifespanRemaining" class="form-control">
-                                        <label for="txtSszLifespanRemaining" id="lblSszLifespanRemaining" style="font-size: 13px !important;">Remaining Lifespan</label>
-                                        <p class="font-small text-danger" id="txtSszLifespanRemainingErr"></p>
-                                    </div>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     <div class="title-box mb-3">
@@ -616,8 +618,8 @@
                     </div>
                 </div>
                 <div class="card-footer p-1">
-                    <button type="button" id="btnSszCostingUpdate" class="btn btn-outline-deep-orange waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-edit mr-1"></i> Update Costing
+                    <button type="button" id="btnSszUpdateCosting" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
+                        <i class="fas fa-edit mr-1"></i> Update Asset Information
                     </button>
                 </div>
             </div>

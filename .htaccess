@@ -37,6 +37,8 @@ RewriteRule ^p_ppm_asset/?$ ppm_asset.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
+RewriteRule ^ast_asset/?$ api/ast_asset.php
+RewriteRule ^ast_asset/(.+)/?$ api/ast_asset.php
 RewriteRule ^ast_part/?$ api/ast_part.php
 RewriteRule ^ast_part/(.+)/?$ api/ast_part.php
 RewriteRule ^att_group/?$ api/att_group.php
