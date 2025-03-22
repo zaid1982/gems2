@@ -2134,3 +2134,34 @@ function mzNullString (id) {
     }
     return value;
 }
+
+function mzNullFloat (id, isZero) {
+    const returnVal = parseFloat($('#'+id).val());
+    if (!mzValidNumeric(returnVal)) {
+        if (typeof isZero !== 'undefined' && isZero === true) {
+            return 0;
+        }
+        return null;
+    }
+    return returnVal;
+}
+
+function mzNullFloat2 (value, isZero) {
+    const returnVal = parseFloat(value);
+    if (!mzValidNumeric(returnVal)) {
+        if (typeof isZero !== 'undefined' && isZero === true) {
+            return 0;
+        }
+        return null;
+    }
+    return returnVal;
+}
+
+function mzNullCheckbox (fieldName, isInt) {
+    let returnVal = [];
+    $("input[name='"+fieldName+"[]']:checked").map(function(){
+        const val = typeof isInt !== 'undefined' && isInt === true ? parseInt($(this).val()) : $(this).val();
+        returnVal.push(val);
+    });
+    return returnVal;
+}

@@ -193,27 +193,27 @@
                                     <p class="font-small text-danger" id="txtSszAssetContractorErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-4 px-2">
+                            <div class="col-md-6 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetWarranty" class="form-control">
                                     <label for="txtSszAssetWarranty" id="lblSszAssetWarranty">Warranty / Contract</label>
                                     <p class="font-small text-danger" id="txtSszAssetWarrantyErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-4 px-2">
+                            <div class="col-md-6 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetWarrantyExpDate" class="form-control datepicker">
                                     <label for="txtSszAssetWarrantyExpDate" id="lblSszAssetWarrantyExpDate">Warranty Expired Date</label>
                                     <p class="font-small text-danger" id="txtSszAssetWarrantyExpDateErr"></p>
                                 </div>
-                            </div>
+                            </div><!--
                             <div class="col-md-4 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetLifeCycle" class="form-control">
                                     <label for="txtSszAssetLifeCycle" id="lblSszAssetLifeCycle">Life Cycle</label>
                                     <p class="font-small text-danger" id="txtSszAssetLifeCycleErr"></p>
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="col-md-12 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetWarrantyNotes" class="form-control">
@@ -228,7 +228,7 @@
                                     <p class="font-small text-danger" id="txtSszAssetTechnicianNotesErr"></p>
                                 </div>
                             </div>
-                            <div class="col-md-4 px-2">
+                            <!--<div class="col-md-4 px-2">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetPurchasePrice" class="form-control">
                                     <label for="txtSszAssetPurchasePrice" id="lblSszAssetPurchasePrice">Purchase Price (RM)</label>
@@ -269,7 +269,7 @@
                                     <label for="txtSszAssetLifetimeDate" id="lblSszAssetLifetimeDate">Lifetime Date</label>
                                     <p class="font-small text-danger" id="txtSszAssetLifetimeDateErr"></p>
                                 </div>
-                            </div>
+                            </div>-->
                            <!-- <div class="col-md-12 divSszRegisterInfo">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSszAssetRegisteredBy" class="form-control" disabled>
@@ -423,7 +423,7 @@
             </div>
             <div class="card profile-card mt-4">
                 <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Asset Information</h5>
+                    <h5 class="font-weight-bold text-center mt-2">Asset Value Information</h5>
                 </div>
                 <div class="card-body mt-2 p-2">
                     <div class="title-box mb-3">
@@ -464,31 +464,40 @@
                         </div>
                     </div>
                     <div class="title-box mb-3">
-                        <div class="title-box-title">&nbsp;Asset Value&nbsp;</div>
+                        <div class="title-box-title">&nbsp;Asset Value<span class="text-danger ml-3" id="spanSszDepreciationAlert"><i class="far fa-exclamation-triangle"></i> Depreciation Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
-                            <div class="row">
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszValueDepreciation" class="form-control">
-                                        <label for="txtSszValueDepreciation" id="lblSszValueDepreciation">Depreciation (%)</label>
-                                        <p class="font-small text-danger" id="txtSszValueDepreciationErr"></p>
+                            <form id="formSszValue">
+                                <div class="row">
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszValuePurchasePrice" class="form-control">
+                                            <label for="txtSszValuePurchasePrice" id="lblSszValuePurchasePrice" style="font-size: 14px !important;">Purchase Price (RM)</label>
+                                            <p class="font-small text-danger" id="txtSszValuePurchasePriceErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszValueDepreciation" class="form-control">
+                                            <label for="txtSszValueDepreciation" id="lblSszValueDepreciation">Depreciation (%)</label>
+                                            <p class="font-small text-danger" id="txtSszValueDepreciationErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszValueAlert" class="form-control">
+                                            <label for="txtSszValueAlert" id="lblSszValueAlert">Value Alert</label>
+                                            <p class="font-small text-danger" id="txtSszValueAlertErr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 px-2">
+                                        <div class="md-form md-outline my-0">
+                                            <input type="text" id="txtSszValueRemaining" class="form-control" disabled>
+                                            <label for="txtSszValueRemaining" id="lblSszValueRemaining" style="font-size: 13px !important;">Remaining Value (RM)</label>
+                                            <p class="font-small text-danger" id="txtSszValueRemainingErr"></p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszValueAlert" class="form-control">
-                                        <label for="txtSszValueAlert" id="lblSszValueAlert">Value Alert</label>
-                                        <p class="font-small text-danger" id="txtSszValueAlertErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 px-2">
-                                    <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszValueRemaining" class="form-control">
-                                        <label for="txtSszValueRemaining" id="lblSszValueRemaining" style="font-size: 13px !important;">Remaining Value (RM)</label>
-                                        <p class="font-small text-danger" id="txtSszValueRemainingErr"></p>
-                                    </div>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     <div class="title-box mb-3">
@@ -619,7 +628,7 @@
                 </div>
                 <div class="card-footer p-1">
                     <button type="button" id="btnSszUpdateCosting" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
-                        <i class="fas fa-edit mr-1"></i> Update Asset Information
+                        <i class="fas fa-edit mr-1"></i> Update Asset Value
                     </button>
                 </div>
             </div>
