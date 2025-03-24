@@ -131,9 +131,11 @@ function MainHome() {
                     if (reportId === '1') {
                         reportType = 'Planned Preventive Maintenance (PPM) Report';
                         $('#navHmeReportType').text('PPM');
+                        $('#btnHmeDownloadImageDo').hide();
                     } else if (reportId === '2') {
                         reportType = 'Work Order Report';
                         $('#navHmeReportType').text('Work Order');
+                        $('#btnHmeDownloadImageDo').show();
                     }
                     //self.runChart();
                 }
@@ -575,15 +577,23 @@ function MainHome() {
         }).container().appendTo($('#btnDtHmeDataPpmExport'));
 
         $('#btnDtHmeDataPpmRefresh').on('click', function () {
-            ShowLoader();
-            setTimeout(function () {
+            ShowLoader(); setTimeout(function () {
                 try {
                     self.genTableHmeDataPpm();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 300);
+                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+            HideLoader(); }, 300);
+        });
+
+        $('#btnHmeDownloadImageDo').on('click', function () {
+            ShowLoader(); setTimeout(function () {
+                const data = {
+                    clientId: parseInt(clientId),
+                    dateFrom: mzConvertDate($('#txtHmeDateFrom').val()),
+                    dateTo: mzConvertDate($('#txtHmeDateTo').val())
+                };
+                mzFetch('wo_image_zip', 'POST', data, true, false, true).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                toastr['success']('Your request successfully submitted. The zip file of selected WO Images will be ready in the Notification once finished.', _ALERT_TITLE_SUCCESS);
+            HideLoader(); }, 300);
         });
 
         self.runChart();

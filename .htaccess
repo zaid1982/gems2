@@ -147,5 +147,7 @@ RewriteRule ^wo_task_public/?$ api/wo_task_public.php
 RewriteRule ^wo_task_public/(.+)/?$ api/wo_task_public.php
 RewriteRule ^wo_task_upload/?$ api/wo_task_upload.php
 RewriteRule ^wo_task_upload/(.+)/?$ api/wo_task_upload.php
+RewriteRule ^wo_image_zip/?$ api/wo_image_zip.php
+RewriteRule ^wo_image_zip/(.+)/?$ api/wo_image_zip.php
 RewriteRule ^zone/?$ api/zone.php
 RewriteRule ^zone/(.+)/?$ api/zone.php

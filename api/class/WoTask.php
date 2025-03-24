@@ -455,6 +455,7 @@ class WoTask extends General {
      */
     public function updateByAdmin (int $woTaskId, array $columns): bool {
         try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($woTaskId, 'woTaskId');
             $woTask = $this->get($woTaskId);
             $params = parent::arraySpliceAssoc($columns, array('woTaskComplaint'));
@@ -472,6 +473,67 @@ class WoTask extends General {
             DbMysql::update($this::$tableName, $params, array('woTaskId'=>$woTaskId));
             $this->auditRemark = 'Work Order no. = ' . $woTask['woTaskNo'];
             return true;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $params
+     * @return string
+     * @throws Exception
+     */
+    public function prepareImageZip (array $params): string {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkMandatoryArray($params, array('clientId', 'dateFrom', 'dateTo'));
+            $folder = 'upload/wo/zip_image/';
+            if (!parent::folderExist($folder)) {
+                mkdir ($folder,0777, true);
+            }
+            $currentTime = new DateTime();
+            $timeStr = $currentTime->format('YmdHis');
+            $zip = new ZipArchive();
+            $zipFile = $folder.'woImages_'.$timeStr.'.zip';
+            $flag = (file_exists($zipFile))? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE;
+            $totalFile = 1;
+            if ($zip->open($zipFile, $flag) === true){
+                $uploadList = DbMysql::selectSqlAll( /** @lang text */
+                    "SELECT
+                            wo.wo_task_no, upl.document_id, upl.upload_folder, upl.upload_filename, upl.upload_extension
+                        FROM sys_upload upl 
+                        LEFT JOIN wo_task_upload wup ON wup.upload_id = upl.upload_id
+                        LEFT JOIN wo_task wo ON wo.wo_task_id = wup.wo_task_id
+                        LEFT JOIN cli_site site ON site.site_id = wo.site_id",
+                    array('site.clientId'=>$params['clientId'], 'upl.documentId'=>'IN|9,10,11,12', 'date(wo.woTaskTimeCreated)'=>'>=|'.$params['dateFrom'], 'date(wo.woTaskTimeCreated) '=>'<=|'.$params['dateTo']), 0, 0, 'wo.wo_task_no');
+                foreach ($uploadList as $row) {
+                    $filenameSrc = $row['uploadFolder'].'/'.$row['uploadFilename'].'.'.$row['uploadExtension'];
+                    if (file_exists($filenameSrc)) {
+                        //parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, '$row = '.json_encode($row));
+                        if ($row['documentId'] === 9) {
+                            $name = $row['woTaskNo'].'_'.$totalFile.'_complaint';
+                        } else if ($row['documentId'] === 10) {
+                            $name = $row['woTaskNo'].'_'.$totalFile.'_before';
+                        } else if ($row['documentId'] === 11) {
+                            $name = $row['woTaskNo'].'_'.$totalFile.'_during';
+                        } else if ($row['documentId'] === 12) {
+                            $name = $row['woTaskNo'].'_'.$totalFile.'_after';
+                        } else {
+                            continue;
+                        }
+                        $zip->addFile($filenameSrc, '/'.$row['woTaskNo'].'/'.$name.'.'.$row['uploadExtension']);
+                        $totalFile++;
+                    }
+                }
+                $zip->close();
+            } else{
+                throw new Exception('Issue to create zip file');
+            }
+            if ($totalFile === 0) {
+                return 'No WO image available!';
+            } else {
+                return 'api/'.$zipFile;
+            }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -708,7 +708,7 @@ function mzAjaxRequest3 (url, type, data, functionStr) {
     return returnVal;
 }
 
-async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
+async function mzFetch(url, type, data, isHideLoader, isHideSuccess, isForget) {
     if (typeof isHideLoader === 'undefined') {
         isHideLoader = true;
     }
@@ -717,6 +717,9 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
     }
     if (typeof type === 'undefined') {
         type = 'GET';
+    }
+    if (typeof isForget === 'undefined') {
+        isForget = false;
     }
     try {
         let header = {
@@ -736,6 +739,9 @@ async function mzFetch(url, type, data, isHideLoader, isHideSuccess) {
         const response = await fetch(url, params);
         if (!response.ok) {
             throw new Error(response.statusText);
+        }
+        if (isForget) {
+            return;
         }
         const resp = await response.json();
         if (resp.success) {
@@ -900,11 +906,18 @@ function mzNotificationGenerate () {
         divElement.html('');
         if (typeof res['total'] !== 'undefined' && typeof res['data'] !== 'undefined') {
             for (const row of res['data']) {
+                let linkTo = '';
+                if (row['notiWebType'] === 4) {
+                    linkTo = '<a onclick="mzDownloadFile(\''+row['notiWebLink']+'\');"><span>' + row['notiWebText'] + '</span></a><br>\n';
+                } else {
+                    linkTo = '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\');"><span>' + row['notiWebText'] + '</span></a><br>\n';
+                }
+                console.log(linkTo);
                 divElement.append('<div class="dropdown-item ' + row['notiWebColor'] + ' z-depth-1 my-2">\n' +
                     '<i class="fa fa-duotone fa-lg ' + row['notiWebIcon'] + ' mr-1"></i>\n' +
-                    '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\')"><span>' + row['notiWebText'] + '</span></a>\n' +
-                    '<p class="float-left" style="font-size: 12px">' + row['notiWebTitle'] + '</p>\n' +
-                    '<p class="text-right mb-0" style="font-size: 12px"><i class="fa fa-regular fa-clock"></i> ' + mzDurationSimple (row['notiWebTimestamp'], '') + ' ago <a onclick="mzNotificationDelete('+row['notiWebId']+')"><i class="fa fa-trash fa-duotone ml-1"></i></a></p>\n' +
+                    linkTo +
+                    '<p class="float-right mb-0" style="font-size: 12px"><i class="fa fa-regular fa-clock"></i> ' + mzDurationSimple (row['notiWebTimestamp'], '') + ' ago <a onclick="mzNotificationDelete('+row['notiWebId']+');"><i class="fa fa-trash fa-duotone ml-1"></i></a></p>\n' +
+                    '<p class="text-left mb-0" style="font-size: 12px">' + row['notiWebTitle'] + '</p>\n' +
                     '</div>');
             }
             const totalLatest = res['total'] > 50 ? 50 : res['total'];
@@ -1995,6 +2008,24 @@ function mzOpenUpload (uploadId) {
             let link = document.createElement("a");
             link.download = updloadSrc['filename'];
             link.href = updloadSrc['src'];
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            delete link;
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+}
+
+function mzDownloadFile (file) {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            let link = document.createElement("a");
+            link.download = 'wo_images.zip';
+            link.href = file;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

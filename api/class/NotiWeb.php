@@ -11,6 +11,21 @@ class NotiWeb extends General {
     }
 
     /**
+     * @param int $id
+     * @return array
+     * @throws Exception
+     */
+    public function get (int $id): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($id, 'id');
+            return DbMysql::select($this::$tableName, array($this::$idName=>$id), 1);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @return array
      * @throws Exception
      */
@@ -54,6 +69,12 @@ class NotiWeb extends General {
                 $columns['notiWebLink'] = 'p_wo_verify';
                 $columns['navId'] = 23;
                 $columns['navSecondId'] = 55;
+            } else if ($type === 4) {
+                $columns['notiWebText'] = '<b>WO Images</b> zip file';
+                $columns['notiWebTitle'] = 'WO Images';
+                $columns['notiWebIcon'] = 'fa-file-zipper';
+                $columns['notiWebColor'] = 'tempting-azure-gradient';
+                $columns['notiWebLink'] = $info;
             }
             if (isset($columns['notiWebText'])) {
                 DbMysql::insert($this::$tableName, $columns);
@@ -72,6 +93,13 @@ class NotiWeb extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($notiWebId, $this::$idName);
+            $notiWeb = $this->get($notiWebId);
+            if ($notiWeb['notiWebType'] === 4) {
+                $fileLink = str_replace('api/', '', $notiWeb['notiWebLink']);
+                if (file_exists($fileLink)) {
+                    unlink($fileLink);
+                }
+            }
             DbMysql::delete($this::$tableName, array($this::$idName=>$notiWebId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
