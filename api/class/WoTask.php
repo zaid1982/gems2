@@ -345,6 +345,32 @@ class WoTask extends General {
     }
 
     /**
+     * @param int $transactionId
+     * @return void
+     * @throws Exception
+     */
+    public function rejectAssign (int $transactionId): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
+            parent::checkEmptyInteger($transactionId, 'transactionId');
+            if ($this->woTaskIsWr === 1) {
+                $woStatus = 27;
+                $columns['woTaskIsPdfWr'] = 1;
+            } else {
+                $woStatus = 13;
+                $columns['woTaskIsPdf'] = 1;
+            }
+            $columns['woTaskStatus'] = 25;
+            DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
+            DbMysql::update('wfl_transaction', array('transactionStatus'=>$woStatus), array('transactionId'=>$transactionId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param array $columns
      * @param int $transactionId
      * @return void

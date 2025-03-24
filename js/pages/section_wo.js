@@ -24,6 +24,7 @@ function SectionWo () {
     let oTableMaterials;
     let oTableAssistants;
     let isSubmitted = false;
+    let modalWoRejectClass;
 
     const vDataSwoa = [
         {
@@ -271,6 +272,10 @@ function SectionWo () {
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
+        $('#btnSwoaReject').on('click', function () {
+            modalWoRejectClass.load(woTaskId);
+        });
+
         $('#btnSwovSubmit').on('click', function () {
             try {
                 if (!formValidateSwov.validateNow()) {
@@ -296,6 +301,15 @@ function SectionWo () {
                 }
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
+    };
+
+    this.afterReject = function () {
+        try {
+            isSubmitted = true;
+            self.loadDetails(woTaskId);
+            $('.divSwoAssign').hide();
+            $('.divSwoImageLeft').show();
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     };
     
     this.assign = function (_woTaskId) {
@@ -410,6 +424,7 @@ function SectionWo () {
                 }
 
                 if (_type === 'assign') {
+                    $('#btnSwoaReject').hide();
                     const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId='+woTask['siteId'], 'GET');
                     mzOptionStop('optSwoaSeverity', arrSeverity, 'Select Severity', 'severityId', 'severityName', {}, 'required');
                     mzOptionStop('optSwoaPpmGroup', refPpmGroup, 'Select Executor Group', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: woTask['siteId'].toString(), roleId:'8'}, 'required');
@@ -418,13 +433,18 @@ function SectionWo () {
                     formValidateSwoa.clearValidation();
                     mzSetFieldValue('SwoaType', woTask['woTaskType'], 'select');
                     mzDisableSelect('optSwoaType', woTask['woTaskType'] === 2 || woTask['woTaskType'] === 6);
+                    if (woTask['woTaskType'] === 6) {
+                        $('#btnSwoaReject').show();
+                    }
                 } else if (_type === 'verify') {
                     formValidateSwov.clearValidation();
                     $('#optSwovRating_').hide();
                     formValidateSwov.disableField('optSwovRating_');
                 }
 
-                if (woTask['woTaskStatus'] !== 24) {
+                if (woTask['woTaskStatus'] === 25) {
+                    $('.divSwoAssigned').hide();
+                } else if (woTask['woTaskStatus'] !== 24) {
                     $('#pSwoGroup').text(mzNullToValue(woTask['ppmGroupId'], '-', 'ppmGroupName', refPpmGroup));
                     $('#pSwoTechnicianName').text(mzNullToValue(woTask['woTaskAssignedTo'], '-', 'userFirstName', refUser));
                     $('#pSwoTechnicianPhoneNo').text(mzNullToValue(woTask['woTaskAssignedTo'], '-', 'userContactNo', refUser));
@@ -568,5 +588,9 @@ function SectionWo () {
     
     this.getIsSubmitted = function () {
         return isSubmitted;
+    };
+
+    this.setModalWoRejectClass = function (_modalWoRejectClass) {
+        modalWoRejectClass = _modalWoRejectClass;
     };
 }

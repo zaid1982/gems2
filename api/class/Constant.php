@@ -133,7 +133,8 @@ class Constant {
         'submitVerify' => 'Work Order successfully verified and closed!',
         'assign' => 'Work Order successfully assigned!',
         'reassign' => 'Work Order successfully reassigned!',
-        'update' => 'Work Order successfully updated!'
+        'update' => 'Work Order successfully updated!',
+        'reject' => 'Work Order successfully rejected because Out of Scope!!'
     );
 
     public static $ppm = array(

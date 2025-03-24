@@ -149,6 +149,23 @@ try {
             $fnMain->saveAudit(129, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTask['woTaskNo']);
             $formData['errmsg'] = Constant::$wo['assign'];
         }
+        else if ($urlArr[1] === 'reject_complaint' && isset($urlArr[2])) {
+            $woTaskId = intval($urlArr[2]);
+            $woTask = $fnMain->get($woTaskId);
+            if ($woTask['woTaskType'] !== 6) {
+                throw new Exception('[line: ' . __LINE__ . '] - This task is not Public Complaint type!', 31);
+            }
+            $fnTask->userId = $fnMain->userId;
+            $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
+            $fnTask->setByTransaction($woTask['transactionId']);
+            $fnTask->checkValidity($fnMain->woTaskIsWr === 1 ? 17 : 12);
+            $fnMain->rejectAssign($woTask['transactionId']);
+            $fnTask->submit($bodyParams['remark'], 25, 25, 1);
+            $woTaskPublic = DbMysql::select('wo_task_public', array('woTaskId'=>$woTaskId), true);
+            $fnEmail->prepare(1, 10, array('task_no' => $woTask['woTaskNo'], 'comment'=>$bodyParams['remark']), $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+            $fnMain->saveAudit(122, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTask['woTaskNo']);
+            $formData['errmsg'] = Constant::$wo['reject'];
+        }
         else if ($urlArr[1] === 'reassign' && isset($urlArr[2])) {
             $woTaskId = intval($urlArr[2]);
             $woTask = $fnMain->get($woTaskId);

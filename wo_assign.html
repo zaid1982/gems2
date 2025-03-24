@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css?4" rel="stylesheet">
+    <link href="css/style.css?5" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
 
@@ -129,6 +129,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
+    <div class="includeHtml" id="h-modal_wo_reject"></div>
 </main>
 
 <!-- SCRIPTS -->
@@ -170,6 +171,7 @@
 
     let versionLocal_;
     let changePasswordClass_;
+    let modalWoRejectClass_;
     let sectionWoClass_;
     let woAssignClass_;
 
@@ -181,6 +183,7 @@
                 initPhotoSwipeFromDOM('.mdb-lightbox');
                 versionLocal_ = mzGetDataVersion();
                 changePasswordClass_ = new ModalChangePassword();
+                modalWoRejectClass_ = new ModalWoReject();
                 sectionWoClass_ = new SectionWo();
                 woAssignClass_ = new MainWoAssign();
 
@@ -193,11 +196,15 @@
                 const userInfo = mzGetProfile();
                 $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
 
+                modalWoRejectClass_.setClassFrom(sectionWoClass_);
+                modalWoRejectClass_.init();
+
                 sectionWoClass_.setRefStatus(refStatus_);
                 sectionWoClass_.setRefUser(refUser_);
                 sectionWoClass_.setRefSite(refSite_);
                 sectionWoClass_.setRefSeverity(refSeverity_);
                 sectionWoClass_.setRefPpmGroup(refPpmGroup_);
+                sectionWoClass_.setModalWoRejectClass(modalWoRejectClass_);
                 sectionWoClass_.setClassFrom(woAssignClass_);
                 sectionWoClass_.init();
 
@@ -214,6 +221,7 @@
     });
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_wo_reject.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_wo_assign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
