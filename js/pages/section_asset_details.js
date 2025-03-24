@@ -26,7 +26,8 @@ function SectionAssetDetails() {
     let qrCodeImg;
     let oTableSszWo;
     let oTableSszPpm;
-    let assetStatus;let refWoType = {
+    let assetStatus;
+    let refWoType = {
         1: 'Client Complaint',
         2: 'Self Finding',
         3: 'Request',
@@ -34,7 +35,11 @@ function SectionAssetDetails() {
         5: 'Defect',
         6: 'Public Complaint'
     };
-    let cntLiftCycleCost = 0
+    let cntLifeCycleCost = 0;
+    let cntMeanTime = 0;
+    let contractId;
+    let woTaskHistory;
+    let lifespanStartDate;
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -436,6 +441,44 @@ function SectionAssetDetails() {
                     notEmpty: false,
                     maxLength: 30
                 }
+            },
+            {
+                field_id: 'txtSszMtbfValue',
+                type: 'text',
+                name: 'MTBF',
+                validator: {
+                    notEmpty: false
+                }
+            },
+            {
+                field_id: 'txtSszMtbfAlert',
+                type: 'text',
+                name: 'MTBF Alert',
+                validator: {
+                    notEmpty: false,
+                    digit: true,
+                    max: 10000,
+                    min: 0
+                }
+            },
+            {
+                field_id: 'txtSszMttrValue',
+                type: 'text',
+                name: 'MTTR',
+                validator: {
+                    notEmpty: false
+                }
+            },
+            {
+                field_id: 'txtSszMttrAlert',
+                type: 'text',
+                name: 'MTTR Alert',
+                validator: {
+                    notEmpty: false,
+                    digit: true,
+                    max: 100000,
+                    min: 0
+                }
             }
         ];
 
@@ -664,7 +707,9 @@ function SectionAssetDetails() {
                         assetDisposalStatus: $("input[name='chkSszDisposalStatus']:checkbox").is(":checked") ? 1 : null,
                         assetDisposalDate: mzConvertDate2('txtSszDisposalDate'),
                         assetDisposalItemCost: mzNullFloat('txtSszDisposalItemCost'),
-                        assetDisposalServiceCost: mzNullFloat('txtSszDisposalServiceCost')
+                        assetDisposalServiceCost: mzNullFloat('txtSszDisposalServiceCost'),
+                        assetMtbfAlert: mzNullInt('txtSszMtbfAlert'),
+                        assetMttrAlert: mzNullInt('txtSszMttrAlert')
                     };
                     ShowLoader(); setTimeout(function () {
                         mzFetch('ast_asset/'+assetId, 'PUT', data).then(res => {
@@ -710,6 +755,18 @@ function SectionAssetDetails() {
         $('#txtSszDisposalServiceCost').on('keyup', function () {
             try {
                 self.calculateLifeCycleCost();
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszMtbfAlert').on('keyup', function () {
+            try {
+                self.calculateMtbf(false);
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        });
+
+        $('#txtSszMttrAlert').on('keyup', function () {
+            try {
+                self.calculateMttr();
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
@@ -943,7 +1000,7 @@ function SectionAssetDetails() {
         const assetBrandId = dataSsz['assetBrandId'];
         const assetModelId = dataSsz['assetModelId'];
         const ppmGroupId = dataSsz['ppmGroupId'];
-        const contractId = dataSsz['contractId'];
+        contractId = dataSsz['contractId'];
         assetStatus = dataSsz['assetStatus'];
         const siteId = refContract[contractId]['siteId'];
         const clientId = refSite[siteId]['clientId'];
@@ -1016,11 +1073,14 @@ function SectionAssetDetails() {
 
         qrCodeImg.makeCode(dataSsz['assetNo']);
 
-        cntLiftCycleCost = 0
+        cntLifeCycleCost = 0;
+        cntMeanTime = 0;
+        lifespanStartDate = null;
         mzFetch('ast_asset/'+assetId).then(res => {
             mzSetFieldValue('txtSszLifespanYear', res['assetLifespanYear']);
             mzSetFieldValue('txtSszLifespanAlert', res['assetLifespanAlert']);
             mzSetFieldValue('txtSszLifespanStartDate', mzConvertDateDisplay(res['assetLifespanStartDate']));
+            lifespanStartDate = res['assetLifespanStartDate'];
             self.calculateLifespan();
             mzSetFieldValue('txtSszValuePurchasePrice', res['assetPurchasePrice']);
             mzSetFieldValue('txtSszValueDepreciation', res['assetValueDepreciation']);
@@ -1033,8 +1093,13 @@ function SectionAssetDetails() {
             mzSetFieldValue('txtSszDisposalItemCost', res['assetDisposalItemCost']);
             mzSetFieldValue('txtSszDisposalServiceCost', res['assetDisposalServiceCost']);
             self.checkDisposal(res['assetDisposalStatus'] === 1);
-            cntLiftCycleCost++;
+            cntLifeCycleCost++;
             self.calculateLifeCycleCost();
+            mzSetFieldValue('txtSszMtbfAlert', res['assetMtbfAlert']);
+            mzSetFieldValue('txtSszMttrAlert', res['assetMttrAlert']);
+            cntMeanTime++;
+            self.calculateMtbf(true);
+            self.calculateMttr();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
 
         mzFetch('ast_asset/repairCost/'+assetId).then(res => {
@@ -1043,7 +1108,7 @@ function SectionAssetDetails() {
                 mzSetFieldValue('txtSszLifeCycleCost', mzFormatNumber(res, 2)); // to be put in disposal calculation function
             }
             self.calculateRepair();
-            cntLiftCycleCost++;
+            cntLifeCycleCost++;
             self.calculateLifeCycleCost();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
     };
@@ -1112,7 +1177,7 @@ function SectionAssetDetails() {
 
     this.calculateLifeCycleCost = function () {
         try {
-            if (cntLiftCycleCost === 2) {
+            if (cntLifeCycleCost === 2) {
                 const repairCost = mzNullFloat('txtSszRepairCost', true);
                 const disposalCost = mzNullFloat('txtSszDisposalServiceCost', true);
                 mzSetFieldValue('txtSszLifeCycleCost', mzFormatNumber(repairCost + disposalCost, 2));
@@ -1133,6 +1198,50 @@ function SectionAssetDetails() {
             formValidate2.disableField('txtSszDisposalDate', !isChecked);
             formValidate2.disableField('txtSszDisposalItemCost', !isChecked);
             formValidate2.disableField('txtSszDisposalServiceCost', !isChecked);
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
+
+    this.calculateMtbf = function (isInit) {
+        try {
+            const contractDateStartStr = (refContract[contractId]['contractDateStart']).replaceAll('/', '-');
+            const contractDateEndStr = (refContract[contractId]['contractDateEnd']).replaceAll('/', '-');
+            if (cntMeanTime === 2) {
+                $('#spanSszMtbfAlert').hide();
+                const dateStart = lifespanStartDate !== null && lifespanStartDate > contractDateStartStr ? moment(lifespanStartDate) :  moment(contractDateStartStr);
+                const dateEnd = moment(contractDateEndStr);
+                const dateDiff = dateEnd.diff(dateStart, 'day')/(woTaskHistory.length+1);
+                if (isInit) {
+                    mzSetFieldValue('txtSszMtbfValue', dateDiff);
+                }
+                const mtbfAlert = mzNullFloat('txtSszMtbfAlert', true);
+                if (mtbfAlert > dateDiff) {
+                    $('#spanSszMtbfAlert').show();
+                }
+            }
+        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
+    }
+
+    this.calculateMttr = function () {
+        try {
+            if (cntMeanTime === 2) {
+                $('#spanSszMttrAlert').hide();
+                const mttralert = mzNullFloat('txtSszMttrAlert', true);
+                let totalMttr = 0;
+                let cntMttr = 0;
+                for (const row of woTaskHistory) {
+                    if (row['woTaskTimeAssigned'] !== null) { //  woTaskTimeExecuted
+                        console.log(row);
+                        const dateStart = moment(row['woTaskTimeCreated']);
+                        const dateEnd = moment(row['woTaskTimeAssigned']);
+                        totalMttr += dateEnd.diff(dateStart, 'hour');
+                        cntMttr++;
+                    }
+                }
+                mzSetFieldValue('txtSszMttrValue', totalMttr/cntMttr);
+                if (cntMttr > 0 && totalMttr/cntMttr > mttralert) {
+                    $('#spanSszMttrAlert').show();
+                }
+            }
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
     }
 
@@ -1303,6 +1412,10 @@ function SectionAssetDetails() {
     this.genTableWo = function () {
         ShowLoader(); setTimeout(function () { mzFetch('wo_v3/by_assetId/'+assetId).then(res => {
             oTableSszWo.clear().rows.add(res).draw();
+            woTaskHistory = res;
+            cntMeanTime++;
+            self.calculateMtbf(true);
+            self.calculateMttr();
         }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
     };
 

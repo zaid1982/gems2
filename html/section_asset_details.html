@@ -584,14 +584,14 @@
                         </div>
                     </div>
                     <div class="title-box mb-3">
-                        <div class="title-box-title">&nbsp;Mean Time Between Failures (MTBF)&nbsp;</div>
+                        <div class="title-box-title">&nbsp;Mean Time Between Failures (MTBF)<span class="text-danger ml-3" id="spanSszMtbfAlert"><i class="far fa-exclamation-triangle"></i> MTBF Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
                             <div class="row">
                                 <div class="col-xl-6 px-2">
                                     <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszMtbfMonth" class="form-control">
-                                        <label for="txtSszMtbfMonth" id="lblSszMtbfMonth">MTBF (month)</label>
-                                        <p class="font-small text-danger" id="txtSszMtbfMonthErr"></p>
+                                        <input type="text" id="txtSszMtbfValue" class="form-control" disabled>
+                                        <label for="txtSszMtbfValue" id="lblSszMtbfValue">MTBF (days)</label>
+                                        <p class="font-small text-danger" id="txtSszMtbfValueErr"></p>
                                     </div>
                                 </div>
                                 <div class="col-xl-6 px-2">
@@ -605,14 +605,14 @@
                         </div>
                     </div>
                     <div class="title-box">
-                        <div class="title-box-title">&nbsp;Mean Time to Repair&nbsp;</div>
+                        <div class="title-box-title">&nbsp;Mean Time to Repair (MTTR)<span class="text-danger ml-3" id="spanSszMttrAlert"><i class="far fa-exclamation-triangle"></i> MTTR Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
                             <div class="row">
                                 <div class="col-xl-6 px-2">
                                     <div class="md-form md-outline my-0">
-                                        <input type="text" id="txtSszMttrHour" class="form-control">
-                                        <label for="txtSszMttrHour" id="lblSszMttrHour">MTTR (hour)</label>
-                                        <p class="font-small text-danger" id="txtSszMttrHourErr"></p>
+                                        <input type="text" id="txtSszMttrValue" class="form-control" disabled>
+                                        <label for="txtSszMttrValue" id="lblSszMttrValue">MTTR (hour)</label>
+                                        <p class="font-small text-danger" id="txtSszMttrValueErr"></p>
                                     </div>
                                 </div>
                                 <div class="col-xl-6 px-2">
