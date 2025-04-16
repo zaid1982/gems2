@@ -797,6 +797,8 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter groupId empty');
             }
 
+            $attTypeArr = Class_db::getInstance()->db_select_cols('att_type', array('att_type_id', 'att_type_name'), array('att_type_mode'=>"('Leave','Training')", 'att_type_status'=>'1'));
+
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('mw_ppm_group_user', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'user_status'=>'1'));
             foreach ($arr_dataLocal as $dataLocal) {
