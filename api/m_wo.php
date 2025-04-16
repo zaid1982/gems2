@@ -50,10 +50,13 @@ try {
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();
-    if (!isset($headers['authorization'])) {
-        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+    if (isset($headers['Authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    } else if (isset($headers['authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['authorization']);
+    } else {
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty - '.json_encode($headers));
     }
-    $jwt_data = $fn_login->check_jwt($headers['authorization']);
     $fn_wo->__set('userId', $jwt_data->userId);
     $fn_noti_web->userId = $jwt_data->userId;
     DbMysql::$userId = $jwt_data->userId;
