@@ -802,6 +802,10 @@ class Class_wo {
             foreach ($arr_dataLocal as $dataLocal) {
                 $row_result['userId'] = $dataLocal['user_id'];
                 $row_result['userName'] = $dataLocal['user_first_name'];
+                $attendance = Class_db::getInstance()->db_select_single('att_transaction', array('user_id'=>$dataLocal['user_id'], 'att_transaction_date'=>'Curdate()'));
+                if (!empty($attendance) && isset($attTypeArr[$attendance['att_type_id']])) {
+                    $row_result['userName'] .= ' ('.$attTypeArr[$attendance['att_type_id']].')';
+                }
                 array_push($result, $row_result);
             }
 
