@@ -44,10 +44,13 @@ try {
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();
-    if (!isset($headers['Authorization'])) {
+    if (isset($headers['Authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    } else if (isset($headers['authorization'])) {
+        $jwt_data = $fn_login->check_jwt($headers['authorization']);
+    } else {
         throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
-    $jwt_data = $fn_login->check_jwt($headers['Authorization']);
 
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
