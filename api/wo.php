@@ -49,7 +49,7 @@ try {
     } else if (isset($headers['authorization'])) {
         $jwt_data = $fn_login->check_jwt($headers['authorization']);
     } else {
-        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+        throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty - '.json_encode($headers));
     }
 
     if ('GET' === $request_method) {
