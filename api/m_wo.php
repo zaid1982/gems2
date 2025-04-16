@@ -64,7 +64,7 @@ try {
     if (!isset($headers['deviceid'])) {
         throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty - '.$headers['deviceid']);
     }
-    $fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
+    //$fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
 
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
