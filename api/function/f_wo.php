@@ -384,7 +384,7 @@ class Class_wo {
                 array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17]),
                 array('sectionName'=>'B', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$arr_status[18]),
                 array('sectionName'=>'C', 'sectionDesc'=>'Images', 'sectionStatus'=>$arr_status[18]),
-                array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$arr_status[18])
+                array('sectionName'=>'D', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$arr_status[18], 'assetNo'=>null)
             );
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
@@ -393,6 +393,9 @@ class Class_wo {
             }
             if ($woTask['wo_task_done_asset'] === '1') {
                 $result[3]['sectionStatus'] = $arr_status[19];
+                if (!empty($woTask['assetId'])) {
+                    $result[3]['assetNo'] = Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$woTask['assetId']), 'asset_no');
+                }
             }
 
             $imgBefore = false;
