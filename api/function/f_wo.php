@@ -471,7 +471,7 @@ class Class_wo {
                 array('sectionName'=>'B', 'sectionDesc'=>'Assign Executor', 'sectionStatus'=>$statusArr[18]),
                 array('sectionName'=>'C', 'sectionDesc'=>'Description of Repair Works', 'sectionStatus'=>$statusArr[18]),
                 array('sectionName'=>'D', 'sectionDesc'=>'Images', 'sectionStatus'=>$statusArr[18]),
-                array('sectionName'=>'E', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18]),
+                array('sectionName'=>'E', 'sectionDesc'=>'Asset No', 'sectionStatus'=>$statusArr[18], 'assetNo'=>null),
                 array('sectionName'=>'F', 'sectionDesc'=>'Assistants', 'sectionStatus'=>$statusArr[18])
             );
 
@@ -484,6 +484,9 @@ class Class_wo {
             }
             if ($woTask['woTaskDoneAsset'] === '1') {
                 $result[4]['sectionStatus'] = $statusArr[19];
+                if (!empty($woTask['assetId'])) {
+                    $result[3]['assetNo'] = Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$woTask['assetId']), 'asset_no');
+                }
             }
             if ($woTask['woTaskDoneAssistant'] === '1') {
                 $result[5]['sectionStatus'] = $statusArr[19];
@@ -707,6 +710,7 @@ class Class_wo {
             $result['woTaskEmail'] = $this->fn_general->clear_null($userProfile['user_email']);
 
             $result['complaintImages'] = $this->get_wo_section_upload_m('1');
+            $result['assetNo'] = !empty($dataLocal['asset_id']) ? Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$dataLocal['asset_id']), 'asset_no') : null;
 
             return $result;
         } catch (Exception $ex) {
