@@ -152,7 +152,7 @@ try {
         else if ($urlArr[1] === 'reject_complaint' && isset($urlArr[2])) {
             $woTaskId = intval($urlArr[2]);
             $woTask = $fnMain->get($woTaskId);
-            if ($woTask['woTaskType'] !== 6) {
+            if ($woTask['woTaskTypeInit'] !== 6) {
                 throw new Exception('[line: ' . __LINE__ . '] - This task is not Public Complaint type!', 31);
             }
             $fnTask->userId = $fnMain->userId;
@@ -203,7 +203,7 @@ try {
             $fnMain->submitVerify($woTask['transactionId'], $bodyParams['rating']);
             $fnEmail->prepare($woTaskAssignedTo, 9, array('task_no' => $woTask['woTaskNo']));
             $fnNoti->prepare($woTaskAssignedTo, 10, array('task_no' => $woTask['woTaskNo']));
-            if ($woTask['woTaskType'] === 6) {
+            if ($woTask['woTaskTypeInit'] === 6) {
                 $woTaskPublic = DbMysql::select('wo_task_public', array('woTaskId'=>$woTaskId), true);
                 $fnEmail->prepare(1, 25, array('task_no' => $woTask['woTaskNo']), $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
             }
