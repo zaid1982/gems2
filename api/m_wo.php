@@ -151,7 +151,7 @@ try {
             $roleId = $fn_wo->get_role_id_from_user();
             $checkpointId = $roleId==='6'?'11':'10';
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
-            $woTaskNo = $fn_wo->create_wo_no($groupId, false);
+            $woTaskNo = $fn_wo->create_wo_no($groupId, $checkpointId === '10');
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
 			$fn_wo->__set('userId', $jwt_data->userId);
             $isWr = $fn_wo->get_wo_is_wr();
@@ -212,6 +212,12 @@ try {
             $currentTask = $fn_wo->get_current_task('24', '12', '26', '17', '29');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
+            /*if ($isWr) {
+                $roleId = $fn_wo->get_role_id_from_user();
+                $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
+                $woTaskNo = $fn_wo->create_wo_no($groupId);
+                Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
+            }*/
             $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
             $emailTemplateId = $isWr === '1' ? 11 : 5;
             $notiTextId = $isWr === '1' ? 12 : 6;
