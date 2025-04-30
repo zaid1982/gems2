@@ -291,7 +291,7 @@ try {
             $remark = filter_input(INPUT_POST, 'remark');
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 18, $jwt_data->userId);
-            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
+            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, $isRejected === '1' ? '1' : '');
             $roleId = $fn_wo->get_role_id_from_user();
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
             $woTaskNo = $fn_wo->create_wo_no($groupId);
