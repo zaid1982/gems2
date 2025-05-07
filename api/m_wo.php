@@ -102,6 +102,8 @@ try {
             $result = $fn_wo->get_wo_repair_desc_m();
         } else if ($type === 'wo_repair_images') {
             $result = $fn_wo->get_wo_repair_images_m();
+        } else if ($type === 'wo_response_images') {
+            $result = $fn_wo->get_wo_response_images_m();
         } else if ($type === 'preview_pdf') {
             if ($fn_wo->get_wo_is_wr() === '1') {
                 $fn_pdf_wr->__set('woTaskId', $woTaskId);
@@ -356,6 +358,16 @@ try {
             $returnVal = $fn_wo->save_wo_image_m($uploadId, $uploadType, $longitude, $latitude);
             $arrUploadType = $fn_wo->get_upload_type();
             $fn_general->save_audit('114', $jwt_data->userId, 'Work Order no. = '.$returnVal.', upload type = '.$arrUploadType[intval($uploadType)]);
+            $form_data['errmsg'] = $constant::SUC_SAVE;
+        }
+        else if ($action === 'upload_response_image') {
+            $longitude = filter_input(INPUT_POST, 'longitude');
+            $latitude = filter_input(INPUT_POST, 'latitude');
+            $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $uploadId = $fn_general->uploadDocument($fileUpload, 27, $jwt_data->userId);
+            $returnVal = $fn_wo->save_wo_image_m($uploadId, 11, $longitude, $latitude);
+            //$arrUploadType = $fn_wo->get_upload_type();
+            //$fn_general->save_audit('114', $jwt_data->userId, 'Work Order no. = '.$returnVal.', upload type = '.$arrUploadType[intval($uploadType)]);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
         else if ($action === 'save_wo_repair_image_desc') {
