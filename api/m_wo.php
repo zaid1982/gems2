@@ -161,7 +161,7 @@ try {
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
             }
-            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude, $zoneId);
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude, '', $zoneId);
             $fn_wo->__set('woTaskId', $woTaskId);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
             foreach ($nextUsers as $userId) {
