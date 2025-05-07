@@ -27,6 +27,15 @@ function ModalZone () {
                 }
             },
             {
+                field_id: 'txtMznType',
+                type: 'text',
+                name: 'Zone Type',
+                validator: {
+                    notEmpty: true,
+                    maxLength: 100
+                }
+            },
+            {
                 field_id: 'txtMznCode',
                 type: 'text',
                 name: 'Zone Code',
@@ -66,6 +75,7 @@ function ModalZone () {
                     try {
                         const data = {
                             siteId: parseInt($('#optMznSite').val()),
+                            zoneType: $('#txtMznType').val(),
                             zoneName: $('#txtMznName').val(),
                             zoneCode: $('#txtMznCode').val(),
                             zoneStatus: $("input[name='radMznStatus']:checked").val()
@@ -90,6 +100,7 @@ function ModalZone () {
                     try {
                         const data = {
                             siteId: parseInt($('#optMznSite').val()),
+                            zoneType: $('#txtMznType').val(),
                             zoneName: $('#txtMznName').val(),
                             zoneCode: $('#txtMznCode').val(),
                             zoneStatus: $("input[name='radMznStatus']:checked").val()
@@ -142,6 +153,7 @@ function ModalZone () {
                 const data = mzAjaxRequest2('zone/'+zoneId, 'GET');
                 const qrLink = classFrom.getUrlLinkBase() + zoneId;
                 mzSetFieldValue('MznSite', data['siteId'], 'select');
+                mzSetFieldValue('MznType', data['zoneType'], 'text');
                 mzSetFieldValue('MznName', data['zoneName'], 'text');
                 mzSetFieldValue('MznCode', data['zoneCode'], 'text');
                 mzSetFieldValue('MznLink', qrLink, 'text');

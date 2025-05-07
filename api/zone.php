@@ -50,7 +50,7 @@ try {
 
         $fnMain->insert($params);
         $fnMain->updateVersion(38);
-        $fnMain->saveAudit(217, $fnMain->zoneName);
+        $fnMain->saveAudit(218, $fnMain->zoneName);
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['add']);
 
         DbMysql::commit();
@@ -69,7 +69,7 @@ try {
         $isTransaction = true;
         $fnMain->update(intval($urlArr[1]), $params);
         $fnMain->updateVersion(38);
-        $fnMain->saveAudit(218, $fnMain->zoneName);
+        $fnMain->saveAudit(219, $fnMain->zoneName);
         DbMysql::commit();
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['update']);
 
@@ -86,7 +86,7 @@ try {
         $fnMain->set(intval($urlArr[1]));
         $fnMain->delete();
         $fnMain->updateVersion(38);
-        $fnMain->saveAudit(219, $fnMain->zoneName);
+        $fnMain->saveAudit(220, $fnMain->zoneName);
         DbMysql::commit();
         $formData['errmsg'] = str_replace('__', $fnMain->zoneName, Constant::$zone['delete']);
 

@@ -15,7 +15,7 @@ function MainZone () {
         oTableZne = $('#dtZneData').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[1, 'asc'],[2, 'asc']],
+            aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
@@ -25,7 +25,7 @@ function MainZone () {
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                { className: 'text-center', targets: [0, 2, 5] },
+                { className: 'text-center', targets: [0, 3, 6] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
@@ -51,6 +51,7 @@ function MainZone () {
                 {mData: 'siteId', mRender: function(data) {
                         return refSite[data]['siteName'];
                     }},
+                {mData: 'zoneType'},
                 {mData: 'zoneCode'},
                 {mData: 'zoneName'},
                 {mData: 'zoneId', mRender: function(data) {
@@ -81,6 +82,7 @@ function MainZone () {
 
     this.genTable = function () {
         const dataDb = mzAjaxRequest2('zone', 'GET');
+        console.log(dataDb);
         oTableZne.clear().rows.add(dataDb).draw();
     };
 

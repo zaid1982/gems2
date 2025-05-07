@@ -912,7 +912,6 @@ function mzNotificationGenerate () {
                 } else {
                     linkTo = '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\');"><span>' + row['notiWebText'] + '</span></a><br>\n';
                 }
-                console.log(linkTo);
                 divElement.append('<div class="dropdown-item ' + row['notiWebColor'] + ' z-depth-1 my-2">\n' +
                     '<i class="fa fa-duotone fa-lg ' + row['notiWebIcon'] + ' mr-1"></i>\n' +
                     linkTo +

@@ -574,7 +574,7 @@ class Class_general {
     public function getLocationCode () {
         try {
             $refArray = array('');
-            $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code', array(), null, null, 1);
+            $arr_dataLocal = Class_db::getInstance()->db_select('cli_location_code');
             foreach ($arr_dataLocal as $dataLocal) {
                 $refArray[intval($dataLocal['location_code_id'])] = $dataLocal['location_code_name'];
             }

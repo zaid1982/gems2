@@ -49,7 +49,13 @@ class Zone extends General {
     public function getList2(): array {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            return DbMysql::selectAll($this::$tableName, array('siteId'=>$this->userSite, 'zoneStatus'=>1));
+            $returnArr = array();
+            $zoneList = DbMysql::selectAll($this::$tableName, array('siteId'=>$this->userSite, 'zoneStatus'=>1), 0, false, 'zoneType');
+            foreach ($zoneList as $zone) {
+                $type = $zone['zoneType'];
+                $returnArr[$type][] = $zone;
+            }
+            return $returnArr;
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
