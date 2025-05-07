@@ -232,14 +232,21 @@ try {
         else if ($action === 'submit_wr_check') {
             $woTask = $fn_wo->getWoTask($woTaskId);
             $currentTask = $fn_wo->get_current_task('27', '18', '31');
-            $isVerified = filter_input(INPUT_POST, 'isVerified');
+            /*$isVerified = filter_input(INPUT_POST, 'isVerified');
             if ($woTask['woTaskIsPublic'] === '1' && ($isVerified === '0' || $isVerified === '3')) {
                 throw new Exception('[' . __LINE__ . '] - This public complaint cannot be submitted to Client for verification.', 31);
-            }
+            }*/
             $remark = filter_input(INPUT_POST, 'remark');
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 17, $jwt_data->userId);
-            if ($isVerified === '0') {
+
+            $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
+            $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId, $remark);
+            $fn_general->save_audit('131', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
+            $fn_email->setup_email($returnVal['woTaskCreatedBy'], 12, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark, 'suggestion'=>'-'));
+            $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 13, array('task_no'=>$returnVal['woTaskNo'], 'suggestion'=>'-', 'comment'=>$remark));
+
+            /*if ($isVerified === '0') {
                 $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, '1');
                 $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId'], $signatureId, $remark, '0');
                 $fn_general->save_audit('131', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
@@ -285,7 +292,7 @@ try {
                 $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 13, array('task_no'=>$returnVal['woTaskNo'], 'suggestion'=>'INVALID', 'comment'=>$remark));
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter isVerified invalid');
-            }
+            }*/
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'submit_wr_verified') {
