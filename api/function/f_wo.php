@@ -716,6 +716,7 @@ class Class_wo {
 
             $result['complaintImages'] = $this->get_wo_section_upload_m('1');
             $result['assetNo'] = !empty($dataLocal['asset_id']) ? Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$dataLocal['asset_id']), 'asset_no') : null;
+            $result['zoneName'] = !empty($dataLocal['zone_id']) ? Class_db::getInstance()->db_select_col('cli_zone', array('zone_id'=>$dataLocal['zone_id']), 'zone_name') : null;
 
             return $result;
         } catch (Exception $ex) {
