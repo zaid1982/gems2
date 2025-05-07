@@ -599,14 +599,19 @@ class Class_wo {
 
             $arr_status = $this->fn_general->getRefStatus();
             $result = array(
-                array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17])
+                array('sectionName'=>'A', 'sectionDesc'=>'Complaint Details', 'sectionStatus'=>$arr_status[17]),
+                array('sectionName'=>'B', 'sectionDesc'=>'Response Images', 'sectionStatus'=>$arr_status[18])
             );
+
+            if (Class_db::getInstance()->db_count('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'11')) > 0) {
+                $result[1]['sectionStatus'] = $arr_status[19];
+            }
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $remark = Class_db::getInstance()->db_select_col('wfl_task', array('transaction_id'=>$woTask['transaction_id'], 'task_current'=>'2'), 'task_remark', 'task_id DESC');
             if ($woTask['wo_task_status'] === '28' || $woTask['wo_task_status'] === '30' || $woTask['wo_task_status'] === '31') {
                 $validStatus = $woTask['wo_task_is_invalid'] === '1' ? 'Invalid' : 'Valid';
-                array_push($result, array('sectionName'=>'B', 'sectionDesc'=>'Comment', 'sectionStatus'=>$validStatus, 'comment'=>$remark));
+                array_push($result, array('sectionName'=>'C', 'sectionDesc'=>'Comment', 'sectionStatus'=>$validStatus, 'comment'=>$remark));
             }
 
             return $result;
