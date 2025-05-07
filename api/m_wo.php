@@ -138,6 +138,7 @@ try {
             $woTaskComplaint = filter_input(INPUT_POST, 'woTaskComplaint');
             $woTaskLongitude = filter_input(INPUT_POST, 'woTaskLongitude');
             $woTaskLatitude = filter_input(INPUT_POST, 'woTaskLatitude');
+            $zoneId = filter_input(INPUT_POST, 'zoneId');
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             if (!empty($complaintImages)) {
@@ -160,7 +161,7 @@ try {
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
             }
-            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude);
+            $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude, $zoneId);
             $fn_wo->__set('woTaskId', $woTaskId);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
             foreach ($nextUsers as $userId) {

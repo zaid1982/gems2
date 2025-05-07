@@ -226,7 +226,7 @@ class Class_wo {
      * @return mixed
      * @throws Exception
      */
-    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='', $isHelpdesk='') {
+    public function submit_new_complaint ($taskId, $woTaskNo='', $woTaskLocation='', $woTaskComplaint='', $complaintImageUploads=array(), $woTaskLongitude='', $woTaskLatitude='', $isHelpdesk='', $zoneId='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $constant = $this->constant;
@@ -237,9 +237,9 @@ class Class_wo {
             if (empty($woTaskNo)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskNo empty');
             }
-            if (empty($woTaskLocation)) {
+            /*if (empty($woTaskLocation)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_WO_LOCATION_EMPTY, 31);
-            }
+            }*/
             if (empty($woTaskComplaint)) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_WO_DESCRIPTION_EMPTY, 31);
             }
@@ -253,7 +253,7 @@ class Class_wo {
                 $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_id', null, 1);
             }
 
-            $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
+            $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'zone_id'=>$zoneId, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
             if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
