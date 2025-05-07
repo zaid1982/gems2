@@ -43,6 +43,19 @@ class Zone extends General {
     }
 
     /**
+     * @return array
+     * @throws Exception
+     */
+    public function getList2(): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            return DbMysql::selectAll($this::$tableName, array('siteId'=>$this->userSite));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $zoneId
      * @return array
      * @throws Exception

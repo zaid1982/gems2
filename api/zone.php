@@ -33,6 +33,8 @@ try {
             $result = $fnMain->getList();
         } else if ($urlArr[1] === 'ref') {
             $result = $fnMain->getRef();
+        } else if ($urlArr[1] === 'list') {
+            $result = $fnMain->getList2();
         } else if (is_numeric($urlArr[1])) {
             $result = $fnMain->get(intval($urlArr[1]));
         } else {
