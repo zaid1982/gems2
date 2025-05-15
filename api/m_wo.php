@@ -243,7 +243,7 @@ try {
             $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', '', '1');
             $returnVal = $fn_wo->submit_wr_check($currentTask['transactionId']);
             $fn_general->save_audit('131', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
-            $fn_email->setup_email($returnVal['woTaskCreatedBy'], 12, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark, 'suggestion'=>'-'));
+            $fn_email->setup_email($returnVal['woTaskCreatedBy'], 12, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>'', 'suggestion'=>'-'));
             $fn_email->setup_mobile_notification($returnVal['woTaskCreatedBy'], 13, array('task_no'=>$returnVal['woTaskNo'], 'suggestion'=>'-', 'comment'=>$remark));
 
             /*if ($isVerified === '0') {
