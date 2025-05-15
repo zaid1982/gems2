@@ -1684,7 +1684,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'10', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_invalid'=>$isRejected, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$status), array('transaction_id'=>$transactionId));
 
             return array(

@@ -297,7 +297,8 @@ try {
         }
         else if ($action === 'submit_wr_verified') {
             $currentTask = $fn_wo->get_current_task('28', '19');
-            $isRejected = $fn_wo->get_wr_validity();
+            //$isRejected = $fn_wo->get_wr_validity();
+            $isRejected = filter_input(INPUT_POST, 'isRejected');
             $remark = filter_input(INPUT_POST, 'remark');
             $signature = filter_input(INPUT_POST, 'signature', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $signatureId = $fn_general->uploadDocument($signature, 18, $jwt_data->userId);
