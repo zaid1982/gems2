@@ -412,15 +412,16 @@ try {
             $signatureId = $fn_general->uploadDocument($signature, 15, $jwt_data->userId);
             $currentTask = $fn_wo->get_current_task('13', '13', '21');
             $woType = $fn_wo->get_wo_task_type();
-            $nextCheck = $woType==='2'||$woType==='6'?'2':'';
-            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', '', $nextCheck);
+            //$nextCheck = $woType==='2'||$woType==='6'?'2':'';
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId);
             $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
             $fn_wo->saveWoTaskDoneAssistant($woTaskId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
-            $receiver = $woType==='2'||$woType==='6' ? $returnVal['woTaskAssignedBy'] : $returnVal['woTaskCreatedBy'];
-            $fn_email->setup_email($receiver, 7, array('task_no'=>$returnVal['woTaskNo']));
-            $fn_email->setup_mobile_notification($receiver, 8, array('task_no'=>$returnVal['woTaskNo']));
-            $fn_noti_web->insert(3, $receiver, $returnVal['woTaskNo']);
+            //$receiver = $woType==='2'||$woType==='6' ? $returnVal['woTaskAssignedBy'] : $returnVal['woTaskCreatedBy'];
+            $receiver = $returnVal['woTaskAssignedBy'];
+            //$fn_email->setup_email($receiver, 7, array('task_no'=>$returnVal['woTaskNo']));
+            //$fn_email->setup_mobile_notification($receiver, 8, array('task_no'=>$returnVal['woTaskNo']));
+            //$fn_noti_web->insert(3, $receiver, $returnVal['woTaskNo']);
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         }
         else if ($action === 'return_verify') {
