@@ -63,7 +63,7 @@ try {
     DbMysql::$userId = $jwt_data->userId;
 
     if (!isset($headers['deviceid'])) {
-        throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty - '.$headers['deviceid']);
+        // throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty - '.$headers['deviceid']);
     }
     //$fn_login->check_device_id($jwt_data->userId, $headers['deviceid']);
 
