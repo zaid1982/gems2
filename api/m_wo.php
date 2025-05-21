@@ -412,9 +412,9 @@ try {
             $signatureId = $fn_general->uploadDocument($signature, 15, $jwt_data->userId);
             $currentTask = $fn_wo->get_current_task('13', '13', '21');
             $woType = $fn_wo->get_wo_task_type();
-            //$nextCheck = $woType==='2'||$woType==='6'?'2':'';
-            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId);
-            $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId);
+            $nextCheck = $woType==='2'||$woType==='6'?'2':'';
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', '', $nextCheck);
+            $returnVal = $fn_wo->submit_repair($currentTask['transactionId'], $signatureId, $nextCheck === '2');
             $fn_wo->saveWoTaskDoneAssistant($woTaskId);
             $fn_general->save_audit('119', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
             //$receiver = $woType==='2'||$woType==='6' ? $returnVal['woTaskAssignedBy'] : $returnVal['woTaskCreatedBy'];

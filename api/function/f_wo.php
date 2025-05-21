@@ -1737,11 +1737,12 @@ class Class_wo {
 
     /**
      * @param string $transactionId
-     * @param $signatureId
+     * @param string $signatureId
+     * @param bool $isVerify
      * @return mixed
      * @throws Exception
      */
-    public function submit_repair ($transactionId='', $signatureId='') {
+    public function submit_repair ($transactionId='', $signatureId='', $isVerify=false) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -1763,7 +1764,7 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
             Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'7', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_fixed_by'=>$this->userId, 'wo_task_is_pdf'=>'1', 'wo_task_time_executed'=>'Now()', 'wo_task_status'=>'14'), array('wo_task_id'=>$this->woTaskId));
+            Class_db::getInstance()->db_update('wo_task', array('wo_task_fixed_by'=>$this->userId, 'wo_task_is_pdf'=>'1', 'wo_task_time_executed'=>'Now()', 'wo_task_status'=>$isVerify?'15':'14'), array('wo_task_id'=>$this->woTaskId));
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'14'), array('transaction_id'=>$transactionId));
 
             return array(
