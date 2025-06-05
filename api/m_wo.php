@@ -324,11 +324,16 @@ try {
         else if ($action === 'return_by_verifier') {
             $remark = filter_input(INPUT_POST, 'remark');
             $currentTask = $fn_wo->get_current_task('28', '19');
-            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '31', $remark, '2');
-            $returnVal = $fn_wo->return_wr_verify($currentTask['transactionId']);
-            $fn_general->save_audit('147', $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
-            $fn_email->setup_email($returnVal['technician'], 15, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
-            $fn_email->setup_mobile_notification($returnVal['technician'], 16, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $assignedTechnician = $fn_wo->get_assigned_technician();
+            $isWr = $fn_wo->get_wo_is_wr();
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', $remark, '', '', '', $assignedTechnician);
+            $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
+            $fn_general->save_audit('147', $jwt_data->userId, 'Work Request no. = '.$returnVal);
+            $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
+            $emailTemplateId = $isWr === '1' ? 11 : 5;
+            $notiTextId = $isWr === '1' ? 12 : 6;
+            $fn_email->setup_email($assignedTechnician, $emailTemplateId, array('task_no' => $returnVal, 'comment'=>$remark));
+            $fn_email->setup_mobile_notification($assignedTechnician, $notiTextId, array('task_no' => $returnVal, 'comment'=>$remark));
             $form_data['errmsg'] = $constant::SUC_RETURNED;
         }
         else if ($action === 'reject_complaint') {
