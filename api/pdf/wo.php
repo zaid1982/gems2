@@ -217,10 +217,10 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">A</td>
-        <td class="section-header">Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]</td>
+        <td class="section-header" colspan="1">Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]</td>
     </tr>
     <tr>
-        <td style="width:50%;"><strong>Reported by:</strong><br/>' 
+        <td><strong>Reported by:</strong><br/>' 
             . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_created_by'])]) 
             . '<br/><span class="placeholder">[Manual Entry]</span></td>
         <td><strong>Phone No:</strong><br/>' 
@@ -260,7 +260,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">B1</td>
-        <td class="section-header">Description of Complaint [Manual Entry]</td>
+        <td class="section-header" colspan="1">Description of Complaint [Manual Entry]</td>
     </tr>
     <tr>
         <td>&nbsp;</td>
@@ -275,17 +275,17 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">B2</td>
-        <td class="section-header">Complaint Images [Complain from User]</td>
+        <td class="section-header" colspan="3">Complaint Images [Complain from User]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td class="center-text"><strong>Image 1</strong></td>
         <td class="center-text"><strong>Image 2</strong></td>
         <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
 
-            // If there are complaint images, show them; otherwise show blank placeholders
+            // If there are complaint images, show up to 3 of them; otherwise leave blanks
             if (!empty($imgComplaint)) {
-                // We expect up to 3 images; if fewer, leave blanks for the rest
                 for ($i = 0; $i < 3; $i++) {
                     if (isset($imgComplaint[$i])) {
                         $img = $imgComplaint[$i];
@@ -295,6 +295,7 @@ class Class_pdf_wo {
                         $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
                         $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="text-align:center; border:1px solid #000; padding:4px;">
             <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
@@ -302,7 +303,7 @@ class Class_pdf_wo {
             <strong>GPS Coordinates:</strong> ' . $gps . '
         </td>';
                     } else {
-                        // Blank placeholder
+                        // Blank placeholder cell
                         $html .= '
         <td style="height:50mm;">&nbsp;</td>';
                     }
@@ -313,6 +314,7 @@ class Class_pdf_wo {
                 // No images at all → one full blank row of three columns
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
@@ -329,7 +331,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">C1</td>
-        <td class="section-header">Work Assessment Details [Selected by P.I.C. to verify the complaint]</td>
+        <td class="section-header" colspan="3">Work Assessment Details [Selected by P.I.C. to verify the complaint]</td>
     </tr>';
 
             // Calculate C1 fields
@@ -371,25 +373,23 @@ class Class_pdf_wo {
                 }
             }
 
-            // First row: Person in Charge / SLA Respond Time
+            // One row with four columns: label + three fields
             $html .= '
     <tr>
         <td><strong>Person in Charge:</strong><br/>' . htmlspecialchars($picName) 
                 . '<br/><span class="placeholder">[Select from System]</span></td>
         <td><strong>SLA Respond Time:</strong><br/>' 
                 . htmlspecialchars($arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) 
-                . '<br/><span class="placeholder">[Select from System]</span></td>
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>WR Due Date / Time:</strong><br/>' . htmlspecialchars($wrDueTime) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Respond Status:</strong><br/>' . htmlspecialchars($respondStatus) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
         <td><strong>Email:</strong><br/>' . htmlspecialchars($picEmail) 
                 . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>WR Due Date Time:</strong><br/>' . htmlspecialchars($wrDueTime) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Respond Date / Duration:</strong><br/>' . htmlspecialchars($assignTime . ', ' . $respondDuration) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Respond Status:</strong><br/>' . htmlspecialchars($respondStatus) 
+        <td colspan="3"><strong>Respond Date / Duration:</strong><br/>' . htmlspecialchars($assignTime . ', ' . $respondDuration) 
                 . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
 </table>
@@ -401,9 +401,10 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">C2</td>
-        <td class="section-header">Response Images [P.I.C. verification of the complaint]</td>
+        <td class="section-header" colspan="3">Response Images [P.I.C. verification of the complaint]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td class="center-text"><strong>Image 1</strong></td>
         <td class="center-text"><strong>Image 2</strong></td>
         <td class="center-text"><strong>Image 3</strong></td>
@@ -419,6 +420,7 @@ class Class_pdf_wo {
                         $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
                         $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="text-align:center; border:1px solid #000; padding:4px;">
             <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
@@ -435,6 +437,7 @@ class Class_pdf_wo {
             } else {
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
@@ -451,10 +454,10 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">D1</td>
-        <td class="section-header">Validation Details [Who issue/assigned the WR to P.I.C.]</td>
+        <td class="section-header" colspan="1">Validation Details [Who issues / assigns the WR to P.I.C.]</td>
     </tr>
     <tr>
-        <td><strong>Validation by:</strong><br/[Select from System]</td>
+        <td><strong>Validation by:</strong><br/>[Select from System]</td>
         <td><strong>Designation:</strong><br/>[System Generated]</td>
     </tr>
     <tr>
@@ -470,7 +473,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">D2</td>
-        <td class="section-header">Remark Details [Manual Entry]</td>
+        <td class="section-header" colspan="1">Remark Details [Manual Entry]</td>
     </tr>
     <tr>
         <td>&nbsp;</td>
@@ -502,7 +505,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">A</td>
-        <td class="section-header">Work Order Details</td>
+        <td class="section-header" colspan="1">Work Order Details</td>
     </tr>';
 
             // Build WO “A” fields
@@ -569,7 +572,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">B1</td>
-        <td class="section-header">Work Assignment Details [Details of task issuer and receiver]</td>
+        <td class="section-header" colspan="1">Work Assignment Details [Details of task issuer and receiver]</td>
     </tr>
     <tr>
         <td><strong>Received By:</strong><br/>' 
@@ -598,7 +601,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">B2</td>
-        <td class="section-header">Support Personnel [Team members involved in execution]</td>
+        <td class="section-header" colspan="1">Support Personnel [Team members involved in execution]</td>
     </tr>
     <tr>
         <td style="width:8mm; text-align:center;"><strong>No.</strong></td>
@@ -638,12 +641,13 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">C</td>
-        <td class="section-header">Material Details [Parts or materials issued, returned – tracked in Inventory Module]</td>
+        <td class="section-header" colspan="5">Material Details [Parts or materials issued / returned]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td style="width:25%;"><strong>Part No.</strong></td>
         <td style="width:40%;"><strong>Item Description</strong></td>
-        <td style="width:10%;"><strong>Issue Type<br/>(D/I)</strong></td>
+        <td style="width:10%;"><strong>Issue Type (D/I)</strong></td>
         <td style="width:10%;"><strong>Unit</strong></td>
         <td style="width:7.5%;"><strong>Qty Taken</strong></td>
         <td style="width:7.5%;"><strong>Qty Return</strong></td>
@@ -653,6 +657,7 @@ class Class_pdf_wo {
             for ($i = 0; $i < 5; $i++) {
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
@@ -672,7 +677,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">D</td>
-        <td class="section-header">Work Execution Details [Action duration, task notes, timeline]</td>
+        <td class="section-header" colspan="2">Work Execution Details [Action duration, task notes, timeline]</td>
     </tr>';
 
             // Calculate execution details
@@ -704,11 +709,12 @@ class Class_pdf_wo {
             $html .= '
     <tr>
         <td><strong>Start Date &amp; Time:</strong><br/>' . htmlspecialchars($startDT) . '</td>
-        <td colspan="2"><strong>End Date &amp; Time:</strong><br/>' . htmlspecialchars($endDT) . '</td>
+        <td><strong>End Date &amp; Time:</strong><br/>' . htmlspecialchars($endDT) . '</td>
+        <td><strong>Duration:</strong><br/>' . htmlspecialchars($duration) . '</td>
     </tr>
     <tr>
-        <td><strong>Duration:</strong><br/>' . htmlspecialchars($duration) . '</td>
         <td colspan="2"><strong>Status:</strong><br/>' . htmlspecialchars($statusWO) . '</td>
+        <td>&nbsp;</td>
     </tr>
 </table>
 <br/>
@@ -719,7 +725,7 @@ class Class_pdf_wo {
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">E</td>
-        <td class="section-header">Work Completion &amp; Verification [Sign‐off &amp; rating]</td>
+        <td class="section-header" colspan="2">Work Completion &amp; Verification [Sign‐off &amp; rating]</td>
     </tr>
     <tr>
         <!-- Box 1: Serviced By -->
@@ -769,9 +775,10 @@ class Class_pdf_wo {
 <!-- J1: Photo Documentation (Before) -->
 <table>
     <tr>
-        <td class="section-header" colspan="3">Photo Documentation (Before) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="4">Photo Documentation (Before) [Visual proof for each repair stage]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td class="center-text"><strong>Image 1</strong></td>
         <td class="center-text"><strong>Image 2</strong></td>
         <td class="center-text"><strong>Image 3</strong></td>
@@ -787,6 +794,7 @@ class Class_pdf_wo {
                         $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
                         $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="text-align:center; border:1px solid #000; padding:4px;">
             <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
@@ -803,6 +811,7 @@ class Class_pdf_wo {
             } else {
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
@@ -816,9 +825,10 @@ class Class_pdf_wo {
 <!-- J2: Photo Documentation (During) -->
 <table>
     <tr>
-        <td class="section-header" colspan="3">Photo Documentation (During) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="4">Photo Documentation (During) [Visual proof for each repair stage]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td class="center-text"><strong>Image 1</strong></td>
         <td class="center-text"><strong>Image 2</strong></td>
         <td class="center-text"><strong>Image 3</strong></td>
@@ -834,6 +844,7 @@ class Class_pdf_wo {
                         $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
                         $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="text-align:center; border:1px solid #000; padding:4px;">
             <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
@@ -850,6 +861,7 @@ class Class_pdf_wo {
             } else {
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
@@ -863,9 +875,10 @@ class Class_pdf_wo {
 <!-- J3: Photo Documentation (After) -->
 <table>
     <tr>
-        <td class="section-header" colspan="3">Photo Documentation (After) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="4">Photo Documentation (After) [Visual proof for each repair stage]</td>
     </tr>
     <tr>
+        <td>&nbsp;</td>
         <td class="center-text"><strong>Image 1</strong></td>
         <td class="center-text"><strong>Image 2</strong></td>
         <td class="center-text"><strong>Image 3</strong></td>
@@ -881,6 +894,7 @@ class Class_pdf_wo {
                         $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
                         $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="text-align:center; border:1px solid #000; padding:4px;">
             <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
@@ -897,6 +911,7 @@ class Class_pdf_wo {
             } else {
                 $html .= '
     <tr>
+        <td>&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
         <td style="height:50mm;">&nbsp;</td>
