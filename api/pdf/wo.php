@@ -20,8 +20,8 @@ class MYPDF_wo extends TCPDF {
  * Class Class_pdf_wo
  *
  * Generates a Work Request (WR) + Work Order (WO) PDF by constructing an HTML
- * template that matches the provided .docx layout and feeding it to TCPDF’s writeHTML().
- * All section headers use background-color #E6E6E6. Tables are aligned exactly as in the template.
+ * template that uses 100%‐width tables and percentage‐based <td> widths.
+ * Once verified in the browser, TCPDF->writeHTML() will render it exactly as seen.
  */
 class Class_pdf_wo {
     private $fn_general;   // Utility object providing clear_null(), convertDateToDisplay(), timeDiff(), etc.
@@ -74,8 +74,9 @@ class Class_pdf_wo {
     /**
      * create_pdf()
      *   - Fetches all WR + WO data from the database.
-     *   - Builds a single HTML string containing all sections (A, B1, B2, C1, C2, D1, D2, then WO sections).
-     *   - Uses inline CSS with background-color #E6E6E6 for each “section-header” row.
+     *   - Builds a single HEREDOC HTML string containing all sections,
+     *     using percentage‐based <td width="…%"> so that TCPDF renders
+     *     exactly as the browser preview.
      *   - Calls TCPDF->writeHTML() to render it.
      *   - Saves the PDF file and updates sys_pdf + wo_task tables.
      *
@@ -179,171 +180,34 @@ class Class_pdf_wo {
                 }
             }
 
-            // 6) Build the HTML template string
-            //    - All section headers use background-color #E6E6E6
-            //    - Tables match the exact column structure as in the Word template
-            $html = '
-<style>
-    /* Match the template’s gray header color (#E6E6E6) */
-    body { font-family: helvetica, sans-serif; font-size: 10pt; }
-    table { border-collapse: collapse; width: 100%; }
-    td, th { border: 1px solid #000000; vertical-align: top; padding: 4px; }
-    .section-header { background-color: #E6E6E6; font-weight: bold; }
-    .no-border td { border: none !important; }
-    .center-text { text-align: center; }
-    .placeholder { color: #555555; font-style: italic; }
-</style>
+            // 6) Build the HTML template string using HEREDOC with percentage widths
+            //
+            //    Each <table width="100%"> forces the table to use full width.  
+            //    Label columns use width="5%", leaving 95% for data columns.  
+            //    When splitting data into 2 columns, each is 47.5%.  
+            //    Splitting into 3 columns → 31.66% each.  
+            //    Splitting into 6 columns → approx. 15.83% each.
+            //
+            $wr_no         = htmlspecialchars($woTask['wo_task_no']);
+            $reportedBy    = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_created_by'])]);
+            $reportedPhone = htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no']));
+            $reportedEmail = htmlspecialchars($this->fn_general->clear_null($userProfile['user_email']));
+            $reportedDtTxt = htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_created']));
+            $categoryTxt   = htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'], 0))]);
+            $severityTxt   = htmlspecialchars($arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]);
+            $locationTxt   = htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_location']));
+            $complaintTxt  = htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_complaint']));
 
-<!-- ========================= 
-     HEADER: WORK REQUEST (WR) & WORK ORDER (WO) 
-     ========================= -->
-<table class="no-border">
-    <tr>
-        <td colspan="2" class="center-text" style="font-size:16pt; font-weight:bold; border:none;">
-            WORK REQUEST (WR) &amp;<br/>WORK ORDER (WO)
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
-            &nbsp;
-        </td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION A – Complaint Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">A</td>
-        <td class="section-header" colspan="1">Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]</td>
-    </tr>
-    <tr>
-        <td><strong>Reported by:</strong><br/>' 
-            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_created_by'])]) 
-            . '<br/><span class="placeholder">[Manual Entry]</span></td>
-        <td><strong>Phone No:</strong><br/>' 
-            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no'])) 
-            . '<br/><span class="placeholder">[Manual Entry]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Email:</strong><br/>' 
-            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_email'])) 
-            . '<br/><span class="placeholder">[Manual Entry]</span></td>
-        <td><strong>Reported Date / Time:</strong><br/>' 
-            . htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_created'])) 
-            . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Category:</strong><br/>' 
-            . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'], 0))]) 
-            . '<br/><span class="placeholder">[Select from System]</span></td>
-        <td><strong>Severity:</strong><br/>' 
-            . htmlspecialchars($arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) 
-            . '<br/><span class="placeholder">[Select from System]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Work Request No:</strong><br/>' 
-            . htmlspecialchars($woTask['wo_task_no']) 
-            . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Location Complaint:</strong><br/>' 
-            . htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_location'])) 
-            . '<br/><span class="placeholder">[Select from System]</span></td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION B1 – Description of Complaint 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">B1</td>
-        <td class="section-header" colspan="1">Description of Complaint [Manual Entry]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:30mm;">&nbsp;</td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION B2 – Complaint Images 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">B2</td>
-        <td class="section-header" colspan="3">Complaint Images [Complain from User]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td class="center-text"><strong>Image 1</strong></td>
-        <td class="center-text"><strong>Image 2</strong></td>
-        <td class="center-text"><strong>Image 3</strong></td>
-    </tr>';
-
-            // If there are complaint images, show up to 3 of them; otherwise leave blanks
-            if (!empty($imgComplaint)) {
-                for ($i = 0; $i < 3; $i++) {
-                    if (isset($imgComplaint[$i])) {
-                        $img = $imgComplaint[$i];
-                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-                        $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
-            <strong>Description:</strong> ' . $desc . '<br/>
-            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>GPS Coordinates:</strong> ' . $gps . '
-        </td>';
-                    } else {
-                        // Blank placeholder cell
-                        $html .= '
-        <td style="height:50mm;">&nbsp;</td>';
-                    }
-                }
-                $html .= '
-    </tr>';
-            } else {
-                // No images at all → one full blank row of three columns
-                $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-    </tr>';
-            }
-
-            $html .= '
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION C1 – Work Assessment Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">C1</td>
-        <td class="section-header" colspan="3">Work Assessment Details [Selected by P.I.C. to verify the complaint]</td>
-    </tr>';
-
-            // Calculate C1 fields
-            $picName = '';
-            $picEmail = '';
-            $wrDueTime = '';
-            $assignTime = '';
+            // C1 fields
+            $picName       = '';
+            $picEmail      = '';
+            $wrDueTime     = '';
+            $assignTime    = '';
             $respondDuration = '';
             $respondStatus = '';
 
             if (!empty($woTask['wo_task_assigned_to'])) {
-                $picName = $arrUserFullName[intval($woTask['wo_task_assigned_to'])];
+                $picName = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_assigned_to'])]);
                 $userProfileTech = Class_db::getInstance()->db_select_single(
                     'sys_user_profile',
                     [
@@ -353,19 +217,24 @@ class Class_pdf_wo {
                     null,
                     1
                 );
-                $picEmail = $this->fn_general->clear_null($userProfileTech['user_email']);
-                $createdDt = new DateTime($woTask['wo_task_time_created']);
+                $picEmail = htmlspecialchars($this->fn_general->clear_null($userProfileTech['user_email']));
+
+                // Calculate WR Due Date
                 if (!empty($woTask['wo_task_severity'])) {
+                    $createdDt = new DateTime($woTask['wo_task_time_created']);
                     $dueDt = clone $createdDt;
                     $dueDt->modify('+' . $arrDue[intval($woTask['wo_task_severity'])] . ' hour');
-                    $wrDueTime = $dueDt->format('d/m/Y g:i A');
+                    $wrDueTime = htmlspecialchars($dueDt->format('d/m/Y g:i A'));
                 }
+                // Calculate Respond Date / Duration / Status
                 if (!empty($woTask['wo_task_time_assigned'])) {
                     $assignedDt = new DateTime($woTask['wo_task_time_assigned']);
-                    $assignTime = $assignedDt->format('d/m/Y g:i A');
-                    $respondDuration = $this->fn_general->timeDiff(
-                        $woTask['wo_task_time_created'],
-                        $woTask['wo_task_time_assigned']
+                    $assignTime = htmlspecialchars($assignedDt->format('d/m/Y g:i A'));
+                    $respondDuration = htmlspecialchars(
+                        $this->fn_general->timeDiff(
+                            $woTask['wo_task_time_created'],
+                            $woTask['wo_task_time_assigned']
+                        )
                     );
                     if ($assignedDt && !empty($wrDueTime)) {
                         $respondStatus = ($assignedDt <= new DateTime($wrDueTime)) ? 'Within' : 'Exceed';
@@ -373,328 +242,120 @@ class Class_pdf_wo {
                 }
             }
 
-            // One row with four columns: label + three fields
-            $html .= '
-    <tr>
-        <td><strong>Person in Charge:</strong><br/>' . htmlspecialchars($picName) 
-                . '<br/><span class="placeholder">[Select from System]</span></td>
-        <td><strong>SLA Respond Time:</strong><br/>' 
-                . htmlspecialchars($arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>WR Due Date / Time:</strong><br/>' . htmlspecialchars($wrDueTime) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Respond Status:</strong><br/>' . htmlspecialchars($respondStatus) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Email:</strong><br/>' . htmlspecialchars($picEmail) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td colspan="3"><strong>Respond Date / Duration:</strong><br/>' . htmlspecialchars($assignTime . ', ' . $respondDuration) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION C2 – Response Images 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">C2</td>
-        <td class="section-header" colspan="3">Response Images [P.I.C. verification of the complaint]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td class="center-text"><strong>Image 1</strong></td>
-        <td class="center-text"><strong>Image 2</strong></td>
-        <td class="center-text"><strong>Image 3</strong></td>
-    </tr>';
-
-            if (!empty($imgResponse)) {
-                for ($i = 0; $i < 3; $i++) {
-                    if (isset($imgResponse[$i])) {
-                        $img = $imgResponse[$i];
-                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-                        $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
-            <strong>Description:</strong> ' . $desc . '<br/>
-            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>Longitude / Latitude:</strong> ' . $gps . '
-        </td>';
-                    } else {
-                        $html .= '
-        <td style="height:50mm;">&nbsp;</td>';
-                    }
-                }
-                $html .= '
-    </tr>';
-            } else {
-                $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-    </tr>';
+            // C2 fields (images)
+            // We will insert up to 3 response images; if fewer, leave blank
+            $r1_img = '';
+            $r1_desc = $r1_ts = $r1_gps = '';
+            $r2_img = '';
+            $r2_desc = $r2_ts = $r2_gps = '';
+            $r3_img = '';
+            $r3_desc = $r3_ts = $r3_gps = '';
+            if (!empty($imgResponse[0])) {
+                $i = $imgResponse[0];
+                $r1_img = $i['upload_folder'] . '/' . $i['upload_filename'] . '.' . $i['upload_extension'];
+                $r1_desc = htmlspecialchars($this->fn_general->clear_null($i['wo_task_upload_desc']));
+                $r1_ts   = htmlspecialchars($this->fn_general->convertDateToDisplay($i['wo_task_upload_timestamp']));
+                $r1_gps  = htmlspecialchars($i['wo_task_upload_longitude'] . ', ' . $i['wo_task_upload_latitude']);
+            }
+            if (!empty($imgResponse[1])) {
+                $i = $imgResponse[1];
+                $r2_img = $i['upload_folder'] . '/' . $i['upload_filename'] . '.' . $i['upload_extension'];
+                $r2_desc = htmlspecialchars($this->fn_general->clear_null($i['wo_task_upload_desc']));
+                $r2_ts   = htmlspecialchars($this->fn_general->convertDateToDisplay($i['wo_task_upload_timestamp']));
+                $r2_gps  = htmlspecialchars($i['wo_task_upload_longitude'] . ', ' . $i['wo_task_upload_latitude']);
+            }
+            if (!empty($imgResponse[2])) {
+                $i = $imgResponse[2];
+                $r3_img = $i['upload_folder'] . '/' . $i['upload_filename'] . '.' . $i['upload_extension'];
+                $r3_desc = htmlspecialchars($this->fn_general->clear_null($i['wo_task_upload_desc']));
+                $r3_ts   = htmlspecialchars($this->fn_general->convertDateToDisplay($i['wo_task_upload_timestamp']));
+                $r3_gps  = htmlspecialchars($i['wo_task_upload_longitude'] . ', ' . $i['wo_task_upload_latitude']);
             }
 
-            $html .= '
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION D1 – Validation Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">D1</td>
-        <td class="section-header" colspan="1">Validation Details [Who issues / assigns the WR to P.I.C.]</td>
-    </tr>
-    <tr>
-        <td><strong>Validation by:</strong><br/>[Select from System]</td>
-        <td><strong>Designation:</strong><br/>[System Generated]</td>
-    </tr>
-    <tr>
-        <td><strong>Verified Date:</strong><br/>[System Generated]</td>
-        <td><strong>Work Request Status:</strong><br/>[Accept/Reject]</td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WR SECTION: SECTION D2 – Remark Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">D2</td>
-        <td class="section-header" colspan="1">Remark Details [Manual Entry]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:40mm;">&nbsp;</td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION HEADER 
-     ========================= -->
-<table class="no-border">
-    <tr>
-        <td colspan="2" class="center-text" style="font-size:16pt; font-weight:bold; border:none;">
-            WORK ORDER (WO)
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
-            &nbsp;
-        </td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION A – Work Order Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">A</td>
-        <td class="section-header" colspan="1">Work Order Details</td>
-    </tr>';
-
-            // Build WO “A” fields
-            $woNumber = 'WO' . substr('GFMHQ' . date('ymd'), 0, 9) . str_pad($this->woTaskId, 5, '0', STR_PAD_LEFT);
+            // WO‐A fields
+            // Generate a pseudo WO Number (for demonstration)
+            $woNumber = 'WO' . str_pad($this->woTaskId, 10, '0', STR_PAD_LEFT);
             $woStatus = (!empty($woTask['wo_task_time_executed'])) ? 'Completed' : 'Open';
 
-            $locName = $arrSiteName[intval($woTask['site_id'])];
-            $locCode = '[System Generated]';  
+            $locName = htmlspecialchars($arrSiteName[intval($woTask['site_id'])]);
+            $locCode = htmlspecialchars('[System Generated]');
+            $assetName = htmlspecialchars('[Select from System]');
+            $assetCode = htmlspecialchars('[System Generated]');
+            $woSeverity = htmlspecialchars($arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]);
 
-            $assetName = '[Select from System or free text]';
-            $assetCode = '[System Generated]';
-
-            $woSeverity = $arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))];
-            $woDueTime  = '';
+            $woDueTime = '';
             if (!empty($woTask['wo_task_time_assigned']) && !empty($woTask['wo_task_severity'])) {
                 $assignedDt = new DateTime($woTask['wo_task_time_assigned']);
                 $dueDt = clone $assignedDt;
                 $dueDt->modify('+' . $arrDue[intval($woTask['wo_task_severity'])] . ' hour');
-                $woDueTime = $dueDt->format('d/m/Y g:i A');
+                $woDueTime = htmlspecialchars($dueDt->format('d/m/Y g:i A'));
             }
 
-            $html .= '
-    <tr>
-        <td><strong>Work Order No:</strong><br/>' . htmlspecialchars($woNumber) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Status:</strong><br/>' . htmlspecialchars($woStatus) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Work Request No:</strong><br/>' . htmlspecialchars($woTask['wo_task_no']) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Category:</strong><br/>' . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'],0))]) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Location Name:</strong><br/>' . htmlspecialchars($locName) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Location Code:</strong><br/>' . htmlspecialchars($locCode) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Asset Name:</strong><br/>' . htmlspecialchars($assetName) 
-                . '<br/><span class="placeholder">[Select from System]</span></td>
-        <td><strong>Asset Code:</strong><br/>' . htmlspecialchars($assetCode) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Severity:</strong><br/>' . htmlspecialchars($woSeverity) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>WO Due Date / Time:</strong><br/>' . htmlspecialchars($woDueTime) 
-                . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-    <tr>
-        <td colspan="2"><strong>Complaint Description:</strong><br/><div style="height:20mm;">' 
-                . htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_complaint'])) 
-                . '</div></td>
-    </tr>
-</table>
-<br/>
+            // WO‐B1
+            $receivedBy = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]);
+            $assignedTo = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_assigned_to'] ?? 0)]);
+            $dateAssigned = '';
+            if (!empty($woTask['wo_task_time_assigned'])) {
+                $dateAssigned = htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_assigned']));
+            }
+            $issuerPhone = htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no']));
 
-<!-- ========================= 
-     WO SECTION: SECTION B1 – Work Assignment Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">B1</td>
-        <td class="section-header" colspan="1">Work Assignment Details [Details of task issuer and receiver]</td>
-    </tr>
-    <tr>
-        <td><strong>Received By:</strong><br/>' 
-            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) 
-            . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Assigned To:</strong><br/>' 
-            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_assigned_to'] ?? 0)]) 
-            . '<br/><span class="placeholder">[Select from System]</span></td>
-    </tr>
-    <tr>
-        <td><strong>Date Assigned:</strong><br/>' 
-            . ($woTask['wo_task_time_assigned'] 
-                ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_assigned'])) 
-                : '') 
-            . '<br/><span class="placeholder">[System Generated]</span></td>
-        <td><strong>Phone No:</strong><br/>' 
-            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no'])) 
-            . '<br/><span class="placeholder">[System Generated]</span></td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION B2 – Support Personnel 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">B2</td>
-        <td class="section-header" colspan="1">Support Personnel [Team members involved in execution]</td>
-    </tr>
-    <tr>
-        <td style="width:8mm; text-align:center;"><strong>No.</strong></td>
-        <td><strong>Name</strong></td>
-    </tr>';
-
-            // List support personnel or one blank row
+            // WO‐B2 (Support Personnel)
             $woAssists = Class_db::getInstance()->db_select(
                 'wo_task_assist',
                 ['wo_task_id' => $this->woTaskId]
             );
+            $assistRowsHtml = '';
             if (!empty($woAssists)) {
                 foreach ($woAssists as $idx => $assist) {
                     $assistName = htmlspecialchars($arrUserFullName[intval($assist['user_id'])]);
                     $rowNo = $idx + 1;
-                    $html .= '
+                    $assistRowsHtml .= "
     <tr>
-        <td style="text-align:center;">' . $rowNo . '</td>
-        <td>' . $assistName . '</td>
-    </tr>';
+      <td width=\"5%\" style=\"text-align:center;\">{$rowNo}</td>
+      <td width=\"95%\">{$assistName}</td>
+    </tr>";
                 }
             } else {
-                $html .= '
+                // Single blank row
+                $assistRowsHtml = "
     <tr>
-        <td style="text-align:center;">&nbsp;</td>
-        <td>&nbsp;</td>
-    </tr>';
+      <td width=\"5%\">&nbsp;</td>
+      <td width=\"95%\">&nbsp;</td>
+    </tr>";
             }
 
-            $html .= '
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION C – Material Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">C</td>
-        <td class="section-header" colspan="5">Material Details [Parts or materials issued / returned]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td style="width:25%;"><strong>Part No.</strong></td>
-        <td style="width:40%;"><strong>Item Description</strong></td>
-        <td style="width:10%;"><strong>Issue Type (D/I)</strong></td>
-        <td style="width:10%;"><strong>Unit</strong></td>
-        <td style="width:7.5%;"><strong>Qty Taken</strong></td>
-        <td style="width:7.5%;"><strong>Qty Return</strong></td>
-    </tr>';
-
-            // Draw 5 blank rows for manual entry (or loop through actual material records)
+            // WO‐C: Material Details — we prepare 5 blank rows (no dynamic data)
+            $materialBlankRows = '';
             for ($i = 0; $i < 5; $i++) {
-                $html .= '
+                $materialBlankRows .= "
     <tr>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-    </tr>';
+      <td width=\"5%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+      <td width=\"15.83%\">&nbsp;</td>
+    </tr>";
             }
 
-            $html .= '
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION D – Work Execution Details 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">D</td>
-        <td class="section-header" colspan="2">Work Execution Details [Action duration, task notes, timeline]</td>
-    </tr>';
-
-            // Calculate execution details
+            // WO‐D: Work Execution Details
             $startDT = $woTask['wo_task_time_assigned']
-                     ? $this->fn_general->convertDateToDisplay($woTask['wo_task_time_assigned'])
+                     ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_assigned']))
                      : '[System Generated]';
             $endDT   = $woTask['wo_task_time_executed']
-                     ? $this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed'])
+                     ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed']))
                      : '[System Generated]';
 
             $duration = '';
             if (!empty($woTask['wo_task_time_assigned']) && !empty($woTask['wo_task_time_executed'])) {
-                $duration = $this->fn_general->timeDiff(
+                $duration = htmlspecialchars($this->fn_general->timeDiff(
                     $woTask['wo_task_time_assigned'],
                     $woTask['wo_task_time_executed']
-                );
+                ));
             }
+
             $statusWO = '';
             if (!empty($woTask['wo_task_time_assigned']) && !empty($woTask['wo_task_time_executed']) && !empty($woTask['wo_task_severity'])) {
                 if (preg_match('/(\d+)\s*hour/i', $duration, $m)) {
@@ -706,223 +367,595 @@ class Class_pdf_wo {
                 $statusWO = ($hoursTaken <= $allowedHours) ? 'Within SLA' : 'Exceed SLA';
             }
 
-            $html .= '
-    <tr>
-        <td><strong>Start Date &amp; Time:</strong><br/>' . htmlspecialchars($startDT) . '</td>
-        <td><strong>End Date &amp; Time:</strong><br/>' . htmlspecialchars($endDT) . '</td>
-        <td><strong>Duration:</strong><br/>' . htmlspecialchars($duration) . '</td>
-    </tr>
-    <tr>
-        <td colspan="2"><strong>Status:</strong><br/>' . htmlspecialchars($statusWO) . '</td>
-        <td>&nbsp;</td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION E – Work Completion & Verification 
-     ========================= -->
-<table>
-    <tr>
-        <td class="section-header" style="width:8mm; text-align:center;">E</td>
-        <td class="section-header" colspan="2">Work Completion &amp; Verification [Sign‐off &amp; rating]</td>
-    </tr>
-    <tr>
-        <!-- Box 1: Serviced By -->
-        <td style="width:33.33%; height:50mm; vertical-align: top;">
-            <strong>Serviced By:</strong><br/><br/><br/>
-            .........................................<br/>
-            <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_fixed_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' 
-                . ($woTask['wo_task_time_executed'] 
-                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed'])) 
-                    : '') . '
-        </td>
-        <!-- Box 2: Checked By -->
-        <td style="width:33.33%; height:50mm; vertical-align: top;">
-            <strong>Checked By:</strong><br/><br/><br/>
-            .........................................<br/>
-            <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' 
-                . ($woTask['wo_task_time_verified'] 
-                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
-                    : '') . '
-        </td>
-        <!-- Box 3: Verified By -->
-        <td style="width:33.33%; height:50mm; vertical-align: top;">
-            <strong>Verified By:</strong><br/><br/><br/>
-            .........................................<br/>
-            <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' 
-                . ($woTask['wo_task_time_verified'] 
-                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
-                    : '') . '
-        </td>
-    </tr>
-    <tr>
-        <td colspan="3" style="padding:6px;">
-            <strong>Satisfactory Level:</strong> [Choose 1–5: 1=Very Dissatisfied … 5=Very Satisfied] ' 
-            . (!empty($woTask['wo_task_rate']) ? htmlspecialchars($woTask['wo_task_rate'] . ' / 5') : '') . '
-        </td>
-    </tr>
-</table>
-<br/>
-
-<!-- ========================= 
-     WO SECTION: SECTION J – Photo Documentation (Before / During / After) 
-     ========================= -->
-
-<!-- J1: Photo Documentation (Before) -->
-<table>
-    <tr>
-        <td class="section-header" colspan="4">Photo Documentation (Before) [Visual proof for each repair stage]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td class="center-text"><strong>Image 1</strong></td>
-        <td class="center-text"><strong>Image 2</strong></td>
-        <td class="center-text"><strong>Image 3</strong></td>
-    </tr>';
-
-            if (!empty($imgBefore)) {
-                for ($i = 0; $i < 3; $i++) {
-                    if (isset($imgBefore[$i])) {
-                        $img = $imgBefore[$i];
-                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-                        $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
-            <strong>Description:</strong> ' . $desc . '<br/>
-            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>Longitude / Latitude:</strong> ' . $gps . '
-        </td>';
-                    } else {
-                        $html .= '
-        <td style="height:50mm;">&nbsp;</td>';
-                    }
-                }
-                $html .= '
-    </tr>';
-            } else {
-                $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-    </tr>';
+            // WO‐E: Work Completion & Verification
+            $servicedByName = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_fixed_by'] ?? 0)]);
+            $servicedAt = '';
+            if (!empty($woTask['wo_task_time_executed'])) {
+                $servicedAt = htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed']));
+            }
+            $checkedByName = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]);
+            $checkedAt = '';
+            if (!empty($woTask['wo_task_time_verified'])) {
+                $checkedAt = htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified']));
+            }
+            $verifiedByName = htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]);
+            $verifiedAt = '';
+            if (!empty($woTask['wo_task_time_verified'])) {
+                $verifiedAt = htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified']));
+            }
+            $ratingTxt = '';
+            if (!empty($woTask['wo_task_rate'])) {
+                $ratingTxt = htmlspecialchars($woTask['wo_task_rate'] . ' / 5');
             }
 
-            $html .= '
-</table>
-<br/>
-
-<!-- J2: Photo Documentation (During) -->
-<table>
-    <tr>
-        <td class="section-header" colspan="4">Photo Documentation (During) [Visual proof for each repair stage]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td class="center-text"><strong>Image 1</strong></td>
-        <td class="center-text"><strong>Image 2</strong></td>
-        <td class="center-text"><strong>Image 3</strong></td>
-    </tr>';
-
-            if (!empty($imgDuring)) {
+            // J1, J2, J3 (Photo Documentation Before / During / After)
+            // Prepare up to three images for each stage
+            function prepareImageHtml($imgArray) {
+                $html = '';
                 for ($i = 0; $i < 3; $i++) {
-                    if (isset($imgDuring[$i])) {
-                        $img = $imgDuring[$i];
-                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-                        $html .= '
+                    if (!empty($imgArray[$i])) {
+                        $img = $imgArray[$i];
+                        $path = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc = htmlspecialchars((new Class_general())->clear_null($img['wo_task_upload_desc']));
+                        $ts   = htmlspecialchars((new Class_general())->convertDateToDisplay($img['wo_task_upload_timestamp']));
+                        $gps  = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= "
     <tr>
-        <td>&nbsp;</td>
-        <td style="text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
-            <strong>Description:</strong> ' . $desc . '<br/>
-            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>Longitude / Latitude:</strong> ' . $gps . '
-        </td>';
+      <td width=\"5%\">&nbsp;</td>
+      <td width=\"31.66%\" style=\"text-align:center; border:1px solid #000; padding:4px;\">
+        <img src=\"{$path}\" style=\"max-width:100%; height:auto;\" /><br/><br/>
+        <strong>Description:</strong> {$desc}<br/>
+        <strong>Date / Time Taken:</strong> {$ts}<br/>
+        <strong>Longitude / Latitude:</strong> {$gps}
+      </td>";
                     } else {
-                        $html .= '
-        <td style="height:50mm;">&nbsp;</td>';
+                        $html .= "
+    <tr>
+      <td width=\"5%\">&nbsp;</td>
+      <td width=\"31.66%\" style=\"height:50mm;\">&nbsp;</td>";
                     }
                 }
-                $html .= '
-    </tr>';
-            } else {
-                $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-    </tr>';
+                $html .= "
+    </tr>";
+                return $html;
             }
 
-            $html .= '
+            $beforeHtml = prepareImageHtml($imgBefore);
+            $duringHtml = prepareImageHtml($imgDuring);
+            $afterHtml  = prepareImageHtml($imgAfter);
+
+            // ========================= BUILD THE HEREDOC HTML STRING =========================
+            $html = <<<'HTML'
+<style>
+  /* ======== Global styles ======== */
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    margin: 0;
+  }
+  table {
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  td, th {
+    border: 1px solid #000;
+    vertical-align: top;
+    padding: 4px;
+  }
+  .section-header {
+    background-color: #E6E6E6;
+    font-weight: bold;
+  }
+  .center-text {
+    text-align: center;
+  }
+  .placeholder {
+    color: #555;
+    font-style: italic;
+  }
+  .no-border td {
+    border: none !important;
+  }
+</style>
+
+<!-- ========================= HEADER ========================= -->
+<table width="100%" class="no-border">
+  <tr>
+    <td colspan="2" class="center-text" style="font-size:16pt; font-weight:bold; border:none;">
+      WORK REQUEST (WR) &amp;<br/>WORK ORDER (WO)
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
+      &nbsp;
+    </td>
+  </tr>
 </table>
-<br/>
 
-<!-- J3: Photo Documentation (After) -->
-<table>
-    <tr>
-        <td class="section-header" colspan="4">Photo Documentation (After) [Visual proof for each repair stage]</td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td class="center-text"><strong>Image 1</strong></td>
-        <td class="center-text"><strong>Image 2</strong></td>
-        <td class="center-text"><strong>Image 3</strong></td>
-    </tr>';
-
-            if (!empty($imgAfter)) {
-                for ($i = 0; $i < 3; $i++) {
-                    if (isset($imgAfter[$i])) {
-                        $img = $imgAfter[$i];
-                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-                        $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
-            <strong>Description:</strong> ' . $desc . '<br/>
-            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>Longitude / Latitude:</strong> ' . $gps . '
-        </td>';
-                    } else {
-                        $html .= '
-        <td style="height:50mm;">&nbsp;</td>';
-                    }
-                }
-                $html .= '
-    </tr>';
-            } else {
-                $html .= '
-    <tr>
-        <td>&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-        <td style="height:50mm;">&nbsp;</td>
-    </tr>';
-            }
-
-            $html .= '
+<!-- ========================= WR – SECTION A: Complaint Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">A</td>
+    <td class="section-header" width="95%">Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]</td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Reported by:</strong><br/>__REPORTED_BY__<br/>
+      <span class="placeholder">[Manual Entry]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Phone No:</strong><br/>__REPORTED_PHONE__<br/>
+      <span class="placeholder">[Manual Entry]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Email:</strong><br/>__REPORTED_EMAIL__<br/>
+      <span class="placeholder">[Manual Entry]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Reported Date / Time:</strong><br/>__REPORTED_DT__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Category:</strong><br/>__CATEGORY__<br/>
+      <span class="placeholder">[Select from System]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Severity:</strong><br/>__SEVERITY__<br/>
+      <span class="placeholder">[Select from System]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Work Request No:</strong><br/>__WR_NO__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Location Complaint:</strong><br/>__LOCATION__<br/>
+      <span class="placeholder">[Select from System]</span>
+    </td>
+  </tr>
 </table>
-'; // End of HTML template
 
-            // 7) Instantiate TCPDF and render the HTML
+<!-- ========================= WR – SECTION B1: Description of Complaint ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">B1</td>
+    <td class="section-header" width="95%">Description of Complaint [Manual Entry]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td width="95%" style="height:40mm;">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- ========================= WR – SECTION B2: Complaint Images ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">B2</td>
+    <td class="section-header" colspan="3" width="95%">Complaint Images [Complain from User]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td class="center-text" width="31.66%"><strong>Image 1</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 2</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 3</strong></td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- ========================= WR – SECTION C1: Work Assessment Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">C1</td>
+    <td class="section-header" colspan="3" width="95%">Work Assessment Details [Selected by P.I.C. to verify the complaint]</td>
+  </tr>
+  <tr>
+    <td width="5%"><strong>Person in Charge:</strong><br/><span class="placeholder">[Select from System]</span></td>
+    <td width="31.66%"><strong>SLA Respond Time:</strong><br/><span class="placeholder">[System Generated]</span></td>
+    <td width="31.66%"><strong>WR Due Date / Time:</strong><br/><span class="placeholder">[System Generated]</span></td>
+    <td width="31.66%"><strong>Respond Status:</strong><br/><span class="placeholder">[System Generated]</span></td>
+  </tr>
+  <tr>
+    <td width="5%"><strong>Email:</strong><br/><span class="placeholder">[System Generated]</span></td>
+    <td colspan="3" width="95%"><strong>Respond Date / Duration:</strong><br/><span class="placeholder">[System Generated]</span></td>
+  </tr>
+</table>
+
+<!-- ========================= WR – SECTION C2: Response Images ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">C2</td>
+    <td class="section-header" colspan="3" width="95%">Response Images [P.I.C. verification of the complaint]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td class="center-text" width="31.66%"><strong>Image 1</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 2</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 3</strong></td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+    <td width="31.66%" style="height:50mm;">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- ========================= WR – SECTION D1: Validation Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">D1</td>
+    <td class="section-header" width="95%">Validation Details [Who issues / assigns the WR to P.I.C.]</td>
+  </tr>
+  <tr>
+    <td width="5%"><strong>Validation by:</strong><br/>[Select from System]</td>
+    <td width="95%"><strong>Designation:</strong><br/>[System Generated]</td>
+  </tr>
+  <tr>
+    <td width="5%"><strong>Verified Date:</strong><br/>[System Generated]</td>
+    <td width="95%"><strong>Work Request Status:</strong><br/>[Accept/Reject]</td>
+  </tr>
+</table>
+
+<!-- ========================= WR – SECTION D2: Remark Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">D2</td>
+    <td class="section-header" width="95%">Remark Details [Manual Entry]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td width="95%" style="height:40mm;">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- ========================= WO HEADER ========================= -->
+<table width="100%" class="no-border">
+  <tr>
+    <td colspan="2" class="center-text" style="font-size:16pt; font-weight:bold; border:none;">
+      WORK ORDER (WO)
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
+      &nbsp;
+    </td>
+  </tr>
+</table>
+
+<!-- ========================= WO – SECTION A: Work Order Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">A</td>
+    <td class="section-header" width="95%">Work Order Details</td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Work Order No:</strong><br/>__WO_NO__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Status:</strong><br/>__WO_STATUS__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Work Request No:</strong><br/>__WR_NO__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Category:</strong><br/>__CATEGORY__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Location Name:</strong><br/>__LOC_NAME__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Location Code:</strong><br/>__LOC_CODE__
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Asset Name:</strong><br/>__ASSET_NAME__<br/>
+      <span class="placeholder">[Select from System]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Asset Code:</strong><br/>__ASSET_CODE__
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Severity:</strong><br/>__WO_SEVERITY__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>WO Due Date / Time:</strong><br/>__WO_DUE_TIME__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" width="100%">
+      <strong>Complaint Description:</strong><br/>
+      <div style="height:20mm;">__COMPLAINT_TEXT__</div>
+    </td>
+  </tr>
+</table>
+
+<!-- ========================= WO – SECTION B1: Work Assignment Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">B1</td>
+    <td class="section-header" width="95%">Work Assignment Details [Details of task issuer and receiver]</td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Received By:</strong><br/>__RECEIVED_BY__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Assigned To:</strong><br/>__ASSIGNED_TO__<br/>
+      <span class="placeholder">[Select from System]</span>
+    </td>
+  </tr>
+  <tr>
+    <td width="47.5%">
+      <strong>Date Assigned:</strong><br/>__DATE_ASSIGNED__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+    <td width="47.5%">
+      <strong>Phone No:</strong><br/>__ISSUER_PHONE__<br/>
+      <span class="placeholder">[System Generated]</span>
+    </td>
+  </tr>
+</table>
+
+<!-- ========================= WO – SECTION B2: Support Personnel ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">B2</td>
+    <td class="section-header" width="95%">Support Personnel [Team members involved in execution]</td>
+  </tr>
+  <tr>
+    <td style="text-align:center;" width="5%"><strong>No.</strong></td>
+    <td width="95%"><strong>Name</strong></td>
+  </tr>
+  __ASSIST_ROWS__
+</table>
+
+<!-- ========================= WO – SECTION C: Material Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">C</td>
+    <td class="section-header" colspan="6" width="95%">Material Details [Parts or materials issued / returned]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td width="15.83%"><strong>Part No.</strong></td>
+    <td width="15.83%"><strong>Item Description</strong></td>
+    <td width="15.83%"><strong>Issue Type (D/I)</strong></td>
+    <td width="15.83%"><strong>Unit</strong></td>
+    <td width="15.83%"><strong>Qty Taken</strong></td>
+    <td width="15.83%"><strong>Qty Return</strong></td>
+  </tr>
+  <!-- Example data row (remove or replace if not needed) -->
+  <tr>
+    <td>&nbsp;</td>
+    <td>ABC-123</td>
+    <td>Replacement Filter</td>
+    <td>D</td>
+    <td>Each</td>
+    <td>1</td>
+    <td>0</td>
+  </tr>
+  __MATERIAL_BLANK_ROWS__
+</table>
+
+<!-- ========================= WO – SECTION D: Work Execution Details ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">D</td>
+    <td class="section-header" colspan="2" width="95%">Work Execution Details [Action duration, task notes, timeline]</td>
+  </tr>
+  <tr>
+    <td width="5%"><strong>Start Date &amp; Time:</strong><br/>__START_DT__</td>
+    <td width="47.5%"><strong>End Date &amp; Time:</strong><br/>__END_DT__</td>
+    <td width="47.5%"><strong>Duration:</strong><br/>__DURATION__</td>
+  </tr>
+  <tr>
+    <td colspan="1" width="5%">&nbsp;</td>
+    <td width="47.5%"><strong>Status:</strong><br/>__STATUS_WO__</td>
+    <td width="47.5%">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- ========================= WO – SECTION E: Work Completion & Verification ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">E</td>
+    <td class="section-header" colspan="2" width="95%">Work Completion &amp; Verification [Sign‐off &amp; rating]</td>
+  </tr>
+  <tr>
+    <td width="31.666%" style="height:50mm; vertical-align: top;">
+      <strong>Serviced By:</strong><br/><br/><br/>
+      .........................................<br/>
+      <strong>Name:</strong> __SERVICED_BY__<br/>
+      <strong>Date / Time:</strong> __SERVICED_AT__
+    </td>
+    <td width="31.666%" style="height:50mm; vertical-align: top;">
+      <strong>Checked By:</strong><br/><br/><br/>
+      .........................................<br/>
+      <strong>Name:</strong> __CHECKED_BY__<br/>
+      <strong>Date / Time:</strong> __CHECKED_AT__
+    </td>
+    <td width="31.666%" style="height:50mm; vertical-align: top;">
+      <strong>Verified By:</strong><br/><br/><br/>
+      .........................................<br/>
+      <strong>Name:</strong> __VERIFIED_BY__<br/>
+      <strong>Date / Time:</strong> __VERIFIED_AT__
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" width="100%" style="padding:6px;">
+      <strong>Satisfactory Level:</strong> [Choose 1–5: 1=Very Dissatisfied … 5=Very Satisfied]
+      <span class="placeholder">__RATING__</span>
+    </td>
+  </tr>
+</table>
+
+<!-- ========================= WO – SECTION J1: Photo Documentation (Before) ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">J1</td>
+    <td class="section-header" colspan="3" width="95%">Photo Documentation (Before) [Visual proof for each repair stage]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td class="center-text" width="31.66%"><strong>Image 1</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 2</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 3</strong></td>
+  </tr>
+  __BEFORE_ROWS__
+</table>
+
+<!-- ========================= WO – SECTION J2: Photo Documentation (During) ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">J2</td>
+    <td class="section-header" colspan="3" width="95%">Photo Documentation (During) [Visual proof for each repair stage]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td class="center-text" width="31.66%"><strong>Image 1</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 2</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 3</strong></td>
+  </tr>
+  __DURING_ROWS__
+</table>
+
+<!-- ========================= WO – SECTION J3: Photo Documentation (After) ========================= -->
+<table width="100%">
+  <tr>
+    <td class="section-header center-text" width="5%">J3</td>
+    <td class="section-header" colspan="3" width="95%">Photo Documentation (After) [Visual proof for each repair stage]</td>
+  </tr>
+  <tr>
+    <td width="5%">&nbsp;</td>
+    <td class="center-text" width="31.66%"><strong>Image 1</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 2</strong></td>
+    <td class="center-text" width="31.66%"><strong>Image 3</strong></td>
+  </tr>
+  __AFTER_ROWS__
+</table>
+HTML;
+
+            // 7) Now replace each placeholder token with its PHP variable
+            $search = [
+                '__REPORTED_BY__',
+                '__REPORTED_PHONE__',
+                '__REPORTED_EMAIL__',
+                '__REPORTED_DT__',
+                '__CATEGORY__',
+                '__SEVERITY__',
+                '__WR_NO__',
+                '__LOCATION__',
+                '__COMPLAINT_TEXT__',
+
+                '__START_DT__',
+                '__END_DT__',
+                '__DURATION__',
+                '__STATUS_WO__',
+
+                '__WO_NO__',
+                '__WO_STATUS__',
+                '__LOC_NAME__',
+                '__LOC_CODE__',
+                '__ASSET_NAME__',
+                '__ASSET_CODE__',
+                '__WO_SEVERITY__',
+                '__WO_DUE_TIME__',
+
+                '__RECEIVED_BY__',
+                '__ASSIGNED_TO__',
+                '__DATE_ASSIGNED__',
+                '__ISSUER_PHONE__',
+
+                '__SERVICED_BY__',
+                '__SERVICED_AT__',
+                '__CHECKED_BY__',
+                '__CHECKED_AT__',
+                '__VERIFIED_BY__',
+                '__VERIFIED_AT__',
+                '__RATING__',
+
+                '__ASSIST_ROWS__',
+                '__MATERIAL_BLANK_ROWS__',
+                '__BEFORE_ROWS__',
+                '__DURING_ROWS__',
+                '__AFTER_ROWS__'
+            ];
+
+            $replace = [
+                $reportedBy,
+                $reportedPhone,
+                $reportedEmail,
+                $reportedDtTxt,
+                $categoryTxt,
+                $severityTxt,
+                $wr_no,
+                $locationTxt,
+                $complaintTxt,
+
+                $startDT,
+                $endDT,
+                $duration,
+                $statusWO,
+
+                $woNumber,
+                $woStatus,
+                $locName,
+                $locCode,
+                $assetName,
+                $assetCode,
+                $woSeverity,
+                $woDueTime,
+
+                $receivedBy,
+                $assignedTo,
+                $dateAssigned,
+                $issuerPhone,
+
+                $servicedByName,
+                $servicedAt,
+                $checkedByName,
+                $checkedAt,
+                $verifiedByName,
+                $verifiedAt,
+                $ratingTxt,
+
+                $assistRowsHtml,
+                $materialBlankRows,
+                $beforeHtml,
+                $duringHtml,
+                $afterHtml
+            ];
+
+            // Perform the placeholder replacements
+            $html = str_replace($search, $replace, $html);
+
+            // 8) Instantiate TCPDF and render the HTML
             $pdf = new MYPDF_wo(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
             $pdf->SetCreator(PDF_CREATOR);
             $pdf->SetAuthor('Generated by Class_pdf_wo');
@@ -939,10 +972,10 @@ class Class_pdf_wo {
             $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
             $pdf->AddPage();
-            // Write the full HTML—TCPDF handles wrapping and page breaks
+            // Write the full HTML—TCPDF will interpret the percentage widths correctly
             $pdf->writeHTML($html, true, false, true, false, '');
 
-            // 8) Save the generated PDF file
+            // 9) Save the generated PDF file
             $folder_code = floor(intval($this->woTaskId) / 1000);
             $folder = 'pdf/wo/' . $folder_code;
             if (!is_dir($folder)) {
@@ -962,7 +995,7 @@ class Class_pdf_wo {
             }
             $pdf->Output(dirname(__FILE__) . $filename_src, 'F');
 
-            // 9) Insert/update sys_pdf record, then update wo_task
+            // 10) Insert/update sys_pdf record, then update wo_task
             $pdfId = $woTask['pdf_id'];
             if (empty($pdfId)) {
                 $pdfId = Class_db::getInstance()->db_select_col(
