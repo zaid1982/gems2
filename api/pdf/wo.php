@@ -1,7 +1,7 @@
 <?php
 /**
  * Class MYPDF_wo
- * Overrides the TCPDF footer so that each page prints "Page X of Y" at the bottom.
+ * Overrides the TCPDF footer so each page prints "Page X of Y" at the bottom.
  */
 class MYPDF_wo extends TCPDF {
     // Page footer
@@ -19,13 +19,13 @@ class MYPDF_wo extends TCPDF {
 /**
  * Class Class_pdf_wo
  *
- * Builds a Work Request (WR) + Work Order (WO) report entirely via HTML tables
- * (with inline CSS) and hands it to TCPDF’s writeHTML() method. The gray header
- * color (#E6E6E6) exactly matches the original template’s section-header background.
+ * Generates a Work Request (WR) + Work Order (WO) PDF by constructing an HTML
+ * template that matches the provided .docx layout and feeding it to TCPDF’s writeHTML().
+ * All section headers use background-color #E6E6E6. Tables are aligned exactly as in the template.
  */
 class Class_pdf_wo {
-    private $fn_general;   // Utility object (clear_null, convertDateToDisplay, timeDiff, etc.)
-    private $woTaskId;     // The ID of the WO task we’re generating a PDF for
+    private $fn_general;   // Utility object providing clear_null(), convertDateToDisplay(), timeDiff(), etc.
+    private $woTaskId;     // The ID of the WO task
 
     function __construct() {
     }
@@ -73,9 +73,9 @@ class Class_pdf_wo {
 
     /**
      * create_pdf()
-     *   - Fetches all data (WR + WO) from database
-     *   - Builds a single $html string containing all sections as <table>…</table>,
-     *     using inline CSS with background‐color #E6E6E6 for each “section-header” row.
+     *   - Fetches all WR + WO data from the database.
+     *   - Builds a single HTML string containing all sections (A, B1, B2, C1, C2, D1, D2, then WO sections).
+     *   - Uses inline CSS with background-color #E6E6E6 for each “section-header” row.
      *   - Calls TCPDF->writeHTML() to render it.
      *   - Saves the PDF file and updates sys_pdf + wo_task tables.
      *
@@ -85,12 +85,12 @@ class Class_pdf_wo {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
-            // 1) Validate that woTaskId was set
+            // 1) Validate woTaskId
             if (empty($this->woTaskId)) {
                 throw new Exception('[Line ' . __LINE__ . '] - Parameter woTaskId Empty');
             }
 
-            // 2) Pull WO task record from database
+            // 2) Fetch the WO task record
             $woTask = Class_db::getInstance()->db_select_single(
                 'wo_task',
                 ['wo_task_id' => $this->woTaskId],
@@ -114,7 +114,7 @@ class Class_pdf_wo {
             );
             $arrSiteName = $this->fn_general->getSiteName();           // [ site_id => "Site Name" ]
             $arrCategory = ['', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect', 'Public Complaint'];
-            $arrSeverity = $this->fn_general->getSeverityName();       // [ severity_id => "Non-Critical", "Critical" ... ]
+            $arrSeverity = $this->fn_general->getSeverityName();       // [ severity_id => "Normal", "Critical", ... ]
 
             // 4) Build SLA / Due arrays based on client severity
             $clientId = Class_db::getInstance()->db_select_col(
@@ -136,7 +136,7 @@ class Class_pdf_wo {
                 $arrDue[$key] = $cs['client_severity_hour'];
             }
 
-            // 5) Fetch all uploads, categorize them by type
+            // 5) Fetch all uploads and categorize them by type
             $woUploadsAll = Class_db::getInstance()->db_select(
                 'mw_wo_upload',
                 [
@@ -144,7 +144,7 @@ class Class_pdf_wo {
                     'sys_upload.upload_status' => '1'
                 ]
             );
-            $imgComplaint = [];   // wo_task_upload_type = 1
+            $imgComplaint = [];   // type = 1
             $imgBefore = [];      // type = 2
             $imgDuring = [];      // type = 3
             $imgAfter = [];       // type = 4
@@ -174,25 +174,28 @@ class Class_pdf_wo {
                         }
                         break;
                     default:
-                        // ignore all other types
+                        // ignore other types
                         break;
                 }
             }
 
-            // 6) Build the HTML template string (with inline CSS using #E6E6E6 for section headers)
+            // 6) Build the HTML template string
+            //    - All section headers use background-color #E6E6E6
+            //    - Tables match the exact column structure as in the Word template
             $html = '
 <style>
-    /* Use the same light-gray (#E6E6E6) for section-header background as in the Word template */
+    /* Match the template’s gray header color (#E6E6E6) */
     body { font-family: helvetica, sans-serif; font-size: 10pt; }
     table { border-collapse: collapse; width: 100%; }
     td, th { border: 1px solid #000000; vertical-align: top; padding: 4px; }
     .section-header { background-color: #E6E6E6; font-weight: bold; }
     .no-border td { border: none !important; }
     .center-text { text-align: center; }
+    .placeholder { color: #555555; font-style: italic; }
 </style>
 
 <!-- ========================= 
-     HEADER: WR & WO TITLE 
+     HEADER: WORK REQUEST (WR) & WORK ORDER (WO) 
      ========================= -->
 <table class="no-border">
     <tr>
@@ -200,7 +203,6 @@ class Class_pdf_wo {
             WORK REQUEST (WR) &amp;<br/>WORK ORDER (WO)
         </td>
     </tr>
-    <!-- Thin line -->
     <tr>
         <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
             &nbsp;
@@ -210,40 +212,50 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION A: Complaint Details 
+     WR SECTION: SECTION A – Complaint Details 
      ========================= -->
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">A</td>
-        <td class="section-header">
-            Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]
-        </td>
+        <td class="section-header">Complaint Details [User Details: Public &amp; Client for Complaints or Internal: for Self-Finding]</td>
     </tr>
-    <!-- Row A1: Reported by / Phone No -->
     <tr>
-        <td style="width:50%;"><strong>Reported by:</strong><br/>' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_created_by'])]) . '</td>
-        <td><strong>Phone No:</strong><br/>' . htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no'])) . '</td>
+        <td style="width:50%;"><strong>Reported by:</strong><br/>' 
+            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_created_by'])]) 
+            . '<br/><span class="placeholder">[Manual Entry]</span></td>
+        <td><strong>Phone No:</strong><br/>' 
+            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no'])) 
+            . '<br/><span class="placeholder">[Manual Entry]</span></td>
     </tr>
-    <!-- Row A2: Email / Reported Date / Time -->
     <tr>
-        <td><strong>Email:</strong><br/>' . htmlspecialchars($this->fn_general->clear_null($userProfile['user_email'])) . '</td>
-        <td><strong>Reported Date / Time:</strong><br/>' . htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_created'])) . '</td>
+        <td><strong>Email:</strong><br/>' 
+            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_email'])) 
+            . '<br/><span class="placeholder">[Manual Entry]</span></td>
+        <td><strong>Reported Date / Time:</strong><br/>' 
+            . htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_created'])) 
+            . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
-    <!-- Row A3: Category / Severity -->
     <tr>
-        <td><strong>Category:</strong><br/>' . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'],0))]) . '</td>
-        <td><strong>Severity:</strong><br/>' . htmlspecialchars($arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'],0))]) . '</td>
+        <td><strong>Category:</strong><br/>' 
+            . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'], 0))]) 
+            . '<br/><span class="placeholder">[Select from System]</span></td>
+        <td><strong>Severity:</strong><br/>' 
+            . htmlspecialchars($arrSeverity[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) 
+            . '<br/><span class="placeholder">[Select from System]</span></td>
     </tr>
-    <!-- Row A4: Work Request No / Location Complaint -->
     <tr>
-        <td><strong>Work Request No:</strong><br/>' . htmlspecialchars($woTask['wo_task_no']) . '</td>
-        <td><strong>Location Complaint:</strong><br/>' . htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_location'])) . '</td>
+        <td><strong>Work Request No:</strong><br/>' 
+            . htmlspecialchars($woTask['wo_task_no']) 
+            . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Location Complaint:</strong><br/>' 
+            . htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_location'])) 
+            . '<br/><span class="placeholder">[Select from System]</span></td>
     </tr>
 </table>
 <br/>
 
 <!-- ========================= 
-     SECTION B1: Description of Complaint 
+     WR SECTION: SECTION B1 – Description of Complaint 
      ========================= -->
 <table>
     <tr>
@@ -258,47 +270,52 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION B2: Complaint Images 
+     WR SECTION: SECTION B2 – Complaint Images 
      ========================= -->
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">B2</td>
         <td class="section-header">Complaint Images [Complain from User]</td>
-    </tr>';
-
-            // Insert each complaint image; if none, show one blank row
-            if (!empty($imgComplaint)) {
-                foreach ($imgComplaint as $img) {
-                    $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                    $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                    $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                    $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-
-                    $html .= '
+    </tr>
     <tr>
-        <td>&nbsp;</td>
-        <td>
-            <table style="width:100%; border-collapse:collapse;">
-                <tr>
-                    <td style="width:48%; text-align:center; border:1px solid #000; padding:4px;">
-                        <img src="' . $imgPath . '" style="max-width:100%; height:auto;" />
-                    </td>
-                    <td style="width:52%; border:1px solid #000; padding:4px;">
-                        <strong>Description:</strong> ' . $desc . '<br/>
-                        <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-                        <strong>GPS Coordinates:</strong> ' . $gps . '
-                    </td>
-                </tr>
-            </table>
-        </td>
+        <td class="center-text"><strong>Image 1</strong></td>
+        <td class="center-text"><strong>Image 2</strong></td>
+        <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
+
+            // If there are complaint images, show them; otherwise show blank placeholders
+            if (!empty($imgComplaint)) {
+                // We expect up to 3 images; if fewer, leave blanks for the rest
+                for ($i = 0; $i < 3; $i++) {
+                    if (isset($imgComplaint[$i])) {
+                        $img = $imgComplaint[$i];
+                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
+                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
+                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= '
+    <tr>
+        <td style="text-align:center; border:1px solid #000; padding:4px;">
+            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
+            <strong>Description:</strong> ' . $desc . '<br/>
+            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
+            <strong>GPS Coordinates:</strong> ' . $gps . '
+        </td>';
+                    } else {
+                        // Blank placeholder
+                        $html .= '
+        <td style="height:50mm;">&nbsp;</td>';
+                    }
                 }
+                $html .= '
+    </tr>';
             } else {
-                // One blank row if no complaint images
+                // No images at all → one full blank row of three columns
                 $html .= '
     <tr>
-        <td>&nbsp;</td>
-        <td style="height:30mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
     </tr>';
             }
 
@@ -307,7 +324,7 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION C1: Work Assessment Details 
+     WR SECTION: SECTION C1 – Work Assessment Details 
      ========================= -->
 <table>
     <tr>
@@ -315,7 +332,7 @@ class Class_pdf_wo {
         <td class="section-header">Work Assessment Details [Selected by P.I.C. to verify the complaint]</td>
     </tr>';
 
-            // Calculate Work Assessment fields
+            // Calculate C1 fields
             $picName = '';
             $picEmail = '';
             $wrDueTime = '';
@@ -339,74 +356,88 @@ class Class_pdf_wo {
                 if (!empty($woTask['wo_task_severity'])) {
                     $dueDt = clone $createdDt;
                     $dueDt->modify('+' . $arrDue[intval($woTask['wo_task_severity'])] . ' hour');
-                    $wrDueTime = $dueDt->format('j/n/Y g:i:sa');
+                    $wrDueTime = $dueDt->format('d/m/Y g:i A');
                 }
                 if (!empty($woTask['wo_task_time_assigned'])) {
                     $assignedDt = new DateTime($woTask['wo_task_time_assigned']);
-                    $assignTime = $assignedDt->format('j/n/Y g:i:sa');
+                    $assignTime = $assignedDt->format('d/m/Y g:i A');
                     $respondDuration = $this->fn_general->timeDiff(
                         $woTask['wo_task_time_created'],
                         $woTask['wo_task_time_assigned']
                     );
                     if ($assignedDt && !empty($wrDueTime)) {
-                        $respondStatus = ($assignedDt <= new DateTime($wrDueTime) ? 'Within' : 'Exceed');
+                        $respondStatus = ($assignedDt <= new DateTime($wrDueTime)) ? 'Within' : 'Exceed';
                     }
                 }
             }
 
-            // Two rows, four cells total
+            // First row: Person in Charge / SLA Respond Time
             $html .= '
     <tr>
-        <td><strong>Person In Charge:</strong><br/>' . htmlspecialchars($picName) . '</td>
-        <td><strong>SLA Respond Time:</strong><br/>' . htmlspecialchars($arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) . '</td>
+        <td><strong>Person in Charge:</strong><br/>' . htmlspecialchars($picName) 
+                . '<br/><span class="placeholder">[Select from System]</span></td>
+        <td><strong>SLA Respond Time:</strong><br/>' 
+                . htmlspecialchars($arrSla[intval($this->fn_general->clear_null($woTask['wo_task_severity'], 0))]) 
+                . '<br/><span class="placeholder">[Select from System]</span></td>
     </tr>
     <tr>
-        <td><strong>WR Due Date Time:</strong><br/>' . htmlspecialchars($wrDueTime) . '</td>
-        <td><strong>Respond Status:</strong><br/>' . htmlspecialchars($respondStatus) . '</td>
+        <td><strong>Email:</strong><br/>' . htmlspecialchars($picEmail) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>WR Due Date Time:</strong><br/>' . htmlspecialchars($wrDueTime) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+    </tr>
+    <tr>
+        <td><strong>Respond Date / Duration:</strong><br/>' . htmlspecialchars($assignTime . ', ' . $respondDuration) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Respond Status:</strong><br/>' . htmlspecialchars($respondStatus) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
 </table>
 <br/>
 
 <!-- ========================= 
-     SECTION C2: Response Images 
+     WR SECTION: SECTION C2 – Response Images 
      ========================= -->
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">C2</td>
-        <td class="section-header">Response Images [P.I.C. verification of complaint]</td>
+        <td class="section-header">Response Images [P.I.C. verification of the complaint]</td>
+    </tr>
+    <tr>
+        <td class="center-text"><strong>Image 1</strong></td>
+        <td class="center-text"><strong>Image 2</strong></td>
+        <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
 
             if (!empty($imgResponse)) {
-                foreach ($imgResponse as $img) {
-                    $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                    $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                    $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                    $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-
-                    $html .= '
+                for ($i = 0; $i < 3; $i++) {
+                    if (isset($imgResponse[$i])) {
+                        $img = $imgResponse[$i];
+                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
+                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
+                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= '
     <tr>
-        <td>&nbsp;</td>
-        <td>
-            <table style="width:100%; border-collapse:collapse;">
-                <tr>
-                    <td style="width:48%; text-align:center; border:1px solid #000; padding:4px;">
-                        <img src="' . $imgPath . '" style="max-width:100%; height:auto;" />
-                    </td>
-                    <td style="width:52%; border:1px solid #000; padding:4px;">
-                        <strong>Description:</strong> ' . $desc . '<br/>
-                        <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-                        <strong>GPS Coordinates:</strong> ' . $gps . '
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>';
+        <td style="text-align:center; border:1px solid #000; padding:4px;">
+            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
+            <strong>Description:</strong> ' . $desc . '<br/>
+            <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
+            <strong>Longitude / Latitude:</strong> ' . $gps . '
+        </td>';
+                    } else {
+                        $html .= '
+        <td style="height:50mm;">&nbsp;</td>';
+                    }
                 }
+                $html .= '
+    </tr>';
             } else {
                 $html .= '
     <tr>
-        <td>&nbsp;</td>
-        <td style="height:30mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
     </tr>';
             }
 
@@ -415,15 +446,15 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION D1: Validation Details 
+     WR SECTION: SECTION D1 – Validation Details 
      ========================= -->
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">D1</td>
-        <td class="section-header">Validation Details [Who issues / assigns the WR to P.I.C.]</td>
+        <td class="section-header">Validation Details [Who issue/assigned the WR to P.I.C.]</td>
     </tr>
     <tr>
-        <td><strong>Validation by:</strong><br/>[Select from System]</td>
+        <td><strong>Validation by:</strong><br/[Select from System]</td>
         <td><strong>Designation:</strong><br/>[System Generated]</td>
     </tr>
     <tr>
@@ -434,7 +465,7 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION D2: Remark Details 
+     WR SECTION: SECTION D2 – Remark Details 
      ========================= -->
 <table>
     <tr>
@@ -443,13 +474,30 @@ class Class_pdf_wo {
     </tr>
     <tr>
         <td>&nbsp;</td>
-        <td style="height:30mm;">&nbsp;</td>
+        <td style="height:40mm;">&nbsp;</td>
     </tr>
 </table>
 <br/>
 
 <!-- ========================= 
-     SECTION 8.A: Work Order Details 
+     WO SECTION HEADER 
+     ========================= -->
+<table class="no-border">
+    <tr>
+        <td colspan="2" class="center-text" style="font-size:16pt; font-weight:bold; border:none;">
+            WORK ORDER (WO)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="border-top:1px solid #000; border-left:none; border-right:none; border-bottom:none; height:8px;">
+            &nbsp;
+        </td>
+    </tr>
+</table>
+<br/>
+
+<!-- ========================= 
+     WO SECTION: SECTION A – Work Order Details 
      ========================= -->
 <table>
     <tr>
@@ -457,12 +505,12 @@ class Class_pdf_wo {
         <td class="section-header">Work Order Details</td>
     </tr>';
 
-            // Build Work Order “A” fields
+            // Build WO “A” fields
             $woNumber = 'WO' . substr('GFMHQ' . date('ymd'), 0, 9) . str_pad($this->woTaskId, 5, '0', STR_PAD_LEFT);
             $woStatus = (!empty($woTask['wo_task_time_executed'])) ? 'Completed' : 'Open';
 
             $locName = $arrSiteName[intval($woTask['site_id'])];
-            $locCode = '[Manual Entry]';  // adjust if you have a database field
+            $locCode = '[System Generated]';  
 
             $assetName = '[Select from System or free text]';
             $assetCode = '[System Generated]';
@@ -473,38 +521,50 @@ class Class_pdf_wo {
                 $assignedDt = new DateTime($woTask['wo_task_time_assigned']);
                 $dueDt = clone $assignedDt;
                 $dueDt->modify('+' . $arrDue[intval($woTask['wo_task_severity'])] . ' hour');
-                $woDueTime = $dueDt->format('j/n/Y g:i:sa');
+                $woDueTime = $dueDt->format('d/m/Y g:i A');
             }
 
             $html .= '
     <tr>
-        <td><strong>Work Order No:</strong><br/>' . htmlspecialchars($woNumber) . '</td>
-        <td><strong>Status:</strong><br/>' . htmlspecialchars($woStatus) . '</td>
+        <td><strong>Work Order No:</strong><br/>' . htmlspecialchars($woNumber) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Status:</strong><br/>' . htmlspecialchars($woStatus) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
-        <td><strong>Work Request No:</strong><br/>' . htmlspecialchars($woTask['wo_task_no']) . '</td>
-        <td><strong>Category:</strong><br/>' . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'],0))]) . '</td>
+        <td><strong>Work Request No:</strong><br/>' . htmlspecialchars($woTask['wo_task_no']) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Category:</strong><br/>' . htmlspecialchars($arrCategory[intval($this->fn_general->clear_null($woTask['wo_task_type'],0))]) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
-        <td><strong>Location Name:</strong><br/>' . htmlspecialchars($locName) . '</td>
-        <td><strong>Location Code:</strong><br/>' . htmlspecialchars($locCode) . '</td>
+        <td><strong>Location Name:</strong><br/>' . htmlspecialchars($locName) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Location Code:</strong><br/>' . htmlspecialchars($locCode) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
-        <td><strong>Asset Name:</strong><br/>' . htmlspecialchars($assetName) . '</td>
-        <td><strong>Asset Code:</strong><br/>' . htmlspecialchars($assetCode) . '</td>
+        <td><strong>Asset Name:</strong><br/>' . htmlspecialchars($assetName) 
+                . '<br/><span class="placeholder">[Select from System]</span></td>
+        <td><strong>Asset Code:</strong><br/>' . htmlspecialchars($assetCode) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
-        <td><strong>Severity:</strong><br/>' . htmlspecialchars($woSeverity) . '</td>
-        <td><strong>WO Due Date / Time:</strong><br/>' . htmlspecialchars($woDueTime) . '</td>
+        <td><strong>Severity:</strong><br/>' . htmlspecialchars($woSeverity) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>WO Due Date / Time:</strong><br/>' . htmlspecialchars($woDueTime) 
+                . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
     <tr>
-        <td colspan="2"><strong>Complaint Description:</strong><br/><div style="height:20mm;">&nbsp;</div></td>
+        <td colspan="2"><strong>Complaint Description:</strong><br/><div style="height:20mm;">' 
+                . htmlspecialchars($this->fn_general->clear_null($woTask['wo_task_complaint'])) 
+                . '</div></td>
     </tr>
 </table>
 <br/>
 
 <!-- ========================= 
-     SECTION 8.B1: Work Assignment Details 
+     WO SECTION: SECTION B1 – Work Assignment Details 
      ========================= -->
 <table>
     <tr>
@@ -512,18 +572,28 @@ class Class_pdf_wo {
         <td class="section-header">Work Assignment Details [Details of task issuer and receiver]</td>
     </tr>
     <tr>
-        <td><strong>Received By:</strong><br/>[System Generated]</td>
-        <td><strong>Assigned To:</strong><br/>[Select from System]</td>
+        <td><strong>Received By:</strong><br/>' 
+            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) 
+            . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Assigned To:</strong><br/>' 
+            . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_assigned_to'] ?? 0)]) 
+            . '<br/><span class="placeholder">[Select from System]</span></td>
     </tr>
     <tr>
-        <td><strong>Date Assigned:</strong><br/>[System Generated]</td>
-        <td><strong>Phone No:</strong><br/>[System Generated]</td>
+        <td><strong>Date Assigned:</strong><br/>' 
+            . ($woTask['wo_task_time_assigned'] 
+                ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_assigned'])) 
+                : '') 
+            . '<br/><span class="placeholder">[System Generated]</span></td>
+        <td><strong>Phone No:</strong><br/>' 
+            . htmlspecialchars($this->fn_general->clear_null($userProfile['user_contact_no'])) 
+            . '<br/><span class="placeholder">[System Generated]</span></td>
     </tr>
 </table>
 <br/>
 
 <!-- ========================= 
-     SECTION 8.B2: Support Personnel 
+     WO SECTION: SECTION B2 – Support Personnel 
      ========================= -->
 <table>
     <tr>
@@ -563,23 +633,23 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION 8.C: Material Details 
+     WO SECTION: SECTION C – Material Details 
      ========================= -->
 <table>
     <tr>
         <td class="section-header" style="width:8mm; text-align:center;">C</td>
-        <td class="section-header">Material Details [Parts or materials issued / returned]</td>
+        <td class="section-header">Material Details [Parts or materials issued, returned – tracked in Inventory Module]</td>
     </tr>
     <tr>
         <td style="width:25%;"><strong>Part No.</strong></td>
         <td style="width:40%;"><strong>Item Description</strong></td>
-        <td style="width:10%;"><strong>Issue Type</strong></td>
+        <td style="width:10%;"><strong>Issue Type<br/>(D/I)</strong></td>
         <td style="width:10%;"><strong>Unit</strong></td>
         <td style="width:7.5%;"><strong>Qty Taken</strong></td>
         <td style="width:7.5%;"><strong>Qty Return</strong></td>
     </tr>';
 
-            // Draw 5 blank rows for manual entry
+            // Draw 5 blank rows for manual entry (or loop through actual material records)
             for ($i = 0; $i < 5; $i++) {
                 $html .= '
     <tr>
@@ -597,7 +667,7 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION 8.D: Work Execution Details 
+     WO SECTION: SECTION D – Work Execution Details 
      ========================= -->
 <table>
     <tr>
@@ -628,7 +698,7 @@ class Class_pdf_wo {
                     $hoursTaken = 0;
                 }
                 $allowedHours = intval($arrDue[intval($woTask['wo_task_severity'])]);
-                $statusWO = ($hoursTaken <= $allowedHours ? 'Within' : 'Exceed');
+                $statusWO = ($hoursTaken <= $allowedHours) ? 'Within SLA' : 'Exceed SLA';
             }
 
             $html .= '
@@ -644,7 +714,7 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION 8.E: Work Completion & Verification 
+     WO SECTION: SECTION E – Work Completion & Verification 
      ========================= -->
 <table>
     <tr>
@@ -657,27 +727,30 @@ class Class_pdf_wo {
             <strong>Serviced By:</strong><br/><br/><br/>
             .........................................<br/>
             <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_fixed_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' . ($woTask['wo_task_time_executed'] 
-                ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed'])) 
-                : '') . '
+            <strong>Date / Time:</strong> ' 
+                . ($woTask['wo_task_time_executed'] 
+                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_executed'])) 
+                    : '') . '
         </td>
         <!-- Box 2: Checked By -->
         <td style="width:33.33%; height:50mm; vertical-align: top;">
             <strong>Checked By:</strong><br/><br/><br/>
             .........................................<br/>
             <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' . ($woTask['wo_task_time_verified'] 
-                ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
-                : '') . '
+            <strong>Date / Time:</strong> ' 
+                . ($woTask['wo_task_time_verified'] 
+                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
+                    : '') . '
         </td>
         <!-- Box 3: Verified By -->
         <td style="width:33.33%; height:50mm; vertical-align: top;">
             <strong>Verified By:</strong><br/><br/><br/>
             .........................................<br/>
             <strong>Name:</strong> ' . htmlspecialchars($arrUserFullName[intval($woTask['wo_task_verified_by'] ?? 0)]) . '<br/>
-            <strong>Date / Time:</strong> ' . ($woTask['wo_task_time_verified'] 
-                ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
-                : '') . '
+            <strong>Date / Time:</strong> ' 
+                . ($woTask['wo_task_time_verified'] 
+                    ? htmlspecialchars($this->fn_general->convertDateToDisplay($woTask['wo_task_time_verified'])) 
+                    : '') . '
         </td>
     </tr>
     <tr>
@@ -690,39 +763,49 @@ class Class_pdf_wo {
 <br/>
 
 <!-- ========================= 
-     SECTION 8.J: Photo Documentation (Before / During / After) 
+     WO SECTION: SECTION J – Photo Documentation (Before / During / After) 
      ========================= -->
 
 <!-- J1: Photo Documentation (Before) -->
 <table>
     <tr>
-        <td class="section-header" colspan="2">Photo Documentation (Before) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="3">Photo Documentation (Before) [Visual proof for each repair stage]</td>
+    </tr>
+    <tr>
+        <td class="center-text"><strong>Image 1</strong></td>
+        <td class="center-text"><strong>Image 2</strong></td>
+        <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
 
             if (!empty($imgBefore)) {
-                foreach ($imgBefore as $img) {
-                    $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                    $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                    $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                    $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-
-                    $html .= '
+                for ($i = 0; $i < 3; $i++) {
+                    if (isset($imgBefore[$i])) {
+                        $img = $imgBefore[$i];
+                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
+                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
+                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= '
     <tr>
-        <td style="width:48%; text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" />
-        </td>
-        <td style="width:52%; border:1px solid #000; padding:4px;">
+        <td style="text-align:center; border:1px solid #000; padding:4px;">
+            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
             <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>GPS Coordinates:</strong> ' . $gps . '
-        </td>
-    </tr>';
+            <strong>Longitude / Latitude:</strong> ' . $gps . '
+        </td>';
+                    } else {
+                        $html .= '
+        <td style="height:50mm;">&nbsp;</td>';
+                    }
                 }
+                $html .= '
+    </tr>';
             } else {
                 $html .= '
     <tr>
-        <td style="width:48%; height:30mm;">&nbsp;</td>
-        <td style="width:52%; height:30mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
     </tr>';
             }
 
@@ -733,33 +816,43 @@ class Class_pdf_wo {
 <!-- J2: Photo Documentation (During) -->
 <table>
     <tr>
-        <td class="section-header" colspan="2">Photo Documentation (During) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="3">Photo Documentation (During) [Visual proof for each repair stage]</td>
+    </tr>
+    <tr>
+        <td class="center-text"><strong>Image 1</strong></td>
+        <td class="center-text"><strong>Image 2</strong></td>
+        <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
 
             if (!empty($imgDuring)) {
-                foreach ($imgDuring as $img) {
-                    $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                    $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                    $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                    $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-
-                    $html .= '
+                for ($i = 0; $i < 3; $i++) {
+                    if (isset($imgDuring[$i])) {
+                        $img = $imgDuring[$i];
+                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
+                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
+                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= '
     <tr>
-        <td style="width:48%; text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" />
-        </td>
-        <td style="width:52%; border:1px solid #000; padding:4px;">
+        <td style="text-align:center; border:1px solid #000; padding:4px;">
+            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
             <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>GPS Coordinates:</strong> ' . $gps . '
-        </td>
-    </tr>';
+            <strong>Longitude / Latitude:</strong> ' . $gps . '
+        </td>';
+                    } else {
+                        $html .= '
+        <td style="height:50mm;">&nbsp;</td>';
+                    }
                 }
+                $html .= '
+    </tr>';
             } else {
                 $html .= '
     <tr>
-        <td style="width:48%; height:30mm;">&nbsp;</td>
-        <td style="width:52%; height:30mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
     </tr>';
             }
 
@@ -770,39 +863,49 @@ class Class_pdf_wo {
 <!-- J3: Photo Documentation (After) -->
 <table>
     <tr>
-        <td class="section-header" colspan="2">Photo Documentation (After) [Visual proof for each repair stage]</td>
+        <td class="section-header" colspan="3">Photo Documentation (After) [Visual proof for each repair stage]</td>
+    </tr>
+    <tr>
+        <td class="center-text"><strong>Image 1</strong></td>
+        <td class="center-text"><strong>Image 2</strong></td>
+        <td class="center-text"><strong>Image 3</strong></td>
     </tr>';
 
             if (!empty($imgAfter)) {
-                foreach ($imgAfter as $img) {
-                    $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
-                    $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
-                    $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
-                    $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
-
-                    $html .= '
+                for ($i = 0; $i < 3; $i++) {
+                    if (isset($imgAfter[$i])) {
+                        $img = $imgAfter[$i];
+                        $imgPath = $img['upload_folder'] . '/' . $img['upload_filename'] . '.' . $img['upload_extension'];
+                        $desc    = htmlspecialchars($this->fn_general->clear_null($img['wo_task_upload_desc']));
+                        $ts      = $this->fn_general->convertDateToDisplay($img['wo_task_upload_timestamp']);
+                        $gps     = htmlspecialchars($img['wo_task_upload_longitude'] . ', ' . $img['wo_task_upload_latitude']);
+                        $html .= '
     <tr>
-        <td style="width:48%; text-align:center; border:1px solid #000; padding:4px;">
-            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" />
-        </td>
-        <td style="width:52%; border:1px solid #000; padding:4px;">
+        <td style="text-align:center; border:1px solid #000; padding:4px;">
+            <img src="' . $imgPath . '" style="max-width:100%; height:auto;" /><br/><br/>
             <strong>Description:</strong> ' . $desc . '<br/>
             <strong>Date / Time Taken:</strong> ' . $ts . '<br/>
-            <strong>GPS Coordinates:</strong> ' . $gps . '
-        </td>
-    </tr>';
+            <strong>Longitude / Latitude:</strong> ' . $gps . '
+        </td>';
+                    } else {
+                        $html .= '
+        <td style="height:50mm;">&nbsp;</td>';
+                    }
                 }
+                $html .= '
+    </tr>';
             } else {
                 $html .= '
     <tr>
-        <td style="width:48%; height:30mm;">&nbsp;</td>
-        <td style="width:52%; height:30mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
+        <td style="height:50mm;">&nbsp;</td>
     </tr>';
             }
 
             $html .= '
 </table>
-';  // End of HTML template
+'; // End of HTML template
 
             // 7) Instantiate TCPDF and render the HTML
             $pdf = new MYPDF_wo(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -821,7 +924,7 @@ class Class_pdf_wo {
             $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
             $pdf->AddPage();
-            // Write the full HTML at once—TCPDF will handle wrapping and page breaks automatically
+            // Write the full HTML—TCPDF handles wrapping and page breaks
             $pdf->writeHTML($html, true, false, true, false, '');
 
             // 8) Save the generated PDF file
