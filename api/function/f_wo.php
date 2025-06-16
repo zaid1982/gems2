@@ -266,9 +266,12 @@ class Class_wo {
             // since all start with WR now, lets use wo_task_is_wr
             if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
                 $arrWhere['wo_task_is_wr'] = '1';
+                $arrWhere['wo_task_is_pdf_wr'] = '1';            
+            }
+            else {
+                $arrWhere['wo_task_is_pdf'] = '1';
             }
             $arrWhere['wo_task_request_no'] = $woTaskNo;
-            $arrWhere['wo_task_is_pdf_wr'] = '1';            
 
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', $arrWhere);
             foreach ($complaintImageUploads as $complaintImageUpload) {
