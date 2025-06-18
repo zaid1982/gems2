@@ -721,7 +721,7 @@ class Class_wo {
             $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $createdBy = $dataLocal['wo_task_created_by'];
             $result['woTaskId'] = $dataLocal['wo_task_id'];
-			$result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' && $dataLocal['wo_task_wr_confirm'] !== '1' ? '-' : $dataLocal['wo_task_no'];
+			$result['woTaskNo'] = $dataLocal['wo_task_no'] !== '' ? $dataLocal['wo_task_no'] : '-';
             $result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
             $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)];
             $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
