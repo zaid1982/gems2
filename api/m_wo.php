@@ -154,15 +154,18 @@ try {
             $roleId = $fn_wo->get_role_id_from_user();
             $checkpointId = $roleId==='6'?'11':'10';
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
-            $woTaskNo = $fn_wo->create_wo_no($groupId, $checkpointId === '10');
+            // MODIFIED: Force creation of WR for initial submission
+            $woTaskNo = $fn_wo->create_wo_no($groupId, false, true); //
             $taskId = $fn_task->create_new_task('2', $jwt_data->userId, $roleId, $groupId, $woTaskNo, '', $checkpointId);
-			$fn_wo->__set('userId', $jwt_data->userId);
-            $isWr = $fn_wo->get_wo_is_wr();
+            $fn_wo->__set('userId', $jwt_data->userId);
+            // MODIFIED: isWr should consistently be '1' for initial submission
+            $isWr = '1'; //
             if ($roleId === '6' && $isWr === '1') {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '1', '', $groupId);
             } else {
                 $newTaskId = $fn_task->submit_task($taskId, $jwt_data->userId, '9', '', '', '', $groupId);
             }
+            // `submit_new_complaint` will now always mark it as WR
             $woTaskId = $fn_wo->submit_new_complaint($taskId, $woTaskNo, $woTaskLocation, $woTaskComplaint, $complaintImageUploads, $woTaskLongitude, $woTaskLatitude, '', $zoneId);
             $fn_wo->__set('woTaskId', $woTaskId);
             $nextUsers = $fn_task->get_checkpoints_users('7', '12', $woTaskId);
@@ -170,15 +173,13 @@ try {
                 //$fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo), $isWr === '1');
                 $fn_email->setup_email($userId, 4, array('task_no' => $woTaskNo));
                 $fn_email->setup_mobile_notification($userId, 5, array('task_no' => $woTaskNo));
-                $fn_noti_web->insert($isWr === '1' ? 2 : 1, $userId, $woTaskNo);
+                // Use type 2 for WR notification
+                $fn_noti_web->insert(2, $userId, $woTaskNo); //
             }
             $fn_wo->save_respond_time_m();
             $form_data['errmsg'] = $constant::SUC_WO_COMPLAINT_SUBMITTED;
-            if ($isWr === '1') {
-                $fn_general->save_audit('104', $jwt_data->userId, 'Work Request no. = '.$woTaskNo);
-            } else {
-                $fn_general->save_audit('104', $jwt_data->userId, 'Work Order no. = '.$woTaskNo);
-            }
+            // MODIFIED: Audit log should always be for Work Request for initial submission
+            $fn_general->save_audit('104', $jwt_data->userId, 'Work Request no. = '.$woTaskNo); //
         }
         else if ($action === 'save_assigned_technician') {
             $ppmGroupId = filter_input(INPUT_POST, 'groupId');
@@ -211,19 +212,20 @@ try {
         }
         else if ($action === 'submit_assign') {
             $assignedTechnician = $fn_wo->get_assigned_technician();
-            $isWr = $fn_wo->get_wo_is_wr();
+            // MODIFIED: isWr check for notification/audit is now implicit from submit_assign's new WO number
+            // $isWr = $fn_wo->get_wo_is_wr(); // Removed or commented out
+
             $currentTask = $fn_wo->get_current_task('24', '12', '26', '17', '29');
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '10', '', '', '', '', $assignedTechnician);
+            // `submit_assign` now handles the WR to WO conversion for specific types
             $returnVal = $fn_wo->submit_assign($currentTask['transactionId']);
-            /*if ($isWr) {
-                $roleId = $fn_wo->get_role_id_from_user();
-                $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
-                $woTaskNo = $fn_wo->create_wo_no($groupId);
-                Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
-            }*/
-            $auditLabel = $isWr === '1' ? 'Work Request no. = ' : 'Work Order no. = ';
-            $emailTemplateId = $isWr === '1' ? 11 : 5;
-            $notiTextId = $isWr === '1' ? 12 : 6;
+
+            // MODIFIED: Audit label always Work Order no. after assignment
+            $auditLabel = 'Work Order no. = '; //
+            // MODIFIED: Email/Notification templates always for WO after assignment
+            $emailTemplateId = 5; //
+            $notiTextId = 6; //
+
             $fn_general->save_audit('129', $jwt_data->userId, $auditLabel.$returnVal);
             $fn_email->setup_email($assignedTechnician, $emailTemplateId, array('task_no' => $returnVal));
             $fn_email->setup_mobile_notification($assignedTechnician, $notiTextId, array('task_no' => $returnVal));
@@ -305,7 +307,7 @@ try {
             $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '9', $remark, $isRejected === '1' ? '1' : '');
             $roleId = $fn_wo->get_role_id_from_user();
             $groupId = $fn_task->get_group_id_from_user($jwt_data->userId, $roleId);
-            $woTaskNo = $fn_wo->create_wo_no($groupId);
+            $woTaskNo = $fn_wo->create_wo_no($groupId); // This will create a WO number because $isWo is true by default
             if ($isRejected === '1') {
                 $auditActionId = '134';
                 $emailTemplateId = 14;
@@ -316,7 +318,7 @@ try {
                 $notiTextId = 6;
             }
             $returnVal = $fn_wo->submit_wr_verify($currentTask['transactionId'], '', $woTaskNo, '', $isRejected);
-            $fn_general->save_audit($auditActionId, $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']);
+            $fn_general->save_audit($auditActionId, $jwt_data->userId, 'Work Request no. = '.$returnVal['woTaskNo']); // Audit still says "Work Request no."
             $fn_email->setup_email($jwt_data->userId, $emailTemplateId, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark));
             $fn_email->setup_mobile_notification($jwt_data->userId, $notiTextId, array('task_no'=>$returnVal['woTaskNo'], 'comment'=>$remark));
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;

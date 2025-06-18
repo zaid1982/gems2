@@ -169,10 +169,11 @@ class Class_wo {
     /**
      * @param $groupId
      * @param bool $isWo
+     * @param bool $isInitialComplaint // ADDED NEW PARAMETER
      * @return string
      * @throws Exception
      */
-    public function create_wo_no ($groupId, $isWo=true) {
+    public function create_wo_no ($groupId, $isWo=true, $isInitialComplaint=false) { // MODIFIED: Added $isInitialComplaint parameter
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -191,7 +192,19 @@ class Class_wo {
             $site = Class_db::getInstance()->db_select_single('cli_site', array('group_id'=>$groupId), null, 1);
             $siteId = $site['site_id'];
             $siteCode = $site['site_code'];
-            if ($isWo === true || $site['site_is_wr'] !== '1') {
+
+            // MODIFIED: New logic for initial complaint: always generate WR
+            if ($isInitialComplaint) {
+                $runningNoWr = $site['site_running_no_wr'];
+                $runningNoWr = intval($runningNoWr);
+                $runningNoWrTemp = 100000 + $runningNoWr;
+                $runningNoWrStr = substr(strval($runningNoWrTemp), 1);
+                $runningNoWr++;
+                Class_db::getInstance()->db_update('cli_site', array('site_running_no_wr'=>strval($runningNoWr)), array('site_id'=>$siteId));
+                return 'WR'.$siteCode.$curDates->format("ymd").$runningNoWrStr;
+            }
+            // Existing logic for WO/WR based on $isWo and site_is_wr (used for WR verification conversion)
+            else if ($isWo === true || $site['site_is_wr'] !== '1') {
                 $runningNo = $site['site_running_no_wo'];
                 $runningNo = intval($runningNo);
                 $runningNoTemp = 100000 + $runningNo;
@@ -255,13 +268,21 @@ class Class_wo {
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'zone_id'=>$zoneId, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
-            if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
-                $arrWhere['wo_task_is_wr'] = '1';
-                $arrWhere['wo_task_request_no'] = $woTaskNo;
-                $arrWhere['wo_task_is_pdf_wr'] = '1';
-            } else {
-                $arrWhere['wo_task_is_pdf'] = '1';
-            }
+            // MODIFIED: Remove old conditional block
+            // if ($woTaskType === '1' && $this->get_wo_is_wr() === '1') {
+            //     $arrWhere['wo_task_is_wr'] = '1';
+            //     $arrWhere['wo_task_request_no'] = $woTaskNo;
+            //     $arrWhere['wo_task_is_pdf_wr'] = '1';
+            // } else {
+            //     $arrWhere['wo_task_is_pdf'] = '1';
+            // }
+
+            // MODIFIED: New logic: Always start as WR
+            $arrWhere['wo_task_is_wr'] = '1'; // Mark as Work Request
+            $arrWhere['wo_task_is_pdf_wr'] = '1'; // Use WR PDF flag initially
+            $arrWhere['wo_task_is_pdf'] = '0'; // Ensure WO PDF flag is false initially
+
+            $arrWhere['wo_task_request_no'] = $woTaskNo; // This will be the WR number
 
             $woTaskId = Class_db::getInstance()->db_insert('wo_task', $arrWhere);
             foreach ($complaintImageUploads as $complaintImageUpload) {
@@ -1156,12 +1177,38 @@ class Class_wo {
             if ($woTask['transaction_id'] !== $transactionId) {
                 throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
             }
-            $woStatus = $this->get_wo_is_wr() === '1' ? '27' : '13';
 
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_assigned_by'=>$this->userId, 'wo_task_is_pdf'=>($woStatus==='13'?'1':'0'), 'wo_task_is_pdf_wr'=>($woStatus==='27'?'1':'0'), 'wo_task_time_assigned'=>'Now()',  'wo_task_status'=>$woStatus), array('wo_task_id'=>$this->woTaskId));
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$woStatus), array('transaction_id'=>$transactionId));
+            $newWoTaskNo = $woTask['wo_task_no'];
+            $isNowWo = false; // Flag to indicate if it becomes a WO after this step
+            $statusAfterAssignment = '13'; // Status 13: In Progress (for WO)
 
-            return $woTask['wo_task_no'];
+            // MODIFIED LOGIC: Conversion only for Internal Complaint (wo_task_type '2')
+            if ($woTask['wo_task_is_wr'] === '1' && $woTask['wo_task_type'] === '2') { //
+                // Get groupId to generate new WO number
+                $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$this->userId), 'site_id', null, 1);
+                $groupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'group_id', null, 1);
+
+                // Generate a new WO number (passing true for $isWo and false for $isInitialComplaint)
+                $newWoTaskNo = $this->create_wo_no($groupId, true, false); //
+                $isNowWo = true;
+            }
+            // If it was already a WO, or if it's a WR but not an Internal Complaint,
+            // no change to wo_task_no or is_wr flag based on this specific conversion logic.
+
+            Class_db::getInstance()->db_update('wo_task', array(
+                'wo_task_assigned_by'=>$this->userId,
+                // Only set is_pdf flags if it just converted to WO. Otherwise, maintain existing.
+                'wo_task_is_pdf'=>($isNowWo ? '1' : ($woTask['wo_task_is_pdf'])),
+                'wo_task_is_pdf_wr'=>($isNowWo ? '0' : ($woTask['wo_task_is_pdf_wr'])),
+                'wo_task_time_assigned'=>'Now()',
+                'wo_task_status'=>$statusAfterAssignment, // Always 'In Progress' (13) for the assigned task
+                'wo_task_no'=>$newWoTaskNo, // Update with new WO number if converted
+                'wo_task_is_wr'=>($isNowWo ? '0' : $woTask['wo_task_is_wr']) // Set to 0 if converted to WO, otherwise retain current
+            ), array('wo_task_id'=>$this->woTaskId));
+
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusAfterAssignment), array('transaction_id'=>$transactionId));
+
+            return $newWoTaskNo;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
