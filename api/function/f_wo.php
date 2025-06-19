@@ -2014,6 +2014,15 @@ class Class_wo {
             // Update Transaction status to 'Re-Open' (21).
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
 
+            // Logic to remove the signature from the 'Check' step (Upload Type 12).
+            $checkSignatures = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'12'));
+            foreach ($checkSignatures as $checkSignature) {
+                // Mark the actual upload file as status 6 ('Removed').
+                Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$checkSignature['upload_id']));
+                // Delete the link in wo_task_upload.
+                Class_db::getInstance()->db_delete('wo_task_upload', array('wo_task_upload_id'=>$checkSignature['wo_task_upload_id']));
+            }
+
             // Determine who to return the task to (likely the assigned technician - Role 8, Checkpoint 13).
             $woTaskReturnTo = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13', 'role_id'=>'8'), 'user_id');
 
