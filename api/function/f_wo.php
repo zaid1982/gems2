@@ -2015,7 +2015,7 @@ class Class_wo {
             Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
 
             // Logic to remove the signature from the 'Check' step (Upload Type 12).
-            $checkSignatures = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'12'));
+            $checkSignatures = Class_db::getInstance()->db_select('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'7'));
             foreach ($checkSignatures as $checkSignature) {
                 // Mark the actual upload file as status 6 ('Removed').
                 Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$checkSignature['upload_id']));
