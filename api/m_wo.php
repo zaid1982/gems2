@@ -333,6 +333,37 @@ try {
             $fn_email->setup_mobile_notification($returnVal['technician'], 16, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
             $form_data['errmsg'] = $constant::SUC_RETURNED;
         }
+        else if ($action === 'return_from_check') { // New action for returning from Check status
+            $remark = filter_input(INPUT_POST, 'remark');
+            $woTaskId = filter_input(INPUT_POST, 'woTaskId');
+            $fn_wo->__set('woTaskId', $woTaskId);
+
+            // Get current task. It should be in status 14 ('Check') and Checkpoint 20 ('Check WO').
+            $currentTask = $fn_wo->get_current_task('14', '20');
+            
+            // Submit the workflow task using Class_task::submit_task.
+            // Current Checkpoint: 20 ('Check WO').
+            // We want to return to Checkpoint 13 ('Execute WO').
+            // From the wfl_checkpoint table, for Checkpoint 20, 'checkpoint_case_2' points to '13'.
+            // So, we pass '2' as the $next parameter to submit_task.
+            // The status for the wfl_task itself will be 20 ('Returned').
+            $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '20', $remark, '2');
+            
+            // Call the Class_wo function to update the wo_task specific fields.
+            $returnVal = $fn_wo->return_from_check_m($currentTask['transactionId']);
+
+            // Audit Log: Assign a new audit action ID for "Work Order Returned from Check".
+            // Let's assume '148' is a newly defined audit ID. Update your documentation accordingly.
+            $fn_general->save_audit('148', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo'].' returned from check. Remark: '.$remark);
+
+            // Notifications: Send email/mobile notification to the technician.
+            // Re-using existing templates for "WO Verified Returned" (email: 8, mobile: 9).
+            // Consider creating new, more specific templates if the messaging needs to differ.
+            $fn_email->setup_email($returnVal['woTaskReturnTo'], 8, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            $fn_email->setup_mobile_notification($returnVal['woTaskReturnTo'], 9, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark));
+            
+            $form_data['errmsg'] = $constant::SUC_RETURNED;
+        }
         else if ($action === 'reject_complaint') {
             $remark = filter_input(INPUT_POST, 'remark');
             $currentTask = $fn_wo->get_current_task('24', '12');

@@ -1715,50 +1715,62 @@ class Class_wo {
      */
     public function submit_wr_verify ($transactionId='', $signatureId='', $woTaskNo='', $verifier='', $isRejected='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__); //
 
             if (empty($this->woTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty'); //
             }
             if (empty($this->userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty'); //
             }
             if (empty($transactionId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty'); //
             }
             if (empty($signatureId)) {
-                //throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
+                // throw new Exception('[' . __LINE__ . '] - Parameter signatureId empty');
             }
             if (empty($woTaskNo)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskNo empty');
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskNo empty'); //
             }
 
-            $isWr = $this->get_wo_is_wr();
+            $isWr = $this->get_wo_is_wr(); //
             if ($isWr === '1') {
                 if (empty($verifier)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter verifier empty');
+                    throw new Exception('[' . __LINE__ . '] - Parameter verifier empty'); //
                 }
             } else {
-                $verifier = $this->userId;
+                $verifier = $this->userId; //
             }
-            $status = $isRejected === '1' ? '30' : '13';
+            $status = $isRejected === '1' ? '30' : '13'; // 30 is WR Invalid, 13 is In Progress
 
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1); //
             if ($woTask['transaction_id'] !== $transactionId) {
-                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid'); //
             }
             //Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>'10', 'upload_id'=>$signatureId));
-            Class_db::getInstance()->db_update('wo_task', array('wo_task_no'=>$woTaskNo, 'wo_task_is_invalid'=>$isRejected, 'wo_task_is_pdf_wr'=>'1', 'wo_task_is_pdf'=>($status === '13' ? '1':'0'), 'wo_task_wr_verified_by'=>$verifier, 'wo_task_time_wr_verified'=>'Now()', 'wo_task_status'=>$status), array('wo_task_id'=>$this->woTaskId));
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$status), array('transaction_id'=>$transactionId));
+
+            // MODIFIED DB UPDATE: Correctly set wo_task_is_wr and wo_task_is_pdf_wr when converting to WO
+            Class_db::getInstance()->db_update('wo_task', array(
+                'wo_task_no'=>$woTaskNo,
+                'wo_task_is_invalid'=>$isRejected,
+                'wo_task_is_pdf_wr'=>($status === '13' ? '0' : '1'), // Set to 0 if converting to WO (status 13), else 1 (if rejected/invalid)
+                'wo_task_is_pdf'=>($status === '13' ? '1':'0'), //
+                'wo_task_wr_verified_by'=>$verifier,
+                'wo_task_time_wr_verified'=>'Now()',
+                'wo_task_status'=>$status,
+                'wo_task_is_wr'=>($status === '13' ? '0' : '1') // <--- CRITICAL ADDITION: Set to 0 if converting to WO (status 13), else 1
+            ), array('wo_task_id'=>$this->woTaskId)); //
+
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$status), array('transaction_id'=>$transactionId)); //
 
             return array(
-                'woTaskNo'=>$woTask['wo_task_no'],
-                'woTaskAssignedTo'=>$woTask['wo_task_assigned_to'],
-                'woTaskCreatedBy'=>$woTask['wo_task_created_by']
+                'woTaskNo'=>$woTask['wo_task_no'], //
+                'woTaskAssignedTo'=>$woTask['wo_task_assigned_to'], //
+                'woTaskCreatedBy'=>$woTask['wo_task_created_by'] //
             );
         } catch (Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage()); //
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode()); //
         }
     }
 
@@ -1963,6 +1975,51 @@ class Class_wo {
             return array(
                 'woTaskNo'=>$woTask['wo_task_no'],
                 'woTaskTechnician'=>$woTaskTechnician
+            );
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $transactionId
+     * @return array
+     * @throws Exception
+     */
+    public function return_from_check_m ($transactionId='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($this->woTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
+            }
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+            if ($woTask['transaction_id'] !== $transactionId) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId invalid');
+            }
+
+            // Update WO Task status to 'Re-Open' (21).
+            // Clear execution time and fixed by user to indicate rework is required.
+            Class_db::getInstance()->db_update('wo_task', array(
+                'wo_task_status'=>'21',
+                'wo_task_time_executed'=>'',
+                'wo_task_fixed_by'=>''
+            ), array('wo_task_id'=>$this->woTaskId));
+
+            // Update Transaction status to 'Re-Open' (21).
+            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>'21'), array('transaction_id'=>$transactionId));
+
+            // Determine who to return the task to (likely the assigned technician - Role 8, Checkpoint 13).
+            $woTaskReturnTo = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'checkpoint_id'=>'13', 'role_id'=>'8'), 'user_id');
+
+            return array(
+                'woTaskNo'=>$woTask['wo_task_no'],
+                'woTaskReturnTo'=>$woTaskReturnTo
             );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
