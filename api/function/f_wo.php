@@ -333,6 +333,7 @@ class Class_wo {
                 $row_result['woType'] = $dataLocal['wo_type'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
                 $row_result['woTaskType'] = $dataLocal['wo_task_type_desc'];
+                $row_result['woTaskTypeInit'] = $dataLocal['wo_task_type_init_desc'];
                 $row_result['woTaskSeverity'] = $dataLocal['wo_task_severity_desc'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['reportedBy'] = $dataLocal['user_first_name'];
@@ -372,6 +373,7 @@ class Class_wo {
                 $row_result['woType'] = $dataLocal['wo_type'];
                 $row_result['woTaskNo'] = $dataLocal['wo_task_no'];
                 $row_result['woTaskType'] = $dataLocal['wo_task_type_desc'];
+                $row_result['woTaskTypeInit'] = $dataLocal['wo_task_type_init_desc']; 
                 $row_result['woTaskSeverity'] = $dataLocal['wo_task_severity_desc'];
                 $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
                 $row_result['reportedBy'] = $dataLocal['user_first_name'];

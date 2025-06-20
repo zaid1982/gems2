@@ -516,6 +516,14 @@ class Class_sql
                     wo_task.*,
                     sys_user.user_first_name,
                     sys_user_assigned.user_first_name AS assigned_to,
+                    CASE WHEN wo_task_type_init = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type_init = 2 THEN 'Self Finding'
+                        WHEN wo_task_type_init = 3 THEN 'Request'
+                        WHEN wo_task_type_init = 4 THEN 'Breakdown'
+                        WHEN wo_task_type_init = 5 THEN 'Defect'
+                        WHEN wo_task_type_init = 6 THEN 'Public Complaint'
+                        ELSE ''
+                    END AS wo_task_type_init_desc,
                     CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
                         WHEN wo_task_type = 2 THEN 'Self Finding'
                         WHEN wo_task_type = 3 THEN 'Request'
@@ -537,6 +545,14 @@ class Class_sql
                     wo_task.*,
                     sys_user.user_first_name,
                     sys_user_assigned.user_first_name AS assigned_to,
+                    CASE WHEN wo_task_type_init = 1 THEN 'Client Complaint'
+                        WHEN wo_task_type_init = 2 THEN 'Self Finding'
+                        WHEN wo_task_type_init = 3 THEN 'Request'
+                        WHEN wo_task_type_init = 4 THEN 'Breakdown'
+                        WHEN wo_task_type_init = 5 THEN 'Defect'
+                        WHEN wo_task_type_init = 6 THEN 'Public Complaint'
+                        ELSE ''
+                    END AS wo_task_type_init_desc,
                     CASE WHEN wo_task_type = 1 THEN 'Client Complaint'
                         WHEN wo_task_type = 2 THEN 'Self Finding'
                         WHEN wo_task_type = 3 THEN 'Request'
