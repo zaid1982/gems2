@@ -374,10 +374,17 @@ try {
             $complainer = $fn_wo->get_complainer();
             if ($woTask['woTaskIsPublic'] === '1') {
                 $woTaskPublic = $fn_wo->getWoTaskPublic($woTaskId);
-                $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+                // For public complaints, the main recipient is the public email provided.
+                // Pass an empty array or NULL for the userId parameter,
+                // so setup_email relies on the woTaskPublicEmail.
+                $fn_email->setup_email(null, 10, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+                // Public complaints typically don't have mobile notifications to non-registered users.
+                // No mobile notification needed for public complainer here unless they are registered.
             } else {
-                $fn_email->setup_email($complainer, 10, array('task_no' => $returnVal, 'comment'=>$remark));
-                $fn_email->setup_mobile_notification($complainer, 11, array('task_no' => $returnVal, 'comment'=>$remark));
+                // For non-public complaints, ensure complainer is wrapped in an array.
+                $complainerArray = [$complainer]; 
+                $fn_email->setup_email($complainerArray, 10, array('task_no' => $returnVal, 'comment'=>$remark));
+                $fn_email->setup_mobile_notification($complainerArray, 11, array('task_no' => $returnVal, 'comment'=>$remark));
             }
             $form_data['errmsg'] = $constant::SUC_REJECTED;
         }
