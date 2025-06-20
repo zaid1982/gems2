@@ -726,6 +726,7 @@ class Class_wo {
             $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)];
             $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
             $result['woTaskCategory'] = $arrWoType[intval($dataLocal['wo_task_type'])];
+            $result['woTaskCategoryInit'] = $arrWoType[intval($dataLocal['wo_task_type_init'])];
             $result['woTaskClient'] = !empty($dataLocal['site_id']) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
             $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
             $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
