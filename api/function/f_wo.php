@@ -1183,7 +1183,7 @@ class Class_wo {
 
             // Determine if a conversion from WR to WO should happen at this 'assign' step.
             // This applies strictly ONLY to Internal Complaints (wo_task_type '2').
-            $shouldConvertToWoAtAssign = ($woTask['wo_task_is_wr'] === '1' && $woTask['wo_task_type'] === '2');
+            $shouldConvertToWoAtAssign = ($woTask['wo_task_is_wr'] === '1' && $woTask['wo_task_type_init'] === '2');
 
             if ($shouldConvertToWoAtAssign) {
                 // Scenario 1: It's a WR (Internal Complaint) converting to WO upon assignment.
