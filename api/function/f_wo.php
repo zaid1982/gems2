@@ -715,16 +715,16 @@ class Class_wo {
             }
     
             // --- DEBUG LOGS START ---
-            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch wo_task details.');
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch wo_task details.', '');
             // --- DEBUG LOGS END ---
     
             $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
     
             // --- DEBUG LOGS START ---
-            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched wo_task: ' . json_encode($dataLocal));
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched wo_task: ' . json_encode($dataLocal), '');
             $createdBy = $dataLocal['wo_task_created_by'];
-            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'CreatedBy User ID: ' . $createdBy);
-            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch sys_user_profile for CreatedBy: ' . $createdBy);
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'CreatedBy User ID: ' . $createdBy, '');
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch sys_user_profile for CreatedBy: ' . $createdBy, '');
             // --- DEBUG LOGS END ---
     
             $result = array();
