@@ -747,7 +747,7 @@ class Class_wo {
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$createdBy, 'user_profile_status'=>'1'), null, 1);
     
             // --- DEBUG LOGS START ---
-            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched userProfile: ' . json_encode($userProfile));
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched userProfile: ' . json_encode($userProfile), '');
             // --- DEBUG LOGS END ---
     
             $result['woTaskPhoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no']);
