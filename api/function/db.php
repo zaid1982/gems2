@@ -91,6 +91,13 @@ class Class_db{
             if ($value == '' || $value === '%%') {
                 continue;
             }
+            if (!is_string($value)) {
+                // Log the type and content of $value
+                error_log("DEBUG: get_whereAnd_str received non-string value for item '{$item}': Type = " . gettype($value) . ", Value = " . print_r($value, true));
+                // You might even throw a custom exception here to get a clearer stack trace without the fatal error
+                throw new Exception("Non-string value passed to get_whereAnd_str for item '{$item}'");
+            }
+            $l1 = substr($value, 0, 1);
             $l1 = substr($value, 0, 1);
             $l2 = substr($value, 0, 2);
             if ($item === 'w1' || $item === 'w2') {
