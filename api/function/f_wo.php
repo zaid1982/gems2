@@ -708,43 +708,62 @@ class Class_wo {
      */
     public function get_complaint_details_m () {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__ . ' for woTaskId: ' . $this->woTaskId);
+    
             if (empty($this->woTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
             }
-
+    
+            // --- DEBUG LOGS START ---
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch wo_task details.');
+            // --- DEBUG LOGS END ---
+    
+            $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
+    
+            // --- DEBUG LOGS START ---
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched wo_task: ' . json_encode($dataLocal));
+            $createdBy = $dataLocal['wo_task_created_by'];
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'CreatedBy User ID: ' . $createdBy);
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Attempting to fetch sys_user_profile for CreatedBy: ' . $createdBy);
+            // --- DEBUG LOGS END ---
+    
             $result = array();
             $arrStatus = $this->fn_general->getRefStatus();
             $arrUserFullName = $this->fn_general->getUserFullName();
             $arrSiteName = $this->fn_general->getSiteName();
             $arrWoType = $this->get_wo_type();
-
-            $dataLocal = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
-            $createdBy = $dataLocal['wo_task_created_by'];
+    
             $result['woTaskId'] = $dataLocal['wo_task_id'];
-			$result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' ? '-' : $dataLocal['wo_task_no'];
+            $result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' ? '-' : $dataLocal['wo_task_no'];
             $result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
-            $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)];
+            $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)]; // Check if $createdBy is a valid key in $arrUserFullName
             $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
-            $result['woTaskCategory'] = $arrWoType[intval($dataLocal['wo_task_type'])];
-            $result['woTaskCategoryInit'] = $arrWoType[intval($dataLocal['wo_task_type_init'])];
+            $result['woTaskCategory'] = $arrWoType[intval($dataLocal['wo_task_type'])]; // Check if $dataLocal['wo_task_type'] is a valid key in $arrWoType
             $result['woTaskClient'] = !empty($dataLocal['site_id']) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
             $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
             $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
             $result['woTaskStatus'] = $arrStatus[intval($dataLocal['wo_task_status'])];
-
+    
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$createdBy, 'user_profile_status'=>'1'), null, 1);
+    
+            // --- DEBUG LOGS START ---
+            $this->fn_general->log_debug('DEBUG_COMPLAINT_DETAILS', __LINE__, 'Fetched userProfile: ' . json_encode($userProfile));
+            // --- DEBUG LOGS END ---
+    
             $result['woTaskPhoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no']);
             $result['woTaskEmail'] = $this->fn_general->clear_null($userProfile['user_email']);
-
+    
             $result['complaintImages'] = $this->get_wo_section_upload_m('1');
             $result['assetNo'] = !empty($dataLocal['asset_id']) ? Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$dataLocal['asset_id']), 'asset_no') : null;
             $result['zoneName'] = !empty($dataLocal['zone_id']) ? Class_db::getInstance()->db_select_col('cli_zone', array('zone_id'=>$dataLocal['zone_id']), 'zone_name') : null;
-
+    
             return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            // It's important to differentiate errors for the mobile app.
+            // If the mobile app gets "null" on the frontend, it might be that your main m_wo.php catch block
+            // returns 'null' for 'result' in form_data if an exception happens.
+            // Let's re-throw with the original message to get it in the m_wo.php catch.
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
