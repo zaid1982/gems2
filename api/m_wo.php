@@ -378,9 +378,10 @@ try {
             $woTask = $fn_wo->getWoTask($woTaskId); // Line 376
             $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'woTask (before if): ' . (is_array($woTask) ? json_encode($woTask) : 'NOT AN ARRAY - ' . gettype($woTask)), ""); // <<< ADD THIS LINE
 
+            $woNumberString = (string)$returnVal;
             if ($woTask['woTaskIsPublic'] === '1') { // Line 380 - This is where the error hits.
                 $woTaskPublic = $fn_wo->getWoTaskPublic($woTaskId);
-                $fn_email->setup_email(null, 10, array('task_no' => $returnVal['woTaskNo'], 'comment'=>$remark), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
+                $fn_email->setup_email(null, 10, array('task_no' => $woNumberString, 'comment'=>$remark), false, $woTaskPublic['woTaskPublicName'], $woTaskPublic['woTaskPublicEmail']);
             } else {
                 $complainerArray = [$complainer]; 
                 $fn_email->setup_email($complainerArray, 10, array('task_no' => $returnVal, 'comment'=>$remark));
