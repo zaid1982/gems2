@@ -81,23 +81,35 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            if (empty($userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
-            }
-            if (empty($emailTemplateId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter emailTemplateId empty');
-            }
-            if (empty($emailParam)) {
-                throw new Exception('[' . __LINE__ . '] - Array emailParam empty');
+            $userWhereClause = '';
+            if (is_array($userId) && !empty($userId)) {
+                $userWhereClause = '(' . implode(',', array_map('intval', $userId)) . ')';
+            } else if (!empty($userId)) {
+                $userWhereClause = (string)intval($userId); // Ensure single user ID is a string
+            } else {
+                // If userId is empty, no user-specific query will be made
             }
 
-            $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userId), NULL, 1);
-            $sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userId, 'user_profile_status'=>'1'), NULL, 1);
-            $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>$emailTemplateId), NULL, 1);
+            // Parameter userId cannot be empty if we intend to get user details
+            if (empty($userWhereClause) && empty($fullName) && empty($emailAddress)) {
+                 throw new Exception('[' . __LINE__ . '] - Recipient (userId, fullName, or emailAddress) empty');
+            }
+
+            $sys_user = null; // Initialize to null
+            $sys_profile = null; // Initialize to null
+            if (!empty($userWhereClause)) { // Only query if there's a valid user ID(s)
+                // Use the formatted userWhereClause here
+                $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userWhereClause), NULL, 1);
+                $sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userWhereClause, 'user_profile_status'=>'1'), NULL, 1);
+            }
+
+            // MODIFIED: Ensure emailTemplateId is cast to string for the query condition
+            $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>(string)$emailTemplateId), NULL, 1);
             $emailTitle = $email_template['email_template_title'];
             $emailHtml = $email_template['email_template_html'];
 
-            $arr_parameter = Class_db::getInstance()->db_select('email_parameter', array('email_template_id'=>$emailTemplateId), NULL, NULL, 1);
+            // MODIFIED: Ensure emailTemplateId is cast to string for the query condition
+            $arr_parameter = Class_db::getInstance()->db_select('email_parameter', array('email_template_id'=>(string)$emailTemplateId), NULL, NULL, 1);
             foreach ($arr_parameter as $parameter) {
                 $paramCode = $parameter['email_param_code'];
                 if (!array_key_exists($paramCode, $emailParam)) {
@@ -110,21 +122,27 @@ class Class_email {
                     $emailHtml = str_replace ("[".$paramCode."]", $emailParam[$paramCode], $emailHtml);
                 }
             }
-            $recipientName = !empty($fullName) ? $fullName : $sys_user['user_first_name'];
+            
+            // Check if $sys_user exists before accessing its properties.
+            $recipientName = !empty($fullName) ? $fullName : ($sys_user ? $sys_user['user_first_name'] : '');
             $emailHtml = str_replace ("[fullName]", $recipientName, $emailHtml);
 
-            $recipientEMail = !empty($emailAddress) ? $emailAddress : $sys_profile['user_email'];
+            // Check if $sys_profile exists before accessing its properties.
+            $recipientEMail = !empty($emailAddress) ? $emailAddress : ($sys_profile ? $sys_profile['user_email'] : '');
             if ($isExpress) {
                 $this->send_email_express($recipientEMail, $emailTitle, $emailHtml);
             } else {
-                Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$recipientEMail, 'email_title'=>$emailTitle,
-                    'email_html'=>$emailHtml, 'user_id'=>$userId));
+                // If userId is an array, take the first element for email_send, or reconsider if multiple emails should be sent.
+                // Assuming email_send is for a single email for simplicity now.
+                $insertUserId = is_array($userId) ? (empty($userId) ? null : $userId[0]) : $userId; // Use a single user ID for logging
+                Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>(string)$emailTemplateId, 'email_address'=>$recipientEMail, 'email_title'=>$emailTitle,
+                    'email_html'=>$emailHtml, 'user_id'=>$insertUserId));
             }
             return true;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode()); // Keep this commented out or re-enable if you want exceptions to stop execution
         }
     }
 
@@ -142,23 +160,25 @@ class Class_email {
             if (is_array($userId) && !empty($userId)) {
                 $userWhereClause = '(' . implode(',', array_map('intval', $userId)) . ')';
             } else if (!empty($userId)) {
-                $userWhereClause = "'" . intval($userId) . "'";
+                $userWhereClause = (string)intval($userId); // Ensure single user ID is a string
             } else {
                 // If userId is empty, throw an exception as mobile notifications typically require a user.
                  throw new Exception('[' . __LINE__ . '] - Parameter userId empty for mobile notification');
             }
-            
+
             // Use the formatted userWhereClause here
-            $userToken = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userWhereClause), 'user_token'); // Line 94
+            $userToken = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userWhereClause), 'user_token');
             if (empty($userToken)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userToken empty');
             }
 
-            $notiText = Class_db::getInstance()->db_select_single('noti_text', array('noti_text_id'=>$notiTextId), NULL, 1);
+            // MODIFIED: Ensure notiTextId is cast to string for the query condition
+            $notiText = Class_db::getInstance()->db_select_single('noti_text', array('noti_text_id'=>(string)$notiTextId), NULL, 1);
             $notiTextTitle = $notiText['noti_text_title'];
             $notiTextHtml = $notiText['noti_text_html'];
 
-            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>$notiTextId));
+            // MODIFIED: Ensure notiTextId is cast to string for the query condition
+            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>(string)$notiTextId));
             foreach ($notiParameters as $parameter) {
                 $paramCode = $parameter['noti_param_code'];
                 if (!array_key_exists($paramCode, $notiParam)) {
@@ -174,13 +194,13 @@ class Class_email {
 
             // If userId is an array, take the first element for noti_send
             $insertUserId = is_array($userId) ? (empty($userId) ? null : $userId[0]) : $userId; // Use a single user ID for logging
-            Class_db::getInstance()->db_insert('noti_send', array('noti_text_id'=>$notiTextId, 'noti_to'=>$userToken, 'noti_title'=>$notiTextTitle,
+            Class_db::getInstance()->db_insert('noti_send', array('noti_text_id'=>(string)$notiTextId, 'noti_to'=>$userToken, 'noti_title'=>$notiTextTitle,
                 'noti_html'=>$notiTextHtml, 'user_id'=>$insertUserId));
             return true;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode()); // Keep this commented out or re-enable if you want exceptions to stop execution
         }
     }
 
@@ -205,7 +225,8 @@ class Class_email {
             }
 
             $emailAddress = $emailParam['emailAddress'];
-            $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>$emailTemplateId), NULL, 1);
+            // MODIFIED: Ensure emailTemplateId is cast to string for the query condition
+            $email_template = Class_db::getInstance()->db_select_single('email_template', array('email_template_id'=>(string)$emailTemplateId), NULL, 1);
             $emailTitle = $email_template['email_template_title'];
             $emailHtml = $email_template['email_template_html'];
             $emailAttachment = '';
@@ -218,7 +239,8 @@ class Class_email {
                 $emailFilename = $emailParam['emailFilename'];
             }
 
-            $arr_parameter = Class_db::getInstance()->db_select('email_parameter', array('email_template_id'=>$emailTemplateId), NULL, NULL, 1);
+            // MODIFIED: Ensure emailTemplateId is cast to string for the query condition
+            $arr_parameter = Class_db::getInstance()->db_select('email_parameter', array('email_template_id'=>(string)$emailTemplateId), NULL, NULL, 1);
             foreach ($arr_parameter as $parameter) {
                 $paramCode = $parameter['email_param_code'];
                 if (!array_key_exists($paramCode, $emailParam)) {
@@ -232,7 +254,7 @@ class Class_email {
                 }
             }
 
-            Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>$emailTemplateId, 'email_address'=>$emailAddress, 'email_title'=>$emailTitle,
+            Class_db::getInstance()->db_insert('email_send', array('email_template_id'=>(string)$emailTemplateId, 'email_address'=>$emailAddress, 'email_title'=>$emailTitle,
                 'email_html'=>$emailHtml, 'email_attachment'=>$emailAttachment, 'email_filename'=>$emailFilename));
             return true;
         }
@@ -384,7 +406,7 @@ class Class_email {
             curl_close($curl);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode()); // Keep this commented out or re-enable if you want exceptions to stop execution
         }
     }
 
@@ -408,7 +430,7 @@ class Class_email {
                 try {
                     Class_db::getInstance()->db_beginTransaction();
                     Class_db::getInstance()->db_insert('noti_log', array('noti_text_id'=>$notiSend['noti_text_id'], 'noti_to'=>$notiSend['noti_to'], 'noti_title'=>$notiSend['noti_title'],
-                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> $this->fn_general->clear_null($notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status));
+                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> (is_null($notiSend['user_id'])?'':$notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status));
                     Class_db::getInstance()->db_delete('noti_send', array('noti_id'=>$notiSend['noti_id']));
                     Class_db::getInstance()->db_commit();
                 } catch(Exception $ez) {
