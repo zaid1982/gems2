@@ -138,17 +138,18 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            if (empty($userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            $userWhereClause = '';
+            if (is_array($userId) && !empty($userId)) {
+                $userWhereClause = '(' . implode(',', array_map('intval', $userId)) . ')';
+            } else if (!empty($userId)) {
+                $userWhereClause = "'" . intval($userId) . "'";
+            } else {
+                // If userId is empty, throw an exception as mobile notifications typically require a user.
+                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty for mobile notification');
             }
-            if (empty($notiTextId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter notiTextId empty');
-            }
-            if (empty($notiParam)) {
-                throw new Exception('[' . __LINE__ . '] - Array notiParam empty');
-            }
-
-            $userToken = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'user_token');
+            
+            // Use the formatted userWhereClause here
+            $userToken = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userWhereClause), 'user_token'); // Line 94
             if (empty($userToken)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userToken empty');
             }
@@ -171,8 +172,10 @@ class Class_email {
                 }
             }
 
+            // If userId is an array, take the first element for noti_send
+            $insertUserId = is_array($userId) ? (empty($userId) ? null : $userId[0]) : $userId; // Use a single user ID for logging
             Class_db::getInstance()->db_insert('noti_send', array('noti_text_id'=>$notiTextId, 'noti_to'=>$userToken, 'noti_title'=>$notiTextTitle,
-                'noti_html'=>$notiTextHtml, 'user_id'=>$userId));
+                'noti_html'=>$notiTextHtml, 'user_id'=>$insertUserId));
             return true;
         }
         catch(Exception $ex) {
