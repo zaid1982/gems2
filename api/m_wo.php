@@ -366,17 +366,17 @@ try {
         }
         else if ($action === 'reject_complaint') {
             $remark = filter_input(INPUT_POST, 'remark');
-            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'Incoming woTaskId: ' . $woTaskId, $additionalArgument); // <<< ADD THIS LINE
+            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'Incoming woTaskId: ' . $woTaskId, ""); // <<< ADD THIS LINE
             
             $currentTask = $fn_wo->get_current_task('24', '12');
-            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'currentTask: ' . json_encode($currentTask), $additionalArgument); // <<< ADD THIS LINE
+            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'currentTask: ' . json_encode($currentTask), ""); // <<< ADD THIS LINE
             
             $newTaskId = $fn_task->submit_task($currentTask['taskId'], $jwt_data->userId, '25', $remark, '1');
             $returnVal = $fn_wo->reject_complaint($currentTask['transactionId']);
             $fn_general->save_audit('122', $jwt_data->userId, 'Work Order no. = '.$returnVal);
             
             $woTask = $fn_wo->getWoTask($woTaskId); // Line 376
-            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'woTask (before if): ' . (is_array($woTask) ? json_encode($woTask) : 'NOT AN ARRAY - ' . gettype($woTask)), $additionalArgument); // <<< ADD THIS LINE
+            $fn_general->log_debug('DEBUG_REJECT', __LINE__, 'woTask (before if): ' . (is_array($woTask) ? json_encode($woTask) : 'NOT AN ARRAY - ' . gettype($woTask)), ""); // <<< ADD THIS LINE
 
             if ($woTask['woTaskIsPublic'] === '1') { // Line 380 - This is where the error hits.
                 $woTaskPublic = $fn_wo->getWoTaskPublic($woTaskId);
