@@ -1,6 +1,4 @@
 <?php
-require_once('tcpdf/tcpdf.php'); // Adjust path as needed
-
 // Extend the TCPDF class to add custom header and footer (optional, but good practice)
 class MYPDF extends TCPDF {
     // Page header
