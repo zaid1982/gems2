@@ -1,252 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--  Required meta tags always come first  -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>GEMS 2.0</title>
+    <!-- Browser icon -->
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!--  Font Awesome  -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
     <link href="css/mdb.min.css" rel="stylesheet">
+    <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- Custom styles -->
     <style>
-        /* Define a primary blue color */
-        :root {
-            --primary-blue: #2196F3; /* A common, vibrant blue */
-            --dark-blue: #1976D2; /* Darker shade for accents/hover */
-            --light-bg: #F8F9FA; /* Light grey for sections */
-            --text-color: #333;
-            --white: #fff;
-        }
-
-        html, body {
-            height: 100%;
-            font-family: 'Roboto', sans-serif; /* MDB uses Roboto by default, good choice */
-            color: var(--text-color); /* Default text color */
-        }
-
-        header {
-            min-height: 100vh; /* Ensure header takes full viewport height */
-            position: relative;
-            z-index: 1; /* For stacking context with potentially overlapping elements */
-        }
-
+        html,
+        body,
+        header,
         .view {
             height: 100%;
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center center;
-            display: flex; /* Use flexbox for centering content */
-            align-items: center; /* Center vertically */
-            justify-content: center; /* Center horizontally */
         }
-
-        .mask.rgba-gradient {
-            /* Adjust the gradient to be more subtle or to match blue/grey tones */
-            background: linear-gradient(45deg, rgba(33, 150, 243, 0.7), rgba(0, 0, 0, 0.4) 100%); /* Example: blue to a darker transparent */
-            /* Or for a softer look, use less opaque colors: */
-            /* background: linear-gradient(45deg, rgba(33, 150, 243, 0.5), rgba(72, 15, 144, 0.3) 100%); */
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            overflow-y: auto; /* Keep this for scrollable content if needed */
+        @media (max-width: 740px) {
+            html,
+            body,
+            header,
+            .view {
+                /*height: 1000px;*/
+            }
         }
-
-        .container {
-            z-index: 2; /* Ensure container content is above the mask */
+        @media (min-width: 800px) and (max-width: 850px) {
+            html,
+            body,
+            header,
+            .view {
+                /*height: 650px;*/
+            }
         }
-
+        .rgba-gradient {
+            background: -webkit-linear-gradient(45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
+            background: -webkit-gradient(linear, 45deg, from(rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%));
+            background: linear-gradient(to 45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
+        }
         .card {
-            background-color: var(--white); /* Solid white background for the card */
-            border-radius: 8px; /* Slightly rounded corners */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            padding: 2rem; /* Add internal padding */
-            color: var(--text-color); /* Default text color for card content */
+            background-color: rgba(126, 123, 215, 0.2);
+        }
+        .md-form label {
+            color: #ffffff;
+        }
+        h5 {
+            line-height: 0.8;
         }
 
-        /* Adjusting text color inside the card for readability on white background */
-        .card .md-form label,
-        .card .md-form input,
-        .card .md-form textarea {
-            color: var(--text-color); /* Darker text for readability */
+        input[type='radio']{
+            display:none;
         }
 
-        .card .md-form input:focus,
-        .card .md-form textarea:focus {
-            border-bottom-color: var(--primary-blue); /* Highlight on focus */
-            box-shadow: 0 1px 0 0 var(--primary-blue);
-        }
-
-        .card .md-form .prefix {
-            color: var(--dark-blue); /* Icon color */
-        }
-
-        h1, h3, h4 {
-            color: var(--white); /* Headlines in hero section should be white */
-            font-weight: 700; /* Bold for headlines */
-        }
-
-        hr.hr-light {
-            border-top: 3px solid var(--white); /* Thicker, more prominent white line */
-            width: 50px; /* Shorter line for modern look */
-            margin-left: 0; /* Align left */
-        }
-
-        p {
-            color: var(--white); /* Paragraphs in hero section white */
-            font-size: 1.1rem;
-        }
-
-        /* Form specific styles */
-        .text-center h3 {
-            color: var(--dark-blue); /* Title inside card should be dark */
-        }
-        .text-center hr.hr-light {
-            border-top-color: var(--primary-blue);
-            margin: 0.5rem auto 1.5rem auto; /* Center the HR within the card title */
-            width: 70px; /* Adjust length for card title */
-        }
-
-        .font-small.text-danger {
-            font-size: 0.8rem; /* Smaller error text */
-            color: #dc3545 !important; /* Bootstrap red */
-        }
-
-        .btn-outline-white {
-            color: var(--primary-blue); /* Button text color */
-            border: 2px solid var(--primary-blue); /* Button border color */
-            background-color: transparent;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-outline-white:hover {
-            color: var(--white);
-            background-color: var(--primary-blue);
-            border-color: var(--primary-blue);
-        }
-
-        /* Radio button improvements (keeping your custom styles but making them blend better) */
-        input[type='radio'] + label {
-            color: var(--text-color); /* Label text color */
+        input[type='radio'] + label{
+            display:inline-block;
+            position:relative;
+            padding-left: 30px;
+            cursor: pointer;
         }
 
         input[type='radio']:checked + label:after {
-            background-color: var(--primary-blue); /* Active radio dot color */
+            width: 9px;
+            height: 9px;
+            border-radius: 15px;
+            top: 4px;
+            left: 7px;
+            position: absolute;
+            background-color: #bbbbbb;
+            content: "";
         }
 
         input[type=radio] + label:before {
-            border-color: var(--primary-blue); /* Radio button border color */
+            content: "";
+            border-color: #bbbbbb;
+            border: solid 2px;
+            width: 17px;
+            position: absolute;
+            left: 3px;
+            height: 17px;
+            border-radius: 50%;
         }
-
-        /* File input specific styling for the image placeholder */
-        #imgPsaImage {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 5px;
-            max-width: 100%; /* Ensure it fits its container */
-            height: auto;
-            display: block; /* Remove extra space below image */
-            margin-bottom: 10px;
-        }
-
-        .file-field .btn {
-            background-color: var(--primary-blue);
-            color: var(--white);
-            border: none;
-        }
-
-        .file-field .btn:hover {
-            background-color: var(--dark-blue);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 991.98px) { /* For smaller screens, adjust column margins */
-            .col-lg-6.mb-4.white-text.mt-5,
-            .col-lg-6.divPsaForm.mt-lg-5.mb-4 {
-                margin-top: 2rem !important; /* Adjust top margin for mobile */
-                margin-bottom: 2rem !important; /* Adjust bottom margin for mobile */
-            }
-            .card {
-                margin-left: 1rem;
-                margin-right: 1rem;
-            }
-        }
-
     </style>
 </head>
 <body>
 
 <header>
-    <div class="view" style="background-image: url('img/background/buildings.png');">
-        <div class="mask rgba-gradient">
+    <!-- Full Page Intro -->
+    <div class="view" style="background-image: url('img/background/buildings.png'); background-repeat: no-repeat; background-size: cover; background-position: center center;">
+        <!-- Mask & flexbox options-->
+        <div class="mask rgba-gradient align-items-center " style="overflow-y: auto !important;">
+            <!-- Content -->
             <div class="container">
-                <div class="row d-flex justify-content-center align-items-center">
-                    <div class="col-lg-6 mb-4 mt-5 text-center text-lg-left">
-                        <h1 class="h1-responsive font-weight-bold wow fadeInLeft" data-wow-delay="0.3s">GEMS: GFM Enterprise Management System</h1>
-                        <hr class="hr-light wow fadeInLeft mt-1" data-wow-delay="0.3s">
-                        <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Site: <span id="lblPsaSiteName"></span></h4>
-                        <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Zone: <span id="lblPsaZoneName"></span></h4>
-                        <p class="font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">
-                            <i class="fas fa-exclamation-triangle mr-2 mt-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
-                        </p>
-                        <p class="font-weight-bold wow fadeInLeft mt-3 divPsaErr" data-wow-delay="0.6s">
-                            <i class="fas fa-exclamation-triangle mr-2 mt-2"></i> The link from the QR code is not valid!! Please contact Administrator!
-                        </p>
+                <!--Grid row-->
+                <div class="row">
+                    <!--Grid column-->
+                    <div class="col-lg-6 mb-4 white-text mt-5">
+                        <div class="row">
+                            <div class="col-12">
+                                <h1 class="h1-responsive font-weight-bold mt-lg-5 wow fadeInLeft" data-wow-delay="0.3s">GEMS : GFM Enterprise Management System</h1>
+                                <hr class="hr-light wow fadeInLeft mt-1" data-wow-delay="0.3s">
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Site : <span id="lblPsaSiteName"></span></h4>
+                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Zone : <span id="lblPsaZoneName"></span></h4>
+                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">
+                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
+                                </p>
+                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaErr" data-wow-delay="0.6s">
+                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> The link from the QR code is not valid!! Please contact Administrator!
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                    <!--Grid column-->
+                    <!--Grid column-->
                     <div class="col-lg-6 divPsaForm mt-lg-5 mb-4">
+                        <!--Form-->
                         <div class="card wow fadeInRight" data-wow-delay="0.3s">
                             <div class="card-body">
                                 <form id="formPsaDetails">
-                                    <div class="text-center pb-2">
-                                        <h3 class="font-weight-bold" id="lblPsaTitleResult"><i class="fas fa-headset"></i> &nbsp;COMPLAINT FORM</h3>
-                                        <hr class="hr-light">
-                                    </div>
-                                    <div class="md-form mt-3 mx-2 pb-0">
-                                        <i class="fas fa-user prefix"></i>
-                                        <input type="text" id="txtPsaName" class="form-control" value="">
-                                        <label for="txtPsaName">Your Name *</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaNameErr"></p>
+                                    <!--Header-->
+                                    <!--  -->
+                                     
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <img width="auto" height="30px" src="https://www.gfmservices.com.my/wp-content/uploads/Logo/GFM-LOGO-white.png" alt="gfm_logo" />
+                                        <div class="text-center pb-2">
+                                            <h3 class="white-text" id="lblPsaTitleResult"><i class="fas fa-headset white-text"></i> &nbsp;COMPLAINT FORM</h3>
+                                            <hr class="hr-light">
+                                        </div>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-id-card prefix"></i>
-                                        <input type="text" id="txtPsaIcNo" class="form-control" value="">
+                                        <i class="fas fa-id-card prefix white-text active"></i>
+                                        <input type="text" id="txtPsaIcNo" class="white-text form-control" value="">
                                         <label for="txtPsaIcNo">IC No.</label>
                                         <p class="font-small text-danger pl-4_5" id="txtPsaIcNoErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-building prefix"></i>
-                                        <input type="text" id="txtPsaAgency" class="form-control" value="">
+                                        <i class="fas fa-building prefix white-text active"></i>
+                                        <input type="text" id="txtPsaAgency" class="white-text form-control" value="">
                                         <label for="txtPsaAgency">Agency</label>
                                         <p class="font-small text-danger pl-4_5" id="txtPsaAgencyErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-phone prefix"></i>
-                                        <input type="text" id="txtPsaPhoneNo" class="form-control" value="">
+                                        <i class="fas fa-phone prefix white-text active"></i>
+                                        <input type="text" id="txtPsaPhoneNo" class="white-text form-control" value="">
                                         <label for="txtPsaPhoneNo">Phone No.</label>
                                         <p class="font-small text-danger pl-4_5" id="txtPsaPhoneNoErr"></p>
                                     </div>
                                     <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-envelope prefix"></i>
-                                        <input type="text" id="txtPsaEmail" class="form-control" value="">
+                                        <i class="fas fa-envelope prefix white-text active"></i>
+                                        <input type="text" id="txtPsaEmail" class="white-text form-control" value="">
                                         <label for="txtPsaEmail">Email Address *</label>
                                         <p class="font-small text-danger pl-4_5" id="txtPsaEmailErr"></p>
                                     </div>
+                                    <!--<div class="md-form mx-2 pb-0">
+                                        <i class="fas fa-tools prefix white-text active"></i>
+                                        <h6 class="font-small white-text pl-4_5">Category *</h6>
+                                        &lt;!&ndash; <h6 class="font-small white-text">Status:</h6>&ndash;&gt;
+                                        <div class="form-check pl-4 ml-3" style="top: -10px">
+                                            <input type="radio" id="chkMzbStatus1" name="chkMzbStatus" value="1">
+                                            <label class="form-check-label white-text" for="chkMzbStatus1">Electrical</label>
+                                        </div>
+                                        <div class="form-check pl-4 ml-3" style="top: -7px">
+                                            <input type="radio" id="chkMzbStatus2" name="chkMzbStatus" value="2">
+                                            <label class="form-check-label white-text" for="chkMzbStatus2">Mechanical</label>
+                                        </div>
+                                    </div>-->
+                                    <!--<div class="select-outline md-form mx-2 pb-0">
+                                        <i class="fas fa-tools prefix white-text active"></i>
+                                        <select id="optPsaCategory" class="md-form colorful-select mt-0 mb-0 white-text"></select>
+                                        <label for="optPsaCategory">Category *</label>
+                                    </div>-->
                                     <div class="md-form mx-2 mb-3 pb-0">
-                                        <i class="fas fa-pen prefix"></i>
-                                        <textarea id="txaPsaComplaint" class="md-textarea form-control" rows="3"></textarea>
-                                        <label for="txaPsaComplaint">Complaint Details *</label>
+                                        <i class="fas fa-pen prefix white-text active"></i>
+                                        <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="3"></textarea>
+                                        <label for="txaPsaComplaint" class="white-text">Complaint Details *</label>
                                         <p class="font-small text-danger pl-4_5" id="txaPsaComplaintErr"></p>
                                     </div>
                                     <div class="md-form mx-2 mt-0 pb-4">
-                                        <i class="fas fa-image prefix"></i>
-                                        <h6 class="font-small pl-4_5">Picture</h6>
+                                        <i class="fas fa-image prefix white-text active"></i>
+                                        <h6 class="font-small white-text pl-4_5">Picture</h6>
                                         <div class="file-field pl-4_5">
                                             <div class="z-depth-1-half mb-1 w-50">
                                                 <img src="img/background/upload_placeholder.png" id="imgPsaImage" class="img-fluid" alt="example placeholder">
                                             </div>
-                                            <div class="btn btn-primary w-50 py-2" style="left: -6px">
+                                            <div class="btn btn-outline-white w-50 py-2" style="left: -6px">
                                                 <span>Choose<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
                                                 <input type="file" id="txfPsaImage">
                                                 <input type="hidden" id="txfPsaImageBlob">
@@ -254,23 +201,38 @@
                                             <p class="font-small text-danger" id="txfPsaImageErr"></p>
                                         </div>
                                     </div>
-                                    <hr class="mt-5 mb-2">
+                                    <hr class="hr-light mt-5 mb-2">
                                     <div class="text-right">
                                         <button type="button" class="btn btn-outline-white" id="btnPsaSubmit">SUBMIT COMPLAINT NOW !!</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
-                        </div>
+                        <!--/.Form-->
                     </div>
+                    <!--Grid column-->
                 </div>
+                <!--Grid row-->
             </div>
+            <!-- Content -->
         </div>
-    </header>
+        <!-- Mask & flexbox options-->
+    </div>
+    <!-- Full Page Intro -->
+</header>
+<!-- Main navigation -->
+
+<!--  SCRIPTS  -->
+<!-- JQuery -->
+<!-- JQuery -->
 <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<!--JQuery Migrate-->
 <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+<!-- Bootstrap tooltips -->
 <script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
 <script type="text/javascript" src="js/addons/md5.min.js"></script>
@@ -425,15 +387,10 @@
                                 $('#imgPsaImage').attr('src', 'img/background/upload_placeholder.png');
                                 mzDisplayImageFileInput(this, 'imgPsaImage');
                                 imageSize = [0,0];
-                                // Optional: Show a success message or redirect after submission
-                                toastr['success']('Complaint submitted successfully!', 'Success');
-                                // Reset form fields
-                                $('#formPsaDetails').trigger('reset');
-                                $('#txfPsaImageBlob').val('');
                             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }, 200);
                     }
-                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+                } catch (e) { oastr['error'](e.message, _ALERT_TITLE_ERROR); }
             });
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     });
