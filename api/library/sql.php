@@ -1630,6 +1630,15 @@ class Class_sql
                         WHERE checklist_id = [checklistId]
                     ) aa
                     WHERE frequency_id IS NOT NULL";
+            } else if ($title === 'vg_ppm_group_tasks_for_execution') {
+                $sql = "SELECT pt.ppm_task_id
+                        FROM ppm_task pt
+                        INNER JOIN ppm p ON p.ppm_id = pt.ppm_id
+                        INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id
+                        WHERE pt.ppm_id = [ppmId]
+                          AND pt.ppm_task_start_date = '[ppmTaskStartDate]'
+                          AND pt.ppm_task_status = [ppmTaskStatus]
+                          AND aa.ppm_group_id = [ppmGroupId]";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
