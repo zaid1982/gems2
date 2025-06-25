@@ -1218,7 +1218,7 @@ class Class_ppm {
      */
     public function save_qualitative_tasks_m ($ppmTaskId, $ppmTaskQuals) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1226,31 +1226,64 @@ class Class_ppm {
             if (!is_array($ppmTaskQuals)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals is not array');
             }
-            if (empty($ppmTaskQuals)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals empty');
+            // Note: empty($ppmTaskQuals) is handled inside the helper now, to allow status update.
+
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $this->_apply_qualitative_task_update($ppmTaskId, $ppmTaskQuals);
+
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+                    // For Option A, we assume identical structure and propagate the same data.
+                    // To do this, we need to map the original ppmTaskQuals by their checklistQualId or ppmTaskQualNumb
+                    // instead of the direct ppm_task_qual_id, because the IDs will differ per task.
+                    // The _apply_qualitative_task_update helper is adjusted to handle this.
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress if it started with group)
+                    // For updates, we usually allow propagation if the task is In Progress (13) or Open (12).
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    // Note: We check for '13' because it implies it was part of the group start
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1' // Check its own group execution flag
+                    ) {
+                        try {
+                            // To propagate, we need the checklistQualId from the original ppmTaskQuals.
+                            // The input $ppmTaskQuals currently has 'id' (ppm_task_qual_id).
+                            // We need to transform $ppmTaskQuals to include 'checklistQualId' if it's not already there.
+                            // Assuming client sends 'checklistQualId' for group update scenarios,
+                            // or we need to fetch it from the DB for the original ppmTaskId first.
+
+                            // Let's modify the client's input ppmTaskQuals to add checklistQualId for propagation
+                            $propagatedQuals = [];
+                            foreach ($ppmTaskQuals as $qual) {
+                                $originalQual = Class_db::getInstance()->db_select_single2('ppm_task_qual', ['ppm_task_qual_id' => $qual['id']], null, 1);
+                                $propagatedQuals[] = [
+                                    'checklistQualId' => $originalQual['checklistQualId'],
+                                    'result' => $qual['result'],
+                                    'remark' => $qual['remark']
+                                ];
+                            }
+                            $this->_apply_qualitative_task_update($targetPpmTaskId, $propagatedQuals);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
             }
 
-            foreach ($ppmTaskQuals as $ppmTaskQual) {
-                if (!array_key_exists('id', $ppmTaskQual) || empty($ppmTaskQual['id'])) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[id] empty');
-                }
-                if (!array_key_exists('result', $ppmTaskQual)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[result] not exist');
-                }
-                if (!array_key_exists('remark', $ppmTaskQual)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[remark] not exist');
-                }
-                //if (Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_qual_id'=>$ppmTaskQual['id'], 'ppm_task_qual_result'=>'2')) > 0) {
-                //    throw new Exception('[' . __LINE__ . '] - Item ppm_task_qual_id = '.$ppmTaskQual['id'].' currently set as N/A');
-                //}
-                Class_db::getInstance()->db_update('ppm_task_qual', array('ppm_task_qual_result'=>$ppmTaskQual['result'], 'ppm_task_qual_remark'=>$ppmTaskQual['remark']), array('ppm_task_qual_id'=>$ppmTaskQual['id']));
-            }
-
-            $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
-            $sectionStatus = $totalNull > '0' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
-        }
-        catch(Exception $ex) {
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1263,7 +1296,7 @@ class Class_ppm {
      */
     public function save_quantitative_tasks_m ($ppmTaskId, $ppmTaskQuans) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1271,38 +1304,54 @@ class Class_ppm {
             if (!is_array($ppmTaskQuans)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans is not array');
             }
-            if (empty($ppmTaskQuans)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans empty');
+            // Note: empty($ppmTaskQuans) is handled inside the helper now, to allow status update.
+
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $this->_apply_quantitative_task_update($ppmTaskId, $ppmTaskQuans);
+
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            // Transform ppmTaskQuans to include checklistQuanId for propagation
+                            $propagatedQuans = [];
+                            foreach ($ppmTaskQuans as $quan) {
+                                $originalQuan = Class_db::getInstance()->db_select_single2('ppm_task_quan', ['ppm_task_quan_id' => $quan['id']], null, 1);
+                                $propagatedQuans[] = [
+                                    'checklistQuanId' => $originalQuan['checklistQuanId'],
+                                    'measuredValues' => $quan['measuredValues'],
+                                    'limit' => $quan['limit'],
+                                    'result' => $quan['result'],
+                                    'remark' => $quan['remark']
+                                ];
+                            }
+                            $this->_apply_quantitative_task_update($targetPpmTaskId, $propagatedQuans);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
             }
 
-            foreach ($ppmTaskQuans as $ppmTaskQuan) {
-                if (!array_key_exists('id', $ppmTaskQuan) || empty($ppmTaskQuan['id'])) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[id] empty');
-                }
-                if (!array_key_exists('measuredValues', $ppmTaskQuan)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[measuredValues] not exist');
-                }
-                if (!array_key_exists('limit', $ppmTaskQuan)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[limit] not exist');
-                }
-                if (!array_key_exists('result', $ppmTaskQuan)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[result] not exist');
-                }
-                if (!array_key_exists('remark', $ppmTaskQuan)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[remark] not exist');
-                }
-                //if (Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_quan_id'=>$ppmTaskQuan['id'], 'ppm_task_quan_result'=>'2')) > 0) {
-                //    throw new Exception('[' . __LINE__ . '] - Item ppm_task_quan_id = '.$ppmTaskQuan['id'].' currently set as N/A');
-                //}
-                Class_db::getInstance()->db_update('ppm_task_quan', array('ppm_task_quan_measured_values'=>$ppmTaskQuan['measuredValues'], 'ppm_task_quan_limit'=>$ppmTaskQuan['limit'],
-                    'ppm_task_quan_result'=>$ppmTaskQuan['result'], 'ppm_task_quan_remark'=>$ppmTaskQuan['remark']), array('ppm_task_quan_id'=>$ppmTaskQuan['id']));
-            }
-
-            $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_quan_result'=>'is NULL'));
-            $sectionStatus = $totalNull > '0' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'D'));
-        }
-        catch(Exception $ex) {
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1315,7 +1364,7 @@ class Class_ppm {
      */
     public function save_ppm_check_parts_m ($ppmTaskId, $checked='0') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1324,16 +1373,40 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter checked empty');
             }
 
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_parts'=>$checked), array('ppm_task_id'=>$ppmTaskId));
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $this->_apply_ppm_check_parts_update($ppmTaskId, $checked);
 
-            $sectionStatus = '19';
-            if ($checked === '1') {
-                $totalFile = Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_id'=>$ppmTaskId));
-                $sectionStatus = $totalFile == '0' ? '18' : '19';
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            $this->_apply_ppm_check_parts_update($targetPpmTaskId, $checked);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
             }
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
-        }
-        catch(Exception $ex) {
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1347,7 +1420,7 @@ class Class_ppm {
      */
     public function add_ppm_parts_m ($ppmTaskId, $ppmTaskPartsDesc) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $constant = $this->constant;
 
             if (empty($ppmTaskId)) {
@@ -1356,21 +1429,49 @@ class Class_ppm {
             if (empty($ppmTaskPartsDesc)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskPartsDesc empty');
             }
+            // Original check for ERR_PPM_PARTS_EXIST should remain here for the initial task.
+            // For propagation, the helper will handle the check per target task.
             if (Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_parts_desc'=>$ppmTaskPartsDesc, 'ppm_task_id'=>$ppmTaskId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_PARTS_EXIST, 31);
             }
 
-            $ppmTaskPartsId = Class_db::getInstance()->db_insert('ppm_task_parts', array('ppm_task_parts_desc'=>$ppmTaskPartsDesc, 'ppm_task_id'=>$ppmTaskId));
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>'19'), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'E'));
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $result = $this->_apply_add_ppm_parts($ppmTaskId, $ppmTaskPartsDesc);
 
-            $dataLocal = Class_db::getInstance()->db_select_single('ppm_task_parts', array('ppm_task_parts_id'=>$ppmTaskPartsId), null, 1);
-            $result['ppmTaskPartsId'] = $dataLocal['ppm_task_parts_id'];
-            $result['ppmTaskId'] = $dataLocal['ppm_task_id'];
-            $result['ppmTaskPartsDesc'] = $this->fn_general->clear_null($dataLocal['ppm_task_parts_desc']);
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
 
-            return $result;
-        }
-        catch(Exception $ex) {
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            // Propagate the same part description.
+                            // The _apply_add_ppm_parts helper will handle duplicate checks per task.
+                            $this->_apply_add_ppm_parts($targetPpmTaskId, $ppmTaskPartsDesc);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
+            }
+            return $result; // Return the result of the initial task addition
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1413,7 +1514,7 @@ class Class_ppm {
      */
     public function save_ppm_additional_report_m ($ppmTaskId, $uploadId) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1421,16 +1522,17 @@ class Class_ppm {
             if (empty($uploadId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
             }
-            if (Class_db::getInstance()->db_count('ppm_task', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_is_additional_report'=>'1')) == 0) {
-                throw new Exception('[' . __LINE__ . '] - Additional Report check not saved');
-            }
 
-            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'3', 'upload_id'=>$uploadId));
-            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'3'));
-            $sectionStatus = $totalFile == '0' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'F'));
-        }
-        catch(Exception $ex) {
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+
+            // Apply upload logic for the initiating task.
+            // As per requirement, direct file uploads are UNIQUE per asset and DO NOT propagate to group tasks.
+            $this->_apply_ppm_additional_report_upload($ppmTaskId, $uploadId);
+
+            // No group propagation logic here as this is a direct file upload unique to the asset.
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1443,7 +1545,7 @@ class Class_ppm {
      */
     public function save_ppm_check_additional_report_m ($ppmTaskId, $checked='0') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1452,16 +1554,40 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter checked empty');
             }
 
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_additional_report'=>$checked), array('ppm_task_id'=>$ppmTaskId));
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $this->_apply_ppm_check_additional_report_update($ppmTaskId, $checked);
 
-            $sectionStatus = '19';
-            if ($checked === '1') {
-                $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'3'));
-                $sectionStatus = $totalFile == '0' ? '18' : '19';
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            $this->_apply_ppm_check_additional_report_update($targetPpmTaskId, $checked);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
             }
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'F'));
-        }
-        catch(Exception $ex) {
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1511,17 +1637,46 @@ class Class_ppm {
      */
     public function save_ppm_remark_m ($ppmTaskId, $ppmTaskRemark='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
 
-            $sectionStatus = $ppmTaskRemark === '' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_remark'=>$ppmTaskRemark), array('ppm_task_id'=>$ppmTaskId));
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'G'));
-        }
-        catch(Exception $ex) {
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+            $this->_apply_ppm_remark_update($ppmTaskId, $ppmTaskRemark);
+
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            $this->_apply_ppm_remark_update($targetPpmTaskId, $ppmTaskRemark);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1535,16 +1690,15 @@ class Class_ppm {
      * @param string $latitude
      * @throws Exception
      */
-    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='') {
+    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='') { // Renamed from public function upload_maintenance_image_m in m_ppm.php
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
             }
-            if (empty($uploadId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
-            }
+            // Note: uploadId is generated by m_ppm.php and passed here.
+            // No need to validate uploadId here again, as it comes from a trusted source (uploadDocument).
             if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
                 throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
             }
@@ -1555,26 +1709,16 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
             }
 
-            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId,
-                'ppm_task_upload_longitude'=>$longitude, 'ppm_task_upload_latitude'=>$latitude));
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
 
-            $taskUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(0,1,2)'));
-            $totalFile0 = 0;
-            $totalFile1 = 0;
-            $totalFile2 = 0;
-            foreach ($taskUploads as $taskUpload) {
-                if ($taskUpload['ppm_task_upload_type'] == '0') {
-                    $totalFile0++;
-                } else if ($taskUpload['ppm_task_upload_type'] == '1') {
-                    $totalFile1++;
-                } else if ($taskUpload['ppm_task_upload_type'] == '2') {
-                    $totalFile2++;
-                }
-            }
-            $sectionStatus = ($totalFile0 > 0 && $totalFile1 > 0 && $totalFile2 > 0) ? '19' : '18';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'H'));
-        }
-        catch(Exception $ex) {
+            // Apply image upload logic for the initiating task.
+            // As per requirement, direct file uploads are UNIQUE per asset and DO NOT propagate to group tasks.
+            $this->_apply_ppm_maintenance_image_upload($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude);
+
+            // No group propagation logic here as this is a direct file upload unique to the asset.
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -1668,47 +1812,47 @@ class Class_ppm {
      * @param $userId
      * @throws Exception
      */
-    public function save_ppm_scan_start_time_m ($ppmTaskId, $userId) {
-        try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+    // public function save_ppm_scan_start_time_m ($ppmTaskId, $userId) {
+    //     try {
+    //         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
-            if (empty($ppmTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
-            }
-            if (empty($userId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
-            }
+    //         if (empty($ppmTaskId)) {
+    //             throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+    //         }
+    //         if (empty($userId)) {
+    //             throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+    //         }
 
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_assigned_to'=>$userId, 'ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
-            $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
-            Class_db::getInstance()->db_update('wfl_transaction', array('user_id'=>$userId, 'transaction_status' => '13'), array('transaction_id' => $transactionId));
-            Class_db::getInstance()->db_update('wfl_task', array('task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
+    //         Class_db::getInstance()->db_update('ppm_task', array('ppm_task_assigned_to'=>$userId, 'ppm_task_status'=>'13', 'ppm_task_time_start'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
+    //         $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
+    //         Class_db::getInstance()->db_update('wfl_transaction', array('user_id'=>$userId, 'transaction_status' => '13'), array('transaction_id' => $transactionId));
+    //         Class_db::getInstance()->db_update('wfl_task', array('task_claimed_user'=>$userId, 'task_time_claimed'=>'Now()'), array('transaction_id'=>$transactionId, 'checkpoint_id'=>'1'));
 
-            $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_id', null, 1);
-            $checklistId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'checklist_id', null, 1);
-            $checklist = Class_db::getInstance()->db_select_single2('ppm_checklist', array('checklist_id'=>$checklistId));
-            if (!empty($checklist)) {
-                $updateArr = array(
-                    'ppmTaskMinExecTime'=>$checklist['checklistMinExecTime'],
-                    'ppmTaskMaxExecTime'=>$checklist['checklistMaxExecTime'],
-                    'ppmTaskMaxAssistant'=>$checklist['checklistMaxAssistant']
-                );
-                Class_db::getInstance()->db_update('ppm_task', $this->fn_general->convertToMysqlArrAll($updateArr), array('ppm_task_id'=>$ppmTaskId));
-            }
+    //         $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_id', null, 1);
+    //         $checklistId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmId), 'checklist_id', null, 1);
+    //         $checklist = Class_db::getInstance()->db_select_single2('ppm_checklist', array('checklist_id'=>$checklistId));
+    //         if (!empty($checklist)) {
+    //             $updateArr = array(
+    //                 'ppmTaskMinExecTime'=>$checklist['checklistMinExecTime'],
+    //                 'ppmTaskMaxExecTime'=>$checklist['checklistMaxExecTime'],
+    //                 'ppmTaskMaxAssistant'=>$checklist['checklistMaxAssistant']
+    //             );
+    //             Class_db::getInstance()->db_update('ppm_task', $this->fn_general->convertToMysqlArrAll($updateArr), array('ppm_task_id'=>$ppmTaskId));
+    //         }
 
-            $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
-            $sectionStatus = $totalNull > '0' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
+    //         $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_qual_result'=>'is NULL'));
+    //         $sectionStatus = $totalNull > '0' ? '18' : '19';
+    //         Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'C'));
 
-            $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_quan_result'=>'is NULL'));
-            $sectionStatus = $totalNull > '0' ? '18' : '19';
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'D'));
-        }
-        catch(Exception $ex) {
-            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
-    }
+    //         $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_quan_result'=>'is NULL'));
+    //         $sectionStatus = $totalNull > '0' ? '18' : '19';
+    //         Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>$sectionStatus), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'D'));
+    //     }
+    //     catch(Exception $ex) {
+    //         $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+    //         throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+    //     }
+    // }
 
     /**
      * @param $ppmTaskId
@@ -1717,7 +1861,7 @@ class Class_ppm {
      */
     public function save_image_desc_m ($ppmTaskId, $ppmTaskUploads) {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1725,27 +1869,64 @@ class Class_ppm {
             if (!is_array($ppmTaskUploads)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploads is not array');
             }
-            if (empty($ppmTaskUploads)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploads empty');
+            // Note: empty($ppmTaskUploads) is handled inside the helper.
+
+            // 1. Apply update to the initiating task
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', '');
+
+            // To propagate by type, we need the upload type from the original input.
+            // The input $ppmTaskUploads currently has 'ppmTaskUploadId'.
+            // We need to transform $ppmTaskUploads to include 'ppmTaskUploadType' for propagation.
+            $transformedPpmTaskUploads = [];
+            foreach ($ppmTaskUploads as $upload) {
+                // Fetch the uploadType for the original ppmTaskUploadId
+                $originalUpload = Class_db::getInstance()->db_select_single2('ppm_task_upload', ['ppm_task_upload_id' => $upload['ppmTaskUploadId']], null, 1);
+                $transformedPpmTaskUploads[] = [
+                    'ppmTaskUploadId' => $upload['ppmTaskUploadId'], // Keep original ID for the initial update
+                    'ppmTaskUploadDesc' => $upload['ppmTaskUploadDesc'],
+                    'ppmTaskUploadType' => $originalUpload['ppmTaskUploadType'] // Add type for propagation
+                ];
             }
 
-            foreach ($ppmTaskUploads as $ppmTaskUpload) {
-                if (!array_key_exists('ppmTaskUploadId', $ppmTaskUpload) || empty($ppmTaskUpload['ppmTaskUploadId'])) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUpload[ppmTaskUploadId] empty');
+            $this->_apply_image_desc_update($ppmTaskId, $transformedPpmTaskUploads);
+
+            // 2. Check if this task is part of a group execution and propagate
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '12' || $targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            // Propagate the transformed data (including ppmTaskUploadType) to the helper
+                            $this->_apply_image_desc_update($targetPpmTaskId, $transformedPpmTaskUploads);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
                 }
-                if (!array_key_exists('ppmTaskUploadDesc', $ppmTaskUpload)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUpload[ppmTaskUploadDesc] not exist');
-                }
-                Class_db::getInstance()->db_update('ppm_task_upload', array('ppm_task_upload_desc'=>$ppmTaskUpload['ppmTaskUploadDesc']), array('ppm_task_upload_id'=>$ppmTaskUpload['ppmTaskUploadId']));
             }
-        }
-        catch(Exception $ex) {
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 
-    /**
+/**
      * @param $ppmTaskId
      * @param $checkpoint
      * @param $result
@@ -1753,12 +1934,12 @@ class Class_ppm {
      * @param $userId
      * @param string $remark
      * @param string $nextUser
-     * @return mixed
+     * @return mixed  // Will now return an array containing submitParam and groupNotificationData if applicable
      * @throws Exception
      */
     public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='', $nextUser='') {
         try {
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             if (empty($ppmTaskId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
@@ -1769,78 +1950,105 @@ class Class_ppm {
             if (empty($result)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter result empty');
             }
-            //if (empty($uploadId)) {
-            //    throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
-            //}
+            // uploadId can be empty if no file is uploaded.
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
 
-            $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
-            $task = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 1);
+            // 1. Apply process to the initiating task
+            // The check_current_task for the initiating task is already done in m_ppm.php for submit_ppm.
+            // So we directly call the helper.
+            $submitParam = $this->_apply_ppm_process($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark, $nextUser);
 
-            if ($task['checkpoint_id'] !== $checkpoint) {
-                throw new Exception('[' . __LINE__ . '] - Parameter checkpoint invalid');
-            }
-
-            $statusUpdate = '';
-            $taskName = '';
-            $reportTo = '';
-            if ($checkpoint === '1') {
-                $statusUpdate = '14';
-                $taskName = 'pending check';
-                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>$userId, 'ppm_task_time_serviced'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
-            } else if ($checkpoint === '2' && $result === '1') {
-                $statusUpdate = '15';
-                $taskName = 'pending verification';
-                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by'=>$userId, 'ppm_task_time_checked'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
-            } else if ($checkpoint === '2' && $result === '2') {
-                $statusUpdate = '21';
-                $taskName = 're-open';
-            } else if ($checkpoint === '3' && $result === '1') {
-                $statusUpdate = '16';
-                $taskName = 'completed';
-                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by'=>$userId, 'ppm_task_time_verified'=>'Now()'), array('ppm_task_id'=>$ppmTaskId));
-            } else if ($checkpoint === '3' && $result === '2') {
-                $statusUpdate = '21';
-                $taskName = 're-open';
-            }
-
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>$statusUpdate), array('ppm_task_id'=>$ppmTaskId));
-            if (!empty($uploadId)) {
-                Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>intval($checkpoint)+3, 'upload_id'=>$uploadId));
-            }
-            Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status'=>$statusUpdate), array('transaction_id'=>$transactionId));
-
-            if ($statusUpdate === '21') {
-                $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
-                if (!empty($ppmUploads)) {
-                    foreach ($ppmUploads as $ppmUpload) {
-                        Class_db::getInstance()->db_update('sys_upload', array('upload_status'=>'6'), array('upload_id'=>$ppmUpload['upload_id']));
-                    }
-                    Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id'=>$ppmTaskId, 'ppm_task_upload_type'=>'(4,5,6)'));
+            // 2. Perform workflow submission for the initiating task
+            // This part handles the wfl_task updates and next checkpoint creation.
+            // It uses taskId from $submitParam.
+            $taskId = $submitParam['taskId'];
+            if ($result == '1') { // Approved/Passed
+                $toGroup = '';
+                if ($checkpoint == '2' && !empty($nextUser)) { // If checker approves, and next user (verifier) is specified
+                    $toGroup = $this->fn_task->get_group_id_from_user($nextUser, '4'); // Get group for Engineer role (role 4)
                 }
-                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by'=>'', 'ppm_task_checked_by'=>'', 'ppm_task_verified_by'=>'', 'ppm_task_time_serviced'=>'', 'ppm_task_time_checked'=>'', 'ppm_task_time_verified'=>''), array('ppm_task_id'=>$ppmTaskId));
+                $this->fn_task->submit_task($taskId, $userId, '9', $remark, '', '', $toGroup, $nextUser); // Status 9: Submitted
+                // If Section I (Assistant List) is completed as part of submit, mark it as done.
+                if ($checkpoint == '1') { // If technician is submitting (checkpoint 1)
+                     $this->savePpmTaskDoneAssistant($ppmTaskId); // Mark Section I as complete.
+                }
+            } else if ($result == '2') { // Re-open
+                $this->fn_task->submit_task($taskId, $userId, '20', $remark, '1', '', '', '', 1); // Status 20: Rejected/Re-open, next=1 for re-open, skipTaskAssign=1
+            } else {
+                throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
             }
 
-            $emailTo = '';
-            $comment = '';
-            if (($taskName === 'pending verification' || $taskName === 'pending check') && !empty($nextUser)) {
-                $emailTo = $nextUser;
-            }
-            else if ($taskName === 're-open') {
-                $comment = !empty($remark) ? $remark : $task['task_remark'];
-                $receiver = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id'=>$transactionId, 'role_id'=>'5', 'checkpoint_id'=>'1'), 'user_id', null, 1);
-                $emailTo = $receiver;
-            }
-            else if ($taskName === 'completed') {
-                $emailTo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_assigned_to', null, 1);
+            // --- Group Execution Consolidation ---
+            $groupNotificationData = [];
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+                
+                $groupPpmTaskNos = [];
+                $groupEmailTo = $submitParam['emailTo']; // Use the primary task's intended recipient
+                $groupTaskStatus = $submitParam['taskStatus'];
+                $groupComment = $submitParam['comment'];
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task as its data is already in $submitParam
+                        $groupPpmTaskNos[] = $submitParam['ppmTaskNo'];
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state
+                    // For submission, tasks must be at the SAME CHECKPOINT and in Open(12) or In Progress(13) state
+                    $targetTaskWorkflow = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id' => Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'transaction_id', null, 1), 'task_current' => '1'), null, 0);
+                    $targetPpmTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is at the same checkpoint and in 'Open' (12) or 'In Progress' (13)
+                    // and its own group execution flag is '1'.
+                    if (!empty($targetTaskWorkflow) && $targetTaskWorkflow['checkpoint_id'] === $checkpoint &&
+                        ($targetPpmTaskStatus === '12' || $targetPpmTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            // Recursively call _apply_ppm_process for peer tasks
+                            // Pass empty uploadId, as signature images are unique per asset.
+                            $peerSubmitParam = $this->_apply_ppm_process($targetPpmTaskId, $checkpoint, $result, '', $userId, $remark, $nextUser);
+
+                            // Also apply workflow submission for peer tasks
+                            $peerTaskId = $peerSubmitParam['taskId'];
+                            if ($result == '1') {
+                                $peerToGroup = '';
+                                if ($checkpoint == '2' && !empty($nextUser)) {
+                                    $peerToGroup = $this->fn_task->get_group_id_from_user($nextUser, '4');
+                                }
+                                $this->fn_task->submit_task($peerTaskId, $userId, '9', $remark, '', '', $peerToGroup, $nextUser);
+                                if ($checkpoint == '1') {
+                                     $this->savePpmTaskDoneAssistant($targetPpmTaskId);
+                                }
+                            } else if ($result == '2') {
+                                $this->fn_task->submit_task($peerTaskId, $userId, '20', $remark, '1', '', '', '', 1);
+                            }
+                            // Collect PPM Task Numbers for consolidated email
+                            $groupPpmTaskNos[] = $peerSubmitParam['ppmTaskNo'];
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
+                // Prepare consolidated notification data
+                $groupNotificationData = [
+                    'emailTo' => $groupEmailTo,
+                    'taskStatus' => $groupTaskStatus,
+                    'ppmTaskNos' => implode(', ', $groupPpmTaskNos), // Consolidated list of task numbers
+                    'comment' => $groupComment
+                ];
             }
 
-            $ppmTaskNo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'ppm_task_no', null, 1);
-            return array('taskId'=>$task['task_id'], 'emailTo'=>$emailTo, 'taskStatus'=>$taskName, 'ppmTaskNo'=>$ppmTaskNo, 'comment'=>$comment);
-        }
-        catch(Exception $ex) {
+            // Return original submitParam and the new consolidated data
+            return array('submitParam' => $submitParam, 'groupNotificationData' => $groupNotificationData);
+
+        } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
@@ -3026,5 +3234,701 @@ class Class_ppm {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
+    }
+
+    /**
+     * @param string $ppmTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function getAllPpmTaskGroupByPpmId ($ppmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($ppmTaskId));
+
+            //get groupId from ppm_task
+            $ppmTask = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id'=>$ppmTaskId), 'transaction_id', null, 1);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $initiatingPpmTaskId
+     * @return array
+     * @throws Exception
+     */
+    private function _get_group_tasks_for_execution ($initiatingPpmTaskId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($initiatingPpmTaskId));
+
+            // Get the ppm_id, ppm_group_id (from ppm), and ppm_task_start_date of the initiating task
+            $initiatingTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $initiatingPpmTaskId), null, 1);
+            $masterPpm = Class_db::getInstance()->db_select_single2('ppm', array('ppm_id' => $initiatingTask['ppmId']), null, 1);
+
+            $ppmId = $initiatingTask['ppmId'];
+            $ppmGroupId = $masterPpm['ppmGroupId'];
+            $ppmTaskStartDate = $initiatingTask['ppmTaskStartDate'];
+
+            if (empty($ppmId) || empty($ppmGroupId) || empty($ppmTaskStartDate)) {
+                throw new Exception('[' . __LINE__ . '] - Failed to retrieve grouping details for PPM Task ID: ' . $initiatingPpmTaskId);
+            }
+
+            // Identify all other ppm_task_id's that belong to the same ppm_id (master PPM),
+            // have the same ppm_task_start_date, are for assets in the same ppm_group_id,
+            // and are currently in the 'Open' (status 12) state.
+            $arrWhere = array(
+                'ppm_task.ppm_id' => $ppmId,
+                'ppm_task.ppm_task_start_date' => $ppmTaskStartDate,
+                'ppm_task.ppm_task_status' => '12', // Only 'Open' tasks
+                'ppm.ppm_group_id' => $ppmGroupId // Filter by asset's PPM Group
+            );
+
+            // Use mw_task_ppm_all as it joins ppm and asset tables, or construct directly
+            // For precise filtering on asset.ppm_group_id, let's join directly or ensure view handles it.
+            // Assuming the simple direct join for clarity based on requirement.
+            $sql = "SELECT pt.ppm_task_id
+                    FROM ppm_task pt
+                    INNER JOIN ppm p ON p.ppm_id = pt.ppm_id
+                    INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id
+                    WHERE pt.ppm_id = :ppmId
+                      AND pt.ppm_task_start_date = :ppmTaskStartDate
+                      AND pt.ppm_task_status = :ppmTaskStatus
+                      AND aa.ppm_group_id = :ppmGroupId";
+
+            $params = array(
+                ':ppmId' => $ppmId,
+                ':ppmTaskStartDate' => $ppmTaskStartDate,
+                ':ppmTaskStatus' => '12',
+                ':ppmGroupId' => $ppmGroupId
+            );
+
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'SQL for group tasks: ' . $sql . ' with params: ' . json_encode($params));
+
+            // Execute raw query as db_select may not directly support complex joins in params
+            // For this, we need to manually prepare and execute or use a db_select variant that allows it.
+            // Given existing Class_db::db_select, we will simulate by building the where_str.
+            $groupTasks = Class_db::getInstance()->db_select_colm(
+                'ppm_task pt INNER JOIN ppm p ON p.ppm_id = pt.ppm_id INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id',
+                'ppm_task_id',
+                $arrWhere, // where conditions for db_select
+                null,      // orderby
+                null,      // limit
+                null       // throwEmpty (null means do not throw on empty, return empty array)
+            );
+
+            return $groupTasks;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $ppmTaskId
+     * @param $userId
+     * @param string $ppmGroupExecution  // Added new parameter for group execution flag
+     * @throws Exception
+     */
+    public function save_ppm_scan_start_time_m ($ppmTaskId, $userId, $ppmGroupExecution = '0') { // Default to '0' for single execution
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($ppmTaskId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskId empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if ($ppmGroupExecution !== '0' && $ppmGroupExecution !== '1') { // Validate the new parameter
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupExecution invalid');
+            }
+
+            // Centralized logic to apply scan start for a single task
+            $applyScanStartToTask = function($targetPpmTaskId, $targetUserId, $isGroupExecutedFlag) {
+                // Check if the current task is eligible for this operation (checkpoint 1, not claimed, etc.)
+                // Pass '' for userId for check_current_task, as it's checking the task's state, not who is claiming it *now*
+                // The actual claiming happens by updating task_claimed_user.
+                $this->check_current_task($targetPpmTaskId, '1', ''); // Check if it's at Checkpoint 1 and not claimed
+
+                Class_db::getInstance()->db_update('ppm_task', array(
+                    'ppm_task_assigned_to' => $targetUserId,
+                    'ppm_task_status' => '13', // In Progress
+                    'ppm_task_time_start' => 'Now()',
+                    'ppm_task_is_group_executed' => $isGroupExecutedFlag // Set the new flag
+                ), array('ppm_task_id' => $targetPpmTaskId));
+
+                $transactionId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'transaction_id', null, 1);
+                Class_db::getInstance()->db_update('wfl_transaction', array(
+                    'user_id' => $targetUserId,
+                    'transaction_status' => '13' // In Progress
+                ), array('transaction_id' => $transactionId));
+                Class_db::getInstance()->db_update('wfl_task', array(
+                    'task_claimed_user' => $targetUserId,
+                    'task_time_claimed' => 'Now()'
+                ), array('transaction_id' => $transactionId, 'checkpoint_id' => '1'));
+
+                $ppmId = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_id', null, 1);
+                $checklistId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id' => $ppmId), 'checklist_id', null, 1);
+                $checklist = Class_db::getInstance()->db_select_single2('ppm_checklist', array('checklist_id' => $checklistId));
+                if (!empty($checklist)) {
+                    $updateArr = array(
+                        'ppmTaskMinExecTime' => $checklist['checklistMinExecTime'],
+                        'ppmTaskMaxExecTime' => $checklist['checklistMaxExecTime'],
+                        'ppmTaskMaxAssistant' => $checklist['checklistMaxAssistant']
+                    );
+                    Class_db::getInstance()->db_update('ppm_task', $this->fn_general->convertToMysqlArrAll($updateArr), array('ppm_task_id' => $targetPpmTaskId));
+                }
+
+                // Update section C and D status based on their initial state
+                $totalNullQual = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_qual_result' => 'is NULL'));
+                $sectionStatusC = $totalNullQual > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+                Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusC), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'C'));
+
+                $totalNullQuan = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_quan_result' => 'is NULL'));
+                $sectionStatusD = $totalNullQuan > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+                Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusD), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'D'));
+
+                // Ensure Section I is added/updated if applicable (from getPpmSectionStatusV2M logic)
+                $targetPpmTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $targetPpmTaskId), null, 1);
+                // Only add new section if task status is NOT complete (16) AND section I does not exist
+                if ($targetPpmTask['ppmTaskStatus'] !== '16' && Class_db::getInstance()->db_count('ppm_task_section', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'I')) == 0) {
+                    $checklistIdForSectionI = Class_db::getInstance()->db_select_col('ppm', array('ppm_id' => $targetPpmTask['ppmId']), 'checklist_id', '', 1);
+                    $checklistForSectionI = Class_db::getInstance()->db_select_single2('ppm_checklist', array('checklist_id' => $checklistIdForSectionI), '', 1);
+                    $assistantStatus = (empty($checklistForSectionI['checklistMaxAssistant']) || $checklistForSectionI['checklistMaxAssistant'] === '0') ? '19' : '18';
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name' => 'I', 'ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_status' => $assistantStatus));
+                }
+            }; // End of applyScanStartToTask anonymous function
+
+            // Main logic for group vs. single execution
+            if ($ppmGroupExecution === '1') {
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId); // Get all eligible tasks in the group
+
+                if (empty($groupTaskIds)) {
+                    // This scenario means the initiating task itself wasn't "Open" or no other tasks qualified.
+                    // This can happen if the initiating task is already in progress/completed etc.
+                    // Or if no other assets are in the same group for that date.
+                    throw new Exception('[' . __LINE__ . '] - No eligible tasks found for group execution with PPM Task ID: ' . $ppmTaskId);
+                }
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    // Use a try-catch for individual task processing if you want to skip faulty ones
+                    // BUT as per requirement, we want to roll back the entire group if ANY fails.
+                    // So, let exceptions bubble up.
+                    $applyScanStartToTask($targetPpmTaskId, $userId, '1'); // Apply logic for each task, setting group_executed flag to 1
+                }
+            } else {
+                // Single task execution
+                $applyScanStartToTask($ppmTaskId, $userId, '0'); // Apply logic for single task, setting group_executed flag to 0
+            }
+
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Helper method to apply qualitative task updates for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param array $ppmTaskQuals // Expects an array of arrays with 'id', 'result', 'remark'
+     * @throws Exception
+     */
+    private function _apply_qualitative_task_update($targetPpmTaskId, $ppmTaskQuals) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (!is_array($ppmTaskQuals)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals is not array');
+        }
+        if (empty($ppmTaskQuals)) {
+            // No qualitative tasks to update, but might still need to set section status if previously incomplete
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No ppmTaskQuals provided for PPM Task ID: ' . $targetPpmTaskId);
+            // We can still try to determine section status if there are existing N/A tasks
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_qual_result' => 'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'C'));
+            return;
+        }
+
+        foreach ($ppmTaskQuals as $ppmTaskQual) {
+            if (!array_key_exists('id', $ppmTaskQual) || empty($ppmTaskQual['id'])) {
+                // For group execution (Option A), we might not have a direct 'id' mapping.
+                // We need to find the corresponding ppm_task_qual_id for this targetPpmTaskId
+                // based on checklist_qual_id or ppm_task_qual_numb.
+                // Let's use checklist_qual_id if available, as it's a direct reference from checklist to task_qual.
+                if (!array_key_exists('checklistQualId', $ppmTaskQual) || empty($ppmTaskQual['checklistQualId'])) {
+                    throw new Exception('[' . __LINE__ . '] - Neither ppmTaskQuals[id] nor ppmTaskQuals[checklistQualId] exist for targetPpmTaskId: ' . $targetPpmTaskId);
+                }
+                $qualToUpdate = Class_db::getInstance()->db_select_single2(
+                    'ppm_task_qual',
+                    array(
+                        'ppm_task_id' => $targetPpmTaskId,
+                        'checklist_qual_id' => $ppmTaskQual['checklistQualId']
+                    ),
+                    null,
+                    1 // Throw exception if not found, to ensure data consistency for Option A
+                );
+                $qualId = $qualToUpdate['ppmTaskQualId'];
+            } else {
+                // Original behavior: use the provided ID directly
+                $qualId = $ppmTaskQual['id'];
+            }
+
+            if (!array_key_exists('result', $ppmTaskQual)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[result] not exist');
+            }
+            if (!array_key_exists('remark', $ppmTaskQual)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals[remark] not exist');
+            }
+
+            Class_db::getInstance()->db_update(
+                'ppm_task_qual',
+                array(
+                    'ppm_task_qual_result' => $ppmTaskQual['result'],
+                    'ppm_task_qual_remark' => $ppmTaskQual['remark']
+                ),
+                array('ppm_task_qual_id' => $qualId)
+            );
+        }
+
+        $totalNull = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_qual_result' => 'is NULL'));
+        $sectionStatus = $totalNull > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'C'));
+    }
+
+    /**
+     * Helper method to apply quantitative task updates for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param array $ppmTaskQuans // Expects an array of arrays with 'id', 'measuredValues', 'limit', 'result', 'remark'
+     * @throws Exception
+     */
+    private function _apply_quantitative_task_update($targetPpmTaskId, $ppmTaskQuans) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (!is_array($ppmTaskQuans)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans is not array');
+        }
+        if (empty($ppmTaskQuans)) {
+            // No quantitative tasks to update, but might still need to set section status if previously incomplete
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No ppmTaskQuans provided for PPM Task ID: ' . $targetPpmTaskId);
+            $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_quan_result' => 'is NULL'));
+            $sectionStatus = $totalNull > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'D'));
+            return;
+        }
+
+        foreach ($ppmTaskQuans as $ppmTaskQuan) {
+            if (!array_key_exists('id', $ppmTaskQuan) || empty($ppmTaskQuan['id'])) {
+                // Find the corresponding ppm_task_quan_id for this targetPpmTaskId
+                // based on checklist_quan_id.
+                if (!array_key_exists('checklistQuanId', $ppmTaskQuan) || empty($ppmTaskQuan['checklistQuanId'])) {
+                    throw new Exception('[' . __LINE__ . '] - Neither ppmTaskQuans[id] nor ppmTaskQuans[checklistQuanId] exist for targetPpmTaskId: ' . $targetPpmTaskId);
+                }
+                $quanToUpdate = Class_db::getInstance()->db_select_single2(
+                    'ppm_task_quan',
+                    array(
+                        'ppm_task_id' => $targetPpmTaskId,
+                        'checklist_quan_id' => $ppmTaskQuan['checklistQuanId']
+                    ),
+                    null,
+                    1 // Throw exception if not found, to ensure data consistency for Option A
+                );
+                $quanId = $quanToUpdate['ppmTaskQuanId'];
+            } else {
+                // Original behavior: use the provided ID directly
+                $quanId = $ppmTaskQuan['id'];
+            }
+
+            if (!array_key_exists('measuredValues', $ppmTaskQuan)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[measuredValues] not exist');
+            }
+            if (!array_key_exists('limit', $ppmTaskQuan)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[limit] not exist');
+            }
+            if (!array_key_exists('result', $ppmTaskQuan)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[result] not exist');
+            }
+            if (!array_key_exists('remark', $ppmTaskQuan)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans[remark] not exist');
+            }
+
+            Class_db::getInstance()->db_update(
+                'ppm_task_quan',
+                array(
+                    'ppm_task_quan_measured_values' => $ppmTaskQuan['measuredValues'],
+                    'ppm_task_quan_limit' => $ppmTaskQuan['limit'],
+                    'ppm_task_quan_result' => $ppmTaskQuan['result'],
+                    'ppm_task_quan_remark' => $ppmTaskQuan['remark']
+                ),
+                array('ppm_task_quan_id' => $quanId)
+            );
+        }
+
+        $totalNull = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_quan_result' => 'is NULL'));
+        $sectionStatus = $totalNull > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'D'));
+    }
+
+    /**
+     * Helper method to apply PPM check parts status update for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param string $checked '0' or '1'
+     * @throws Exception
+     */
+    private function _apply_ppm_check_parts_update($targetPpmTaskId, $checked) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if ($checked == '') {
+            throw new Exception('[' . __LINE__ . '] - Parameter checked empty');
+        }
+
+        Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_parts' => $checked), array('ppm_task_id' => $targetPpmTaskId));
+
+        $sectionStatus = '19'; // Default to complete
+        if ($checked === '1') {
+            $totalFile = Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_id' => $targetPpmTaskId));
+            $sectionStatus = $totalFile == '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        }
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'E'));
+    }
+
+    /**
+     * Helper method to add PPM parts for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param string $ppmTaskPartsDesc
+     * @return array The added part's details.
+     * @throws Exception
+     */
+    private function _apply_add_ppm_parts($targetPpmTaskId, $ppmTaskPartsDesc) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+        $constant = $this->constant;
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (empty($ppmTaskPartsDesc)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskPartsDesc empty');
+        }
+        // Check for similar part description only if adding to the original task
+        // For propagation, we might allow duplicates if the checklist has it.
+        // However, for identical propagation, if it errors on one it should rollback all.
+        if (Class_db::getInstance()->db_count('ppm_task_parts', array('ppm_task_parts_desc' => $ppmTaskPartsDesc, 'ppm_task_id' => $targetPpmTaskId)) > 0) {
+            throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_PARTS_EXIST, 31);
+        }
+
+        $ppmTaskPartsId = Class_db::getInstance()->db_insert('ppm_task_parts', array('ppm_task_parts_desc' => $ppmTaskPartsDesc, 'ppm_task_id' => $targetPpmTaskId));
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => '19'), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'E')); // 19: Complete
+
+        $dataLocal = Class_db::getInstance()->db_select_single2('ppm_task_parts', array('ppm_task_parts_id' => $ppmTaskPartsId), null, 1);
+        $result['ppmTaskPartsId'] = $dataLocal['ppmTaskPartsId'];
+        $result['ppmTaskId'] = $dataLocal['ppmTaskId'];
+        $result['ppmTaskPartsDesc'] = $this->fn_general->clear_null($dataLocal['ppmTaskPartsDesc']);
+
+        return $result;
+    }
+
+    /**
+     * Helper method to apply PPM check additional report status update for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param string $checked '0' or '1'
+     * @throws Exception
+     */
+    private function _apply_ppm_check_additional_report_update($targetPpmTaskId, $checked) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if ($checked == '') {
+            throw new Exception('[' . __LINE__ . '] - Parameter checked empty');
+        }
+
+        Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_additional_report' => $checked), array('ppm_task_id' => $targetPpmTaskId));
+
+        $sectionStatus = '19'; // Default to complete
+        if ($checked === '1') {
+            $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '3')); // Type '3' for additional report
+            $sectionStatus = $totalFile == '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        }
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'F'));
+    }
+
+    /**
+     * Helper method to save an additional report upload for a single PPM task.
+     * Note: Direct file uploads are unique per asset and do NOT propagate to group tasks.
+     * @param bigint $targetPpmTaskId
+     * @param bigint $uploadId
+     * @throws Exception
+     */
+    private function _apply_ppm_additional_report_upload($targetPpmTaskId, $uploadId) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (empty($uploadId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+        }
+        // Ensure the 'additional report' checkbox was indeed checked for this task
+        if (Class_db::getInstance()->db_count('ppm_task', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_is_additional_report' => '1')) == 0) {
+            throw new Exception('[' . __LINE__ . '] - Additional Report check not saved for PPM Task ID: ' . $targetPpmTaskId);
+        }
+
+        Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '3', 'upload_id' => $uploadId)); // Type '3' for additional report
+        $totalFile = Class_db::getInstance()->db_count('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '3'));
+        $sectionStatus = $totalFile == '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'F'));
+    }
+
+    /**
+     * Helper method to save PPM remark for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param string $ppmTaskRemark
+     * @throws Exception
+     */
+    private function _apply_ppm_remark_update($targetPpmTaskId, $ppmTaskRemark) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+
+        $sectionStatus = $ppmTaskRemark === '' ? '18' : '19'; // 18: Incomplete, 19: Complete
+        Class_db::getInstance()->db_update('ppm_task', array('ppm_task_remark' => $ppmTaskRemark), array('ppm_task_id' => $targetPpmTaskId));
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'G'));
+    }
+
+    /**
+     * Helper method to save a maintenance image upload for a single PPM task.
+     * Note: Direct file uploads are unique per asset and do NOT propagate to group tasks.
+     * @param bigint $targetPpmTaskId
+     * @param bigint $uploadId
+     * @param string $uploadType ('0','1','2')
+     * @param string $longitude
+     * @param string $latitude
+     * @throws Exception
+     */
+    private function _apply_ppm_maintenance_image_upload($targetPpmTaskId, $uploadId, $uploadType, $longitude, $latitude) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (empty($uploadId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter uploadId empty');
+        }
+        if ($uploadType != '0' && $uploadType != '1' && $uploadType != '2') {
+            throw new Exception('[' . __LINE__ . '] - Parameter uploadType invalid');
+        }
+        if (empty($longitude)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter longitude empty');
+        }
+        if (empty($latitude)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
+        }
+
+        Class_db::getInstance()->db_insert('ppm_task_upload', array(
+            'ppm_task_id' => $targetPpmTaskId,
+            'ppm_task_upload_type' => $uploadType,
+            'upload_id' => $uploadId,
+            'ppm_task_upload_longitude' => $longitude,
+            'ppm_task_upload_latitude' => $latitude
+        ));
+
+        $taskUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '(0,1,2)'));
+        $totalFile0 = 0; $totalFile1 = 0; $totalFile2 = 0;
+        foreach ($taskUploads as $taskUpload) {
+            if ($taskUpload['ppm_task_upload_type'] == '0') { $totalFile0++; }
+            else if ($taskUpload['ppm_task_upload_type'] == '1') { $totalFile1++; }
+            else if ($taskUpload['ppm_task_upload_type'] == '2') { $totalFile2++; }
+        }
+        $sectionStatus = ($totalFile0 > 0 && $totalFile1 > 0 && $totalFile2 > 0) ? '19' : '18'; // 18: Incomplete, 19: Complete
+        Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatus), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'H'));
+    }
+
+    /**
+     * Helper method to save image descriptions for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param array $ppmTaskUploads // Expects an array of arrays with 'ppmTaskUploadId', 'ppmTaskUploadDesc'
+     * // For propagation, will also handle 'ppmTaskUploadType' to find matching images.
+     * @throws Exception
+     */
+    private function _apply_image_desc_update($targetPpmTaskId, $ppmTaskUploads) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (!is_array($ppmTaskUploads)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUploads is not array');
+        }
+        if (empty($ppmTaskUploads)) {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No ppmTaskUploads provided for PPM Task ID: ' . $targetPpmTaskId);
+            return;
+        }
+
+        foreach ($ppmTaskUploads as $ppmTaskUpload) {
+            $uploadIdToUpdate = null;
+            if (!array_key_exists('ppmTaskUploadId', $ppmTaskUpload) || empty($ppmTaskUpload['ppmTaskUploadId'])) {
+                // For propagation, we need to find the target ppm_task_upload_id based on uploadType.
+                // Assuming ppmTaskUploadType is provided or can be derived.
+                if (!array_key_exists('ppmTaskUploadType', $ppmTaskUpload) || $ppmTaskUpload['ppmTaskUploadType'] === '') {
+                     throw new Exception('[' . __LINE__ . '] - Neither ppmTaskUpload[ppmTaskUploadId] nor ppmTaskUpload[ppmTaskUploadType] exist for targetPpmTaskId: ' . $targetPpmTaskId);
+                }
+                // Find the existing image of this type for the target task. If multiple, pick the first or newest.
+                $existingUploads = Class_db::getInstance()->db_select(
+                    'ppm_task_upload',
+                    array(
+                        'ppm_task_id' => $targetPpmTaskId,
+                        'ppm_task_upload_type' => $ppmTaskUpload['ppmTaskUploadType']
+                    ),
+                    'ppm_task_upload_timestamp DESC', // Order by newest if multiple
+                    '1' // Limit to one
+                );
+                if (!empty($existingUploads)) {
+                    $uploadIdToUpdate = $existingUploads[0]['ppm_task_upload_id'];
+                } else {
+                    // No matching image found on target task, cannot propagate description.
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No matching image of type ' . $ppmTaskUpload['ppmTaskUploadType'] . ' found for PPM Task ID: ' . $targetPpmTaskId . '. Skipping description update.');
+                    continue; // Skip to next upload in the list
+                }
+
+            } else {
+                // Original behavior: use the provided ID directly
+                $uploadIdToUpdate = $ppmTaskUpload['ppmTaskUploadId'];
+            }
+
+            if (!array_key_exists('ppmTaskUploadDesc', $ppmTaskUpload)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskUpload[ppmTaskUploadDesc] not exist');
+            }
+
+            Class_db::getInstance()->db_update(
+                'ppm_task_upload',
+                array('ppm_task_upload_desc' => $ppmTaskUpload['ppmTaskUploadDesc']),
+                array('ppm_task_upload_id' => $uploadIdToUpdate)
+            );
+        }
+    }
+
+    /**
+     * Helper method to apply the core PPM task processing (submission) for a single PPM task.
+     * @param bigint $targetPpmTaskId
+     * @param string $checkpoint ('1', '2', '3')
+     * @param string $result ('1'=pass, '2'=re-open)
+     * @param bigint $uploadId (Can be null/empty if no upload, or empty for propagated tasks)
+     * @param int $userId (User performing the action)
+     * @param string $remark
+     * @param string $nextUser (Next user for the workflow, if applicable)
+     * @return array Parameters for notification (taskId, emailTo, taskStatus, ppmTaskNo, comment)
+     * @throws Exception
+     */
+    private function _apply_ppm_process($targetPpmTaskId, $checkpoint, $result, $uploadId, $userId, $remark = '', $nextUser = '') {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+        $constant = $this->constant;
+
+        if (empty($targetPpmTaskId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter targetPpmTaskId empty');
+        }
+        if (empty($checkpoint)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter checkpoint empty');
+        }
+        if (empty($result)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter result empty');
+        }
+        if (empty($userId)) {
+            throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+        }
+
+        // Check if the current task is valid and at the expected checkpoint
+        $task = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id' => Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'transaction_id', null, 1), 'task_current' => '1'), null, 1);
+        if ($task['checkpoint_id'] !== $checkpoint) {
+            throw new Exception('[' . __LINE__ . '] - Task for PPM Task ID ' . $targetPpmTaskId . ' is not at expected checkpoint ' . $checkpoint);
+        }
+        // Additional check: Ensure it's not claimed by someone else if not the initiating task
+        // For propagation, if task_claimed_user is set, it implies it was claimed as part of the group start
+        if ($task['task_claimed_user'] !== $userId && !empty($task['task_claimed_user'])) {
+            throw new Exception('[' . __LINE__ . '] - Task for PPM Task ID ' . $targetPpmTaskId . ' already claimed by another user');
+        }
+
+
+        $statusUpdate = '';
+        $taskName = '';
+        $emailTo = '';
+        $comment = '';
+
+        if ($checkpoint === '1') {
+            $statusUpdate = '14'; // Pending Check
+            $taskName = 'pending check';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by' => $userId, 'ppm_task_time_serviced' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            $emailTo = $nextUser; // Next user is the checker/supervisor
+        } else if ($checkpoint === '2' && $result === '1') {
+            $statusUpdate = '15'; // Pending Verification
+            $taskName = 'pending verification';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by' => $userId, 'ppm_task_time_checked' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            $emailTo = $nextUser; // Next user is the verifier/engineer
+        } else if ($checkpoint === '2' && $result === '2') {
+            $statusUpdate = '21'; // Re-open
+            $taskName = 're-open';
+            $comment = !empty($remark) ? $remark : $task['task_remark']; // Use provided remark or existing task remark
+            $receiver = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id' => $task['transaction_id'], 'role_id' => '5', 'checkpoint_id' => '1'), 'user_id', null, 1);
+            $emailTo = $receiver; // Send to original assigned technician (role 5)
+        } else if ($checkpoint === '3' && $result === '1') {
+            $statusUpdate = '16'; // Completed
+            $taskName = 'completed';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by' => $userId, 'ppm_task_time_verified' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            $emailTo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_assigned_to', null, 1); // Notify the original assigned technician
+        } else if ($checkpoint === '3' && $result === '2') {
+            $statusUpdate = '21'; // Re-open
+            $taskName = 're-open';
+            $comment = !empty($remark) ? $remark : $task['task_remark'];
+            $receiver = Class_db::getInstance()->db_select_col('wfl_task_assign', array('transaction_id' => $task['transaction_id'], 'role_id' => '5', 'checkpoint_id' => '1'), 'user_id', null, 1);
+            $emailTo = $receiver; // Send to original assigned technician (role 5)
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter result invalid for checkpoint ' . $checkpoint);
+        }
+
+        Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status' => $statusUpdate), array('ppm_task_id' => $targetPpmTaskId));
+        if (!empty($uploadId)) {
+            // This is for signature uploads (type 4,5,6). As per requirement, these are unique per asset.
+            Class_db::getInstance()->db_insert('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => intval($checkpoint) + 3, 'upload_id' => $uploadId));
+        }
+        Class_db::getInstance()->db_update('wfl_transaction', array('transaction_status' => $statusUpdate), array('transaction_id' => $task['transaction_id']));
+
+        // Handle re-open: clear previous related uploads and reset task status fields
+        if ($statusUpdate === '21') {
+            $ppmUploads = Class_db::getInstance()->db_select('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '(4,5,6)'));
+            if (!empty($ppmUploads)) {
+                foreach ($ppmUploads as $ppmUpload) {
+                    Class_db::getInstance()->db_update('sys_upload', array('upload_status' => '6'), array('upload_id' => $ppmUpload['upload_id'])); // Soft delete
+                }
+                Class_db::getInstance()->db_delete('ppm_task_upload', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_upload_type' => '(4,5,6)'));
+            }
+            Class_db::getInstance()->db_update('ppm_task', array(
+                'ppm_task_serviced_by' => '',
+                'ppm_task_checked_by' => '',
+                'ppm_task_verified_by' => '',
+                'ppm_task_time_serviced' => '',
+                'ppm_task_time_checked' => '',
+                'ppm_task_time_verified' => ''
+            ), array('ppm_task_id' => $targetPpmTaskId));
+
+            // When re-opened, also reset group execution flag for the task if applicable
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_is_group_executed' => '0'), array('ppm_task_id' => $targetPpmTaskId));
+        }
+
+        $ppmTaskNo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_no', null, 1);
+
+        return array('taskId' => $task['task_id'], 'emailTo' => $emailTo, 'taskStatus' => $taskName, 'ppmTaskNo' => $ppmTaskNo, 'comment' => $comment);
     }
 }

@@ -249,10 +249,16 @@ try {
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
         else if ($action === 'save_scan_start_time') {
+            // group execution flag
+            $ppmGroupExecution = filter_input(INPUT_POST, 'ppmGroupExecution'); // Capture the parameter from POST
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+
+            // check_current_task is still here as it's a critical initial validation for the initiating task.
             $fn_ppm->check_current_task($ppmTaskId, '1');
-            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId, $jwt_data->userId);
-            $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
+
+            // Pass the new ppmGroupExecution parameter to the f_ppm method
+            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId, $jwt_data->userId, $ppmGroupExecution);
+            $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Group Execution = ' . $ppmGroupExecution);
             $form_data['errmsg'] = $constant::SUC_SCAN_START_TIME;
         }
         else if ($action === 'save_image_desc') {
@@ -268,17 +274,33 @@ try {
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
-            //$fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId);
+            //$fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId); // This check is now within _apply_ppm_process
+
+            // Handle uploadId for the initiating task only
             $uploadId = '';
-            $nextUser = '';
             if ($result == '1') {
+                // If this is the submission of Checkpoint 1 or 2, determine the next user
+                $nextUser = '';
                 if ($checkpoint == '1' || $checkpoint == '2') {
                     $nextUser = $fn_ppm->get_next_ppm_user($ppmTaskId, $checkpoint);
                 }
+                // Upload signature/document for the initiating task only
                 $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-                $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
+                if (is_array($fileUpload) && !empty($fileUpload) && !empty($fileUpload['filename'])) {
+                    $uploadId = $fn_general->uploadDocument($fileUpload, intval($checkpoint) + 4, $jwt_data->userId);
+                }
             }
-            $submitParam = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark, $nextUser);
+
+            // Call process_ppm, which now returns an array with submitParam and groupNotificationData
+            $processResult = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark, $nextUser);
+
+            // Extract submitParam and groupNotificationData from the result
+            $submitParam = $processResult['submitParam'];
+            $groupNotificationData = $processResult['groupNotificationData'];
+
+            // Perform workflow submission for the initiating task.
+            // This part is now handled inside process_ppm, so we can remove the redundant code here.
+            /*
             $taskId = $submitParam['taskId'];
             if ($result == '1') {
                 $toGroup = '';
@@ -292,8 +314,28 @@ try {
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter result invalid');
             }
+            */
+
             $fn_general->save_audit('100', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', $checkpoint = ' . $checkpoint . ', result = ' . $result);
-            $fn_ppm->ppm_submit_notification($submitParam['emailTo'], $submitParam['taskStatus'], $submitParam['ppmTaskNo'], $submitParam['comment']);
+
+            // Conditional Email Notification
+            if (!empty($groupNotificationData)) {
+                // Group execution: send one consolidated email
+                $fn_ppm->ppm_submit_notification(
+                    $groupNotificationData['emailTo'],
+                    $groupNotificationData['taskStatus'],
+                    $groupNotificationData['ppmTaskNos'], // Pass consolidated task numbers
+                    $groupNotificationData['comment']
+                );
+            } else {
+                // Single task execution: send individual email
+                $fn_ppm->ppm_submit_notification(
+                    $submitParam['emailTo'],
+                    $submitParam['taskStatus'],
+                    $submitParam['ppmTaskNo'],
+                    $submitParam['comment']
+                );
+            }
             $form_data['errmsg'] = $constant::SUC_SUBMITTED;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid');
