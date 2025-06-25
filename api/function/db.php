@@ -845,5 +845,58 @@ class Class_db{
     public function db_close() {  
         $this->DBH = null;
     }
+
+    /**
+     * Executes a raw parameterized SQL query and returns a single column of results.
+     * Use with caution. Designed for complex queries not easily supported by other db_ methods.
+     *
+     * @param string $sql The full SQL query string with named parameters (e.g., :paramName).
+     * @param array $params An associative array of parameters (e.g., [':paramName' => $value]).
+     * @param string $colOut The name of the column to extract from the results.
+     * @param int $throwEmpty If 1, throws Exception if result is empty. If 2, throws Exception with code 30.
+     * @return array An array of values from the specified column.
+     * @throws Exception
+     */
+    public function db_raw_select_colm_prepared ($sql, $params, $colOut, $throwEmpty = 0) {
+        try {
+            if (empty($this->DBH)) {
+                throw new Exception($this->get_exception('0006', __FUNCTION__, __LINE__, 'Connection lost'));
+            }
+            if (empty($sql)) {
+                throw new Exception($this->get_exception('0007', __FUNCTION__, __LINE__, 'SQL query string empty'));
+            }
+            if (empty($colOut)) {
+                throw new Exception($this->get_exception('0008', __FUNCTION__, __LINE__, 'Output column name empty'));
+            }
+
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'RAW SQL PREPARE: ' . $sql . ' WITH PARAMS: ' . json_encode($params));
+
+            $stmt = $this->DBH->prepare($sql);
+            $stmt->execute($params);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($result)) {
+                if ($throwEmpty == 1) {
+                    throw new Exception($this->get_exception('0010', __FUNCTION__, __LINE__, 'Raw select query result empty'));
+                } elseif ($throwEmpty == 2) {
+                    throw new Exception($this->get_exception('0011', __FUNCTION__, __LINE__, 'Raw select query result empty'), 30);
+                } else {
+                    return []; // Return empty array if no results and not throwing exception
+                }
+            }
+
+            $arrCols = [];
+            foreach ($result as $rows) {
+                if (!array_key_exists($colOut, $rows)) {
+                    throw new Exception($this->get_exception('0012', __FUNCTION__, __LINE__, 'Column in raw query result not found: ' . $colOut));
+                }
+                $arrCols[] = strval($rows[$colOut]);
+            }
+            return $arrCols;
+
+        } catch(PDOException $e) {
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), $e->getCode());
+        }
+    }
 }
 ?>

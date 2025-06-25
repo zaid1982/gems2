@@ -3276,23 +3276,30 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Failed to retrieve grouping details for PPM Task ID: ' . $initiatingPpmTaskId);
             }
 
-            // --- CORRECTED: Use a new predefined SQL in Class_sql ---
-            $sqlParams = array(
-                'ppmId' => $ppmId,
-                'ppmTaskStartDate' => $ppmTaskStartDate,
-                'ppmTaskStatus' => '12', // Only 'Open' tasks
-                'ppmGroupId' => $ppmGroupId
+            // --- Using the new db_raw_select_colm_prepared method ---
+            $sql = "SELECT pt.ppm_task_id
+                    FROM ppm_task pt
+                    INNER JOIN ppm p ON p.ppm_id = pt.ppm_id
+                    INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id
+                    WHERE pt.ppm_id = :ppmId
+                      AND pt.ppm_task_start_date = :ppmTaskStartDate
+                      AND pt.ppm_task_status = :ppmTaskStatus
+                      AND aa.ppm_group_id = :ppmGroupId";
+
+            $params = array(
+                ':ppmId' => $ppmId,
+                ':ppmTaskStartDate' => $ppmTaskStartDate,
+                ':ppmTaskStatus' => '12', // Only 'Open' tasks
+                ':ppmGroupId' => $ppmGroupId
             );
 
-            // Call db_select_colm with the new view title and its parameters
-            $groupTasks = Class_db::getInstance()->db_select_colm(
-                'vg_ppm_group_tasks_for_execution', // Use the new 'view' name from Class_sql
-                'ppm_task_id',                     // The column to return
-                array(),                           // Empty where clause, as all conditions are in sqlParam
-                null,                              // orderby
-                null,                              // limit
-                null,                              // throwEmpty
-                $sqlParams                         // Pass parameters for replacement in Class_sql
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Direct SQL for group tasks: ' . $sql . ' with params: ' . json_encode($params));
+
+            $groupTasks = Class_db::getInstance()->db_raw_select_colm_prepared(
+                $sql,          // The full SQL query
+                $params,       // The parameters for the query
+                'ppm_task_id', // The column name to extract
+                null           // throwEmpty (null means do not throw on empty, return empty array)
             );
 
             return $groupTasks;
