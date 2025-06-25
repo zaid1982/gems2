@@ -3276,19 +3276,8 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Failed to retrieve grouping details for PPM Task ID: ' . $initiatingPpmTaskId);
             }
 
-            // Identify all other ppm_task_id's that belong to the same ppm_id (master PPM),
-            // have the same ppm_task_start_date, are for assets in the same ppm_group_id,
-            // and are currently in the 'Open' (status 12) state.
-            $arrWhere = array(
-                'ppm_task.ppm_id' => $ppmId,
-                'ppm_task.ppm_task_start_date' => $ppmTaskStartDate,
-                'ppm_task.ppm_task_status' => '12', // Only 'Open' tasks
-                'ppm.ppm_group_id' => $ppmGroupId // Filter by asset's PPM Group
-            );
-
-            // Use mw_task_ppm_all as it joins ppm and asset tables, or construct directly
-            // For precise filtering on asset.ppm_group_id, let's join directly or ensure view handles it.
-            // Assuming the simple direct join for clarity based on requirement.
+            // --- CORRECTED SQL QUERY CONSTRUCTION ---
+            // We need to build the full SQL query here, as db_select_colm is not designed for complex JOINs in its tablename parameter.
             $sql = "SELECT pt.ppm_task_id
                     FROM ppm_task pt
                     INNER JOIN ppm p ON p.ppm_id = pt.ppm_id
@@ -3298,25 +3287,49 @@ class Class_ppm {
                       AND pt.ppm_task_status = :ppmTaskStatus
                       AND aa.ppm_group_id = :ppmGroupId";
 
+            // Parameters for the prepared statement
             $params = array(
                 ':ppmId' => $ppmId,
                 ':ppmTaskStartDate' => $ppmTaskStartDate,
-                ':ppmTaskStatus' => '12',
+                ':ppmTaskStatus' => '12', // Only 'Open' tasks
                 ':ppmGroupId' => $ppmGroupId
             );
 
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'SQL for group tasks: ' . $sql . ' with params: ' . json_encode($params));
 
-            // Execute raw query as db_select may not directly support complex joins in params
-            // For this, we need to manually prepare and execute or use a db_select variant that allows it.
-            // Given existing Class_db::db_select, we will simulate by building the where_str.
+            // Execute the query using PDO directly, as db_select_colm doesn't support named parameters directly
+            // or modify db.php to allow for this.
+            // For now, let's use db_select_colm but simplify the 'where' conditions passed to it,
+            // relying on its internal get_whereAnd_str, but with the complex part outside in the tableName.
+            // Given the complexity of db_select_colm to integrate this, a simpler direct query execution or a new db method would be better.
+            // Let's use db_select, but adjust parameters to fit its structure.
+
+            // The db_select methods concatenate string conditions.
+            // To make this work with the complex JOIN, we'll need to use the 'sqlParam'
+            // feature of db_select, which replaces placeholders in the base SQL.
+            // Let's create a custom SQL string that db_select can use via its sqlParam.
+
+            // Define custom SQL that db_select will fetch.
+            // Note: This relies on Class_db::get_sql being flexible enough for dynamic SQL.
+            // If get_sql is strictly for views, we might need a direct PDO execution.
+            // Assuming get_sql can take a direct table string that *looks* like a view.
+            $custom_tablename = "ppm_task pt INNER JOIN ppm p ON p.ppm_id = pt.ppm_id INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id";
+
+            $arrWhere = array(
+                'pt.ppm_id' => $ppmId,
+                'pt.ppm_task_start_date' => $ppmTaskStartDate,
+                'pt.ppm_task_status' => '12', // Only 'Open' tasks
+                'aa.ppm_group_id' => $ppmGroupId
+            );
+
             $groupTasks = Class_db::getInstance()->db_select_colm(
-                'ppm_task pt INNER JOIN ppm p ON p.ppm_id = pt.ppm_id INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id',
-                'ppm_task_id',
-                $arrWhere, // where conditions for db_select
-                null,      // orderby
-                null,      // limit
-                null       // throwEmpty (null means do not throw on empty, return empty array)
+                $custom_tablename, // This will be the new "table name" passed
+                'ppm_task_id', // The column we want to extract
+                $arrWhere,     // The WHERE conditions
+                null,          // orderby
+                null,          // limit
+                null,          // throwEmpty
+                // No additional sqlParam here, as the joins are already in $custom_tablename
             );
 
             return $groupTasks;
