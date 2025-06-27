@@ -390,7 +390,7 @@ class Class_ppm {
         }
     }
 
-    /**
+        /**
      * @param $assetId
      * @param $checklistId
      * @param $ppmDateStart
@@ -417,9 +417,10 @@ class Class_ppm {
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
-            if (empty($ppmGroupId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
-            }
+            // Removed ppmGroupId empty check as it might not be relevant for new grouping.
+            // if (empty($ppmGroupId)) {
+            //     throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            // }
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
                 //throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
             }
@@ -435,11 +436,16 @@ class Class_ppm {
                 //throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
-            //$technicians = Class_db::getInstance()->db_select_colm('vw_technicians', array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group.site_id'=>$siteId), 'user_id');
-            //if (empty($technicians)) {
-            //    throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_NO_TECHNICIAN, 31);
-            //}
-            //$technicianDays = Class_db::getInstance()->db_select('vw_technicians_ppm_monthly', array(), null, null, 0, array('technicians'=>implode(',',$technicians)));
+            // --- Determine ppm_set_id for the assigned asset ---
+            $ppmSetId = null;
+            // Query ppm_set_asset to see if this assetId belongs to any ppm_set
+            $assetSet = Class_db::getInstance()->db_select_single('ppm_set_asset', array('asset_id' => $assetId));
+            if (!empty($assetSet)) {
+                $ppmSetId = $assetSet['ppm_set_id'];
+                // If an asset could belong to multiple sets and you need to pick one,
+                // this logic would need to be expanded (e.g., prioritize based on some rule).
+                // For now, it takes the first one found.
+            }
 
             $isYearly = false;
             $isHalfAnnually = false;
@@ -532,65 +538,25 @@ class Class_ppm {
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
-            $ppmOld = Class_db::getInstance()->db_select('ppm', array('asset_id'=>$assetId, 'contract_id'=>$contractId, 'ppm_status'=>'1'));
-            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklist_document_no'], 'ppm_issue_no'=>$checklist['checklist_issue_no'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId, 'asset_type_id'=>$asset['asset_type_id'],
-                'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
+            
+            // --- Include ppm_set_id in the ppm insert ---
+            $ppmInsertData = array(
+                'ppm_task_no' => $checklist['checklist_document_no'],
+                'ppm_issue_no' => $checklist['checklist_issue_no'],
+                'ppm_date_start' => $ppmDateStart,
+                'asset_id' => $assetId,
+                'checklist_id' => $checklistId,
+                'asset_type_id' => $asset['asset_type_id'],
+                'contract_id' => $contractId,
+                'ppm_created_by' => $userId,
+                'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
+                'ppm_set_id' => $ppmSetId // <-- NEW: Include ppm_set_id
+            );
+            $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
+            
             $currentMonth = array('year'=>'', 'month'=>'');
-            //$technicianKpis = array();
-            //foreach ($technicians as $technician) {
-            //    array_push($technicianKpis, array('userId'=>$technician, 'total'=>0, 'totalPPM'=>0));
-            //}
-            //$lastTechnician = '';
 
             foreach($tempDays as $key => $dateStr){
-                /*$curYear = substr($dateStr, 0, 4);
-                $curMonth = strval(intval(substr($dateStr, 5, 2)));
-                if ($currentMonth['year'] != $curYear || $currentMonth['month'] != $curMonth) {
-                    $currentMonth = array('year'=>$curYear, 'month'=>$curMonth);
-                    foreach ($technicianKpis as $key2 => $technicianKpi) {
-                        $technicianKpis[$key2]['total'] = 0;
-                    }
-                    $kpiIntersects = array_intersect(array_keys(array_column($technicianDays, 'ppm_year'), $curYear), array_keys(array_column($technicianDays, 'ppm_month'), $curMonth));
-                    foreach ($kpiIntersects as $kpiIntersect) {
-                        $key = array_search($technicianDays[$kpiIntersect]['ppm_task_assigned_to'], array_column($technicianKpis, 'userId'));
-                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'kpiIntersect = ' . $kpiIntersect);
-                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'key = ' . $key);
-                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'total = ' . $technicianDays[$kpiIntersect]['total']);
-                        $technicianKpis[$key]['total'] = intval($technicianDays[$kpiIntersect]['total']);
-                    }
-                    foreach ($technicianKpis as $key2 => $technicianKpi) {
-                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'TechnicianId = ' . $technicianKpi['userId'] . ', Total = ' . $technicianKpi['total'] . ', TotalPPM = ' . $technicianKpi['totalPPM']);
-                    }
-                }
-
-                $columnKpi = array_column($technicianKpis, 'total');
-                $lowestKpi = min($columnKpi);
-                $lowestKpiIndex = array_search(min($columnKpi), $columnKpi, true);
-                $technician = $technicianKpis[$lowestKpiIndex]['userId'];
-                if ($technician == $lastTechnician) {
-                    $lowestKpiPPM = 10000;
-                    $lowestKpiPPMIndex = 1000;
-                    foreach ($technicianKpis as $key2 => $technicianKpi) {
-                        if ($technicianKpis[$key2]['total'] == $lowestKpi && $technicianKpis[$key2]['userId'] != $technician) {
-                            if ($technicianKpis[$key2]['totalPPM'] < $lowestKpiPPM) {
-                                $lowestKpiPPM = $technicianKpis[$key2]['totalPPM'];
-                                $lowestKpiPPMIndex = $key2;
-                            }
-                        }
-                    }
-                    if ($lowestKpiPPMIndex != 1000) {
-                        $lowestKpiIndex = $lowestKpiPPMIndex;
-                        $technician = $technicianKpis[$lowestKpiIndex]['userId'];
-                    }
-                }
-
-                $lastTechnician = $technician;
-                $technicianKpis[$lowestKpiIndex]['total']++;
-                $technicianKpis[$lowestKpiIndex]['totalPPM']++;
-                //$technicianKey = $key%count($technicians);
-                //$technician = $technicians[$technicianKey];
-                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Lowest TechnicianId = ' . $technician . ', Total = ' . $technicianKpis[$lowestKpiIndex]['total']);*/
-
                 $runningNoTemp = 100000 + $runningNo;
                 $runningNoStr = substr(strval($runningNoTemp), 1);
                 $ppmTaskNo = 'P'.$siteCode.substr($dateStr, 2, 2).substr($dateStr, 5, 2).substr($dateStr, 8, 2).$runningNoStr;
@@ -600,7 +566,7 @@ class Class_ppm {
                 $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
                 $checklistGuideline = !empty($checklist['checklist_guideline']) ? $checklist['checklist_guideline'] : '';
                 $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array('ppm_task_no'=>$ppmTaskNo, 'ppm_task_schedule_date'=>$dateStr, 'ppm_id'=>$ppmId, 'ppm_task_guideline'=>$checklistGuideline,
-                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId));  // 'ppm_task_assigned_to'=>$technician
+                    'ppm_task_status'=>'12', 'transaction_id'=>$transactionId));
 
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'A', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'B', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17'));
@@ -682,8 +648,10 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_claimed'=>''), array('transaction_id'=>$transactionId));
                 Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId));
             }
-
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
+
+            // Loop through ppmOld to update their status (from assign_ppm_single, this is for replacing old PPMs)
+            $ppmOld = Class_db::getInstance()->db_select('ppm', array('asset_id'=>$assetId, 'contract_id'=>$contractId, 'ppm_status'=>'1')); // Fetch this here if not fetched above
             foreach ($ppmOld as $row) {
                 Class_db::getInstance()->db_update('ppm', array('ppm_status'=>'6'), array('ppm_id'=>$row['ppm_id']));
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'53') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'>='.$ppmDateStart));
@@ -2963,10 +2931,11 @@ class Class_ppm {
             $this->fn_general->checkEmptyParams(array($userId));
             $this->fn_general->checkEmptyParamsArray($params, array('assetId', 'checklistId', 'ppmDateStart', 'ppmGroupId'));
             date_default_timezone_set("Asia/Kuala_Lumpur");
+
             $assetId = $params['assetId'];
             $checklistId = $params['checklistId'];
             $ppmDateStart = $params['ppmDateStart'];
-            $ppmGroupId = $params['ppmGroupId'];
+            $ppmGroupId = $params['ppmGroupId']; // Keep ppmGroupId for assignment purposes
             $isYearly = false;
             $isHalfAnnually = false;
             $isQuarterly = false;
@@ -2981,6 +2950,14 @@ class Class_ppm {
             $contractDateStart = $contract['contractDateStart'];
             $contractDateEnd = $contract['contractDateEnd'];
             $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
+
+            // --- Determine ppm_set_id for the assigned asset ---
+            $ppmSetId = null;
+            // Query ppm_set_asset to see if this assetId belongs to any ppm_set
+            $assetSet = Class_db::getInstance()->db_select_single('ppm_set_asset', array('asset_id' => $assetId));
+            if (!empty($assetSet)) {
+                $ppmSetId = $assetSet['ppm_set_id'];
+            }
 
             $checklistQuals = Class_db::getInstance()->db_select2('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1'), 'ABS(checklist_qual_numb)');
             foreach ($checklistQuals as $checklistQual) {
@@ -3065,8 +3042,21 @@ class Class_ppm {
             $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_code', null, 1);
             $runningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$siteId), 'site_running_no', null, 1);
             $runningNo = intval($runningNo);
-            $ppmId = Class_db::getInstance()->db_insert('ppm', array('ppm_task_no'=>$checklist['checklistDocumentNo'], 'ppm_issue_no'=>$checklist['checklistIssueNo'], 'ppm_date_start'=>$ppmDateStart, 'asset_id'=>$assetId, 'checklist_id'=>$checklistId, 'asset_type_id'=>$asset['asset_type_id'],
-                'contract_id'=>$contractId, 'ppm_created_by'=>$userId, 'ppm_group_id'=>$ppmGroupId));
+            
+            // --- Include ppm_set_id in the ppm insert ---
+            $ppmInsertData = array(
+                'ppm_task_no' => $checklist['checklistDocumentNo'],
+                'ppm_issue_no' => $checklist['checklistIssueNo'],
+                'ppm_date_start' => $ppmDateStart,
+                'asset_id' => $assetId,
+                'checklist_id' => $checklistId,
+                'asset_type_id' => $asset['assetTypeId'],
+                'contract_id' => $contractId,
+                'ppm_created_by' => $userId,
+                'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
+                'ppm_set_id' => $ppmSetId // <-- NEW: Include ppm_set_id
+            );
+            $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
 
             foreach($tempDays as $dateStr){
                 $runningNoTemp = 100000 + $runningNo;
@@ -3088,7 +3078,7 @@ class Class_ppm {
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'F', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'G', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'H', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18'));
-                $assistantStatus = ($checklist['checklistMaxAssistant'] === '' || $checklist['checklistMaxAssistant'] === '0') ? '19' :'18';
+                $assistantStatus = (empty($checklist['checklistMaxAssistant']) || $checklist['checklistMaxAssistant'] === '0') ? '19' :'18';
                 Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'I', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>$assistantStatus));
 
                 foreach ($checklistQuals as $checklistQual) {
@@ -3164,7 +3154,14 @@ class Class_ppm {
             }
             Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($runningNo)), array('site_id'=>$siteId));
 
-            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklistDocumentNo']);
+            // Loop through ppmOld to update their status (from assign_ppm_single, this is for replacing old PPMs)
+            $ppmOld = Class_db::getInstance()->db_select('ppm', array('asset_id'=>$assetId, 'contract_id'=>$contractId, 'ppm_status'=>'1')); // Fetch this here if not fetched above
+            foreach ($ppmOld as $row) {
+                Class_db::getInstance()->db_update('ppm', array('ppm_status'=>'6'), array('ppm_id'=>$row['ppm_id']));
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'53') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'>='.$ppmDateStart));
+                Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'3') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'<'.$ppmDateStart));
+            }
+            return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklistDocumentNo'], 'assetNo'=>$asset['assetNo']);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -3264,43 +3261,50 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($initiatingPpmTaskId));
 
-            // Get the ppm_id, ppm_group_id (from ppm), and ppm_task_start_date of the initiating task
+            // Get the ppm_id and ppm_task_start_date of the initiating task
             $initiatingTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $initiatingPpmTaskId), null, 1);
-            $masterPpm = Class_db::getInstance()->db_select_single2('ppm', array('ppm_id' => $initiatingTask['ppmId']), null, 1);
-
             $ppmId = $initiatingTask['ppmId'];
-            $ppmGroupId = $masterPpm['ppmGroupId'];
             $ppmTaskStartDate = $initiatingTask['ppmTaskStartDate'];
 
-            if (empty($ppmId) || empty($ppmGroupId) || empty($ppmTaskStartDate)) {
-                throw new Exception('[' . __LINE__ . '] - Failed to retrieve grouping details for PPM Task ID: ' . $initiatingPpmTaskId);
+            // Get the ppm_set_id from the master PPM schedule (ppm table)
+            $masterPpm = Class_db::getInstance()->db_select_single2('ppm', array('ppm_id' => $ppmId), null, 1);
+            $ppmSetId = $masterPpm['ppmSetId']; // This is the new column we added
+
+            // --- ADD THIS DEBUG LINE ---
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'DEBUG: ppmSetId for initiating task ' . $initiatingPpmTaskId . ' (ppm_id ' . $ppmId . ') is: ' . (is_null($ppmSetId) ? 'NULL' : $ppmSetId));
+
+            // If the initiating task's PPM is not part of any ppm_set, return only itself.
+            // This handles the "optional set" scenario, where ppmGroupExecution=1 acts like single execution.
+            if (empty($ppmSetId)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Initiating PPM Task ID ' . $initiatingPpmTaskId . ' does not belong to a ppm_set. Returning only initiating task.');
+                return [$initiatingPpmTaskId];
             }
 
-            // --- Using the new db_raw_select_colm_prepared method ---
+            // --- Construct the SQL query to find all tasks in the same ppm_set for the same date ---
             $sql = "SELECT pt.ppm_task_id
                     FROM ppm_task pt
                     INNER JOIN ppm p ON p.ppm_id = pt.ppm_id
-                    INNER JOIN ast_asset aa ON aa.asset_id = p.asset_id
-                    WHERE pt.ppm_id = :ppmId
+                    WHERE p.ppm_set_id = :ppmSetId
                       AND pt.ppm_task_start_date = :ppmTaskStartDate
-                      AND pt.ppm_task_status = :ppmTaskStatus
-                      AND aa.ppm_group_id = :ppmGroupId";
+                      AND pt.ppm_task_status = :ppmTaskStatus"; // Only 'Open' tasks
 
             $params = array(
-                ':ppmId' => $ppmId,
+                ':ppmSetId' => $ppmSetId,
                 ':ppmTaskStartDate' => $ppmTaskStartDate,
-                ':ppmTaskStatus' => '12', // Only 'Open' tasks
-                ':ppmGroupId' => $ppmGroupId
+                ':ppmTaskStatus' => '12' // Status 12 is 'Open'
             );
 
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Direct SQL for group tasks: ' . $sql . ' with params: ' . json_encode($params));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Direct SQL for group tasks by ppm_set: ' . $sql . ' with params: ' . json_encode($params));
 
             $groupTasks = Class_db::getInstance()->db_raw_select_colm_prepared(
-                $sql,          // The full SQL query
+                $sql,          // The full SQL query string
                 $params,       // The parameters for the query
-                'ppm_task_id', // The column name to extract
+                'ppm_task_id', // The column name to extract from the results
                 null           // throwEmpty (null means do not throw on empty, return empty array)
             );
+
+            // --- ADD THIS DEBUG LINE ---
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Tasks identified for group execution: ' . json_encode($groupTasks));
 
             return $groupTasks;
         } catch (Exception $ex) {
