@@ -3268,7 +3268,7 @@ class Class_ppm {
 
             // Get the ppm_set_id from the master PPM schedule (ppm table)
             $masterPpm = Class_db::getInstance()->db_select_single2('ppm', array('ppm_id' => $ppmId), null, 1);
-            $ppmSetId = $masterPpm['ppm_set_id']; // This is the new column we added
+            $ppmSetId = $masterPpm['ppmSetId']; // This is the new column we added
 
             // --- ADD THIS DEBUG LINE ---
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'DEBUG: ppmSetId for initiating task ' . $initiatingPpmTaskId . ' (ppm_id ' . $ppmId . ') is: ' . (is_null($ppmSetId) ? 'NULL' : $ppmSetId));
