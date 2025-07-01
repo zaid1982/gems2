@@ -1184,7 +1184,7 @@ class Class_ppm {
      * @param $ppmTaskQuals
      * @throws Exception
      */
-    public function save_qualitative_tasks_m ($ppmTaskId, $ppmTaskQuals) {
+    public function save_qualitative_tasks_m ($ppmTaskId, $ppmTaskQuals, $userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -1198,8 +1198,7 @@ class Class_ppm {
 
             // 1. Apply update to the initiating task
             // Check if current task is valid and at Checkpoint 1 (Service)
-            $this->check_current_task($ppmTaskId, '1', '');
-            $this->_apply_qualitative_task_update($ppmTaskId, $ppmTaskQuals);
+            $this->_apply_qualitative_task_update($ppmTaskId, $ppmTaskQuals, $userId);
 
             // 2. Check if this task is part of a group execution and propagate
             $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
@@ -1242,7 +1241,7 @@ class Class_ppm {
                                     'remark' => $qual['remark']
                                 ];
                             }
-                            $this->_apply_qualitative_task_update($targetPpmTaskId, $propagatedQuals);
+                            $this->_apply_qualitative_task_update($targetPpmTaskId, $propagatedQuals, $userId);
                         } catch (Exception $e) {
                             // As per requirement, if any fails, rollback. So re-throw.
                             throw $e;
@@ -3422,7 +3421,7 @@ class Class_ppm {
      * @param array $ppmTaskQuals // Expects an array of arrays with 'id', 'result', 'remark'
      * @throws Exception
      */
-    private function _apply_qualitative_task_update($targetPpmTaskId, $ppmTaskQuals) {
+    private function _apply_qualitative_task_update($targetPpmTaskId, $ppmTaskQuals, $userId) {
         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
         if (empty($targetPpmTaskId)) {
@@ -3431,6 +3430,9 @@ class Class_ppm {
         if (!is_array($ppmTaskQuals)) {
             throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuals is not array');
         }
+
+        $this->check_current_task($targetPpmTaskId, '1', $userId); // Check if it's at Checkpoint 1 and not claimed
+
         if (empty($ppmTaskQuals)) {
             // No qualitative tasks to update, but might still need to set section status if previously incomplete
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No ppmTaskQuals provided for PPM Task ID: ' . $targetPpmTaskId);
