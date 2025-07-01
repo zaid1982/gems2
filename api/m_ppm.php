@@ -188,7 +188,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $ppmTaskQuans = filter_input(INPUT_POST, 'ppmTaskQuan', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $fn_ppm->save_quantitative_tasks_m($ppmTaskId, $ppmTaskQuans);
+            $fn_ppm->save_quantitative_tasks_m($ppmTaskId, $ppmTaskQuans, $jwt_data->userId);
             $fn_general->save_audit('83', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }

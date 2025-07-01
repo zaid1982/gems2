@@ -1262,7 +1262,7 @@ class Class_ppm {
      * @param $ppmTaskQuans
      * @throws Exception
      */
-    public function save_quantitative_tasks_m ($ppmTaskId, $ppmTaskQuans) {
+    public function save_quantitative_tasks_m ($ppmTaskId, $ppmTaskQuans, $userId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -1275,9 +1275,8 @@ class Class_ppm {
             // Note: empty($ppmTaskQuans) is handled inside the helper now, to allow status update.
 
             // 1. Apply update to the initiating task
-            // Check if current task is valid and at Checkpoint 1 (Service)
-            $this->check_current_task($ppmTaskId, '1', '');
-            $this->_apply_quantitative_task_update($ppmTaskId, $ppmTaskQuans);
+            // Check if current task is valid and at Checkpoint 1 (Service)            
+            $this->_apply_quantitative_task_update($ppmTaskId, $ppmTaskQuans, $userId);
 
             // 2. Check if this task is part of a group execution and propagate
             $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
@@ -1310,7 +1309,7 @@ class Class_ppm {
                                     'remark' => $quan['remark']
                                 ];
                             }
-                            $this->_apply_quantitative_task_update($targetPpmTaskId, $propagatedQuans);
+                            $this->_apply_quantitative_task_update($targetPpmTaskId, $propagatedQuans, $userId);
                         } catch (Exception $e) {
                             // As per requirement, if any fails, rollback. So re-throw.
                             throw $e;
@@ -3494,7 +3493,7 @@ class Class_ppm {
      * @param array $ppmTaskQuans // Expects an array of arrays with 'id', 'measuredValues', 'limit', 'result', 'remark'
      * @throws Exception
      */
-    private function _apply_quantitative_task_update($targetPpmTaskId, $ppmTaskQuans) {
+    private function _apply_quantitative_task_update($targetPpmTaskId, $ppmTaskQuans, $userId) {
         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
         if (empty($targetPpmTaskId)) {
@@ -3503,6 +3502,9 @@ class Class_ppm {
         if (!is_array($ppmTaskQuans)) {
             throw new Exception('[' . __LINE__ . '] - Parameter ppmTaskQuans is not array');
         }
+
+        $this->check_current_task($targetPpmTaskId, '1', $userId);
+
         if (empty($ppmTaskQuans)) {
             // No quantitative tasks to update, but might still need to set section status if previously incomplete
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No ppmTaskQuans provided for PPM Task ID: ' . $targetPpmTaskId);
