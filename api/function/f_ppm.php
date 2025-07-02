@@ -3254,7 +3254,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    private function _get_group_tasks_for_execution ($initiatingPpmTaskId) {
+    private function _get_group_tasks_for_execution ($initiatingPpmTaskId, $isOpen = 0) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($initiatingPpmTaskId));
@@ -3289,7 +3289,7 @@ class Class_ppm {
             $params = array(
                 ':ppmSetId' => $ppmSetId,
                 ':ppmTaskStartDate' => $ppmTaskStartDate,
-                ':ppmTaskStatus' => '12' // Status 12 is 'Open'
+                ':ppmTaskStatus' => $isOpen == 1 ? '12' : '13' // Status 12 is 'Open'
             );
 
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Direct SQL for group tasks by ppm_set: ' . $sql . ' with params: ' . json_encode($params));
@@ -3389,7 +3389,7 @@ class Class_ppm {
 
             // Main logic for group vs. single execution
             if ($ppmGroupExecution === '1') {
-                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId); // Get all eligible tasks in the group
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId, 1); // Get all eligible tasks in the group
 
                 if (empty($groupTaskIds)) {
                     // This scenario means the initiating task itself wasn't "Open" or no other tasks qualified.
