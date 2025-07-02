@@ -76,7 +76,7 @@ try {
             $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $searchTxt);
         } else if ($type === 'pending_task_scan_asset') {
             $assetNo = filter_input(INPUT_GET, 'assetNo');
-            $result = $fn_ppm->get_pending_task_scan_m($jwt_data->userId, $assetNo);
+            // $result = $fn_ppm->get_pending_task_scan_m($jwt_data->userId, $assetNo);
         } else if ($type === 'calendar_list') {
             $date = filter_input(INPUT_GET, 'date');
             $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId, $date);
@@ -196,7 +196,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checked = filter_input(INPUT_POST, 'checked');
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
-            $fn_ppm->save_ppm_check_parts_m($ppmTaskId, $checked);
+            $fn_ppm->save_ppm_check_parts_m($ppmTaskId, $checked, $jwt_data->userId);
             $fn_general->save_audit('102', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -204,7 +204,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskPartsDesc = filter_input(INPUT_POST, 'ppmTaskPartsDesc');
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
-            $result = $fn_ppm->add_ppm_parts_m($ppmTaskId, $ppmTaskPartsDesc);
+            $result = $fn_ppm->add_ppm_parts_m($ppmTaskId, $ppmTaskPartsDesc, $jwt_data->userId);
             $fn_general->save_audit('84', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -212,7 +212,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $checked = filter_input(INPUT_POST, 'checked');
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
-            $fn_ppm->save_ppm_check_additional_report_m($ppmTaskId, $checked);
+            $fn_ppm->save_ppm_check_additional_report_m($ppmTaskId, $checked, $jwt_data->userId);
             $fn_general->save_audit('86', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Check = '.$checked);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -229,7 +229,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskRemark = filter_input(INPUT_POST, 'ppmTaskRemark');
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
-            $fn_ppm->save_ppm_remark_m($ppmTaskId, $ppmTaskRemark);
+            $fn_ppm->save_ppm_remark_m($ppmTaskId, $ppmTaskRemark, $jwt_data->userId);
             $fn_general->save_audit('81', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Comment = ' . $ppmTaskRemark);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -244,7 +244,7 @@ try {
             }
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
             $uploadId = $fn_general->uploadDocument($fileUpload, intval($uploadType)+2, $jwt_data->userId);
-            $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude);
+            $fn_ppm->save_ppm_maintenance_image_m($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude, $jwt_data->userId);
             $fn_general->save_audit('89', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
@@ -265,7 +265,7 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $ppmTaskUploads = filter_input(INPUT_POST, 'ppmTaskUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $fn_ppm->check_current_task($ppmTaskId, '1', $jwt_data->userId);
-            $fn_ppm->save_image_desc_m($ppmTaskId, $ppmTaskUploads);
+            $fn_ppm->save_image_desc_m($ppmTaskId, $ppmTaskUploads, $jwt_data->userId);
             $fn_general->save_audit('98', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId);
             $form_data['errmsg'] = $constant::SUC_SAVE;
         }
