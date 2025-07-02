@@ -1650,9 +1650,10 @@ class Class_ppm {
      * @param $uploadType
      * @param string $longitude
      * @param string $latitude
+     * @param int $userId // NEW: Added userId parameter
      * @throws Exception
      */
-    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='', $userId) { // Renamed from public function upload_maintenance_image_m in m_ppm.php
+    public function save_ppm_maintenance_image_m ($ppmTaskId, $uploadId, $uploadType, $longitude='', $latitude='', $userId) { // User's provided updated signature
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -1671,12 +1672,42 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
             }
 
-            
-            // Apply image upload logic for the initiating task.
-            // As per requirement, direct file uploads are UNIQUE per asset and DO NOT propagate to group tasks.
-            $this->_apply_ppm_maintenance_image_upload($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude, $userId);
+            // --- 1. Apply image upload logic for the initiating task ---
+            // Check if current task is valid and at Checkpoint 1 (Service)
+            $this->check_current_task($ppmTaskId, '1', $userId); // Pass userId here
 
-            // No group propagation logic here as this is a direct file upload unique to the asset.
+            $this->_apply_ppm_maintenance_image_upload($ppmTaskId, $uploadId, $uploadType, $longitude, $latitude, $userId); // Pass userId here
+
+            // --- 2. Implement Group Propagation Logic ---
+            // "looks like user is ok to use one picture for all group execution."
+            $initiatingTaskData = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $ppmTaskId), null, 1);
+
+            if ($initiatingTaskData['ppmTaskIsGroupExecuted'] === '1') { // Check the new flag
+                $groupTaskIds = $this->_get_group_tasks_for_execution($ppmTaskId);
+
+                foreach ($groupTaskIds as $targetPpmTaskId) {
+                    if ($targetPpmTaskId === $ppmTaskId) { // Skip the original task
+                        continue;
+                    }
+
+                    // Before applying, ensure this target task is also in an eligible state (Open or In Progress)
+                    $targetTaskStatus = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_status', null, 1);
+
+                    // Apply only if the target task is still 'Open' (12) or 'In Progress' (13) and group executed
+                    if (($targetTaskStatus === '13') &&
+                        Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_is_group_executed', null, 0) === '1'
+                    ) {
+                        try {
+                            // Propagate the SAME uploadId, uploadType, longitude, latitude, and userId.
+                            // The helper will insert a new record for the target task.
+                            $this->_apply_ppm_maintenance_image_upload($targetPpmTaskId, $uploadId, $uploadType, $longitude, $latitude, $userId);
+                        } catch (Exception $e) {
+                            // As per requirement, if any fails, rollback. So re-throw.
+                            throw $e;
+                        }
+                    }
+                }
+            }
 
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -3700,15 +3731,16 @@ class Class_ppm {
 
     /**
      * Helper method to save a maintenance image upload for a single PPM task.
-     * Note: Direct file uploads are unique per asset and do NOT propagate to group tasks.
+     * Note: This helper will now be called for each task in a group, with the same uploadId.
      * @param bigint $targetPpmTaskId
      * @param bigint $uploadId
      * @param string $uploadType ('0','1','2')
      * @param string $longitude
      * @param string $latitude
+     * @param int $userId // NEW: Added userId parameter
      * @throws Exception
      */
-    private function _apply_ppm_maintenance_image_upload($targetPpmTaskId, $uploadId, $uploadType, $longitude, $latitude, $userId) {
+    private function _apply_ppm_maintenance_image_upload($targetPpmTaskId, $uploadId, $uploadType, $longitude, $latitude, $userId) { // Added userId here
         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
         if (empty($targetPpmTaskId)) {
@@ -3726,9 +3758,8 @@ class Class_ppm {
         if (empty($latitude)) {
             throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
         }
-
-        // Check if current task is valid and at Checkpoint 1 (Service)
-        $this->check_current_task($targetPpmTaskId, '1', $userId);
+        // This helper does not call check_current_task, as it's assumed to be done by the calling public method.
+        // It simply applies the insert/update for the provided task.
 
         Class_db::getInstance()->db_insert('ppm_task_upload', array(
             'ppm_task_id' => $targetPpmTaskId,
