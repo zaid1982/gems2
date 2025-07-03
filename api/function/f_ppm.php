@@ -3958,4 +3958,56 @@ class Class_ppm {
 
         return array('taskId' => $task['task_id'], 'emailTo' => $emailTo, 'taskStatus' => $taskName, 'ppmTaskNo' => $ppmTaskNo, 'comment' => $comment);
     }
+
+    /**
+     * Creates a new PPM Set (asset group).
+     * @param string $ppmSetName
+     * @param string $ppmSetDesc
+     * @param smallint $assetTypeId
+     * @param smallint $ppmGroupId
+     * @param int $userId
+     * @return array {ppmSetId: int}
+     * @throws Exception
+     */
+    public function create_ppm_set_basic ($ppmSetName, $ppmSetDesc, $assetTypeId, $ppmGroupId, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($ppmSetName)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmSetName empty');
+            }
+            if (empty($assetTypeId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetTypeId empty');
+            }
+            if (empty($ppmGroupId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            // Optional: Check for duplicate ppm_set_name if needed
+            if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_name' => $ppmSetName)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Set Name already exists', 31); // Custom error code 31 for user-friendly message
+            }
+
+            $insertData = array(
+                'ppm_set_name' => $ppmSetName,
+                'ppm_set_desc' => $ppmSetDesc, // Map ppmRemark from JS to ppm_set_desc
+                'asset_type_id' => $assetTypeId,
+                'ppm_group_id' => $ppmGroupId,
+                'ppm_set_created_by' => $userId,
+                'ppm_set_status' => 1 // Active by default
+            );
+
+            $ppmSetId = Class_db::getInstance()->db_insert('ppm_set', $insertData);
+
+            return array('ppmSetId' => $ppmSetId);
+
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

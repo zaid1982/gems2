@@ -17,14 +17,14 @@ function ModalPpmAsset () {
         {
             field_id: 'txtMpaName',
             type: 'text',
-            name: 'PPM Asset Group Name',
+            name: 'PPM Asset Group Name', // This maps to ppm_set_name
             validator: {
                 notEmpty: true,
                 maxLength: 200
             }
         },
         {
-            field_id: 'txaMpaDesc',
+            field_id: 'txaMpaDesc', // This was 'ppmRemark' in old JS, now maps to ppm_set_desc
             type: 'textarea',
             name: 'Description',
             validator: {
@@ -33,7 +33,7 @@ function ModalPpmAsset () {
             }
         },
         {
-            field_id: 'optMpaAssetGroup',
+            field_id: 'optMpaAssetGroup', // This is for ppm_set.asset_type_id
             type: 'select',
             name: 'Asset Group',
             validator: {
@@ -49,50 +49,28 @@ function ModalPpmAsset () {
             }
         },
         {
-            field_id: 'optMpaAssetType',
+            field_id: 'optMpaAssetType', // This is for ppm_set.asset_type_id
             type: 'select',
             name: 'Asset Type',
             validator: {
                 notEmpty: true
             }
         },
+        // Removed 'optMpaChecklistId' as checklist is not directly on ppm_set
+        // Removed 'txtMpaFrequency' as frequency is not directly on ppm_set
         {
-            field_id: 'optMpaChecklistId',
-            type: 'select',
-            name: 'PPM Checklist',
-            validator: {
-                notEmpty: true
-            }
-        },
-        {
-            field_id: 'optMpaPpmGroupId',
+            field_id: 'optMpaPpmGroupId', // This is for ppm_set.ppm_group_id
             type: 'select',
             name: 'PPM Executor Group',
             validator: {
                 notEmpty: true
             }
         },
-        {
-            field_id: 'txtMpaFrequency',
-            type: 'text',
-            name: 'PPM Frequency',
-            validator: {
-                notEmpty: false
-            }
-        },
-        {
-            field_id: 'txtMpaPpmDateStart',
-            type: 'text',
-            name: 'Start Cycle Date',
-            validator: {
-                notEmpty: true,
-                maxLength: 30
-            }
-        }
+        // Removed 'txtMpaPpmDateStart' as dateStart is not directly on ppm_set
     ];
 
     this.init = function () {
-        mzDateSetMin('txtMpaPpmDateStart', moment().format('YYYY-MM-DD'));
+        mzDateSetMin('txtMpaPpmDateStart', moment().format('YYYY-MM-DD')); // This field should be removed from HTML if it's not needed.
         mzOption('optMpaAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
         $('#optMpaAssetGroup').on('change', function () {
@@ -101,9 +79,9 @@ function ModalPpmAsset () {
                 mzOptionStop('optMpaAssetCategory', refAssetCategory, 'Select Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: id, assetCategoryStatus: '1'}, 'required');
                 mzDisableSelect('optMpaAssetCategory', false);
                 mzDisableSelect('optMpaAssetType', true);
-                mzDisableSelect('optMpaChecklistId', true);
-                mzDisableSelect('optMpaPpmGroupId', true);
-                mzSetFieldValue('txtMpaFrequency', '', 'text');
+                // mzDisableSelect('optMpaChecklistId', true); // REMOVED
+                // mzDisableSelect('optMpaPpmGroupId', true); // No need to disable ppmGroupId based on AssetCategory
+                // mzSetFieldValue('txtMpaFrequency', '', 'text'); // REMOVED
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
@@ -112,31 +90,18 @@ function ModalPpmAsset () {
             try {
                 mzOptionStop('optMpaAssetType', refAssetType, 'Select Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: id, assetTypeStatus: '1'}, 'required');
                 mzDisableSelect('optMpaAssetType', false);
-                mzDisableSelect('optMpaChecklistId', true);
-                mzDisableSelect('optMpaPpmGroupId', true);
-                mzSetFieldValue('txtMpaFrequency', '', 'text');
+                // mzDisableSelect('optMpaChecklistId', true); // REMOVED
+                // mzDisableSelect('optMpaPpmGroupId', true); // No need to disable ppmGroupId based on AssetType
+                // mzSetFieldValue('txtMpaFrequency', '', 'text'); // REMOVED
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
         $('#optMpaAssetType').on('change', function () {
-            const id = $(this).val();
-            //ShowLoader(); setTimeout(function () { try {
+            const id = $(this).val(); // assetTypeId
             try {
-                const refChecklist = mzAjaxRequest('checklist.php?assetTypeId='+id, 'GET');
-                mzOptionStop('optMpaChecklistId', refChecklist, 'Select PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true);
+                // Only enable the PPM Executor Group now
                 mzOptionStop('optMpaPpmGroupId', refPpmGroup, 'Select PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId: '5', siteId: siteId, ppmGroupStatus: '1'}, 'required');
-                mzDisableSelect('optMpaChecklistId', false);
                 mzDisableSelect('optMpaPpmGroupId', false);
-                mzSetFieldValue('txtMpaFrequency', '', 'text');
-            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
-            //} catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); } HideLoader(); }, 200);
-        });
-
-        $('#optMpaChecklistId').on('change', function () {
-            const id = $(this).val();
-            try {
-                const frequency = mzAjaxRequest('checklist.php?type=frequency&checklistId='+id, 'GET');
-                mzSetFieldValue('MpaFrequency', frequency, 'text');
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
@@ -146,29 +111,33 @@ function ModalPpmAsset () {
                     toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                 } else {
                     let data = {
-                        ppmName: mzNullString('txtMpaName'),
-                        ppmRemark: mzNullString('txaMpaDesc'),
+                        ppmSetName: mzNullString('txtMpaName'), // Map ppmName to ppmSetName
+                        ppmSetDesc: mzNullString('txaMpaDesc'), // Map ppmRemark to ppmSetDesc
                         assetTypeId: mzNullInt('optMpaAssetType'),
-                        checklistId: mzNullInt('optMpaChecklistId'),
                         ppmGroupId: mzNullInt('optMpaPpmGroupId'),
-                        ppmFrequency: mzNullString('txtMpaFrequency'),
-                        ppmDateStart: mzConvertDate($('#txtMpaPpmDateStart').val())
+                        // Removed: checklistId, ppmFrequency, ppmDateStart
+                        // Removed: ppmIsGroup, ppmStatus (these are ppm table fields)
+                        // Removed: contractId (passed implicitly by API endpoint ppm.php)
                     };
                     ShowLoader(); setTimeout(function () {
                         if (submitType === 'add') {
-                            data['contractId'] = contractId;
-                            data['ppmIsGroup'] = 1;
-                            data['ppmStatus'] = 11;
-                            mzFetch('ppm_v3/ppmAssetGroup', 'POST', data).then(res => {
+                            // --- NEW API CALL FOR CREATING ppm_set ---
+                            mzFetch('ppm.php?action=create_ppm_set', 'POST', data).then(res => { // Corrected URL and action
+                                toastr['success']('PPM Set "' + data.ppmSetName + '" successfully created!', _ALERT_TITLE_SUCCESS); // Updated success message
                                 classFrom.genTable();
                                 $('#modal_ppm_asset').modal('hide');
                             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         } else if (submitType === 'put') {
-                            mzFetch('ppm_v3/ppmAssetGroup/'+ppmId, 'PUT', data).then(res => {
-                                classFrom.load(ppmId, true);
-                                classFrom.setIsUpdate(true);
-                                $('#modal_ppm_asset').modal('hide');
-                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                            // --- NEW API CALL FOR UPDATING ppm_set ---
+                            // This logic will be implemented later, but ensure it points to the correct new endpoint and data.
+                            // For now, let's just make it throw an error to prevent accidental incorrect updates.
+                            toastr['error']('Edit functionality for PPM Set not yet implemented!', _ALERT_TITLE_ERROR);
+                            HideLoader(); // Hide loader if we're throwing an error here.
+                            // mzFetch('ppm.php?action=update_ppm_set&ppmSetId='+ppmId, 'PUT', data).then(res => { // Example future call
+                            //     classFrom.load(ppmId, true);
+                            //     classFrom.setIsUpdate(true);
+                            //     $('#modal_ppm_asset').modal('hide');
+                            // }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }
                     }, 200);
                 }
@@ -184,11 +153,14 @@ function ModalPpmAsset () {
         mzDisableSelect('optMpaAssetCategory', true);
         mzOptionStopClear('optMpaAssetType', 'Select Asset Type', 'required');
         mzDisableSelect('optMpaAssetType', true);
-        mzOptionStopClear('optMpaChecklistId', 'Select PPM Checklist', 'required');
-        mzDisableSelect('optMpaChecklistId', true);
+        // mzOptionStopClear('optMpaChecklistId', 'Select PPM Checklist', 'required'); // REMOVED
+        // mzDisableSelect('optMpaChecklistId', true); // REMOVED
         mzOptionStopClear('optMpaPpmGroupId', 'Select PPM Executor Group', 'required');
         mzDisableSelect('optMpaPpmGroupId', true);
-        $('#txtMpaPpmDateStart').prop('disable', false);
+        // $('#txtMpaPpmDateStart').prop('disable', false); // REMOVED
+        // Also ensure txtMpaName and txaMpaDesc are cleared if mzSetFieldValue does not reset them for empty values.
+        mzSetFieldValue('txtMpaName', '', 'text');
+        mzSetFieldValue('txaMpaDesc', '', 'text');
     };
 
     this.add = function () {

@@ -164,6 +164,16 @@ try {
             //$form_data['errmsg'] = $constant::SUC_PPM_SAVE;
             $form_data['errmsg'] = 'PPM Task (Document No. = '.$result['ppmTaskNo'].') for Asset '.$result['assetNo'].' successfully registered and ready to executed by Technician!';
         }
+        else if ($action === 'create_ppm_set') { // <-- NEW: Action for creating a PPM Set
+            $ppmSetName = filter_input(INPUT_POST, 'ppmSetName');
+            $ppmSetDesc = filter_input(INPUT_POST, 'ppmSetDesc'); // Map from txaMpaDesc (ppmRemark)
+            $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
+            $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
+    
+            $result = $fn_ppm->create_ppm_set_basic($ppmSetName, $ppmSetDesc, $assetTypeId, $ppmGroupId, $jwt_data->userId);
+            $fn_general->save_audit('X_AUDIT_ID_FOR_CREATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $result['ppmSetId'] . ', Name = ' . $ppmSetName); // Use a relevant audit ID
+            $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
+        }
         else if ($action === 'generate_pdf') {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
