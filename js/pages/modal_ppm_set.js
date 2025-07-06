@@ -202,10 +202,16 @@ function ModalPpmSet () {
                     formValidate.disableField('txtMpsName', isDisable);
                     formValidate.disableField('txaMpsDesc', isDisable);
 
+                    mzSetFieldValue('lblMpsId', res['ppmSetId']); // Set the hidden ID
+                    mzSetFieldValue('txtMpsName', res['ppmSetName']);
+                    mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // Ensure this maps correctly
+
 
                     $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set'); // Renamed ID and text
                     $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show new modal ID
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+
+
             }, 200);
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
     };

@@ -4010,4 +4010,190 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * Retrieves details of a single PPM Set (asset group).
+     * @param smallint $ppmSetId The ID of the PPM Set to retrieve.
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_set_details ($ppmSetId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($ppmSetId));
+
+            $ppmSet = Class_db::getInstance()->db_select_single2('ppm_set', array('ppm_set_id' => $ppmSetId), null, 1); // Get basic ppm_set data
+
+            // We need to fetch asset group, category, type names, and ppm group name for display in the modal
+            // Assuming Class_general has a getRefName method for convenience. If not, direct db_select_col calls.
+            // Example of how it should eventually get names:
+            // $ppmSet['assetGroupName'] = $this->fn_general->getRefName($ppmSet['assetGroupId'], 'ast_asset_group', 'asset_group_name');
+            // $ppmSet['assetCategoryName'] = $this->fn_general->getRefName($ppmSet['assetCategoryId'], 'ast_asset_category', 'asset_category_name');
+            // $ppmSet['assetTypeName'] = $this->fn_general->getRefName($ppmSet['assetTypeId'], 'ast_asset_type', 'asset_type_name');
+            // $ppmSet['ppmGroupName'] = $this->fn_general->getRefName($ppmSet['ppmGroupId'], 'ppm_group', 'ppm_group_name');
+
+            // Simplified direct lookups for getRefName usage if not present in Class_general
+            $ppmSet['assetGroupName'] = Class_db::getInstance()->db_select_col('ast_asset_group', array('asset_group_id' => $ppmSet['assetGroupId']), 'asset_group_name', null, 0);
+            $ppmSet['assetCategoryName'] = Class_db::getInstance()->db_select_col('ast_asset_category', array('asset_category_id' => $ppmSet['assetCategoryId']), 'asset_category_name', null, 0);
+            $ppmSet['assetTypeName'] = Class_db::getInstance()->db_select_col('ast_asset_type', array('asset_type_id' => $ppmSet['assetTypeId']), 'asset_type_name', null, 0);
+            $ppmSet['ppmGroupName'] = Class_db::getInstance()->db_select_col('ppm_group', array('ppm_group_id' => $ppmSet['ppmGroupId']), 'ppm_group_name', null, 0);
+
+
+            return $ppmSet; // Returns the data with camelCase keys
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Updates an existing PPM Set (asset group).
+     * @param smallint $ppmSetId The ID of the PPM Set to update.
+     * @param array $params Array of update parameters (ppmSetName, ppmSetDesc, assetTypeId, ppmGroupId).
+     * @param int $userId The ID of the user performing the action.
+     * @return bool
+     * @throws Exception
+     */
+    public function update_ppm_set ($ppmSetId, $params, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($ppmSetId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmSetId empty');
+            }
+            if (empty($params)) {
+                throw new Exception('[' . __LINE__ . '] - Array params empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            // Verify ppmSetId exists
+            if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $ppmSetId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Set ID not found: ' . $ppmSetId, 31);
+            }
+
+            // Basic validation for parameters that should be updated
+            $this->fn_general->checkEmptyParamsArray($params, array('ppmSetName', 'assetTypeId', 'ppmGroupId'));
+
+            // Optional: Check for duplicate ppm_set_name if name is being changed
+            $existingPpmSet = Class_db::getInstance()->db_select_single2('ppm_set', array('ppm_set_id' => $ppmSetId));
+            if ($existingPpmSet['ppmSetName'] !== $params['ppmSetName'] &&
+                Class_db::getInstance()->db_count('ppm_set', array('ppm_set_name' => $params['ppmSetName'])) > 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Set Name already exists', 31);
+            }
+
+            $updateData = array(
+                'ppm_set_name' => $params['ppmSetName'],
+                'ppm_set_desc' => $this->fn_general->clear_null($params['ppmSetDesc']), // Clear null for optional desc
+                'asset_type_id' => $params['assetTypeId'],
+                'ppm_group_id' => $params['ppmGroupId']
+            );
+
+            Class_db::getInstance()->db_update('ppm_set', $updateData, array('ppm_set_id' => $ppmSetId));
+
+            return true; // Or return updated data
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Retrieves a list of assets for selection in the PPM Set modal.
+     * Can filter by contract, site, and asset type of the ppm_set.
+     * Excludes assets already linked to the current ppmSetId (if ppmSetId provided).
+     *
+     * @param smallint $ppmSetId (Optional) The ID of the PPM Set to exclude already added assets.
+     * @param smallint $contractId The ID of the contract (required to scope assets).
+     * @param smallint $assetTypeId (Optional) Filter by this asset type ID, typically from the ppm_set itself.
+     * @return array
+     * @throws Exception
+     */
+    public function get_assets_for_ppm_set_modal ($ppmSetId = null, $contractId, $assetTypeId = null) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($contractId)); // Contract ID is essential for scoping
+
+            $result = array();
+            $arrWhere = array(
+                'ast_asset.contract_id' => $contractId,
+                'ast_asset.asset_status' => '1' // Only active assets
+            );
+
+            if (!empty($assetTypeId)) {
+                $arrWhere['ast_asset.asset_type_id'] = $assetTypeId;
+            }
+
+            // Exclude assets that are already part of this specific ppm_set
+            if (!empty($ppmSetId)) {
+                $existingAssetIdsInSet = Class_db::getInstance()->db_select_colm(
+                    'ppm_set_asset',
+                    array('ppm_set_id' => $ppmSetId),
+                    'asset_id'
+                );
+                if (!empty($existingAssetIdsInSet)) {
+                    $arrWhere['asset_id'] = 'N('. implode(',', $existingAssetIdsInSet) . ')'; // N(...) means NOT IN
+                }
+            }
+
+            // Use vw_ppm_asset or directly query ast_asset and join relevant data for display
+            // For selection, usually basic asset info is enough.
+            $arr_dataLocal = Class_db::getInstance()->db_select(
+                'ast_asset', // Directly query ast_asset for efficiency here
+                $arrWhere,
+                'asset_no ASC' // Order by asset number
+            );
+
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['assetId'] = $dataLocal['asset_id'];
+                $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
+                $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
+                // Add more relevant fields if needed for the selection modal display
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getCode()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Retrieves a list of all PPM Sets (asset groups) with their associated asset counts.
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_set_list () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            // --- REVISED: Use a new view in Class_sql for complex query ---
+            // Assuming vw_ppm_set_list has been added to library/sql.php as per previous instruction.
+            $arr_dataLocal = Class_db::getInstance()->db_select('vw_ppm_set_list'); // Using the new view
+
+            $result = array();
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['ppmSetId'] = $dataLocal['ppm_set_id'];
+                $row_result['ppmSetName'] = $this->fn_general->clear_null($dataLocal['ppm_set_name']);
+                $row_result['ppmSetDesc'] = $this->fn_general->clear_null($dataLocal['ppm_set_desc']); // Ensure description is included
+                $row_result['assetTypeId'] = $this->fn_general->clear_null($dataLocal['asset_type_id']);
+                $row_result['assetTypeName'] = $this->fn_general->clear_null($dataLocal['asset_type_name']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['ppmGroupName'] = $this->fn_general->clear_null($dataLocal['ppm_group_name']);
+                $row_result['totalAssets'] = intval($dataLocal['total_assets']); // Ensure this is int
+                $row_result['ppmSetStatus'] = $dataLocal['ppm_set_status'];
+                array_push($result, $row_result);
+            }
+
+            return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

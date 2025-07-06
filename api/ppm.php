@@ -137,6 +137,17 @@ try {
                 $month = filter_input(INPUT_GET, 'month');
                 $isRoutine = filter_input(INPUT_GET, 'isRoutine');
                 $result = $fn_ppm->get_ppm_list($clientId, $siteId, $year, $month, $isRoutine);
+            } else if ($type === 'ppm_set_list') {
+                $result = $fn_ppm->get_ppm_set_list();
+            } else if ($type === 'ppm_set_details') {
+                $ppmSetId = filter_input(INPUT_GET, 'ppmSetId');
+                $result = $fn_ppm->get_ppm_set_details($ppmSetId);
+            } else if ($type === 'assets_for_ppm_set_selection') { // <-- NEW: Endpoint for assets to add to a set
+                $ppmSetId = filter_input(INPUT_GET, 'ppmSetId'); // Pass ppmSetId to exclude existing assets
+                $contractId = filter_input(INPUT_GET, 'contractId'); // Essential for scoping
+                $assetTypeId = filter_input(INPUT_GET, 'assetTypeId'); // To filter by set's asset type
+    
+                $result = $fn_ppm->get_assets_for_ppm_set_modal($ppmSetId, $contractId, $assetTypeId);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
@@ -199,6 +210,17 @@ try {
             $fn_ppm->reschedule_date($ppmTaskId, $put_vars);
             $fn_general->save_audit('127', $jwt_data->userId, 'ppmTaskId = '.$ppmTaskId.', new date = '.$put_vars['newDate']);
             $form_data['errmsg'] = $constant::SUC_PPM_RESCHEDULE;
+        } else if ($action === 'update_ppm_set') { // <-- NEW: Action for updating a PPM Set
+            $ppmSetId = filter_input(INPUT_GET, 'ppmSetId'); // Assuming ID is in GET for PUT, common pattern. Or from $put_vars.
+            // Let's assume ppmSetId comes from put_vars for consistency with other PUT actions from JS.
+            if (!isset($put_vars['ppmSetId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmSetId empty');
+            }
+            $ppmSetId = $put_vars['ppmSetId']; // Get ppmSetId from parsed PUT data.
+
+            $fn_ppm->update_ppm_set($ppmSetId, $put_vars, $jwt_data->userId); // Pass all put_vars as params
+            $fn_general->save_audit('X_AUDIT_ID_FOR_UPDATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId); // Use a relevant audit ID
+            $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
