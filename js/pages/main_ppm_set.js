@@ -154,8 +154,9 @@ function MainPpmSet () {
 
     this.genTable = function () {
         ShowLoader(); setTimeout(function () {
-            // New API endpoint for listing PPM Sets
-            mzFetch('ppm.php?type=ppm_set_list', 'GET').then(res => {
+            // Corrected API endpoint for listing PPM Sets
+            // Add 'api/' prefix to the URL
+            mzFetch('api/ppm.php?type=ppm_set_list', 'GET').then(res => { // ADDED 'api/' prefix
                 dtPsm.clear().rows.add(res).draw();
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
         }, 200);

@@ -112,7 +112,7 @@ function ModalPpmSet () {
                     ShowLoader(); setTimeout(function () {
                         if (submitType === 'add') {
                             // API call for creating a new ppm_set
-                            mzFetch('ppm.php?action=create_ppm_set', 'POST', data).then(res => {
+                            mzFetch('api/ppm.php?action=create_ppm_set', 'POST', data).then(res => {
                                 toastr['success']('PPM Set "' + data.ppmSetName + '" successfully created!', _ALERT_TITLE_SUCCESS);
                                 classFrom.genTable(); // Tell MainPpmSet to refresh its table
                                 $('#modal_ppm_set').modal('hide'); // Hide new modal ID
@@ -120,7 +120,7 @@ function ModalPpmSet () {
                         } else if (submitType === 'put') {
                             // API call for updating an existing ppm_set (to be implemented later)
                             data['ppmSetId'] = ppmSetId; // Add ppmSetId for update
-                            // mzFetch('ppm.php?action=update_ppm_set', 'PUT', data).then(res => { // Example future call
+                            // mzFetch('api/ppm.php?action=update_ppm_set', 'PUT', data).then(res => { // Example future call
                             toastr['info']('Edit functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
                             HideLoader(); // Hide loader if temporarily blocking
                             // }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
@@ -221,7 +221,7 @@ function ModalPpmSet () {
             mzCheckFuncParam([_ppmSetId]);
             toastr['info']('Delete functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
             // ShowLoader(); setTimeout(function () {
-            //     mzFetch('ppm.php?action=delete_ppm_set&ppmSetId='+_ppmSetId, 'DELETE').then(res => { // Example future call
+            //     mzFetch('api/ppm.php?action=delete_ppm_set&ppmSetId='+_ppmSetId, 'DELETE').then(res => { // Example future call
             //         classFrom.genTable(); // Refresh table after delete
             //         $('#modal_ppm_set').modal('hide'); // Hide modal if deleting from here
             //         toastr['success']('PPM Set successfully deleted!', _ALERT_TITLE_SUCCESS);
