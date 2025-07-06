@@ -120,10 +120,10 @@ function ModalPpmSet () {
                         } else if (submitType === 'put') {
                             // API call for updating an existing ppm_set (to be implemented later)
                             data['ppmSetId'] = ppmSetId; // Add ppmSetId for update
-                            // mzFetch('api/ppm.php?action=update_ppm_set', 'PUT', data).then(res => { // Example future call
-                            toastr['info']('Edit functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
-                            HideLoader(); // Hide loader if temporarily blocking
-                            // }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                            mzFetch('api/ppm.php?action=update_ppm_set', 'PUT', data).then(res => {
+                                toastr['info']('Edit functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
+                                HideLoader(); // Hide loader if temporarily blocking
+                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }
                     }, 200);
                 }
@@ -167,7 +167,7 @@ function ModalPpmSet () {
             submitType = 'put';
             ShowLoader(); setTimeout(function () {
                 // Fetch ppm_set details
-                mzFetch('ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => { // New API call
+                mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => { // New API call
                     formValidate.clearValidation();
                     self.resetOption(); // Clear and reset dropdowns
                     
