@@ -160,34 +160,31 @@ function ModalPpmSet () {
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
     };
 
-    this.edit = function (_ppmSetId) { // Renamed _ppmId to _ppmSetId
+    this.edit = function (_ppmSetId) {
         try {
             mzCheckFuncParam([_ppmSetId]);
-            ppmSetId = _ppmSetId; // Use ppmSetId
+            ppmSetId = _ppmSetId;
             submitType = 'put';
             ShowLoader(); setTimeout(function () {
-                // Fetch ppm_set details
-                mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => { // New API call
+                // Corrected API call for fetching ppm_set details
+                mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => { // ADDED 'api/' prefix
                     formValidate.clearValidation();
-                    self.resetOption(); // Clear and reset dropdowns
+                    self.resetOption();
                     
-                    // Populate fields with fetched data
-                    mzSetFieldValue('lblMpsId', res['ppmSetId']); // Set hidden ID
-                    mzSetFieldValue('txtMpsName', res['ppmSetName']); // Renamed ID
-                    mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // Renamed ID
+                    mzSetFieldValue('lblMpsId', res['ppmSetId']);
+                    mzSetFieldValue('txtMpsName', res['ppmSetName']);
+                    mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']);
                     
-                    // Populate asset group/category/type dropdowns and trigger change to load dependents
-                    mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']); // Renamed ID
+                    mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']);
                     $('#optMpsAssetGroup').trigger('change');
-                    mzSetFieldValue('optMpsAssetCategory', res['assetCategoryId']); // Renamed ID
+                    mzSetFieldValue('optMpsAssetCategory', res['assetCategoryId']);
                     $('#optMpsAssetCategory').trigger('change');
-                    mzSetFieldValue('optMpsAssetType', res['assetTypeId']); // Renamed ID
-                    $('#optMpsAssetType').trigger('change'); // Ensure executor group loads
+                    mzSetFieldValue('optMpsAssetType', res['assetTypeId']);
+                    $('#optMpsAssetType').trigger('change');
 
-                    mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']); // Renamed ID
+                    mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']);
                     
-                    // Disable fields if status requires (e.g., if set is inactive, cannot edit some fields)
-                    const isDisable = res['ppmSetStatus'] !== 1; // Assuming 1 is active status
+                    const isDisable = res['ppmSetStatus'] !== 1;
                     mzDisableSelect('optMpsAssetGroup', isDisable);
                     mzDisableSelect('optMpsAssetCategory', isDisable);
                     mzDisableSelect('optMpsAssetType', isDisable);
@@ -202,16 +199,9 @@ function ModalPpmSet () {
                     formValidate.disableField('txtMpsName', isDisable);
                     formValidate.disableField('txaMpsDesc', isDisable);
 
-                    mzSetFieldValue('lblMpsId', res['ppmSetId']); // Set the hidden ID
-                    mzSetFieldValue('txtMpsName', res['ppmSetName']);
-                    mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // Ensure this maps correctly
-
-
-                    $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set'); // Renamed ID and text
-                    $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show new modal ID
+                    $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set');
+                    $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
-
-
             }, 200);
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
     };
