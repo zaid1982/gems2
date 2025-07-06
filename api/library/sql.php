@@ -1639,6 +1639,23 @@ class Class_sql
                           AND pt.ppm_task_start_date = '[ppmTaskStartDate]'
                           AND pt.ppm_task_status = [ppmTaskStatus]
                           AND aa.ppm_group_id = [ppmGroupId]";
+            } else if ($title === 'vw_ppm_set_list') { // NEW: View for listing PPM Sets
+                $sql = "SELECT
+                            ps.ppm_set_id,
+                            ps.ppm_set_name,
+                            ps.ppm_set_desc, -- NEW: Include description
+                            ps.asset_type_id,
+                            at.asset_type_name,
+                            ps.ppm_group_id,
+                            pg.ppm_group_name,
+                            COUNT(psa.asset_id) AS total_assets,
+                            ps.ppm_set_status
+                        FROM ppm_set ps
+                        LEFT JOIN ppm_set_asset psa ON ps.ppm_set_id = psa.ppm_set_id
+                        LEFT JOIN ast_asset_type at ON ps.asset_type_id = at.asset_type_id
+                        LEFT JOIN ppm_group pg ON ps.ppm_group_id = pg.ppm_group_id
+                        GROUP BY ps.ppm_set_id, ps.ppm_set_name, ps.ppm_set_desc, ps.asset_type_id, at.asset_type_name, ps.ppm_group_id, pg.ppm_group_name, ps.ppm_set_status
+                        ORDER BY ps.ppm_set_name";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
