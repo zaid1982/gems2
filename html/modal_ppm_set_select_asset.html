@@ -1,0 +1,48 @@
+<div class="modal fade" id="modal_ppm_set_select_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header blue-grey darken-3 text-white">
+                <h4 class="modal-title w-100" id="h4MpssaTitle"><i class="fas fa-cubes mr-2"></i>Select Assets for PPM Set</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <input type="hidden" id="lblMpssaPpmSetId">
+                <input type="hidden" id="lblMpssaContractId">
+                <input type="hidden" id="lblMpssaAssetTypeId">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card z-depth-3 mb-4_5">
+                            <div class="card-header white p-0 z-depth-1">
+                                <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
+                                <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-list mr-1"></i> Available Assets</h5>
+                            </div>
+                            <div class="card-body pt-4">
+                                <div class="table-responsive">
+                                    <table id="dtMpssa" class="table table-tight table-hover mb-0 display responsive">
+                                        <thead>
+                                        <tr class="th-strong">
+                                            <th><input type="checkbox" id="chkMpssaSelectAll"></th>
+                                            <th>#</th>
+                                            <th>Asset No</th>
+                                            <th>Asset Name</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button class="btn btn-blue-grey" data-dismiss="modal">Close</button>
+                <button class="btn btn-indigo" id="btnMpssaAddSelected">Add Selected Assets</button>
+            </div>
+        </div>
+    </div>
+</div>
