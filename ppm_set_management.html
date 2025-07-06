@@ -127,14 +127,13 @@
                 changePasswordClass_ = new ModalChangePassword();
                 modalConfirmDeleteClass_ = new ModalConfirmDelete();
 
-                // Instantiate NEW modal classes
+                // 1. Instantiate the classes FIRST
                 modalPpmSetClass_ = new ModalPpmSet();
-                // modalPpmSetSelectAssetClass_ = new ModalPpmSetSelectAsset(); // For linking assets to a set
+                modalPpmSetSelectAssetClass_ = new ModalPpmSetSelectAsset(); // Still commented out temporarily
 
-                // Instantiate the NEW main controller for this page
-                mainPpmSetClass_ = new MainPpmSet();
+                mainPpmSetClass_ = new MainPpmSet(); // Instantiate Main class
 
-                // Load reference data (adjust as needed for ppm_set)
+                // 2. Load ALL reference data. These will be local constants ending with _
                 const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
                 const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
@@ -144,18 +143,21 @@
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
-                // Pass references to new modal classes
+                // 3. Pass these loaded references to modalPpmSetClass_ using its setters, AND THEN call its init()
                 modalPpmSetClass_.setRefAssetGroup(refAssetGroup_);
                 modalPpmSetClass_.setRefAssetCategory(refAssetCategory_);
                 modalPpmSetClass_.setRefAssetType(refAssetType_);
                 modalPpmSetClass_.setRefPpmGroup(refPpmGroup_);
-                modalPpmSetClass_.init();
+                modalPpmSetClass_.init(); // <-- CALL init() AFTER setting all its references
 
-                // Set references for asset selection modal
-                // modalPpmSetSelectAssetClass_.setRefStatus(refStatus_); // May need more refs
-                // modalPpmSetSelectAssetClass_.init();
+                // Set references for asset selection modal (still commented out, but future order)
+                // This block should also have its references set before init() is called.
+                // if (modalPpmSetSelectAssetClass_) { // Check if it's instantiated (uncomment if you add it back)
+                //     modalPpmSetSelectAssetClass_.setRefStatus(refStatus_); // Example reference setting
+                //     modalPpmSetSelectAssetClass_.init(); // Call init() AFTER references
+                // }
 
-                // Set references for the main page controller
+                // 4. Pass these loaded references to mainPpmSetClass_ using its setters, AND THEN call its init()
                 mainPpmSetClass_.setRefStatus(refStatus_);
                 mainPpmSetClass_.setRefUser(refUser_);
                 mainPpmSetClass_.setRefSite(refSite_);
@@ -165,8 +167,8 @@
                 mainPpmSetClass_.setRefAssetType(refAssetType_);
                 mainPpmSetClass_.setRefPpmGroup(refPpmGroup_);
                 mainPpmSetClass_.setModalPpmSetClass(modalPpmSetClass_);
-                // mainPpmSetClass_.setModalPpmSetSelectAssetClass(modalPpmSetSelectAssetClass_); // Pass the select modal class
-                mainPpmSetClass_.init();
+                mainPpmSetClass_.setModalPpmSetSelectAssetClass(modalPpmSetSelectAssetClass_); // Still commented out
+                mainPpmSetClass_.init(); // <-- CALL init() AFTER setting all its references
 
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             HideLoader();
