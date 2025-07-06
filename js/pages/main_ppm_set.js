@@ -202,8 +202,8 @@ function MainPpmSet () {
     this.setModalPpmSetClass = function (_modalPpmSetClass) {
         modalPpmSetClass = _modalPpmSetClass;
     };
-    // this.setModalPpmSetSelectAssetClass = function (_modalPpmSetSelectAssetClass) {
-    //     modalPpmSetSelectAssetClass = _modalPpmSetSelectAssetClass;
-    // };
+    this.setModalPpmSetSelectAssetClass = function (_modalPpmSetSelectAssetClass) {
+        modalPpmSetSelectAssetClass = _modalPpmSetSelectAssetClass;
+    };
     // Removed setSectionPpmAssetClass as it's replaced by this MainPpmSet class
 }
