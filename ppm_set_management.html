@@ -113,7 +113,7 @@
     let modalConfirmDeleteClass_;
     // Renamed/New modal classes
     let modalPpmSetClass_;
-    let modalPpmSetSelectAssetClass_;
+    // let modalPpmSetSelectAssetClass_;
     // New section class if needed for managing assets within a set
     // let sectionPpmSetAssetsClass_;
     let mainPpmSetClass_; // Main controller for this page
@@ -129,7 +129,7 @@
 
                 // Instantiate NEW modal classes
                 modalPpmSetClass_ = new ModalPpmSet();
-                modalPpmSetSelectAssetClass_ = new ModalPpmSetSelectAsset(); // For linking assets to a set
+                // modalPpmSetSelectAssetClass_ = new ModalPpmSetSelectAsset(); // For linking assets to a set
 
                 // Instantiate the NEW main controller for this page
                 mainPpmSetClass_ = new MainPpmSet();
@@ -152,8 +152,8 @@
                 modalPpmSetClass_.init();
 
                 // Set references for asset selection modal
-                modalPpmSetSelectAssetClass_.setRefStatus(refStatus_); // May need more refs
-                modalPpmSetSelectAssetClass_.init();
+                // modalPpmSetSelectAssetClass_.setRefStatus(refStatus_); // May need more refs
+                // modalPpmSetSelectAssetClass_.init();
 
                 // Set references for the main page controller
                 mainPpmSetClass_.setRefStatus(refStatus_);
@@ -165,7 +165,7 @@
                 mainPpmSetClass_.setRefAssetType(refAssetType_);
                 mainPpmSetClass_.setRefPpmGroup(refPpmGroup_);
                 mainPpmSetClass_.setModalPpmSetClass(modalPpmSetClass_);
-                mainPpmSetClass_.setModalPpmSetSelectAssetClass(modalPpmSetSelectAssetClass_); // Pass the select modal class
+                // mainPpmSetClass_.setModalPpmSetSelectAssetClass(modalPpmSetSelectAssetClass_); // Pass the select modal class
                 mainPpmSetClass_.init();
 
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
