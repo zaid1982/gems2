@@ -34,6 +34,7 @@ RewriteRule ^p_zone/?$ zone.html
 RewriteRule ^p_wo_assign/?$ wo_assign.html
 RewriteRule ^p_wo_verify/?$ wo_verify.html
 RewriteRule ^p_ppm_asset/?$ ppm_asset.html
+RewriteRule ^p_ppm_asset_v2/?$ ppm_set_management.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
