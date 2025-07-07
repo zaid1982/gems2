@@ -143,6 +143,17 @@
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
+                // console log all references for debugging
+                console.log('References Loaded:');
+                console.log('Status:', refStatus_);
+                console.log('User:', refUser_);
+                console.log('Site:', refSite_);
+                console.log('Contract:', refContract_);
+                console.log('Asset Group:', refAssetGroup_);
+                console.log('Asset Category:', refAssetCategory_);
+                console.log('Asset Type:', refAssetType_);
+                console.log('PPM Group:', refPpmGroup_);
+
                 // 3. Pass references to modalPpmSetClass_ AND THEN initialize it
                 modalPpmSetClass_.setRefAssetGroup(refAssetGroup_);
                 modalPpmSetClass_.setRefAssetCategory(refAssetCategory_);

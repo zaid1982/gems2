@@ -154,9 +154,8 @@ function MainPpmSet () {
 
     this.genTable = function () {
         ShowLoader(); setTimeout(function () {
-            // Corrected API endpoint for listing PPM Sets
-            // Add 'api/' prefix to the URL
-            mzFetch('api/ppm.php?type=ppm_set_list', 'GET').then(res => { // ADDED 'api/' prefix
+            // This mzFetch call is the one causing the 404 if 'api/' is missing
+            mzFetch('api/ppm.php?type=ppm_set_list', 'GET').then(res => {
                 dtPsm.clear().rows.add(res).draw();
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
         }, 200);
