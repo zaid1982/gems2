@@ -4166,7 +4166,7 @@ class Class_ppm {
             $this->fn_general->checkEmptyParams(array($assetGroupId, $assetCategoryId, $assetTypeId)); // Now all three are required filters
 
             $result = array();
-            $arrWhere = array(
+            $arrWhereTemplate = array(
                 'ast_asset.asset_status' => '1', // Only active assets
                 // NEW: Add filters for Asset Group, Category, and Type
                 'ast_asset.asset_group_id' => $assetGroupId,
@@ -4176,6 +4176,32 @@ class Class_ppm {
 
             $assetsToExclude = [];
 
+            $arrWhere = $arrWhereTemplate; // Start with the template
+
+            // get ppm_set_id from ppm_set_asset table where asset group, asset category, and asset type match
+            // Exclude assets that are already part of any PPM Set with the same filters
+            $assetsInPpmSets = Class_db::getInstance()->db_select_colm(
+                'ppm_set',
+                array(
+                    'asset_group_id' => $assetGroupId,
+                    'asset_category_id' => $assetCategoryId,
+                    'asset_type_id' => $assetTypeId
+                ),
+                'ppm_set_id' // Get the ppm_set_id
+            );
+
+
+            if(!empty($assetsInPpmSets)) {
+                // Ensure all elements are indeed strings (though db_select_colm should do this)
+                $assetsInPpmSets = array_map('strval', $assetsInPpmSets);
+                // Collect asset IDs to exclude
+                $assetsToExclude = Class_db::getInstance()->db_select_colm(
+                    'ppm_set_asset',
+                    array('ppm_set_id' => 'IN('. implode(',', $assetsInPpmSets) . ')'),
+                    'asset_id' // Get the associated asset IDs
+                );
+            }
+
             // Exclude assets that are already part of this specific ppm_set
             if (!empty($ppmSetId)) {
                 $existingAssetIdsInSet = Class_db::getInstance()->db_select_colm(
@@ -4183,23 +4209,21 @@ class Class_ppm {
                     array('ppm_set_id' => $ppmSetId),
                     'asset_id'
                 );
+
+                // if $assetsToExclude is not empty, merge the existing assets to exclude
+                if (!empty($assetsToExclude)) {
+                    $existingAssetIdsInSet = array_merge($assetsToExclude, $existingAssetIdsInSet);
+
+                    // Ensure unique IDs in the exclusion list
+                    $existingAssetIdsInSet = array_unique($existingAssetIdsInSet);
+                }
+
                 // MODIFIED: Only add the filter if there are actually existing assets to exclude
                 if (!empty($existingAssetIdsInSet)) { // <--- ADD THIS CHECK
                     // Ensure all elements are indeed strings (though db_select_colm should do this)
                     $existingAssetIdsInSet = array_map('strval', $existingAssetIdsInSet);
                     $arrWhere['asset_id'] = 'N('. implode(',', $existingAssetIdsInSet) . ')'; // N(...) means NOT IN
                 }
-            }
-
-            // NEW FILTER: Exclude assets that already have an active PPM group assignment (via ppm table)
-            // Find assets that have an active PPM schedule AND a ppm_group_id
-            $assetsWithExistingPpmGroup = Class_db::getInstance()->db_select_colm(
-                'ppm', // Query the ppm table
-                array('ppm_group_id' => 'is not NULL', 'ppm_status' => '1'), // Filter for active PPMs with a group
-                'asset_id' // Get the associated asset IDs
-            );
-            if (!empty($assetsWithExistingPpmGroup)) {
-                $assetsToExclude = array_merge($assetsToExclude, array_map('strval', $assetsWithExistingPpmGroup));
             }
 
             // Apply the combined exclusion list
