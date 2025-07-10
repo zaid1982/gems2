@@ -133,11 +133,14 @@ function MainPpmSetForm () {
                             data['ppmSetId'] = parseInt(ppmSetId);
                             data['action'] = 'update_ppm_set'; // Action for backend PUT request
 
-                            mzAjaxRequest('ppm.php?ppmSetId='+parseInt(ppmSetId), 'PUT', data).then(() => {
+                            try
+                            {
                                 toastr['success']('PPM Set "' + data.ppmSetName + '" successfully updated!', _ALERT_TITLE_SUCCESS);
-                                // No redirection needed after update, just refresh current state
-                                // or simply show success and keep user on the page
-                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                            } catch (e) { 
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR); 
+                            } finally {
+                                HideLoader(); // Ensure loader is hidden after operation
+                            }
                         }
                     }, 200);
                 }
@@ -261,7 +264,10 @@ function MainPpmSetForm () {
                     // Populate fields
                     $('#lblMpsId').val(res['ppmSetId']);
                     mzSetFieldValue('txtMpsName', res['ppmSetName']);
+                    $('#txtMpsName').change();
+
                     mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']);
+                    $('#txaMpsDesc').change();
 
                     currentContractId = res['contractId']; // Ensure your ppm_set_details returns this if needed elsewhere
                     currentAssetGroupId = res['assetGroupId']; // Store Asset Group ID

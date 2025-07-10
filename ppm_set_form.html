@@ -4,16 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0 - PPM Set Management</title>
+    <title>GEMS 2.0</title>
+    <!-- Browser icon -->
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
     <link rel="stylesheet" href="css/mdb.css?5">
+    <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
     <link href="css/style.css?6" rel="stylesheet">
-    <style></style>
+    <!-- Your custom styles (optional) -->
+    <style>
+
+    </style>
+    <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 <body class="fixed-sn light-blue-skin">
@@ -65,22 +76,19 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetGroup">
-                                    <option value="" disabled selected>Select Asset Group</option>
+                                <select class="mdb-select md-form colorful-select dropdown-primary" id="optMpsAssetGroup"> <option value="" disabled selected>Select Asset Group</option>
                                 </select>
                                 <label for="optMpsAssetGroup">Asset Group</label>
                                 <div class="invalid-feedback" id="optMpsAssetGroupErr"></div>
                             </div>
                             <div class="col-md-4">
-                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetCategory">
-                                    <option value="" disabled selected>Select Asset Category</option>
+                                <select class="mdb-select md-form colorful-select dropdown-primary" id="optMpsAssetCategory"> <option value="" disabled selected>Select Asset Category</option>
                                 </select>
                                 <label for="optMpsAssetCategory">Asset Category</label>
                                 <div class="invalid-feedback" id="optMpsAssetCategoryErr"></div>
                             </div>
                             <div class="col-md-4">
-                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetType">
-                                    <option value="" disabled selected>Select Asset Type</option>
+                                <select class="mdb-select md-form colorful-select dropdown-primary" id="optMpsAssetType"> <option value="" disabled selected>Select Asset Type</option>
                                 </select>
                                 <label for="optMpsAssetType">Asset Type</label>
                                 <div class="invalid-feedback" id="optMpsAssetTypeErr"></div>
@@ -88,14 +96,13 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsPpmGroupId">
-                                    <option value="" disabled selected>Select PPM Executor Group</option>
+                                <select class="mdb-select md-form colorful-select dropdown-primary" id="optMpsPpmGroupId"> <option value="" disabled selected>Select PPM Executor Group</option>
                                 </select>
                                 <label for="optMpsPpmGroupId">PPM Executor Group</label>
                                 <div class="invalid-feedback" id="optMpsPpmGroupIdErr"></div>
                             </div>
-                            </div>
-                    </form>
+                        </div>
+                        </form>
                     <div class="text-center mt-4">
                         <button class="btn btn-primary btn-md waves-effect waves-light" id="btnMpsSubmit"><i class="fas fa-save mr-2"></i>Save PPM Set</button>
                     </div>
