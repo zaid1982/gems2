@@ -195,7 +195,7 @@ class Class_general {
             if ($versionId === '') {
                 throw new Exception('(ErrCode:0053) [' . __LINE__ . '] - Parameter versionId empty');   
             }            
-            Class_db::getInstance()->db_update('sys_version', array('version_no'=>'++'), array('version_id'=>$versionId));
+            Class_db::getInstance()->db_update('sys_version', array('version_no'=>'++'), array('version_id'=>(string)$versionId));
         } catch(Exception $ex) {
             $this->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
