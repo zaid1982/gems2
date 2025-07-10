@@ -99,6 +99,25 @@ function ModalPpm() {
                             }
                             classFrom.genTablePmg();
                             classFrom.displayStatsChart();
+                        } else if (submitType === 'bulkByFilter') { // Renamed from 'bulk'
+                            // Data for new bulk assignment by filter API
+                            data = {
+                                action: 'assign_ppm_bulk_by_filter', // NEW action for backend
+                                contractId: bulkContractId, // Pass filter criteria
+                                assetGroupId: bulkAssetGroupId,
+                                assetCategoryId: bulkAssetCategoryId,
+                                assetTypeId: bulkAssetTypeId,
+                                checklistId: checklistId,
+                                ppmGroupId: ppmGroupId,
+                                ppmDateStart: ppmDateStart
+                            };
+                            // Call the new backend bulk assignment API
+                            // This will be a single call to process multiple assets on backend
+                            const bulkAssignReturn = mzAjaxRequest('ppm.php', 'POST', data);
+                            // bulkAssignReturn might contain {totalAssigned: X}
+                            toastr['success'](bulkAssignReturn.totalAssigned + ' asset(s) successfully assigned in bulk!', _ALERT_TITLE_SUCCESS);
+                            classFrom.genTablePmg(); // Refresh main table after bulk assignment
+                            classFrom.displayStatsChart(); // Refresh stats/chart
                         }
                         $('#modal_ppm').modal('hide')
                         HideLoader();
@@ -107,6 +126,68 @@ function ModalPpm() {
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); HideLoader(); }
         });
     };
+
+    this.setBulkByFilter = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
+        try {
+            mzCheckFuncParam([_contractId, _assetGroupId, _assetCategoryId, _assetTypeId]); // Check all filter parameters
+            
+            bulkContractId = _contractId; // Store filter criteria
+            bulkAssetGroupId = _assetGroupId;
+            bulkAssetCategoryId = _assetCategoryId;
+            bulkAssetTypeId = _assetTypeId;
+            assetTypeId = _assetTypeId; // Set common assetTypeId for checklist filtering
+
+            submitType = 'bulkByFilter'; // Set new submit type
+            formValidate.clearValidation(); //
+
+            // NEW: Conditionally disable 'Asset' dropdown validation for bulk mode
+            formValidate.disableField('optMpmAsset'); // Disable validation for this field in bulk mode
+            // mzSetFieldValue('optMpmAsset', '', 'select'); // Clear and hide its label/pre-fill
+
+            ShowLoader(); setTimeout(function () { //
+                // Step 1 (NEW): Make an API call to count eligible assets matching the filter
+                // This gives user feedback on how many assets will be affected.
+                const countResult = mzAjaxRequest('ppm.php?action=count_eligible_assets_by_filter', 'GET', {
+                    contractId: bulkContractId,
+                    assetGroupId: bulkAssetGroupId,
+                    assetCategoryId: bulkAssetCategoryId,
+                    assetTypeId: bulkAssetTypeId
+                });
+
+                if (countResult.totalEligibleAssets === 0) {
+                    throw new Error('No assets found matching the selected filters. Please adjust your filters.');
+                }
+                
+                // Populate display fields related to the bulk assignment criteria
+                mzSetFieldValue('MpmContractName', refContract[bulkContractId]['contractName'], 'text');
+                mzSetFieldValue('MpmAssetGroupName', refAssetGroup[bulkAssetGroupId]['assetGroupName'], 'text');
+                mzSetFieldValue('MpmAssetCategoryName', refAssetCategory[bulkAssetCategoryId]['assetCategoryName'], 'text');
+                mzSetFieldValue('MpmAssetTypeName', refAssetType[bulkAssetTypeId]['assetTypeName'], 'text');
+                // Display the count of eligible assets (e.g., in the Asset dropdown's label or a dedicated span)
+                mzSetFieldValue('optMpmAsset', '', 'select'); // Clear Asset dropdown
+                // Add a hidden span to display the count for optMpmAsset
+                $('#lblMpmAsset').html(countResult.totalEligibleAssets + ' Assets Selected (by filter)'); // Update label
+                $('#lblMpmAsset').addClass('active');
+
+                // Populate Checklist and PPM Executor Group dropdowns
+                const refChecklist = mzAjaxRequest('checklist.php?assetTypeId='+assetTypeId, 'GET'); //
+                mzOptionStop('optMpmChecklistId', refChecklist, 'Choose PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true); //
+                const siteId = refContract[bulkContractId]['siteId']; // Get siteId from the bulk contract
+                mzOptionStop('optMpmPpmGroupId', refPpmGroup, 'Choose PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId:'5', siteId:siteId, ppmGroupStatus: '1'}, 'required'); //
+
+                const contractDateStart = refContract[bulkContractId]['contractDateStart']; //
+                const contractDateEnd = refContract[bulkContractId]['contractDateEnd']; //
+                mzDateSetMin('txtMpmPpmDateStart', contractDateStart);
+                mzDateSetMax('txtMpmPpmDateStart', contractDateEnd);
+                
+                // Manage visibility of bulk-specific elements
+                $('.divMpmHideBulk').hide(); // Hide single-assignment elements
+                $('.divMpmShowBulk').show(); // Show bulk-assignment elements (e.g. a count, not the dropdown)
+                $('#lblMpmTitle').html('<i class="fas fa-layer-plus text-white"></i> &nbsp;PPM Bulk Assign'); //
+                $('#modal_ppm').modal({backdrop: 'static', keyboard: false}); //
+            }, 200);
+         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); } HideLoader(); 
+    }
 
     this.setSingle = function (_assetId, _rowRefresh) {
         ShowLoader(); setTimeout(function () { try {

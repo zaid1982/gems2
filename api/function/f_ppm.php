@@ -422,7 +422,7 @@ class Class_ppm {
             //     throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupId empty');
             // }
             if (Class_db::getInstance()->db_count('ppm', array('asset_id'=>$assetId)) > 0) {
-                //throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_PPM_SIMILAR_ASSET, 31);
             }
 
             $asset = Class_db::getInstance()->db_select_single('ast_asset', array('asset_id'=>$assetId), null, 1);
@@ -433,18 +433,21 @@ class Class_ppm {
             $contractDateEnd = $contract['contract_date_end'];
             $siteId = Class_db::getInstance()->db_select_col('cli_contract', array('contract_id'=>$contractId), 'site_id', null, 1);
             if ($asset['asset_type_id'] != $checklist['asset_type_id']) {
-                //throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
+                throw new Exception('[' . __LINE__ . '] - Checklist asset_type_id not sync with asset');
             }
 
             // --- Determine ppm_set_id for the assigned asset ---
             $ppmSetId = null;
-            // Query ppm_set_asset to see if this assetId belongs to any ppm_set
             $assetSet = Class_db::getInstance()->db_select_single('ppm_set_asset', array('asset_id' => $assetId));
             if (!empty($assetSet)) {
-                $ppmSetId = $assetSet['ppm_set_id'];
-                // If an asset could belong to multiple sets and you need to pick one,
-                // this logic would need to be expanded (e.g., prioritize based on some rule).
-                // For now, it takes the first one found.
+                $tempPpmSetId = $assetSet['ppm_set_id'];
+
+                if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $tempPpmSetId)) > 0) {
+                    $ppmSetId = $tempPpmSetId;
+                } else {
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Orphaned ppm_set_asset entry found for asset_id: ' . $assetId . '. ppm_set_id ' . $tempPpmSetId . ' does not exist in ppm_set. Setting ppm_set_id to NULL for this assignment.');
+                    $ppmSetId = null; // Set to NULL if the referenced ppm_set does not exist
+                }
             }
 
             $isYearly = false;
@@ -550,7 +553,7 @@ class Class_ppm {
                 'contract_id' => $contractId,
                 'ppm_created_by' => $userId,
                 'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
-                'ppm_set_id' => $ppmSetId // <-- NEW: Include ppm_set_id
+                'ppm_set_id' => is_nan($ppmSetId) ? NULL : $ppmSetId // <-- NEW: Include ppm_set_id
             );
             $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
             
@@ -2975,7 +2978,18 @@ class Class_ppm {
             // Query ppm_set_asset to see if this assetId belongs to any ppm_set
             $assetSet = Class_db::getInstance()->db_select_single('ppm_set_asset', array('asset_id' => $assetId));
             if (!empty($assetSet)) {
-                $ppmSetId = $assetSet['ppm_set_id'];
+                $tempPpmSetId = $assetSet['ppm_set_id'];
+
+                // *********** PROPOSED FIX IMPLEMENTATION ***********
+                // Defensively check if the retrieved ppmSetId actually exists in the ppm_set table
+                if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $tempPpmSetId)) > 0) {
+                    $ppmSetId = $tempPpmSetId;
+                } else {
+                    // Log a warning or error if an orphaned ppm_set_asset entry is found
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Orphaned ppm_set_asset entry found for asset_id: ' . $assetId . '. ppm_set_id ' . $tempPpmSetId . ' does not exist in ppm_set. Setting ppm_set_id to NULL for this assignment.');
+                    $ppmSetId = null; // Set to NULL if the referenced ppm_set does not exist
+                }
+                // ****************************************************
             }
 
             $checklistQuals = Class_db::getInstance()->db_select2('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1'), 'ABS(checklist_qual_numb)');
@@ -3073,7 +3087,8 @@ class Class_ppm {
                 'contract_id' => $contractId,
                 'ppm_created_by' => $userId,
                 'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
-                'ppm_set_id' => $ppmSetId // <-- NEW: Include ppm_set_id
+                'ppm_set_id' => is_nan($ppmSetId) ? NULL : $ppmSetId // <-- NEW: Include ppm_set_id
+
             );
             $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
 
@@ -4143,6 +4158,8 @@ class Class_ppm {
                 'ast_asset.asset_type_id' => $assetTypeId
             );
 
+            $assetsToExclude = [];
+
             // Exclude assets that are already part of this specific ppm_set
             if (!empty($ppmSetId)) {
                 $existingAssetIdsInSet = Class_db::getInstance()->db_select_colm(
@@ -4156,6 +4173,29 @@ class Class_ppm {
                     $existingAssetIdsInSet = array_map('strval', $existingAssetIdsInSet);
                     $arrWhere['asset_id'] = 'N('. implode(',', $existingAssetIdsInSet) . ')'; // N(...) means NOT IN
                 }
+            }
+
+            // NEW FILTER: Exclude assets that already have an active PPM group assignment (via ppm table)
+            // Find assets that have an active PPM schedule AND a ppm_group_id
+            $assetsWithExistingPpmGroup = Class_db::getInstance()->db_select_colm(
+                'ppm', // Query the ppm table
+                array('ppm_group_id' => 'is not NULL', 'ppm_status' => '1'), // Filter for active PPMs with a group
+                'asset_id' // Get the associated asset IDs
+            );
+            if (!empty($assetsWithExistingPpmGroup)) {
+                $assetsToExclude = array_merge($assetsToExclude, array_map('strval', $assetsWithExistingPpmGroup));
+            }
+
+            // Apply the combined exclusion list
+            if (!empty($assetsToExclude)) {
+                // Ensure unique IDs in the exclusion list
+                $uniqueAssetsToExclude = array_unique($assetsToExclude);
+    
+                // FIX: Convert to integers before imploding to ensure they are not quoted
+                // If asset_id in DB is INT, SQL expects (1,2,3) not ('1','2','3') unless quoted as strings
+                $intAssetsToExclude = array_map('intval', $uniqueAssetsToExclude);
+    
+                $arrWhere['asset_id'] = 'N('. implode(',', $intAssetsToExclude) . ')'; // N(...) means NOT IN
             }
 
             // Use ast_asset directly with the new filters
