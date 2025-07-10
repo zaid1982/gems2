@@ -144,10 +144,17 @@ try {
                 $result = $fn_ppm->get_ppm_set_details($ppmSetId);
             } else if ($type === 'assets_for_ppm_set_selection') { // <-- NEW: Endpoint for assets to add to a set
                 $ppmSetId = filter_input(INPUT_GET, 'ppmSetId'); // Pass ppmSetId to exclude existing assets
-                $contractId = filter_input(INPUT_GET, 'contractId'); // Essential for scoping
-                $assetTypeId = filter_input(INPUT_GET, 'assetTypeId'); // To filter by set's asset type
-    
-                $result = $fn_ppm->get_assets_for_ppm_set_modal($ppmSetId, $contractId, $assetTypeId);
+                // REMOVED: $contractId = filter_input(INPUT_GET, 'contractId'); // contractId is no longer a direct filter for the core function
+                // NEW: assetGroupId and assetCategoryId are now explicitly required filters
+                $assetGroupId = filter_input(INPUT_GET, 'assetGroupId');
+                $assetCategoryId = filter_input(INPUT_GET, 'assetCategoryId');
+                $assetTypeId = filter_input(INPUT_GET, 'assetTypeId'); // assetTypeId was already there
+
+                // UPDATED function call with new parameters
+                $result = $fn_ppm->get_assets_for_ppm_set_modal($ppmSetId, $assetGroupId, $assetCategoryId, $assetTypeId);
+            } else if ($type === 'assets_in_ppm_set') {
+                $ppmSetId = filter_input(INPUT_GET, 'ppmSetId');
+                $result = $fn_ppm->get_assets_in_ppm_set($ppmSetId);
             } else {
                 throw new Exception('[' . __LINE__ . '] - Parameter get invalid');
             }
@@ -177,11 +184,15 @@ try {
         }
         else if ($action === 'create_ppm_set') { // <-- NEW: Action for creating a PPM Set
             $ppmSetName = filter_input(INPUT_POST, 'ppmSetName');
-            $ppmSetDesc = filter_input(INPUT_POST, 'ppmSetDesc'); // Map from txaMpaDesc (ppmRemark)
+            $ppmSetDesc = filter_input(INPUT_POST, 'ppmSetDesc');
+            // ADD THESE TWO LINES:
+            $assetGroupId = filter_input(INPUT_POST, 'assetGroupId');
+            $assetCategoryId = filter_input(INPUT_POST, 'assetCategoryId');
             $assetTypeId = filter_input(INPUT_POST, 'assetTypeId');
             $ppmGroupId = filter_input(INPUT_POST, 'ppmGroupId');
-    
-            $result = $fn_ppm->create_ppm_set_basic($ppmSetName, $ppmSetDesc, $assetTypeId, $ppmGroupId, $jwt_data->userId);
+
+            // Update the function call signature
+            $result = $fn_ppm->create_ppm_set_basic($ppmSetName, $ppmSetDesc, $assetGroupId, $assetCategoryId, $assetTypeId, $ppmGroupId, $jwt_data->userId);
             $fn_general->save_audit('X_AUDIT_ID_FOR_CREATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $result['ppmSetId'] . ', Name = ' . $ppmSetName); // Use a relevant audit ID
             $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
         }
@@ -189,6 +200,15 @@ try {
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
             $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
             $result = $fn_pdf_ppm->create_pdf();
+        } else if ($action === 'add_assets_to_ppm_set') {
+            $ppmSetId = filter_input(INPUT_POST, 'ppmSetId');
+            $assetIds = json_decode(filter_input(INPUT_POST, 'assetIds'), true); // Assuming assetIds is sent as a JSON string array from frontend
+            if (empty($assetIds) && filter_input(INPUT_POST, 'assetIds') !== '[]') { // Handle cases where json_decode returns null/empty
+                throw new Exception('[' . __LINE__ . '] - Parameter assetIds invalid or empty');
+            }
+            $result = $fn_ppm->add_assets_to_ppm_set($ppmSetId, $assetIds, $jwt_data->userId);
+            $fn_general->save_audit('X_AUDIT_ID_FOR_ADD_ASSET_TO_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Added ' . $result['totalAdded'] . ' assets.');
+            $form_data['errmsg'] = $result['totalAdded'] . ' asset(s) successfully added to PPM Set!';
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }
@@ -210,7 +230,7 @@ try {
             $fn_ppm->reschedule_date($ppmTaskId, $put_vars);
             $fn_general->save_audit('127', $jwt_data->userId, 'ppmTaskId = '.$ppmTaskId.', new date = '.$put_vars['newDate']);
             $form_data['errmsg'] = $constant::SUC_PPM_RESCHEDULE;
-        } else if ($action === 'update_ppm_set') { // <-- NEW: Action for updating a PPM Set
+        } else if ($action === 'update_ppm_set') {
             $ppmSetId = filter_input(INPUT_GET, 'ppmSetId'); // Assuming ID is in GET for PUT, common pattern. Or from $put_vars.
             // Let's assume ppmSetId comes from put_vars for consistency with other PUT actions from JS.
             if (!isset($put_vars['ppmSetId'])) {
@@ -221,6 +241,31 @@ try {
             $fn_ppm->update_ppm_set($ppmSetId, $put_vars, $jwt_data->userId); // Pass all put_vars as params
             $fn_general->save_audit('X_AUDIT_ID_FOR_UPDATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId); // Use a relevant audit ID
             $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
+        }
+
+        Class_db::getInstance()->db_commit();
+        $form_data['success'] = true;
+    } else if ('DELETE' === $request_method) {
+        $delete_data = file_get_contents("php://input");
+        parse_str($delete_data, $delete_vars); // Parse the delete payload
+
+        $action = $delete_vars['action'];
+
+        Class_db::getInstance()->db_beginTransaction();
+        $is_transaction = true;
+
+        if ($action === 'remove_assets_from_ppm_set') {
+            $ppmSetId = $delete_vars['ppmSetId'];
+            $assetIds = json_decode($delete_vars['assetIds'], true); // Assuming assetIds is sent as JSON string array
+            if (empty($assetIds) && $delete_vars['assetIds'] !== '[]') {
+                throw new Exception('[' . __LINE__ . '] - Parameter assetIds invalid or empty');
+            }
+
+            $result = $fn_ppm->remove_assets_from_ppm_set($ppmSetId, $assetIds, $jwt_data->userId);
+            $fn_general->save_audit('X_AUDIT_ID_FOR_REMOVE_ASSET_FROM_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Removed ' . $result['totalRemoved'] . ' assets.');
+            $form_data['errmsg'] = $result['totalRemoved'] . ' asset(s) successfully removed from PPM Set!';
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }

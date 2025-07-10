@@ -108,15 +108,6 @@
 
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-    function mzFilterSparseArray(arr) {
-        if (!Array.isArray(arr)) {
-            return []; // Return empty array if not an array
-        }
-        return arr.filter(item => typeof item !== 'undefined' && item !== null);
-    }
-
-    
-
     let versionLocal_;
     let changePasswordClass_;
     let modalConfirmDeleteClass_;
@@ -126,6 +117,13 @@
     // New section class if needed for managing assets within a set
     // let sectionPpmSetAssetsClass_;
     let mainPpmSetClass_; // Main controller for this page
+
+    function mzFilterSparseArray(arr) {
+        if (!Array.isArray(arr)) {
+            return []; // Return empty array if not an array
+        }
+        return arr.filter(item => typeof item !== 'undefined' && item !== null);
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         ShowLoader();
@@ -142,27 +140,15 @@
 
                 mainPpmSetClass_ = new MainPpmSet(); // Instantiate Main class
 
-                // 2. Load ALL reference data AND filter out empty/undefined slots
-                const refStatus_ = mzFilterSparseArray(mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref'));
-                const refUser_ = mzFilterSparseArray(mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref'));
-                const refSite_ = mzFilterSparseArray(mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site'));
-                const refContract_ = mzFilterSparseArray(mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract'));
+                // 2. Load ALL reference data
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refAssetGroup_ = mzFilterSparseArray(mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group'));
                 const refAssetCategory_ = mzFilterSparseArray(mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category'));
                 const refAssetType_ = mzFilterSparseArray(mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type'));
                 const refPpmGroup_ = mzFilterSparseArray(mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group'));
-
-
-                // console log all references for debugging
-                console.log('References Loaded:');
-                console.log('Status:', refStatus_);
-                console.log('User:', refUser_);
-                console.log('Site:', refSite_);
-                console.log('Contract:', refContract_);
-                console.log('Asset Group:', refAssetGroup_);
-                console.log('Asset Category:', refAssetCategory_);
-                console.log('Asset Type:', refAssetType_);
-                console.log('PPM Group:', refPpmGroup_);
 
                 // 3. Pass references to modalPpmSetClass_ AND THEN initialize it
                 modalPpmSetClass_.setRefAssetGroup(refAssetGroup_);

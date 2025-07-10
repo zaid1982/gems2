@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0 - PPM Set Management</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <link href="css/style.css?6" rel="stylesheet">
+    <style></style>
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid" id="divWssPageWidth">
+        <div id="mdb-lightbox-ui"></div>
+
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 mb-4 pb-1 sectionPsmMain">
+            <h5 class="navbar-text white-text font-weight-bold ml-3 mt-1" id="h5PpmSetFormTitle">
+                <i class="fa fa-layer-group mr-1"></i> PPM Set Details
+            </h5>
+            <ul class="navbar-nav ml-auto nav-flex-icons">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect waves-light px-3" href="ppm_set_management.html" data-toggle="tooltip" data-placement="bottom" title="Back to PPM Set List">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <section class="sectionPsmMain mb-4">
+            <div class="card z-depth-3">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
+                    <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-file-alt mr-1"></i> PPM Set Information</h5>
+                </div>
+                <div class="card-body">
+                    <form id="formMps" name="formMps">
+                        <input type="hidden" id="lblMpsId" value="">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="md-form">
+                                    <input type="text" id="txtMpsName" class="form-control" value="">
+                                    <label for="txtMpsName">PPM Set Name</label>
+                                    <div class="invalid-feedback" id="txtMpsNameErr"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="md-form">
+                                    <textarea id="txaMpsDesc" class="md-textarea form-control" rows="2"></textarea>
+                                    <label for="txaMpsDesc">Description</label>
+                                    <div class="invalid-feedback" id="txaMpsDescErr"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetGroup">
+                                    <option value="" disabled selected>Select Asset Group</option>
+                                </select>
+                                <label for="optMpsAssetGroup">Asset Group</label>
+                                <div class="invalid-feedback" id="optMpsAssetGroupErr"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetCategory">
+                                    <option value="" disabled selected>Select Asset Category</option>
+                                </select>
+                                <label for="optMpsAssetCategory">Asset Category</label>
+                                <div class="invalid-feedback" id="optMpsAssetCategoryErr"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsAssetType">
+                                    <option value="" disabled selected>Select Asset Type</option>
+                                </select>
+                                <label for="optMpsAssetType">Asset Type</label>
+                                <div class="invalid-feedback" id="optMpsAssetTypeErr"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select class="mdb-select colorful-select dropdown-primary" id="optMpsPpmGroupId">
+                                    <option value="" disabled selected>Select PPM Executor Group</option>
+                                </select>
+                                <label for="optMpsPpmGroupId">PPM Executor Group</label>
+                                <div class="invalid-feedback" id="optMpsPpmGroupIdErr"></div>
+                            </div>
+                            </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-md waves-effect waves-light" id="btnMpsSubmit"><i class="fas fa-save mr-2"></i>Save PPM Set</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sectionAssetsInSet" class="sectionPsmMain mb-4" style="display: none;">
+            <div class="card z-depth-3">
+                <div class="card-header white p-0 z-depth-1">
+                    <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
+                    <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-cube mr-1"></i> Assets in this PPM Set</h5>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="mb-3 text-right">
+                        <button class="btn btn-sm btn-info" id="btnAddAssetsToSet"><i class="fas fa-plus mr-1"></i> Add Assets</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dtPpsa" class="table table-tight table-hover mb-0 display responsive">
+                            <thead>
+                                <tr class="th-strong">
+                                    <th></th>
+                                    <th>#</th>
+                                    <th>Asset No</th>
+                                    <th>Asset Name</th>
+                                    <th>Location</th>
+                                    <th style="width: 12px; min-width: 12px">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
+    <div class="includeHtml" id="h-modal_ppm_set_select_asset"></div>
+</main>
+
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
+    });
+
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalConfirmDeleteClass_;
+    let modalPpmSetSelectAssetClass_; // This remains a modal for asset selection
+    let mainPpmSetFormClass_; // New controller for this page
+
+    function mzFilterSparseArray(arr) {
+        if (!Array.isArray(arr)) {
+            return [];
+        }
+        return arr.filter(item => typeof item !== 'undefined' && item !== null);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalConfirmDeleteClass_ = new ModalConfirmDelete();
+
+                // Instantiate the asset selection modal
+                modalPpmSetSelectAssetClass_ = new ModalPpmSetSelectAsset(); //
+
+                // Instantiate the main controller for this form page
+                mainPpmSetFormClass_ = new MainPpmSetForm(); // NEW: main controller for this page
+
+                // Load ALL reference data
+                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+                // The following refs are needed for dropdowns on the form
+                const refAssetGroup_ = mzFilterSparseArray(mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group'));
+                const refAssetCategory_ = mzFilterSparseArray(mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category'));
+                const refAssetType_ = mzFilterSparseArray(mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type'));
+                const refPpmGroup_ = mzFilterSparseArray(mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group'));
+
+                // Pass references to modalPpmSetSelectAssetClass_ AND THEN initialize it
+                modalPpmSetSelectAssetClass_.setRefStatus(refStatus_); // Pass status for asset display
+                modalPpmSetSelectAssetClass_.init(); //
+
+                // Pass references to mainPpmSetFormClass_ AND THEN initialize it
+                mainPpmSetFormClass_.setRefAssetGroup(refAssetGroup_);
+                mainPpmSetFormClass_.setRefAssetCategory(refAssetCategory_);
+                mainPpmSetFormClass_.setRefAssetType(refAssetType_);
+                mainPpmSetFormClass_.setRefPpmGroup(refPpmGroup_);
+                mainPpmSetFormClass_.setModalPpmSetSelectAssetClass(modalPpmSetSelectAssetClass_); // Pass the asset select modal instance
+                mainPpmSetFormClass_.setModalConfirmDeleteClass(modalConfirmDeleteClass_); // Pass for asset removal confirmation
+                mainPpmSetFormClass_.init(); // Initialize the new page controller
+
+            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    // The old modal_ppm_set.js is no longer needed for this page
+    // document.write('<scr' + 'ipt src="js/pages/modal_ppm_set.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_ppm_set_select_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    // NEW JS file for this page
+    document.write('<scr' + 'ipt src="js/pages/main_ppm_set_form.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+</body>
+</html>

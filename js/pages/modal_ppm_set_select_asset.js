@@ -11,6 +11,8 @@ function ModalPpmSetSelectAsset () {
     let currentAssetTypeId;
 
     this.init = function () {
+            
+        console.log(refStatus);
         // Initialize DataTable for Available Assets
         dtMpssa = $('#dtMpssa').DataTable({ // HTML table ID from modal_ppm_set_select_asset.html
             bLengthChange: false,
@@ -27,7 +29,7 @@ function ModalPpmSetSelectAsset () {
                 { bSortable: false, targets: [0] }, // Checkbox column
                 { className: 'text-center', targets: [0, 1, 5] }, // Checkbox, #, Status
                 { className: 'text-right', targets: [] },
-                { visible: false, targets: [] },
+                // { visible: false, targets: [] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [], // No buttons needed here, manual add button below
@@ -35,6 +37,9 @@ function ModalPpmSetSelectAsset () {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(1).html(info.start + (iDisplayIndex + 1)); // Set # column
             },
+            
+            // REMOVE drawCallback
+            /*
             drawCallback: function () {
                 // Handle individual checkbox clicks
                 $('#dtMpssa tbody input[type="checkbox"]').off('change').on('change', function () {
@@ -43,10 +48,25 @@ function ModalPpmSetSelectAsset () {
                     }
                 });
             },
+            */
             aoColumns: [
-                { // Checkbox for selection
+                { // Checkbox for selection - MODIFIED MARKUP
                     mData: null, bSortable: false, mRender: function (data, type, row) {
-                        return '<input type="checkbox" class="chkMpssaAsset" value="' + row.assetId + '">';
+                        // Ensure unique ID for the label
+                        const checkboxId = 'chkMpssaAsset_' + row.assetId;
+                        return `
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input chkMpssaAsset" id="${checkboxId}" value="${row.assetId}">
+                                <label class="form-check-label" for="${checkboxId}"></label>
+                            </div>
+                        `;
+                        // Alternative simplified MDB checkbox markup often used:
+                        /*
+                        return `
+                            <input type="checkbox" class="filled-in chkMpssaAsset" id="${checkboxId}" value="${row.assetId}">
+                            <label for="${checkboxId}"></label>
+                        `;
+                        */
                     }
                 },
                 { mData: null}, // #
@@ -54,17 +74,29 @@ function ModalPpmSetSelectAsset () {
                 { mData: 'assetName'}, // Asset Name
                 { mData: 'assetLocationDesc'}, // Location
                 { mData: 'assetStatus', mRender: function (data) { // Status (assuming from ast_asset.asset_status)
-                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        // console.log({data});
+                        // return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        return '';
                     }}
             ]
         });
 
-        // Handle "Select All" checkbox
+        // Handle "Select All" checkbox - This is fine as init() runs once.
         $('#chkMpssaSelectAll').off('change').on('change', function () {
             $('.chkMpssaAsset').prop('checked', this.checked);
         });
 
-        // Handle "Add Selected Assets" button click
+        // NEW: Event delegation for individual checkbox clicks
+        // Bind to a static parent element (e.g., the DataTable container or even the modal itself)
+        // This handler will only be bound once during init().
+        $('#dtMpssa').on('change', 'tbody input[type="checkbox"].chkMpssaAsset', function () {
+            if (!this.checked) {
+                $('#chkMpssaSelectAll').prop('checked', false); // Uncheck select all if any individual is unchecked
+            }
+        });
+
+
+        // Handle "Add Selected Assets" button click - This is fine as init() runs once.
         $('#btnMpssaAddSelected').off('click').on('click', function () {
             try {
                 const selectedAssetIds = [];
@@ -80,17 +112,17 @@ function ModalPpmSetSelectAsset () {
                 // Call backend API to add selected assets to the PPM Set
                 ShowLoader(); setTimeout(function () {
                     // API call to add assets. This is the mzFetch for Step 22 (add_assets_to_ppm_set).
-                    mzFetch('api/ppm.php?action=add_assets_to_ppm_set', 'POST', {
-                        ppmSetId: currentPpmSetId,
-                        assetIds: selectedAssetIds
-                    }).then(res => {
-                        toastr['success'](res.totalAdded + ' asset(s) successfully added to PPM Set!', _ALERT_TITLE_SUCCESS);
-                        self.close(); // Close this modal
-                        if (classFrom && classFrom.genTable) { // Refresh the main PPM Set list table
-                            classFrom.genTable();
-                        }
-                        // Optionally: Refresh the asset list within the edit modal if it gets updated (future step)
-                    }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                    mzAjaxRequest('ppm.php', 'POST', {
+                        action: 'add_assets_to_ppm_set',
+                        ppmSetId: parseInt(currentPpmSetId),
+                        assetIds: JSON.stringify(selectedAssetIds)
+                    });
+
+                    toastr['success'](res.totalAdded + ' asset(s) successfully added to PPM Set!', _ALERT_TITLE_SUCCESS);
+                    self.close(); // Close this modal
+                    if (classFrom && classFrom.genTable) { // Refresh the main PPM Set list table
+                        classFrom.genTable();
+                    }
                 }, 200);
 
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
@@ -98,11 +130,12 @@ function ModalPpmSetSelectAsset () {
     };
 
     // Method to show the modal and load asset data
-    this.show = function (_ppmSetId, _contractId, _assetTypeId) {
+    this.show = function (_ppmSetId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         try {
-            mzCheckFuncParam([_ppmSetId, _contractId]); // assetTypeId can be null
+            mzCheckFuncParam([_ppmSetId, _assetGroupId, _assetCategoryId, _assetTypeId]); // assetTypeId can be null
             currentPpmSetId = _ppmSetId;
-            currentContractId = _contractId;
+            currentAssetGroupId = _assetGroupId;
+            currentAssetCategoryId = _assetCategoryId;
             currentAssetTypeId = _assetTypeId;
 
             dtMpssa.clear().draw(); // Clear previous data
@@ -110,7 +143,7 @@ function ModalPpmSetSelectAsset () {
 
             ShowLoader(); setTimeout(function () {
                 // API call to get available assets
-                mzFetch('api/ppm.php?type=assets_for_ppm_set_selection&ppmSetId='+currentPpmSetId+'&contractId='+currentContractId+'&assetTypeId='+currentAssetTypeId, 'GET').then(res => {
+                mzFetch('api/ppm.php?type=assets_for_ppm_set_selection&ppmSetId='+currentPpmSetId+'&contractId='+currentContractId+'&assetTypeId='+currentAssetTypeId+'&assetGroupId='+currentAssetGroupId+'&assetCategoryId='+currentAssetCategoryId, 'GET').then(res => {
                     dtMpssa.rows.add(res).draw(); // Add new data
                     $('#modal_ppm_set_select_asset').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show modal
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
@@ -121,6 +154,10 @@ function ModalPpmSetSelectAsset () {
 
     this.close = function () {
         $('#modal_ppm_set_select_asset').modal('hide');
+    };
+
+    this.setCallbackOnAdd = function (callback) {
+        callbackOnAddFunction = callback;
     };
 
     this.getClassName = function () {

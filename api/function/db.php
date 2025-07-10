@@ -708,7 +708,7 @@ class Class_db{
             return $this->DBH->lastInsertId();
         }
         catch(PDOException $e) {
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), $e->getCode());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), (int) $e->getCode());
         }
     }
 
@@ -740,7 +740,7 @@ class Class_db{
             }
         }
         catch(PDOException $e) {
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), $e->getCode());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), (int) $e->getCode());
         }
     }
 
@@ -895,7 +895,7 @@ class Class_db{
             return $arrCols;
 
         } catch(PDOException $e) {
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), $e->getCode());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), (int) $e->getCode());
         }
     }
 }

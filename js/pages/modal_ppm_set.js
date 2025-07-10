@@ -67,13 +67,19 @@ function ModalPpmSet () {
         // Removed: Checklist ID, Frequency, Date Start - they are not ppm_set fields
     ];
 
+    function successAfterSubmit() {
+        toastr['success']('PPM Set successfully updated!', _ALERT_TITLE_SUCCESS);
+        classFrom.genTable(); // Refresh table after update
+        $('#modal_ppm_set').modal('hide'); // Hide modal after update
+        HideLoader(); // Remove loading
+    }
+
     this.init = function () {
-        // No min date for ppm_set, as it doesn't have a dateStart field
-        mzOption('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required'); // Renamed ID
 
         $('#optMpsAssetGroup').on('change', function () { // Renamed ID
             const id = $(this).val();
             try {
+                // This mzOptionStop call is for the *next* dropdown (Category) and depends on refAssetCategory
                 mzOptionStop('optMpsAssetCategory', refAssetCategory, 'Select Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: id, assetCategoryStatus: '1'}, 'required'); // Renamed ID
                 mzDisableSelect('optMpsAssetCategory', false); // Renamed ID
                 mzDisableSelect('optMpsAssetType', true); // Renamed ID
@@ -84,6 +90,7 @@ function ModalPpmSet () {
         $('#optMpsAssetCategory').on('change', function () { // Renamed ID
             const id = $(this).val();
             try {
+                // This mzOptionStop call is for the *next* dropdown (Type) and depends on refAssetType
                 mzOptionStop('optMpsAssetType', refAssetType, 'Select Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: id, assetTypeStatus: '1'}, 'required'); // Renamed ID
                 mzDisableSelect('optMpsAssetType', false); // Renamed ID
                 mzDisableSelect('optMpsPpmGroupId', true); // Renamed ID
@@ -93,6 +100,7 @@ function ModalPpmSet () {
         $('#optMpsAssetType').on('change', function () { // Renamed ID
             const id = $(this).val(); // assetTypeId
             try {
+                // This mzOptionStop call is for the *next* dropdown (PPM Group) and depends on refPpmGroup
                 mzOptionStop('optMpsPpmGroupId', refPpmGroup, 'Select PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId: '5', siteId: siteId, ppmGroupStatus: '1'}, 'required'); // Renamed ID
                 mzDisableSelect('optMpsPpmGroupId', false); // Renamed ID
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
@@ -107,23 +115,21 @@ function ModalPpmSet () {
                         ppmSetName: mzNullString('txtMpsName'), // Renamed ID
                         ppmSetDesc: mzNullString('txaMpsDesc'), // Renamed ID
                         assetTypeId: mzNullInt('optMpsAssetType'), // Renamed ID
-                        ppmGroupId: mzNullInt('optMpsPpmGroupId') // Renamed ID
+                        ppmGroupId: mzNullInt('optMpsPpmGroupId'), // Renamed ID
+                        assetGroupId: mzNullInt('optMpsAssetGroup'),      // Add assetGroupId
+                        assetCategoryId: mzNullInt('optMpsAssetCategory'), // Add assetCategoryId
                     };
                     ShowLoader(); setTimeout(function () {
                         if (submitType === 'add') {
-                            // API call for creating a new ppm_set
-                            mzFetch('api/ppm.php?action=create_ppm_set', 'POST', data).then(res => {
-                                toastr['success']('PPM Set "' + data.ppmSetName + '" successfully created!', _ALERT_TITLE_SUCCESS);
-                                classFrom.genTable(); // Tell MainPpmSet to refresh its table
-                                $('#modal_ppm_set').modal('hide'); // Hide new modal ID
-                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                            data['action'] = 'create_ppm_set';
+                            console.log(data);
+                            mzAjaxRequest('ppm.php', 'POST', data);
+                            successAfterSubmit();
                         } else if (submitType === 'put') {
-                            // API call for updating an existing ppm_set (to be implemented later)
-                            data['ppmSetId'] = ppmSetId; // Add ppmSetId for update
-                            mzFetch('api/ppm.php?action=update_ppm_set', 'PUT', data).then(res => {
-                                toastr['info']('Edit functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
-                                HideLoader(); // Hide loader if temporarily blocking
-                            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                            data['ppmSetId'] = parseInt(ppmSetId);
+                            data['action'] = 'update_ppm_set';
+                            mzAjaxRequest('ppm.php?ppmSetId='+parseInt(ppmSetId), 'PUT', data);
+                            successAfterSubmit();
                         }
                     }, 200);
                 }
@@ -155,6 +161,11 @@ function ModalPpmSet () {
             submitType = 'add';
             formValidate.clearValidation();
             self.resetOption(); // Clear and reset dropdowns
+
+            // ADDED: Initialize the first dropdown here when adding a new record
+            // This ensures refAssetGroup is populated when 'add' is called
+            mzOptionStop('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+
             $('#h4MpsTitle').html('<i class="fas fa-plus mr-2"></i>Add PPM Set'); // Renamed ID and text
             $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show new modal ID
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
@@ -165,45 +176,58 @@ function ModalPpmSet () {
             mzCheckFuncParam([_ppmSetId]);
             ppmSetId = _ppmSetId;
             submitType = 'put';
-            ShowLoader(); setTimeout(function () {
-                // Corrected API call for fetching ppm_set details
-                mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => { // ADDED 'api/' prefix
-                    formValidate.clearValidation();
-                    self.resetOption();
-                    
-                    mzSetFieldValue('lblMpsId', res['ppmSetId']);
-                    mzSetFieldValue('txtMpsName', res['ppmSetName']);
-                    mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']);
-                    
-                    mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']);
-                    $('#optMpsAssetGroup').trigger('change');
-                    mzSetFieldValue('optMpsAssetCategory', res['assetCategoryId']);
-                    $('#optMpsAssetCategory').trigger('change');
-                    mzSetFieldValue('optMpsAssetType', res['assetTypeId']);
-                    $('#optMpsAssetType').trigger('change');
+            ShowLoader(); 
+            // Corrected API call for fetching ppm_set details
+            mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => {
+                formValidate.clearValidation();
+                self.resetOption();
+                
+                // --- SPECIAL HANDLING FOR lblMpsId ---
+                // Direct jQuery val() for hidden input, bypass mzSetFieldValue for this one.
+                $('#lblMpsId').val(res['ppmSetId']); // This sets the value without mzSetFieldValue
 
-                    mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']);
-                    
-                    const isDisable = res['ppmSetStatus'] !== 1;
-                    mzDisableSelect('optMpsAssetGroup', isDisable);
-                    mzDisableSelect('optMpsAssetCategory', isDisable);
-                    mzDisableSelect('optMpsAssetType', isDisable);
-                    mzDisableSelect('optMpsPpmGroupId', isDisable);
-                    $('#txtMpsName').prop('disabled', isDisable);
-                    $('#txaMpsDesc').prop('disabled', isDisable);
+                mzSetFieldValue('txtMpsName', res['ppmSetName']); // This will work with 'txt' prefix
+                mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // This will work with 'txa' prefix
 
-                    formValidate.disableField('optMpsAssetGroup', isDisable);
-                    formValidate.disableField('optMpsAssetCategory', isDisable);
-                    formValidate.disableField('optMpsAssetType', isDisable);
-                    formValidate.disableField('optMpsPpmGroupId', isDisable);
-                    formValidate.disableField('txtMpsName', isDisable);
-                    formValidate.disableField('txaMpsDesc', isDisable);
+                // ADDED: Initialize the first dropdown here when editing, before setting its value
+                // This ensures refAssetGroup is populated when 'edit' is called
+                mzOptionStop('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                
+                mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']);
+                $('#optMpsAssetGroup').trigger('change');
+                mzSetFieldValue('optMpsAssetCategory', res['assetCategoryId']);
+                $('#optMpsAssetCategory').trigger('change');
+                mzSetFieldValue('optMpsAssetType', res['assetTypeId']);
+                $('#optMpsAssetType').trigger('change');
 
-                    $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set');
-                    $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
-                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
-            }, 200);
-        } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
+                mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']); // This will work with 'opt' prefix
+                
+                const isDisable = res['ppmSetStatus'] != 1; // Using loose equality to check for both 1 and "1"
+                mzDisableSelect('optMpsAssetGroup', isDisable);
+                mzDisableSelect('optMpsAssetCategory', isDisable);
+                mzDisableSelect('optMpsAssetType', isDisable);
+                mzDisableSelect('optMpsPpmGroupId', isDisable);
+                $('#txtMpsName').prop('disabled', isDisable);
+                $('#txaMpsDesc').prop('disabled', isDisable);
+
+                formValidate.disableField('optMpsAssetGroup', isDisable);
+                formValidate.disableField('optMpsAssetCategory', isDisable);
+                formValidate.disableField('optMpsAssetType', isDisable);
+                formValidate.disableField('optMpsPpmGroupId', isDisable);
+                formValidate.disableField('txtMpsName', isDisable);
+                formValidate.disableField('txaMpsDesc', isDisable);
+
+                $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set');
+                $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
+            }).catch((e) => { 
+                toastr['error'](e.message, _ALERT_TITLE_ERROR); 
+                HideLoader(); 
+            });
+        } catch (e) { 
+            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); 
+        } finally {
+            HideLoader(); // Ensure loader is hidden even if an error occurs
+        }
     };
 
     this.delete = function (_ppmSetId) { // Renamed _ppmId to _ppmSetId

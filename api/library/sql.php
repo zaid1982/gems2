@@ -1656,6 +1656,18 @@ class Class_sql
                         LEFT JOIN ppm_group pg ON ps.ppm_group_id = pg.ppm_group_id
                         GROUP BY ps.ppm_set_id, ps.ppm_set_name, ps.ppm_set_desc, ps.asset_type_id, at.asset_type_name, ps.ppm_group_id, pg.ppm_group_name, ps.ppm_set_status
                         ORDER BY ps.ppm_set_name";
+            } else if ($title === "vw_ppm_set_asset_details") { 
+                $sql = "SELECT
+                            psa.ppm_set_asset_id,
+                            psa.ppm_set_id,
+                            psa.asset_id,
+                            aa.asset_no,
+                            aa.asset_name,
+                            aa.asset_location_desc
+                        FROM
+                            ppm_set_asset psa
+                        JOIN
+                            ast_asset aa ON psa.asset_id = aa.asset_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

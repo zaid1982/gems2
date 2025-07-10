@@ -90,7 +90,16 @@ function MainPpmSet () {
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Set List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt}, // Updated Title
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Set List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}, // Updated Title
                 { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0 mr-2', attr: { id: 'btnPsmRefresh' }, titleAttr: 'Refresh'}, // Renamed ID
-                { text: '<i class="fas fa-plus mr-2"></i>Add New Set', className: 'btn btn-outline-blue btn-sm px-2 ml-0', attr: { id: 'btnPsmAdd' }, titleAttr: 'Add New Set'} // Renamed ID and Text
+                {
+                    text: '<i class="fas fa-plus mr-2"></i>Add New Set',
+                    className: 'btn btn-outline-blue btn-sm px-2 ml-0',
+                    attr: { id: 'btnPsmAdd' },
+                    titleAttr: 'Add New Set',
+                    action: function ( e, dt, node, config ) {
+                        // This JavaScript function will be executed when the button is clicked.
+                        window.location.href = 'ppm_set_form.html';
+                    }
+                } // Renamed ID and Text
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
@@ -133,11 +142,20 @@ function MainPpmSet () {
                         return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        let actions = '<a><i class="far fa-edit lnkPsmEdit" id="lnkPsmEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit/Info"></i></a>';
-                        actions += '<a><i class="far fa-trash-alt lnkPsmDelete" id="lnkPsmDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>'; // Add delete button
-                        // Link to manage assets within the set will be added later
-                        return actions;
-                    }}
+                        let html = '<div class="btn-group" role="group" aria-label="Action buttons">';
+                        // Edit button linking to the new form page
+                        html += '<a class="btn btn-sm btn-primary waves-effect waves-light p-2" href="ppm_set_form.html?ppmSetId='+row.ppmSetId+'" data-toggle="tooltip" data-placement="top" title="Edit">';
+                        html += '<i class="fas fa-edit"></i>';
+                        html += '</a>';
+
+                        // Delete button (assuming it uses a modal for confirmation)
+                        html += '<a class="btn btn-sm btn-danger waves-effect waves-light p-2" onclick="modalConfirmDeleteClass_.show(\'PPM Set\', \'' + row.ppmSetName + '\', \'mainPpmSetClass_.delete\\\(' + row.ppmSetId + '\\\)\')" data-toggle="tooltip" data-placement="top" title="Delete">';
+                        html += '<i class="fas fa-trash-alt"></i>';
+                        html += '</a>';
+                        html += '</div>';
+                        return html;
+                    }
+                }
             ]
         });
 

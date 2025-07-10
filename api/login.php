@@ -67,6 +67,7 @@ try {
     }
     Class_db::getInstance()->db_close();
     $form_data['error'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
+    print_r($ex);
     if ($ex->getCode() === 31) {
         $form_data['errmsg'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
     } else {
