@@ -555,6 +555,7 @@ class Class_ppm {
                 'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
                 // only initialize ppm_set_id if it exists
                 'ppm_set_id' => $ppmSetId, // Include ppm_set_id if it exists
+                'ppm_status' => '0'
             );
 
             // if $ppmSetId is null remove it from the insert data
@@ -667,6 +668,7 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'53') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'>='.$ppmDateStart));
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'3') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'<'.$ppmDateStart));
             }
+            Class_db::getInstance()->db_update('ppm', array('ppm_status' => '1'), array('ppm_id' => $ppmId));
             return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklist_document_no'], 'assetNo'=>$asset['asset_no']);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -3094,8 +3096,8 @@ class Class_ppm {
                 'contract_id' => $contractId,
                 'ppm_created_by' => $userId,
                 'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
-                'ppm_set_id' => is_nan($ppmSetId) ? NULL : $ppmSetId // <-- NEW: Include ppm_set_id
-
+                'ppm_set_id' => $ppmSetId,// <-- NEW: Include ppm_set_id
+                'ppm_status' => '0'
             );
 
             // if $ppmSetId is null remove it from the insert data
@@ -3208,6 +3210,7 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'53') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'>='.$ppmDateStart));
                 Class_db::getInstance()->db_update('ppm_task', array('ppm_task_status'=>'3') , array('ppm_id'=>$row['ppm_id'], 'ppm_task_status'=>'12', 'ppm_task_schedule_date'=>'<'.$ppmDateStart));
             }
+            Class_db::getInstance()->db_update('ppm', array('ppm_status' => '1'), array('ppm_id' => $ppmId));
             return array('ppmId'=>$ppmId, 'ppmTaskNo'=>$checklist['checklistDocumentNo'], 'assetNo'=>$asset['assetNo']);
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
