@@ -197,20 +197,20 @@ function MainPpmSetForm () {
         });
 
         // Modify the 'Add Assets' button click handler to pass all three IDs
-    $('#btnAddAssetsToSet').on('click', function () {
-        // Ensure we are in edit mode and have a ppmSetId
-        if (submitType === 'put' && ppmSetId) {
-            // Check if Asset Group, Category, and Type are defined for the current PPM Set
-            if (!currentAssetGroupId || !currentAssetCategoryId || !currentAssetTypeId) {
-                 toastr['warning']('PPM Set Asset Group, Category, or Type is not defined. Cannot add assets.', _ALERT_TITLE_WARNING);
-                 return;
+        $('#btnAddAssetsToSet').on('click', function () {
+            // Ensure we are in edit mode and have a ppmSetId
+            if (submitType === 'put' && ppmSetId) {
+                // Check if Asset Group, Category, and Type are defined for the current PPM Set
+                if (!currentAssetGroupId || !currentAssetCategoryId || !currentAssetTypeId) {
+                    toastr['warning']('PPM Set Asset Group, Category, or Type is not defined. Cannot add assets.', _ALERT_TITLE_WARNING);
+                    return;
+                }
+                // Open the asset selection modal, passing all three crucial IDs
+                modalPpmSetSelectAssetClass.show(ppmSetId, currentAssetGroupId, currentAssetCategoryId, currentAssetTypeId);
+            } else {
+                toastr['warning']('Please save the PPM Set first before adding assets.', _ALERT_TITLE_WARNING);
             }
-            // Open the asset selection modal, passing all three crucial IDs
-            modalPpmSetSelectAssetClass.show(ppmSetId, currentAssetGroupId, currentAssetCategoryId, currentAssetTypeId);
-        } else {
-            toastr['warning']('Please save the PPM Set first before adding assets.', _ALERT_TITLE_WARNING);
-        }
-    });
+        });
 
         // NEW: Event delegation for 'Remove Asset' buttons in dtPpsa
         $('#dtPpsa').on('click', '.btn-remove-asset', function () {
@@ -219,12 +219,18 @@ function MainPpmSetForm () {
             const assetIdToRemove = btn.data('asset-id');
             const assetNoToRemove = btn.data('asset-no');
 
-            modalConfirmDeleteClass.show(
-                'Asset from PPM Set',
-                'Are you sure you want to remove Asset No: ' + assetNoToRemove + ' from this PPM Set?',
-                'mainPpmSetFormClass_.removeAssetFromPpmSetConfirmed(' + ppmSetId + ', [' + assetIdToRemove + '])'
-            );
+            // SIMPLIFIED: Use native JavaScript confirm()
+            const confirmationMessage = 'Are you sure you want to remove Asset No: ' + assetNoToRemove + ' from this PPM Set?';
+
+            if (window.confirm(confirmationMessage)) {
+                // If user clicks 'OK' in the native confirmation dialog
+                self.removeAssetFromPpmSetConfirmed(ppmSetId, [assetIdToRemove]);
+            } else {
+                // If user clicks 'Cancel'
+                toastr['info']('Asset removal cancelled.', _ALERT_TITLE_INFO); // Optional: Provide user feedback
+            }
         });
+
 
         // REMOVED THE GLOBAL $('.mdb-select').materialSelect(); from here in init().
     };
@@ -337,7 +343,6 @@ function MainPpmSetForm () {
         ShowLoader(); setTimeout(function () {
             console.log('Loading assets for PPM Set ID:', _ppmSetId);
             mzFetch('api/ppm.php?type=assets_in_ppm_set&ppmSetId=' + _ppmSetId, 'GET').then(res => { //
-                console.log('Assets in PPM Set:', res);
                 dtPpsa.rows.add(res).draw(); // Add new data
                 HideLoader(); //
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); HideLoader(); });
@@ -347,14 +352,21 @@ function MainPpmSetForm () {
     // NEW: Callback from ModalConfirmDelete for removing asset
     this.removeAssetFromPpmSetConfirmed = function (_ppmSetId, _assetIds) {
         ShowLoader(); setTimeout(function () {
-            mzAjaxRequest('ppm.php', 'DELETE', {
-                action: 'remove_assets_from_ppm_set',
-                ppmSetId: _ppmSetId,
-                assetIds: JSON.stringify(_assetIds) // Ensure array is stringified for backend
-            }).then(res => {
-                toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS);
+            try
+            {
+                mzAjaxRequest('ppm.php', 'DELETE', {
+                    action: 'remove_assets_from_ppm_set',
+                    ppmSetId: _ppmSetId,
+                    assetIds: JSON.stringify(_assetIds) // Ensure array is stringified for backend
+                });
+
+                toastr['success']("Successfully remove asset from this PPM Set.", _ALERT_TITLE_SUCCESS);
                 self.loadAssetsInPpmSet(_ppmSetId); // Refresh asset list after removal
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+            } catch (e) { 
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            } finally {
+                HideLoader(); // Ensure loader is hidden after operation
+            }
         }, 200);
     };
 

@@ -149,7 +149,7 @@ function MainPpmSet () {
                         html += '</a>';
 
                         // Delete button (assuming it uses a modal for confirmation)
-                        html += '<a class="btn btn-sm btn-danger waves-effect waves-light p-2" onclick="modalConfirmDeleteClass_.show(\'PPM Set\', \'' + row.ppmSetName + '\', \'mainPpmSetClass_.delete\\\(' + row.ppmSetId + '\\\)\')" data-toggle="tooltip" data-placement="top" title="Delete">';
+                        html += '<a class="btn btn-sm btn-danger waves-effect waves-light p-2" onclick="modalConfirmDeleteClass_.delete(\'PPM Set\', \'' + row.ppmSetName + '\', \'mainPpmSetClass_.delete\\\(' + row.ppmSetId + '\\\)\')" data-toggle="tooltip" data-placement="top" title="Delete">';
                         html += '<i class="fas fa-trash-alt"></i>';
                         html += '</a>';
                         html += '</div>';
