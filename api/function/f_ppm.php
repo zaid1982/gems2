@@ -553,8 +553,15 @@ class Class_ppm {
                 'contract_id' => $contractId,
                 'ppm_created_by' => $userId,
                 'ppm_group_id' => $ppmGroupId, // Keep ppmGroupId for assignment purposes
-                'ppm_set_id' => is_nan($ppmSetId) ? NULL : $ppmSetId // <-- NEW: Include ppm_set_id
+                // only initialize ppm_set_id if it exists
+                'ppm_set_id' => $ppmSetId, // Include ppm_set_id if it exists
             );
+
+            // if $ppmSetId is null remove it from the insert data
+            if (is_null($ppmSetId)) {
+                unset($ppmInsertData['ppm_set_id']);
+            }
+
             $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
             
             $currentMonth = array('year'=>'', 'month'=>'');
@@ -3090,6 +3097,12 @@ class Class_ppm {
                 'ppm_set_id' => is_nan($ppmSetId) ? NULL : $ppmSetId // <-- NEW: Include ppm_set_id
 
             );
+
+            // if $ppmSetId is null remove it from the insert data
+            if (is_null($ppmSetId)) {
+                unset($ppmInsertData['ppm_set_id']);
+            }
+
             $ppmId = Class_db::getInstance()->db_insert('ppm', $ppmInsertData);
 
             foreach($tempDays as $dateStr){
