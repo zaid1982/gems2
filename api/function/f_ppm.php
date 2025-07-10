@@ -4364,7 +4364,7 @@ class Class_ppm {
                 $assetIdStr = (string)$assetId; // Cast to string
     
                 // Check if this asset is already linked to this ppmSetId to prevent duplicates
-                if (Class_db::getInstance()->db_count('ppm_set_asset', array('ppm_set_id' => $ppmSetId, 'asset_id' => $assetIdStr)) === '0') {
+                if (Class_db::getInstance()->db_count('ppm_set_asset', array('ppm_set_id' => $ppmSetId, 'asset_id' => $assetIdStr)) == '0') {
                     $insertData = array(
                         'ppm_set_id' => $ppmSetId,
                         'asset_id' => $assetIdStr, // Also use the string version for insertion
