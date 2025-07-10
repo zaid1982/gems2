@@ -4264,44 +4264,41 @@ class Class_ppm {
      * @return array An associative array with 'totalAdded' indicating the number of assets successfully added.
      * @throws Exception If parameters are empty, ppmSetId does not exist, or a database error occurs.
      */
-    public function add_assets_to_ppm_set ($ppmSetId, $assetIds, $userId) {
+    public function add_assets_to_ppm_set ($ppmSetId, $assetIds, $userId) { //
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($ppmSetId, $assetIds, $userId));
-
-            if (!is_array($assetIds) || empty($assetIds)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter assetIds must be a non-empty array');
+    
+            if (!is_array($assetIds)) { // Modified check
+                throw new Exception('[' . __LINE__ . '] - Parameter assetIds is not a valid JSON array.');
             }
-
+    
             // Verify that the ppmSetId actually exists
             if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $ppmSetId)) === '0') {
                 throw new Exception('[' . __LINE__ . '] - PPM Set ID not found: ' . $ppmSetId);
             }
-
+    
             $totalAdded = 0;
             foreach ($assetIds as $assetId) {
-                // Validate assetId (optional but recommended: check if asset exists)
-                // if (Class_db::getInstance()->db_count('ast_asset', array('asset_id' => $assetId)) === '0') {
-                //     $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Skipping assetId ' . $assetId . ' as it does not exist.');
-                //     continue; // Skip this asset if it doesn't exist
-                // }
-
+                // CRUCIAL FIX: Ensure assetId is a string before passing to db_count
+                $assetIdStr = (string)$assetId; // Cast to string
+    
                 // Check if this asset is already linked to this ppmSetId to prevent duplicates
-                if (Class_db::getInstance()->db_count('ppm_set_asset', array('ppm_set_id' => $ppmSetId, 'asset_id' => $assetId)) === '0') {
+                if (Class_db::getInstance()->db_count('ppm_set_asset', array('ppm_set_id' => $ppmSetId, 'asset_id' => $assetIdStr)) === '0') {
                     $insertData = array(
                         'ppm_set_id' => $ppmSetId,
-                        'asset_id' => $assetId,
-                        'ppm_set_asset_created_by' => $userId // Assuming you have a created_by column in ppm_set_asset
+                        'asset_id' => $assetIdStr, // Also use the string version for insertion
+                        'ppm_set_asset_created_by' => $userId
                     );
                     Class_db::getInstance()->db_insert('ppm_set_asset', $insertData);
                     $totalAdded++;
                 } else {
-                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Asset ' . $assetId . ' already exists in PPM Set ' . $ppmSetId . '. Skipping.');
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Asset ' . $assetIdStr . ' already exists in PPM Set ' . $ppmSetId . '. Skipping.');
                 }
             }
-
+    
             return array('totalAdded' => $totalAdded);
-
+    
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

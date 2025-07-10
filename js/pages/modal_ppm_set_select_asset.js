@@ -111,17 +111,32 @@ function ModalPpmSetSelectAsset () {
 
                 // Call backend API to add selected assets to the PPM Set
                 ShowLoader(); setTimeout(function () {
-                    // API call to add assets. This is the mzFetch for Step 22 (add_assets_to_ppm_set).
-                    mzAjaxRequest('ppm.php', 'POST', {
-                        action: 'add_assets_to_ppm_set',
-                        ppmSetId: parseInt(currentPpmSetId),
-                        assetIds: JSON.stringify(selectedAssetIds)
-                    });
+                    try {
+                        // Use mzAjaxRequest synchronously (async: false)
+                        // Or, use its third parameter (functionStr) for callback
+                        const res = mzAjaxRequest('ppm.php', 'POST', {
+                            action: 'add_assets_to_ppm_set',
+                            ppmSetId: parseInt(currentPpmSetId),
+                            assetIds: JSON.stringify(selectedAssetIds) // Send as a plain JS array
+                        }, /* functionStr = */ '', /* apiBeautify = */ false); // Call synchronously, no callback needed here
 
-                    toastr['success'](res.totalAdded + ' asset(s) successfully added to PPM Set!', _ALERT_TITLE_SUCCESS);
-                    self.close(); // Close this modal
-                    if (classFrom && classFrom.genTable) { // Refresh the main PPM Set list table
-                        classFrom.genTable();
+                        // If mzAjaxRequest doesn't throw an error, it means it was successful.
+                        // 'res' here will be the 'result' property from the backend response.
+                        toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS); // The backend now sets errmsg on success
+
+                        self.close(); // Close this modal
+
+                        // Callback to parent page to refresh assets list
+                        if (callbackOnAddFunction) {
+                            callbackOnAddFunction(res); // Pass res (the 'result' data) to callback if needed
+                        }
+                        
+                        HideLoader(); // Hide loader after all successful operations
+
+                    } catch (e) {
+                        // mzAjaxRequest throws an Error object on failure.
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                        HideLoader(); // Hide loader on error
                     }
                 }, 200);
 
