@@ -266,6 +266,14 @@ try {
             $result = $fn_ppm->remove_assets_from_ppm_set($ppmSetId, $assetIds, $jwt_data->userId);
             $fn_general->save_audit('X_AUDIT_ID_FOR_REMOVE_ASSET_FROM_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Removed ' . $result['totalRemoved'] . ' assets.');
             $form_data['errmsg'] = $result['totalRemoved'] . ' asset(s) successfully removed from PPM Set!';
+        } else if ($action === 'delete_ppm_set') {
+            if (!isset($delete_vars['ppmSetId']) || empty($delete_vars['ppmSetId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmSetId empty');
+            }
+            $ppmSetId = $delete_vars['ppmSetId'];
+            
+            $fn_ppm->delete_ppm_set($ppmSetId, $jwt_data->userId);
+            $form_data['errmsg'] = "PPM Set successfully deleted!";
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
         }

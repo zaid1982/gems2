@@ -4405,4 +4405,53 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * Deletes a PPM Set and its associated assets.
+     *
+     * @param smallint $ppmSetId The ID of the PPM Set to delete.
+     * @param int $userId The ID of the user performing the action.
+     * @return bool True on success.
+     * @throws Exception
+     */
+    public function delete_ppm_set ($ppmSetId, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($ppmSetId, $userId));
+
+            // 1. Check if PPM Set exists
+            if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $ppmSetId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - PPM Set ID not found: ' . $ppmSetId, 31);
+            }
+
+            // 2. IMPORTANT: Handle existing PPM records that reference this ppm_set_id.
+            // If your `ppm.ppm_set_id` FK is `ON DELETE SET NULL`, this might happen automatically.
+            // But if it's `RESTRICT` or `NO ACTION`, you must set them to NULL first or you'll get an FK error.
+            // Even if `SET NULL`, it's good practice to log or be aware of affected records.
+            $affectedPpmCount = Class_db::getInstance()->db_update(
+                'ppm',
+                array('ppm_set_id' => NULL), // Set to NULL when the PPM Set is deleted
+                array('ppm_set_id' => $ppmSetId)
+            );
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'DEBUG: ' . $affectedPpmCount . ' PPM records had their ppm_set_id set to NULL for ppmSetId: ' . $ppmSetId);
+
+
+            // 3. Delete associated entries in ppm_set_asset (child table)
+            $deletedAssetsCount = Class_db::getInstance()->db_delete('ppm_set_asset', array('ppm_set_id' => $ppmSetId));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'DEBUG: Deleted ' . $deletedAssetsCount . ' assets from ppm_set_asset for ppmSetId: ' . $ppmSetId);
+
+            // 4. Delete the PPM Set record itself
+            $deletedSetCount = Class_db::getInstance()->db_delete('ppm_set', array('ppm_set_id' => $ppmSetId));
+            if ($deletedSetCount === '0') {
+                 throw new Exception('[' . __LINE__ . '] - Failed to delete PPM Set: ' . $ppmSetId);
+            }
+
+            $this->fn_general->save_audit('X_AUDIT_ID_FOR_DELETE_SET', $userId, 'Deleted PPM Set ID = ' . $ppmSetId);
+            return true;
+
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

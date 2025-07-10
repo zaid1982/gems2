@@ -119,12 +119,6 @@ function MainPpmSet () {
                     modalPpmSetClass.setClassFrom(self); // Pass self reference
                     modalPpmSetClass.edit(ppmSetId);
                 });
-                $('.lnkPsmDelete').off('click').on('click', function () { // New delete link
-                    const ppmSetId = mzGetLinkId($(this), dtPsm, 'ppmSetId');
-                    // modalConfirmDeleteClass_.setClassFrom(self); // Not sure if this class has a delete method
-                    // modalConfirmDeleteClass_.delete(ppmSetId); // Need to implement delete for ppm_set
-                    toastr['info']('Delete functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO);
-                });
             },
             // Define columns for PPM Set data
             aoColumns: [
@@ -148,10 +142,23 @@ function MainPpmSet () {
                         html += '<i class="fas fa-edit"></i>';
                         html += '</a>';
 
-                        // Delete button (assuming it uses a modal for confirmation)
-                        html += '<a class="btn btn-sm btn-danger waves-effect waves-light p-2" onclick="modalConfirmDeleteClass_.delete(\'PPM Set\', \'' + row.ppmSetName + '\', \'mainPpmSetClass_.delete\\\(' + row.ppmSetId + '\\\)\')" data-toggle="tooltip" data-placement="top" title="Delete">';
-                        html += '<i class="fas fa-trash-alt"></i>';
-                        html += '</a>';
+                        // CORRECTED Delete button construction
+                        // We get the actual name and ID from the 'row' object available in mRender
+                        const ppmSetName = row.ppmSetName; //
+                        const ppmSetId = row.ppmSetId; //
+
+                        // Construct the string for the callback function that modalConfirmDeleteClass_.delete will execute
+                        // It should be a valid JavaScript function call, e.g., 'mainPpmSetClass_.deletePpmSetConfirmed(123)'
+                        const callbackString = `mainPpmSetClass_.deletePpmSetConfirmed(${ppmSetId})`;
+
+                        // Construct the onclick attribute.
+                        // Ensure all string literals inside the onclick are properly quoted and escaped if needed.
+                        // Using template literals (backticks) for the main HTML string makes this easier.
+                        html += `<a id="btnMcdSubmit" class="btn btn-sm btn-danger waves-effect waves-light p-2"
+                                href="#" onclick="mainPpmSetClass_.deletePpmSetTrigger(${ppmSetId}, '${ppmSetName}')"
+                                    data-toggle="tooltip" data-placement="top" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>`;
                         html += '</div>';
                         return html;
                     }
@@ -161,6 +168,35 @@ function MainPpmSet () {
 
         self.genTable(); // Initial table load
     };
+
+    this.deletePpmSetConfirmed = function (ppmSetId) {
+        ShowLoader(); //
+        setTimeout(function () {
+            try {
+                // Call the backend DELETE API
+                mzAjaxRequest( //
+                    'ppm.php', // API endpoint
+                    'DELETE',   // HTTP method
+                    { action: 'delete_ppm_set', ppmSetId: ppmSetId } // Data payload
+                );
+                
+                toastr['success']('PPM Set successfully deleted!', _ALERT_TITLE_SUCCESS); //
+                self.genTable(); // Refresh the table after deletion
+
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR); //
+            }
+            HideLoader(); //
+        }, 200);
+    };
+
+    this.deletePpmSetTrigger = function (ppmSetId, ppmSetName) {
+        if (window.confirm('Are you sure you want to delete PPM Set: "' + ppmSetName + '" (ID: ' + ppmSetId + ')? This action cannot be undone.')) {
+            self.deletePpmSetConfirmed(ppmSetId); // Directly call your delete function
+        } else {
+            toastr['info']('Deletion cancelled.', 'Info');
+        }
+    }
 
     // Helper to get reference name safely (like mzGetRefName, but explicit)
     this.getRefName = function (id, refArray, key) {
