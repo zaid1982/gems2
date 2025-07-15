@@ -201,12 +201,21 @@ try {
             $fn_pdf_ppm->__set('ppmTaskId', $ppmTaskId);
             $result = $fn_pdf_ppm->create_pdf();
         } else if ($action === 'add_assets_to_ppm_set') {
+            //check if ppmId is empty
+            if (!isset($_POST['ppmSetId']) || empty($_POST['ppmSetId'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ppmSetId empty');
+            }
+
             $ppmSetId = filter_input(INPUT_POST, 'ppmSetId');
             $assetIds = json_decode(filter_input(INPUT_POST, 'assetIds'), true); // Assuming assetIds is sent as a JSON string array from frontend
-            if (empty($assetIds) && filter_input(INPUT_POST, 'assetIds') !== '[]') { // Handle cases where json_decode returns null/empty
-                throw new Exception('[' . __LINE__ . '] - Parameter assetIds invalid or empty');
+            $allAssetSelected = filter_input(INPUT_POST, 'allAssetSelected'); // New parameter to check if all assets are selected
+
+            // if allAssetSelected is null default to false
+            if (is_null($allAssetSelected)) {
+                $allAssetSelected = false;
             }
-            $result = $fn_ppm->add_assets_to_ppm_set($ppmSetId, $assetIds, $jwt_data->userId);
+            
+            $result = $fn_ppm->add_assets_to_ppm_set($ppmSetId, $assetIds, $jwt_data->userId, $allAssetSelected);
             $fn_general->save_audit('X_AUDIT_ID_FOR_ADD_ASSET_TO_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Added ' . $result['totalAdded'] . ' assets.');
             $form_data['errmsg'] = $result['totalAdded'] . ' asset(s) successfully added to PPM Set!';
         } else {

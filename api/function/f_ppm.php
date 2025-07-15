@@ -4147,7 +4147,7 @@ class Class_ppm {
         }
     }
 
-    /**
+   /**
      * Retrieves a list of assets for selection in the PPM Set modal.
      * Can filter by asset group, category, and type of the ppm_set.
      * Excludes assets already linked to the current ppmSetId (if ppmSetId provided).
@@ -4156,29 +4156,29 @@ class Class_ppm {
      * @param smallint $assetGroupId The Asset Group ID to filter by.
      * @param smallint $assetCategoryId The Asset Category ID to filter by.
      * @param smallint $assetTypeId The Asset Type ID to filter by.
+     * @param bool $returnIdsOnly (NEW) If true, returns only an array of asset_ids, without display formatting.
      * @return array
      * @throws Exception
      */
-    public function get_assets_for_ppm_set_modal ($ppmSetId = null, $assetGroupId, $assetCategoryId, $assetTypeId) { // Updated signature as per your intent
+    public function get_assets_for_ppm_set_modal ($ppmSetId = null, $assetGroupId, $assetCategoryId, $assetTypeId, $returnIdsOnly = false) { // MODIFIED SIGNATURE
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             // Ensure the required filter parameters are provided.
-            $this->fn_general->checkEmptyParams(array($assetGroupId, $assetCategoryId, $assetTypeId)); // Now all three are required filters
+            $this->fn_general->checkEmptyParams(array($assetGroupId, $assetCategoryId, $assetTypeId));
 
             $result = array();
             $arrWhereTemplate = array(
                 'ast_asset.asset_status' => '1', // Only active assets
-                // NEW: Add filters for Asset Group, Category, and Type
+                // Add filters for Asset Group, Category, and Type
                 'ast_asset.asset_group_id' => $assetGroupId,
                 'ast_asset.asset_category_id' => $assetCategoryId,
                 'ast_asset.asset_type_id' => $assetTypeId
             );
 
-            $assetsToExclude = [];
-
             $arrWhere = $arrWhereTemplate; // Start with the template
+            $assetsToExclude = []; // Initialize
 
-            // get ppm_set_id from ppm_set_asset table where asset group, asset category, and asset type match
+            // Get ppm_set_id from ppm_set_asset table where asset group, asset category, and asset type match
             // Exclude assets that are already part of any PPM Set with the same filters
             $assetsInPpmSets = Class_db::getInstance()->db_select_colm(
                 'ppm_set',
@@ -4187,22 +4187,19 @@ class Class_ppm {
                     'asset_category_id' => $assetCategoryId,
                     'asset_type_id' => $assetTypeId
                 ),
-                'ppm_set_id' // Get the ppm_set_id
+                'ppm_set_id'
             );
 
-
             if(!empty($assetsInPpmSets)) {
-                // Ensure all elements are indeed strings (though db_select_colm should do this)
                 $assetsInPpmSets = array_map('strval', $assetsInPpmSets);
-                // Collect asset IDs to exclude
                 $assetsToExclude = Class_db::getInstance()->db_select_colm(
                     'ppm_set_asset',
                     array('ppm_set_id' => 'IN('. implode(',', $assetsInPpmSets) . ')'),
-                    'asset_id' // Get the associated asset IDs
+                    'asset_id'
                 );
             }
 
-            // Exclude assets that are already part of this specific ppm_set
+            // Exclude assets that are already part of this specific ppm_set (if ppmSetId is provided)
             if (!empty($ppmSetId)) {
                 $existingAssetIdsInSet = Class_db::getInstance()->db_select_colm(
                     'ppm_set_asset',
@@ -4210,51 +4207,46 @@ class Class_ppm {
                     'asset_id'
                 );
 
-                // if $assetsToExclude is not empty, merge the existing assets to exclude
                 if (!empty($assetsToExclude)) {
                     $existingAssetIdsInSet = array_merge($assetsToExclude, $existingAssetIdsInSet);
-
-                    // Ensure unique IDs in the exclusion list
                     $existingAssetIdsInSet = array_unique($existingAssetIdsInSet);
                 }
-
-                // MODIFIED: Only add the filter if there are actually existing assets to exclude
-                if (!empty($existingAssetIdsInSet)) { // <--- ADD THIS CHECK
-                    // Ensure all elements are indeed strings (though db_select_colm should do this)
-                    $existingAssetIdsInSet = array_map('strval', $existingAssetIdsInSet);
-                    $arrWhere['asset_id'] = 'N('. implode(',', $existingAssetIdsInSet) . ')'; // N(...) means NOT IN
-                }
+                $assetsToExclude = $existingAssetIdsInSet; // Update the main exclusion list
             }
 
             // Apply the combined exclusion list
             if (!empty($assetsToExclude)) {
-                // Ensure unique IDs in the exclusion list
                 $uniqueAssetsToExclude = array_unique($assetsToExclude);
-    
-                // FIX: Convert to integers before imploding to ensure they are not quoted
-                // If asset_id in DB is INT, SQL expects (1,2,3) not ('1','2','3') unless quoted as strings
                 $intAssetsToExclude = array_map('intval', $uniqueAssetsToExclude);
-    
                 $arrWhere['asset_id'] = 'N('. implode(',', $intAssetsToExclude) . ')'; // N(...) means NOT IN
             }
 
-            // Use ast_asset directly with the new filters
-            $arr_dataLocal = Class_db::getInstance()->db_select(
-                'ast_asset', // Directly query ast_asset
-                $arrWhere,
-                'asset_no ASC' // Order by asset number
-            );
+            // --- NEW CONDITIONAL RETURN LOGIC ---
+            if ($returnIdsOnly) {
+                // If only IDs are needed, use db_select_colm for efficiency and to get all matching IDs
+                return Class_db::getInstance()->db_select_colm(
+                    'ast_asset', // Directly query ast_asset
+                    $arrWhere,
+                    'asset_id' // Only select the asset_id column
+                );
+            } else {
+                // Original behavior: return full asset details for display
+                $arr_dataLocal = Class_db::getInstance()->db_select(
+                    'ast_asset', // Directly query ast_asset
+                    $arrWhere,
+                    'asset_no ASC' // Order by asset number for display
+                );
 
-            foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['assetId'] = $dataLocal['asset_id'];
-                $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
-                $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
-                $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
-                // Add more relevant fields if needed for the selection modal display
-                array_push($result, $row_result);
+                foreach ($arr_dataLocal as $dataLocal) {
+                    $row_result['assetId'] = $dataLocal['asset_id'];
+                    $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
+                    $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                    $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
+                    // Add more relevant fields if needed for the selection modal display
+                    array_push($result, $row_result);
+                }
+                return $result;
             }
-
-            return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -4341,33 +4333,70 @@ class Class_ppm {
      * @param smallint $ppmSetId The ID of the PPM Set.
      * @param array $assetIds An array of asset IDs to link to the PPM Set.
      * @param int $userId The ID of the user performing the action.
+     * @param bool $allAssetSelected (NEW) Flag to indicate if 'select all' was used.
      * @return array An associative array with 'totalAdded' indicating the number of assets successfully added.
      * @throws Exception If parameters are empty, ppmSetId does not exist, or a database error occurs.
      */
-    public function add_assets_to_ppm_set ($ppmSetId, $assetIds, $userId) { //
+    public function add_assets_to_ppm_set ($ppmSetId, $assetIds, $userId, $allAssetSelected = false) { // MODIFIED SIGNATURE: Removed assetGroupId, assetCategoryId, assetTypeId
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($ppmSetId, $assetIds, $userId));
-    
-            if (!is_array($assetIds)) { // Modified check
-                throw new Exception('[' . __LINE__ . '] - Parameter assetIds is not a valid JSON array.');
+            
+            // --- MODIFIED VALIDATION LOGIC ---
+            // If 'select all' is true, assetIds from frontend is just a placeholder, so don't check its emptiness.
+            // The filters will be fetched from ppm_set itself.
+            $this->fn_general->checkEmptyParams(array($ppmSetId, $userId)); 
+            
+            // If not 'select all', then assetIds must contain actual selections and not be empty.
+            if (!$allAssetSelected) {
+                if (!is_array($assetIds) || empty($assetIds)) { 
+                    throw new Exception('[' . __LINE__ . '] - Parameter assetIds must be a non-empty array for individual selection.');
+                }
             }
+            // --- END MODIFIED VALIDATION LOGIC ---
     
-            // Verify that the ppmSetId actually exists
-            if (Class_db::getInstance()->db_count('ppm_set', array('ppm_set_id' => $ppmSetId)) === '0') {
-                throw new Exception('[' . __LINE__ . '] - PPM Set ID not found: ' . $ppmSetId);
+            // Verify that the ppmSetId exists AND fetch its associated filter data
+            $ppmSetData = Class_db::getInstance()->db_select_single('ppm_set', array('ppm_set_id' => $ppmSetId), null, 1); 
+            // db_select_single with throwEmpty=1 will throw an exception if ppmSetId is not found.
+
+            // if $allAssetSelected is true, the $assetIds parameter is populated by fetching from the modal function.
+            // If $allAssetSelected is false, $assetIds already contains the array from the frontend.
+
+            if ($allAssetSelected == true) {
+                // This is the "select all" path
+
+                // Get the filter parameters directly from the fetched ppmSetData
+                $assetGroupId = $ppmSetData['asset_group_id'];
+                $assetCategoryId = $ppmSetData['asset_category_id'];
+                $assetTypeId = $ppmSetData['asset_type_id'];
+
+                // Validate these fetched filters - they should not be empty in the ppm_set itself
+                // (This acts as a defensive check if ppm_set records somehow get created without these critical filters)
+                if (empty($assetGroupId) || empty($assetCategoryId) || empty($assetTypeId)) {
+                    throw new Exception('[' . __LINE__ . '] - PPM Set ID ' . $ppmSetId . ' has incomplete filter data (Asset Group, Category, or Type). Cannot perform "Select All".');
+                }
+
+                // Call get_assets_for_ppm_set_modal with the correct filter parameters fetched from ppm_set
+                $assetsToAdd = $this->get_assets_for_ppm_set_modal($ppmSetId, $assetGroupId, $assetCategoryId, $assetTypeId, true); // Get all asset IDs
+
+                if (empty($assetsToAdd)) {
+                    // It's a valid scenario if no assets are found matching filters/exclusions.
+                    // Simply return 0 added, no error.
+                    return array('totalAdded' => 0); 
+                }
+
+                $assetIds = $assetsToAdd; // Use the fetched asset IDs for the loop
             }
-    
+            
             $totalAdded = 0;
             foreach ($assetIds as $assetId) {
-                // CRUCIAL FIX: Ensure assetId is a string before passing to db_count
-                $assetIdStr = (string)$assetId; // Cast to string
+                // Ensure assetId is a string before passing to db_count for consistency
+                $assetIdStr = (string)$assetId; 
     
                 // Check if this asset is already linked to this ppmSetId to prevent duplicates
                 if (Class_db::getInstance()->db_count('ppm_set_asset', array('ppm_set_id' => $ppmSetId, 'asset_id' => $assetIdStr)) == '0') {
                     $insertData = array(
                         'ppm_set_id' => $ppmSetId,
-                        'asset_id' => $assetIdStr, // Also use the string version for insertion
+                        'asset_id' => $assetIdStr, 
                         'ppm_set_asset_created_by' => $userId
                     );
                     Class_db::getInstance()->db_insert('ppm_set_asset', $insertData);

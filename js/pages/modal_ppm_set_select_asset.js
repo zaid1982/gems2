@@ -95,6 +95,42 @@ function ModalPpmSetSelectAsset () {
             }
         });
 
+        $('#btnMpssaAddAllAssetSelected').off('click').on('click', function () {
+            if(!confirm('This action will add all asset listed under this groupe, category and type. Are you sure to proceed?')) {
+                return; // User cancelled the action
+            }
+        
+            ShowLoader(); setTimeout(function () {
+                try {
+                    // --- UPDATED: No longer need to fetch/send these from frontend ---
+                    // const assetGroupId = parseInt($('#your_asset_group_filter_element').val()); 
+                    // const assetCategoryId = parseInt($('#your_asset_category_filter_element').val()); 
+                    // const assetTypeId = parseInt($('#your_asset_type_filter_element').val());     
+        
+                    const res = mzAjaxRequest('ppm.php', 'POST', {
+                        action: 'add_assets_to_ppm_set',
+                        ppmSetId: parseInt(currentPpmSetId),
+                        assetIds: JSON.stringify([]), // Still send empty array, backend ignores it for allAssetSelected=true
+                        allAssetSelected: true
+                        // --- REMOVED assetGroupId, assetCategoryId, assetTypeId from here ---
+                    }, '', false); 
+        
+                    toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS); 
+        
+                    self.close(); // Close this modal
+        
+                    if (callbackOnAddFunction) {
+                        callbackOnAddFunction(res); // Pass res (the 'result' data) to callback if needed
+                    }
+                    
+                    HideLoader(); 
+                } catch (e) { 
+                    HideLoader(); // Ensure loader is hidden on error
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR); 
+                }
+            }, 200);
+        });
+
 
         // Handle "Add Selected Assets" button click - This is fine as init() runs once.
         $('#btnMpssaAddSelected').off('click').on('click', function () {
