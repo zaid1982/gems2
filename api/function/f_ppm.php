@@ -1800,12 +1800,13 @@ class Class_ppm {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'UserId: ' . $userId);
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Task claim user: ' . $wfTask['task_claimed_user']);
 
-            if (!empty($userId) && $wfTask['task_claimed_user'] !== $userId) {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
-            }
-            if (empty($userId) && $this->fn_general->clear_null($wfTask['task_claimed_user']) !== '') {
-                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
-            }
+            // if (!empty($userId) && $wfTask['task_claimed_user'] !== $userId) {
+            //     throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
+            // }
+            // if (empty($userId) && $this->fn_general->clear_null($wfTask['task_claimed_user']) !== '') {
+            //     throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
+            // }
+            // temporarily disabled for UAT
 
             return $wfTask;
         } catch (Exception $ex) {
