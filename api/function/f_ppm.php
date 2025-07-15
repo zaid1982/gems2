@@ -216,21 +216,44 @@ class Class_ppm {
     private function get_dates_quarter ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
-            $begin = new DateTime( $startDate );
-            $begin = $begin->modify( '+3 month' );
-            //$begin = $begin->modify( '-1 day' );
-            $end = new DateTime( $endDate );
-            $end = $end->modify( '+2 day' );
+            $startDateTime = new DateTime($startDate);
+            $endDateTime = new DateTime($endDate);
+            $applyDateTime = new DateTime($applyDate);
 
-            $apply = new DateTime( $applyDate );
-            $interval = new DateInterval('P3M');
-            $dateRange = new DatePeriod($begin, $interval ,$end);
-            foreach($dateRange as $date){
-                $xx = $date->modify( '-1 day' );
-                if ($xx > $apply) {
-                    array_push($newDates, $xx->format("Y-m-d"));
+            // Determine the target day of the month for quarterly tasks.
+            // This will be the day from the applyDate (which is typically ppmDateStart or oldContractEndDate)
+            $targetDay = (int)$applyDateTime->format('d');
+
+            // Quarterly months: March (3), June (6), September (9), December (12)
+            $quarterMonths = [3, 6, 9, 12];
+
+            // Iterate year by year from the contract start year up to the contract end year
+            $currentYear = (int)$startDateTime->format('Y');
+            $endYear = (int)$endDateTime->format('Y');
+
+            for ($year = $currentYear; $year <= $endYear; $year++) {
+                foreach ($quarterMonths as $month) {
+                    // Determine the maximum valid day for the current month in the current year
+                    $maxDayInMonth = (new DateTime("$year-$month-01"))->format('t'); // 't' gets the number of days in the month
+                    // Use the targetDay, but cap it at the maximum day in that specific month
+                    $dayToUse = min($targetDay, (int)$maxDayInMonth);
+                    
+                    // Construct the date string for the quarterly task
+                    $quarterDateString = sprintf('%04d-%02d-%02d', $year, $month, $dayToUse);
+                    $quarterDateTime = new DateTime($quarterDateString);
+
+                    // Ensure the generated date falls within the contract period
+                    if ($quarterDateTime >= $startDateTime && $quarterDateTime <= $endDateTime) {
+                        // Only add dates that are strictly *after* the applyDate
+                        if ($quarterDateTime > $applyDateTime) {
+                            array_push($newDates, $quarterDateTime->format("Y-m-d"));
+                        }
+                    }
                 }
             }
+            // Sort the dates to ensure chronological order after generation
+            sort($newDates);
+
             return $newDates;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -248,21 +271,44 @@ class Class_ppm {
     private function get_dates_halfAnnual ($startDate, $endDate, $applyDate) {
         try {
             $newDates = array();
-            $begin = new DateTime( $startDate );
-            $begin = $begin->modify( '+6 month' );
-            //$begin = $begin->modify( '-1 day' );
-            $end = new DateTime( $endDate );
-            $end = $end->modify( '+2 day' );
+            $startDateTime = new DateTime($startDate);
+            $endDateTime = new DateTime($endDate);
+            $applyDateTime = new DateTime($applyDate);
 
-            $apply = new DateTime( $applyDate );
-            $interval = new DateInterval('P6M');
-            $dateRange = new DatePeriod($begin, $interval ,$end);
-            foreach($dateRange as $date){
-                $xx = $date->modify( '-1 day' );
-                if ($xx > $apply) {
-                    array_push($newDates, $xx->format("Y-m-d"));
+            // Determine the target day of the month for half-annual tasks.
+            // This will be the day from the applyDate (which is typically ppmDateStart or oldContractEndDate)
+            $targetDay = (int)$applyDateTime->format('d');
+
+            // Half-annual months: June (6), December (12)
+            $halfAnnualMonths = [6, 12];
+
+            // Iterate year by year from the contract start year up to the contract end year
+            $currentYear = (int)$startDateTime->format('Y');
+            $endYear = (int)$endDateTime->format('Y');
+
+            for ($year = $currentYear; $year <= $endYear; $year++) {
+                foreach ($halfAnnualMonths as $month) {
+                    // Determine the maximum valid day for the current month in the current year
+                    $maxDayInMonth = (new DateTime("$year-$month-01"))->format('t'); // 't' gets the number of days in the month
+                    // Use the targetDay, but cap it at the maximum day in that specific month
+                    $dayToUse = min($targetDay, (int)$maxDayInMonth);
+                    
+                    // Construct the date string for the half-annual task
+                    $halfAnnualDateString = sprintf('%04d-%02d-%02d', $year, $month, $dayToUse);
+                    $halfAnnualDateTime = new DateTime($halfAnnualDateString);
+
+                    // Ensure the generated date falls within the contract period
+                    if ($halfAnnualDateTime >= $startDateTime && $halfAnnualDateTime <= $endDateTime) {
+                        // Only add dates that are strictly *after* the applyDate
+                        if ($halfAnnualDateTime > $applyDateTime) {
+                            array_push($newDates, $halfAnnualDateTime->format("Y-m-d"));
+                        }
+                    }
                 }
             }
+            // Sort the dates to ensure chronological order after generation
+            sort($newDates);
+
             return $newDates;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
