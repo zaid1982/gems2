@@ -3471,13 +3471,14 @@ class Class_ppm {
                 }
 
                 // Update section C and D status based on their initial state
-                $totalNullQual = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_qual_result' => 'is NULL'));
-                $sectionStatusC = $totalNullQual > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
-                Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusC), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'C'));
+                // $totalNullQual = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_qual_result' => 'is NULL'));
+                // $sectionStatusC = $totalNullQual > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+                // Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusC), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'C'));
 
-                $totalNullQuan = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_quan_result' => 'is NULL'));
-                $sectionStatusD = $totalNullQuan > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
-                Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusD), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'D'));
+                // $totalNullQuan = Class_db::getInstance()->db_count('ppm_task_quan', array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_quan_result' => 'is NULL'));
+                // $sectionStatusD = $totalNullQuan > '0' ? '18' : '19'; // 18: Incomplete, 19: Complete
+                // Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status' => $sectionStatusD), array('ppm_task_id' => $targetPpmTaskId, 'ppm_task_section_name' => 'D'));
+                
 
                 // Ensure Section I is added/updated if applicable (from getPpmSectionStatusV2M logic)
                 $targetPpmTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id' => $targetPpmTaskId), null, 1);
