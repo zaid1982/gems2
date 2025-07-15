@@ -4789,6 +4789,7 @@ class Class_ppm {
      * Helper to synchronize open PPM task snapshots when master checklist is updated.
      * This method fetches the latest master checklist content and re-populates
      * the ppm_task_qual and ppm_task_quan for all 'OPEN' tasks using that checklist.
+     * It also deletes the existing PDF file for the synchronized tasks to force regeneration on next view.
      *
      * @param smallint $masterChecklistId The ID of the master checklist that was just updated.
      * @throws Exception
@@ -4840,11 +4841,68 @@ class Class_ppm {
 
                 foreach ($openPpmTasks as $openTask) {
                     $openPpmTaskId = $openTask['ppm_task_id'];
-                    $openTaskScheduleDate = $openTask['ppm_task_schedule_date']; // Schedule date of the specific task
+                    $openTaskScheduleDate = $openTask['ppm_task_schedule_date'];
                     $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Syncing snapshot for open PPM Task ID: ' . $openPpmTaskId);
 
-                    // Reapply checklist_id in ppm_task if that column existed, but it doesn't in your schema.
-                    // If it were there: Class_db::getInstance()->db_update('ppm_task', array('checklist_id' => $masterChecklistId), array('ppm_task_id' => $openPpmTaskId));
+                    // --- ADDED BLOCK: Delete existing PDF file and update its status ---
+                    $existingPdfId = $openTask['pdf_id']; // Get pdf_id directly from the ppm_task record
+
+                    if (!empty($existingPdfId)) {
+                        // Fetch PDF file details from sys_pdf table
+                        $pdfDetails = Class_db::getInstance()->db_select_single(
+                            'sys_pdf',
+                            array('pdf_id' => $existingPdfId, 'pdf_status' => '1'), // Only active PDFs
+                            null, 0 // Don't throw error if not found, just return empty
+                        );
+
+                        if (!empty($pdfDetails)) {
+                            $pdfFolderPath = $pdfDetails['pdf_folder']; // e.g., 'pdf/ppm/2124'
+                            $pdfFilename = $pdfDetails['pdf_filename'];   // e.g., 'ppm_2124016.pdf'
+                            $pdfExtension = $pdfDetails['pdf_extension']; // e.g., 'pdf'
+
+                            // Construct the absolute path to the PDF file
+                            // Use the same logic as Class_pdf_ppm::create_pdf for path construction
+                            $config = parse_ini_file('library/config.ini');
+                            $environment = $config['environment'];
+
+                            $filename_src_relative = '';
+                            // This part ensures correct slash based on environment
+                            if ($environment == 'windows') {
+                                // Assuming $pdfFolderPath is like 'pdf/ppm/2124', basename gives '2124'
+                                $filename_src_relative = '\ppm\\' . basename($pdfFolderPath) . '\\' . $pdfFilename;
+                            } else {
+                                $filename_src_relative = '/ppm/' . basename($pdfFolderPath) . '/' . $pdfFilename;
+                            }
+                            // dirname(dirname(__FILE__)) navigates from 'api/function/f_ppm.php' up to 'api/'
+                            $absolutePdfPath = dirname(dirname(__FILE__)) . $filename_src_relative;
+
+                            // Try to delete the physical file
+                            if (file_exists($absolutePdfPath)) {
+                                if (unlink($absolutePdfPath)) {
+                                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Successfully deleted old PDF file: ' . $absolutePdfPath);
+                                    // Update sys_pdf status to '6' (deleted/inactive)
+                                    Class_db::getInstance()->db_update('sys_pdf', array('pdf_status' => '6'), array('pdf_id' => $existingPdfId));
+                                    // Clear pdf_id in ppm_task so it's regenerated next time on view
+                                    Class_db::getInstance()->db_update('ppm_task', array('pdf_id' => 'NULL'), array('ppm_task_id' => $openPpmTaskId));
+                                } else {
+                                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Failed to delete old PDF file (permission issue?): ' . $absolutePdfPath);
+                                    // Optionally, throw an exception here if failure to delete is critical for your system
+                                }
+                            } else {
+                                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Old PDF file not found at path (already deleted or path mismatch?): ' . $absolutePdfPath);
+                                // If file not found on disk but sys_pdf entry exists and is active, mark sys_pdf as deleted and clear ppm_task.pdf_id
+                                Class_db::getInstance()->db_update('sys_pdf', array('pdf_status' => '6'), array('pdf_id' => $existingPdfId));
+                                Class_db::getInstance()->db_update('ppm_task', array('pdf_id' => 'NULL'), array('ppm_task_id' => $openPpmTaskId));
+                            }
+                        } else {
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'sys_pdf entry not found for pdf_id: ' . $existingPdfId . ' or not active. Skipping physical file deletion.');
+                            // If sys_pdf entry doesn't exist or is not active, just clear ppm_task.pdf_id for good measure
+                            Class_db::getInstance()->db_update('ppm_task', array('pdf_id' => 'NULL'), array('ppm_task_id' => $openPpmTaskId));
+                        }
+                    } else {
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No existing PDF associated with PPM Task ID: ' . $openPpmTaskId);
+                    }
+                    // --- END ADDED BLOCK ---
 
                     // --- Delete and Re-insert Qualitative Task Snapshots ---
                     Class_db::getInstance()->db_delete('ppm_task_qual', array('ppm_task_id' => $openPpmTaskId));
