@@ -4793,7 +4793,7 @@ class Class_ppm {
      * @param smallint $masterChecklistId The ID of the master checklist that was just updated.
      * @throws Exception
      */
-    private function _sync_open_task_snapshots($masterChecklistId) {
+    public function _sync_open_task_snapshots($masterChecklistId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__ . ' for checklist: ' . $masterChecklistId);
             $this->fn_general->checkEmptyParams(array($masterChecklistId));
