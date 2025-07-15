@@ -391,11 +391,6 @@ class Class_pdf_ppm {
             $cntNonNumeric = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId, 'w1'=>'ppm_task_qual_numb<>concat(\'\',ppm_task_qual_numb * 1)'));
             $ordering = $cntNonNumeric > 0 ? 'ppm_task_qual_numb' : 'ABS(ppm_task_qual_numb)';
             $qualTasks = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
-
-            //debug return print_r can?
-
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Qual Tasks: '.print_r($qualTasks, true));
-
             if (!empty($qualTasks)) {
                 for ($i = 0; $i<(count($qualTasks)<=2?3:count($qualTasks)+1); $i++) {
                     if ($pdf->GetY() > 265) {
@@ -669,6 +664,7 @@ class Class_pdf_ppm {
             $img_before = array();
             $img_during = array();
             $img_after = array();
+            $img_additional_report = array();
             foreach ($ppmUploads as $ppmUpload) {
                 $uploadType = $ppmUpload['ppm_task_upload_type'];
                 if ($uploadType === '0') {
@@ -677,6 +673,8 @@ class Class_pdf_ppm {
                     array_push($img_during, $ppmUpload);
                 } else if ($uploadType === '2') {
                     $img_after = $ppmUpload;
+                } else if ($uploadType === '3') { // Filter for Additional Report images
+                    array_push($img_additional_report, $ppmUpload);
                 }
             }
 
@@ -760,6 +758,45 @@ class Class_pdf_ppm {
                 $pdf->writeHTMLCell(100, 65, '', '', $display_img, 1, '', '', '', 'C');
                 $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$display_desc."<br/>Time Taken : ".$display_time."<br/>Longitude : ".$display_long."<br/>Latitude : ".$display_lat, 1);
                 $pdf->Ln();
+            }
+
+            if (!empty($img_additional_report)) {
+                $pdf->AddPage(); // Start a new page for additional reports
+                $pdf->setPage($pdf->getPage());
+                $pdf->SetFont('helvetica', '', 9);
+
+                $pdf->writeHTMLCell(180, 8, '', '', '<h1>Additional Report Images</h1>', 1);
+                $pdf->Ln();
+
+                foreach ($img_additional_report as $key => $img_display) {
+                    $display_img = '';
+                    $display_desc = '';
+                    $display_time = '';
+                    $display_long = '';
+                    $display_lat = '';
+
+                    // Get image details
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id' => $img_display['upload_id']));
+                    if (!empty($upload)) {
+                        $display_img = '<br/><br/><img src="' . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'] . '" height="200" />';
+                    }
+
+                    // Get other details from ppm_task_upload if available
+                    $display_desc = $img_display['ppm_task_upload_desc'];
+                    $display_time = $this->fn_general->convertDateToDisplay($img_display['ppm_task_upload_timestamp']);
+                    $display_long = $img_display['ppm_task_upload_longitude'];
+                    $display_lat = $img_display['ppm_task_upload_latitude'];
+                    
+                    $pdf->writeHTMLCell(100, 65, '', '', $display_img, 1, '', '', '', 'C');
+                    $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$display_desc."<br/>Time Taken : ".$display_time."<br/>Longitude : ".$display_long."<br/>Latitude : ".$display_lat, 1);
+                    $pdf->Ln();
+                    
+                    // Add page break if needed for multiple additional images
+                    if ($pdf->GetY() > 200 && $key < count($img_additional_report) - 1) { // Only add page break if there are more images
+                        $pdf->AddPage();
+                        $pdf->setPage($pdf->getPage());
+                    }
+                }
             }
 
             // close and output PDF document
