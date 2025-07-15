@@ -391,6 +391,11 @@ class Class_pdf_ppm {
             $cntNonNumeric = Class_db::getInstance()->db_count('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId, 'w1'=>'ppm_task_qual_numb<>concat(\'\',ppm_task_qual_numb * 1)'));
             $ordering = $cntNonNumeric > 0 ? 'ppm_task_qual_numb' : 'ABS(ppm_task_qual_numb)';
             $qualTasks = Class_db::getInstance()->db_select('ppm_task_qual', array('ppm_task_id'=>$this->ppmTaskId), $ordering);
+
+            //debug return print_r can?
+
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Qual Tasks: '.print_r($qualTasks, true));
+
             if (!empty($qualTasks)) {
                 for ($i = 0; $i<(count($qualTasks)<=2?3:count($qualTasks)+1); $i++) {
                     if ($pdf->GetY() > 265) {

@@ -378,7 +378,7 @@ function MainPpmManagement() {
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
                             //let label = '<a><i class="fas fa-info-circle lnkPmgScheduledInfo" id="lnkPmgScheduledInfo_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Info"></i></a>';
-                            return '<a><i class="far fa-file-pdf lnkPmgScheduledPdf" id="lnkPmgScheduledPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            return '<a><i class="far fa-file-pdf lnkPmgScheduledPdf" id="lnkPmgScheduledPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Preventive Maintenance PDF"></i></a>';
                             //return label;
                         }
                     }
