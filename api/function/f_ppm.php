@@ -4637,8 +4637,8 @@ class Class_ppm {
                         'ppm_id' => $ppmId, // Link to existing master PPM
                         'ppm_task_guideline' => $checklistGuideline,
                         'ppm_task_status' => '12', // Open
-                        'transaction_id' => $transactionId,
-                        'checklist_id' => $checklistId // <--- ADDED THIS LINE: CRUCIAL FIX
+                        'transaction_id' => $transactionId
+                        // REMOVED: 'checklist_id' => $checklistId // This line was the problem.
                     ));
 
                     // Add task sections (similar to assign_ppm_single)
