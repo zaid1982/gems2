@@ -4,8 +4,14 @@ class Class_checklistQuan {
 
     private $constant;
     private $fn_general;
+    private $fn_ppm; // ADD THIS LINE: Declare the Class_ppm property
 
     function __construct() {
+    }
+
+    // ADD THIS BLOCK: Setter for fn_ppm
+    public function set_fn_ppm($fn_ppm) {
+        $this->fn_ppm = $fn_ppm;
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -185,8 +191,15 @@ class Class_checklistQuan {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_QUAN_SIMILAR, 31);
             }
 
-            return Class_db::getInstance()->db_insert('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'frequency_id'=>$frequencyId,
+            $result = Class_db::getInstance()->db_insert('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'frequency_id'=>$frequencyId,
                 'checklist_quan_unit'=>$checklistQuanUnit, 'checklist_quan_set_values'=>$checklistQuanSetValues, 'checklist_id'=>$checklistId, 'checklist_quan_status'=>$checklistQuanStatus));
+            
+            // Call the synchronization helper
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
+
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -247,6 +260,10 @@ class Class_checklistQuan {
 
             Class_db::getInstance()->db_update('ppm_checklist_quan', array('checklist_quan_desc'=>$checklistQuanDesc, 'checklist_quan_numb'=>$checklistQuanNumb, 'checklist_quan_unit'=>$checklistQuanUnit, 'checklist_quan_set_values'=>$checklistQuanSetValues,
                 'frequency_id'=>$frequencyId, 'checklist_quan_status'=>$checklistQuanStatus), array('checklist_quan_id'=>$checklistQuanId));
+
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -271,7 +288,17 @@ class Class_checklistQuan {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_QUAN_DEACTIVATE, 31);
             }
 
+            // Fetch checklistId BEFORE deactivating for sync
+            $checklistId = Class_db::getInstance()->db_select_col('ppm_checklist_quan', array('checklist_quan_id'=>$checklistQuanId), 'checklist_id', null, 1);
+
             Class_db::getInstance()->db_update('ppm_checklist_quan', array('checklist_quan_status'=>'2'), array('checklist_quan_id'=>$checklistQuanId));
+            
+            // Call the synchronization helper
+            // A status change might impact whether the item appears in the new snapshot for open tasks.
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
+
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -296,7 +323,15 @@ class Class_checklistQuan {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_QUAN_ACTIVATE, 31);
             }
 
+            // Fetch checklistId BEFORE activating for sync
+            $checklistId = Class_db::getInstance()->db_select_col('ppm_checklist_quan', array('checklist_quan_id'=>$checklistQuanId), 'checklist_id', null, 1);
+
             Class_db::getInstance()->db_update('ppm_checklist_quan', array('checklist_quan_status'=>'1'), array('checklist_quan_id'=>$checklistQuanId));
+            
+            // ADD THIS BLOCK: Call the synchronization helper
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -324,7 +359,15 @@ class Class_checklistQuan {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CHECKLIST_QUAN_DELETE_PPM, 31);
             }
 
+            // Fetch checklistId BEFORE deleting for sync
+            $checklistId = Class_db::getInstance()->db_select_col('ppm_checklist_quan', array('checklist_quan_id'=>$checklistQuanId), 'checklist_id', null, 1);
+
             Class_db::getInstance()->db_delete('ppm_checklist_quan', array('checklist_quan_id'=>$checklistQuanId));
+            
+            // Call the synchronization helper
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

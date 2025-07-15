@@ -4,8 +4,13 @@ class Class_checklist {
 
     private $constant;
     private $fn_general;
+    private $fn_ppm;
 
     function __construct() {
+    }
+
+    public function set_fn_ppm($fn_ppm) {
+        $this->fn_ppm = $fn_ppm;
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -334,6 +339,10 @@ class Class_checklist {
             }
 
             Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -418,6 +427,10 @@ class Class_checklist {
             }
 
             Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -492,6 +505,10 @@ class Class_checklist {
             }
 
             Class_db::getInstance()->db_update('ppm_checklist', $updateArr, array('checklist_id'=>$checklistId));
+
+            if ($this->fn_ppm) {
+                $this->fn_ppm->_sync_open_task_snapshots($checklistId);
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

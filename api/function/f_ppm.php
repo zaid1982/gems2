@@ -4784,4 +4784,123 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * Helper to synchronize open PPM task snapshots when master checklist is updated.
+     * This method fetches the latest master checklist content and re-populates
+     * the ppm_task_qual and ppm_task_quan for all 'OPEN' tasks using that checklist.
+     *
+     * @param smallint $masterChecklistId The ID of the master checklist that was just updated.
+     * @throws Exception
+     */
+    private function _sync_open_task_snapshots($masterChecklistId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__ . ' for checklist: ' . $masterChecklistId);
+            $this->fn_general->checkEmptyParams(array($masterChecklistId));
+
+            // 1. Fetch the latest master checklist content (Qualitative and Quantitative items)
+            $latestChecklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id' => $masterChecklistId, 'checklist_qual_status' => '1'), 'ABS(checklist_qual_numb)');
+            $latestChecklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id' => $masterChecklistId, 'checklist_quan_status' => '1'), 'ABS(checklist_quan_numb)');
+
+            // 2. Find all active PPM schedules that currently use this master checklist
+            $activePpmSchedules = Class_db::getInstance()->db_select('ppm', array('checklist_id' => $masterChecklistId, 'ppm_status' => '1'));
+
+            if (empty($activePpmSchedules)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No active PPM schedules found for checklist: ' . $masterChecklistId);
+                return; // No active PPMs using this checklist, nothing to sync down.
+            }
+
+            foreach ($activePpmSchedules as $ppmSchedule) {
+                $ppmId = $ppmSchedule['ppm_id'];
+                $ppmDateStart = $ppmSchedule['ppm_date_start']; // Master PPM's start date (used for date array calculation)
+                $contractId = $ppmSchedule['contract_id'];
+
+                // Get contract dates for calculating date arrays (needed for N/A logic for each task)
+                $contract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id' => $contractId), null, 1);
+                $contractDateStart = $contract['contract_date_start'];
+                $contractDateEnd = $contract['contract_date_end'];
+
+                // Calculate date arrays based on the PPM's schedule (not the current date, to match task generation logic)
+                $dailyDates = $this->get_dates_day($contractDateStart, $contractDateEnd, $ppmDateStart);
+                $weeklyDates = $this->get_dates_week($contractDateStart, $contractDateEnd, $ppmDateStart);
+                $monthlyDates = $this->get_dates_month($contractDateStart, $contractDateEnd, $ppmDateStart);
+                $quarterlyDates = $this->get_dates_quarter($contractDateStart, $contractDateEnd, $ppmDateStart);
+                $halfAnnuallyDates = $this->get_dates_halfAnnual($contractDateStart, $contractDateEnd, $ppmDateStart);
+                $yearlyDates = $this->get_dates_year($contractDateStart, $contractDateEnd, $ppmDateStart);
+                // Note: The above date arrays are calculated using the PPM's start date and contract dates.
+                // We then use the *specific ppm_task_schedule_date* for N/A logic below.
+
+                // 3. Find all 'OPEN' tasks for this specific PPM schedule
+                $openPpmTasks = Class_db::getInstance()->db_select('ppm_task', array('ppm_id' => $ppmId, 'ppm_task_status' => '12'));
+
+                if (empty($openPpmTasks)) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No open tasks found for PPM ID: ' . $ppmId . ' to sync.');
+                    continue; // No open tasks for this PPM schedule, move to next master PPM.
+                }
+
+                foreach ($openPpmTasks as $openTask) {
+                    $openPpmTaskId = $openTask['ppm_task_id'];
+                    $openTaskScheduleDate = $openTask['ppm_task_schedule_date']; // Schedule date of the specific task
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Syncing snapshot for open PPM Task ID: ' . $openPpmTaskId);
+
+                    // Reapply checklist_id in ppm_task if that column existed, but it doesn't in your schema.
+                    // If it were there: Class_db::getInstance()->db_update('ppm_task', array('checklist_id' => $masterChecklistId), array('ppm_task_id' => $openPpmTaskId));
+
+                    // --- Delete and Re-insert Qualitative Task Snapshots ---
+                    Class_db::getInstance()->db_delete('ppm_task_qual', array('ppm_task_id' => $openPpmTaskId));
+                    foreach ($latestChecklistQuals as $checklistQual) {
+                        $qualResult = '';
+                        $qualFrequency = $checklistQual['frequency_id'];
+                        // Re-apply N/A logic based on the task's schedule date and calculated date arrays
+                        if (($qualFrequency === '1' && !in_array($openTaskScheduleDate, $yearlyDates)) ||
+                            ($qualFrequency === '2' && !in_array($openTaskScheduleDate, $quarterlyDates)) ||
+                            ($qualFrequency === '3' && !in_array($openTaskScheduleDate, $monthlyDates)) ||
+                            ($qualFrequency === '4' && !in_array($openTaskScheduleDate, $weeklyDates)) ||
+                            ($qualFrequency === '5' && !in_array($openTaskScheduleDate, $dailyDates)) ||
+                            ($qualFrequency === '6' && !in_array($openTaskScheduleDate, $halfAnnuallyDates))) {
+                            $qualResult = '2'; // Set to N/A
+                        }
+                        Class_db::getInstance()->db_insert('ppm_task_qual', array(
+                            'ppm_task_qual_numb' => $checklistQual['checklist_qual_numb'],
+                            'ppm_task_qual_desc' => $checklistQual['checklist_qual_desc'],
+                            'frequency_id' => $qualFrequency,
+                            'ppm_task_qual_result' => $qualResult,
+                            'ppm_task_id' => $openPpmTaskId,
+                            'checklist_qual_id' => $checklistQual['checklist_qual_id']
+                        ));
+                    }
+
+                    // --- Delete and Re-insert Quantitative Task Snapshots ---
+                    Class_db::getInstance()->db_delete('ppm_task_quan', array('ppm_task_id' => $openPpmTaskId));
+                    foreach ($latestChecklistQuans as $checklistQuan) {
+                        $quanResult = '';
+                        $quanFrequency = $this->fn_general->clear_null($checklistQuan['frequency_id']);
+                        // Re-apply N/A logic based on the task's schedule date and calculated date arrays
+                        if (($quanFrequency === '1' && !in_array($openTaskScheduleDate, $yearlyDates)) ||
+                            ($quanFrequency === '2' && !in_array($openTaskScheduleDate, $quarterlyDates)) ||
+                            ($quanFrequency === '3' && !in_array($openTaskScheduleDate, $monthlyDates)) ||
+                            ($quanFrequency === '4' && !in_array($openTaskScheduleDate, $weeklyDates)) ||
+                            ($quanFrequency === '5' && !in_array($openTaskScheduleDate, $dailyDates)) ||
+                            ($quanFrequency === '6' && !in_array($openTaskScheduleDate, $halfAnnuallyDates))) {
+                            $quanResult = '2'; // Set to N/A
+                        }
+                        Class_db::getInstance()->db_insert('ppm_task_quan', array(
+                            'ppm_task_quan_numb' => $checklistQuan['checklist_quan_numb'],
+                            'ppm_task_quan_desc' => $checklistQuan['checklist_quan_desc'],
+                            'frequency_id' => $quanFrequency,
+                            'ppm_task_quan_unit' => $this->fn_general->clear_null($checklistQuan['checklist_quan_unit']),
+                            'ppm_task_quan_set_values' => $this->fn_general->clear_null($checklistQuan['checklist_quan_set_values']),
+                            'ppm_task_quan_result' => $quanResult,
+                            'ppm_task_id' => $openPpmTaskId,
+                            'checklist_quan_id' => $checklistQuan['checklist_quan_id']
+                        ));
+                    }
+                } // End foreach openPpmTasks
+            } // End foreach activePpmSchedules
+
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }

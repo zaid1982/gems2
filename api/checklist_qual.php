@@ -5,6 +5,8 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_checklist_qual.php';
+require_once 'function/f_ppm.php';
+require_once 'function/f_task.php';
 
 $api_name = 'api_checklist_qual';
 $is_transaction = false;
@@ -16,6 +18,8 @@ $constant = new Class_constant();
 $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_checklistQual = new Class_checklistQual();
+$fn_ppm = new Class_ppm(); 
+$fn_task = new Class_task();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -23,6 +27,15 @@ try {
     $fn_login->__set('fn_general', $fn_general);
     $fn_checklistQual->__set('constant', $constant);
     $fn_checklistQual->__set('fn_general', $fn_general);
+
+    // Inject Class_ppm's dependencies
+    $fn_ppm->__set('constant', $constant);
+    $fn_ppm->__set('fn_general', $fn_general);
+    $fn_ppm->__set('fn_task', $fn_task);
+    // $fn_ppm->__set('fn_email', $fn_email); // UNCOMMENT if Class_ppm uses fn_email
+
+    // Inject fn_ppm into fn_checklistQual
+    $fn_checklistQual->set_fn_ppm($fn_ppm);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
