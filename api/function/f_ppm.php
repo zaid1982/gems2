@@ -1796,6 +1796,10 @@ class Class_ppm {
             if ($wfTask['checkpoint_id'] !== $currentCheckpoint) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_ALREADY_SUBMITTED, 31);
             }
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Current task checkpoint: ' . $wfTask['checkpoint_id']);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'UserId: ' . $userId);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Task claim user: ' . $wfTask['task_claimed_user']);
+
             if (!empty($userId) && $wfTask['task_claimed_user'] !== $userId) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_TASK_CLAIMED, 31);
             }
