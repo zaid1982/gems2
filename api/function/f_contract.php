@@ -4,8 +4,13 @@ class Class_contract {
 
     private $constant;
     private $fn_general;
+    private $fn_ppm; //
 
     function __construct() {
+    }
+
+    public function set_fn_ppm($fn_ppm) { //
+        $this->fn_ppm = $fn_ppm; //
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -235,11 +240,22 @@ class Class_contract {
             $siteId = $put_vars['siteId'];
             $contractStatus = $put_vars['contractStatus'];
 
+            // NEW: Fetch old contract details to detect extension
+            $oldContract = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id' => $contractId), null, 1);
+            $oldContractEndDate = $oldContract['contract_date_end']; //
+
             if (Class_db::getInstance()->db_count('cli_contract', array('contract_name'=>$contractName, 'site_id'=>$siteId, 'contract_id'=>'<>'.$contractId)) > 0) {
                 throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_CLIENT_SIMILAR, 31);
             }
 
             Class_db::getInstance()->db_update('cli_contract', array('contract_name'=>$contractName, 'contract_desc'=>$contractDesc, 'contract_date_start'=>$contractDateStart, 'contract_date_end'=>$contractDateEnd, 'contract_status'=>$contractStatus), array('contract_id'=>$contractId));
+
+            // NEW: Check for contract extension and trigger PPM generation
+            if ($this->fn_ppm && $contractDateEnd > $oldContractEndDate) { // Compare new end date string with old end date string
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Contract {$contractId} extended from {$oldContractEndDate} to {$contractDateEnd}. Triggering PPM task generation."); //
+                // Call a new method in Class_ppm to handle the generation for the extended period
+                $this->fn_ppm->generate_ppm_tasks_for_contract_extension($contractId, $oldContractEndDate, $contractDateEnd); //
+            }
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

@@ -4478,4 +4478,281 @@ class Class_ppm {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * Generates new PPM tasks for assets under a contract due to an extension period.
+     *
+     * @param int $contractId The ID of the extended contract.
+     * @param string $oldContractEndDate The original contract end date (YYYY-MM-DD).
+     * @param string $newContractEndDate The new extended contract end date (YYYY-MM-DD).
+     * @throws Exception
+     */
+    public function generate_ppm_tasks_for_contract_extension($contractId, $oldContractEndDate, $newContractEndDate) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($contractId, $oldContractEndDate, $newContractEndDate));
+
+            // 1. Get all assets under this contract
+            $assets = Class_db::getInstance()->db_select(
+                'ast_asset', // Querying ast_asset directly
+                array('contract_id' => $contractId, 'asset_status' => '1'),
+                null, null, 0 // Do not throw error if no assets, just return empty array
+            );
+
+            if (empty($assets)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "No active assets found for contract {$contractId}. No PPM tasks to generate.");
+                return; // Nothing to do
+            }
+
+            // --- CRUCIAL FIX: Get site_id from cli_contract using contractId ---
+            // Assuming all assets under the same contract share the same siteId
+            $contractDetails = Class_db::getInstance()->db_select_single('cli_contract', array('contract_id' => $contractId), null, 1);
+            $contractSiteId = $contractDetails['site_id']; // Get site_id from the contract
+
+            if (empty($contractSiteId)) {
+                $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, "ERROR: Contract {$contractId} has no associated site_id. Cannot generate PPM tasks."); //
+                throw new Exception("Contract cannot be processed: Site ID not found for contract."); //
+            }
+
+            $generatedTaskCount = 0;
+            // Use the site_id obtained from the contract
+            $siteRunningNo = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $contractSiteId), 'site_running_no', null, 1);
+            $siteRunningNo = intval($siteRunningNo);
+            $siteCode = Class_db::getInstance()->db_select_col('cli_site', array('site_id' => $contractSiteId), 'site_code', null, 1);
+
+            foreach ($assets as $asset) {
+                $assetId = $asset['asset_id'];
+                $assetTypeId = $asset['asset_type_id']; // For checklist filtering later
+
+                // 2. Get the active master PPM schedule for this asset
+                // Assuming an asset has one primary active PPM schedule (ppm_status = 1)
+                $masterPpm = Class_db::getInstance()->db_select_single(
+                    'ppm',
+                    array('asset_id' => $assetId, 'ppm_status' => '1'),
+                    null, 0 // Do not throw error if no master PPM
+                );
+
+                if (empty($masterPpm)) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "No active master PPM found for asset {$assetId}. Skipping.");
+                    continue;
+                }
+
+                $ppmId = $masterPpm['ppm_id'];
+                $checklistId = $masterPpm['checklist_id']; //
+                $ppmDateStart = $masterPpm['ppm_date_start']; // Original PPM cycle start date
+                $ppmGroupId = $masterPpm['ppm_group_id']; // Original PPM executor group
+
+                // Retrieve checklist frequencies to calculate dates
+                $checklistQuals = Class_db::getInstance()->db_select('ppm_checklist_qual', array('checklist_id'=>$checklistId, 'checklist_qual_status'=>'1')); //
+                $checklistQuans = Class_db::getInstance()->db_select('ppm_checklist_quan', array('checklist_id'=>$checklistId, 'checklist_quan_status'=>'1')); //
+
+                $isYearly = false; $isHalfAnnually = false; $isQuarterly = false;
+                $isMonthly = false; $isWeekly = false; $isDaily = false;
+
+                foreach ($checklistQuals as $checklistQual) {
+                    switch ($checklistQual['frequency_id']) {
+                        case '1': $isYearly = true; break;
+                        case '2': $isQuarterly = true; break;
+                        case '3': $isMonthly = true; break;
+                        case '4': $isWeekly = true; break;
+                        case '5': $isDaily = true; break;
+                        case '6': $isHalfAnnually = true; break;
+                    }
+                }
+                foreach ($checklistQuans as $checklistQuan) {
+                    switch ($checklistQuan['frequency_id']) {
+                        case '1': $isYearly = true; break;
+                        case '2': $isQuarterly = true; break;
+                        case '3': $isMonthly = true; break;
+                        case '4': $isWeekly = true; break;
+                        case '5': $isDaily = true; break;
+                        case '6': $isHalfAnnually = true; break;
+                    }
+                }
+
+                // 3. Calculate new scheduled dates specifically within the extended period
+                // Generate all theoretical dates based on original PPM start date and NEW contract end date
+                $allPossibleDates = [];
+                // We need to use the original ppmDateStart (cycle start) with the NEW contract end date.
+                // However, we only want tasks whose *schedule date* falls within the extension period.
+                // So, calculate all future dates starting from ppmDateStart up to newContractEndDate
+                // and then filter those dates to be > oldContractEndDate.
+                
+                // Dates based on original PPM start and new contract end
+                $dailyDates = $this->get_dates_day($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+                $weeklyDates = $this->get_dates_week($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+                $monthlyDates = $this->get_dates_month($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+                $quarterlyDates = $this->get_dates_quarter($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+                $halfAnnuallyDates = $this->get_dates_halfAnnual($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+                $yearlyDates = $this->get_dates_year($ppmDateStart, $newContractEndDate, $oldContractEndDate); //
+
+
+                $newScheduledDatesForExtension = [];
+                // Collect dates that fall within the extended period AND match frequency criteria
+                // Dates should be strictly after oldContractEndDate
+                $startExtensionPeriod = new DateTime($oldContractEndDate);
+                $startExtensionPeriod->modify('+1 day'); // Start from the day *after* the old end date
+
+                $endExtendedPeriod = new DateTime($newContractEndDate);
+
+                $tempDates = []; // Collect all dates first to avoid duplicates
+                if ($isDaily) $tempDates = array_merge($tempDates, $dailyDates);
+                if ($isWeekly) $tempDates = array_merge($tempDates, $weeklyDates);
+                if ($isMonthly) $tempDates = array_merge($tempDates, $monthlyDates);
+                if ($isQuarterly) $tempDates = array_merge($tempDates, $quarterlyDates);
+                if ($isHalfAnnually) $tempDates = array_merge($tempDates, $halfAnnuallyDates);
+                if ($isYearly) $tempDates = array_merge($tempDates, $yearlyDates);
+                
+                $tempDates = array_unique($tempDates); // Remove duplicates
+                sort($tempDates); // Sort dates chronologically
+
+                foreach ($tempDates as $dateStr) {
+                    $currentDate = new DateTime($dateStr);
+                    // Only include dates that are within the extended period
+                    if ($currentDate >= $startExtensionPeriod && $currentDate <= $endExtendedPeriod) {
+                        $newScheduledDatesForExtension[] = $dateStr;
+                    }
+                }
+
+                if (empty($newScheduledDatesForExtension)) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "No new PPM tasks scheduled for asset {$assetId} in extended period.");
+                    continue;
+                }
+
+                // 4. Generate new ppm_task entries for these dates
+                foreach ($newScheduledDatesForExtension as $dateStr) {
+                    $runningNoTemp = 100000 + $siteRunningNo;
+                    $runningNoStr = substr(strval($runningNoTemp), 1);
+                    $ppmTaskNo = 'P' . $siteCode . substr($dateStr, 2, 2) . substr($dateStr, 5, 2) . substr($dateStr, 8, 2) . $runningNoStr;
+                    $siteRunningNo++; // Increment for next task
+
+                    // Create new task in workflow
+                    $taskId = $this->fn_task->create_new_task('1', $masterPpm['ppm_created_by'], '5', '1', $ppmTaskNo, $dateStr); // Use creator of original PPM
+                    $transactionId = Class_db::getInstance()->db_select_col('wfl_task', array('task_id' => $taskId), 'transaction_id', null, 1);
+
+                    $checklistGuideline = !empty($masterPpm['checklist_guideline']) ? $masterPpm['checklist_guideline'] : ''; // Assuming guideline is stored in ppm or checklist
+                    $ppmTaskId = Class_db::getInstance()->db_insert('ppm_task', array(
+                        'ppm_task_no' => $ppmTaskNo,
+                        'ppm_task_schedule_date' => $dateStr,
+                        'ppm_id' => $ppmId, // Link to existing master PPM
+                        'ppm_task_guideline' => $checklistGuideline,
+                        'ppm_task_status' => '12', // Open
+                        'transaction_id' => $transactionId,
+                        'checklist_id' => $checklistId // <--- ADDED THIS LINE: CRUCIAL FIX
+                    ));
+
+                    // Add task sections (similar to assign_ppm_single)
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'A', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'B', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'17')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'C', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18')); 
+                    // You'll need to get checklistQuansCount from the fetched checklist, which is available
+                    $checklistQuansCount = Class_db::getInstance()->db_count('ppm_checklist_quan', array('checklist_id'=>$checklistId, 'checklist_quan_status'=>'1'));
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'D', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>($checklistQuansCount == 0)?'19':'18')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'E', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'F', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'G', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18')); 
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'H', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>'18')); 
+                    // Need to get checklistMaxAssistant from the fetched checklist
+                    $checklistMaxAssistant = Class_db::getInstance()->db_select_col('ppm_checklist', array('checklist_id'=>$checklistId), 'checklist_max_assistant', null, 0);
+                    $assistantStatus = (empty($checklistMaxAssistant) || $checklistMaxAssistant === '0') ? '19' :'18';
+                    Class_db::getInstance()->db_insert('ppm_task_section', array('ppm_task_section_name'=>'I', 'ppm_task_id'=>$ppmTaskId, 'ppm_task_section_status'=>$assistantStatus)); 
+
+
+                    // Populate qualitative tasks for the new ppm_task
+                    foreach ($checklistQuals as $checklistQual) {
+                        $qualResult = ''; // Default result
+                        $qualFrequency = $checklistQual['frequency_id'];
+                        // Determine if this task is N/A for this specific date due to frequency mismatch
+                        if (($qualFrequency === '1' && !in_array($dateStr, $yearlyDates)) ||
+                            ($qualFrequency === '2' && !in_array($dateStr, $quarterlyDates)) ||
+                            ($qualFrequency === '3' && !in_array($dateStr, $monthlyDates)) ||
+                            ($qualFrequency === '4' && !in_array($dateStr, $weeklyDates)) ||
+                            ($qualFrequency === '5' && !in_array($dateStr, $dailyDates)) ||
+                            ($qualFrequency === '6' && !in_array($dateStr, $halfAnnuallyDates))) {
+                            $qualResult = '2'; // Set to N/A
+                        }
+                        Class_db::getInstance()->db_insert('ppm_task_qual', array(
+                            'ppm_task_qual_numb'=>$checklistQual['checklist_qual_numb'],
+                            'ppm_task_qual_desc'=>$checklistQual['checklist_qual_desc'],
+                            'frequency_id'=>$qualFrequency,
+                            'ppm_task_qual_result'=>$qualResult,
+                            'ppm_task_id'=>$ppmTaskId,
+                            'checklist_qual_id'=>$checklistQual['checklist_qual_id']
+                        ));
+                    }
+
+                    // Populate quantitative tasks for the new ppm_task
+                    foreach ($checklistQuans as $checklistQuan) {
+                        $quanResult = ''; // Default result
+                        $quanFrequency = $this->fn_general->clear_null($checklistQuan['frequency_id']);
+                         // Determine if this task is N/A for this specific date due to frequency mismatch
+                        if (($quanFrequency === '1' && !in_array($dateStr, $yearlyDates)) ||
+                            ($quanFrequency === '2' && !in_array($dateStr, $quarterlyDates)) ||
+                            ($quanFrequency === '3' && !in_array($dateStr, $monthlyDates)) ||
+                            ($quanFrequency === '4' && !in_array($dateStr, $weeklyDates)) ||
+                            ($quanFrequency === '5' && !in_array($dateStr, $dailyDates)) ||
+                            ($quanFrequency === '6' && !in_array($dateStr, $halfAnnuallyDates))) {
+                            $quanResult = '2'; // Set to N/A
+                        }
+                        Class_db::getInstance()->db_insert('ppm_task_quan', array(
+                            'ppm_task_quan_numb'=>$checklistQuan['checklist_quan_numb'],
+                            'ppm_task_quan_desc'=>$checklistQuan['checklist_quan_desc'],
+                            'frequency_id'=>$quanFrequency,
+                            'ppm_task_quan_unit'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_unit']),
+                            'ppm_task_quan_set_values'=>$this->fn_general->clear_null($checklistQuan['checklist_quan_set_values']),
+                            'ppm_task_quan_result'=>$quanResult,
+                            'ppm_task_id'=>$ppmTaskId,
+                            'checklist_quan_id'=>$checklistQuan['checklist_quan_id']
+                        ));
+                    }
+                    
+                    // --- ADDED THIS SECTION: ppm_task_frequency insertion for new tasks ---
+                    $highestFrequency = ''; // Initialize for this task
+                    if ($isDaily && in_array($dateStr, $dailyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'5'));
+                        $highestFrequency = '5';
+                    }
+                    if ($isWeekly && in_array($dateStr, $weeklyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'4'));
+                        $highestFrequency = '4';
+                    }
+                    if ($isMonthly && in_array($dateStr, $monthlyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'3'));
+                        $highestFrequency = '3';
+                    }
+                    if ($isQuarterly && in_array($dateStr, $quarterlyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'2'));
+                        $highestFrequency = '2';
+                    }
+                    if ($isHalfAnnually && in_array($dateStr, $halfAnnuallyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'6'));
+                        $highestFrequency = '6';
+                    }
+                    if ($isYearly && in_array($dateStr, $yearlyDates)) {
+                        Class_db::getInstance()->db_insert('ppm_task_frequency', array('ppm_task_id'=>$ppmTaskId, 'frequency_id'=>'1'));
+                        $highestFrequency = '1';
+                    }
+                    $ppmStartDate = $this->get_ppm_start_date($dateStr, $highestFrequency);
+                    Class_db::getInstance()->db_update('ppm_task', array('ppm_task_start_date'=>$ppmStartDate), array('ppm_task_id'=>$ppmTaskId));
+                    // --- END ADDED SECTION ---
+
+                    // Update workflow task and transaction status
+                    Class_db::getInstance()->db_update('wfl_task', array('task_status'=>'8', 'task_time_claimed'=>''), array('transaction_id'=>$transactionId)); // Status 8: Open
+                    Class_db::getInstance()->db_update('wfl_transaction', array('transaction_date_due'=>$dateStr, 'transaction_status'=>'12', 'asset_no'=>$asset['asset_no']), array('transaction_id'=>$transactionId)); // Status 12: Open
+
+                    $generatedTaskCount++;
+                } // End foreach newScheduledDatesForExtension
+
+            } // End foreach assets
+
+            // Update site running number only once after all tasks are generated for this contract
+            Class_db::getInstance()->db_update('cli_site', array('site_running_no'=>strval($siteRunningNo)), array('site_id'=>$contractSiteId));
+
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Generated {$generatedTaskCount} new PPM tasks for contract {$contractId} extension.");
+
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 }
