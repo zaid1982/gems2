@@ -3430,7 +3430,7 @@ class Class_ppm {
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
-            if ($ppmGroupExecution !== '0' && $ppmGroupExecution !== '1') { // Validate the new parameter
+            if ($ppmGroupExecution != '0' && $ppmGroupExecution != '1') { // Validate the new parameter
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupExecution invalid');
             }
 
