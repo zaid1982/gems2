@@ -3430,6 +3430,9 @@ class Class_ppm {
             if (empty($userId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
             }
+
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Parameters: ppmTaskId=' . $ppmTaskId . ', userId=' . $userId . ', ppmGroupExecution=' . $ppmGroupExecution);
+
             if ($ppmGroupExecution != '0' && $ppmGroupExecution != '1') { // Validate the new parameter
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupExecution invalid');
             }
