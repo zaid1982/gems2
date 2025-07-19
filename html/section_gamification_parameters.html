@@ -1,0 +1,140 @@
+<section class="section mb-5 sectionGamificationParameters" style="display: none;">
+    <div class="row mb-4 pb-0">
+        <div class="col-md-12">
+            <button class="btn btn-outline-info btn-rounded float-right text-white z-depth-3" id="btnGpsBack" type="button">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Leaderboard
+            </button>
+        </div>
+    </div>
+    <div class="card z-depth-3 mb-4">
+        <div class="card-header white p-0">
+            <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
+            <h4 class="font-weight-bold pt-2 pl-4_5">Gamification Parameters Configuration</h4>
+        </div>
+        <div class="card-body">
+            <form id="frmGamificationParameters">
+                <div class="row pt-2">
+                    <div class="col-md-6 col-lg-4">
+                        <h5 class="text-primary font-weight-bold mb-3">Points Calculation (Monthly)</h5>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointCompletedCoeff" class="form-control" step="0.01">
+                            <label for="txtPointCompletedCoeff" class="active">Completed Points Coefficient (e.g., 0.3)</label>
+                            <small id="txtPointCompletedCoeffErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointOnTimeCoeff" class="form-control" step="0.01">
+                            <label for="txtPointOnTimeCoeff" class="active">On-Time Points Coefficient (e.g., 0.7)</label>
+                            <small id="txtPointOnTimeCoeffErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointLateCoeff" class="form-control" step="0.01">
+                            <label for="txtPointLateCoeff" class="active">Late Points Coefficient (e.g., 0.15)</label>
+                            <small id="txtPointLateCoeffErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointSelfFindingMultiplier" class="form-control">
+                            <label for="txtPointSelfFindingMultiplier" class="active">Self-Finding Bonus Multiplier (e.g., 5)</label>
+                            <small id="txtPointSelfFindingMultiplierErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointScaleMultiplierMonthly" class="form-control">
+                            <label for="txtPointScaleMultiplierMonthly" class="active">Overall Point Scale Multiplier (Monthly, e.g., 10000)</label>
+                            <small id="txtPointScaleMultiplierMonthlyErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWoOnTimeWeightMonthly" class="form-control">
+                            <label for="txtWoOnTimeWeightMonthly" class="active">Work Order On-Time Weight (Monthly, e.g., 2)</label>
+                            <small id="txtWoOnTimeWeightMonthlyErr" class="form-text red-text"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <h5 class="text-primary font-weight-bold mb-3">MBV Tiers (Monthly)</h5>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtMonthlyMbvTier1Threshold" class="form-control">
+                            <label for="txtMonthlyMbvTier1Threshold" class="active">Tier 1 Threshold (e.g., 50)</label>
+                            <small id="txtMonthlyMbvTier1ThresholdErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtMonthlyMbvTier1Divider" class="form-control" step="0.01">
+                            <label for="txtMonthlyMbvTier1Divider" class="active">Tier 1 Divider Value (e.g., 1)</label>
+                            <small id="txtMonthlyMbvTier1DividerErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtMonthlyMbvTier2Threshold" class="form-control">
+                            <label for="txtMonthlyMbvTier2Threshold" class="active">Tier 2 Threshold (e.g., 100)</label>
+                            <small id="txtMonthlyMbvTier2ThresholdErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtMonthlyMbvTier2Divider" class="form-control" step="0.01">
+                            <label for="txtMonthlyMbvTier2Divider" class="active">Tier 2 Divider Value (e.g., 3)</label>
+                            <small id="txtMonthlyMbvTier2DividerErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtMonthlyMbvTier3Divider" class="form-control" step="0.01">
+                            <label for="txtMonthlyMbvTier3Divider" class="active">Tier 3 Divider Value (e.g., 5)</label>
+                            <small id="txtMonthlyMbvTier3DividerErr" class="form-text red-text"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <h5 class="text-primary font-weight-bold mb-3">Productivity (Monthly)</h5>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtProductivityLevelBase" class="form-control">
+                            <label for="txtProductivityLevelBase" class="active">Productivity Level Base (e.g., 90%)</label>
+                            <small id="txtProductivityLevelBaseErr" class="form-text red-text"></small>
+                        </div>
+
+                        <h5 class="text-primary font-weight-bold mb-3 mt-5">MBV Tiers (Weekly)</h5>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWeeklyMbvTier1Threshold" class="form-control">
+                            <label for="txtWeeklyMbvTier1Threshold" class="active">Tier 1 Threshold (Weekly, e.g., 10)</label>
+                            <small id="txtWeeklyMbvTier1ThresholdErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWeeklyMbvTier1Divider" class="form-control" step="0.01">
+                            <label for="txtWeeklyMbvTier1Divider" class="active">Tier 1 Divider Value (Weekly, e.g., 0.5)</label>
+                            <small id="txtWeeklyMbvTier1DividerErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWeeklyMbvTier2Threshold" class="form-control">
+                            <label for="txtWeeklyMbvTier2Threshold" class="active">Tier 2 Threshold (Weekly, e.g., 25)</label>
+                            <small id="txtWeeklyMbvTier2ThresholdErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWeeklyMbvTier2Divider" class="form-control" step="0.01">
+                            <label for="txtWeeklyMbvTier2Divider" class="active">Tier 2 Divider Value (Weekly, e.g., 1.5)</label>
+                            <small id="txtWeeklyMbvTier2DividerErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWeeklyMbvTier3Divider" class="form-control" step="0.01">
+                            <label for="txtWeeklyMbvTier3Divider" class="active">Tier 3 Divider Value (Weekly, e.g., 2.5)</label>
+                            <small id="txtWeeklyMbvTier3DividerErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtPointScaleMultiplierWeekly" class="form-control">
+                            <label for="txtPointScaleMultiplierWeekly" class="active">Overall Point Scale Multiplier (Weekly, e.g., 2000)</label>
+                            <small id="txtPointScaleMultiplierWeeklyErr" class="form-text red-text"></small>
+                        </div>
+                        <div class="md-form mb-4">
+                            <input type="number" id="txtWoOnTimeWeightWeekly" class="form-control">
+                            <label for="txtWoOnTimeWeightWeekly" class="active">Work Order On-Time Weight (Weekly, e.g., 2)</label>
+                            <small id="txtWoOnTimeWeightWeeklyErr" class="form-text red-text"></small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4">
+
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="btnGpsSave" type="submit">
+                        <i class="fas fa-save mr-2"></i> Save Parameters
+                    </button>
+                    <button class="btn btn-secondary btn-lg" id="btnGpsCancel" type="button">
+                        <i class="fas fa-times mr-2"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

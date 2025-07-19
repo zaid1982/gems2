@@ -37,6 +37,8 @@ try {
         array_shift($urlArr);
     }
 
+    $fn_general->log_debug('API', $api_name, __LINE__, 'Parsed urlArr: ' . implode(', ', $urlArr));
+
     $headers = apache_request_headers();
     if (isset($headers['Authorization'])) {
         $jwt_data = $fn_login->check_jwt($headers['Authorization']);
@@ -76,6 +78,8 @@ try {
             $month = intval($now->format('n'));
             $fn_gamification->runMonthly($year, $month);
             $result = $fn_gamification->getCurrentScore($userId, $year, $month);
+        } else if ($urlArr[1] === 'parameters') {
+            $result = $fn_gamification->getGamificationParameters();
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
@@ -86,6 +90,8 @@ try {
         $putData = file_get_contents("php://input");
         $params = array();
         parse_str($putData, $params);
+
+        $requestBody = json_decode($putData, true);
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
@@ -100,6 +106,13 @@ try {
             $arrMonth = array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
             $fn_general->save_audit('183', $userId, 'Month = '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2]);
             $form_data['errmsg'] = 'Leaderboard Points successfully update for month '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2];
+        } else if ($urlArr[1] === 'parameters') {
+            $fn_general->log_debug('API', $api_name, __LINE__, 'Parameters data received for update: ' . $putData);
+            if (empty($requestBody) || !is_array($requestBody)) {
+                throw new Exception('[' . __LINE__ . '] - Invalid parameters data provided.');
+            }
+            $fn_gamification->updateMultipleGamificationParameters($requestBody, $userId);
+            $form_data['errmsg'] = 'Gamification parameters successfully updated.';
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid (' . $urlArr[1] . ')');
         }

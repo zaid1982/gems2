@@ -17,6 +17,7 @@ function MainGamification () {
     let refSite;
     let refDesignation;
     let sectionUserGameClass;
+    let sectionGamificationParametersClass;
 
     this.init = function () {
         monthArray = mzGetMonthArray();
@@ -322,6 +323,23 @@ function MainGamification () {
             $('[data-toggle="tooltip"]').tooltip();
         });
 
+        $('#btnGmiConfig').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.hideMain(); // Hide the main leaderboard section
+                    if (sectionGamificationParametersClass) {
+                        sectionGamificationParametersClass.show(); // Show the parameters section
+                    } else {
+                        throw new Error("Gamification Parameters class not initialized.");
+                    }
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
+
         self.genTableTop5();
         self.genTableStats();
     };
@@ -364,5 +382,9 @@ function MainGamification () {
 
     this.setSectionUserGameClass = function (_sectionUserGameClass) {
         sectionUserGameClass = _sectionUserGameClass;
+    };
+
+    this.setSectionGamificationParametersClass = function (_sectionGamificationParametersClass) {
+        sectionGamificationParametersClass = _sectionGamificationParametersClass;
     };
 }
