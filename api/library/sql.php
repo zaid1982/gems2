@@ -1517,6 +1517,24 @@ class Class_sql
                 WHERE ((YEAR(ppm_task_schedule_date) = [yearNo1] AND WEEK(ppm_task_schedule_date, 5) = [weekNo1]) OR (YEAR(ppm_task_schedule_date) = [yearNo2] AND WEEK(ppm_task_schedule_date, 5) = 0) ) 
                   AND p.ppm_task_assigned_to IS NOT NULL
                 GROUP BY p.ppm_task_assigned_to";
+            } else if ($title === 'vw_gamification_ppm_assist_weekly') {
+                $sql = "SELECT
+                    a.user_id,
+                    u.site_id,
+                    g.gmw_id,
+                    COUNT(*) AS ppm_total,
+                    SUM(IF(p.ppm_task_time_serviced IS NOT NULL, 1, 0)) AS ppm_completed,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) <= p.ppm_task_schedule_date, 1, 0)) AS ppm_on_time,
+                    SUM(IF(DATE(p.ppm_task_time_serviced) > p.ppm_task_schedule_date, 1, 0)) AS ppm_late,
+					SUM(IF(p.ppm_task_min_exec_time IS NOT NULL AND p.ppm_task_max_exec_time IS NOT NULL AND p.ppm_task_time_start IS NOT NULL AND p.ppm_task_time_serviced IS NOT NULL
+						AND TIMEDIFF(p.ppm_task_time_serviced, p.ppm_task_time_start) >= ppm_task_min_exec_time AND TIMEDIFF(p.ppm_task_time_serviced, p.ppm_task_time_start) <= ppm_task_max_exec_time, 1, 0)) AS ppm_within
+                FROM ppm_task_assist a
+                LEFT JOIN ppm_task p ON p.ppm_task_id = a.ppm_task_id
+                LEFT JOIN sys_user u ON u.user_id = a.user_id
+                LEFT JOIN sys_user_profile up ON up.user_id = u.user_id
+                LEFT JOIN gmi_weekly g ON g.user_id = a.user_id AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
+                WHERE up.designation_id = 4 AND YEAR(p.ppm_task_schedule_date) = [yearNo] AND WEEK(p.ppm_task_schedule_date, 5) = [weekNo] AND p.ppm_task_assigned_to IS NOT NULL
+                GROUP BY a.user_id";
             } else if ($title === 'vw_gamification_wo_monthly') {
                 $sql = "SELECT 
                     w.wo_task_assigned_to,
@@ -1533,6 +1551,23 @@ class Class_sql
                 LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
                 LEFT JOIN gmi_monthly g ON g.user_id = w.wo_task_assigned_to AND g.gmi_year = [yearNo] AND g.gmi_month = [monthNo]
                 WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND MONTH(w.wo_task_time_created) = [monthNo] AND w.wo_task_assigned_to IS NOT NULL
+                GROUP BY w.wo_task_assigned_to";
+            } else if ($title === 'vw_gamification_wo_weekly') {
+                $sql = "SELECT
+                    w.wo_task_assigned_to,
+                    w.site_id,
+                    g.gmw_id,
+                    COUNT(*) AS wo_total,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL, 1, 0)) AS wo_completed,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) <= sv.client_severity_hour, 1, 0)) AS wo_on_time,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) > sv.client_severity_hour, 1, 0)) AS wo_late,
+                    SUM(IF(w.wo_task_type = 2, 1, 0)) AS wo_self_finding
+                FROM wo_task w
+                LEFT JOIN cli_site s ON s.site_id = w.site_id
+                LEFT JOIN sys_user_profile up ON up.user_id = w.wo_task_assigned_to
+                LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
+                LEFT JOIN gmi_weekly g ON g.user_id = w.wo_task_assigned_to AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
+                WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND WEEK(w.wo_task_time_created, 5) = [weekNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY w.wo_task_assigned_to";
             } else if ($title === 'vw_gamification_wo_assist_monthly') {
                 $sql = "SELECT 
