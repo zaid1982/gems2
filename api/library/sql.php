@@ -1569,6 +1569,23 @@ class Class_sql
                 LEFT JOIN gmi_weekly g ON g.user_id = w.wo_task_assigned_to AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
                 WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND WEEK(w.wo_task_time_created, 5) = [weekNo] AND w.wo_task_assigned_to IS NOT NULL
                 GROUP BY w.wo_task_assigned_to";
+            } else if ($title === 'vw_gamification_wo_assist_weekly') {
+                $sql = "SELECT
+                    a.user_id,
+                    w.site_id,
+                    g.gmw_id,
+                    COUNT(*) AS wo_total,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL, 1, 0)) AS wo_completed,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) <= sv.client_severity_hour, 1, 0)) AS wo_on_time,
+                    SUM(IF(w.wo_task_time_executed IS NOT NULL AND TIMESTAMPDIFF(HOUR, w.wo_task_time_created, w.wo_task_time_executed) > sv.client_severity_hour, 1, 0)) AS wo_late
+                FROM wo_task_assist a
+                LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id
+                LEFT JOIN cli_site s ON s.site_id = w.site_id
+                LEFT JOIN sys_user_profile up ON up.user_id = a.user_id
+                LEFT JOIN cli_client_severity sv ON sv.client_id = s.client_id AND sv.severity_id = w.wo_task_severity
+                LEFT JOIN gmi_weekly g ON g.user_id = a.user_id AND g.gmw_year = [yearNo] AND g.gmw_week = [weekNo]
+                WHERE up.designation_id = 4 AND YEAR(w.wo_task_time_created) = [yearNo] AND WEEK(w.wo_task_time_created, 5) = [weekNo] AND w.wo_task_assigned_to IS NOT NULL
+                GROUP BY a.user_id";
             } else if ($title === 'vw_gamification_wo_assist_monthly') {
                 $sql = "SELECT 
                     a.user_id,
