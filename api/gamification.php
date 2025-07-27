@@ -100,6 +100,16 @@ try {
             $arrMonth = array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
             $fn_general->save_audit('183', $userId, 'Month = '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2]);
             $form_data['errmsg'] = 'Leaderboard Points successfully update for month '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2];
+        } else if ($urlArr[1] === 'run_weekly') {
+            if (!isset ($urlArr[2])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter year null');
+            } else if (!isset ($urlArr[3])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter month null');
+            }
+            $fn_gamification->runMonthly($urlArr[2], $urlArr[3]);
+            $arrMonth = array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+            $fn_general->save_audit('183', $userId, 'Weekly calculation for Month = '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2]);
+            $form_data['errmsg'] = 'Weekly calculation successfully completed for month '.$arrMonth[intval($urlArr[3])].', '.$urlArr[2];
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid (' . $urlArr[1] . ')');
         }

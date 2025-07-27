@@ -2,22 +2,22 @@
 
 class Constant {
     //public static $dbUserName = 'root';
-    public static $dbUserName = 'zaid';
+    public static $dbUserName = 'gems';
     //public static $dbUserPassword = 'password';
-    public static $dbUserPassword = 'Amlyda@1982';
+    public static $dbUserPassword = 'Metadata@2025';
     //public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems';
-    public static $dbHost = 'localhost';
+    public static $dbHost = 'www.metadatasystem.my';
     //public static $dbHost = '10.101.11.71';
     //public static $folderDebug = '../../../logs/gems/debug/';
     //public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
-    public static $folderDebug = '../../../logs/gems.metadatasystem.my/debug/';
+    public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
     //public static $folderError = '../../../logs/gems/error/';
     //public static string $folderError = 'C:\xampp\logs\gems\error\\';
-    public static $folderError = '../../../logs/gems.metadatasystem.my/error/';
-    //public static $url = '//localhost/gems2/api/';
+    public static $folderError = '/Applications/XAMPP/logs/gems/error/';
+    public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//gems.metadatasystem.my/api/';
+    // public static $url = '//gems.metadatasystem.my/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
