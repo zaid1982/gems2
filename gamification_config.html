@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0 - Gamification Settings</title>
+	<!-- Browser icon -->
+	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+        .w-80 {
+            width: 80% !important;
+        }
+        #divSugProgressBar {
+            height: 115px;
+        }
+    </style>
+	
+    <style>
+        .config-section {
+            margin-bottom: 2rem;
+        }
+        .config-header {
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        .config-body {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .form-control:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #34a853, #4285f4);
+            border: none;
+        }
+        .btn-save:hover {
+            background: linear-gradient(45deg, #2e8b47, #3367d6);
+        }
+        .description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+    
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!-- Back Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button class="btn btn-outline-secondary" onclick="window.location.href='gamification.html'">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Gamification
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Title -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2 class="h2-responsive font-weight-bold">
+                    <i class="fas fa-cogs mr-3"></i>Gamification Configuration
+                </h2>
+                <p class="text-muted">Configure the parameters used in gamification scoring calculations</p>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="successMessage">Configuration saved successfully!</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="errorMessage">An error occurred while saving configuration.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier Thresholds Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header">
+                        <h5 class="mb-0"><i class="fas fa-trophy mr-2"></i>Tier Thresholds</h5>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="tier_medalist_threshold">Medalist Threshold</label>
+                                    <input type="number" class="form-control" id="tier_medalist_threshold" min="1" step="1">
+                                    <div class="description">Minimum completed tasks required to achieve Medalist tier</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="tier_finisher_threshold">Finisher Threshold</label>
+                                    <input type="number" class="form-control" id="tier_finisher_threshold" min="1" step="1">
+                                    <div class="description">Minimum completed tasks required to achieve Finisher tier</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MBV Configuration Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-line mr-2"></i>Merit-Based Value (MBV) Configuration</h5>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mbv_tier1_threshold">Tier 1 Threshold</label>
+                                    <input type="number" class="form-control" id="mbv_tier1_threshold" min="1" step="1">
+                                    <div class="description">MBV threshold for tier 1 multiplier (lowest performance)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mbv_tier2_threshold">Tier 2 Threshold</label>
+                                    <input type="number" class="form-control" id="mbv_tier2_threshold" min="1" step="1">
+                                    <div class="description">MBV threshold for tier 2 multiplier (medium performance)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mbv_tier1_multiplier">Tier 1 Multiplier</label>
+                                    <input type="number" class="form-control" id="mbv_tier1_multiplier" min="0.1" step="0.1">
+                                    <div class="description">Point multiplier for tier 1 (MBV ≤ 50)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mbv_tier2_multiplier">Tier 2 Multiplier</label>
+                                    <input type="number" class="form-control" id="mbv_tier2_multiplier" min="0.1" step="0.1">
+                                    <div class="description">Point multiplier for tier 2 (51 ≤ MBV ≤ 100)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mbv_tier3_multiplier">Tier 3 Multiplier</label>
+                                    <input type="number" class="form-control" id="mbv_tier3_multiplier" min="0.1" step="0.1">
+                                    <div class="description">Point multiplier for tier 3 (MBV > 100)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Point Calculation Weights Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header">
+                        <h5 class="mb-0"><i class="fas fa-calculator mr-2"></i>Point Calculation Weights</h5>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="weight_completed">Completion Weight</label>
+                                    <input type="number" class="form-control" id="weight_completed" min="0" max="1" step="0.01">
+                                    <div class="description">Weight percentage for completion points (0-1)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="weight_ontime">On-Time Weight</label>
+                                    <input type="number" class="form-control" id="weight_ontime" min="0" max="1" step="0.01">
+                                    <div class="description">Weight percentage for on-time points (0-1)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="weight_late_penalty">Late Penalty Weight</label>
+                                    <input type="number" class="form-control" id="weight_late_penalty" min="0" max="1" step="0.01">
+                                    <div class="description">Weight percentage for late penalty (0-1)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="self_finding_points">Self-Finding Points</label>
+                                    <input type="number" class="form-control" id="self_finding_points" min="1" step="1">
+                                    <div class="description">Points awarded per self-finding work order</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Configuration Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header">
+                        <h5 class="mb-0"><i class="fas fa-cog mr-2"></i>System Configuration</h5>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="point_scale_factor">Point Scale Factor</label>
+                                    <input type="number" class="form-control" id="point_scale_factor" min="1" step="1">
+                                    <div class="description">Scaling factor for all point calculations</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="productivity_base">Productivity Base</label>
+                                    <input type="number" class="form-control" id="productivity_base" min="1" max="100" step="1">
+                                    <div class="description">Base productivity percentage for calculations</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="wo_ontime_multiplier">Work Order On-Time Multiplier</label>
+                                    <input type="number" class="form-control" id="wo_ontime_multiplier" min="1" step="0.1">
+                                    <div class="description">Multiplier for work order on-time calculations</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <button class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveConfig">
+                    <i class="fas fa-save mr-2"></i> Save Configuration
+                </button>
+                <button class="btn btn-outline-secondary px-5 py-3 ml-3" id="btnResetConfig">
+                    <i class="fas fa-undo mr-2"></i> Reset to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+<!--Main layout-->
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+
+<!--Custom scripts-->
+
+<script>
+
+document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+let versionLocal_;
+let changePasswordClass_;
+
+document.addEventListener('DOMContentLoaded', function() {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            initiatePages();
+            versionLocal_ = mzGetDataVersion();
+            changePasswordClass_ = new ModalChangePassword();
+            
+            changePasswordClass_.init();
+            
+            loadConfiguration();
+            
+            // Save Configuration
+            document.getElementById('btnSaveConfig').addEventListener('click', function() {
+                saveConfiguration();
+            });
+            
+            // Reset to Defaults
+            document.getElementById('btnResetConfig').addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all values to defaults? This will override any custom settings.')) {
+                    resetToDefaults();
+                }
+            });
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+});
+
+function loadConfiguration() {
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/gamification_config.php',
+        type: 'GET',
+        data: { action: 'get_all' },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                populateForm(response.data);
+            } else {
+                showError('Failed to load configuration: ' + (response.message || 'Unknown error'));
+            }
+        },
+        error: function() {
+            showError('Failed to load configuration. Please check your connection.');
+        },
+        complete: function() {
+            HideLoader();
+        }
+    });
+}
+
+function populateForm(config) {
+    // Set default values first
+    const defaults = {
+        'tier_medalist_threshold': 150,
+        'tier_finisher_threshold': 80,
+        'mbv_tier1_threshold': 50,
+        'mbv_tier2_threshold': 100,
+        'mbv_tier1_multiplier': 1,
+        'mbv_tier2_multiplier': 3,
+        'mbv_tier3_multiplier': 5,
+        'weight_completed': 0.3,
+        'weight_ontime': 0.7,
+        'weight_late_penalty': 0.15,
+        'self_finding_points': 5,
+        'point_scale_factor': 10000,
+        'productivity_base': 90,
+        'wo_ontime_multiplier': 2
+    };
+    
+    // Populate form with loaded config or defaults
+    Object.keys(defaults).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            const value = config[key] !== undefined ? config[key] : defaults[key];
+            element.value = value;
+        }
+    });
+}
+
+function saveConfiguration() {
+    const configData = {};
+    
+    // Collect all form values
+    const configKeys = [
+        'tier_medalist_threshold', 'tier_finisher_threshold',
+        'mbv_tier1_threshold', 'mbv_tier2_threshold',
+        'mbv_tier1_multiplier', 'mbv_tier2_multiplier', 'mbv_tier3_multiplier',
+        'weight_completed', 'weight_ontime', 'weight_late_penalty',
+        'self_finding_points', 'point_scale_factor', 'productivity_base',
+        'wo_ontime_multiplier'
+    ];
+    
+    configKeys.forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            configData[key] = element.value;
+        }
+    });
+    
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/gamification_config.php',
+        type: 'POST',
+        data: { 
+            action: 'save_all',
+            config: JSON.stringify(configData)
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showSuccess('Configuration saved successfully!');
+            } else {
+                showError('Failed to save configuration: ' + (response.message || 'Unknown error'));
+            }
+        },
+        error: function() {
+            showError('Failed to save configuration. Please check your connection.');
+        },
+        complete: function() {
+            HideLoader();
+        }
+    });
+}
+
+function resetToDefaults() {
+    const defaults = {
+        'tier_medalist_threshold': 150,
+        'tier_finisher_threshold': 80,
+        'mbv_tier1_threshold': 50,
+        'mbv_tier2_threshold': 100,
+        'mbv_tier1_multiplier': 1,
+        'mbv_tier2_multiplier': 3,
+        'mbv_tier3_multiplier': 5,
+        'weight_completed': 0.3,
+        'weight_ontime': 0.7,
+        'weight_late_penalty': 0.15,
+        'self_finding_points': 5,
+        'point_scale_factor': 10000,
+        'productivity_base': 90,
+        'wo_ontime_multiplier': 2
+    };
+    
+    Object.keys(defaults).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            element.value = defaults[key];
+        }
+    });
+    
+    showSuccess('Values reset to defaults. Click "Save Configuration" to apply changes.');
+}
+
+function showSuccess(message) {
+    document.getElementById('successMessage').textContent = message;
+    const alertElement = document.getElementById('alertSuccess');
+    alertElement.style.display = 'block';
+    alertElement.classList.add('show');
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        alertElement.classList.remove('show');
+        setTimeout(() => {
+            alertElement.style.display = 'none';
+        }, 150);
+    }, 5000);
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    const alertElement = document.getElementById('alertError');
+    alertElement.style.display = 'block';
+    alertElement.classList.add('show');
+    
+    // Hide after 8 seconds
+    setTimeout(() => {
+        alertElement.classList.remove('show');
+        setTimeout(() => {
+            alertElement.style.display = 'none';
+        }, 150);
+    }, 8000);
+}
+</script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>

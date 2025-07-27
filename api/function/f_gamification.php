@@ -4,8 +4,81 @@ class Class_gamification {
 
     private $constant;
     private $fn_general;
+    private $config;
 
     function __construct() {
+        $this->loadGamificationConfig();
+    }
+
+    /**
+     * Load gamification configuration from database
+     * @throws Exception
+     */
+    private function loadGamificationConfig() {
+        try {
+            $configData = Class_db::getInstance()->db_select2('gmi_config', array('status' => 1));
+            $this->config = array();
+            foreach ($configData as $config) {
+                $value = $config['config_value'];
+                // Convert based on data type
+                switch ($config['data_type']) {
+                    case 'int':
+                        $value = intval($config['config_value']);
+                        break;
+                    case 'float':
+                        $value = floatval($config['config_value']);
+                        break;
+                    case 'string':
+                    default:
+                        $value = $config['config_value'];
+                        break;
+                }
+                $this->config[$config['config_key']] = $value;
+            }
+        } catch (Exception $ex) {
+            // If config table doesn't exist or is empty, use default values
+            $this->setDefaultConfig();
+        }
+    }
+
+    /**
+     * Set default configuration values as fallback
+     */
+    private function setDefaultConfig() {
+        $this->config = array(
+            'tier_medalist_threshold' => 150,
+            'tier_finisher_threshold' => 80,
+            'mbv_tier1_threshold' => 50,
+            'mbv_tier2_threshold' => 100,
+            'mbv_tier1_multiplier' => 1,
+            'mbv_tier2_multiplier' => 3,
+            'mbv_tier3_multiplier' => 5,
+            'weight_completed' => 0.3,
+            'weight_ontime' => 0.7,
+            'weight_late_penalty' => 0.15,
+            'self_finding_points' => 5,
+            'point_scale_factor' => 10000,
+            'productivity_base' => 90,
+            'wo_ontime_multiplier' => 2
+        );
+    }
+
+    /**
+     * Get configuration value by key
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    private function getConfig($key, $default = null) {
+        return isset($this->config[$key]) ? $this->config[$key] : $default;
+    }
+
+    /**
+     * Refresh configuration from database
+     * @throws Exception
+     */
+    public function refreshConfig() {
+        $this->loadGamificationConfig();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -251,10 +324,10 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmOnTime'] = intval($ppm['ppmOnTime']);
                 $gmiMonthly[$userId]['gmiPpmLate'] = intval($ppm['ppmLate']);
                 $gmiMonthly[$userId]['gmiPpmWithin'] = intval($ppm['ppmWithin']);
-                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
+                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
-                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
+                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Finisher';
                 }
@@ -272,10 +345,10 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
                 $gmiMonthly[$userId]['gmiPpmLate'] += intval($ppmAssist['ppmLate']);
                 $gmiMonthly[$userId]['gmiPpmWithin'] += intval($ppmAssist['ppmWithin']);
-                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 150) {
+                if ($gmiMonthly[$userId]['gmiPpmCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Medalist';
-                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > 80) {
+                } else if ($gmiMonthly[$userId]['gmiPpmCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
                     $gmiMonthly[$userId]['gmiPpmTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiPpmTierName'] = 'Finisher';
                 }
@@ -292,10 +365,10 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiWoOnTime'] = intval($wo['woOnTime']);
                 $gmiMonthly[$userId]['gmiWoLate'] = intval($wo['woLate']);
                 $gmiMonthly[$userId]['gmiWoSelfFinding'] = intval($wo['woSelfFinding']);
-                if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
+                if ($gmiMonthly[$userId]['gmiWoCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Medalist';
-                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
+                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Finisher';
                 }
@@ -312,10 +385,10 @@ class Class_gamification {
                 $gmiMonthly[$userId]['gmiWoCompleted'] += intval($woAssist['woCompleted']);
                 $gmiMonthly[$userId]['gmiWoOnTime'] += intval($woAssist['woOnTime']);
                 $gmiMonthly[$userId]['gmiWoLate'] += intval($woAssist['woLate']);
-                if ($gmiMonthly[$userId]['gmiWoCompleted'] > 150) {
+                if ($gmiMonthly[$userId]['gmiWoCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Medalist';
-                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > 80) {
+                } else if ($gmiMonthly[$userId]['gmiWoCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
                     $gmiMonthly[$userId]['gmiWoTierPoint'] = 1;
                     $gmiMonthly[$userId]['gmiWoTierName'] = 'Finisher';
                 }
@@ -326,30 +399,30 @@ class Class_gamification {
                 // ---- total ---- \\
                 $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
                 $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
-                $allOnTime = $gmi['gmiPpmOnTime'] + (2*$gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
+                $allOnTime = $gmi['gmiPpmOnTime'] + ($this->getConfig('wo_ontime_multiplier', 2)*$gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
 				$allWithin = $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
                 $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
 				$mbv = $allOnTime - $allLate;
-				if ($mbv <= 50) {
-					$tierDivider = 1;
-				} else if ($mbv <= 100) {
-					$tierDivider = 3;
+				if ($mbv <= $this->getConfig('mbv_tier1_threshold', 50)) {
+					$tierDivider = $this->getConfig('mbv_tier1_multiplier', 1);
+				} else if ($mbv <= $this->getConfig('mbv_tier2_threshold', 100)) {
+					$tierDivider = $this->getConfig('mbv_tier2_multiplier', 3);
 				} else {
-					$tierDivider = 5;
+					$tierDivider = $this->getConfig('mbv_tier3_multiplier', 5);
 				}
                 // ---- point ---- \\
                 //$tierDivider = max($gmi['gmiWoTierPoint'], $gmi['gmiPpmTierPoint']);
-                $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal) * 0.3 * 10000;
-                $gmi['gmiPointOnTime'] = (($allWithin/$allTotal) * $tierDivider) * 0.7 * 10000;
-                $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted) * $tierDivider) * 0.15 * 10000;
-                $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * 5;
+                $gmi['gmiPointCompleted'] = ($allCompleted/$allTotal) * $this->getConfig('weight_completed', 0.3) * $this->getConfig('point_scale_factor', 10000);
+                $gmi['gmiPointOnTime'] = (($allWithin/$allTotal) * $tierDivider) * $this->getConfig('weight_ontime', 0.7) * $this->getConfig('point_scale_factor', 10000);
+                $gmi['gmiPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
+                $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * $this->getConfig('self_finding_points', 5);
                 $gmi['gmiPointTotal'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointOnTime'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'];
 				$gmi['gmiMbv'] = $mbv;
 				$gmi['gmiTierPoint'] = $tierDivider;
                 // ---- productivity ---- \\
-                $gmi['gmiProductivityLevel'] = $allWithin / $allTotal * 90;
-                $gmi['gmiProductivityDeduction'] = 90 - $gmi['gmiProductivityLevel'];
-                $gmi['gmiPointLessProductive'] = ($allWithin/$allTotal) * $gmi['gmiTierPoint'] * ($gmi['gmiProductivityDeduction']/100) * 10000;
+                $gmi['gmiProductivityLevel'] = $allWithin / $allTotal * $this->getConfig('productivity_base', 90);
+                $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmi['gmiProductivityLevel'];
+                $gmi['gmiPointLessProductive'] = ($allWithin/$allTotal) * $gmi['gmiTierPoint'] * ($gmi['gmiProductivityDeduction']/100) * $this->getConfig('point_scale_factor', 10000);
                 $gmi['gmiPointBeforeMinus'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'] + $gmi['gmiPointOnTime'];
                 $gmi['gmiPointAfterMinus'] = $gmi['gmiPointBeforeMinus'] -  $gmi['gmiPointLessProductive'];
                 // ---- done ---- \\

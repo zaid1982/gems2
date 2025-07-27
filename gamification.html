@@ -87,6 +87,9 @@
                 <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnGmiSyncData" type="button">
                     <i class="fas fa-sync mr-2"></i> Sync Data
                 </button>
+                <button class="btn btn-outline-primary text-primary my-0 py-2 px-4 ml-2" id="btnGmiSettings" type="button">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </button>
             </div>
         </nav>
         <section class="mt-4 mb-4 sectionGmiMain">
@@ -246,6 +249,11 @@
                 gamificationClass_.setRefDesignation(refDesignation_);
                 gamificationClass_.setSectionUserGameClass(sectionUserGameClass_);
                 gamificationClass_.init();
+
+                // Add Settings button click handler
+                document.getElementById('btnGmiSettings').addEventListener('click', function() {
+                    window.location.href = 'gamification_config.html';
+                });
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
