@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Trade Ratio Testing Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    
+    <style>
+        .test-result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .test-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .json-output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .scenario-result {
+            margin: 5px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 0 4px 4px 0;
+        }
+        .ratio-match {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .ratio-mismatch {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h2 mb-4">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>
+                    Trade Ratio Testing Dashboard
+                </h1>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-play mr-2"></i>Test Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-success btn-block" onclick="runAllTests()">
+                                    <i class="fas fa-rocket mr-2"></i>Run All Tests
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-info btn-block" onclick="testConfiguration()">
+                                    <i class="fas fa-cog mr-2"></i>Test Config
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-warning btn-block" onclick="testRatios()">
+                                    <i class="fas fa-calculator mr-2"></i>Test Ratios
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-secondary btn-block" onclick="simulateCalculation()">
+                                    <i class="fas fa-flask mr-2"></i>Simulate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="testResults" class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Click any test button above to start testing the Trade Ratio system.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showLoading() {
+            $('#testResults').html(`
+                <div class="col-12">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                        <h4>Running Tests...</h4>
+                        <p class="text-muted">Please wait while we test the Trade Ratio system.</p>
+                    </div>
+                </div>
+            `);
+        }
+
+        function runAllTests() {
+            showLoading();
+            
+            $.get('api/test_trade_ratio.php?action=run_tests')
+                .done(function(response) {
+                    displayAllTestResults(response);
+                })
+                .fail(function(xhr, status, error) {
+                    showError('Failed to run tests: ' + error);
+                });
+        }
+
+        function testConfiguration() {
+            showLoading();
+            
+            $.get('api/test_trade_ratio.php?action=test_config')
+                .done(function(response) {
+                    displaySingleTestResult('Configuration Test', response);
+                })
+                .fail(function(xhr, status, error) {
+                    showError('Failed to test configuration: ' + error);
+                });
+        }
+
+        function testRatios() {
+            showLoading();
+            
+            $.get('api/test_trade_ratio.php?action=test_ratios')
+                .done(function(response) {
+                    displaySingleTestResult('Trade Ratio Test', response);
+                })
+                .fail(function(xhr, status, error) {
+                    showError('Failed to test ratios: ' + error);
+                });
+        }
+
+        function simulateCalculation() {
+            showLoading();
+            
+            $.get('api/test_trade_ratio.php?action=simulate_calculation')
+                .done(function(response) {
+                    displaySimulationResults(response);
+                })
+                .fail(function(xhr, status, error) {
+                    showError('Failed to run simulation: ' + error);
+                });
+        }
+
+        function displayAllTestResults(response) {
+            if (!response.success) {
+                showError(response.message || 'Unknown error occurred');
+                return;
+            }
+
+            let html = `
+                <div class="col-12">
+                    <div class="test-result test-success">
+                        <h4><i class="fas fa-check-circle mr-2"></i>All Tests Completed Successfully</h4>
+                        <p><strong>Timestamp:</strong> ${response.timestamp}</p>
+                    </div>
+                </div>
+            `;
+
+            // Display each test result
+            Object.keys(response.results).forEach(testName => {
+                const result = response.results[testName];
+                const testTitle = testName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                html += `
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header ${result.success ? 'bg-success' : 'bg-danger'} text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas ${result.success ? 'fa-check' : 'fa-times'} mr-2"></i>
+                                    ${testTitle}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Status:</strong> ${result.success ? 'PASSED' : 'FAILED'}</p>
+                                <p><strong>Message:</strong> ${result.message}</p>
+                                
+                                ${result.data ? `
+                                    <details>
+                                        <summary class="btn btn-sm btn-outline-secondary">View Details</summary>
+                                        <div class="json-output mt-2">
+                                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                                        </div>
+                                    </details>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            $('#testResults').html(html);
+        }
+
+        function displaySingleTestResult(testName, response) {
+            const statusClass = response.success ? 'test-success' : 'test-fail';
+            const icon = response.success ? 'fa-check-circle' : 'fa-times-circle';
+            
+            let html = `
+                <div class="col-12">
+                    <div class="test-result ${statusClass}">
+                        <h4><i class="fas ${icon} mr-2"></i>${testName}</h4>
+                        <p><strong>Status:</strong> ${response.success ? 'PASSED' : 'FAILED'}</p>
+                        <p><strong>Message:</strong> ${response.message}</p>
+                    </div>
+                </div>
+            `;
+
+            if (response.data) {
+                html += `
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Test Results Data</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="json-output">
+                                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            $('#testResults').html(html);
+        }
+
+        function displaySimulationResults(response) {
+            if (!response.success) {
+                showError(response.message || 'Simulation failed');
+                return;
+            }
+
+            let html = `
+                <div class="col-12">
+                    <div class="test-result test-success">
+                        <h4><i class="fas fa-flask mr-2"></i>Trade Ratio Simulation Results</h4>
+                        <p>Testing Trade Ratio calculations with different PPM groups:</p>
+                    </div>
+                </div>
+            `;
+
+            response.data.forEach(scenario => {
+                const ratioClass = scenario.ratio_match ? 'ratio-match' : 'ratio-mismatch';
+                const resultClass = scenario.result_match ? 'ratio-match' : 'ratio-mismatch';
+                
+                html += `
+                    <div class="col-md-6">
+                        <div class="scenario-result">
+                            <h6>${scenario.scenario}</h6>
+                            <p><strong>PPM Group ID:</strong> ${scenario.ppm_group_id}</p>
+                            <p><strong>Base Tasks:</strong> ${scenario.base_tasks}</p>
+                            <p><strong>Expected Ratio:</strong> ${scenario.expected_ratio}</p>
+                            <p><strong>Actual Ratio:</strong> <span class="${ratioClass}">${scenario.actual_ratio}</span></p>
+                            <p><strong>Expected Result:</strong> ${scenario.expected_result}</p>
+                            <p><strong>Actual Result:</strong> <span class="${resultClass}">${scenario.actual_result}</span></p>
+                            <p><strong>Test Result:</strong> 
+                                ${scenario.ratio_match && scenario.result_match ? 
+                                    '<span class="badge badge-success">PASSED</span>' : 
+                                    '<span class="badge badge-danger">FAILED</span>'
+                                }
+                            </p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            $('#testResults').html(html);
+        }
+
+        function showError(message) {
+            $('#testResults').html(`
+                <div class="col-12">
+                    <div class="test-result test-fail">
+                        <h4><i class="fas fa-exclamation-triangle mr-2"></i>Error</h4>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `);
+        }
+    </script>
+</body>
+</html>

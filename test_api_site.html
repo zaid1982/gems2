@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Site Organization</title>
+    <script src="js/jquery-3.7.0.min.js"></script>
+</head>
+<body>
+    <h1>Testing PPM Groups Site Organization</h1>
+    <div id="results"></div>
+
+    <script>
+        // Test the API endpoint
+        fetch('api/gamification_config.php?action=get_ppm_groups')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data);
+                
+                if (data.success) {
+                    const groups = data.data;
+                    const groupedBySite = {};
+                    
+                    // Group by site
+                    groups.forEach(group => {
+                        const siteName = group.site_name || 'Unknown Site';
+                        if (!groupedBySite[siteName]) {
+                            groupedBySite[siteName] = [];
+                        }
+                        groupedBySite[siteName].push(group);
+                    });
+                    
+                    // Display results
+                    let html = '<h2>Results:</h2>';
+                    Object.keys(groupedBySite).sort().forEach(siteName => {
+                        const siteGroups = groupedBySite[siteName];
+                        html += `<h3>${siteName} (${siteGroups.length} groups)</h3>`;
+                        html += '<ul>';
+                        siteGroups.slice(0, 5).forEach(group => {
+                            html += `<li>ID: ${group.ppm_group_id}, Name: ${group.ppm_group_name}, Role: ${group.role_id}</li>`;
+                        });
+                        if (siteGroups.length > 5) {
+                            html += `<li><em>... and ${siteGroups.length - 5} more groups</em></li>`;
+                        }
+                        html += '</ul>';
+                    });
+                    
+                    document.getElementById('results').innerHTML = html;
+                } else {
+                    document.getElementById('results').innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `<p style="color: red;">Fetch Error: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

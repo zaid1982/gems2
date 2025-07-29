@@ -16,24 +16,25 @@ class Class_gamification {
      */
     private function loadGamificationConfig() {
         try {
-            $configData = Class_db::getInstance()->db_select2('gmi_config', array('status' => 1));
+            $configData = Class_db::getInstance()->db_select2('gmi_config', array('status' => '1'));
             $this->config = array();
             foreach ($configData as $config) {
-                $value = $config['config_value'];
+                // Use camelCase column names for db_select2 method
+                $value = $config['configValue'];
                 // Convert based on data type
-                switch ($config['data_type']) {
+                switch ($config['dataType']) {
                     case 'int':
-                        $value = intval($config['config_value']);
+                        $value = intval($config['configValue']);
                         break;
                     case 'float':
-                        $value = floatval($config['config_value']);
+                        $value = floatval($config['configValue']);
                         break;
                     case 'string':
                     default:
-                        $value = $config['config_value'];
+                        $value = $config['configValue'];
                         break;
                 }
-                $this->config[$config['config_key']] = $value;
+                $this->config[$config['configKey']] = $value;
             }
         } catch (Exception $ex) {
             // If config table doesn't exist or is empty, use default values
@@ -59,7 +60,15 @@ class Class_gamification {
             'self_finding_points' => 5,
             'point_scale_factor' => 10000,
             'productivity_base' => 90,
-            'wo_ontime_multiplier' => 2
+            'wo_ontime_multiplier' => 2,
+            // Trade Ratio defaults
+            'trade_ratio_mechanical' => 0.9,
+            'trade_ratio_electrical' => 1.0,
+            'trade_ratio_civil' => 1.0,
+            'trade_ratio_verifier' => 1.0,
+            'trade_ratio_reviewer' => 1.0,
+            'trade_ratio_executor' => 1.0,
+            'trade_ratio_default' => 1.0
         );
     }
 
@@ -71,6 +80,25 @@ class Class_gamification {
      */
     private function getConfig($key, $default = null) {
         return isset($this->config[$key]) ? $this->config[$key] : $default;
+    }
+
+    /**
+     * Get Trade Ratio multiplier for PPM group
+     * @param int $ppmGroupId
+     * @return float
+     */
+    private function getTradeRatio($ppmGroupId) {
+        // Check for specific PPM group configuration first
+        if (!empty($ppmGroupId)) {
+            $specificKey = "trade_ratio_group_$ppmGroupId";
+            $specificRatio = $this->getConfig($specificKey);
+            if ($specificRatio !== null) {
+                return (float)$specificRatio;
+            }
+        }
+        
+        // Fall back to default trade ratio
+        return $this->getConfig('trade_ratio_default', 1.0);
     }
 
     /**
@@ -559,14 +587,19 @@ class Class_gamification {
             
             foreach ($gmiPpm as $ppm) {
                 $userId = intval($ppm['ppmTaskAssignedTo']);
+                $ppmGroupId = intval($ppm['ppmGroupId'] ?? 0); // Default to 0 if not specified
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
                 if (!array_key_exists($userId, $gmiWeekly)) {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $ppm['siteId'], 0);
                 }
-                $gmiWeekly[$userId]['gmwPpmTotal'] += intval($ppm['ppmTotal']);
-                $gmiWeekly[$userId]['gmwPpmCompleted'] += intval($ppm['ppmCompleted']);
-                $gmiWeekly[$userId]['gmwPpmOnTime'] += intval($ppm['ppmOnTime']);
-                $gmiWeekly[$userId]['gmwPpmLate'] += intval($ppm['ppmLate']);
-                $gmiWeekly[$userId]['gmwPpmWithin'] += intval($ppm['ppmWithin']);
+                
+                // Apply trade ratio to task completion counts
+                $gmiWeekly[$userId]['gmwPpmTotal'] += round(intval($ppm['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmCompleted'] += round(intval($ppm['ppmCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmOnTime'] += round(intval($ppm['ppmOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmLate'] += round(intval($ppm['ppmLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmWithin'] += round(intval($ppm['ppmWithin']) * $tradeRatio);
             }
 
             // Get PPM Assist data for the week
@@ -575,15 +608,20 @@ class Class_gamification {
             
             foreach ($gmiPpmAssist as $ppmAssist) {
                 $userId = intval($ppmAssist['userId']);
+                $ppmGroupId = intval($ppmAssist['ppmGroupId'] ?? 0); // Default to 0 if not specified
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
                 if (!array_key_exists($userId, $gmiWeekly)) {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $ppmAssist['siteId'], 0);
                 }
-                $gmiWeekly[$userId]['gmwPpmAssist'] += intval($ppmAssist['ppmTotal']);
-                $gmiWeekly[$userId]['gmwPpmTotal'] += intval($ppmAssist['ppmTotal']);
-                $gmiWeekly[$userId]['gmwPpmCompleted'] += intval($ppmAssist['ppmCompleted']);
-                $gmiWeekly[$userId]['gmwPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
-                $gmiWeekly[$userId]['gmwPpmLate'] += intval($ppmAssist['ppmLate']);
-                $gmiWeekly[$userId]['gmwPpmWithin'] += intval($ppmAssist['ppmWithin']);
+                
+                // Apply trade ratio to task completion counts
+                $gmiWeekly[$userId]['gmwPpmAssist'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmTotal'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmCompleted'] += round(intval($ppmAssist['ppmCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmOnTime'] += round(intval($ppmAssist['ppmOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmLate'] += round(intval($ppmAssist['ppmLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmWithin'] += round(intval($ppmAssist['ppmWithin']) * $tradeRatio);
             }
 
             // Get WO data for the week
@@ -592,14 +630,19 @@ class Class_gamification {
             
             foreach ($gmiWo as $wo) {
                 $userId = intval($wo['woTaskAssignedTo']);
+                $ppmGroupId = intval($wo['ppmGroupId'] ?? 0); // Default to 0 if not specified
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
                 if (!array_key_exists($userId, $gmiWeekly)) {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $wo['siteId'], 0);
                 }
-                $gmiWeekly[$userId]['gmwWoTotal'] += intval($wo['woTotal']);
-                $gmiWeekly[$userId]['gmwWoCompleted'] += intval($wo['woCompleted']);
-                $gmiWeekly[$userId]['gmwWoOnTime'] += intval($wo['woOnTime']);
-                $gmiWeekly[$userId]['gmwWoLate'] += intval($wo['woLate']);
-                $gmiWeekly[$userId]['gmwWoSelfFinding'] += intval($wo['woSelfFinding']);
+                
+                // Apply trade ratio to task completion counts
+                $gmiWeekly[$userId]['gmwWoTotal'] += round(intval($wo['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoCompleted'] += round(intval($wo['woCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoOnTime'] += round(intval($wo['woOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoLate'] += round(intval($wo['woLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoSelfFinding'] += round(intval($wo['woSelfFinding']) * $tradeRatio);
             }
 
             // Get WO Assist data for the week
@@ -608,14 +651,19 @@ class Class_gamification {
             
             foreach ($gmiWoAssist as $woAssist) {
                 $userId = intval($woAssist['userId']);
+                $ppmGroupId = intval($woAssist['ppmGroupId'] ?? 0); // Default to 0 if not specified
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
                 if (!array_key_exists($userId, $gmiWeekly)) {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $woAssist['siteId'], 0);
                 }
-                $gmiWeekly[$userId]['gmwWoAssist'] += intval($woAssist['woTotal']);
-                $gmiWeekly[$userId]['gmwWoTotal'] += intval($woAssist['woTotal']);
-                $gmiWeekly[$userId]['gmwWoCompleted'] += intval($woAssist['woCompleted']);
-                $gmiWeekly[$userId]['gmwWoOnTime'] += intval($woAssist['woOnTime']);
-                $gmiWeekly[$userId]['gmwWoLate'] += intval($woAssist['woLate']);
+                
+                // Apply trade ratio to task completion counts
+                $gmiWeekly[$userId]['gmwWoAssist'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoTotal'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoCompleted'] += round(intval($woAssist['woCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoOnTime'] += round(intval($woAssist['woOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoLate'] += round(intval($woAssist['woLate']) * $tradeRatio);
             }
 
             // Calculate points for each user for this week

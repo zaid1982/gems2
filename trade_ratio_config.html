@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0 - Trade Ratio Configuration</title>
+	<!-- Browser icon -->
+	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <style>
+        .config-section {
+            margin-bottom: 2rem;
+        }
+        .config-header {
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        .config-body {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .form-control:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #34a853, #4285f4);
+            border: none;
+        }
+        .btn-save:hover {
+            background: linear-gradient(45deg, #2e8b47, #3367d6);
+        }
+        .description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .ratio-input-group {
+            margin-bottom: 15px;
+        }
+        .group-badge {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            margin-right: 10px;
+        }
+        .role-executor { background-color: #17a2b8; color: white; }
+        .role-reviewer { background-color: #ffc107; color: black; }
+        .role-verifier { background-color: #28a745; color: white; }
+        .role-other { background-color: #6c757d; color: white; }
+        
+        /* Site organization styles */
+        .site-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .site-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem;
+        }
+        .site-header .btn-link {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+        }
+        .site-header .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .site-header .btn-link:focus {
+            box-shadow: none;
+        }
+        .site-badge {
+            background-color: #6c757d;
+            color: white;
+            font-size: 0.8rem;
+        }
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+    </style>
+    
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!-- Back Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button class="btn btn-outline-secondary" onclick="window.location.href='gamification.html'">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Gamification
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Title -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2 class="h2-responsive font-weight-bold">
+                    <i class="fas fa-balance-scale mr-3"></i>Trade Ratio Configuration
+                </h2>
+                <p class="text-muted">Configure multipliers for different PPM groups to adjust task completion scoring</p>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="successMessage">Configuration saved successfully!</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="errorMessage">An error occurred while saving configuration.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Default Trade Ratio Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header">
+                        <h5 class="mb-0"><i class="fas fa-cog mr-2"></i>Default Trade Ratio</h5>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="trade_ratio_default">Default Multiplier</label>
+                                    <input type="number" class="form-control" id="trade_ratio_default" min="0.1" max="5.0" step="0.1" value="1.0">
+                                    <div class="description">Default multiplier for PPM groups without specific configuration (Range: 0.1 - 5.0)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PPM Group Trade Ratios Section -->
+        <div class="row config-section">
+            <div class="col-12">
+                <div class="card">
+                    <div class="config-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-users mr-2"></i>PPM Group Trade Ratios</h5>
+                        <div id="siteControls" style="display: none;">
+                            <button class="btn btn-sm btn-outline-primary mr-2" id="btnExpandAll">
+                                <i class="fas fa-expand-arrows-alt mr-1"></i> Expand All
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="btnCollapseAll">
+                                <i class="fas fa-compress-arrows-alt mr-1"></i> Collapse All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-body">
+                        <div id="loadingGroups" class="text-center">
+                            <i class="fas fa-spinner fa-spin"></i> Loading PPM groups...
+                        </div>
+                        <div id="groupsContainer" style="display: none;">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <button class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveConfig">
+                    <i class="fas fa-save mr-2"></i> Save Configuration
+                </button>
+                <button class="btn btn-outline-secondary px-5 py-3 ml-3" id="btnResetDefaults">
+                    <i class="fas fa-undo mr-2"></i> Reset All to Default (1.0)
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+<!--Main layout-->
+
+<!-- SCRIPTS -->
+<!-- JQuery -->
+<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<!--JQuery Migrate-->
+<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+
+<!--Custom scripts-->
+<script>
+
+document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+let versionLocal_;
+let changePasswordClass_;
+let ppmGroups = [];
+let tradeRatios = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            initiatePages();
+            versionLocal_ = mzGetDataVersion();
+            changePasswordClass_ = new ModalChangePassword();
+            
+            changePasswordClass_.init();
+            
+            loadConfiguration();
+            
+            // Save Configuration
+            document.getElementById('btnSaveConfig').addEventListener('click', function() {
+                saveConfiguration();
+            });
+            
+            // Reset to Defaults
+            document.getElementById('btnResetDefaults').addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all trade ratios to 1.0? This will override any custom settings.')) {
+                    resetToDefaults();
+                }
+            });
+            
+            // Expand/Collapse All Sites
+            document.getElementById('btnExpandAll').addEventListener('click', function() {
+                $('.collapse').collapse('show');
+            });
+            
+            document.getElementById('btnCollapseAll').addEventListener('click', function() {
+                $('.collapse').collapse('hide');
+            });
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+});
+
+// Debug function for testing data collection
+window.testDataCollection = function() {
+    const ratios = {};
+    
+    // Get default ratio
+    ratios.default = parseFloat(document.getElementById('trade_ratio_default').value) || 1.0;
+    
+    // Get all group-specific ratios - find all ratio inputs directly
+    const ratioInputs = document.querySelectorAll('input[id^="ratio_"]');
+    
+    ratioInputs.forEach(input => {
+        if (input.id !== 'trade_ratio_default') {
+            const groupId = input.id.replace('ratio_', '');
+            const value = parseFloat(input.value);
+            console.log(`Processing input ${input.id}, value: ${input.value}, parsed: ${value}`);
+            if (!isNaN(value) && value >= 0.1 && value <= 5.0) {
+                ratios[groupId] = value;
+            }
+        }
+    });
+    
+    console.log('Test data collection result:', ratios);
+    console.log('Found ratio inputs:', ratioInputs.length);
+    console.log('Input elements:', ratioInputs);
+    
+    return ratios;
+};
+
+function loadConfiguration() {
+    ShowLoader();
+    
+    // Load PPM groups and trade ratios in parallel
+    Promise.all([
+        fetch('api/gamification_config.php?action=get_ppm_groups'),
+        fetch('api/gamification_config.php?action=get_trade_ratios')
+    ])
+    .then(responses => Promise.all(responses.map(r => r.json())))
+    .then(([groupsResult, ratiosResult]) => {
+        if (groupsResult.success) {
+            ppmGroups = groupsResult.data;
+        } else {
+            showError('Failed to load PPM groups: ' + groupsResult.message);
+            return;
+        }
+        
+        if (ratiosResult.success) {
+            tradeRatios = ratiosResult.data;
+        } else {
+            tradeRatios = { default: 1.0 };
+        }
+        
+        populateGroups();
+        HideLoader();
+    })
+    .catch(error => {
+        showError('Failed to load configuration: ' + error.message);
+        HideLoader();
+    });
+}
+
+function populateGroups() {
+    // Set default ratio
+    document.getElementById('trade_ratio_default').value = tradeRatios.default || 1.0;
+    
+    // Group PPM groups by site for better navigation
+    const groupedBySite = {};
+    ppmGroups.forEach(group => {
+        const siteName = group.site_name || 'Unknown Site';
+        if (!groupedBySite[siteName]) {
+            groupedBySite[siteName] = [];
+        }
+        groupedBySite[siteName].push(group);
+    });
+    
+    let html = '';
+    const sortedSites = Object.keys(groupedBySite).sort();
+    
+    sortedSites.forEach((siteName, siteIndex) => {
+        const groups = groupedBySite[siteName];
+        const siteId = `site_${siteIndex}`;
+        const isFirstSite = siteIndex === 0;
+        
+        html += `
+            <div class="site-card">
+                <div class="site-header" id="heading_${siteId}">
+                    <h6 class="mb-0">
+                        <button class="btn btn-link btn-block text-left d-flex justify-content-between align-items-center ${isFirstSite ? '' : 'collapsed'}" 
+                                type="button" 
+                                data-toggle="collapse" 
+                                data-target="#collapse_${siteId}" 
+                                aria-expanded="${isFirstSite ? 'true' : 'false'}" 
+                                aria-controls="collapse_${siteId}">
+                            <span>
+                                <i class="fas fa-building mr-2 text-primary"></i>
+                                ${siteName} 
+                                <span class="badge site-badge ml-2">${groups.length} groups</span>
+                            </span>
+                            <i class="fas fa-chevron-down collapse-icon"></i>
+                        </button>
+                    </h6>
+                </div>
+                <div id="collapse_${siteId}" 
+                     class="collapse ${isFirstSite ? 'show' : ''}" 
+                     aria-labelledby="heading_${siteId}">
+                    <div class="card-body">
+                        <div class="row">
+        `;
+        
+        groups.forEach((group, index) => {
+            const currentRatio = tradeRatios[group.ppm_group_id] || tradeRatios.default || 1.0;
+            const roleClass = getRoleClass(group.role_id);
+            const roleName = getRoleName(group.role_id);
+            
+            if (index > 0 && index % 3 === 0) {
+                html += `</div><div class="row">`;
+            }
+            
+            html += `
+                <div class="col-md-4 mb-3">
+                    <div class="ratio-input-group">
+                        <label for="ratio_${group.ppm_group_id}" class="form-label">
+                            <span class="badge ${roleClass} group-badge" title="${roleName}">${group.ppm_group_id}</span>
+                            ${group.ppm_group_name}
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="ratio_${group.ppm_group_id}" 
+                               min="0.1" 
+                               max="5.0" 
+                               step="0.1" 
+                               value="${currentRatio}"
+                               data-group-id="${group.ppm_group_id}"
+                               data-group-name="${group.ppm_group_name}"
+                               data-site-name="${siteName}">
+                        <div class="description">Current: ${currentRatio} | Role: ${roleName}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Add summary information
+    const totalGroups = ppmGroups.length;
+    const totalSites = sortedSites.length;
+    const summaryHtml = `
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Summary:</strong> ${totalGroups} PPM groups across ${totalSites} sites
+            <div class="mt-2">
+                <small class="text-muted">
+                    Groups are organized by site for easier navigation. Click on site headers to expand/collapse groups.
+                </small>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('groupsContainer').innerHTML = summaryHtml + html;
+    document.getElementById('loadingGroups').style.display = 'none';
+    document.getElementById('groupsContainer').style.display = 'block';
+    
+    // Show site controls if there are multiple sites
+    if (sortedSites.length > 1) {
+        document.getElementById('siteControls').style.display = 'block';
+    }
+}
+
+function getRoleName(roleId) {
+    switch (roleId) {
+        case '3': return 'Reviewers';
+        case '4': return 'Verifiers';
+        case '5': return 'Executors';
+        case '8': return 'Disciplines';
+        default: return 'Other Roles';
+    }
+}
+
+function getRoleClass(roleId) {
+    switch (roleId) {
+        case '3': return 'role-reviewer';
+        case '4': return 'role-verifier';
+        case '5': return 'role-executor';
+        case '8': return 'role-other';
+        default: return 'role-other';
+    }
+}
+
+function saveConfiguration() {
+    const ratios = {};
+    
+    // Get default ratio
+    ratios.default = parseFloat(document.getElementById('trade_ratio_default').value) || 1.0;
+    
+    // Get all group-specific ratios - find all ratio inputs directly
+    const ratioInputs = document.querySelectorAll('input[id^="ratio_"]');
+    
+    ratioInputs.forEach(input => {
+        if (input.id !== 'trade_ratio_default') {
+            const groupId = input.id.replace('ratio_', '');
+            const value = parseFloat(input.value);
+            if (!isNaN(value) && value >= 0.1 && value <= 5.0) {
+                ratios[groupId] = value;
+            }
+        }
+    });
+    
+    console.log('Collecting ratios:', ratios);
+    console.log('Found ratio inputs:', ratioInputs.length);
+    
+    ShowLoader();
+    
+    // Send data as form data
+    const formData = new FormData();
+    formData.append('action', 'save_trade_ratios');
+    formData.append('ratios', JSON.stringify(ratios));
+    
+    fetch('api/gamification_config.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Server response:', result);
+        if (result.success) {
+            showSuccess(result.message);
+            tradeRatios = ratios; // Update local cache
+        } else {
+            showError('Failed to save trade ratios: ' + result.message);
+        }
+        HideLoader();
+    })
+    .catch(error => {
+        showError('Failed to save configuration: ' + error.message);
+        HideLoader();
+    });
+}
+
+function resetToDefaults() {
+    // Set all inputs to 1.0
+    document.getElementById('trade_ratio_default').value = 1.0;
+    
+    ppmGroups.forEach(group => {
+        const input = document.getElementById(`ratio_${group.ppm_group_id}`);
+        if (input) {
+            input.value = 1.0;
+        }
+    });
+    
+    showSuccess('All values reset to 1.0. Click "Save Configuration" to apply changes.');
+}
+
+function showSuccess(message) {
+    document.getElementById('successMessage').textContent = message;
+    const alertElement = document.getElementById('alertSuccess');
+    alertElement.style.display = 'block';
+    alertElement.classList.add('show');
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        alertElement.classList.remove('show');
+        setTimeout(() => {
+            alertElement.style.display = 'none';
+        }, 150);
+    }, 5000);
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    const alertElement = document.getElementById('alertError');
+    alertElement.style.display = 'block';
+    alertElement.classList.add('show');
+    
+    // Hide after 8 seconds
+    setTimeout(() => {
+        alertElement.classList.remove('show');
+        setTimeout(() => {
+            alertElement.style.display = 'none';
+        }, 150);
+    }, 8000);
+}
+</script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>

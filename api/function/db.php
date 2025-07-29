@@ -1,5 +1,5 @@
 <?php
-require_once 'library/sql.php';
+require_once __DIR__ . '/../library/sql.php';
 
 class Class_db{
     
@@ -815,7 +815,7 @@ class Class_db{
      */
     public function db_connect() {
         try {
-            $config = parse_ini_file('library/config.ini');
+            $config = parse_ini_file(__DIR__ . '/../library/config.ini');
             $dbname = $config['dbname'];    
             $dbhost = $config['dbhost'];    
             //$this->DBH = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8", $config['username'], $config['password']);

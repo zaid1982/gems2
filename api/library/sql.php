@@ -1555,6 +1555,7 @@ class Class_sql
                 $sql = "SELECT 
                     p.ppm_task_assigned_to as ppmTaskAssignedTo,
                     u.site_id as siteId,
+                    ppm.ppm_group_id as ppmGroupId,
                     COUNT(*) AS ppmTotal,
                     SUM(IF(p.ppm_task_status = 16, 1, 0)) AS ppmCompleted,
                     SUM(IF(p.ppm_task_status = 16 AND p.ppm_task_time_verified <= p.ppm_task_schedule_date, 1, 0)) AS ppmOnTime,
@@ -1563,13 +1564,15 @@ class Class_sql
                 FROM ppm_task p
                 LEFT JOIN sys_user u ON u.user_id = p.ppm_task_assigned_to
                 LEFT JOIN sys_user_profile up ON up.designation_id = 4
+                LEFT JOIN ppm ON ppm.ppm_id = p.ppm_id
                 WHERE p.ppm_task_schedule_date >= '[dateStart]' AND p.ppm_task_schedule_date <= '[dateEnd]'
                 AND p.ppm_task_assigned_to IS NOT NULL AND up.user_id = u.user_id
-                GROUP BY p.ppm_task_assigned_to, u.site_id";
+                GROUP BY p.ppm_task_assigned_to, u.site_id, ppm.ppm_group_id";
             } else if ($title === 'vw_gamification_ppm_assist_daily') {
                 $sql = "SELECT 
                     a.user_id as userId,
                     u.site_id as siteId,
+                    ppm.ppm_group_id as ppmGroupId,
                     COUNT(*) AS ppmTotal,
                     SUM(IF(p.ppm_task_status = 16, 1, 0)) AS ppmCompleted,
                     SUM(IF(p.ppm_task_status = 16 AND p.ppm_task_time_verified <= p.ppm_task_schedule_date, 1, 0)) AS ppmOnTime,
@@ -1578,13 +1581,15 @@ class Class_sql
                 FROM ppm_task_assist a
                 LEFT JOIN ppm_task p ON p.ppm_task_id = a.ppm_task_id
                 LEFT JOIN sys_user u ON u.user_id = a.user_id
+                LEFT JOIN ppm ON ppm.ppm_id = p.ppm_id
                 WHERE p.ppm_task_schedule_date >= '[dateStart]' AND p.ppm_task_schedule_date <= '[dateEnd]'
                 AND a.user_id IS NOT NULL
-                GROUP BY a.user_id, u.site_id";
+                GROUP BY a.user_id, u.site_id, ppm.ppm_group_id";
             } else if ($title === 'vw_gamification_wo_daily') {
                 $sql = "SELECT 
                     w.wo_task_assigned_to as woTaskAssignedTo,
                     w.site_id as siteId,
+                    w.ppm_group_id as ppmGroupId,
                     COUNT(*) AS woTotal,
                     SUM(IF(w.wo_task_status = 16, 1, 0)) AS woCompleted,
                     SUM(IF(w.wo_task_status = 16 AND w.wo_task_time_verified <= DATE_ADD(w.wo_task_time_assigned, INTERVAL 24 HOUR), 1, 0)) AS woOnTime,
@@ -1593,11 +1598,12 @@ class Class_sql
                 FROM wo_task w
                 WHERE w.wo_task_time_assigned >= '[dateStart]' AND w.wo_task_time_assigned <= '[dateEnd]'
                 AND w.wo_task_assigned_to IS NOT NULL
-                GROUP BY w.wo_task_assigned_to, w.site_id";
+                GROUP BY w.wo_task_assigned_to, w.site_id, w.ppm_group_id";
             } else if ($title === 'vw_gamification_wo_assist_daily') {
                 $sql = "SELECT 
                     a.user_id as userId,
                     w.site_id as siteId,
+                    w.ppm_group_id as ppmGroupId,
                     COUNT(*) AS woTotal,
                     SUM(IF(w.wo_task_status = 16, 1, 0)) AS woCompleted,
                     SUM(IF(w.wo_task_status = 16 AND w.wo_task_time_verified <= DATE_ADD(w.wo_task_time_assigned, INTERVAL 24 HOUR), 1, 0)) AS woOnTime,
@@ -1606,7 +1612,7 @@ class Class_sql
                 LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id
                 WHERE w.wo_task_time_assigned >= '[dateStart]' AND w.wo_task_time_assigned <= '[dateEnd]'
                 AND a.user_id IS NOT NULL
-                GROUP BY a.user_id, w.site_id";
+                GROUP BY a.user_id, w.site_id, w.ppm_group_id";
             } else if ($title === 'vw_ref_att_group') {
                 $sql = "SELECT
                     att_group_id,
