@@ -394,7 +394,8 @@ class Class_gamification {
                         'gmiPpmTotal', 'gmiPpmCompleted', 'gmiPpmOnTime', 'gmiPpmLate', 'gmiPpmWithin', 'gmiPpmAssist',
                         'gmiWoTotal', 'gmiWoCompleted', 'gmiWoOnTime', 'gmiWoLate', 'gmiWoSelfFinding', 'gmiWoAssist',
                         'gmiPointCompleted', 'gmiPointOnTime', 'gmiPointLate', 'gmiPointSelfFinding',
-                        'gmiPointLessProductive', 'gmiPointBeforeMinus', 'gmiPointAfterMinus', 'gmiPointTotal'
+                        'gmiPointLessProductive', 'gmiPointBeforeMinus', 'gmiPointAfterMinus', 'gmiPointTotal',
+                        'gmiMbv'  // Add MBV to aggregation
                     ];
 
                     foreach ($sumFields as $field) {
@@ -442,8 +443,30 @@ class Class_gamification {
                 unset($gmi['gmiId']);
 
                 if (empty($gmiId)) {
-                    Class_db::getInstance()
-                        ->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
+                    // Use INSERT IGNORE or ON DUPLICATE KEY UPDATE to prevent duplicates
+                    // First check if record already exists (double-check for race conditions)
+                    $existingCheck = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$gmi['userId'],
+                        'gmi_year'  => (string)$gmi['gmiYear'], 
+                        'gmi_month' => (string)$gmi['gmiMonth']
+                    ]);
+                    
+                    if (empty($existingCheck)) {
+                        Class_db::getInstance()
+                            ->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
+                    } else {
+                        // Update the existing record instead of inserting
+                        Class_db::getInstance()
+                            ->db_update(
+                                'gmi_monthly',
+                                $this->fn_general->convertToMysqlArrAll($gmi),
+                                [
+                                    'user_id'   => (string)$gmi['userId'],
+                                    'gmi_year'  => (string)$gmi['gmiYear'],
+                                    'gmi_month' => (string)$gmi['gmiMonth']
+                                ]
+                            );
+                    }
                 } else {
                     Class_db::getInstance()
                         ->db_update(
