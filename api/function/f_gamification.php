@@ -324,6 +324,13 @@ class Class_gamification {
             $returnArr['gmiPointLate'] = 0;
             $returnArr['gmiPointSelfFinding'] = 0;
             $returnArr['gmiPointTotal'] = 0;
+            $returnArr['gmiPointLessProductive'] = 0;
+            $returnArr['gmiPointBeforeMinus'] = 0;
+            $returnArr['gmiPointAfterMinus'] = 0;
+            $returnArr['gmiMbv'] = 0;
+            $returnArr['gmiTierPoint'] = 1;
+            $returnArr['gmiProductivityLevel'] = 0;
+            $returnArr['gmiProductivityDeduction'] = 0;
             return $returnArr;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -332,137 +339,128 @@ class Class_gamification {
     }
 
     /**
-     * @param $year
-     * @param $month
+     * @param int $year
+     * @param int $month
      * @throws Exception
      */
-    public function runMonthly ($year, $month) {
+    public function runMonthly($year, $month)
+    {
         try {
+            // --- Setup & validation ---
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
-            $this->fn_general->checkEmptyParams(array($year, $month));
+            $this->fn_general->checkEmptyParams([$year, $month]);
 
-            // Get the number of weeks in the month
+            // Determine how many weeks in the given month
             $weeksInMonth = $this->getWeeksInMonth($year, $month);
-            $gmiMonthlyAggregated = array();
+            $gmiMonthlyAggregated = [];
 
-            // Process each week in the month
+            // --- Weekly processing & aggregation ---
             for ($week = 1; $week <= $weeksInMonth; $week++) {
                 $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Processing week ' . $week . ' of month ' . $month);
-                
-                // Get week date range
-                $weekDateRange = $this->getWeekDateRange($year, $month, $week);
-                $weekStartDate = $weekDateRange['start'];
-                $weekEndDate = $weekDateRange['end'];
-                
-                // Calculate weekly scores for this week
-                $gmiWeekly = $this->calculateWeeklyScores($year, $month, $week, $weekStartDate, $weekEndDate);
-                
-                // Store weekly data in gmi_weekly table
+
+                // Calculate week date range
+                $range     = $this->getWeekDateRange($year, $month, $week);
+                $weekStart = $range['start'];
+                $weekEnd   = $range['end'];
+
+                // Compute weekly scores
+                $gmiWeekly = $this->calculateWeeklyScores($year, $month, $week, $weekStart, $weekEnd);
+
+                // Persist weekly data
                 $this->storeWeeklyData($gmiWeekly, $year, $month, $week);
-                
-                // Aggregate weekly scores into monthly totals
+
+                // Accumulate into monthly totals
                 foreach ($gmiWeekly as $userId => $weeklyData) {
-                    if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
-                        // Check if monthly record already exists
-                        $existingMonthlyRecord = Class_db::getInstance()->db_select_single2('gmi_monthly', array(
-                            'user_id' => strval($userId),
-                            'gmi_year' => strval($year),
-                            'gmi_month' => strval($month)
-                        ));
-                        
-                        $existingGmiId = !empty($existingMonthlyRecord) ? $existingMonthlyRecord['gmiId'] : 0;
-                        $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr($userId, $year, $month, $weeklyData['siteId'], $existingGmiId);
+                    if (!isset($gmiMonthlyAggregated[$userId])) {
+                        // Initialize monthly record (preserve existing row if present)
+                        $existing   = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                            'user_id'   => (string)$userId,
+                            'gmi_year'  => (string)$year,
+                            'gmi_month' => (string)$month
+                        ]);
+
+                        $existingId = !empty($existing) ? $existing['gmi_id'] : 0;
+                        $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr(
+                            $userId,
+                            $year,
+                            $month,
+                            $weeklyData['siteId'],
+                            $existingId
+                        );
                     }
-                    
-                    // Aggregate counts (convert from gmw_ to gmi_ for monthly aggregation)
-                    $gmiMonthlyAggregated[$userId]['gmiPpmTotal'] += $weeklyData['gmwPpmTotal'];
-                    $gmiMonthlyAggregated[$userId]['gmiPpmCompleted'] += $weeklyData['gmwPpmCompleted'];
-                    $gmiMonthlyAggregated[$userId]['gmiPpmOnTime'] += $weeklyData['gmwPpmOnTime'];
-                    $gmiMonthlyAggregated[$userId]['gmiPpmLate'] += $weeklyData['gmwPpmLate'];
-                    $gmiMonthlyAggregated[$userId]['gmiPpmWithin'] += $weeklyData['gmwPpmWithin'];
-                    $gmiMonthlyAggregated[$userId]['gmiPpmAssist'] += $weeklyData['gmwPpmAssist'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoTotal'] += $weeklyData['gmwWoTotal'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoCompleted'] += $weeklyData['gmwWoCompleted'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoOnTime'] += $weeklyData['gmwWoOnTime'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoLate'] += $weeklyData['gmwWoLate'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoSelfFinding'] += $weeklyData['gmwWoSelfFinding'];
-                    $gmiMonthlyAggregated[$userId]['gmiWoAssist'] += $weeklyData['gmwWoAssist'];
-                    
-                    // Accumulate weekly points (this is the key change - cumulative weekly scores)
-                    $gmiMonthlyAggregated[$userId]['gmiPointCompleted'] += $weeklyData['gmwPointCompleted'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointOnTime'] += $weeklyData['gmwPointOnTime'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointLate'] += $weeklyData['gmwPointLate'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointSelfFinding'] += $weeklyData['gmwPointSelfFinding'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointTotal'] += $weeklyData['gmwPointTotal'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointLessProductive'] += $weeklyData['gmwPointLessProductive'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointBeforeMinus'] += $weeklyData['gmwPointBeforeMinus'];
-                    $gmiMonthlyAggregated[$userId]['gmiPointAfterMinus'] += $weeklyData['gmwPointAfterMinus'];
+
+                    // Sum each weekly metric into the monthly totals
+                    $sumFields = [
+                        'gmiPpmTotal', 'gmiPpmCompleted', 'gmiPpmOnTime', 'gmiPpmLate', 'gmiPpmWithin', 'gmiPpmAssist',
+                        'gmiWoTotal', 'gmiWoCompleted', 'gmiWoOnTime', 'gmiWoLate', 'gmiWoSelfFinding', 'gmiWoAssist',
+                        'gmiPointCompleted', 'gmiPointOnTime', 'gmiPointLate', 'gmiPointSelfFinding',
+                        'gmiPointLessProductive', 'gmiPointBeforeMinus', 'gmiPointAfterMinus', 'gmiPointTotal'
+                    ];
+
+                    foreach ($sumFields as $field) {
+                        $gmiMonthlyAggregated[$userId][$field] += $weeklyData[str_replace('gmi', 'gmw', $field)];
+                    }
                 }
             }
 
-            // Update tier information based on monthly aggregated data
-            foreach ($gmiMonthlyAggregated as $userId => $gmi) {
-                // Update tier information based on total monthly completion
+            // --- Apply monthly tiers and performance based on aggregated data ---
+            foreach ($gmiMonthlyAggregated as &$gmi) {
+                // Monthly PPM tier assignment
                 if ($gmi['gmiPpmCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
-                    $gmiMonthlyAggregated[$userId]['gmiPpmTierPoint'] = 1;
-                    $gmiMonthlyAggregated[$userId]['gmiPpmTierName'] = 'Medalist';
-                } else if ($gmi['gmiPpmCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
-                    $gmiMonthlyAggregated[$userId]['gmiPpmTierPoint'] = 1;
-                    $gmiMonthlyAggregated[$userId]['gmiPpmTierName'] = 'Finisher';
+                    $gmi['gmiPpmTierName']  = 'Medalist';
+                    $gmi['gmiPpmTierPoint'] = 1;
+                } elseif ($gmi['gmiPpmCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
+                    $gmi['gmiPpmTierName']  = 'Finisher';
+                    $gmi['gmiPpmTierPoint'] = 1;
                 }
 
+                // Monthly WO tier assignment
                 if ($gmi['gmiWoCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
-                    $gmiMonthlyAggregated[$userId]['gmiWoTierPoint'] = 1;
-                    $gmiMonthlyAggregated[$userId]['gmiWoTierName'] = 'Medalist';
-                } else if ($gmi['gmiWoCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
-                    $gmiMonthlyAggregated[$userId]['gmiWoTierPoint'] = 1;
-                    $gmiMonthlyAggregated[$userId]['gmiWoTierName'] = 'Finisher';
+                    $gmi['gmiWoTierName']  = 'Medalist';
+                    $gmi['gmiWoTierPoint'] = 1;
+                } elseif ($gmi['gmiWoCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
+                    $gmi['gmiWoTierName']  = 'Finisher';
+                    $gmi['gmiWoTierPoint'] = 1;
                 }
 
-                // Calculate monthly MBV and tier point for reference
-                $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
-                $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
-                $allOnTime = $gmi['gmiPpmOnTime'] + ($this->getConfig('wo_ontime_multiplier', 2)*$gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
-                $allWithin = $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
-                $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
-                $mbv = $allOnTime - $allLate;
-                
-                if ($mbv <= $this->getConfig('mbv_tier1_threshold', 50)) {
-                    $tierDivider = $this->getConfig('mbv_tier1_multiplier', 1);
-                } else if ($mbv <= $this->getConfig('mbv_tier2_threshold', 100)) {
-                    $tierDivider = $this->getConfig('mbv_tier2_multiplier', 3);
-                } else {
-                    $tierDivider = $this->getConfig('mbv_tier3_multiplier', 5);
-                }
-
-                $gmiMonthlyAggregated[$userId]['gmiMbv'] = $mbv;
-                $gmiMonthlyAggregated[$userId]['gmiTierPoint'] = $tierDivider;
-                
-                // Calculate productivity based on monthly totals
+                // Monthly productivity calculation
+                $allWithin = $gmi['gmiPpmWithin'] + $gmi['gmiWoOnTime'];
+                $allTotal  = $gmi['gmiPpmTotal']  + $gmi['gmiWoTotal'];
                 if ($allTotal > 0) {
-                    $gmiMonthlyAggregated[$userId]['gmiProductivityLevel'] = $allWithin / $allTotal * $this->getConfig('productivity_base', 90);
-                    $gmiMonthlyAggregated[$userId]['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmiMonthlyAggregated[$userId]['gmiProductivityLevel'];
+                    $gmi['gmiProductivityLevel']     = ($allWithin / $allTotal) * $this->getConfig('productivity_base', 90);
+                    $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmi['gmiProductivityLevel'];
                 } else {
-                    $gmiMonthlyAggregated[$userId]['gmiProductivityLevel'] = 0;
-                    $gmiMonthlyAggregated[$userId]['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90);
+                    $gmi['gmiProductivityLevel']     = 0;
+                    $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90);
                 }
             }
+            unset($gmi);
 
-            // Save monthly aggregated data to gmi_monthly table
+            // --- Persist monthly aggregated totals only ---
             foreach ($gmiMonthlyAggregated as $gmi) {
                 $gmiId = $gmi['gmiId'];
                 unset($gmi['gmiId']);
-                
+
                 if (empty($gmiId)) {
-                    Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
+                    Class_db::getInstance()
+                        ->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
                 } else {
-                    Class_db::getInstance()->db_update('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi), array('gmi_id'=>$gmiId));
+                    Class_db::getInstance()
+                        ->db_update(
+                            'gmi_monthly',
+                            $this->fn_general->convertToMysqlArrAll($gmi),
+                            ['gmi_id' => $gmiId]
+                        );
                 }
             }
-            
+
         } catch (Exception $ex) {
+            // Log and rethrow
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            throw new Exception(
+                $this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()),
+                $ex->getCode()
+            );
         }
     }
 
