@@ -363,7 +363,15 @@ class Class_gamification {
                 // Aggregate weekly scores into monthly totals
                 foreach ($gmiWeekly as $userId => $weeklyData) {
                     if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
-                        $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr($userId, $year, $month, $weeklyData['siteId'], 0); // No gmiId needed for existing table
+                        // Check if monthly record already exists
+                        $existingMonthlyRecord = Class_db::getInstance()->db_select_single2('gmi_monthly', array(
+                            'user_id' => strval($userId),
+                            'gmi_year' => strval($year),
+                            'gmi_month' => strval($month)
+                        ));
+                        
+                        $existingGmiId = !empty($existingMonthlyRecord) ? $existingMonthlyRecord['gmiId'] : 0;
+                        $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr($userId, $year, $month, $weeklyData['siteId'], $existingGmiId);
                     }
                     
                     // Aggregate counts (convert from gmw_ to gmi_ for monthly aggregation)
@@ -803,7 +811,7 @@ class Class_gamification {
             foreach ($gmiWeekly as $gmi) {
                 $yearWeek = $this->calculateWeekOfYear($year, $month, $week);
                 
-                // Check if weekly record already exists
+                // Check if weekly record already exists using available columns
                 $existingRecord = Class_db::getInstance()->db_select_single2('gmi_weekly', array(
                     'user_id' => strval($gmi['userId']),
                     'gmw_year' => strval($year),
@@ -852,7 +860,7 @@ class Class_gamification {
                     // Insert new weekly record
                     Class_db::getInstance()->db_insert('gmi_weekly', $this->fn_general->convertToMysqlArrAll($weeklyData));
                 } else {
-                    // Update existing weekly record
+                    // Update existing weekly record using available columns
                     Class_db::getInstance()->db_update('gmi_weekly', $this->fn_general->convertToMysqlArrAll($weeklyData), array(
                         'user_id' => strval($gmi['userId']),
                         'gmw_year' => strval($year),

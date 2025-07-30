@@ -411,10 +411,10 @@ try {
     echo '<p>This shows the <strong>exact same queries and data</strong> that runMonthly() uses for gamification calculations.</p>';
     
     // Get the current calculation period from the most recent gmi_weekly entry
-    $currentPeriod = $db->db_select('gmi_weekly', array(), 'gmw_year DESC, gmw_week DESC', '1');
-    $currentYear = !empty($currentPeriod) ? $currentPeriod[0]['gmwYear'] : date('Y');
-    $currentMonth = !empty($currentPeriod) ? $currentPeriod[0]['gmwMonth'] : date('n');
-    $currentWeek = !empty($currentPeriod) ? $currentPeriod[0]['gmwWeek'] : 1;
+    $currentPeriod = Class_db::getInstance()->db_select('gmi_weekly', array(), 'gmw_year DESC, gmw_week DESC', '1');
+    $currentYear = !empty($currentPeriod) ? $currentPeriod[0]['gmw_year'] : date('Y');
+    $currentMonth = date('n'); // Use current month since we don't store month in gmi_weekly
+    $currentWeek = !empty($currentPeriod) ? $currentPeriod[0]['gmw_week'] : 1;
     
     echo "<p><strong>Current Calculation Period:</strong> Year $currentYear, Month $currentMonth, Week $currentWeek</p>";
     
@@ -452,7 +452,7 @@ try {
     echo "<h3>PPM Data (vw_gamification_ppm_daily)</h3>";
     echo "<p><em>Exact same query: Class_db::getInstance()->db_select2('vw_gamification_ppm_daily', array(), '', '', 0, array('dateStart'=>'$weekStartDate', 'dateEnd'=>'$weekEndDate'))</em></p>";
     try {
-        $gmiPpm = $db->db_select2('vw_gamification_ppm_daily', array(), '', '', 0, 
+        $gmiPpm = Class_db::getInstance()->db_select2('vw_gamification_ppm_daily', array(), '', '', 0, 
             array('dateStart'=>$weekStartDate, 'dateEnd'=>$weekEndDate));
         
         if (!empty($gmiPpm)) {
@@ -483,7 +483,7 @@ try {
     echo "<h3>PPM Assist Data (vw_gamification_ppm_assist_daily)</h3>";
     echo "<p><em>Exact same query: Class_db::getInstance()->db_select2('vw_gamification_ppm_assist_daily', array(), '', '', 0, array('dateStart'=>'$weekStartDate', 'dateEnd'=>'$weekEndDate'))</em></p>";
     try {
-        $gmiPpmAssist = $db->db_select2('vw_gamification_ppm_assist_daily', array(), '', '', 0, 
+        $gmiPpmAssist = Class_db::getInstance()->db_select2('vw_gamification_ppm_assist_daily', array(), '', '', 0, 
             array('dateStart'=>$weekStartDate, 'dateEnd'=>$weekEndDate));
         
         if (!empty($gmiPpmAssist)) {
@@ -514,7 +514,7 @@ try {
     echo "<h3>WO Data (vw_gamification_wo_daily)</h3>";
     echo "<p><em>Exact same query: Class_db::getInstance()->db_select2('vw_gamification_wo_daily', array(), '', '', 0, array('dateStart'=>'$weekStartDate', 'dateEnd'=>'$weekEndDate'))</em></p>";
     try {
-        $gmiWo = $db->db_select2('vw_gamification_wo_daily', array(), '', '', 0, 
+        $gmiWo = Class_db::getInstance()->db_select2('vw_gamification_wo_daily', array(), '', '', 0, 
             array('dateStart'=>$weekStartDate, 'dateEnd'=>$weekEndDate));
         
         if (!empty($gmiWo)) {
@@ -545,7 +545,7 @@ try {
     echo "<h3>WO Assist Data (vw_gamification_wo_assist_daily)</h3>";
     echo "<p><em>Exact same query: Class_db::getInstance()->db_select2('vw_gamification_wo_assist_daily', array(), '', '', 0, array('dateStart'=>'$weekStartDate', 'dateEnd'=>'$weekEndDate'))</em></p>";
     try {
-        $gmiWoAssist = $db->db_select2('vw_gamification_wo_assist_daily', array(), '', '', 0, 
+        $gmiWoAssist = Class_db::getInstance()->db_select2('vw_gamification_wo_assist_daily', array(), '', '', 0, 
             array('dateStart'=>$weekStartDate, 'dateEnd'=>$weekEndDate));
         
         if (!empty($gmiWoAssist)) {
@@ -571,6 +571,129 @@ try {
         echo "<p style='color: red;'>Error loading WO assist data: " . $e->getMessage() . "</p>";
     }
     
+    // Trade Ratio Calculation Demo
+    echo "<h3>⚖️ Trade Ratio Calculations in Action</h3>";
+    echo "<p>This shows exactly how trade ratios are applied to the source data above.</p>";
+    
+    try {
+        // Get current trade ratio configuration - same method as gamification_config.php
+        $tradeRatios = array();
+        $allConfigs = Class_db::getInstance()->db_select2('gmi_config', array('status' => '1'));
+        
+        foreach ($allConfigs as $config) {
+            // Filter for trade_ratio keys manually (same as API does)
+            if (strpos($config['configKey'], 'trade_ratio') === 0) {
+                $tradeRatios[$config['configKey']] = $config['configValue'];
+            }
+        }
+        
+        // Show trade ratio configuration
+        echo "<h4>📊 Current Trade Ratio Configuration</h4>";
+        echo "<table border='1' style='margin: 10px 0; border-collapse: collapse;'>";
+        echo "<tr><th>PPM Group ID / Trade Type</th><th>Trade Ratio Multiplier</th><th>Effect on Task Counts</th></tr>";
+        foreach ($tradeRatios as $key => $ratio) {
+            $effect = floatval($ratio) > 1 ? 'Increases task value' : ($ratio < 1 ? 'Reduces task value' : 'No change');
+            echo "<tr><td>$key</td><td><strong>$ratio</strong></td><td>$effect</td></tr>";
+        }
+        echo "</table>";
+        
+        // Apply trade ratios to actual data and show the transformation
+        echo "<h4>🔄 Data Transformation with Trade Ratios</h4>";
+        echo "<p>This shows how the raw counts are multiplied by trade ratios:</p>";
+        
+        if (!empty($gmiPpm)) {
+            echo "<h5>PPM Data Transformation:</h5>";
+            echo "<table border='1' style='margin: 10px 0; border-collapse: collapse;'>";
+            echo "<tr><th>User ID</th><th>PPM Group</th><th>Raw Total</th><th>Trade Ratio</th><th>Final Total</th><th>Raw Completed</th><th>Final Completed</th><th>Raw On Time</th><th>Final On Time</th></tr>";
+            
+            foreach ($gmiPpm as $ppm) {
+                $ppmGroupId = intval($ppm['ppmGroupId'] ?? 0);
+                $tradeRatioKey = "trade_ratio_group_$ppmGroupId";
+                $tradeRatio = isset($tradeRatios[$tradeRatioKey]) ? floatval($tradeRatios[$tradeRatioKey]) : 1.0;
+                
+                $rawTotal = intval($ppm['ppmTotal']);
+                $rawCompleted = intval($ppm['ppmCompleted']);
+                $rawOnTime = intval($ppm['ppmOnTime']);
+                
+                $finalTotal = round($rawTotal * $tradeRatio);
+                $finalCompleted = round($rawCompleted * $tradeRatio);
+                $finalOnTime = round($rawOnTime * $tradeRatio);
+                
+                echo "<tr>";
+                echo "<td>" . $ppm['ppmTaskAssignedTo'] . "</td>";
+                echo "<td>Group $ppmGroupId</td>";
+                echo "<td>$rawTotal</td>";
+                echo "<td><strong>$tradeRatio</strong></td>";
+                echo "<td><strong>$finalTotal</strong></td>";
+                echo "<td>$rawCompleted</td>";
+                echo "<td><strong>$finalCompleted</strong></td>";
+                echo "<td>$rawOnTime</td>";
+                echo "<td><strong>$finalOnTime</strong></td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+        }
+        
+        if (!empty($gmiWo)) {
+            echo "<h5>WO Data Transformation:</h5>";
+            echo "<table border='1' style='margin: 10px 0; border-collapse: collapse;'>";
+            echo "<tr><th>User ID</th><th>PPM Group</th><th>Raw Total</th><th>Trade Ratio</th><th>Final Total</th><th>Raw Completed</th><th>Final Completed</th><th>Raw On Time</th><th>Final On Time</th></tr>";
+            
+            foreach ($gmiWo as $wo) {
+                $ppmGroupId = intval($wo['ppmGroupId'] ?? 0);
+                $tradeRatioKey = "trade_ratio_group_$ppmGroupId";
+                $tradeRatio = isset($tradeRatios[$tradeRatioKey]) ? floatval($tradeRatios[$tradeRatioKey]) : 1.0;
+                
+                $rawTotal = intval($wo['woTotal']);
+                $rawCompleted = intval($wo['woCompleted']);
+                $rawOnTime = intval($wo['woOnTime']);
+                
+                $finalTotal = round($rawTotal * $tradeRatio);
+                $finalCompleted = round($rawCompleted * $tradeRatio);
+                $finalOnTime = round($rawOnTime * $tradeRatio);
+                
+                echo "<tr>";
+                echo "<td>" . $wo['woTaskAssignedTo'] . "</td>";
+                echo "<td>Group $ppmGroupId</td>";
+                echo "<td>$rawTotal</td>";
+                echo "<td><strong>$tradeRatio</strong></td>";
+                echo "<td><strong>$finalTotal</strong></td>";
+                echo "<td>$rawCompleted</td>";
+                echo "<td><strong>$finalCompleted</strong></td>";
+                echo "<td>$rawOnTime</td>";
+                echo "<td><strong>$finalOnTime</strong></td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+        }
+        
+        // Show the exact code logic
+        echo "<h4>💻 Exact Code Logic from runMonthly()</h4>";
+        echo "<div style='background-color: #f5f5f5; padding: 10px; font-family: monospace; border: 1px solid #ccc;'>";
+        echo "// For each PPM record:<br>";
+        echo "\$userId = intval(\$ppm['ppmTaskAssignedTo']);<br>";
+        echo "\$ppmGroupId = intval(\$ppm['ppmGroupId'] ?? 0);<br>";
+        echo "\$tradeRatio = \$this->getTradeRatio(\$ppmGroupId);<br>";
+        echo "<br>";
+        echo "// Apply trade ratio to counts:<br>";
+        echo "\$gmiWeekly[\$userId]['gmwPpmTotal'] += round(intval(\$ppm['ppmTotal']) * \$tradeRatio);<br>";
+        echo "\$gmiWeekly[\$userId]['gmwPpmCompleted'] += round(intval(\$ppm['ppmCompleted']) * \$tradeRatio);<br>";
+        echo "\$gmiWeekly[\$userId]['gmwPpmOnTime'] += round(intval(\$ppm['ppmOnTime']) * \$tradeRatio);<br>";
+        echo "</div>";
+        
+        echo "<h4>🎯 Key Trade Ratio Insights:</h4>";
+        echo "<ul>";
+        echo "<li><strong>Trade ratios are applied to ALL counts</strong> - total, completed, on-time, late, etc.</li>";
+        echo "<li><strong>Each PPM Group has its own multiplier</strong> - different trade types get different weights</li>";
+        echo "<li><strong>Default trade ratio is 1.0</strong> - groups without specific ratios are unchanged</li>";
+        echo "<li><strong>Results are rounded</strong> - round() function ensures integer counts</li>";
+        echo "<li><strong>This affects final points</strong> - more weighted tasks = higher point potential</li>";
+        echo "</ul>";
+        
+    } catch (Exception $e) {
+        echo "<p style='color: red;'>Error showing trade ratio calculations: " . $e->getMessage() . "</p>";
+    }
+
     // Summary of actual calculation inputs using exact variable names from runMonthly
     echo "<h3>📈 Exact Data Processing Summary</h3>";
     try {
