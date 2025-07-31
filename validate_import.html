@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data Validation - GEMS</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <style>
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .status-badge {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h2><i class="fas fa-check-circle"></i> Import Data Validation Dashboard</h2>
+                <p class="text-muted">Verify and validate imported work order data</p>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="row mb-4" id="summaryStats">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h3 id="totalImported">-</h3>
+                        <p class="mb-0">Total Imported WOs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 id="successfulImports">-</h3>
+                        <p class="mb-0">Successful Imports</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3 id="totalBatches">-</h3>
+                        <p class="mb-0">Import Batches</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 id="lastImport">-</h3>
+                        <p class="mb-0">Last Import</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <select class="form-control" id="siteFilter">
+                    <option value="">All Sites</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <select class="form-control" id="batchFilter">
+                    <option value="">All Batches</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="validationTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#importedWOs">Imported Work Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#workflowData">Workflow Data</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#importLog">Import Log</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#dataIntegrity">Data Integrity</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <!-- Imported Work Orders Tab -->
+            <div class="tab-pane fade show active" id="importedWOs">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Imported Work Orders</h5>
+                        <button class="btn btn-sm btn-primary float-right" onclick="refreshImportedWOs()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="importedWOsTable">
+                                <thead>
+                                    <tr>
+                                        <th>WO Number</th>
+                                        <th>External Ref</th>
+                                        <th>Complaint</th>
+                                        <th>Site</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Transaction ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importedWOsBody">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Data Tab -->
+            <div class="tab-pane fade" id="workflowData">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Workflow Transactions & Tasks</h5>
+                        <button class="btn btn-sm btn-primary float-right" onclick="refreshWorkflowData()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="workflowTable">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction No</th>
+                                        <th>Flow ID</th>
+                                        <th>User</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Task Status</th>
+                                        <th>WO Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workflowBody">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Log Tab -->
+            <div class="tab-pane fade" id="importLog">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Import Log Details</h5>
+                        <button class="btn btn-sm btn-primary float-right" onclick="refreshImportLog()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="importLogTable">
+                                <thead>
+                                    <tr>
+                                        <th>Batch ID</th>
+                                        <th>Row #</th>
+                                        <th>External Ref</th>
+                                        <th>WO ID</th>
+                                        <th>Status</th>
+                                        <th>Message</th>
+                                        <th>Imported At</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importLogBody">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Integrity Tab -->
+            <div class="tab-pane fade" id="dataIntegrity">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Data Integrity Checks</h5>
+                        <button class="btn btn-sm btn-primary float-right" onclick="runIntegrityChecks()">
+                            <i class="fas fa-search"></i> Run Checks
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="integrityResults">
+                            <p class="text-muted">Click "Run Checks" to validate data integrity</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/mdb.min.js"></script>
+    <script>
+        const API_BASE = 'api/validate_import.php';
+
+        $(document).ready(function() {
+            loadSummaryStats();
+            loadFilters();
+            refreshImportedWOs();
+        });
+
+        function loadSummaryStats() {
+            $.get(API_BASE + '?action=summary')
+                .done(function(data) {
+                    if (data.success) {
+                        $('#totalImported').text(data.data.total_imported);
+                        $('#successfulImports').text(data.data.successful_imports);
+                        $('#totalBatches').text(data.data.total_batches);
+                        $('#lastImport').text(data.data.last_import || 'None');
+                    }
+                })
+                .fail(function() {
+                    console.error('Failed to load summary stats');
+                });
+        }
+
+        function loadFilters() {
+            // Load sites
+            $.get(API_BASE + '?action=sites')
+                .done(function(data) {
+                    if (data.success) {
+                        const siteSelect = $('#siteFilter');
+                        data.data.forEach(site => {
+                            siteSelect.append(`<option value="${site.site_id}">${site.site_name}</option>`);
+                        });
+                    }
+                });
+
+            // Load batches
+            $.get(API_BASE + '?action=batches')
+                .done(function(data) {
+                    if (data.success) {
+                        const batchSelect = $('#batchFilter');
+                        data.data.forEach(batch => {
+                            batchSelect.append(`<option value="${batch.batch_id}">Batch ${batch.batch_id} (${batch.imported_at})</option>`);
+                        });
+                    }
+                });
+        }
+
+        function refreshImportedWOs() {
+            const siteId = $('#siteFilter').val();
+            const batchId = $('#batchFilter').val();
+            
+            $.get(API_BASE + '?action=imported_wos&site_id=' + siteId + '&batch_id=' + batchId)
+                .done(function(data) {
+                    const tbody = $('#importedWOsBody');
+                    tbody.empty();
+                    
+                    if (data.success && data.data.length > 0) {
+                        data.data.forEach(wo => {
+                            const statusBadge = getStatusBadge(wo.wo_task_status);
+                            tbody.append(`
+                                <tr>
+                                    <td><strong>${wo.wo_task_no}</strong></td>
+                                    <td>${wo.wo_task_external_ref || '-'}</td>
+                                    <td>${wo.wo_task_complaint || '-'}</td>
+                                    <td>${wo.site_name || '-'}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>${wo.wo_task_time_created}</td>
+                                    <td>${wo.transaction_id}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="7" class="text-center">No imported work orders found</td></tr>');
+                    }
+                });
+        }
+
+        function refreshWorkflowData() {
+            $.get(API_BASE + '?action=workflow_data')
+                .done(function(data) {
+                    const tbody = $('#workflowBody');
+                    tbody.empty();
+                    
+                    if (data.success && data.data.length > 0) {
+                        data.data.forEach(item => {
+                            tbody.append(`
+                                <tr>
+                                    <td><strong>${item.transaction_no}</strong></td>
+                                    <td>${item.flow_id}</td>
+                                    <td>${item.user_name || item.user_id}</td>
+                                    <td><span class="badge badge-info">${item.transaction_status}</span></td>
+                                    <td>${item.transaction_time_created}</td>
+                                    <td><span class="badge badge-warning">${item.task_status || 'N/A'}</span></td>
+                                    <td>${item.wo_task_no || 'N/A'}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="7" class="text-center">No workflow data found</td></tr>');
+                    }
+                });
+        }
+
+        function refreshImportLog() {
+            $.get(API_BASE + '?action=import_log')
+                .done(function(data) {
+                    const tbody = $('#importLogBody');
+                    tbody.empty();
+                    
+                    if (data.success && data.data.length > 0) {
+                        data.data.forEach(log => {
+                            const statusBadge = log.status === 'success' ? 
+                                '<span class="badge badge-success">Success</span>' : 
+                                '<span class="badge badge-danger">Error</span>';
+                            
+                            tbody.append(`
+                                <tr>
+                                    <td>${log.batch_id}</td>
+                                    <td>${log.import_row_number}</td>
+                                    <td>${log.external_ref || '-'}</td>
+                                    <td>${log.wo_task_id || '-'}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>${log.message || '-'}</td>
+                                    <td>${log.imported_at}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="7" class="text-center">No import log entries found</td></tr>');
+                    }
+                });
+        }
+
+        function runIntegrityChecks() {
+            $('#integrityResults').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Running integrity checks...</div>');
+            
+            $.get(API_BASE + '?action=integrity_check')
+                .done(function(data) {
+                    let html = '';
+                    
+                    if (data.success) {
+                        data.data.forEach(check => {
+                            const icon = check.status === 'pass' ? 'check-circle text-success' : 'exclamation-triangle text-warning';
+                            html += `
+                                <div class="alert alert-${check.status === 'pass' ? 'success' : 'warning'} d-flex align-items-center">
+                                    <i class="fas fa-${icon} mr-2"></i>
+                                    <div>
+                                        <strong>${check.check_name}</strong><br>
+                                        ${check.message}
+                                        ${check.count ? `<br><small>Count: ${check.count}</small>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = '<div class="alert alert-danger">Failed to run integrity checks</div>';
+                    }
+                    
+                    $('#integrityResults').html(html);
+                });
+        }
+
+        function getStatusBadge(status) {
+            const statusMap = {
+                '1': '<span class="badge badge-secondary">New</span>',
+                '12': '<span class="badge badge-info">Created</span>',
+                '13': '<span class="badge badge-warning">Assigned</span>',
+                '14': '<span class="badge badge-primary">In Progress</span>',
+                '15': '<span class="badge badge-dark">Completed</span>',
+                '16': '<span class="badge badge-success">Verified</span>'
+            };
+            return statusMap[status] || `<span class="badge badge-light">${status}</span>`;
+        }
+
+        // Filter change handlers
+        $('#siteFilter, #batchFilter').change(function() {
+            refreshImportedWOs();
+        });
+    </script>
+</body>
+</html>

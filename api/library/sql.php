@@ -1730,6 +1730,23 @@ class Class_sql
                             ppm_set_asset psa
                         JOIN
                             ast_asset aa ON psa.asset_id = aa.asset_id";
+            } else if ($title === 'vw_wo_import_stats') {
+                $sql = "SELECT 
+                            wib.batch_id,
+                            wib.import_filename,
+                            s.site_name,
+                            CONCAT(u.user_first_name, ' ', u.user_last_name) as imported_by_name,
+                            wib.total_rows,
+                            wib.imported_rows,
+                            wib.skipped_rows,
+                            wib.import_status,
+                            wib.created_at,
+                            wib.completed_at,
+                            TIMESTAMPDIFF(MINUTE, wib.created_at, COALESCE(wib.completed_at, NOW())) as processing_minutes,
+                            ROUND((wib.imported_rows / NULLIF(wib.total_rows, 0)) * 100, 2) as success_rate
+                        FROM wo_import_batch wib
+                        LEFT JOIN cli_site s ON wib.site_id = s.site_id
+                        LEFT JOIN sys_user u ON wib.imported_by = u.user_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }
