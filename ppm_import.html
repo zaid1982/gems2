@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+        .import-step {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        .import-step.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .import-step.completed {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        .step-number.active {
+            background: #007bff;
+        }
+        .step-number.completed {
+            background: #28a745;
+        }
+        .file-drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .file-drop-zone:hover {
+            border-color: #007bff;
+        }
+        .file-drop-zone.dragover {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .preview-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error-row {
+            background-color: #ffebee !important;
+        }
+        .warning-row {
+            background-color: #fff3cd !important;
+        }
+        .success-row {
+            background-color: #d4edda !important;
+        }
+        .template-download {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <!--Section: Main panel-->
+        <section class="mb-5 mt-lg-5 sectionPpmMain">
+            <div class="card card-cascade narrower">
+                <!--Section: Header-->
+                <section>
+                    <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                        <h2 class="h2-responsive mb-0"><i class="fa fa-upload mr-2"></i>PPM Import</h2>
+                        <p class="text-white-50 mb-0">Import PPM tasks from CSV file with comprehensive validation</p>
+                    </div>
+                </section>
+
+                <!--Section: Import Steps-->
+                <section>
+                    <div class="card-body card-body-cascade">
+                        <div class="row">
+                            <div class="col-12">
+                                
+                                <!-- Step 1: Template & File Selection -->
+                                <div class="import-step active" id="step1">
+                                    <h4><span class="step-number active" id="step1-number">1</span> Template & File Selection</h4>
+                                    
+                                    <!-- Template Download -->
+                                    <div class="template-download">
+                                        <h5><i class="fa fa-download"></i> PPM Import Template</h5>
+                                        <p>Download the template and fill in your PPM task data:</p>
+                                        
+                                        <div class="alert alert-info">
+                                            <strong>PPM Import Requirements:</strong><br>
+                                            • Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date<br>
+                                            • <strong>Note:</strong> All imported tasks are automatically set as "Complete" status<br>
+                                            • Asset Code: Must match existing assets in the system<br>
+                                            • Assigned Technician: Must be valid username from system<br>
+                                            • All dates in YYYY-MM-DD format<br>
+                                        </div>
+                                        
+                                        <button class="btn btn-success" id="downloadTemplate">
+                                            <i class="fa fa-file-excel"></i> Download PPM CSV Template
+                                        </button>
+                                        <button class="btn btn-info ml-2" id="viewSampleData">
+                                            <i class="fa fa-eye"></i> View Sample Data Format
+                                        </button>
+                                    </div>
+
+                                    <!-- File Upload Area -->
+                                    <div class="file-drop-zone" id="fileDropZone">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                        </div>
+                                        <h5>Drag & Drop PPM CSV File Here</h5>
+                                        <p class="text-muted">or click to browse files</p>
+                                        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                        <button class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                                            <i class="fa fa-folder-open mr-1"></i> Browse Files
+                                        </button>
+                                        
+                                        <!-- File Info -->
+                                        <div class="file-info mt-3" id="fileInfo" style="display: none;">
+                                            <div class="alert alert-success mb-0">
+                                                <i class="fas fa-file-csv mr-2"></i>
+                                                <strong>File:</strong> <span id="fileName"></span><br>
+                                                <strong>Size:</strong> <span id="fileSize"></span><br>
+                                                <strong>Type:</strong> <span id="fileType"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary waves-effect" id="proceedToUpload" disabled>
+                                            <i class="fa fa-arrow-right mr-1"></i> Proceed to Validation
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: File Upload & Processing -->
+                                <div class="import-step" id="step2">
+                                    <h4><span class="step-number" id="step2-number">2</span> File Upload & Processing</h4>
+                                    
+                                    <div class="upload-progress mb-3">
+                                        <label>Upload Progress:</label>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" id="uploadProgress" 
+                                                 role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted" id="uploadStatus">Ready to upload...</small>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button class="btn btn-success waves-effect" id="validateFile" disabled>
+                                            <i class="fa fa-check mr-1"></i> Validate File
+                                        </button>
+                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep1">
+                                            <i class="fa fa-arrow-left mr-1"></i> Back
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Preview & Validation -->
+                                <div class="import-step" id="step3">
+                                    <h4><span class="step-number" id="step3-number">3</span> Preview & Validation</h4>
+                                    
+                                    <div id="validationSummary"></div>
+                                    
+                                    <div id="previewData" class="mt-3"></div>
+
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary waves-effect" id="executeImport" disabled>
+                                            <i class="fa fa-upload mr-1"></i> Execute Import
+                                        </button>
+                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep2">
+                                            <i class="fa fa-arrow-left mr-1"></i> Back
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: Import Results -->
+                                <div class="import-step" id="step4">
+                                    <h4><span class="step-number" id="step4-number">4</span> Import Results</h4>
+                                    
+                                    <div id="importResults"></div>
+                                    
+                                    <div class="mt-3">
+                                        <button class="btn btn-success waves-effect" id="startNewImport">
+                                            <i class="fa fa-plus mr-1"></i> Start New Import
+                                        </button>
+                                        <button class="btn btn-info waves-effect ml-2" id="viewImportHistory">
+                                            <i class="fa fa-history mr-1"></i> View Import History
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Import History Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa fa-history mr-2"></i>Import History</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="historyTable"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Data Modal -->
+    <div class="modal fade" id="sampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa fa-eye mr-2"></i>Sample PPM Import Data</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="sampleDataContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="downloadFromModal">
+                        <i class="fa fa-download"></i> Download Template
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include common HTML components -->
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+</main>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let currentStep = 1;
+    let selectedFile = null;
+    let validationResults = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        ShowLoader();
+        
+        setTimeout(function() {
+            try {
+                console.log('Starting PPM import page initialization...');
+                
+                // Initialize includes (check if function exists first)
+                if (typeof initiatePages === 'function') {
+                    console.log('Calling initiatePages...');
+                    initiatePages();
+                } else {
+                    console.log('initiatePages function not available, skipping...');
+                }
+                
+                // Initialize the import process
+                console.log('Initializing PPM import...');
+                initializeImport();
+                
+                // Bind events
+                console.log('Binding events...');
+                bindEvents();
+                
+                // Initialize MDB components
+                console.log('Initializing MDB components...');
+                $('.mdb-select').materialSelect();
+                
+                console.log('PPM import page initialization completed successfully');
+                HideLoader();
+            } catch (e) {
+                console.error('Page initialization error:', e);
+                console.error('Error stack:', e.stack);
+                
+                // More specific error handling
+                if (typeof toastr !== 'undefined') {
+                    toastr['error']('Page initialization failed: ' + e.message, 'Error');
+                } else {
+                    alert('Page initialization failed: ' + e.message);
+                }
+                HideLoader();
+            }
+        }, 300);
+    });
+
+        function initializeImport() {
+            // Reset all steps except first
+            $('.import-step').removeClass('active completed');
+            $('.step-number').removeClass('active completed');
+            $('#step1').addClass('active');
+            $('#step1-number').addClass('active');
+            
+            // Hide steps 2-4
+            $('#step2, #step3, #step4').hide();
+            
+            currentStep = 1;
+            selectedFile = null;
+            validationResults = null;
+        }
+
+        function bindEvents() {
+            // Template download
+            $('#downloadTemplate').click(function() {
+                downloadTemplate();
+            });
+
+            // View sample data
+            $('#viewSampleData').click(function() {
+                showSampleData();
+            });
+            
+            $('#downloadFromModal').click(function() {
+                downloadTemplate();
+            });
+
+            // Step navigation
+            $('#proceedToUpload').click(function() {
+                moveToStep(2);
+                // Enable validation button when moving to step 2
+                $('#validateFile').prop('disabled', false);
+            });
+
+            $('#backToStep1').click(function() {
+                moveToStep(1);
+            });
+
+            $('#backToStep2').click(function() {
+                moveToStep(2);
+            });
+
+            // File handling
+            $('#fileDropZone').click(function() {
+                $('#fileInput').click();
+            });
+
+            $('#fileInput').change(function(e) {
+                handleFileSelect(e.target.files[0]);
+            });
+
+            // Drag and drop
+            $('#fileDropZone').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('dragover');
+            });
+
+            $('#fileDropZone').on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+            });
+
+            $('#fileDropZone').on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+                handleFileSelect(e.originalEvent.dataTransfer.files[0]);
+            });
+
+            // File validation
+            $('#validateFile').click(function() {
+                validateFile();
+            });
+
+            // Import execution
+            $('#executeImport').click(function() {
+                executeImport();
+            });
+
+            // Reset
+            $('#startNewImport').click(function() {
+                initializeImport();
+            });
+
+            // History
+            $('#viewImportHistory').click(function() {
+                showImportHistory();
+            });
+        }
+
+        function moveToStep(stepNumber) {
+            // Update step visual state
+            $('.import-step').removeClass('active');
+            $('.step-number').removeClass('active');
+            
+            if (stepNumber > currentStep) {
+                for (let i = 1; i < stepNumber; i++) {
+                    $(`#step${i}`).addClass('completed');
+                    $(`#step${i}-number`).addClass('completed');
+                }
+            }
+            
+            $(`#step${stepNumber}`).addClass('active').show();
+            $(`#step${stepNumber}-number`).addClass('active');
+            
+            currentStep = stepNumber;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function handleFileSelect(file) {
+            if (!file) return;
+            
+            selectedFile = file;
+            
+            // Show file info
+            $('#fileName').text(file.name);
+            $('#fileSize').text(formatFileSize(file.size));
+            $('#fileType').text(file.type || file.name.split('.').pop().toUpperCase());
+            $('#fileInfo').show();
+            
+            $('#proceedToUpload').prop('disabled', false);
+        }
+
+        function validateFile() {
+            if (!selectedFile) {
+                toastr['error']('Please select a file first', _ALERT_TITLE_ERROR);
+                return;
+            }
+            
+            ShowLoader();
+            
+            const formData = new FormData();
+            formData.append('action', 'preview_import');
+            formData.append('import_file', selectedFile);
+            
+            $.ajax({
+                url: 'api/ppm_import.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                },
+                success: function(response) {
+                    HideLoader();
+                    
+                    if (response.success) {
+                        validationResults = response.result;
+                        showPreview(response.result);
+                        moveToStep(3);
+                    } else {
+                        toastr['error'](response.errmsg || 'Validation failed', _ALERT_TITLE_ERROR);
+                    }
+                },
+                error: function() {
+                    HideLoader();
+                    toastr['error']('Failed to validate file', _ALERT_TITLE_ERROR);
+                }
+            });
+        }
+
+        function showPreview(results) {
+            const preview = results.preview || results;
+            
+            // Summary
+            let summaryHtml = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-info">${preview.total_rows || 0}</h3>
+                                <p class="card-text">Total Rows</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">${preview.valid_rows || 0}</h3>
+                                <p class="card-text">Valid Rows</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning">${preview.warning_rows || 0}</h3>
+                                <p class="card-text">Warnings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-danger">${preview.error_rows || 0}</h3>
+                                <p class="card-text">Errors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Errors and warnings
+            if (results.errors && results.errors.length > 0) {
+                summaryHtml += '<div class="alert alert-danger mt-3"><h6>Errors:</h6><ul>';
+                results.errors.forEach(error => {
+                    summaryHtml += `<li>${error}</li>`;
+                });
+                summaryHtml += '</ul></div>';
+            }
+            
+            if (results.warnings && results.warnings.length > 0) {
+                summaryHtml += '<div class="alert alert-warning mt-3"><h6>Warnings:</h6><ul>';
+                results.warnings.forEach(warning => {
+                    summaryHtml += `<li>${warning}</li>`;
+                });
+                summaryHtml += '</ul></div>';
+            }
+            
+            $('#validationSummary').html(summaryHtml);
+            
+            // Enable import if we have valid rows
+            $('#executeImport').prop('disabled', !results.can_proceed);
+            
+            // Show sample preview data
+            if (results.sample_valid && results.sample_valid.length > 0) {
+                let previewHtml = '<h6>Sample Valid Rows:</h6>';
+                previewHtml += '<div class="preview-table"><table class="table table-sm table-bordered">';
+                
+                // Headers
+                const headers = Object.keys(results.sample_valid[0]).filter(k => k !== 'row_number');
+                previewHtml += '<thead class="thead-light"><tr>';
+                previewHtml += '<th>Row</th>';
+                headers.slice(0, 6).forEach(header => {
+                    previewHtml += `<th>${header}</th>`;
+                });
+                previewHtml += '</tr></thead><tbody>';
+                
+                // Data
+                results.sample_valid.slice(0, 5).forEach(row => {
+                    previewHtml += `<tr class="success-row">`;
+                    previewHtml += `<td>${row.row_number || ''}</td>`;
+                    headers.slice(0, 6).forEach(header => {
+                        previewHtml += `<td>${row[header] || ''}</td>`;
+                    });
+                    previewHtml += '</tr>';
+                });
+                
+                previewHtml += '</tbody></table></div>';
+                $('#previewData').html(previewHtml);
+            }
+        }
+
+        function executeImport() {
+            if (!selectedFile || !validationResults) {
+                toastr['error']('Invalid state for import execution', _ALERT_TITLE_ERROR);
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to import ${validationResults.preview.valid_rows} PPM tasks?`)) {
+                return;
+            }
+            
+            ShowLoader();
+            
+            const formData = new FormData();
+            formData.append('action', 'execute_import');
+            formData.append('import_file', selectedFile);
+            formData.append('import_options', JSON.stringify({}));
+            
+            $.ajax({
+                url: 'api/ppm_import.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                },
+                success: function(response) {
+                    HideLoader();
+                    
+                    if (response.success) {
+                        showImportResults(response.result);
+                        moveToStep(4);
+                    } else {
+                        toastr['error'](response.errmsg || 'Import failed', _ALERT_TITLE_ERROR);
+                    }
+                },
+                error: function() {
+                    HideLoader();
+                    toastr['error']('Failed to execute import', _ALERT_TITLE_ERROR);
+                }
+            });
+        }
+
+        function showImportResults(results) {
+            let html = '';
+            
+            if (results.success) {
+                html = `
+                    <div class="alert alert-success">
+                        <h5><i class="fa fa-check-circle"></i> Import Completed Successfully!</h5>
+                        <p>${results.summary.message}</p>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="alert alert-warning">
+                        <h5><i class="fa fa-info-circle"></i> Import Completed with Issues</h5>
+                        <p>${results.summary.message}</p>
+                    </div>
+                `;
+            }
+            
+            // Statistics cards
+            html += `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center ${results.summary.success_count > 0 ? 'bg-success text-white' : 'border-success'}">
+                            <div class="card-body">
+                                <h3>${results.summary.success_count || 0}</h3>
+                                <p class="card-text">Successfully Imported</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center ${results.summary.error_count > 0 ? 'bg-danger text-white' : 'border-danger'}">
+                            <div class="card-body">
+                                <h3>${results.summary.error_count || 0}</h3>
+                                <p class="card-text">Errors/Skipped</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center border-info">
+                            <div class="card-body">
+                                <h3>${results.summary.total_processed || 0}</h3>
+                                <p class="card-text">Total Processed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                
+            // Show detailed errors if any
+            if (results.summary.errors && results.summary.errors.length > 0) {
+                html += `
+                    <div class="mt-4">
+                        <h6><i class="fa fa-exclamation-triangle text-warning"></i> Detailed Error Report</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="60">Row</th>
+                                        <th width="120">PPM Task No.</th>
+                                        <th>Error Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                results.summary.errors.forEach(error => {
+                    // Determine row class based on error type
+                    let rowClass = 'table-warning'; // Default for skipped items
+                    if (error.message.includes('not found')) {
+                        rowClass = 'table-danger'; // Data not found errors
+                    } else if (error.message.includes('already exists')) {
+                        rowClass = 'table-info'; // Duplicate/already exists
+                    }
+                    
+                    html += `
+                        <tr class="${rowClass}">
+                            <td class="text-center">${error.row}</td>
+                            <td><code>${error.ppm_task_no}</code></td>
+                            <td>${error.message}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fa fa-info-circle"></i> Error Types Legend:</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <span class="badge badge-info">Already Exists</span> - Task already in database
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge badge-danger">Not Found</span> - Referenced data missing
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge badge-warning">Validation</span> - Data format issues
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show successfully imported tasks if any
+            if (results.summary.imported_tasks && results.summary.imported_tasks.length > 0) {
+                html += `
+                    <div class="mt-4">
+                        <h6><i class="fa fa-check-circle text-success"></i> Successfully Imported Tasks</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered table-success">
+                                <thead class="thead-success">
+                                    <tr>
+                                        <th>PPM Task ID</th>
+                                        <th>PPM Task No.</th>
+                                        <th>Asset Code</th>
+                                        <th>Technician</th>
+                                        <th>Due Date</th>
+                                        <th>Import Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                results.summary.imported_tasks.forEach(task => {
+                    html += `
+                        <tr>
+                            <td>${task.ppm_task_id}</td>
+                            <td><code>${task.ppm_task_no}</code></td>
+                            <td>${task.asset_code}</td>
+                            <td>${task.technician}</td>
+                            <td>${task.due_date}</td>
+                            <td><span class="badge badge-success">${task.status}</span></td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            $('#importResults').html(html);
+        }
+
+        function showImportHistory() {
+            $('#historyModal').modal('show');
+            
+            $.ajax({
+                url: 'api/ppm_import.php?action=get_import_history',
+                type: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                }
+            })
+                .done(function(response) {
+                    if (response.success && response.result.history) {
+                        let html = '<div class="table-responsive"><table class="table table-striped table-sm">';
+                        html += '<thead class="thead-dark"><tr><th>Date</th><th>Description</th><th>Processed</th><th>Success</th><th>Errors</th></tr></thead><tbody>';
+                        
+                        response.result.history.forEach(item => {
+                            html += `<tr>
+                                <td>${item.import_date}</td>
+                                <td>${item.description}</td>
+                                <td>${item.total_processed}</td>
+                                <td class="text-success">${item.success_count}</td>
+                                <td class="text-danger">${item.error_count}</td>
+                            </tr>`;
+                        });
+                        
+                        html += '</tbody></table></div>';
+                        $('#historyTable').html(html);
+                    } else {
+                        $('#historyTable').html('<div class="alert alert-info">No import history found</div>');
+                    }
+                })
+                .fail(function() {
+                    $('#historyTable').html('<div class="alert alert-danger">Failed to load import history</div>');
+                });
+        }
+
+        function downloadTemplate() {
+            // Create CSV template with PPM import format
+            const headers = [
+                'PPM Task No.',
+                'Asset Code',
+                'Assigned Technician',
+                'Task Description',
+                'Next Due Date',
+                'Estimated Duration (Hours)',
+                'Work Instructions',
+                'Required Tools',
+                'Required Parts',
+                'Completion Criteria'
+            ];
+            
+            const sampleRows = [
+                [
+                    'PPM-2025-001',
+                    'GEN-001',
+                    'attendance2',
+                    'Generator Monthly Inspection',
+                    '2025-08-15',
+                    '2.5',
+                    'Check oil levels and filters',
+                    'Wrench set, Oil meter',
+                    'Oil filter, Engine oil',
+                    'All checks completed successfully'
+                ],
+                [
+                    'PPM-2025-002',
+                    'GEN-002',
+                    'attendance2',
+                    'Generator Quarterly Maintenance',
+                    '2025-08-07',
+                    '4.0',
+                    'Full system inspection and cleaning',
+                    'Cleaning equipment, Test meters',
+                    'Spark plugs, Air filter',
+                    'System running optimally'
+                ],
+                [
+                    'PPM-2025-003',
+                    'AC-001',
+                    'attendance2',
+                    'AC Unit Filter Replacement',
+                    '2025-08-20',
+                    '1.5',
+                    'Replace air filters and check cooling',
+                    'Screwdriver, Vacuum',
+                    'Air filters',
+                    'Filters replaced and airflow normal'
+                ]
+            ];
+            
+            // Create CSV content
+            let csvContent = '';
+            
+            // Add header descriptions as comments
+            csvContent += '# PPM Import Template - GEMS System\\n';
+            csvContent += '# All imported tasks are automatically set as "Complete" status\\n';
+            csvContent += '# Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date\\n';
+            csvContent += '# Dates: YYYY-MM-DD format\\n';
+            csvContent += '# Assigned Technician: Use valid username from system\\n';
+            csvContent += '\\n';
+            
+            // Add actual CSV headers and sample data
+            csvContent += headers.join(',') + '\\n';
+            
+            // Add sample rows
+            sampleRows.forEach(row => {
+                csvContent += row.join(',') + '\\n';
+            });
+                'Electrical',
+                'Generator',
+                'Diesel Generator',
+                'B1-001',
+                'Basement Level 1, Generator Room',
+                'Block B',
+                'Basement',
+                'Weekly generator test',
+                'Electrical',
+                'attendance2',
+                'supervisor2',
+                'manager1',
+                '2025-08-01 07:00:00',
+                '2025-08-01 08:30:00',
+                '2025-08-01 09:00:00',
+                '2025-08-01 09:15:00',
+                '0',
+                '90',
+                '120',
+                'Completed',
+                'Completed'
+            // Create and download the CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ppm_import_template.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showSampleData() {
+            $('#sampleModal').modal('show');
+            
+            // Create detailed sample data documentation
+            const sampleData = {
+                success: true,
+                template: {
+                    required_columns: {
+                        'PPM Task No.': 'Unique PPM task identifier (e.g., PPM-2025-001)',
+                        'Site': 'Site name where PPM is performed',
+                        'Schedule Date': 'Scheduled date for PPM execution (YYYY-MM-DD)',
+                        'Asset No.': 'Asset number/identifier from system',
+                        'Executor': 'Technician username who will execute the PPM',
+                        'Document No.': 'PPM document/checklist reference',
+                        'Asset Name': 'Full name/description of the asset',
+                        'Asset Group': 'Asset group classification (HVAC, Electrical, etc.)',
+                        'Location Code': 'Location code from system',
+                        'Trade': 'Trade type (Mechanical, Electrical, etc.)'
+                    },
+                    optional_columns: {
+                        'Frequency': 'PPM frequency (Daily, Weekly, Monthly, etc.)',
+                        'Asset Category': 'Asset category classification',
+                        'Asset Type': 'Specific asset type',
+                        'Location Description': 'Human-readable location description',
+                        'Block': 'Building block identifier',
+                        'Level': 'Floor/level information',
+                        'Remark': 'Additional notes or comments',
+                        'Reviewer': 'Username of reviewer',
+                        'Verifier': 'Username of verifier',
+                        'Time Scan': 'When PPM was scanned/started (YYYY-MM-DD HH:MM:SS)',
+                        'Time Executed': 'When PPM execution completed',
+                        'Time Reviewed': 'When PPM was reviewed',
+                        'Time Verified': 'When PPM was verified',
+                        'Lateness': 'Days late (0 if on time)',
+                        'Min Execution Time': 'Minimum expected execution time (minutes)',
+                        'Max Execution Time': 'Maximum expected execution time (minutes)',
+                        'Execution Status': 'Current execution status',
+                        'Progress': 'Overall progress status'
+                    }
+                }
+            };
+            
+            // Display comprehensive template information
+            let content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-circle text-danger"></i> Required Columns</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Column</th><th>Description</th></tr>
+                                </thead>
+                                <tbody>`;
+            
+            Object.entries(sampleData.template.required_columns).forEach(([key, value]) => {
+                content += `<tr><td><code>${key}</code></td><td>${value}</td></tr>`;
+            });
+            
+            content += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle text-info"></i> Optional Columns</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Column</th><th>Description</th></tr>
+                                </thead>
+                                <tbody>`;
+            
+            Object.entries(sampleData.template.optional_columns).forEach(([key, value]) => {
+                content += `<tr><td><code>${key}</code></td><td>${value}</td></tr>`;
+            });
+            
+            content += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6><i class="fas fa-table text-success"></i> Backend Column Mapping</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-dark">
+                                <tr><th>CSV Column</th><th>Database Table</th><th>Database Column</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>PPM Task No.</td><td>ppm_task</td><td>ppm_task_no</td><td>Primary identifier</td></tr>
+                                <tr><td>Site</td><td>cli_site</td><td>site_name</td><td>Mapped to site_id</td></tr>
+                                <tr><td>Schedule Date</td><td>ppm_task</td><td>ppm_task_schedule_date</td><td>YYYY-MM-DD format</td></tr>
+                                <tr><td>Asset No.</td><td>ast_asset</td><td>asset_no</td><td>Mapped to asset_id</td></tr>
+                                <tr><td>Executor</td><td>sys_user</td><td>user_name</td><td>Mapped to user_id</td></tr>
+                                <tr><td>Document No.</td><td>ppm_task</td><td>ppm_task_guideline</td><td>PPM checklist reference</td></tr>
+                                <tr><td>Execution Status</td><td>ppm_task</td><td>ppm_task_status</td><td>Status mapping required</td></tr>
+                                <tr><td>Time Executed</td><td>ppm_task</td><td>ppm_task_time_end</td><td>Completion timestamp</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6><i class="fas fa-check-circle text-primary"></i> Validation Rules</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> PPM Task No. must be unique</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Site must exist in system</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Asset No. must exist in system</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Executor must be a valid user</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Schedule Date must be valid date format</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> All time fields must be in YYYY-MM-DD HH:MM:SS format</li>
+                    </ul>
+                </div>
+
+                <div class="mt-4">
+                    <h6><i class="fas fa-eye text-info"></i> Sample Data Preview</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>PPM Task No.</th><th>Site</th><th>Schedule Date</th><th>Asset No.</th><th>Asset Name</th><th>Executor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PPM-2025-001</td><td>Site A</td><td>2025-07-31</td><td>AC-001</td><td>Air Conditioning Unit</td><td>attendance2</td>
+                                </tr>
+                                <tr>
+                                    <td>PPM-2025-002</td><td>Site B</td><td>2025-08-01</td><td>GEN-001</td><td>Emergency Generator</td><td>attendance2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            
+            $('#sampleDataContent').html(content);
+        }
+    </script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>

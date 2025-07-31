@@ -1,4 +1,13 @@
-# Developer Tools & Testing Files
+# Developer Tools ### Test Files (test/) - 17 files
+Contains test cases, sample data, and testing utilities:
+
+**Work Order Testing:**
+- `test_wo_import_20_tickets.csv` - Test data for work order import (20 tickets)
+- `test_api_site.html` - Site API testing interface
+- `test_api.html` - General API testing utilities
+
+**PPM Testing:**
+- `test_ppm_import_20_tasks.csv` - Test data for PPM import (20 tasks)les
 
 This folder contains development, debugging, and testing files that should **NOT** be deployed to production.
 
@@ -40,9 +49,28 @@ Contains quick validation and utility scripts:
 
 ### Production Files (Keep in main directory):
 - `validate_import.html` - Production validation dashboard
-- `wo_import.html` - Work order import interface
+- `wo_import.html` - Work order import interface  
+- `ppm_import.html` - PPM import interface
 - `gamification.html` - Main gamification interface
 - All other main application `.html` files
+
+### New Import Systems (Production Ready):
+
+**Work Order Import:** `wo_import.html` + `api/wo_import.php`
+- 23-column customer template format
+- 4-step wizard interface with comprehensive validation
+- Supports bulk import with error handling and progress tracking
+
+**PPM Import:** `ppm_import.html` + `api/ppm_import.php`
+- 28-column PPM template format covering task details, asset info, scheduling, workflow execution
+- Same 4-step wizard concept with PPM-specific validation rules
+- Integration with existing PPM workflow system and asset management
+
+Both systems follow the same proven pattern:
+1. File Selection & Template Download
+2. File Upload & Processing
+3. Preview & Validation  
+4. Import Results & History
 
 ### Deployment Script Example:
 ```bash
