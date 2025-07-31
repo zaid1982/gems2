@@ -350,16 +350,22 @@ function executePPMImport($validRows) {
         
         // Debug: Log first few assets for troubleshooting
         if (!empty($allAssets)) {
-            $sampleAssets = array_slice($allAssets, 0, 5);
+            $sampleAssets = array_slice($allAssets, 0, 3);
             foreach ($sampleAssets as $i => $asset) {
-                $fnMain->logDebug('API', 'ppm_import', __LINE__, "Sample asset $i: " . json_encode($asset));
+                $assetNo = $asset['assetNo'] ?? $asset['asset_no'] ?? 'NULL';
+                $assetName = $asset['assetName'] ?? $asset['asset_name'] ?? 'NULL';
+                $fnMain->logDebug('API', 'ppm_import', __LINE__, "Sample asset $i: code='$assetNo', name='$assetName'");
             }
         } else {
             $fnMain->logDebug('API', 'ppm_import', __LINE__, "WARNING: No assets found in ast_asset table!");
         }
         
         foreach ($allAssets as $asset) {
-            $assetCache[$asset['asset_no']] = $asset;
+            // Fix: Use camelCase keys as returned by the database
+            $assetCode = $asset['assetNo'] ?? $asset['asset_no'] ?? '';
+            if (!empty($assetCode)) {
+                $assetCache[$assetCode] = $asset;
+            }
         }
         
         // Debug: Log first few cache keys
@@ -386,7 +392,11 @@ function executePPMImport($validRows) {
         $userFetchTime = microtime(true) - $cacheStartTime;
         
         foreach ($allUsers as $user) {
-            $userCache[$user['user_name']] = $user;
+            // Fix: Use camelCase keys as returned by the database
+            $userName = $user['userName'] ?? $user['user_name'] ?? '';
+            if (!empty($userName)) {
+                $userCache[$userName] = $user;
+            }
         }
         
         $fnMain->logDebug('API', 'ppm_import', __LINE__, "Cached " . count($userCache) . " users in " . round($userFetchTime, 2) . "s");
@@ -594,7 +604,8 @@ function executePPMImport($validRows) {
                 }
                 continue;
             }
-            $assetId = $asset['asset_id'];
+            // Fix: Use camelCase key as returned by the database
+            $assetId = $asset['assetId'] ?? $asset['asset_id'] ?? null;
             if ($index < 3) {
                 $fnMain->logDebug('API', 'ppm_import', __LINE__, "Found asset ID: {$assetId} for code: {$assetCode}");
             }
@@ -637,7 +648,8 @@ function executePPMImport($validRows) {
                 }
                 continue;
             }
-            $technicianId = $technician['user_id'];
+            // Fix: Use camelCase key as returned by the database
+            $technicianId = $technician['userId'] ?? $technician['user_id'] ?? null;
             if ($index < 3) {
                 $fnMain->logDebug('API', 'ppm_import', __LINE__, "Found technician ID: {$technicianId} for: {$assignedTechnician}");
             }
@@ -812,9 +824,9 @@ function getSampleAssets() {
         $sampleAssets = [];
         foreach ($assets as $asset) {
             $sampleAssets[] = [
-                'asset_no' => $asset['asset_no'],
-                'asset_name' => $asset['asset_name'] ?? 'Unknown Asset',
-                'asset_type' => $asset['asset_type_id'] ?? 'Unknown Type'
+                'asset_no' => $asset['assetNo'] ?? $asset['asset_no'] ?? 'Unknown',
+                'asset_name' => $asset['assetName'] ?? $asset['asset_name'] ?? 'Unknown Asset',
+                'asset_type' => $asset['assetTypeId'] ?? $asset['asset_type_id'] ?? 'Unknown Type'
             ];
         }
         
@@ -843,9 +855,9 @@ function getSampleUsers() {
         $sampleUsers = [];
         foreach ($users as $user) {
             $sampleUsers[] = [
-                'user_name' => $user['user_name'],
-                'user_id' => $user['user_id'],
-                'user_display_name' => $user['user_display_name'] ?? $user['user_name']
+                'user_name' => $user['userName'] ?? $user['user_name'] ?? 'Unknown',
+                'user_id' => $user['userId'] ?? $user['user_id'] ?? 'Unknown',
+                'user_display_name' => $user['userDisplayName'] ?? $user['user_display_name'] ?? ($user['userName'] ?? $user['user_name'] ?? 'Unknown')
             ];
         }
         
