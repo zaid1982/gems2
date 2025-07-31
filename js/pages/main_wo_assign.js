@@ -19,8 +19,10 @@ function MainWoAssign () {
     let currentTab;
     let runPending = true;
     let runSubmitted = true;
+    let userSite;
 
     this.init = function () {
+        userSite = mzGetUserInfoByParam('siteId');
         currentTab = 'Pending';
         self.showMain(false);
         
@@ -271,21 +273,26 @@ function MainWoAssign () {
 
     this.genTablePending = function () {
         if (runPending) {
-            ShowLoader(); setTimeout(function () { mzFetch('wo_v3/pending_assign').then(res => {
-                $('#badgeWssTotalPending').text(res.length);
-                oTableWssPending.clear().rows.add(res).draw();
-                runPending = false;
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+            ShowLoader(); setTimeout(function () { 
+                const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/pending_assign/site/${userSite}` : 'wo_v3/pending_assign';
+                mzFetch(apiUrl).then(res => {
+                    $('#badgeWssTotalPending').text(res.length);
+                    oTableWssPending.clear().rows.add(res).draw();
+                    runPending = false;
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
+            }, 200);
         }
     };
 
     this.genTableSubmitted = function () {
         if (runSubmitted) {
-            ShowLoader(); setTimeout(function () { mzFetch('wo_v3/submitted_assign').then(res => {
-                $('#badgeWssTotalSubmitted').text(res.length);
-                oTableWssSubmitted.clear().rows.add(res).draw();
-                runSubmitted = false;
-                currentTab = 'Submitted';
+            ShowLoader(); setTimeout(function () { 
+                const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/submitted_assign/site/${userSite}` : 'wo_v3/submitted_assign';
+                mzFetch(apiUrl).then(res => {
+                    $('#badgeWssTotalSubmitted').text(res.length);
+                    oTableWssSubmitted.clear().rows.add(res).draw();
+                    runSubmitted = false;
+                    currentTab = 'Submitted';
             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
         }
     };

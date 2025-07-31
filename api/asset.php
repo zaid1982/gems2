@@ -33,6 +33,23 @@ try {
         throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+    
+    // Get user site information for site filtering
+    $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
+    if (empty($user)) {
+        throw new Exception('[' . __LINE__ . '] - User not found');
+    }
+    $userSite = $user['site_id'];
+    
+    // Check if user is administrator (roles 1 or 10)
+    $userRoles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$jwt_data->userId), 'role_id');
+    $isAdministrator = false;
+    foreach ($userRoles as $roleId) {
+        if (in_array($roleId, [1, 10])) {
+            $isAdministrator = true;
+            break;
+        }
+    }
 
     if ('GET' === $request_method) {
         $assetId = filter_input(INPUT_GET, 'assetId');
@@ -42,11 +59,40 @@ try {
             if ($type === 'total_asset') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
+                
+                // Apply site filtering for non-administrators
+                if (!$isAdministrator && !empty($userSite)) {
+                    if (!empty($siteId) && $siteId != $userSite) {
+                        throw new Exception('[' . __LINE__ . '] - Access denied to different site data');
+                    }
+                    // Force the siteId to user's site for non-administrators
+                    $siteId = $userSite;
+                }
+                
                 $result = $fn_asset->get_total_asset($clientId, $siteId);
             }
         } else if (!is_null($assetId)) {
+            // Apply site filtering for non-administrators
+            if (!$isAdministrator && !empty($userSite)) {
+                // Verify that the requested asset belongs to user's site
+                $assetContract = Class_db::getInstance()->db_select_colm('ast_asset', array('asset_id'=>$assetId), 'contract_id');
+                if (!empty($assetContract)) {
+                    $contractSite = Class_db::getInstance()->db_select_colm('cli_contract', array('contract_id'=>$assetContract[0]), 'site_id');
+                    if (empty($contractSite) || $contractSite[0] != $userSite) {
+                        throw new Exception('[' . __LINE__ . '] - Access denied to asset from different site');
+                    }
+                }
+            }
             $result = $fn_asset->get_asset($assetId);
         } else if (!is_null($contractId)) {
+            // Apply site filtering for non-administrators
+            if (!$isAdministrator && !empty($userSite)) {
+                // Verify that the requested contract belongs to user's site
+                $contractSite = Class_db::getInstance()->db_select_colm('cli_contract', array('contract_id'=>$contractId), 'site_id');
+                if (empty($contractSite) || $contractSite[0] != $userSite) {
+                    throw new Exception('[' . __LINE__ . '] - Access denied to contract assets from different site');
+                }
+            }
             $result = $fn_asset->get_asset_list($contractId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter get invalid');

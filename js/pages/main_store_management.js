@@ -7,8 +7,10 @@ function MainStoreManagement () {
     let modalStoreClass;
     let refStatus;
     let refSite;
+    let userSite;
 
     this.init = function () {
+        userSite = mzGetUserInfoByParam('siteId');
         let exportOpt = Object.assign({}, mzExportOpt);
         exportOpt['columns'] = [0, 1, 2, 3, 4, 5, 6];
 
@@ -110,7 +112,8 @@ function MainStoreManagement () {
     };
 
     this.genTable = function () {
-        const dataDb = mzAjaxRequest2('store', 'GET');
+        const apiUrl = !mzIsRoleExist('1,10') ? `store/site/${userSite}` : 'store';
+        const dataDb = mzAjaxRequest2(apiUrl, 'GET');
         oTableStm.clear().rows.add(dataDb).draw();
     };
 

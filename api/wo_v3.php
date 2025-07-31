@@ -52,17 +52,41 @@ try {
             }
             $result = $fnMain->getPdfLink($pdfMrfId);
         } else if ($urlArr[1] === 'pending_assign') {
-            $result = $fnMain->pendingAssign();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->pendingAssignBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->pendingAssign();
+            }
         } else if ($urlArr[1] === 'submitted_assign') {
-            $result = $fnMain->submittedAssign();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->submittedAssignBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->submittedAssign();
+            }
         } else if ($urlArr[1] === 'submitted_assign_total') {
-            $result = $fnMain->submittedAssignTotal();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->submittedAssignTotalBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->submittedAssignTotal();
+            }
         } else if ($urlArr[1] === 'pending_verify') {
-            $result = $fnMain->pendingVerify();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->pendingVerifyBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->pendingVerify();
+            }
         } else if ($urlArr[1] === 'submitted_verify') {
-            $result = $fnMain->submittedVerify();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->submittedVerifyBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->submittedVerify();
+            }
         } else if ($urlArr[1] === 'submitted_verify_total') {
-            $result = $fnMain->submittedVerifyTotal();
+            if (isset($urlArr[2]) && $urlArr[2] === 'site' && isset($urlArr[3])) {
+                $result = $fnMain->submittedVerifyTotalBySite(intval($urlArr[3]));
+            } else {
+                $result = $fnMain->submittedVerifyTotal();
+            }
         } else if ($urlArr[1] === 'material_list' && isset ($urlArr[2])) {
             $result = $fnMain->materialList($urlArr[2]);
         } else if ($urlArr[1] === 'by_assetId') {

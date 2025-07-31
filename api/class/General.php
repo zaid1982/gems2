@@ -3,10 +3,12 @@ require_once 'src/BeforeValidException.php';
 require_once 'src/ExpiredException.php';
 require_once 'src/SignatureInvalidException.php';
 require_once 'src/JWT.php';
+require_once 'trait/SiteFilterTrait.php';
 
 use \Firebase\JWT\JWT;
 
 class General {
+    use SiteFilterTrait;
 
     public $userId = 0;
     public $isLogged = false;
@@ -352,6 +354,50 @@ class General {
                 //throw new Exception('Your Device is invalid!', 31);
             }
             $this->userSite = $user['siteId'];
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Check if current user is Administrator or GFM Management
+     * @return bool
+     * @throws Exception
+     */
+    public function isAdministrator(): bool {
+        try {
+            if (!$this->userId) {
+                return false;
+            }
+            $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$this->userId), 'role_id');
+            foreach ($roles as $roleId) {
+                if (in_array($roleId, [1, 10])) { // Administrator or GFM Management
+                    return true;
+                }
+            }
+            return false;
+        } catch(Exception $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Add site filtering to SQL queries for non-administrators
+     * @param string $query
+     * @param string $siteField
+     * @return string
+     * @throws Exception
+     */
+    public function addSiteFilter(string $query, string $siteField = 'site_id'): string {
+        try {
+            if (!$this->isAdministrator() && $this->userSite) {
+                if (stripos($query, 'WHERE') !== false) {
+                    $query .= " AND {$siteField} = {$this->userSite}";
+                } else {
+                    $query .= " WHERE {$siteField} = {$this->userSite}";
+                }
+            }
+            return $query;
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

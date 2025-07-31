@@ -54,6 +54,8 @@ try {
         if (isset ($urlArr[1])) {
             if ($urlArr[1] === 'purchase_option_store') {
                 $result = $fn_store->getPurchaseStoreOption($userId);
+            } else if ($urlArr[1] === 'site' && isset($urlArr[2])) {
+                $result = $fn_store->getStoreListBySite($urlArr[2]);
             } else {
                 $result = $fn_store->getStore($urlArr[1]);
             }

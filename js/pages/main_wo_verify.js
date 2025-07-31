@@ -19,8 +19,10 @@ function MainWoVerify () {
     let currentTab;
     let runPending = true;
     let runSubmitted = true;
+    let userSite;
 
     this.init = function () {
+        userSite = mzGetUserInfoByParam('siteId');
         currentTab = 'Pending';
         self.showMain(false);
 
@@ -314,29 +316,38 @@ function MainWoVerify () {
 
     this.genTablePending = function () {
         if (runPending) {
-            ShowLoader(); setTimeout(function () { mzFetch('wo_v3/pending_verify').then(res => {
-                $('#badgeWvrTotalPending').text(res.length);
-                oTableWvrPending.clear().rows.add(res).draw();
-                runPending = false;
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+            ShowLoader(); setTimeout(function () { 
+                const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/pending_verify/site/${userSite}` : 'wo_v3/pending_verify';
+                mzFetch(apiUrl).then(res => {
+                    $('#badgeWvrTotalPending').text(res.length);
+                    oTableWvrPending.clear().rows.add(res).draw();
+                    runPending = false;
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
+            }, 200);
         }
     };
 
     this.genTableSubmitted = function () {
         if (runSubmitted) {
-            ShowLoader(); setTimeout(function () { mzFetch('wo_v3/submitted_verify').then(res => {
-                $('#badgeWvrTotalSubmitted').text(res.length);
-                oTableWvrSubmitted.clear().rows.add(res).draw();
-                runSubmitted = false;
-                currentTab = 'Submitted';
-            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+            ShowLoader(); setTimeout(function () { 
+                const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/submitted_verify/site/${userSite}` : 'wo_v3/submitted_verify';
+                mzFetch(apiUrl).then(res => {
+                    $('#badgeWvrTotalSubmitted').text(res.length);
+                    oTableWvrSubmitted.clear().rows.add(res).draw();
+                    runSubmitted = false;
+                    currentTab = 'Submitted';
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
+            }, 200);
         }
     };
 
     this.assignTotalSubmitted = function () {
-        ShowLoader(); setTimeout(function () { mzFetch('wo_v3/submitted_verify_total').then(res => {
-            $('#badgeWvrTotalSubmitted').text(res);
-        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+        ShowLoader(); setTimeout(function () { 
+            const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/submitted_verify_total/site/${userSite}` : 'wo_v3/submitted_verify_total';
+            mzFetch(apiUrl).then(res => {
+                $('#badgeWvrTotalSubmitted').text(res);
+            }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
+        }, 200);
     };
 
     this.getClassName = function () {

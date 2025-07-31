@@ -13,15 +13,26 @@ function MainReportWoPending() {
     let siteId;
     let selectedYear;
     let selectedMonth;
+    let userSite;
 
     this.init = function () {
+        userSite = mzGetUserInfoByParam('siteId');
+        
         mzOption('optRwpClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        mzOption('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', {clientId: '1', siteStatus: '1'}, 'required');
+        
+        // Site filtering based on user role
+        const siteFilter = !mzIsRoleExist('1,10') ? {clientId: '1', siteId: userSite, siteStatus: '1'} : {clientId: '1', siteStatus: '1'};
+        mzOption('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', siteFilter, 'required');
 
         clientId = '1';
-        siteId = '1';
+        siteId = !mzIsRoleExist('1,10') ? userSite : '1';
         $('#optRwpClientId').val(clientId);
         $('#optRwpSiteId').val(siteId);
+        
+        // Disable site selection for non-administrators
+        if (!mzIsRoleExist('1,10')) {
+            $('#optRwpSiteId').prop('disabled', true);
+        }
 
         let dateCurrent = new Date();
         selectedMonth = dateCurrent.getMonth()+1;

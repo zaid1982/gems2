@@ -59,12 +59,51 @@ try {
     }
     $jwt_data = $fn_login->check_jwt($headers['Authorization']); //
 
+    // Get user site information for site filtering
+    $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
+    if (empty($user)) {
+        throw new Exception('[' . __LINE__ . '] - User not found');
+    }
+    $userSite = $user['site_id'];
+    
+    // Check if user is administrator (roles 1 or 10)
+    $userRoles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$jwt_data->userId), 'role_id');
+    $isAdministrator = false;
+    foreach ($userRoles as $roleId) {
+        if ($roleId == 1 || $roleId == 10) {
+            $isAdministrator = true;
+            break;
+        }
+    }
+
     if ('GET' === $request_method) { //
         $contractId = filter_input(INPUT_GET, 'contractId');
         if (!is_null($contractId)) {
+            // Apply site filtering for non-administrators
+            if (!$isAdministrator && !empty($userSite)) {
+                // Verify the contract belongs to the user's site
+                $contractSite = Class_db::getInstance()->db_select_single('cli_contract', 
+                    array('contract_id' => $contractId), '', 'site_id');
+                if (empty($contractSite) || $contractSite != $userSite) {
+                    throw new Exception('[' . __LINE__ . '] - Access denied to contract from different site');
+                }
+            }
             $result = $fn_contract->get_contract($contractId);
         } else {
-            $result = $fn_contract->get_contract_list();
+            // Get contract list
+            $allContracts = $fn_contract->get_contract_list();
+            
+            // Apply site filtering for non-administrators
+            if (!$isAdministrator && !empty($userSite)) {
+                $result = array();
+                foreach ($allContracts as $contract) {
+                    if (isset($contract['siteId']) && $contract['siteId'] == $userSite) {
+                        $result[] = $contract;
+                    }
+                }
+            } else {
+                $result = $allContracts;
+            }
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
@@ -75,6 +114,13 @@ try {
         $contractDateEnd = filter_input(INPUT_POST, 'contractDateEnd');
         $siteId = filter_input(INPUT_POST, 'siteId');
         $contractStatus = filter_input(INPUT_POST, 'contractStatus');
+
+        // Apply site filtering for non-administrators
+        if (!$isAdministrator && !empty($userSite)) {
+            if (empty($siteId) || $siteId != $userSite) {
+                throw new Exception('[' . __LINE__ . '] - Access denied: can only create contracts for your own site');
+            }
+        }
 
         $params = array(
             'contractName' => $contractName,
@@ -102,6 +148,21 @@ try {
         parse_str($put_data, $put_vars);
         $action = $put_vars['action'];
 
+        // Apply site filtering for non-administrators
+        if (!$isAdministrator && !empty($userSite)) {
+            // Verify the contract belongs to the user's site
+            $contractSite = Class_db::getInstance()->db_select_single('cli_contract', 
+                array('contract_id' => $contractId), '', 'site_id');
+            if (empty($contractSite) || $contractSite != $userSite) {
+                throw new Exception('[' . __LINE__ . '] - Access denied to contract from different site');
+            }
+            
+            // If updating, ensure siteId is not changed to different site
+            if ($action === 'update' && isset($put_vars['siteId']) && $put_vars['siteId'] != $userSite) {
+                throw new Exception('[' . __LINE__ . '] - Access denied: cannot change contract to different site');
+            }
+        }
+
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
 
@@ -128,6 +189,16 @@ try {
         $form_data['success'] = true;
     } else if ('DELETE' === $request_method) { //
         $contractId = filter_input(INPUT_GET, 'contractId');
+
+        // Apply site filtering for non-administrators
+        if (!$isAdministrator && !empty($userSite)) {
+            // Verify the contract belongs to the user's site
+            $contractSite = Class_db::getInstance()->db_select_single('cli_contract', 
+                array('contract_id' => $contractId), '', 'site_id');
+            if (empty($contractSite) || $contractSite != $userSite) {
+                throw new Exception('[' . __LINE__ . '] - Access denied to contract from different site');
+            }
+        }
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;

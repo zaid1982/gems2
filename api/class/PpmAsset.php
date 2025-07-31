@@ -34,12 +34,21 @@ class PpmAsset extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($ppmId, 'ppmId');
-            return DbMysql::selectSqlAll(/** @lang text */
-                "SELECT 
+            
+            $sql = "SELECT 
                     pst.ppm_asset_id,
                     ast.*
                 FROM ppm_asset pst
-                LEFT JOIN ast_asset ast ON ast.asset_id = pst.asset_id", array('pst.ppmId'=>$ppmId));
+                LEFT JOIN ast_asset ast ON ast.asset_id = pst.asset_id
+                LEFT JOIN cli_contract c ON ast.contract_id = c.contract_id";
+            
+            // Apply site filtering for non-administrators
+            $whereConditions = array('pst.ppmId'=>$ppmId);
+            if (!$this->isAdministrator() && $this->userSite) {
+                $whereConditions['c.site_id'] = $this->userSite;
+            }
+            
+            return DbMysql::selectSqlAll($sql, $whereConditions);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -55,6 +64,16 @@ class PpmAsset extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($assetTypeId, 'assetTypeId');
+            
+            // Apply site filtering for non-administrators
+            if (!$this->isAdministrator() && $this->userSite) {
+                // Verify that the requested contract belongs to user's site
+                $contractSite = DbMysql::selectColumn('cli_contract', array('contract_id'=>$contractId), 'site_id');
+                if (empty($contractSite) || $contractSite != $this->userSite) {
+                    throw new Exception('Access denied to contract assets from different site');
+                }
+            }
+            
             return DbMysql::selectAll('ast_asset', array('contractId'=>$contractId, 'assetTypeId'=>$assetTypeId), 1);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
