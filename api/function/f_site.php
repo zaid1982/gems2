@@ -75,11 +75,45 @@ class Class_site {
      * @return array
      * @throws Exception
      */
-    public function get_site_list () {
+    public function get_site_list ($currentUserId = null) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            return Class_db::getInstance()->db_select2('cli_site');
+            // If no currentUserId is provided, return all sites (original behavior)
+            if ($currentUserId === null) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No current user ID provided, returning all sites');
+                return Class_db::getInstance()->db_select2('cli_site');
+            }
+
+            // Get current user's site information for site filtering
+            $currentUserData = Class_db::getInstance()->db_select_single('sys_user', array('user_id' => $currentUserId));
+            $userSite = !empty($currentUserData) ? $currentUserData['site_id'] : null;
+            
+            // Check if user is administrator (roles 1 or 10)
+            $userRoles = Class_db::getInstance()->db_select('sys_user_role', array('user_id' => $currentUserId));
+            $isAdministrator = false;
+            foreach ($userRoles as $role) {
+                if (in_array($role['role_id'], [1, 10])) {
+                    $isAdministrator = true;
+                    break;
+                }
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Current User ID: ' . $currentUserId . ', Site ID: ' . $userSite . ', Is Administrator: ' . ($isAdministrator ? 'YES' : 'NO'));
+
+            // Build query conditions for site filtering
+            $conditions = array();
+            if (!$isAdministrator && !empty($userSite)) {
+                $conditions['site_id'] = $userSite;
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Applying site filter for site_id: ' . $userSite);
+            } else {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No site filter applied - Administrator: ' . ($isAdministrator ? 'YES' : 'NO') . ', UserSite: ' . $userSite);
+            }
+
+            $result = Class_db::getInstance()->db_select2('cli_site', $conditions);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Query returned ' . count($result) . ' sites');
+            
+            return $result;
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

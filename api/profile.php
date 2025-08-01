@@ -48,7 +48,7 @@ try {
         } else if (!is_null($userId)) {
             $result = $fn_user->get_user($userId);
         } else {
-            $result = $fn_user->get_users();
+            $result = $fn_user->get_users($jwt_data->userId);
         }
 
         $form_data['result'] = $result;

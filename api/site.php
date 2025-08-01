@@ -42,7 +42,9 @@ try {
         if (!is_null($siteId)) {
             $result = $fn_site->get_site($siteId);
         } else {
-            $result = $fn_site->get_site_list();
+            // Pass current user ID for site filtering if JWT data is available
+            $currentUserId = isset($jwt_data) ? $jwt_data->userId : null;
+            $result = $fn_site->get_site_list($currentUserId);
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;

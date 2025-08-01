@@ -528,13 +528,69 @@ class Class_user {
      * @return array
      * @throws Exception
      */
-    public function get_users() {
+    public function get_users($currentUserId = null) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
+            // If no currentUserId is provided, we can't apply site filtering
+            if ($currentUserId === null) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No current user ID provided, returning all users');
+                $result = array();
+                $users = Class_db::getInstance()->db_select('vw_user_list');
+                foreach ($users as $user) {
+                    $row_result['userId'] = $user['user_id'];
+                    $row_result['userName'] = $user['user_name'];
+                    $row_result['userType'] = $user['user_type'];
+                    $row_result['userFirstName'] = $user['user_first_name'];
+                    $row_result['userLastName'] = $user['user_last_name'];
+                    $row_result['userFullName'] = $user['user_first_name'].' '.$user['user_last_name'];
+                    $row_result['userMykadNo'] = $this->fn_general->clear_null($user['user_mykad_no']);
+                    $row_result['userContactNo'] = $this->fn_general->clear_null($user['user_contact_no']);
+                    $row_result['userEmail'] = $this->fn_general->clear_null($user['user_email']);
+                    $row_result['designationId'] = $this->fn_general->clear_null($user['designation_id']);
+                    $row_result['roles'] = $this->fn_general->clear_null($user['roles']);
+                    $row_result['groupId'] = $this->fn_general->clear_null($user['group_id']);
+                    $row_result['userStatus'] = $user['user_status'];
+                    $row_result['siteId'] = $this->fn_general->clear_null($user['site_id']);
+                    array_push($result, $row_result);
+                }
+                return $result;
+            }
+
+            // Get current user's site information for site filtering
+            $currentUserData = Class_db::getInstance()->db_select_single('sys_user', array('user_id' => $currentUserId));
+            $userSite = !empty($currentUserData) ? $currentUserData['site_id'] : null;
+            
+            // Check if user is administrator (roles 1 or 10)
+            $userRoles = Class_db::getInstance()->db_select('sys_user_role', array('user_id' => $currentUserId));
+            $isAdministrator = false;
+            foreach ($userRoles as $role) {
+                if (in_array($role['role_id'], [1, 10])) {
+                    $isAdministrator = true;
+                    break;
+                }
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Current User ID: ' . $currentUserId . ', Site ID: ' . $userSite . ', Is Administrator: ' . ($isAdministrator ? 'YES' : 'NO'));
+
             $result = array();
-            $users = Class_db::getInstance()->db_select('vw_user_list');
+            
+            // Build query conditions for site filtering
+            $conditions = array();
+            if (!$isAdministrator && !empty($userSite)) {
+                $conditions['site_id'] = $userSite;
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Applying site filter for site_id: ' . $userSite);
+            } else {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No site filter applied - Administrator: ' . ($isAdministrator ? 'YES' : 'NO') . ', UserSite: ' . $userSite);
+            }
+            
+            $users = Class_db::getInstance()->db_select('vw_user_list', $conditions);
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Query returned ' . count($users) . ' users');
+            
             foreach ($users as $user) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'User: ' . $user['user_name'] . ' (Site: ' . $user['site_id'] . ')');
+                
                 $row_result['userId'] = $user['user_id'];
                 $row_result['userName'] = $user['user_name'];
                 $row_result['userType'] = $user['user_type'];
