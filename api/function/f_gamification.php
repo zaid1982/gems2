@@ -7,6 +7,7 @@ class Class_gamification {
     private $config;
 
     function __construct() {
+        $this->fn_general = new Class_general();
         $this->loadGamificationConfig();
     }
 
@@ -18,26 +19,64 @@ class Class_gamification {
         try {
             $configData = Class_db::getInstance()->db_select2('gmi_config', array('status' => '1'));
             $this->config = array();
+            
+            if (empty($configData)) {
+                // Log warning if no active config found
+                if (isset($this->fn_general)) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No active configuration found in gmi_config table, using defaults');
+                }
+                $this->setDefaultConfig();
+                return;
+            }
+            
             foreach ($configData as $config) {
-                // Use camelCase column names for db_select2 method
-                $value = $config['configValue'];
+                // Handle different possible column name formats
+                $configKey = isset($config['configKey']) ? $config['configKey'] : 
+                           (isset($config['config_key']) ? $config['config_key'] : null);
+                $configValue = isset($config['configValue']) ? $config['configValue'] : 
+                             (isset($config['config_value']) ? $config['config_value'] : null);
+                $dataType = isset($config['dataType']) ? $config['dataType'] : 
+                          (isset($config['data_type']) ? $config['data_type'] : 'string');
+                
+                if ($configKey === null || $configValue === null) {
+                    continue; // Skip invalid config entries
+                }
+                
                 // Convert based on data type
-                switch ($config['dataType']) {
+                switch ($dataType) {
                     case 'int':
-                        $value = intval($config['configValue']);
+                        $value = intval($configValue);
                         break;
                     case 'float':
-                        $value = floatval($config['configValue']);
+                        $value = floatval($configValue);
                         break;
                     case 'string':
                     default:
-                        $value = $config['configValue'];
+                        $value = $configValue;
                         break;
                 }
-                $this->config[$config['configKey']] = $value;
+                $this->config[$configKey] = $value;
+                
+                // Log each loaded config for debugging
+                if (isset($this->fn_general)) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "Loaded config: $configKey = $value (type: $dataType)");
+                }
             }
+            
+            // Log total number of configs loaded
+            if (isset($this->fn_general)) {
+                $configCount = count($this->config);
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "Successfully loaded $configCount configuration values from database");
+            }
+            
         } catch (Exception $ex) {
             // If config table doesn't exist or is empty, use default values
+            if (isset($this->fn_general)) {
+                $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 
+                    'Failed to load config from database: ' . $ex->getMessage() . ', using defaults');
+            }
             $this->setDefaultConfig();
         }
     }
@@ -349,6 +388,40 @@ class Class_gamification {
             // --- Setup & validation ---
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams([$year, $month]);
+            
+            // Refresh configuration from database to ensure latest values are used
+            $this->refreshConfig();
+
+            // Choose data collection method based on configuration
+            $useWeeklyProcessing = $this->getConfig('use_weekly_processing', true);
+            
+            if ($useWeeklyProcessing) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Using weekly processing method');
+                $this->runMonthlyWithWeeklyProcessing($year, $month);
+            } else {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Using direct monthly processing method');
+                $this->runMonthlyWithDirectProcessing($year, $month);
+            }
+
+        } catch (Exception $ex) {
+            // Log and rethrow
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception(
+                $this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()),
+                $ex->getCode()
+            );
+        }
+    }
+
+    /**
+     * Run monthly gamification using weekly processing (existing method)
+     * @param int $year
+     * @param int $month
+     * @throws Exception
+     */
+    private function runMonthlyWithWeeklyProcessing($year, $month)
+    {
+        try {
 
             // Determine how many weeks in the given month
             $weeksInMonth = $this->getWeeksInMonth($year, $month);
@@ -362,6 +435,18 @@ class Class_gamification {
                 $range     = $this->getWeekDateRange($year, $month, $week);
                 $weekStart = $range['start'];
                 $weekEnd   = $range['end'];
+                
+                // Log week information for debugging
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "Week $week date range: $weekStart to $weekEnd " . 
+                    "(intersects_month: " . ($range['intersects_month'] ? 'Yes' : 'No') . ")");
+                
+                // Skip weeks that don't intersect with the month to avoid processing irrelevant data
+                if (!$range['intersects_month']) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "Skipping week $week as it doesn't intersect with month $month");
+                    continue;
+                }
 
                 // Compute weekly scores
                 $gmiWeekly = $this->calculateWeeklyScores($year, $month, $week, $weekStart, $weekEnd);
@@ -488,6 +573,274 @@ class Class_gamification {
     }
 
     /**
+     * Run monthly gamification using direct monthly processing (alternative method)
+     * This method collects all data for the month at once, avoiding week boundary issues
+     * @param int $year
+     * @param int $month
+     * @throws Exception
+     */
+    private function runMonthlyWithDirectProcessing($year, $month)
+    {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Using direct monthly processing');
+            
+            // Simple monthly date range
+            $monthStart = "$year-" . sprintf('%02d', $month) . "-01";
+            $monthEnd = date('Y-m-t', strtotime($monthStart));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Processing data for month range: $monthStart to $monthEnd");
+            
+            $gmiMonthlyAggregated = [];
+            
+            // --- Collect all PPM data for the month ---
+            $gmiPpm = Class_db::getInstance()->db_select2('vw_gamification_ppm_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                'Found ' . count($gmiPpm) . ' PPM records for the month');
+            
+            foreach ($gmiPpm as $ppm) {
+                $userId = intval($ppm['ppmTaskAssignedTo']);
+                $ppmGroupId = intval($ppm['ppmGroupId'] ?? 0);
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
+                if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
+                    // Initialize monthly record (preserve existing row if present)
+                    $existing = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$userId,
+                        'gmi_year'  => (string)$year,
+                        'gmi_month' => (string)$month
+                    ]);
+                    
+                    $existingId = !empty($existing) ? $existing['gmi_id'] : 0;
+                    $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr(
+                        $userId, $year, $month, $ppm['siteId'], $existingId
+                    );
+                }
+                
+                // Apply trade ratio to task completion counts
+                $gmiMonthlyAggregated[$userId]['gmiPpmTotal'] += round(intval($ppm['ppmTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmCompleted'] += round(intval($ppm['ppmCompleted']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmOnTime'] += round(intval($ppm['ppmOnTime']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmLate'] += round(intval($ppm['ppmLate']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmWithin'] += round(intval($ppm['ppmWithin']) * $tradeRatio);
+            }
+            
+            // --- Collect all PPM Assist data for the month ---
+            $gmiPpmAssist = Class_db::getInstance()->db_select2('vw_gamification_ppm_assist_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                'Found ' . count($gmiPpmAssist) . ' PPM Assist records for the month');
+            
+            foreach ($gmiPpmAssist as $ppmAssist) {
+                $userId = intval($ppmAssist['userId']);
+                $ppmGroupId = intval($ppmAssist['ppmGroupId'] ?? 0);
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
+                if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
+                    $existing = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$userId,
+                        'gmi_year'  => (string)$year,
+                        'gmi_month' => (string)$month
+                    ]);
+                    
+                    $existingId = !empty($existing) ? $existing['gmi_id'] : 0;
+                    $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr(
+                        $userId, $year, $month, $ppmAssist['siteId'], $existingId
+                    );
+                }
+                
+                $gmiMonthlyAggregated[$userId]['gmiPpmAssist'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmTotal'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmCompleted'] += round(intval($ppmAssist['ppmCompleted']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmOnTime'] += round(intval($ppmAssist['ppmOnTime']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmLate'] += round(intval($ppmAssist['ppmLate']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiPpmWithin'] += round(intval($ppmAssist['ppmWithin']) * $tradeRatio);
+            }
+            
+            // --- Collect all WO data for the month ---
+            $gmiWo = Class_db::getInstance()->db_select2('vw_gamification_wo_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                'Found ' . count($gmiWo) . ' WO records for the month');
+            
+            foreach ($gmiWo as $wo) {
+                $userId = intval($wo['woTaskAssignedTo']);
+                $ppmGroupId = intval($wo['ppmGroupId'] ?? 0);
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
+                if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
+                    $existing = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$userId,
+                        'gmi_year'  => (string)$year,
+                        'gmi_month' => (string)$month
+                    ]);
+                    
+                    $existingId = !empty($existing) ? $existing['gmi_id'] : 0;
+                    $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr(
+                        $userId, $year, $month, $wo['siteId'], $existingId
+                    );
+                }
+                
+                $gmiMonthlyAggregated[$userId]['gmiWoTotal'] += round(intval($wo['woTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoCompleted'] += round(intval($wo['woCompleted']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoOnTime'] += round(intval($wo['woOnTime']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoLate'] += round(intval($wo['woLate']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoSelfFinding'] += round(intval($wo['woSelfFinding']) * $tradeRatio);
+            }
+            
+            // --- Collect all WO Assist data for the month ---
+            $gmiWoAssist = Class_db::getInstance()->db_select2('vw_gamification_wo_assist_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                'Found ' . count($gmiWoAssist) . ' WO Assist records for the month');
+            
+            foreach ($gmiWoAssist as $woAssist) {
+                $userId = intval($woAssist['userId']);
+                $ppmGroupId = intval($woAssist['ppmGroupId'] ?? 0);
+                $tradeRatio = $this->getTradeRatio($ppmGroupId);
+                
+                if (!array_key_exists($userId, $gmiMonthlyAggregated)) {
+                    $existing = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$userId,
+                        'gmi_year'  => (string)$year,
+                        'gmi_month' => (string)$month
+                    ]);
+                    
+                    $existingId = !empty($existing) ? $existing['gmi_id'] : 0;
+                    $gmiMonthlyAggregated[$userId] = $this->setInitialGmiMonthArr(
+                        $userId, $year, $month, $woAssist['siteId'], $existingId
+                    );
+                }
+                
+                $gmiMonthlyAggregated[$userId]['gmiWoAssist'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoTotal'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoCompleted'] += round(intval($woAssist['woCompleted']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoOnTime'] += round(intval($woAssist['woOnTime']) * $tradeRatio);
+                $gmiMonthlyAggregated[$userId]['gmiWoLate'] += round(intval($woAssist['woLate']) * $tradeRatio);
+            }
+            
+            // --- Calculate points and apply monthly tiers ---
+            foreach ($gmiMonthlyAggregated as &$gmi) {
+                // Calculate monthly totals
+                $allTotal = $gmi['gmiPpmTotal'] + $gmi['gmiWoTotal'];
+                $allCompleted = $gmi['gmiPpmCompleted'] + $gmi['gmiWoCompleted'];
+                $allOnTime = $gmi['gmiPpmOnTime'] + ($this->getConfig('wo_ontime_multiplier', 2) * $gmi['gmiWoOnTime']) + $gmi['gmiPpmWithin'];
+                $allWithin = $gmi['gmiWoOnTime'] + $gmi['gmiPpmWithin'];
+                $allLate = $gmi['gmiPpmLate'] + $gmi['gmiWoLate'];
+                $mbv = $allOnTime - $allLate;
+                
+                // Determine tier multiplier based on monthly MBV
+                if ($mbv <= $this->getConfig('mbv_tier1_threshold', 50)) {
+                    $tierDivider = $this->getConfig('mbv_tier1_multiplier', 1);
+                } else if ($mbv <= $this->getConfig('mbv_tier2_threshold', 100)) {
+                    $tierDivider = $this->getConfig('mbv_tier2_multiplier', 3);
+                } else {
+                    $tierDivider = $this->getConfig('mbv_tier3_multiplier', 5);
+                }
+                
+                // Calculate monthly points
+                if ($allTotal > 0) {
+                    $gmi['gmiPointCompleted'] = ($allCompleted / $allTotal) * $this->getConfig('weight_completed', 0.3) * $this->getConfig('point_scale_factor', 10000);
+                    $gmi['gmiPointOnTime'] = (($allWithin / $allTotal) * $tierDivider) * $this->getConfig('weight_ontime', 0.7) * $this->getConfig('point_scale_factor', 10000);
+                    
+                    // Fix division by zero: Only calculate late penalty if there are completed tasks
+                    if ($allCompleted > 0) {
+                        $gmi['gmiPointLate'] = -(($allLate / $allCompleted) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
+                    } else {
+                        $gmi['gmiPointLate'] = 0;
+                    }
+                    
+                    // Productivity calculations
+                    $gmi['gmiProductivityLevel'] = ($allWithin / $allTotal) * $this->getConfig('productivity_base', 90);
+                    $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmi['gmiProductivityLevel'];
+                    $gmi['gmiPointLessProductive'] = ($allWithin / $allTotal) * $tierDivider * ($gmi['gmiProductivityDeduction'] / 100) * $this->getConfig('point_scale_factor', 10000);
+                } else {
+                    $gmi['gmiPointCompleted'] = 0;
+                    $gmi['gmiPointOnTime'] = 0;
+                    $gmi['gmiPointLate'] = 0;
+                    $gmi['gmiProductivityLevel'] = 0;
+                    $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90);
+                    $gmi['gmiPointLessProductive'] = 0;
+                }
+                
+                $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * $this->getConfig('self_finding_points', 5);
+                $gmi['gmiPointBeforeMinus'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'] + $gmi['gmiPointOnTime'];
+                $gmi['gmiPointAfterMinus'] = $gmi['gmiPointBeforeMinus'] - $gmi['gmiPointLessProductive'];
+                $gmi['gmiPointTotal'] = $gmi['gmiPointAfterMinus'];
+                $gmi['gmiMbv'] = $mbv;
+                $gmi['gmiTierPoint'] = $tierDivider;
+                
+                // Monthly PPM tier assignment
+                if ($gmi['gmiPpmCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
+                    $gmi['gmiPpmTierName'] = 'Medalist';
+                    $gmi['gmiPpmTierPoint'] = 1;
+                } elseif ($gmi['gmiPpmCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
+                    $gmi['gmiPpmTierName'] = 'Finisher';
+                    $gmi['gmiPpmTierPoint'] = 1;
+                }
+                
+                // Monthly WO tier assignment
+                if ($gmi['gmiWoCompleted'] > $this->getConfig('tier_medalist_threshold', 150)) {
+                    $gmi['gmiWoTierName'] = 'Medalist';
+                    $gmi['gmiWoTierPoint'] = 1;
+                } elseif ($gmi['gmiWoCompleted'] > $this->getConfig('tier_finisher_threshold', 80)) {
+                    $gmi['gmiWoTierName'] = 'Finisher';
+                    $gmi['gmiWoTierPoint'] = 1;
+                }
+            }
+            unset($gmi);
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                'Processed ' . count($gmiMonthlyAggregated) . ' users for monthly gamification');
+            
+            // --- Persist monthly aggregated totals ---
+            foreach ($gmiMonthlyAggregated as $gmi) {
+                $gmiId = $gmi['gmiId'];
+                unset($gmi['gmiId']);
+                
+                if (empty($gmiId)) {
+                    // First check if record already exists (double-check for race conditions)
+                    $existingCheck = Class_db::getInstance()->db_select_single2('gmi_monthly', [
+                        'user_id'   => (string)$gmi['userId'],
+                        'gmi_year'  => (string)$gmi['gmiYear'],
+                        'gmi_month' => (string)$gmi['gmiMonth']
+                    ]);
+                    
+                    if (empty($existingCheck)) {
+                        Class_db::getInstance()->db_insert('gmi_monthly', $this->fn_general->convertToMysqlArrAll($gmi));
+                    } else {
+                        // Update the existing record instead of inserting
+                        Class_db::getInstance()->db_update(
+                            'gmi_monthly',
+                            $this->fn_general->convertToMysqlArrAll($gmi),
+                            [
+                                'user_id'   => (string)$gmi['userId'],
+                                'gmi_year'  => (string)$gmi['gmiYear'],
+                                'gmi_month' => (string)$gmi['gmiMonth']
+                            ]
+                        );
+                    }
+                } else {
+                    Class_db::getInstance()->db_update(
+                        'gmi_monthly',
+                        $this->fn_general->convertToMysqlArrAll($gmi),
+                        ['gmi_id' => $gmiId]
+                    );
+                }
+            }
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $userId
      * @param $year
      * @param $month
@@ -580,17 +933,37 @@ class Class_gamification {
         $weekEnd = clone $weekStart;
         $weekEnd->modify('+6 days'); // Sunday
         
-        // Ensure we don't go beyond the month boundaries
-        if ($weekStart < $firstDay) {
-            $weekStart = $firstDay;
-        }
-        if ($weekEnd > $lastDay) {
-            $weekEnd = $lastDay;
+        // ❌ REMOVED: Don't artificially constrain weeks to month boundaries
+        // This was causing data loss for tasks that span across month boundaries
+        // if ($weekStart < $firstDay) {
+        //     $weekStart = $firstDay;
+        // }
+        // if ($weekEnd > $lastDay) {
+        //     $weekEnd = $lastDay;
+        // }
+        
+        // ✅ IMPROVED: Only adjust if the week is completely outside the month
+        // If week overlaps with month, include the full week to capture all related data
+        $weekStartsBeforeMonth = $weekStart < $firstDay;
+        $weekEndsAfterMonth = $weekEnd > $lastDay;
+        $weekIntersectsMonth = !($weekEnd < $firstDay || $weekStart > $lastDay);
+        
+        // Log week boundary information for debugging
+        if (isset($this->fn_general)) {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Week $week: {$weekStart->format('Y-m-d')} to {$weekEnd->format('Y-m-d')} " .
+                "(Month: {$firstDay->format('Y-m-d')} to {$lastDay->format('Y-m-d')}) " .
+                "StartsBefore: " . ($weekStartsBeforeMonth ? 'Yes' : 'No') . ", " .
+                "EndsAfter: " . ($weekEndsAfterMonth ? 'Yes' : 'No') . ", " .
+                "Intersects: " . ($weekIntersectsMonth ? 'Yes' : 'No'));
         }
         
         return array(
             'start' => $weekStart->format('Y-m-d'),
-            'end' => $weekEnd->format('Y-m-d')
+            'end' => $weekEnd->format('Y-m-d'),
+            'intersects_month' => $weekIntersectsMonth,
+            'starts_before_month' => $weekStartsBeforeMonth,
+            'ends_after_month' => $weekEndsAfterMonth
         );
     }
 
@@ -718,7 +1091,16 @@ class Class_gamification {
                 if ($allTotal > 0) {
                     $gmiWeekly[$userId]['gmwPointCompleted'] = ($allCompleted/$allTotal) * $this->getConfig('weight_completed', 0.3) * $this->getConfig('point_scale_factor', 10000);
                     $gmiWeekly[$userId]['gmwPointOnTime'] = (($allWithin/$allTotal) * $tierDivider) * $this->getConfig('weight_ontime', 0.7) * $this->getConfig('point_scale_factor', 10000);
-                    $gmiWeekly[$userId]['gmwPointLate'] = $allCompleted === 0 ? 0 : -(($allLate/$allCompleted) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
+                    
+                    // Fix division by zero: Only calculate late penalty if there are completed tasks
+                    if ($allCompleted > 0) {
+                        $gmiWeekly[$userId]['gmwPointLate'] = -(($allLate/$allCompleted) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
+                    } else {
+                        // Log when this edge case occurs for debugging
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                            "User $userId has tasks assigned but none completed (allTotal=$allTotal, allCompleted=$allCompleted). Setting late penalty to 0.");
+                        $gmiWeekly[$userId]['gmwPointLate'] = 0;
+                    }
                     
                     // Productivity calculations
                     $gmiWeekly[$userId]['gmwProductivityLevel'] = $allWithin / $allTotal * $this->getConfig('productivity_base', 90);
