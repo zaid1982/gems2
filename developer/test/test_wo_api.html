@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WO Details API</title>
+    <script src="js/vendor/jquery-3.5.1.min.js"></script>
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <h1>Test WO Details API</h1>
+    <button onclick="testApi()">Test API Call</button>
+    <div id="result"></div>
+    
+    <script>
+        function testApi() {
+            try {
+                console.log('Testing gamification API call...');
+                const result = mzAjaxRequest2('gamification/wo_details/2024/1/1', 'GET');
+                console.log('API Result:', result);
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (e) {
+                console.error('API Error:', e);
+                document.getElementById('result').innerHTML = '<p style="color: red;">Error: ' + e.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

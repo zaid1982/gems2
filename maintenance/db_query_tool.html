@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Database Query Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 80vh;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .query-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: white;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .button-group {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .table-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .table-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-item:hover {
+            background: #e3f2fd;
+        }
+        
+        .table-item:last-child {
+            border-bottom: none;
+        }
+        
+        .table-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .table-info {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .results-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .results-content {
+            max-height: 500px;
+            overflow: auto;
+            padding: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .column-details {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .column-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .column-item:last-child {
+            border-bottom: none;
+        }
+        
+        .column-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .column-type {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .quick-queries {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .quick-query {
+            background: #e8f4f8;
+            border: 1px solid #3498db;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+        
+        .quick-query:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .db-info {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .db-info h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: none;
+            }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #3498db;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ GEMS2 Database Query Tool</h1>
+            <p>Execute SQL queries and explore database schema</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="section">
+                    <h3>📊 Database Info</h3>
+                    <div id="dbInfo" class="db-info">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>📋 Tables</h3>
+                    <div id="tableList" class="table-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading tables...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>🔍 Table Columns</h3>
+                    <div id="columnDetails" class="column-details">
+                        <div style="padding: 20px; text-align: center; color: #7f8c8d;">
+                            Select a table to view columns
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="section">
+                    <h3>⚡ Quick Queries</h3>
+                    <div class="quick-queries">
+                        <div class="quick-query" onclick="setQuery('SHOW TABLES;')">Show Tables</div>
+                        <div class="quick-query" onclick="setQuery('SHOW PROCESSLIST;')">Show Processes</div>
+                        <div class="quick-query" onclick="setQuery('SELECT DATABASE();')">Current Database</div>
+                        <div class="quick-query" onclick="setQuery('SELECT NOW();')">Current Time</div>
+                        <div class="quick-query" onclick="setQuery('SHOW TABLE STATUS;')">Table Status</div>
+                        <div class="quick-query" onclick="setQuery('SELECT VERSION();')">MySQL Version</div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>✏️ SQL Query Editor</h3>
+                    <div class="query-container">
+                        <textarea id="sqlQuery" placeholder="Enter your SQL query here...
+
+Examples:
+SELECT * FROM sys_user LIMIT 10;
+DESCRIBE ast_asset;
+SELECT COUNT(*) FROM ppm_task;
+SHOW CREATE TABLE wo_task;"></textarea>
+                        
+                        <div class="button-group">
+                            <button onclick="executeQuery()">
+                                ▶️ Execute Query
+                            </button>
+                            <button class="btn-secondary" onclick="clearQuery()">
+                                🗑️ Clear
+                            </button>
+                            <button class="btn-success" onclick="formatQuery()">
+                                ✨ Format
+                            </button>
+                            <button class="btn-danger" onclick="exportResults()">
+                                📥 Export CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>📊 Query Results</h3>
+                    <div id="results" class="results-container" style="display: none;">
+                        <div class="results-header">
+                            <span id="resultsHeader">Query Results</span>
+                        </div>
+                        <div class="results-content" id="resultsContent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentResults = [];
+        let currentQuery = '';
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDatabaseInfo();
+            loadTables();
+        });
+        
+        function setQuery(query) {
+            document.getElementById('sqlQuery').value = query;
+        }
+        
+        function clearQuery() {
+            document.getElementById('sqlQuery').value = '';
+            hideResults();
+        }
+        
+        function formatQuery() {
+            const textarea = document.getElementById('sqlQuery');
+            let query = textarea.value;
+            
+            // Basic SQL formatting
+            query = query.replace(/\s+/g, ' ').trim();
+            query = query.replace(/\s*(SELECT|FROM|WHERE|ORDER BY|GROUP BY|HAVING|LIMIT|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|UNION)\s+/gi, '\n$1 ');
+            query = query.replace(/\s*,\s*/g, ',\n    ');
+            query = query.replace(/\s*(AND|OR)\s+/gi, '\n    $1 ');
+            
+            textarea.value = query;
+        }
+        
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            if (!query) {
+                showStatus('Please enter a SQL query', 'error');
+                return;
+            }
+            
+            currentQuery = query;
+            showLoading();
+            
+            const formData = new FormData();
+            formData.append('action', 'execute');
+            formData.append('query', query);
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    displayResults(data.results, data.query_type, data.execution_time, data.affected_rows);
+                    showStatus(`Query executed successfully in ${data.execution_time}s`, 'success');
+                } else {
+                    showStatus('Error: ' + data.error, 'error');
+                    hideResults();
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showStatus('Network error: ' + error.message, 'error');
+                hideResults();
+            });
+        }
+        
+        function loadDatabaseInfo() {
+            const formData = new FormData();
+            formData.append('action', 'database_info');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayDatabaseInfo(data.info);
+                }
+            })
+            .catch(error => {
+                document.getElementById('dbInfo').innerHTML = '<div style="color: red;">Error loading database info</div>';
+            });
+        }
+        
+        function loadTables() {
+            const formData = new FormData();
+            formData.append('action', 'list_tables');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayTables(data.tables);
+                }
+            })
+            .catch(error => {
+                document.getElementById('tableList').innerHTML = '<div style="color: red; padding: 20px;">Error loading tables</div>';
+            });
+        }
+        
+        function loadTableColumns(tableName) {
+            const formData = new FormData();
+            formData.append('action', 'table_columns');
+            formData.append('table', tableName);
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayTableColumns(data.columns, tableName);
+                }
+            })
+            .catch(error => {
+                document.getElementById('columnDetails').innerHTML = '<div style="color: red; padding: 20px;">Error loading columns</div>';
+            });
+        }
+        
+        function displayDatabaseInfo(info) {
+            const html = `
+                <h4>📊 ${info.database_name}</h4>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">${info.table_count}</div>
+                        <div class="stat-label">Tables</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${info.size_mb} MB</div>
+                        <div class="stat-label">Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${info.version}</div>
+                        <div class="stat-label">Version</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dbInfo').innerHTML = html;
+        }
+        
+        function displayTables(tables) {
+            let html = '';
+            tables.forEach(table => {
+                html += `
+                    <div class="table-item" onclick="selectTable('${table.name}')">
+                        <div>
+                            <div class="table-name">${table.name}</div>
+                            <div class="table-info">${table.rows} rows, ${table.size}</div>
+                        </div>
+                        <div style="font-size: 12px; color: #3498db;">
+                            👁️
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('tableList').innerHTML = html;
+        }
+        
+        function displayTableColumns(columns, tableName) {
+            let html = `<div style="padding: 10px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #ddd;">
+                            📋 ${tableName}
+                        </div>`;
+            
+            columns.forEach(column => {
+                const nullable = column.IS_NULLABLE === 'YES' ? '✅' : '❌';
+                const key = column.COLUMN_KEY === 'PRI' ? '🔑' : 
+                           column.COLUMN_KEY === 'UNI' ? '🔐' : 
+                           column.COLUMN_KEY === 'MUL' ? '🔗' : '';
+                
+                html += `
+                    <div class="column-item">
+                        <div>
+                            <div class="column-name">${key} ${column.COLUMN_NAME}</div>
+                            <div class="column-type">${column.COLUMN_TYPE}</div>
+                        </div>
+                        <div style="text-align: right; font-size: 12px;">
+                            <div>Null: ${nullable}</div>
+                            ${column.COLUMN_DEFAULT !== null ? `<div>Default: ${column.COLUMN_DEFAULT}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add quick query buttons for this table
+            html += `
+                <div style="padding: 10px; background: #f8f9fa; border-top: 1px solid #ddd;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <button onclick="setQuery('SELECT * FROM ${tableName} LIMIT 10;')" style="padding: 5px; font-size: 11px;">
+                            View Data
+                        </button>
+                        <button onclick="setQuery('DESCRIBE ${tableName};')" style="padding: 5px; font-size: 11px;">
+                            Describe
+                        </button>
+                        <button onclick="setQuery('SELECT COUNT(*) FROM ${tableName};')" style="padding: 5px; font-size: 11px;">
+                            Count Rows
+                        </button>
+                        <button onclick="setQuery('SHOW CREATE TABLE ${tableName};')" style="padding: 5px; font-size: 11px;">
+                            Show Create
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('columnDetails').innerHTML = html;
+        }
+        
+        function selectTable(tableName) {
+            loadTableColumns(tableName);
+            
+            // Highlight selected table
+            document.querySelectorAll('.table-item').forEach(item => {
+                item.style.background = '';
+            });
+            event.currentTarget.style.background = '#e3f2fd';
+        }
+        
+        function displayResults(results, queryType, executionTime, affectedRows) {
+            const resultsDiv = document.getElementById('results');
+            const headerDiv = document.getElementById('resultsHeader');
+            const contentDiv = document.getElementById('resultsContent');
+            
+            currentResults = results;
+            
+            if (queryType === 'SELECT' && results.length > 0) {
+                headerDiv.textContent = `Query Results (${results.length} rows, ${executionTime}s)`;
+                
+                // Create table
+                let html = '<table><thead><tr>';
+                Object.keys(results[0]).forEach(key => {
+                    html += `<th>${key}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                results.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value !== null ? value : '<i>NULL</i>'}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                
+                contentDiv.innerHTML = html;
+            } else if (queryType === 'INSERT' || queryType === 'UPDATE' || queryType === 'DELETE') {
+                headerDiv.textContent = `${queryType} Query Executed (${executionTime}s)`;
+                contentDiv.innerHTML = `<div class="status success">
+                    ✅ ${affectedRows} row(s) affected
+                </div>`;
+            } else if (results.length === 0) {
+                headerDiv.textContent = `Query Results (0 rows, ${executionTime}s)`;
+                contentDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">No results found</div>';
+            } else {
+                headerDiv.textContent = `Query Results (${executionTime}s)`;
+                contentDiv.innerHTML = '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+        
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function showLoading() {
+            const contentDiv = document.getElementById('resultsContent');
+            contentDiv.innerHTML = `
+                <div class="loading" style="display: block;">
+                    <div class="spinner"></div>
+                    Executing query...
+                </div>
+            `;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            // Loading will be replaced by results
+        }
+        
+        function showStatus(message, type) {
+            // Remove existing status
+            const existing = document.querySelector('.status');
+            if (existing) {
+                existing.remove();
+            }
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            
+            const queryContainer = document.querySelector('.query-container');
+            queryContainer.appendChild(statusDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        function exportResults() {
+            if (currentResults.length === 0) {
+                showStatus('No results to export', 'error');
+                return;
+            }
+            
+            let csv = '';
+            if (currentResults.length > 0) {
+                // Headers
+                csv += Object.keys(currentResults[0]).join(',') + '\n';
+                
+                // Data
+                currentResults.forEach(row => {
+                    const values = Object.values(row).map(value => {
+                        if (value === null) return '';
+                        return '"' + String(value).replace(/"/g, '""') + '"';
+                    });
+                    csv += values.join(',') + '\n';
+                });
+            }
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `query_results_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showStatus('Results exported to CSV', 'success');
+        }
+    </script>
+</body>
+</html>

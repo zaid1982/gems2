@@ -163,6 +163,31 @@ function SectionUserGame () {
         oTableSugHistory.column(24).visible(false);
         oTableSugHistory.column(27).visible(false);
         oTableSugHistory.column(28).visible(false);
+
+        // Add row click handler for Performance History table
+        let oTableSugHistoryTbody = $('#dtSugHistory tbody');
+        oTableSugHistoryTbody.delegate('tr', 'click', function (evt) {
+            const data = $('#dtSugHistory').DataTable().row(this).data();
+            if (data) {
+                self.showWoDetails(data['gmiYear'], data['gmiMonth'], data['userId']);
+            }
+        });
+        oTableSugHistoryTbody.delegate('tr', 'mouseenter', function (evt) {
+            const data = $('#dtSugHistory').DataTable().row(this).data();
+            if (data) {
+                const cell = $(evt.target).closest('td');
+                cell.css('cursor', 'pointer');
+                cell.attr('data-toggle', 'tooltip');
+                cell.attr('title', 'Click to see work order details for ' + monthArray[parseInt(data['gmiMonth'])-1]['monthName'] + ' ' + data['gmiYear']);
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+
+        // Initialize work order details modal
+        $('#modalWoDetails').on('hidden.bs.modal', function () {
+            // Cleanup tooltips when modal is closed
+            $('[data-toggle="tooltip"]').tooltip('dispose');
+        });
     };
 
     this.load = function (_gmiId, _userId) {
@@ -507,6 +532,111 @@ function SectionUserGame () {
                 ]
             }]
         });
+    };
+
+    this.showWoDetails = function (year, month, userId) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                // Set modal title
+                $('#spanWoDetailsMonth').text(monthArray[parseInt(month)-1]['monthName'] + ' ' + year);
+                
+                // Fetch work order details for the specific month and user using the same pattern as other calls
+                try {
+                    const woData = mzAjaxRequest2('gamification/wo_details/' + year + '/' + month + '/' + userId, 'GET');
+                    
+                    // Ensure woData is an array
+                    let woDataArray = Array.isArray(woData) ? woData : [];
+                    
+                    // Update summary cards
+                    const totalWo = woDataArray.length;
+                    const completedWo = woDataArray.filter(wo => wo.woStatus === 'Completed').length;
+                    $('#h4WoDetailsTotal').text(mzFormatNumber(totalWo));
+                    $('#h4WoDetailsCompleted').text(mzFormatNumber(completedWo));
+                    
+                    // Initialize/update the DataTable
+                    if ($.fn.DataTable.isDataTable('#dtWoDetails')) {
+                        $('#dtWoDetails').DataTable().clear().rows.add(woDataArray).draw();
+                    } else {
+                        $('#dtWoDetails').DataTable({
+                            data: woDataArray,
+                            bLengthChange: false,
+                            bFilter: true,
+                            ordering: true,
+                            language: _DATATABLE_LANGUAGE,
+                            autoWidth: false,
+                            dom: "<'row'<'col-6 px-0'l><'col-6 pb-0'f>>" +
+                                "<'row'<'col-sm-12'tr>>" +
+                                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+                            columnDefs: [
+                                { className: 'text-center', targets: [3, 4, 8, 9, 10] },
+                                { className: 'text-nowrap', targets: [5, 6, 7] }
+                            ],
+                            columns: [
+                                { data: 'woNo', title: 'WO No' },
+                                { data: 'woDesc', title: 'Description', 
+                                    render: function(data) {
+                                        return data && data.length > 50 ? data.substring(0, 50) + '...' : data || '';
+                                    }
+                                },
+                                { data: 'assetDesc', title: 'Asset' },
+                                { data: 'woStatus', title: 'Status' },
+                                { data: 'woPriority', title: 'Priority' },
+                                { data: 'woCreateDate', title: 'Created Date',
+                                    render: function(data) {
+                                        return data ? moment(data).format('DD/MM/YYYY') : '';
+                                    }
+                                },
+                                { data: 'woTargetDate', title: 'Target Date',
+                                    render: function(data) {
+                                        return data ? moment(data).format('DD/MM/YYYY') : '';
+                                    }
+                                },
+                                { data: 'woCompletedDate', title: 'Completed Date',
+                                    render: function(data) {
+                                        return data ? moment(data).format('DD/MM/YYYY') : '';
+                                    }
+                                },
+                                { data: 'woOnTimeStatus', title: 'On-Time Status',
+                                    render: function(data) {
+                                        if (data === 'On-Time') {
+                                            return '<span class="badge badge-success">On-Time</span>';
+                                        } else if (data === 'Late') {
+                                            return '<span class="badge badge-danger">Late</span>';
+                                        } else if (data === 'Within') {
+                                            return '<span class="badge badge-warning">Within</span>';
+                                        }
+                                        return '<span class="badge badge-secondary">Pending</span>';
+                                    }
+                                },
+                                { data: 'woType', title: 'Type' },
+                                { data: 'woRole', title: 'Role',
+                                    render: function(data) {
+                                        if (data === 'Assigned') {
+                                            return '<span class="badge badge-primary">Assigned</span>';
+                                        } else if (data === 'Assist') {
+                                            return '<span class="badge badge-info">Assist</span>';
+                                        }
+                                        return '<span class="badge badge-secondary">' + (data || 'Unknown') + '</span>';
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                    
+                    // Show the modal
+                    $('#modalWoDetails').modal('show');
+                    
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+                
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                HideLoader();
+            }
+        }, 200);
     };
 
     this.getClassName = function () {

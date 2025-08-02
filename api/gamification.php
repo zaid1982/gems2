@@ -70,6 +70,11 @@ try {
 #            $result = $fn_gamification->getGmiMonthlyTop5ProjectM($urlArr[2], $urlArr[3]);
         } else if ($urlArr[1] === 'gmi_monthly_history') {
             $result = $fn_gamification->getGmiMonthlyHistory($urlArr[2], $urlArr[3], $urlArr[4]);
+        } else if ($urlArr[1] === 'wo_details') {
+            if (!isset($urlArr[2]) || !isset($urlArr[3]) || !isset($urlArr[4])) {
+                throw new Exception('[' . __LINE__ . '] - Missing parameters: year, month, userId required');
+            }
+            $result = $fn_gamification->getWoDetailsForGamification($urlArr[2], $urlArr[3], $urlArr[4]);
         } else if ($urlArr[1] === 'current_score') {
             $now = new DateTime();
             $year = intval($now->format('Y'));

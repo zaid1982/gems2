@@ -325,6 +325,265 @@ class Class_gamification {
     }
 
     /**
+     * Get Work Order details for gamification calculation for a specific month
+     * @param $year
+     * @param $month
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function getWoDetailsForGamification($year, $month, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($year, $month, $userId));
+            
+            // Calculate date range for the month
+            $monthStart = "$year-" . sprintf('%02d', $month) . "-01";
+            $monthEnd = date('Y-m-t', strtotime($monthStart));
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Processing WO details for User: $userId, Year: $year, Month: $month");
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Date range: $monthStart to $monthEnd");
+            
+            $woDetails = array();
+            
+            // Debug: Check what WO data runMonthly would use for comparison
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "=== COMPARISON: What runMonthly uses for WO data ===");
+            
+            // Query same view that runMonthly uses for WO data
+            $runMonthlyWoData = Class_db::getInstance()->db_select2('vw_gamification_wo_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "runMonthly would find " . count($runMonthlyWoData) . " WO records from vw_gamification_wo_daily");
+            
+            $runMonthlyUserWos = array_filter($runMonthlyWoData, function($wo) use ($userId) {
+                return intval($wo['woTaskAssignedTo']) == intval($userId);
+            });
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "runMonthly would find " . count($runMonthlyUserWos) . " WO records for user $userId");
+            
+            if (!empty($runMonthlyUserWos)) {
+                foreach ($runMonthlyUserWos as $wo) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "runMonthly WO: AssignedTo={$wo['woTaskAssignedTo']}, Total={$wo['woTotal']}, " .
+                        "Completed={$wo['woCompleted']}, OnTime={$wo['woOnTime']}, Late={$wo['woLate']}, " .
+                        "SelfFinding={$wo['woSelfFinding']}");
+                }
+            }
+            
+            // Query same view for WO Assist data
+            $runMonthlyWoAssistData = Class_db::getInstance()->db_select2('vw_gamification_wo_assist_daily', array(), '', '', 0, 
+                array('dateStart' => $monthStart, 'dateEnd' => $monthEnd));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "runMonthly would find " . count($runMonthlyWoAssistData) . " WO Assist records from vw_gamification_wo_assist_daily");
+            
+            $runMonthlyUserWoAssists = array_filter($runMonthlyWoAssistData, function($wo) use ($userId) {
+                return intval($wo['userId']) == intval($userId);
+            });
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "runMonthly would find " . count($runMonthlyUserWoAssists) . " WO Assist records for user $userId");
+            
+            if (!empty($runMonthlyUserWoAssists)) {
+                foreach ($runMonthlyUserWoAssists as $wo) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "runMonthly WO Assist: UserId={$wo['userId']}, Total={$wo['woTotal']}, " .
+                        "Completed={$wo['woCompleted']}, OnTime={$wo['woOnTime']}, Late={$wo['woLate']}");
+                }
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "=== NOW: What getWoDetailsForGamification finds ===");
+            
+            // Get WO tasks assigned to user with date and status filtering (by reported date)
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Querying wo_task table with asset join, filters: wo_task_assigned_to=$userId, wo_task_status=16, " .
+                "wo_task_time_created between $monthStart and $monthEnd");
+            
+            // Create a custom view-like query to get complete WO task data with asset information
+            $woTaskView = "(SELECT 
+                wt.wo_task_id, wt.wo_task_no, wt.wo_task_complaint, wt.wo_task_status,
+                wt.wo_task_assigned_to, wt.wo_task_time_created, wt.wo_task_time_verified,
+                wt.wo_task_time_assigned, wt.wo_task_type,
+                ast.asset_no, ast.asset_desc,
+                CASE 
+                    WHEN wt.wo_task_time_verified <= DATE_ADD(wt.wo_task_time_assigned, INTERVAL 24 HOUR) THEN 'On-Time'
+                    WHEN wt.wo_task_time_verified > DATE_ADD(wt.wo_task_time_assigned, INTERVAL 24 HOUR) THEN 'Late'
+                    ELSE 'Pending'
+                END as wo_on_time_status
+            FROM wo_task wt
+            LEFT JOIN ast_asset ast ON ast.asset_id = wt.asset_id) as vw_wo_task_complete";
+            
+            // Use db_select2 with the custom view and parameters
+            $woTasks = Class_db::getInstance()->db_select2($woTaskView, 
+                array(
+                    'wo_task_assigned_to' => $userId,
+                    'wo_task_status' => '16', // Only completed tasks
+                    'w1' => "DATE(wo_task_time_created) >= '$monthStart'",
+                    'w2' => "DATE(wo_task_time_created) <= '$monthEnd'"
+                ),
+                'wo_task_time_created DESC', '', 0
+            );
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Found " . count($woTasks) . " direct WO task assignments");
+            
+            foreach ($woTasks as $index => $wt) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "WO Task #" . ($index + 1) . ": ID=" . (isset($wt['woTaskId']) ? $wt['woTaskId'] : 'NULL') . 
+                    ", No=" . (isset($wt['woTaskNo']) ? $wt['woTaskNo'] : 'NULL') . 
+                    ", Status=" . (isset($wt['woTaskStatus']) ? $wt['woTaskStatus'] : 'NULL') . 
+                    ", AssignedTo=" . (isset($wt['woTaskAssignedTo']) ? $wt['woTaskAssignedTo'] : 'NULL') . 
+                    ", Created=" . (isset($wt['woTaskTimeCreated']) ? $wt['woTaskTimeCreated'] : 'NULL') . 
+                    ", Verified=" . (isset($wt['woTaskTimeVerified']) ? $wt['woTaskTimeVerified'] : 'NULL'));
+                
+                $woDetails[] = array(
+                    'woNo' => isset($wt['woTaskNo']) ? ($wt['woTaskNo'] ?: 'N/A') : 'N/A',
+                    'woDesc' => isset($wt['woTaskComplaint']) ? ($wt['woTaskComplaint'] ?: '') : '',
+                    'assetDesc' => isset($wt['assetDesc']) ? ($wt['assetDesc'] ?: (isset($wt['assetNo']) ? $wt['assetNo'] : 'N/A')) : 'N/A',
+                    'woStatus' => 'Completed',
+                    'woPriority' => '', // Priority field removed from query temporarily
+                    'woCreateDate' => isset($wt['woTaskTimeCreated']) ? $wt['woTaskTimeCreated'] : '',
+                    'woTargetDate' => isset($wt['woTaskTimeAssigned']) ? $wt['woTaskTimeAssigned'] : '',
+                    'woCompletedDate' => isset($wt['woTaskTimeVerified']) ? $wt['woTaskTimeVerified'] : '',
+                    'woOnTimeStatus' => isset($wt['woOnTimeStatus']) ? $wt['woOnTimeStatus'] : 'Pending',
+                    'woType' => isset($wt['woTaskType']) ? $wt['woTaskType'] : '',
+                    'woRole' => 'Assigned' // This user is the primary assignee
+                );
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Processed " . count($woTasks) . " direct WO assignments");
+            
+            // Get WO assist tasks
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Querying wo_task_assist table for user_id=$userId");
+            
+            $woAssistRecords = Class_db::getInstance()->db_select2('wo_task_assist', 
+                array('user_id' => $userId), '', '', 0);
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Found " . count($woAssistRecords) . " WO assist records");
+                
+            $assistTasksProcessed = 0;
+            foreach ($woAssistRecords as $index => $wta) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "WO Assist #" . ($index + 1) . ": UserId=" . (isset($wta['userId']) ? $wta['userId'] : 'NULL') . 
+                    ", woTaskId=" . (isset($wta['woTaskId']) ? $wta['woTaskId'] : 'NULL'));
+                
+                if (empty($wta['woTaskId'])) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "Skipping assist record - woTaskId is empty");
+                    continue;
+                }
+                
+                // Get the corresponding wo_task record with date and status filtering (by reported date)
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "Looking up wo_task for assist: wo_task_id={$wta['woTaskId']}, status=16, " .
+                    "created between $monthStart and $monthEnd");
+                
+                // Use the same enhanced query to get complete WO task data
+                $wt = Class_db::getInstance()->db_select_single2($woTaskView, 
+                    array(
+                        'wo_task_id' => $wta['woTaskId'],
+                        'wo_task_status' => '16', // Only completed tasks
+                        'w1' => "DATE(wo_task_time_created) >= '$monthStart'",
+                        'w2' => "DATE(wo_task_time_created) <= '$monthEnd'"
+                    ));
+                    
+                if (!$wt) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "No matching wo_task found for assist record (either not completed or outside date range)");
+                    continue;
+                }
+                
+                $assistTasksProcessed++;
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "Found matching WO Task for assist: ID=" . (isset($wt['woTaskId']) ? $wt['woTaskId'] : 'NULL') . 
+                    ", No=" . (isset($wt['woTaskNo']) ? $wt['woTaskNo'] : 'NULL') . 
+                    ", Status=" . (isset($wt['woTaskStatus']) ? $wt['woTaskStatus'] : 'NULL') . 
+                    ", AssignedTo=" . (isset($wt['woTaskAssignedTo']) ? $wt['woTaskAssignedTo'] : 'NULL') . 
+                    ", Created=" . (isset($wt['woTaskTimeCreated']) ? $wt['woTaskTimeCreated'] : 'NULL') . 
+                    ", Verified=" . (isset($wt['woTaskTimeVerified']) ? $wt['woTaskTimeVerified'] : 'NULL'));
+                
+                $woDetails[] = array(
+                    'woNo' => isset($wt['woTaskNo']) ? ($wt['woTaskNo'] ?: 'N/A') : 'N/A',
+                    'woDesc' => isset($wt['woTaskComplaint']) ? ($wt['woTaskComplaint'] ?: '') : '',
+                    'assetDesc' => isset($wt['assetDesc']) ? ($wt['assetDesc'] ?: (isset($wt['assetNo']) ? $wt['assetNo'] : 'N/A')) : 'N/A',
+                    'woStatus' => 'Completed',
+                    'woPriority' => '', // Priority field removed from query temporarily
+                    'woCreateDate' => isset($wt['woTaskTimeCreated']) ? $wt['woTaskTimeCreated'] : '',
+                    'woTargetDate' => isset($wt['woTaskTimeAssigned']) ? $wt['woTaskTimeAssigned'] : '',
+                    'woCompletedDate' => isset($wt['woTaskTimeVerified']) ? $wt['woTaskTimeVerified'] : '',
+                    'woOnTimeStatus' => isset($wt['woOnTimeStatus']) ? $wt['woOnTimeStatus'] : 'Pending',
+                    'woType' => isset($wt['woTaskType']) ? $wt['woTaskType'] : '',
+                    'woRole' => 'Assist' // This user provided assistance
+                );
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Processed $assistTasksProcessed out of " . count($woAssistRecords) . " assist records");
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Total WO details before deduplication: " . count($woDetails));
+            
+            // Remove duplicates based on WO number
+            $uniqueWoDetails = array();
+            $seenWoNos = array();
+            $duplicatesRemoved = 0;
+            
+            foreach ($woDetails as $wo) {
+                if (!in_array($wo['woNo'], $seenWoNos)) {
+                    $seenWoNos[] = $wo['woNo'];
+                    $uniqueWoDetails[] = $wo;
+                } else {
+                    $duplicatesRemoved++;
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "Removed duplicate WO: {$wo['woNo']}");
+                }
+            }
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Removed $duplicatesRemoved duplicates, final count: " . count($uniqueWoDetails));
+            
+            // Sort by completion date descending
+            usort($uniqueWoDetails, function($a, $b) {
+                return strcmp($b['woCompletedDate'], $a['woCompletedDate']);
+            });
+            
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Final result summary:");
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "- Direct assignments: " . count($woTasks));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "- Assist tasks processed: $assistTasksProcessed");
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "- Total before dedup: " . count($woDetails));
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "- Duplicates removed: $duplicatesRemoved");
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "- Final unique count: " . count($uniqueWoDetails));
+            
+            if (!empty($uniqueWoDetails)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                    "Sample of final results:");
+                foreach (array_slice($uniqueWoDetails, 0, 3) as $index => $wo) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                        "Result #" . ($index + 1) . ": woNo={$wo['woNo']}, status={$wo['woStatus']}, " .
+                        "completed={$wo['woCompletedDate']}");
+                }
+            }
+            
+            return $uniqueWoDetails;
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $userId
      * @param $year
      * @param $month

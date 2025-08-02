@@ -1,0 +1,3113 @@
+-- Advanced Database Schema Export
+-- Database: gems
+-- Host: www.metadatasystem.my
+-- Generated: 2025-08-01 15:53:39
+-- Tables: 118
+-- Generator: Advanced Schema Extractor v1.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+CREATE DATABASE IF NOT EXISTS `gems` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `gems`;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_qual
+-- Engine: InnoDB
+-- Rows: 5,099,976
+-- Size: 1004.31 MB (Data: 636.00 MB, Index: 368.31 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_qual`;
+CREATE TABLE `ppm_task_qual` (
+  `ppm_task_qual_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_qual_numb` varchar(30) DEFAULT NULL,
+  `ppm_task_qual_desc` text DEFAULT NULL,
+  `frequency_id` tinyint(4) DEFAULT NULL,
+  `ppm_task_qual_result` tinyint(1) DEFAULT NULL COMMENT '0=fail, 1=pass, 2=N/A',
+  `ppm_task_qual_remark` varchar(255) DEFAULT NULL,
+  `ppm_task_id` bigint(20) NOT NULL,
+  `checklist_qual_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`ppm_task_qual_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `checklist_qual_id` (`checklist_qual_id`) USING BTREE,
+  KEY `frequency_id` (`frequency_id`) USING BTREE,
+  CONSTRAINT `ppm_task_qual_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`),
+  CONSTRAINT `ppm_task_qual_ibfk_3` FOREIGN KEY (`frequency_id`) REFERENCES `ppm_frequency` (`frequency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17579391 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_upload
+-- Engine: InnoDB
+-- Rows: 2,289,822
+-- Size: 758.17 MB (Data: 678.00 MB, Index: 80.17 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_upload`;
+CREATE TABLE `sys_upload` (
+  `upload_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `document_id` smallint(6) NOT NULL,
+  `upload_name` varchar(255) DEFAULT NULL,
+  `upload_uplname` varchar(255) NOT NULL DEFAULT '',
+  `upload_filename` varchar(50) DEFAULT NULL,
+  `upload_extension` varchar(10) DEFAULT NULL,
+  `upload_folder` varchar(100) DEFAULT NULL,
+  `upload_filesize` int(11) DEFAULT NULL,
+  `upload_file_width` int(11) DEFAULT NULL,
+  `upload_file_height` int(11) DEFAULT NULL,
+  `upload_blob_type` varchar(100) NOT NULL DEFAULT '',
+  `upload_blob_data` blob DEFAULT NULL,
+  `upload_time_upload` timestamp NOT NULL DEFAULT current_timestamp(),
+  `upload_created_by` int(11) DEFAULT NULL,
+  `upload_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`upload_id`) USING BTREE,
+  KEY `document_id` (`document_id`) USING BTREE,
+  KEY `upload_status` (`upload_status`) USING BTREE,
+  CONSTRAINT `sys_upload_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `ref_document` (`document_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2590169 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task
+-- Engine: InnoDB
+-- Rows: 792,525
+-- Size: 503.91 MB (Data: 293.91 MB, Index: 210.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task`;
+CREATE TABLE `ppm_task` (
+  `ppm_task_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_no` varchar(30) DEFAULT NULL,
+  `ppm_task_schedule_date` date DEFAULT NULL,
+  `ppm_task_start_date` date DEFAULT NULL,
+  `ppm_id` bigint(20) NOT NULL,
+  `ppm_task_guideline` text DEFAULT NULL,
+  `ppm_task_is_parts` tinyint(1) DEFAULT NULL,
+  `ppm_task_is_additional_report` tinyint(1) DEFAULT NULL,
+  `ppm_task_refer_to` varchar(255) DEFAULT NULL,
+  `ppm_task_remark` text DEFAULT NULL,
+  `transaction_id` bigint(20) NOT NULL,
+  `pdf_id` bigint(20) DEFAULT NULL,
+  `ppm_task_is_scheduled` tinyint(1) NOT NULL DEFAULT 2,
+  `ppm_task_assigned_to` int(11) DEFAULT NULL,
+  `ppm_task_min_exec_time` time DEFAULT NULL,
+  `ppm_task_max_exec_time` time DEFAULT NULL,
+  `ppm_task_max_assistant` tinyint(1) DEFAULT NULL,
+  `ppm_task_is_group_executed` tinyint(1) NOT NULL DEFAULT 0,
+  `ppm_task_serviced_by` int(11) DEFAULT NULL,
+  `ppm_task_checked_by` int(11) DEFAULT NULL,
+  `ppm_task_verified_by` int(11) DEFAULT NULL,
+  `ppm_task_time_start` timestamp NULL DEFAULT NULL,
+  `ppm_task_time_serviced` timestamp NULL DEFAULT NULL,
+  `ppm_task_time_checked` timestamp NULL DEFAULT NULL,
+  `ppm_task_time_verified` timestamp NULL DEFAULT NULL,
+  `ppm_task_time_assigned` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ppm_task_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`ppm_task_id`) USING BTREE,
+  KEY `ppm_id` (`ppm_id`) USING BTREE,
+  KEY `ppm_task_status` (`ppm_task_status`) USING BTREE,
+  KEY `ppm_submitted_by` (`ppm_task_serviced_by`) USING BTREE,
+  KEY `ppm_task_checked_by` (`ppm_task_checked_by`) USING BTREE,
+  KEY `ppm_task_verified_by` (`ppm_task_verified_by`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `ppm_task_assigned_to` (`ppm_task_assigned_to`) USING BTREE,
+  KEY `pdf_id` (`pdf_id`) USING BTREE,
+  KEY `ppm_task_schedule_date` (`ppm_task_schedule_date`) USING BTREE,
+  KEY `ppm_task_start_date` (`ppm_task_start_date`) USING BTREE,
+  KEY `idx_ppm_task_no` (`ppm_task_no`),
+  KEY `idx_ppm_task_status` (`ppm_task_status`),
+  KEY `idx_ppm_task_assigned` (`ppm_task_assigned_to`),
+  CONSTRAINT `ppm_task_ibfk_1` FOREIGN KEY (`ppm_id`) REFERENCES `ppm` (`ppm_id`),
+  CONSTRAINT `ppm_task_ibfk_2` FOREIGN KEY (`ppm_task_serviced_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_task_ibfk_3` FOREIGN KEY (`ppm_task_checked_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_task_ibfk_4` FOREIGN KEY (`ppm_task_verified_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_task_ibfk_6` FOREIGN KEY (`ppm_task_assigned_to`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_task_ibfk_7` FOREIGN KEY (`pdf_id`) REFERENCES `sys_pdf` (`pdf_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2145479 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_task
+-- Engine: InnoDB
+-- Rows: 1,875,936
+-- Size: 499.47 MB (Data: 121.67 MB, Index: 377.80 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_task`;
+CREATE TABLE `wfl_task` (
+  `task_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL,
+  `checkpoint_id` smallint(6) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `group_id` smallint(6) DEFAULT NULL,
+  `task_current` tinyint(4) NOT NULL DEFAULT 1,
+  `task_created_user` int(11) NOT NULL,
+  `task_created_group` smallint(6) NOT NULL,
+  `task_claimed_user` int(11) DEFAULT NULL,
+  `task_remark` text DEFAULT NULL,
+  `task_date_due` date DEFAULT NULL,
+  `task_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `task_time_claimed` timestamp NULL DEFAULT NULL,
+  `task_time_submit` timestamp NULL DEFAULT NULL,
+  `task_status_previous` tinyint(4) DEFAULT NULL,
+  `task_status_save` tinyint(4) DEFAULT NULL,
+  `task_status` tinyint(4) NOT NULL,
+  PRIMARY KEY (`task_id`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `checkpoint_id` (`checkpoint_id`) USING BTREE,
+  KEY `task_status` (`task_status`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  KEY `task_created_user` (`task_created_user`) USING BTREE,
+  KEY `task_created_group` (`task_created_group`) USING BTREE,
+  KEY `task_claimed_user` (`task_claimed_user`) USING BTREE,
+  KEY `task_current` (`task_current`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  KEY `task_date_due` (`task_date_due`) USING BTREE,
+  CONSTRAINT `wfl_task_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `wfl_task_ibfk_2` FOREIGN KEY (`checkpoint_id`) REFERENCES `wfl_checkpoint` (`checkpoint_id`),
+  CONSTRAINT `wfl_task_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `wfl_task_ibfk_4` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`),
+  CONSTRAINT `wfl_task_ibfk_5` FOREIGN KEY (`task_created_user`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_task_ibfk_6` FOREIGN KEY (`task_claimed_user`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_task_ibfk_7` FOREIGN KEY (`task_created_group`) REFERENCES `sys_group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3331939 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_quan
+-- Engine: InnoDB
+-- Rows: 2,804,827
+-- Size: 474.78 MB (Data: 286.88 MB, Index: 187.91 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_quan`;
+CREATE TABLE `ppm_task_quan` (
+  `ppm_task_quan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_quan_numb` varchar(30) DEFAULT NULL,
+  `ppm_task_quan_desc` text DEFAULT NULL,
+  `frequency_id` tinyint(4) DEFAULT NULL,
+  `ppm_task_quan_unit` varchar(30) DEFAULT NULL,
+  `ppm_task_quan_set_values` varchar(100) DEFAULT NULL,
+  `ppm_task_quan_measured_values` varchar(100) DEFAULT NULL,
+  `ppm_task_quan_limit` varchar(100) CHARACTER SET latin2 COLLATE latin2_general_ci DEFAULT NULL,
+  `ppm_task_quan_result` tinyint(1) DEFAULT NULL COMMENT '0=fail, 1=pass, 2=N/A',
+  `ppm_task_quan_remark` varchar(255) DEFAULT NULL,
+  `ppm_task_id` bigint(20) NOT NULL,
+  `checklist_quan_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`ppm_task_quan_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `checklist_quan_id` (`checklist_quan_id`) USING BTREE,
+  KEY `frequency_id` (`frequency_id`) USING BTREE,
+  CONSTRAINT `ppm_task_quan_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`),
+  CONSTRAINT `ppm_task_quan_ibfk_3` FOREIGN KEY (`frequency_id`) REFERENCES `ppm_frequency` (`frequency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8151730 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_section
+-- Engine: InnoDB
+-- Rows: 5,633,145
+-- Size: 467.36 MB (Data: 217.77 MB, Index: 249.59 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_section`;
+CREATE TABLE `ppm_task_section` (
+  `ppm_task_section_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_section_name` varchar(1) NOT NULL,
+  `ppm_task_id` bigint(20) NOT NULL,
+  `ppm_task_section_status` tinyint(4) NOT NULL DEFAULT 17,
+  PRIMARY KEY (`ppm_task_section_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `ppm_task_section_status` (`ppm_task_section_status`) USING BTREE,
+  CONSTRAINT `ppm_task_section_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17296132 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_transaction
+-- Engine: InnoDB
+-- Rows: 2,016,957
+-- Size: 285.06 MB (Data: 152.70 MB, Index: 132.36 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_transaction`;
+CREATE TABLE `wfl_transaction` (
+  `transaction_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_no` varchar(30) NOT NULL,
+  `flow_id` tinyint(4) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  `asset_no` varchar(30) DEFAULT NULL,
+  `transaction_date_due` date DEFAULT NULL,
+  `transaction_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `transaction_time_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `transaction_time_complete` timestamp NULL DEFAULT NULL,
+  `transaction_status` tinyint(4) NOT NULL,
+  PRIMARY KEY (`transaction_id`) USING BTREE,
+  KEY `flow_id` (`flow_id`) USING BTREE,
+  KEY `transaction_status` (`transaction_status`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  CONSTRAINT `wfl_transaction_ibfk_1` FOREIGN KEY (`flow_id`) REFERENCES `wfl_flow` (`flow_id`),
+  CONSTRAINT `wfl_transaction_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_transaction_ibfk_3` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2221631 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_upload
+-- Engine: InnoDB
+-- Rows: 2,064,567
+-- Size: 252.97 MB (Data: 125.67 MB, Index: 127.30 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_upload`;
+CREATE TABLE `ppm_task_upload` (
+  `ppm_task_upload_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_upload_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0=before, 1=during, 2=after, 3=additional report, 4=signiture techician, 5=signiture checked, 6=signiture verified',
+  `ppm_task_id` bigint(20) NOT NULL,
+  `ppm_task_upload_longitude` double(12,6) DEFAULT NULL,
+  `ppm_task_upload_latitude` double(12,6) DEFAULT NULL,
+  `ppm_task_upload_desc` varchar(255) DEFAULT NULL,
+  `upload_id` bigint(20) NOT NULL,
+  `ppm_task_upload_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ppm_task_upload_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `upload_id` (`upload_id`) USING BTREE,
+  CONSTRAINT `ppm_task_upload_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`),
+  CONSTRAINT `ppm_task_upload_ibfk_2` FOREIGN KEY (`upload_id`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2153235 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_task_assign
+-- Engine: InnoDB
+-- Rows: 1,050,315
+-- Size: 171.41 MB (Data: 48.59 MB, Index: 122.81 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_task_assign`;
+CREATE TABLE `wfl_task_assign` (
+  `task_assign_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL,
+  `checkpoint_id` smallint(6) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`task_assign_id`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `checkpoint_id` (`checkpoint_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  CONSTRAINT `wfl_task_assign_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `wfl_task_assign_ibfk_2` FOREIGN KEY (`checkpoint_id`) REFERENCES `wfl_checkpoint` (`checkpoint_id`),
+  CONSTRAINT `wfl_task_assign_ibfk_3` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`),
+  CONSTRAINT `wfl_task_assign_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_task_assign_ibfk_5` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1124788 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_upload
+-- Engine: InnoDB
+-- Rows: 414,227
+-- Size: 59.14 MB (Data: 26.56 MB, Index: 32.58 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_upload`;
+CREATE TABLE `wo_task_upload` (
+  `wo_task_upload_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_upload_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=complain, 2=before, 3=during, 4=after, 5=signiture complainer, 6=signiture responder, 7=signiture executor, 8=signiture verified, 9=signiture wr checked, 10=signiture wr verified, 12=signiture check',
+  `wo_task_id` bigint(20) NOT NULL,
+  `wo_task_upload_longitude` double(12,6) DEFAULT NULL,
+  `wo_task_upload_latitude` double(12,6) DEFAULT NULL,
+  `wo_task_upload_desc` varchar(255) DEFAULT NULL,
+  `upload_id` bigint(20) NOT NULL,
+  `wo_task_upload_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`wo_task_upload_id`) USING BTREE,
+  KEY `upload_id` (`upload_id`) USING BTREE,
+  KEY `wo_task_upload_type` (`wo_task_upload_type`) USING BTREE,
+  KEY `wo_task_id` (`wo_task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=426160 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_frequency
+-- Engine: InnoDB
+-- Rows: 750,666
+-- Size: 57.66 MB (Data: 27.56 MB, Index: 30.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_frequency`;
+CREATE TABLE `ppm_task_frequency` (
+  `ppm_task_freq_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_id` bigint(20) NOT NULL,
+  `frequency_id` tinyint(4) NOT NULL,
+  PRIMARY KEY (`ppm_task_freq_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `frequency_id` (`frequency_id`) USING BTREE,
+  CONSTRAINT `ppm_task_frequency_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`),
+  CONSTRAINT `ppm_task_frequency_ibfk_2` FOREIGN KEY (`frequency_id`) REFERENCES `ppm_frequency` (`frequency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2304736 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task
+-- Engine: InnoDB
+-- Rows: 69,857
+-- Size: 52.31 MB (Data: 16.55 MB, Index: 35.77 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task`;
+CREATE TABLE `wo_task` (
+  `wo_task_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_no` varchar(30) DEFAULT NULL,
+  `wo_task_request_no` varchar(31) DEFAULT NULL,
+  `wo_task_type_init` tinyint(1) NOT NULL COMMENT '1=external complaint, 2=internal complaint',
+  `wo_task_type` tinyint(1) DEFAULT NULL COMMENT '1=external complaint, 2=internal complaint',
+  `wo_task_is_wr` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=no, 1=yes',
+  `wo_task_is_wr_verified_together` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_wr_confirm` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_is_helpdesk` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_external_ref` varchar(100) DEFAULT NULL COMMENT 'External system work order reference',
+  `wo_task_is_imported` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag to indicate if WO was imported from external system',
+  `wo_task_is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_is_invalid` tinyint(1) NOT NULL DEFAULT 0,
+  `site_id` smallint(6) DEFAULT NULL,
+  `zone_id` smallint(6) DEFAULT NULL,
+  `wo_task_location` varchar(150) DEFAULT NULL,
+  `wo_task_complaint` text DEFAULT NULL,
+  `wo_task_longitude` double(12,6) DEFAULT NULL,
+  `wo_task_latitude` double(12,6) DEFAULT NULL,
+  `wo_task_assigned_to` int(11) DEFAULT NULL,
+  `wo_task_done_asset` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_done_assistant` tinyint(1) NOT NULL DEFAULT 0,
+  `asset_id` bigint(20) DEFAULT NULL,
+  `ppm_group_id` smallint(6) DEFAULT NULL,
+  `wo_task_severity` tinyint(1) DEFAULT NULL COMMENT '1=Non-Critical, 2=Critical',
+  `wo_task_wr_check` text DEFAULT NULL,
+  `wo_task_has_parts` tinyint(1) DEFAULT NULL,
+  `wo_task_repair_desc` text DEFAULT NULL,
+  `wo_task_rate` tinyint(1) DEFAULT NULL,
+  `wo_task_max_assistant` tinyint(1) DEFAULT NULL,
+  `transaction_id` bigint(20) NOT NULL,
+  `pdf_id` bigint(20) DEFAULT NULL,
+  `pdf_id_wr` bigint(20) DEFAULT NULL,
+  `wo_task_is_pdf_wr` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_is_pdf` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_created_by` int(11) DEFAULT NULL,
+  `wo_task_assigned_by` int(11) DEFAULT NULL,
+  `wo_task_wr_checked_by` int(11) DEFAULT NULL,
+  `wo_task_wr_verified_by` int(11) DEFAULT NULL,
+  `wo_task_fixed_by` int(11) DEFAULT NULL,
+  `wo_task_verified_by` int(11) DEFAULT NULL,
+  `wo_task_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `wo_task_time_responded` timestamp NULL DEFAULT NULL,
+  `wo_task_time_assigned` timestamp NULL DEFAULT NULL,
+  `wo_task_time_rectified` timestamp NULL DEFAULT NULL,
+  `wo_task_time_wr_checked` timestamp NULL DEFAULT NULL,
+  `wo_task_time_wr_verified` timestamp NULL DEFAULT NULL,
+  `wo_task_time_executed` timestamp NULL DEFAULT NULL,
+  `wo_task_time_verified` timestamp NULL DEFAULT NULL,
+  `wo_task_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`wo_task_id`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `wo_task_status` (`wo_task_status`) USING BTREE,
+  KEY `pdf_id` (`pdf_id`) USING BTREE,
+  KEY `wo_task_created_by` (`wo_task_created_by`) USING BTREE,
+  KEY `wo_task_responsed_by` (`wo_task_assigned_by`) USING BTREE,
+  KEY `wo_task_executed_by` (`wo_task_fixed_by`) USING BTREE,
+  KEY `wo_task_verified_by` (`wo_task_verified_by`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `ppm_group_id` (`ppm_group_id`) USING BTREE,
+  KEY `pdf_id_wr` (`pdf_id_wr`) USING BTREE,
+  KEY `wo_task_wr_checked_by` (`wo_task_wr_checked_by`) USING BTREE,
+  KEY `wo_task_wr_verified_by` (`wo_task_wr_verified_by`) USING BTREE,
+  KEY `asset_id` (`asset_id`) USING BTREE,
+  KEY `wo_task_severity` (`wo_task_severity`) USING BTREE,
+  KEY `zone_id` (`zone_id`) USING BTREE,
+  KEY `idx_external_ref` (`wo_task_external_ref`),
+  KEY `idx_is_imported` (`wo_task_is_imported`),
+  CONSTRAINT `wo_task_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `wo_task_ibfk_10` FOREIGN KEY (`wo_task_wr_checked_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_11` FOREIGN KEY (`wo_task_wr_verified_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_12` FOREIGN KEY (`asset_id`) REFERENCES `ast_asset` (`asset_id`),
+  CONSTRAINT `wo_task_ibfk_13` FOREIGN KEY (`wo_task_severity`) REFERENCES `ref_severity` (`severity_id`),
+  CONSTRAINT `wo_task_ibfk_14` FOREIGN KEY (`zone_id`) REFERENCES `cli_zone` (`zone_id`),
+  CONSTRAINT `wo_task_ibfk_2` FOREIGN KEY (`pdf_id`) REFERENCES `sys_pdf` (`pdf_id`),
+  CONSTRAINT `wo_task_ibfk_3` FOREIGN KEY (`wo_task_created_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_4` FOREIGN KEY (`wo_task_assigned_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_5` FOREIGN KEY (`wo_task_fixed_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_6` FOREIGN KEY (`wo_task_verified_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wo_task_ibfk_7` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `wo_task_ibfk_8` FOREIGN KEY (`ppm_group_id`) REFERENCES `ppm_group` (`ppm_group_id`),
+  CONSTRAINT `wo_task_ibfk_9` FOREIGN KEY (`pdf_id_wr`) REFERENCES `sys_pdf` (`pdf_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=74348 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_pdf
+-- Engine: InnoDB
+-- Rows: 377,698
+-- Size: 36.59 MB (Data: 24.56 MB, Index: 12.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_pdf`;
+CREATE TABLE `sys_pdf` (
+  `pdf_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `pdf_type` varchar(20) NOT NULL,
+  `pdf_folder` varchar(50) NOT NULL,
+  `pdf_filename` varchar(80) NOT NULL,
+  `pdf_timeCreated` timestamp NOT NULL DEFAULT current_timestamp(),
+  `pdf_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`pdf_id`) USING BTREE,
+  KEY `pdf_type` (`pdf_type`) USING BTREE,
+  KEY `pdf_status` (`pdf_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=378806 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset
+-- Engine: InnoDB
+-- Rows: 30,711
+-- Size: 21.09 MB (Data: 5.52 MB, Index: 15.58 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset`;
+CREATE TABLE `ast_asset` (
+  `asset_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `asset_no` varchar(100) DEFAULT NULL,
+  `asset_name` varchar(150) DEFAULT NULL,
+  `asset_serial_no` varchar(100) DEFAULT NULL,
+  `asset_desc` text DEFAULT NULL,
+  `asset_capacity` varchar(30) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `asset_category_id` smallint(6) DEFAULT NULL,
+  `asset_type_id` smallint(6) DEFAULT NULL,
+  `asset_brand_id` smallint(6) DEFAULT NULL,
+  `asset_model_id` mediumint(9) DEFAULT NULL,
+  `contract_id` smallint(6) DEFAULT NULL,
+  `zone_id` smallint(6) DEFAULT NULL,
+  `location_code_id` int(11) DEFAULT NULL,
+  `asset_location_code` varchar(100) DEFAULT NULL,
+  `asset_location_desc` varchar(255) DEFAULT NULL,
+  `ppm_group_id` smallint(6) DEFAULT NULL,
+  `asset_block` varchar(30) DEFAULT NULL,
+  `asset_level` varchar(30) DEFAULT NULL,
+  `asset_manufacturer` varchar(100) DEFAULT NULL,
+  `asset_supplier` varchar(100) DEFAULT NULL,
+  `asset_agency` varchar(100) DEFAULT NULL,
+  `asset_department` varchar(100) DEFAULT NULL,
+  `asset_construction_zone` varchar(50) DEFAULT NULL,
+  `asset_operation_zone` varchar(50) DEFAULT NULL,
+  `asset_room` varchar(50) DEFAULT NULL,
+  `asset_compartment` varchar(50) DEFAULT NULL,
+  `asset_auth_employee` varchar(150) DEFAULT NULL,
+  `asset_criticality` varchar(50) DEFAULT NULL,
+  `asset_contractor` varchar(100) DEFAULT NULL,
+  `asset_warranty` varchar(50) DEFAULT NULL,
+  `asset_warranty_exp_date` date DEFAULT NULL,
+  `asset_life_cycle` smallint(3) DEFAULT NULL,
+  `asset_warranty_notes` text DEFAULT NULL,
+  `asset_technician_notes` text DEFAULT NULL,
+  `asset_purchase_price` decimal(10,2) DEFAULT NULL,
+  `asset_commissioned_date` date DEFAULT NULL,
+  `asset_disposed_date` date DEFAULT NULL,
+  `asset_current_value` decimal(10,2) DEFAULT NULL,
+  `asset_estimated_life` varchar(30) DEFAULT NULL,
+  `asset_lifetime_date` date DEFAULT NULL,
+  `asset_lifespan_year` tinyint(4) DEFAULT NULL,
+  `asset_lifespan_start_date` date DEFAULT NULL,
+  `asset_lifespan_alert` tinyint(4) DEFAULT NULL,
+  `asset_value_depreciation` tinyint(4) DEFAULT NULL,
+  `asset_value_alert` decimal(10,2) DEFAULT NULL,
+  `asset_repair_alert` decimal(10,2) DEFAULT NULL,
+  `asset_running_hours` smallint(6) DEFAULT NULL,
+  `asset_disposal_status` tinyint(1) DEFAULT NULL,
+  `asset_disposal_date` date DEFAULT NULL,
+  `asset_disposal_item_cost` decimal(10,2) DEFAULT NULL,
+  `asset_disposal_service_cost` decimal(10,2) DEFAULT NULL,
+  `asset_mtbf_alert` smallint(6) DEFAULT NULL,
+  `asset_mttr_alert` smallint(6) DEFAULT NULL,
+  `migration_id` smallint(6) DEFAULT NULL,
+  `document_no` varchar(10) DEFAULT NULL,
+  `asset_registered_by` int(11) DEFAULT NULL,
+  `asset_time_registered` timestamp NULL DEFAULT NULL,
+  `asset_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `asset_status` tinyint(4) NOT NULL DEFAULT 1,
+  `asset_temp_flag` tinyint(1) DEFAULT NULL,
+  `checklist_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`asset_id`) USING BTREE,
+  KEY `contract_id` (`contract_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `asset_category_id` (`asset_category_id`) USING BTREE,
+  KEY `asset_type_id` (`asset_type_id`) USING BTREE,
+  KEY `asset_brand_id` (`asset_brand_id`) USING BTREE,
+  KEY `asset_model_id` (`asset_model_id`) USING BTREE,
+  KEY `asset_status` (`asset_status`) USING BTREE,
+  KEY `asset_registered_by` (`asset_registered_by`) USING BTREE,
+  KEY `ppm_group_id` (`ppm_group_id`) USING BTREE,
+  KEY `checklist_id` (`checklist_id`) USING BTREE,
+  KEY `zone_id` (`zone_id`) USING BTREE,
+  KEY `idx_asset_id` (`asset_id`),
+  KEY `idx_asset_no` (`asset_no`),
+  CONSTRAINT `ast_asset_ibfk_1` FOREIGN KEY (`contract_id`) REFERENCES `cli_contract` (`contract_id`),
+  CONSTRAINT `ast_asset_ibfk_10` FOREIGN KEY (`ppm_group_id`) REFERENCES `ppm_group` (`ppm_group_id`),
+  CONSTRAINT `ast_asset_ibfk_11` FOREIGN KEY (`checklist_id`) REFERENCES `ppm_checklist` (`checklist_id`),
+  CONSTRAINT `ast_asset_ibfk_12` FOREIGN KEY (`zone_id`) REFERENCES `cli_zone` (`zone_id`),
+  CONSTRAINT `ast_asset_ibfk_3` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`),
+  CONSTRAINT `ast_asset_ibfk_4` FOREIGN KEY (`asset_category_id`) REFERENCES `ast_asset_category` (`asset_category_id`),
+  CONSTRAINT `ast_asset_ibfk_5` FOREIGN KEY (`asset_type_id`) REFERENCES `ast_asset_type` (`asset_type_id`),
+  CONSTRAINT `ast_asset_ibfk_6` FOREIGN KEY (`asset_brand_id`) REFERENCES `ast_asset_brand` (`asset_brand_id`),
+  CONSTRAINT `ast_asset_ibfk_7` FOREIGN KEY (`asset_model_id`) REFERENCES `ast_asset_model` (`asset_model_id`),
+  CONSTRAINT `ast_asset_ibfk_8` FOREIGN KEY (`asset_registered_by`) REFERENCES `sys_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=84965 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_parts
+-- Engine: InnoDB
+-- Rows: 151,105
+-- Size: 14.03 MB (Data: 7.52 MB, Index: 6.52 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_parts`;
+CREATE TABLE `ppm_task_parts` (
+  `ppm_task_parts_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_parts_desc` varchar(255) NOT NULL,
+  `ppm_task_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`ppm_task_parts_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  CONSTRAINT `ppm_task_parts_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=157241 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm
+-- Engine: InnoDB
+-- Rows: 22,690
+-- Size: 8.67 MB (Data: 2.52 MB, Index: 6.16 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm`;
+CREATE TABLE `ppm` (
+  `ppm_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_no` varchar(30) DEFAULT NULL,
+  `ppm_issue_no` varchar(10) DEFAULT NULL,
+  `ppm_name` varchar(200) DEFAULT NULL,
+  `ppm_set_id` smallint(6) DEFAULT NULL,
+  `ppm_is_group` tinyint(1) DEFAULT NULL,
+  `ppm_date_start` date DEFAULT NULL,
+  `asset_id` bigint(20) DEFAULT NULL,
+  `asset_type_id` smallint(6) DEFAULT NULL,
+  `checklist_id` int(11) DEFAULT NULL,
+  `ppm_frequency` varchar(100) DEFAULT NULL,
+  `contract_id` smallint(6) NOT NULL,
+  `ppm_group_id` smallint(6) DEFAULT NULL,
+  `ppm_remark` text DEFAULT NULL,
+  `ppm_created_by` int(11) DEFAULT NULL,
+  `ppm_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ppm_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`ppm_id`) USING BTREE,
+  KEY `asset_id` (`asset_id`) USING BTREE,
+  KEY `ppm_status` (`ppm_status`) USING BTREE,
+  KEY `contract_id` (`contract_id`) USING BTREE,
+  KEY `checklist_id` (`checklist_id`) USING BTREE,
+  KEY `ppm_created_by` (`ppm_created_by`) USING BTREE,
+  KEY `ppm_group_id` (`ppm_group_id`) USING BTREE,
+  KEY `ppm_ibfk_6` (`ppm_set_id`),
+  CONSTRAINT `ppm_ibfk_1` FOREIGN KEY (`asset_id`) REFERENCES `ast_asset` (`asset_id`),
+  CONSTRAINT `ppm_ibfk_2` FOREIGN KEY (`contract_id`) REFERENCES `cli_contract` (`contract_id`),
+  CONSTRAINT `ppm_ibfk_3` FOREIGN KEY (`checklist_id`) REFERENCES `ppm_checklist` (`checklist_id`),
+  CONSTRAINT `ppm_ibfk_4` FOREIGN KEY (`ppm_created_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_ibfk_5` FOREIGN KEY (`ppm_group_id`) REFERENCES `ppm_group` (`ppm_group_id`),
+  CONSTRAINT `ppm_ibfk_6` FOREIGN KEY (`ppm_set_id`) REFERENCES `ppm_set` (`ppm_set_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=43474 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: att_transaction
+-- Engine: InnoDB
+-- Rows: 33,668
+-- Size: 8.58 MB (Data: 2.52 MB, Index: 6.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `att_transaction`;
+CREATE TABLE `att_transaction` (
+  `att_transaction_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `att_transaction_date` date NOT NULL,
+  `att_participant_id` smallint(6) NOT NULL,
+  `att_group_id` smallint(6) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `att_type_id` tinyint(4) DEFAULT NULL,
+  `att_transaction_shift_start` timestamp NULL DEFAULT NULL,
+  `att_transaction_shift_end` timestamp NULL DEFAULT NULL,
+  `att_transaction_time_in` timestamp NULL DEFAULT NULL,
+  `att_transaction_time_out` timestamp NULL DEFAULT NULL,
+  `att_transaction_location_in` point DEFAULT NULL,
+  `att_transaction_location_out` point DEFAULT NULL,
+  `att_transaction_result` enum('Present','Absent','Leave','Training') DEFAULT NULL,
+  `att_transaction_status` enum('Checked In','Checked Out','Ready') NOT NULL DEFAULT 'Ready',
+  PRIMARY KEY (`att_transaction_id`) USING BTREE,
+  KEY `att_type_id` (`att_type_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `att_participant_id` (`att_participant_id`) USING BTREE,
+  KEY `att_group_id` (`att_group_id`) USING BTREE,
+  CONSTRAINT `att_transaction_ibfk_1` FOREIGN KEY (`att_type_id`) REFERENCES `att_type` (`att_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `att_transaction_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `att_transaction_ibfk_3` FOREIGN KEY (`att_participant_id`) REFERENCES `att_participant` (`att_participant_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `att_transaction_ibfk_4` FOREIGN KEY (`att_group_id`) REFERENCES `att_group` (`att_group_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=35120 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_part_sub
+-- Engine: InnoDB
+-- Rows: 21,085
+-- Size: 6.45 MB (Data: 2.52 MB, Index: 3.94 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_part_sub`;
+CREATE TABLE `ast_part_sub` (
+  `part_sub_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `part_id` bigint(20) NOT NULL,
+  `item_id` smallint(6) DEFAULT NULL,
+  `part_sub_no` varchar(50) DEFAULT NULL,
+  `do_no` varchar(30) DEFAULT NULL,
+  `do_item_id` bigint(20) DEFAULT NULL,
+  `wo_task_parts_id` bigint(20) DEFAULT NULL,
+  `wo_task_no` varchar(30) DEFAULT NULL,
+  `wo_task_request_no` varchar(30) DEFAULT NULL,
+  `part_sub_location` varchar(30) DEFAULT NULL,
+  `part_sub_warranty` tinyint(4) DEFAULT NULL,
+  `part_sub_validity` date DEFAULT NULL,
+  `part_sub_cost` decimal(12,2) DEFAULT NULL,
+  `part_sub_registered_by` int(11) DEFAULT NULL,
+  `part_sub_collected_by` int(11) DEFAULT NULL,
+  `part_sub_time_registered` timestamp NOT NULL DEFAULT current_timestamp(),
+  `part_sub_time_reserved` timestamp NULL DEFAULT NULL,
+  `part_sub_time_check_out` timestamp NULL DEFAULT NULL,
+  `part_sub_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`part_sub_id`) USING BTREE,
+  KEY `part_id` (`part_id`) USING BTREE,
+  KEY `item_id` (`item_id`) USING BTREE,
+  KEY `wo_task_parts_id` (`wo_task_parts_id`) USING BTREE,
+  KEY `do_item_id` (`do_item_id`) USING BTREE,
+  CONSTRAINT `ast_part_sub_ibfk_1` FOREIGN KEY (`part_id`) REFERENCES `ast_part` (`part_id`),
+  CONSTRAINT `ast_part_sub_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `ref_item` (`item_id`),
+  CONSTRAINT `ast_part_sub_ibfk_4` FOREIGN KEY (`wo_task_parts_id`) REFERENCES `wo_task_parts` (`wo_task_parts_id`),
+  CONSTRAINT `ast_part_sub_ibfk_5` FOREIGN KEY (`do_item_id`) REFERENCES `do_item` (`do_item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20532 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_task_assist
+-- Engine: InnoDB
+-- Rows: 40,188
+-- Size: 5.55 MB (Data: 2.52 MB, Index: 3.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_task_assist`;
+CREATE TABLE `ppm_task_assist` (
+  `ppm_task_assist_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ppm_task_id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`ppm_task_assist_id`) USING BTREE,
+  KEY `ppm_task_id` (`ppm_task_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  CONSTRAINT `ppm_task_assist_ibfk_1` FOREIGN KEY (`ppm_task_id`) REFERENCES `ppm_task` (`ppm_task_id`),
+  CONSTRAINT `ppm_task_assist_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=40847 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: email_send
+-- Engine: InnoDB
+-- Rows: 3,449
+-- Size: 2.81 MB (Data: 2.52 MB, Index: 0.30 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `email_send`;
+CREATE TABLE `email_send` (
+  `email_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `email_template_id` smallint(6) NOT NULL,
+  `email_address` varchar(50) NOT NULL,
+  `email_title` varchar(150) NOT NULL,
+  `email_html` text NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `email_retry_no` tinyint(4) NOT NULL DEFAULT 0,
+  `email_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email_time_set` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email_attachment` varchar(150) DEFAULT NULL,
+  `email_filename` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`email_id`) USING BTREE,
+  KEY `email_send_template_id` (`email_template_id`) USING BTREE,
+  KEY `email_send_time_set` (`email_time_set`) USING BTREE,
+  KEY `email_send_ibfk_2` (`user_id`) USING BTREE,
+  CONSTRAINT `email_send_ibfk_1` FOREIGN KEY (`email_template_id`) REFERENCES `email_template` (`email_template_id`),
+  CONSTRAINT `email_send_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2103983 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_checklist_qual
+-- Engine: InnoDB
+-- Rows: 12,438
+-- Size: 2.67 MB (Data: 1.52 MB, Index: 1.16 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_checklist_qual`;
+CREATE TABLE `ppm_checklist_qual` (
+  `checklist_qual_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `checklist_qual_desc` text DEFAULT NULL,
+  `checklist_qual_numb` varchar(30) DEFAULT NULL,
+  `frequency_id` tinyint(4) DEFAULT NULL,
+  `checklist_id` int(11) NOT NULL,
+  `checklist_qual_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`checklist_qual_id`) USING BTREE,
+  KEY `checklist_id` (`checklist_id`) USING BTREE,
+  KEY `frequency_id` (`frequency_id`) USING BTREE,
+  KEY `checklist_qual_numb` (`checklist_qual_numb`) USING BTREE,
+  KEY `checklist_qual_status` (`checklist_qual_status`) USING BTREE,
+  CONSTRAINT `ppm_checklist_qual_ibfk_1` FOREIGN KEY (`checklist_id`) REFERENCES `ppm_checklist` (`checklist_id`),
+  CONSTRAINT `ppm_checklist_qual_ibfk_2` FOREIGN KEY (`frequency_id`) REFERENCES `ppm_frequency` (`frequency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19630 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_assist
+-- Engine: InnoDB
+-- Rows: 19,306
+-- Size: 2.28 MB (Data: 1.52 MB, Index: 0.77 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_assist`;
+CREATE TABLE `wo_task_assist` (
+  `wo_task_assist_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`wo_task_assist_id`) USING BTREE,
+  KEY `wo_task_id` (`wo_task_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  CONSTRAINT `wo_task_assist_ibfk_1` FOREIGN KEY (`wo_task_id`) REFERENCES `wo_task` (`wo_task_id`),
+  CONSTRAINT `wo_task_assist_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23889 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_checklist_quan
+-- Engine: InnoDB
+-- Rows: 7,801
+-- Size: 1.97 MB (Data: 1.52 MB, Index: 0.45 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_checklist_quan`;
+CREATE TABLE `ppm_checklist_quan` (
+  `checklist_quan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `checklist_quan_desc` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `checklist_quan_numb` varchar(30) DEFAULT NULL,
+  `checklist_quan_unit` text DEFAULT NULL,
+  `checklist_quan_set_values` varchar(30) DEFAULT NULL,
+  `frequency_id` tinyint(4) DEFAULT NULL,
+  `checklist_id` int(11) NOT NULL,
+  `checklist_quan_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`checklist_quan_id`) USING BTREE,
+  KEY `checklist_id` (`checklist_id`) USING BTREE,
+  KEY `frequency_id` (`frequency_id`) USING BTREE,
+  KEY `checklist_quan_numb` (`checklist_quan_numb`) USING BTREE,
+  CONSTRAINT `ppm_checklist_quan_ibfk_1` FOREIGN KEY (`checklist_id`) REFERENCES `ppm_checklist` (`checklist_id`),
+  CONSTRAINT `ppm_checklist_quan_ibfk_2` FOREIGN KEY (`frequency_id`) REFERENCES `ppm_frequency` (`frequency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=68939 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_checklist
+-- Engine: InnoDB
+-- Rows: 1,568
+-- Size: 1.70 MB (Data: 1.52 MB, Index: 0.19 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_checklist`;
+CREATE TABLE `ppm_checklist` (
+  `checklist_id` int(11) NOT NULL AUTO_INCREMENT,
+  `checklist_type` tinyint(1) NOT NULL DEFAULT 1,
+  `checklist_name` varchar(255) DEFAULT NULL,
+  `checklist_document_no` varchar(30) DEFAULT NULL,
+  `checklist_issue_no` varchar(10) DEFAULT NULL,
+  `checklist_desc` varchar(255) DEFAULT NULL,
+  `checklist_guideline` text DEFAULT NULL,
+  `asset_type_id` smallint(6) DEFAULT NULL,
+  `pdf_id` bigint(20) DEFAULT NULL,
+  `checklist_min_exec_time` time DEFAULT NULL,
+  `checklist_max_exec_time` time DEFAULT NULL,
+  `checklist_max_assistant` tinyint(4) DEFAULT NULL,
+  `checklist_time_registered` timestamp NULL DEFAULT NULL,
+  `checklist_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `checklist_registered_by` int(11) DEFAULT NULL,
+  `checklist_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`checklist_id`) USING BTREE,
+  KEY `asset_type_id` (`asset_type_id`) USING BTREE,
+  KEY `checklist_status` (`checklist_status`) USING BTREE,
+  KEY `checklist_registered_by` (`checklist_registered_by`) USING BTREE,
+  KEY `pdf_id` (`pdf_id`) USING BTREE,
+  CONSTRAINT `ppm_checklist_ibfk_3` FOREIGN KEY (`asset_type_id`) REFERENCES `ast_asset_type` (`asset_type_id`),
+  CONSTRAINT `ppm_checklist_ibfk_6` FOREIGN KEY (`checklist_registered_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `ppm_checklist_ibfk_7` FOREIGN KEY (`pdf_id`) REFERENCES `sys_pdf` (`pdf_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1767 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: noti_send
+-- Engine: InnoDB
+-- Rows: 2,997
+-- Size: 1.61 MB (Data: 1.52 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `noti_send`;
+CREATE TABLE `noti_send` (
+  `noti_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `noti_text_id` smallint(6) DEFAULT NULL,
+  `noti_to` text NOT NULL,
+  `noti_title` varchar(255) NOT NULL,
+  `noti_html` text NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `noti_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`noti_id`) USING BTREE,
+  KEY `noti_text_id` (`noti_text_id`) USING BTREE,
+  CONSTRAINT `noti_send_ibfk_1` FOREIGN KEY (`noti_text_id`) REFERENCES `noti_text` (`noti_text_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1385841 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_audit
+-- Engine: InnoDB
+-- Rows: 5,324
+-- Size: 0.81 MB (Data: 0.50 MB, Index: 0.31 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_audit`;
+CREATE TABLE `sys_audit` (
+  `audit_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `audit_ip` varchar(25) DEFAULT NULL,
+  `audit_place` varchar(100) DEFAULT NULL,
+  `audit_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `audit_action_id` smallint(6) NOT NULL,
+  `audit_remark` text DEFAULT NULL,
+  PRIMARY KEY (`audit_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `audit_action_id` (`audit_action_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6740 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_checkpoint_user
+-- Engine: InnoDB
+-- Rows: 6,012
+-- Size: 0.70 MB (Data: 0.25 MB, Index: 0.45 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_checkpoint_user`;
+CREATE TABLE `wfl_checkpoint_user` (
+  `checkpoint_user_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `checkpoint_id` smallint(6) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  PRIMARY KEY (`checkpoint_user_id`) USING BTREE,
+  KEY `checkpoint_id` (`checkpoint_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  CONSTRAINT `wfl_checkpoint_user_ibfk_1` FOREIGN KEY (`checkpoint_id`) REFERENCES `wfl_checkpoint` (`checkpoint_id`),
+  CONSTRAINT `wfl_checkpoint_user_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_checkpoint_user_ibfk_3` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`),
+  CONSTRAINT `wfl_checkpoint_user_ibfk_4` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8504 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_user
+-- Engine: InnoDB
+-- Rows: 1,283
+-- Size: 0.69 MB (Data: 0.38 MB, Index: 0.31 MB)
+-- Comment: System user
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(100) NOT NULL,
+  `user_password` varchar(100) NOT NULL,
+  `user_password_temp` varchar(100) DEFAULT NULL,
+  `user_type` tinyint(3) NOT NULL DEFAULT 1,
+  `user_activation_key` varchar(30) DEFAULT NULL,
+  `user_first_name` varchar(255) DEFAULT NULL,
+  `user_last_name` varchar(100) DEFAULT NULL,
+  `user_mykad_no` varchar(20) DEFAULT NULL,
+  `user_passport_no` varchar(20) DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `user_device_id` varchar(50) DEFAULT NULL,
+  `upload_id` bigint(20) DEFAULT NULL,
+  `user_fail_attempt` tinyint(1) DEFAULT 0,
+  `user_time_created` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_time_activate` timestamp NULL DEFAULT NULL,
+  `user_time_login` timestamp NULL DEFAULT NULL,
+  `user_time_block` timestamp NULL DEFAULT NULL,
+  `user_token` varchar(255) DEFAULT NULL,
+  `user_signature` bigint(20) DEFAULT NULL,
+  `user_status` tinyint(4) NOT NULL DEFAULT 3,
+  PRIMARY KEY (`user_id`) USING BTREE,
+  UNIQUE KEY `user_name` (`user_name`) USING BTREE,
+  KEY `user_status` (`user_status`) USING BTREE,
+  KEY `user_type` (`user_type`) USING BTREE,
+  KEY `user_password` (`user_password`) USING BTREE,
+  KEY `upload_id` (`upload_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `user_signature` (`user_signature`) USING BTREE,
+  KEY `idx_user_name` (`user_name`),
+  CONSTRAINT `sys_user_ibfk_1` FOREIGN KEY (`user_status`) REFERENCES `ref_status` (`status_id`),
+  CONSTRAINT `sys_user_ibfk_2` FOREIGN KEY (`upload_id`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `sys_user_ibfk_3` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `sys_user_ibfk_4` FOREIGN KEY (`user_signature`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1365 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='System user';
+
+-- ----------------------------------------------------------------------
+-- Table: utl_utility
+-- Engine: InnoDB
+-- Rows: 4,820
+-- Size: 0.67 MB (Data: 0.34 MB, Index: 0.33 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `utl_utility`;
+CREATE TABLE `utl_utility` (
+  `utility_id` int(11) NOT NULL AUTO_INCREMENT,
+  `utility_date` date DEFAULT NULL,
+  `utility_type` enum('Water','Electricity') DEFAULT NULL,
+  `utility_reading_type` enum('Daily','Monthly') DEFAULT NULL,
+  `utility_shift` enum('Night','Evening','Morning') DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `meter_id` smallint(6) DEFAULT NULL,
+  `utility_opening` decimal(12,3) DEFAULT NULL,
+  `utility_reading` double(12,3) DEFAULT NULL,
+  `utility_total` decimal(12,3) DEFAULT NULL,
+  `utility_unit` varchar(10) DEFAULT NULL,
+  `utility_max_demand` double(12,3) DEFAULT NULL,
+  `utility_total_rm` double(12,2) DEFAULT NULL,
+  `utility_image` bigint(20) DEFAULT NULL,
+  `utility_recorded_by` int(11) DEFAULT NULL,
+  `utility_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`utility_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `meter_id` (`meter_id`) USING BTREE,
+  KEY `utility_recorded_by` (`utility_recorded_by`) USING BTREE,
+  KEY `utility_image` (`utility_image`) USING BTREE,
+  CONSTRAINT `utl_utility_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `utl_utility_ibfk_2` FOREIGN KEY (`meter_id`) REFERENCES `utl_meter` (`meter_id`),
+  CONSTRAINT `utl_utility_ibfk_3` FOREIGN KEY (`utility_recorded_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `utl_utility_ibfk_4` FOREIGN KEY (`utility_image`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5386 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_user_role
+-- Engine: InnoDB
+-- Rows: 3,942
+-- Size: 0.42 MB (Data: 0.17 MB, Index: 0.25 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_user_role` (
+  `user_role_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  `user_role_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`user_role_id`) USING BTREE,
+  KEY `sys_user_role_sys_user_user_id_fk` (`user_id`) USING BTREE,
+  KEY `sys_user_role_ref_role_role_id_fk` (`role_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  CONSTRAINT `sys_user_role_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `sys_user_role_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `sys_user_role_ibfk_3` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5270 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: gmi_monthly
+-- Engine: InnoDB
+-- Rows: 2,242
+-- Size: 0.42 MB (Data: 0.30 MB, Index: 0.13 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gmi_monthly`;
+CREATE TABLE `gmi_monthly` (
+  `gmi_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `gmi_year` smallint(6) DEFAULT NULL,
+  `gmi_month` tinyint(4) DEFAULT NULL,
+  `gmi_ppm_tier_name` varchar(20) DEFAULT NULL,
+  `gmi_ppm_tier_point` decimal(3,1) DEFAULT NULL,
+  `gmi_ppm_total` smallint(6) DEFAULT NULL,
+  `gmi_ppm_completed` smallint(6) DEFAULT NULL,
+  `gmi_ppm_on_time` smallint(6) DEFAULT NULL,
+  `gmi_ppm_late` smallint(6) DEFAULT NULL,
+  `gmi_ppm_within` smallint(6) DEFAULT NULL,
+  `gmi_ppm_rework` smallint(6) DEFAULT NULL,
+  `gmi_ppm_assist` smallint(6) DEFAULT NULL,
+  `gmi_wo_tier_name` varchar(20) DEFAULT NULL,
+  `gmi_wo_tier_point` decimal(3,1) DEFAULT NULL,
+  `gmi_wo_total` smallint(6) DEFAULT NULL,
+  `gmi_wo_completed` smallint(6) DEFAULT NULL,
+  `gmi_wo_on_time` smallint(6) DEFAULT NULL,
+  `gmi_wo_late` smallint(6) DEFAULT NULL,
+  `gmi_wo_rework` smallint(6) DEFAULT NULL,
+  `gmi_wo_self_finding` smallint(6) DEFAULT NULL,
+  `gmi_wo_assist` smallint(6) DEFAULT NULL,
+  `gmi_mbv` smallint(6) DEFAULT NULL,
+  `gmi_tier_point` tinyint(1) DEFAULT NULL,
+  `gmi_point_completed` int(11) DEFAULT NULL,
+  `gmi_point_on_time` int(11) DEFAULT NULL,
+  `gmi_point_late` int(11) DEFAULT NULL,
+  `gmi_point_rework` int(11) DEFAULT NULL,
+  `gmi_point_self_finding` int(11) DEFAULT NULL,
+  `gmi_point_total` int(11) DEFAULT NULL,
+  `gmi_productivity_level` decimal(6,2) DEFAULT NULL,
+  `gmi_productivity_deduction` decimal(6,2) DEFAULT NULL,
+  `gmi_point_less_productive` int(11) DEFAULT NULL,
+  `gmi_point_before_minus` int(11) DEFAULT NULL,
+  `gmi_point_after_minus` int(11) DEFAULT NULL,
+  PRIMARY KEY (`gmi_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `gmi_monthly_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `gmi_monthly_ibfk_2` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2312 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_request
+-- Engine: InnoDB
+-- Rows: 1,261
+-- Size: 0.39 MB (Data: 0.16 MB, Index: 0.23 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_request`;
+CREATE TABLE `wo_task_request` (
+  `wo_task_request_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_id` bigint(20) DEFAULT NULL,
+  `transaction_id` bigint(20) DEFAULT NULL,
+  `wo_task_request_no` varchar(30) DEFAULT NULL,
+  `wo_task_no` varchar(30) DEFAULT NULL,
+  `store_id` smallint(6) DEFAULT NULL,
+  `wo_task_request_severity` tinyint(1) DEFAULT NULL,
+  `wo_task_request_remark` text DEFAULT NULL,
+  `wo_task_request_order_by` int(11) DEFAULT NULL,
+  `wo_task_request_is_standalone` tinyint(1) NOT NULL DEFAULT 0,
+  `wo_task_request_mrf_generate` tinyint(1) NOT NULL DEFAULT 1,
+  `wo_task_request_mrf_pdf` bigint(20) DEFAULT NULL,
+  `wo_task_request_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `wo_task_request_time_ordered` timestamp NULL DEFAULT NULL,
+  `wo_task_request_time_collected` timestamp NULL DEFAULT NULL,
+  `wo_task_request_time_rejected` timestamp NULL DEFAULT NULL,
+  `wo_task_request_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`wo_task_request_id`) USING BTREE,
+  KEY `wo_task_id` (`wo_task_id`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `wo_task_request_mrf_pdf` (`wo_task_request_mrf_pdf`) USING BTREE,
+  KEY `wo_task_request_severity` (`wo_task_request_severity`) USING BTREE,
+  KEY `store_id` (`store_id`) USING BTREE,
+  CONSTRAINT `wo_task_request_ibfk_1` FOREIGN KEY (`wo_task_id`) REFERENCES `wo_task` (`wo_task_id`),
+  CONSTRAINT `wo_task_request_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `wo_task_request_ibfk_3` FOREIGN KEY (`wo_task_request_mrf_pdf`) REFERENCES `sys_pdf` (`pdf_id`),
+  CONSTRAINT `wo_task_request_ibfk_4` FOREIGN KEY (`wo_task_request_severity`) REFERENCES `ref_severity` (`severity_id`),
+  CONSTRAINT `wo_task_request_ibfk_5` FOREIGN KEY (`store_id`) REFERENCES `cli_store` (`store_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1316 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_user_profile
+-- Engine: InnoDB
+-- Rows: 1,300
+-- Size: 0.34 MB (Data: 0.11 MB, Index: 0.23 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_user_profile`;
+CREATE TABLE `sys_user_profile` (
+  `user_profile_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `address_id` bigint(20) DEFAULT NULL,
+  `user_contact_no` varchar(15) DEFAULT NULL,
+  `user_email` varchar(100) DEFAULT NULL,
+  `department_id` tinyint(4) DEFAULT NULL,
+  `designation_id` tinyint(4) DEFAULT NULL,
+  `user_profile_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`user_profile_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `address_id` (`address_id`) USING BTREE,
+  KEY `user_profile_status` (`user_profile_status`) USING BTREE,
+  KEY `department_id` (`department_id`) USING BTREE,
+  KEY `designation_id` (`designation_id`) USING BTREE,
+  CONSTRAINT `sys_user_profile_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `sys_user_profile_ibfk_2` FOREIGN KEY (`address_id`) REFERENCES `sys_address` (`address_id`),
+  CONSTRAINT `sys_user_profile_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `ref_department` (`department_id`),
+  CONSTRAINT `sys_user_profile_ibfk_4` FOREIGN KEY (`designation_id`) REFERENCES `ref_designation` (`designation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1348 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: noti_web
+-- Engine: InnoDB
+-- Rows: 1,632
+-- Size: 0.27 MB (Data: 0.27 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `noti_web`;
+CREATE TABLE `noti_web` (
+  `noti_web_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `noti_web_type` tinyint(4) NOT NULL COMMENT '1=WO assign\n2=WO verify',
+  `user_id` int(11) NOT NULL,
+  `noti_web_title` varchar(30) NOT NULL,
+  `noti_web_text` varchar(255) NOT NULL,
+  `noti_web_icon` varchar(30) NOT NULL,
+  `noti_web_color` varchar(30) NOT NULL,
+  `noti_web_link` varchar(100) DEFAULT NULL,
+  `nav_id` tinyint(4) DEFAULT NULL,
+  `nav_second_id` tinyint(4) DEFAULT NULL,
+  `noti_web_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`noti_web_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3511 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_site_manual
+-- Engine: InnoDB
+-- Rows: 2,364
+-- Size: 0.25 MB (Data: 0.20 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_site_manual`;
+CREATE TABLE `cli_site_manual` (
+  `site_manual_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `site_manual_date` date NOT NULL,
+  `site_manual_open0` int(11) NOT NULL DEFAULT 0,
+  `site_manual_open1` int(11) NOT NULL DEFAULT 0,
+  `site_manual_open2` int(11) NOT NULL DEFAULT 0,
+  `site_manual_open3` int(11) NOT NULL DEFAULT 0,
+  `site_manual_open4` int(11) NOT NULL DEFAULT 0,
+  `site_manual_open5` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed0` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed1` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed2` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed3` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed4` int(11) NOT NULL DEFAULT 0,
+  `site_manual_closed5` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`site_manual_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `cli_site_manual_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2365 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_import_log
+-- Engine: InnoDB
+-- Rows: 203
+-- Size: 0.25 MB (Data: 0.20 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_import_log`;
+CREATE TABLE `wo_import_log` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `batch_id` int(11) NOT NULL,
+  `import_row_number` int(11) NOT NULL,
+  `import_status` enum('SUCCESS','SKIPPED','FAILED','ERROR') NOT NULL,
+  `error_message` text DEFAULT NULL,
+  `row_data` text DEFAULT NULL COMMENT 'JSON data of the imported row',
+  `wo_task_id` int(11) DEFAULT NULL COMMENT 'Created work order ID if successful',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `idx_batch_id` (`batch_id`),
+  KEY `idx_import_status` (`import_status`),
+  KEY `idx_wo_task_id` (`wo_task_id`),
+  CONSTRAINT `wo_import_log_ibfk_1` FOREIGN KEY (`batch_id`) REFERENCES `wo_import_batch` (`batch_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=204 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_task
+-- Engine: InnoDB
+-- Rows: 200
+-- Size: 0.23 MB (Data: 0.06 MB, Index: 0.17 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_task`;
+CREATE TABLE `fca_task` (
+  `fca_task_id` int(11) NOT NULL AUTO_INCREMENT,
+  `fca_task_no` varchar(30) DEFAULT NULL,
+  `transaction_id` bigint(20) NOT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `fca_zone_id` smallint(6) DEFAULT NULL,
+  `fca_task_area` varchar(100) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `fca_task_asset_no` varchar(50) DEFAULT NULL,
+  `fca_task_asset_evaluated` varchar(100) DEFAULT NULL,
+  `fca_task_defect_item` varchar(100) DEFAULT NULL,
+  `fca_defect_category_id` smallint(6) DEFAULT NULL,
+  `fca_task_condition_scale` tinyint(1) DEFAULT NULL,
+  `fca_task_evaluation_type` tinyint(1) DEFAULT NULL,
+  `fca_task_image_1` bigint(20) DEFAULT NULL,
+  `fca_task_image_2` bigint(20) DEFAULT NULL,
+  `fca_task_image_rectify_1` bigint(20) DEFAULT NULL,
+  `fca_task_image_rectify_2` bigint(20) DEFAULT NULL,
+  `fca_task_observation` text DEFAULT NULL,
+  `fca_task_recommendation` text DEFAULT NULL,
+  `fca_task_validation` text DEFAULT NULL,
+  `fca_task_exclude_report` tinyint(1) NOT NULL DEFAULT 0,
+  `fca_task_removed` tinyint(1) NOT NULL DEFAULT 0,
+  `fca_task_created_by` int(11) DEFAULT NULL,
+  `fca_task_recommend_by` int(11) DEFAULT NULL,
+  `fca_task_validate_by` int(11) DEFAULT NULL,
+  `fca_task_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fca_task_time_recommended` timestamp NULL DEFAULT NULL,
+  `fca_task_time_validated` timestamp NULL DEFAULT NULL,
+  `fca_task_time_completed` timestamp NULL DEFAULT NULL,
+  `fca_task_status` tinyint(4) NOT NULL DEFAULT 5,
+  PRIMARY KEY (`fca_task_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `fca_defect_category_id` (`fca_defect_category_id`) USING BTREE,
+  KEY `fca_task_image_1` (`fca_task_image_1`) USING BTREE,
+  KEY `fca_task_image_2` (`fca_task_image_2`) USING BTREE,
+  KEY `fca_zone_id` (`fca_zone_id`) USING BTREE,
+  KEY `fca_task_image_rectify_1` (`fca_task_image_rectify_1`) USING BTREE,
+  KEY `fca_task_image_rectify_2` (`fca_task_image_rectify_2`) USING BTREE,
+  KEY `fca_task_removed` (`fca_task_removed`) USING BTREE,
+  KEY `fca_task_exclude_report` (`fca_task_exclude_report`) USING BTREE,
+  CONSTRAINT `fca_task_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `fca_task_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `fca_task_ibfk_3` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`),
+  CONSTRAINT `fca_task_ibfk_4` FOREIGN KEY (`fca_defect_category_id`) REFERENCES `fca_defect_category` (`fca_defect_category_id`),
+  CONSTRAINT `fca_task_ibfk_5` FOREIGN KEY (`fca_task_image_1`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `fca_task_ibfk_6` FOREIGN KEY (`fca_task_image_2`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `fca_task_ibfk_7` FOREIGN KEY (`fca_zone_id`) REFERENCES `fca_zone` (`fca_zone_id`),
+  CONSTRAINT `fca_task_ibfk_8` FOREIGN KEY (`fca_task_image_rectify_1`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `fca_task_ibfk_9` FOREIGN KEY (`fca_task_image_rectify_2`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=210 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_parts
+-- Engine: InnoDB
+-- Rows: 1,574
+-- Size: 0.23 MB (Data: 0.11 MB, Index: 0.13 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_parts`;
+CREATE TABLE `wo_task_parts` (
+  `wo_task_parts_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_request_id` bigint(20) DEFAULT NULL,
+  `part_id` bigint(20) DEFAULT NULL,
+  `wo_task_parts_quantity` int(11) DEFAULT NULL,
+  `wo_task_parts_remark` text DEFAULT NULL,
+  `wo_task_parts_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`wo_task_parts_id`) USING BTREE,
+  KEY `part_id` (`part_id`) USING BTREE,
+  KEY `wo_task_request_id` (`wo_task_request_id`) USING BTREE,
+  CONSTRAINT `wo_task_parts_ibfk_2` FOREIGN KEY (`part_id`) REFERENCES `ast_part` (`part_id`),
+  CONSTRAINT `wo_task_parts_ibfk_3` FOREIGN KEY (`wo_task_request_id`) REFERENCES `wo_task_request` (`wo_task_request_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1637 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_group_user
+-- Engine: InnoDB
+-- Rows: 2,220
+-- Size: 0.19 MB (Data: 0.09 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_group_user`;
+CREATE TABLE `ppm_group_user` (
+  `ppm_group_user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ppm_group_id` smallint(6) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`ppm_group_user_id`) USING BTREE,
+  KEY `ppm_group_id` (`ppm_group_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  CONSTRAINT `ppm_group_user_ibfk_1` FOREIGN KEY (`ppm_group_id`) REFERENCES `ppm_group` (`ppm_group_id`),
+  CONSTRAINT `ppm_group_user_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4627 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: drawing
+-- Engine: InnoDB
+-- Rows: 459
+-- Size: 0.19 MB (Data: 0.09 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `drawing`;
+CREATE TABLE `drawing` (
+  `drawing_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `drawing_title` varchar(250) DEFAULT NULL,
+  `drawing_id_no` varchar(30) DEFAULT NULL,
+  `drawing_version` varchar(10) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `drawing_block` varchar(100) DEFAULT NULL,
+  `drawing_level` varchar(20) DEFAULT NULL,
+  `drawing_permission_level` tinyint(1) DEFAULT NULL,
+  `drawing_published_by` varchar(150) DEFAULT NULL,
+  `drawing_published_date` date DEFAULT NULL,
+  `drawing_dwg` bigint(20) DEFAULT NULL,
+  `drawing_pdf` bigint(20) DEFAULT NULL,
+  `drawing_remark` text DEFAULT NULL,
+  `drawing_created_by` int(11) DEFAULT NULL,
+  `drawing_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `drawing_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`drawing_id`) USING BTREE,
+  KEY `drawing_published_by` (`drawing_published_by`) USING BTREE,
+  KEY `drawing_dwg` (`drawing_dwg`) USING BTREE,
+  KEY `drawing_pdf` (`drawing_pdf`) USING BTREE,
+  KEY `drawing_created_by` (`drawing_created_by`) USING BTREE,
+  KEY `drawing_status` (`drawing_status`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  CONSTRAINT `drawing_ibfk_2` FOREIGN KEY (`drawing_dwg`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `drawing_ibfk_3` FOREIGN KEY (`drawing_pdf`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `drawing_ibfk_4` FOREIGN KEY (`drawing_created_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `drawing_ibfk_5` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=461 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: gmi_config
+-- Engine: InnoDB
+-- Rows: 568
+-- Size: 0.17 MB (Data: 0.08 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gmi_config`;
+CREATE TABLE `gmi_config` (
+  `config_id` int(11) NOT NULL AUTO_INCREMENT,
+  `config_key` varchar(100) NOT NULL,
+  `config_value` varchar(255) DEFAULT NULL,
+  `data_type` varchar(20) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `last_updated_by` int(11) DEFAULT NULL,
+  `last_updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`config_id`),
+  UNIQUE KEY `config_key` (`config_key`),
+  UNIQUE KEY `idx_config_key_unique` (`config_key`)
+) ENGINE=InnoDB AUTO_INCREMENT=597 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_request_2
+-- Engine: InnoDB
+-- Rows: 1,242
+-- Size: 0.17 MB (Data: 0.13 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_request_2`;
+CREATE TABLE `wo_task_request_2` (
+  `wo_task_request_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_id` bigint(20) DEFAULT NULL,
+  `transaction_id` bigint(20) DEFAULT NULL,
+  `wo_task_request_no` varchar(30) DEFAULT NULL,
+  `wo_task_request_remark` text DEFAULT NULL,
+  `wo_task_request_order_by` int(11) DEFAULT NULL,
+  `wo_task_request_mrf_generate` tinyint(1) NOT NULL DEFAULT 1,
+  `wo_task_request_mrf_pdf` bigint(20) DEFAULT NULL,
+  `wo_task_request_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `wo_task_request_time_ordered` timestamp NULL DEFAULT NULL,
+  `wo_task_request_time_collected` timestamp NULL DEFAULT NULL,
+  `wo_task_request_time_rejected` timestamp NULL DEFAULT NULL,
+  `wo_task_request_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`wo_task_request_id`) USING BTREE,
+  KEY `wo_task_id` (`wo_task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1273 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_user_group
+-- Engine: InnoDB
+-- Rows: 1,306
+-- Size: 0.16 MB (Data: 0.06 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_user_group`;
+CREATE TABLE `sys_user_group` (
+  `user_group_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  PRIMARY KEY (`user_group_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  CONSTRAINT `sys_user_group_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `sys_user_group_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1348 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_part
+-- Engine: InnoDB
+-- Rows: 650
+-- Size: 0.16 MB (Data: 0.06 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_part`;
+CREATE TABLE `ast_part` (
+  `part_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) DEFAULT NULL,
+  `store_id` smallint(6) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `item_type_id` smallint(6) DEFAULT NULL,
+  `item_id` smallint(6) DEFAULT NULL,
+  `part_count` smallint(6) DEFAULT NULL,
+  `part_locked` smallint(6) DEFAULT NULL,
+  `part_threshold` smallint(6) DEFAULT NULL,
+  `part_min_order` smallint(6) DEFAULT NULL,
+  `part_max_order` smallint(6) DEFAULT NULL,
+  `part_remark` text DEFAULT NULL,
+  `part_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`part_id`) USING BTREE,
+  KEY `part_status` (`part_status`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `store_id` (`store_id`) USING BTREE,
+  KEY `item_id` (`item_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `item_type_id` (`item_type_id`) USING BTREE,
+  CONSTRAINT `ast_part_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `ast_part_ibfk_2` FOREIGN KEY (`store_id`) REFERENCES `cli_store` (`store_id`),
+  CONSTRAINT `ast_part_ibfk_3` FOREIGN KEY (`item_id`) REFERENCES `ref_item` (`item_id`),
+  CONSTRAINT `ast_part_ibfk_4` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`),
+  CONSTRAINT `ast_part_ibfk_5` FOREIGN KEY (`item_type_id`) REFERENCES `ref_item_type` (`item_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=656 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: att_group
+-- Engine: InnoDB
+-- Rows: 78
+-- Size: 0.13 MB (Data: 0.05 MB, Index: 0.08 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `att_group`;
+CREATE TABLE `att_group` (
+  `att_group_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `att_group_name` varchar(150) NOT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `att_group_supervisor` int(11) DEFAULT NULL,
+  `att_group_polygon` polygon DEFAULT NULL,
+  `att_group_map_center` point DEFAULT NULL,
+  `att_group_map_zoom` tinyint(4) DEFAULT NULL,
+  `att_group_normal_start` time DEFAULT NULL,
+  `att_group_normal_end` time DEFAULT NULL,
+  `att_group_am_start` time DEFAULT NULL,
+  `att_group_am_end` time DEFAULT NULL,
+  `att_group_pm_start` time DEFAULT NULL,
+  `att_group_pm_end` time DEFAULT NULL,
+  `att_group_morning_start` time DEFAULT NULL,
+  `att_group_morning_end` time DEFAULT NULL,
+  `att_group_evening_start` time DEFAULT NULL,
+  `att_group_evening_end` time DEFAULT NULL,
+  `att_group_night_start` time DEFAULT NULL,
+  `att_group_night_end` time DEFAULT NULL,
+  `att_group_holiday` enum('Saturday & Sunday','Sunday') DEFAULT NULL,
+  `att_group_req_week_hours` smallint(6) DEFAULT NULL,
+  `att_group_shift_mode` enum('Normal','2 Shifts','3 Shifts') DEFAULT NULL,
+  `att_group_ot_approver` int(11) DEFAULT NULL,
+  `att_group_remark` text DEFAULT NULL,
+  `att_group_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `att_group_time_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `att_group_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`att_group_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `att_group_supervisor` (`att_group_supervisor`) USING BTREE,
+  KEY `att_group_ot_approver` (`att_group_ot_approver`) USING BTREE,
+  KEY `att_group_status` (`att_group_status`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  CONSTRAINT `att_group_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `att_group_ibfk_2` FOREIGN KEY (`att_group_supervisor`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `att_group_ibfk_3` FOREIGN KEY (`att_group_ot_approver`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `att_group_ibfk_4` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset_model
+-- Engine: InnoDB
+-- Rows: 1,099
+-- Size: 0.13 MB (Data: 0.08 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset_model`;
+CREATE TABLE `ast_asset_model` (
+  `asset_model_id` mediumint(9) NOT NULL AUTO_INCREMENT,
+  `asset_model_name` varchar(150) NOT NULL,
+  `asset_model_desc` varchar(255) DEFAULT NULL,
+  `asset_brand_id` smallint(6) NOT NULL,
+  `asset_type_id` smallint(6) NOT NULL,
+  `asset_model_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `asset_model_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`asset_model_id`) USING BTREE,
+  KEY `asset_brand_id` (`asset_brand_id`) USING BTREE,
+  KEY `asset_model_status` (`asset_model_status`) USING BTREE,
+  KEY `asset_type_id` (`asset_type_id`) USING BTREE,
+  CONSTRAINT `ast_asset_model_ibfk_1` FOREIGN KEY (`asset_brand_id`) REFERENCES `ast_asset_brand` (`asset_brand_id`),
+  CONSTRAINT `ast_asset_model_ibfk_2` FOREIGN KEY (`asset_type_id`) REFERENCES `ast_asset_type` (`asset_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1109 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_migration
+-- Engine: InnoDB
+-- Rows: 495
+-- Size: 0.11 MB (Data: 0.11 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_migration`;
+CREATE TABLE `wo_migration` (
+  `wo_task_id` bigint(20) DEFAULT NULL,
+  `wo_task_no` varchar(255) DEFAULT NULL,
+  `wo_task_type` tinyint(1) DEFAULT NULL,
+  `wo_task_type_init` tinyint(1) DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `wo_task_location` varchar(255) DEFAULT NULL,
+  `wo_task_complaint` text DEFAULT NULL,
+  `wo_task_longitude` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `wo_task_latitude` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `wo_task_assigned_to` int(11) DEFAULT NULL,
+  `ppm_group_id` smallint(6) DEFAULT NULL,
+  `wo_task_severity` tinyint(1) DEFAULT NULL,
+  `wo_task_repair_desc` text DEFAULT NULL,
+  `wo_task_rate` tinyint(1) DEFAULT NULL,
+  `transaction_id` bigint(20) DEFAULT NULL,
+  `pdf_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `wo_task_created_by` int(11) DEFAULT NULL,
+  `wo_task_assigned_by` int(11) DEFAULT NULL,
+  `wo_task_fixed_by` int(11) DEFAULT NULL,
+  `wo_task_verified_by` int(11) DEFAULT NULL,
+  `wo_task_time_created` timestamp NULL DEFAULT NULL,
+  `wo_task_time_responded` timestamp NULL DEFAULT NULL,
+  `wo_task_time_assigned` timestamp NULL DEFAULT NULL,
+  `wo_task_time_executed` timestamp NULL DEFAULT NULL,
+  `wo_task_time_verified` timestamp NULL DEFAULT NULL,
+  `wo_task_status` tinyint(4) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_group
+-- Engine: InnoDB
+-- Rows: 553
+-- Size: 0.11 MB (Data: 0.05 MB, Index: 0.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_group`;
+CREATE TABLE `ppm_group` (
+  `ppm_group_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `ppm_group_name` varchar(150) NOT NULL,
+  `site_id` smallint(6) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `ppm_group_report_to` smallint(6) DEFAULT NULL,
+  `ppm_group_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`ppm_group_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `ppm_group_status` (`ppm_group_status`) USING BTREE,
+  KEY `ppm_report_to` (`ppm_group_report_to`) USING BTREE,
+  CONSTRAINT `ppm_group_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `ppm_group_ibfk_2` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `ppm_group_ibfk_3` FOREIGN KEY (`ppm_group_report_to`) REFERENCES `ppm_group` (`ppm_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=622 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: pr
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.11 MB (Data: 0.02 MB, Index: 0.09 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pr`;
+CREATE TABLE `pr` (
+  `pr_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `pr_request_no` varchar(30) DEFAULT NULL,
+  `pr_quotation_no` varchar(30) DEFAULT NULL,
+  `pr_quotation_upload` bigint(20) DEFAULT NULL,
+  `pr_po_no` varchar(30) DEFAULT NULL,
+  `po_po_upload` bigint(20) DEFAULT NULL,
+  `supplier_id` smallint(6) DEFAULT NULL,
+  `pr_other_cost` decimal(10,2) DEFAULT NULL,
+  `pr_total_cost` decimal(10,2) DEFAULT NULL,
+  `pr_requested_by` int(11) DEFAULT NULL,
+  `pr_prepared_by` int(11) DEFAULT NULL,
+  `pr_approved_by` int(11) DEFAULT NULL,
+  `pr_sap_by` int(11) DEFAULT NULL,
+  `pr_po_by` int(11) DEFAULT NULL,
+  `pr_time_requested` timestamp NULL DEFAULT NULL,
+  `pr_time_submit` timestamp NULL DEFAULT NULL,
+  `pr_time_approved` timestamp NULL DEFAULT NULL,
+  `pr_time_stocked` timestamp NULL DEFAULT NULL,
+  `pr_time_sap` timestamp NULL DEFAULT NULL,
+  `pr_time_po` timestamp NULL DEFAULT NULL,
+  `pr_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`pr_id`) USING BTREE,
+  KEY `supplier_id` (`supplier_id`) USING BTREE,
+  KEY `pr_request_by` (`pr_requested_by`) USING BTREE,
+  KEY `transaction_id` (`transaction_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `pr_quotation_upload` (`pr_quotation_upload`) USING BTREE,
+  KEY `po_po_upload` (`po_po_upload`) USING BTREE,
+  CONSTRAINT `pr_ibfk_1` FOREIGN KEY (`supplier_id`) REFERENCES `pr_supplier` (`supplier_id`),
+  CONSTRAINT `pr_ibfk_2` FOREIGN KEY (`pr_requested_by`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `pr_ibfk_3` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`),
+  CONSTRAINT `pr_ibfk_4` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `pr_ibfk_5` FOREIGN KEY (`pr_quotation_upload`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `pr_ibfk_6` FOREIGN KEY (`po_po_upload`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset_type
+-- Engine: InnoDB
+-- Rows: 912
+-- Size: 0.11 MB (Data: 0.08 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset_type`;
+CREATE TABLE `ast_asset_type` (
+  `asset_type_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_type_name` varchar(255) NOT NULL,
+  `asset_type_desc` varchar(255) DEFAULT NULL,
+  `asset_type_speacial` tinyint(1) DEFAULT NULL,
+  `asset_category_id` smallint(6) NOT NULL,
+  `asset_type_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `asset_type_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`asset_type_id`) USING BTREE,
+  KEY `asset_category_id` (`asset_category_id`) USING BTREE,
+  KEY `asset_type_status` (`asset_type_status`) USING BTREE,
+  CONSTRAINT `ast_asset_type_ibfk_1` FOREIGN KEY (`asset_category_id`) REFERENCES `ast_asset_category` (`asset_category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1637 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: do
+-- Engine: InnoDB
+-- Rows: 316
+-- Size: 0.09 MB (Data: 0.05 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `do`;
+CREATE TABLE `do` (
+  `do_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pr_id` int(11) DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `do_no` varchar(30) DEFAULT NULL,
+  `do_type` enum('Partial','Normal') DEFAULT NULL,
+  `do_upload` bigint(20) DEFAULT NULL,
+  `do_date` date DEFAULT NULL,
+  `supplier_id` smallint(6) DEFAULT NULL,
+  `supplier_name` varchar(200) DEFAULT NULL,
+  `do_created_by` int(11) DEFAULT NULL,
+  `do_received_by` int(11) DEFAULT NULL,
+  `do_timestamp` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `do_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`do_id`) USING BTREE,
+  KEY `pr_do_ibfk_1` (`pr_id`) USING BTREE,
+  KEY `pr_do_ibfk_2` (`do_upload`) USING BTREE,
+  KEY `pr_do_ibfk_3` (`site_id`) USING BTREE,
+  CONSTRAINT `pr_do_ibfk_1` FOREIGN KEY (`pr_id`) REFERENCES `pr` (`pr_id`),
+  CONSTRAINT `pr_do_ibfk_2` FOREIGN KEY (`do_upload`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `pr_do_ibfk_3` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=456 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_item
+-- Engine: InnoDB
+-- Rows: 570
+-- Size: 0.09 MB (Data: 0.06 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_item`;
+CREATE TABLE `ref_item` (
+  `item_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `item_description` varchar(200) DEFAULT NULL,
+  `item_type_id` smallint(6) DEFAULT NULL,
+  `item_threshold` smallint(6) DEFAULT NULL,
+  `item_min_order` smallint(6) DEFAULT NULL,
+  `item_max_order` smallint(6) DEFAULT NULL,
+  `item_turn` tinyint(4) DEFAULT NULL,
+  `item_remark` text DEFAULT NULL,
+  `item_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`item_id`) USING BTREE,
+  KEY `item_type_id` (`item_type_id`) USING BTREE,
+  KEY `item_status` (`item_status`) USING BTREE,
+  CONSTRAINT `ref_item_ibfk_1` FOREIGN KEY (`item_type_id`) REFERENCES `ref_item_type` (`item_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=571 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_nav_role
+-- Engine: InnoDB
+-- Rows: 272
+-- Size: 0.08 MB (Data: 0.02 MB, Index: 0.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_nav_role`;
+CREATE TABLE `sys_nav_role` (
+  `nav_role_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `role_id` tinyint(4) NOT NULL,
+  `nav_id` smallint(6) NOT NULL,
+  `nav_second_id` smallint(6) DEFAULT NULL,
+  `nav_role_turn` smallint(6) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`nav_role_id`) USING BTREE,
+  KEY `sys_nav_role_sys_nav_nav_id_fk` (`nav_id`) USING BTREE,
+  KEY `sys_nav_role_ref_role_role_id_fk` (`role_id`) USING BTREE,
+  KEY `nav_role_turn` (`nav_role_turn`) USING BTREE,
+  KEY `nav_second_id` (`nav_second_id`) USING BTREE,
+  CONSTRAINT `sys_nav_role_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `sys_nav_role_ibfk_2` FOREIGN KEY (`nav_id`) REFERENCES `sys_nav` (`nav_id`),
+  CONSTRAINT `sys_nav_role_ibfk_3` FOREIGN KEY (`nav_second_id`) REFERENCES `sys_nav_second` (`nav_second_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=335 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: att_participant
+-- Engine: InnoDB
+-- Rows: 154
+-- Size: 0.08 MB (Data: 0.02 MB, Index: 0.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `att_participant`;
+CREATE TABLE `att_participant` (
+  `att_participant_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `att_group_id` smallint(6) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `att_participant_gf_id` varchar(100) DEFAULT '',
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `att_type_id` tinyint(4) DEFAULT NULL,
+  `att_participant_holiday` enum('Sunday','Saturday & Sunday') DEFAULT NULL,
+  `att_participant_req_week_hours` smallint(6) DEFAULT NULL,
+  `att_participant_shift_mode` enum('Normal','2 Shifts','3 Shifts') DEFAULT NULL,
+  `att_participant_year_service` varchar(10) DEFAULT NULL,
+  `att_participant_cidb_card_expiry` date DEFAULT NULL,
+  `att_participant_competency` varchar(50) DEFAULT NULL,
+  `att_participant_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `att_participant_time_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `att_participant_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`att_participant_id`) USING BTREE,
+  KEY `att_group_id` (`att_group_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `att_type_id` (`att_type_id`) USING BTREE,
+  CONSTRAINT `att_participant_ibfk_1` FOREIGN KEY (`att_group_id`) REFERENCES `att_group` (`att_group_id`),
+  CONSTRAINT `att_participant_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `att_participant_ibfk_3` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`),
+  CONSTRAINT `att_participant_ibfk_4` FOREIGN KEY (`att_type_id`) REFERENCES `att_type` (`att_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_user_report
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.08 MB (Data: 0.02 MB, Index: 0.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_user_report`;
+CREATE TABLE `wfl_user_report` (
+  `user_report_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `role_id` tinyint(4) NOT NULL,
+  `report_to` int(11) NOT NULL,
+  `report_role` tinyint(4) NOT NULL,
+  PRIMARY KEY (`user_report_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  KEY `report_to` (`report_to`) USING BTREE,
+  KEY `report_role` (`report_role`) USING BTREE,
+  CONSTRAINT `wfl_user_report_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_user_report_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `wfl_user_report_ibfk_3` FOREIGN KEY (`report_to`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `wfl_user_report_ibfk_4` FOREIGN KEY (`report_role`) REFERENCES `ref_role` (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_contract_user
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.08 MB (Data: 0.02 MB, Index: 0.06 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_contract_user`;
+CREATE TABLE `cli_contract_user` (
+  `contract_user_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `contract_id` smallint(6) NOT NULL,
+  `location_code_id` smallint(6) NOT NULL,
+  `asset_group_id` smallint(6) NOT NULL,
+  PRIMARY KEY (`contract_user_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `contract_id` (`contract_id`) USING BTREE,
+  KEY `location_code_id` (`location_code_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  CONSTRAINT `cli_contract_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`),
+  CONSTRAINT `cli_contract_user_ibfk_2` FOREIGN KEY (`contract_id`) REFERENCES `cli_contract` (`contract_id`),
+  CONSTRAINT `cli_contract_user_ibfk_3` FOREIGN KEY (`location_code_id`) REFERENCES `cli_location_code` (`location_code_id`),
+  CONSTRAINT `cli_contract_user_ibfk_4` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7024 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: do_item
+-- Engine: InnoDB
+-- Rows: 417
+-- Size: 0.08 MB (Data: 0.05 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `do_item`;
+CREATE TABLE `do_item` (
+  `do_item_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `do_id` int(11) DEFAULT NULL,
+  `part_id` bigint(20) DEFAULT NULL,
+  `do_item_total` smallint(6) DEFAULT NULL,
+  `do_item_warranty` tinyint(4) DEFAULT NULL,
+  `do_item_validity` date DEFAULT NULL,
+  `do_item_cost` decimal(12,2) DEFAULT NULL,
+  `do_item_total_cost` decimal(12,2) DEFAULT NULL,
+  `do_item_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`do_item_id`) USING BTREE,
+  KEY `part_id` (`part_id`) USING BTREE,
+  KEY `do_id` (`do_id`) USING BTREE,
+  CONSTRAINT `do_item_ibfk_3` FOREIGN KEY (`part_id`) REFERENCES `ast_part` (`part_id`),
+  CONSTRAINT `do_item_ibfk_4` FOREIGN KEY (`do_id`) REFERENCES `do` (`do_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=427 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_checkpoint
+-- Engine: InnoDB
+-- Rows: 31
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_checkpoint`;
+CREATE TABLE `wfl_checkpoint` (
+  `checkpoint_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `flow_id` tinyint(4) NOT NULL,
+  `checkpoint_desc` varchar(150) NOT NULL,
+  `checkpoint_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=Start, 2=Normal, 3=End',
+  `checkpoint_claim_type` tinyint(4) NOT NULL COMMENT '1=No, 2=Yes, 3=Assigned User, 4=Assigned Group',
+  `checkpoint_due_day` tinyint(4) DEFAULT NULL,
+  `checkpoint_next` smallint(6) DEFAULT NULL,
+  `checkpoint_case_1` smallint(6) DEFAULT NULL,
+  `checkpoint_case_2` smallint(6) DEFAULT NULL,
+  `checkpoint_case_3` smallint(6) DEFAULT NULL,
+  `checkpoint_icon` varchar(30) DEFAULT NULL,
+  `role_id` tinyint(4) DEFAULT NULL,
+  `group_id` smallint(6) DEFAULT NULL,
+  `checkpoint_order` tinyint(4) NOT NULL DEFAULT 1,
+  `checkpoint_color` varchar(30) DEFAULT NULL,
+  `checkpoint_skip` bit(1) NOT NULL DEFAULT b'0',
+  PRIMARY KEY (`checkpoint_id`) USING BTREE,
+  KEY `flow_id` (`flow_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  CONSTRAINT `wfl_checkpoint_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `ref_role` (`role_id`),
+  CONSTRAINT `wfl_checkpoint_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`),
+  CONSTRAINT `wfl_checkpoint_ibfk_3` FOREIGN KEY (`flow_id`) REFERENCES `wfl_flow` (`flow_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_import_batch
+-- Engine: InnoDB
+-- Rows: 8
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_import_batch`;
+CREATE TABLE `wo_import_batch` (
+  `batch_id` int(11) NOT NULL AUTO_INCREMENT,
+  `import_filename` varchar(255) NOT NULL,
+  `site_id` int(11) NOT NULL,
+  `imported_by` int(11) NOT NULL,
+  `total_rows` int(11) NOT NULL DEFAULT 0,
+  `imported_rows` int(11) NOT NULL DEFAULT 0,
+  `skipped_rows` int(11) NOT NULL DEFAULT 0,
+  `import_status` enum('PROCESSING','COMPLETED','FAILED') NOT NULL DEFAULT 'PROCESSING',
+  `created_at` datetime NOT NULL,
+  `completed_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`batch_id`),
+  KEY `idx_site_imported_by` (`site_id`,`imported_by`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_import_status` (`import_status`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_city
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_city`;
+CREATE TABLE `ref_city` (
+  `city_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `city_desc` varchar(255) NOT NULL,
+  `state_id` smallint(6) NOT NULL,
+  `city_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`city_id`) USING BTREE,
+  KEY `state_id` (`state_id`) USING BTREE,
+  KEY `city_status` (`city_status`) USING BTREE,
+  KEY `city_desc` (`city_desc`) USING BTREE,
+  CONSTRAINT `ref_city_ibfk_1` FOREIGN KEY (`state_id`) REFERENCES `ref_state` (`state_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset_brand
+-- Engine: InnoDB
+-- Rows: 626
+-- Size: 0.06 MB (Data: 0.05 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset_brand`;
+CREATE TABLE `ast_asset_brand` (
+  `asset_brand_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_brand_name` varchar(150) NOT NULL,
+  `asset_brand_desc` varchar(255) DEFAULT NULL,
+  `asset_brand_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `asset_brand_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`asset_brand_id`) USING BTREE,
+  KEY `asset_brand_status` (`asset_brand_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=629 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_report
+-- Engine: InnoDB
+-- Rows: 3
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_report`;
+CREATE TABLE `fca_report` (
+  `fca_report_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `fca_report_name` varchar(200) DEFAULT NULL,
+  `fca_report_date_from` date DEFAULT NULL,
+  `fca_report_date_to` date DEFAULT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `fca_report_exclude_list` tinyint(1) NOT NULL DEFAULT 0,
+  `fca_report_sort_by` varchar(30) DEFAULT NULL,
+  `fca_report_total` int(11) DEFAULT NULL,
+  `pdf_id` bigint(20) DEFAULT NULL,
+  `fca_report_created_by` int(11) NOT NULL,
+  `fca_report_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fca_report_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`fca_report_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `pdf_id` (`pdf_id`) USING BTREE,
+  CONSTRAINT `fca_report_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `fca_report_ibfk_2` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`),
+  CONSTRAINT `fca_report_ibfk_3` FOREIGN KEY (`pdf_id`) REFERENCES `sys_pdf` (`pdf_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_set
+-- Engine: InnoDB
+-- Rows: 4
+-- Size: 0.06 MB (Data: 0.03 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_set`;
+CREATE TABLE `ppm_set` (
+  `ppm_set_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_type_id` smallint(6) NOT NULL,
+  `ppm_group_id` smallint(6) NOT NULL,
+  `ppm_set_name` varchar(200) DEFAULT NULL,
+  `ppm_set_desc` varchar(1000) DEFAULT NULL,
+  `asset_group_id` smallint(6) NOT NULL,
+  `asset_category_id` smallint(6) NOT NULL,
+  `ppm_set_created_by` int(11) DEFAULT NULL,
+  `ppm_set_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ppm_set_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`ppm_set_id`),
+  KEY `asset_type_id` (`asset_type_id`),
+  KEY `ppm_group_id` (`ppm_group_id`),
+  CONSTRAINT `ppm_set_ibfk_1` FOREIGN KEY (`asset_type_id`) REFERENCES `ast_asset_type` (`asset_type_id`),
+  CONSTRAINT `ppm_set_ibfk_2` FOREIGN KEY (`ppm_group_id`) REFERENCES `ppm_group` (`ppm_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: email_log
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `email_log`;
+CREATE TABLE `email_log` (
+  `email_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `email_template_id` smallint(6) NOT NULL,
+  `email_address` varchar(50) NOT NULL,
+  `email_title` varchar(150) NOT NULL,
+  `email_html` text NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `email_attachment` varchar(150) DEFAULT NULL,
+  `email_filename` varchar(100) DEFAULT NULL,
+  `email_id` bigint(20) DEFAULT NULL,
+  `email_retry_no` tinyint(4) NOT NULL DEFAULT 0,
+  `email_time_set` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email_time_sent` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email_log_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`email_log_id`) USING BTREE,
+  KEY `email_send_template_id` (`email_template_id`) USING BTREE,
+  KEY `email_send_time_set` (`email_time_sent`) USING BTREE,
+  KEY `email_send_ibfk_2` (`user_id`) USING BTREE,
+  CONSTRAINT `email_log_ibfk_1` FOREIGN KEY (`email_template_id`) REFERENCES `email_template` (`email_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_task_section
+-- Engine: InnoDB
+-- Rows: 600
+-- Size: 0.06 MB (Data: 0.05 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_task_section`;
+CREATE TABLE `fca_task_section` (
+  `fca_task_section_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fca_task_section_code` varchar(1) NOT NULL,
+  `fca_task_section_name` varchar(100) NOT NULL,
+  `fca_task_id` int(11) NOT NULL,
+  `fca_task_section_status` tinyint(4) NOT NULL DEFAULT 17,
+  PRIMARY KEY (`fca_task_section_id`) USING BTREE,
+  KEY `fca_task_id` (`fca_task_id`) USING BTREE,
+  CONSTRAINT `fca_task_section_ibfk_1` FOREIGN KEY (`fca_task_id`) REFERENCES `fca_task` (`fca_task_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=625 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wo_task_public
+-- Engine: InnoDB
+-- Rows: 31
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wo_task_public`;
+CREATE TABLE `wo_task_public` (
+  `wo_task_public` bigint(20) NOT NULL AUTO_INCREMENT,
+  `wo_task_id` bigint(20) NOT NULL,
+  `transaction_id` bigint(20) NOT NULL,
+  `wo_task_public_name` varchar(200) DEFAULT NULL,
+  `wo_task_public_ic_no` varchar(12) DEFAULT NULL,
+  `wo_task_public_agency` varchar(200) DEFAULT NULL,
+  `wo_task_public_phone_no` varchar(15) DEFAULT NULL,
+  `wo_task_public_email` varchar(100) DEFAULT NULL,
+  `wo_task_public_complaint` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`wo_task_public`) USING BTREE,
+  KEY `wo_task_public_ibfk_1` (`wo_task_id`) USING BTREE,
+  KEY `wo_task_public_ibfk_2` (`transaction_id`) USING BTREE,
+  KEY `wo_task_public_ibfk_3` (`user_id`) USING BTREE,
+  CONSTRAINT `wo_task_public_ibfk_1` FOREIGN KEY (`wo_task_id`) REFERENCES `wo_task` (`wo_task_id`) ON DELETE CASCADE,
+  CONSTRAINT `wo_task_public_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `wfl_transaction` (`transaction_id`) ON DELETE CASCADE,
+  CONSTRAINT `wo_task_public_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_state
+-- Engine: InnoDB
+-- Rows: 16
+-- Size: 0.06 MB (Data: 0.02 MB, Index: 0.05 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_state`;
+CREATE TABLE `ref_state` (
+  `state_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `country_id` smallint(6) NOT NULL,
+  `state_desc` varchar(50) NOT NULL DEFAULT '',
+  `state_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`state_id`) USING BTREE,
+  KEY `ref_state_state_status_index` (`state_status`) USING BTREE,
+  KEY `ref_state_ref_country_country_id_fk` (`country_id`) USING BTREE,
+  KEY `state_desc` (`state_desc`) USING BTREE,
+  CONSTRAINT `ref_state_ibfk_1` FOREIGN KEY (`country_id`) REFERENCES `ref_country` (`country_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_nav
+-- Engine: InnoDB
+-- Rows: 20
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- Comment: Left navigation
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_nav`;
+CREATE TABLE `sys_nav` (
+  `nav_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `nav_desc` varchar(30) NOT NULL,
+  `nav_page` varchar(30) DEFAULT NULL,
+  `nav_icon` varchar(20) DEFAULT NULL,
+  `nav_status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`nav_id`) USING BTREE,
+  KEY `sys_nav_nav_status_index` (`nav_status`) USING BTREE,
+  KEY `sys_nav_nav_status_index_2` (`nav_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Left navigation';
+
+-- ----------------------------------------------------------------------
+-- Table: ref_item_type
+-- Engine: InnoDB
+-- Rows: 105
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_item_type`;
+CREATE TABLE `ref_item_type` (
+  `item_type_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `item_type_desc` varchar(150) NOT NULL,
+  `item_type_turn` tinyint(4) DEFAULT NULL,
+  `item_type_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`item_type_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `item_type_status` (`item_type_status`) USING BTREE,
+  CONSTRAINT `ref_item_type_ibfk_1` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_defect_category_site
+-- Engine: InnoDB
+-- Rows: 14
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_defect_category_site`;
+CREATE TABLE `fca_defect_category_site` (
+  `fca_defect_category_site_id` int(11) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `fca_defect_category_id` smallint(6) NOT NULL,
+  PRIMARY KEY (`fca_defect_category_site_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `fca_defect_category_id` (`fca_defect_category_id`) USING BTREE,
+  CONSTRAINT `fca_defect_category_site_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`),
+  CONSTRAINT `fca_defect_category_site_ibfk_2` FOREIGN KEY (`fca_defect_category_id`) REFERENCES `fca_defect_category` (`fca_defect_category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_site_problem_type
+-- Engine: InnoDB
+-- Rows: 4
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_site_problem_type`;
+CREATE TABLE `cli_site_problem_type` (
+  `site_problem_type_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `site_problem_type_name` varchar(200) NOT NULL,
+  `site_problem_type_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`site_problem_type_id`) USING BTREE,
+  KEY `problem_type_status` (`site_problem_type_status`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `cli_site_problem_type_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: gmi_weekly
+-- Engine: InnoDB
+-- Rows: 6
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gmi_weekly`;
+CREATE TABLE `gmi_weekly` (
+  `gmw_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `site_id` smallint(6) DEFAULT NULL,
+  `gmw_year` smallint(6) DEFAULT NULL,
+  `gmw_week` tinyint(4) DEFAULT NULL,
+  `gmw_ppm_tier_name` varchar(20) DEFAULT NULL,
+  `gmw_ppm_tier_point` decimal(3,1) DEFAULT NULL,
+  `gmw_ppm_total` smallint(6) DEFAULT NULL,
+  `gmw_ppm_completed` smallint(6) DEFAULT NULL,
+  `gmw_ppm_on_time` smallint(6) DEFAULT NULL,
+  `gmw_ppm_late` smallint(6) DEFAULT NULL,
+  `gmw_ppm_within` smallint(6) DEFAULT NULL,
+  `gmw_ppm_assist` smallint(6) DEFAULT NULL,
+  `gmw_wo_tier_name` varchar(20) DEFAULT NULL,
+  `gmw_wo_tier_point` decimal(3,1) DEFAULT NULL,
+  `gmw_wo_total` smallint(6) DEFAULT NULL,
+  `gmw_wo_completed` smallint(6) DEFAULT NULL,
+  `gmw_wo_on_time` smallint(6) DEFAULT NULL,
+  `gmw_wo_late` smallint(6) DEFAULT NULL,
+  `gmw_wo_rework` smallint(6) DEFAULT NULL,
+  `gmw_wo_self_finding` smallint(6) DEFAULT NULL,
+  `gmw_wo_assist` smallint(6) DEFAULT NULL,
+  `gmw_mbv` smallint(6) DEFAULT NULL,
+  `gmw_tier_point` tinyint(1) DEFAULT NULL,
+  `gmw_point_completed` int(11) DEFAULT NULL,
+  `gmw_point_on_time` int(11) DEFAULT NULL,
+  `gmw_point_late` int(11) DEFAULT NULL,
+  `gmw_point_rework` int(11) DEFAULT NULL,
+  `gmw_point_self_finding` int(11) DEFAULT NULL,
+  `gmw_point_total` int(11) DEFAULT NULL,
+  `gmw_productivity_level` decimal(6,2) DEFAULT NULL,
+  `gmw_productivity_deduction` decimal(6,2) DEFAULT NULL,
+  `gmw_point_less_productive` int(11) DEFAULT NULL,
+  `gmw_point_before_minus` int(11) DEFAULT NULL,
+  `gmw_point_after_minus` int(11) DEFAULT NULL,
+  PRIMARY KEY (`gmw_id`),
+  KEY `user_id` (`user_id`),
+  KEY `site_id` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_item_image
+-- Engine: InnoDB
+-- Rows: 403
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_item_image`;
+CREATE TABLE `ref_item_image` (
+  `item_image_id` int(11) NOT NULL AUTO_INCREMENT,
+  `upload_id` bigint(20) NOT NULL,
+  `item_id` smallint(6) NOT NULL,
+  `item_image_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`item_image_id`) USING BTREE,
+  KEY `upload_id` (`upload_id`) USING BTREE,
+  KEY `item_id` (`item_id`) USING BTREE,
+  CONSTRAINT `ref_item_image_ibfk_1` FOREIGN KEY (`upload_id`) REFERENCES `sys_upload` (`upload_id`),
+  CONSTRAINT `ref_item_image_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `ref_item` (`item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=416 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_site
+-- Engine: InnoDB
+-- Rows: 20
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_site`;
+CREATE TABLE `cli_site` (
+  `site_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_name` varchar(150) NOT NULL,
+  `site_code` varchar(5) NOT NULL,
+  `site_desc` varchar(255) DEFAULT NULL,
+  `site_running_no` int(11) NOT NULL DEFAULT 1,
+  `site_running_no_wo` int(11) NOT NULL DEFAULT 1,
+  `site_running_no_wr` int(11) NOT NULL DEFAULT 1,
+  `site_running_no_req` int(11) NOT NULL DEFAULT 1,
+  `site_running_no_part_sub` int(11) NOT NULL DEFAULT 1,
+  `site_running_no_fca` int(11) NOT NULL DEFAULT 1,
+  `site_is_launched` tinyint(1) NOT NULL DEFAULT 0,
+  `site_is_manual` tinyint(1) NOT NULL DEFAULT 0,
+  `site_is_wr` tinyint(1) NOT NULL DEFAULT 0,
+  `site_is_material` tinyint(1) NOT NULL DEFAULT 0,
+  `site_is_attendance` tinyint(1) NOT NULL DEFAULT 0,
+  `site_is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `client_id` smallint(6) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  `site_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `site_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`site_id`) USING BTREE,
+  KEY `client_id` (`client_id`) USING BTREE,
+  KEY `group_id` (`group_id`) USING BTREE,
+  CONSTRAINT `cli_site_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `cli_client` (`client_id`),
+  CONSTRAINT `cli_site_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_audit_action
+-- Engine: InnoDB
+-- Rows: 227
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_audit_action`;
+CREATE TABLE `sys_audit_action` (
+  `audit_action_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `audit_action_desc` varchar(100) NOT NULL,
+  `audit_module_id` smallint(6) NOT NULL,
+  `audit_action_status` tinyint(255) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`audit_action_id`) USING BTREE,
+  KEY `audit_module_id` (`audit_module_id`) USING BTREE,
+  KEY `audit_action_status` (`audit_action_status`) USING BTREE,
+  CONSTRAINT `sys_audit_action_ibfk_1` FOREIGN KEY (`audit_module_id`) REFERENCES `sys_audit_module` (`audit_module_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=228 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_set_asset
+-- Engine: InnoDB
+-- Rows: 150
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_set_asset`;
+CREATE TABLE `ppm_set_asset` (
+  `ppm_set_asset_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ppm_set_id` smallint(6) NOT NULL,
+  `asset_id` bigint(20) NOT NULL,
+  `ppm_set_asset_created_by` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ppm_set_asset_id`),
+  KEY `ppm_set_id` (`ppm_set_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `ppm_set_asset_ibfk_1` FOREIGN KEY (`ppm_set_id`) REFERENCES `ppm_set` (`ppm_set_id`),
+  CONSTRAINT `ppm_set_asset_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `ast_asset` (`asset_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_asset
+-- Engine: InnoDB
+-- Rows: 20
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_asset`;
+CREATE TABLE `ppm_asset` (
+  `ppm_asset_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ppm_id` bigint(20) NOT NULL,
+  `asset_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`ppm_asset_id`) USING BTREE,
+  UNIQUE KEY `ppm_id` (`ppm_id`,`asset_id`) USING BTREE,
+  KEY `asset_id` (`asset_id`) USING BTREE,
+  CONSTRAINT `ppm_asset_ibfk_1` FOREIGN KEY (`ppm_id`) REFERENCES `ppm` (`ppm_id`),
+  CONSTRAINT `ppm_asset_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `ast_asset` (`asset_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_contract
+-- Engine: InnoDB
+-- Rows: 20
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_contract`;
+CREATE TABLE `cli_contract` (
+  `contract_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `contract_name` varchar(150) NOT NULL,
+  `contract_desc` varchar(255) DEFAULT NULL,
+  `contract_date_start` date NOT NULL,
+  `contract_date_end` date NOT NULL,
+  `site_id` smallint(6) NOT NULL,
+  `contract_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `contract_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`contract_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  KEY `contract_status` (`contract_status`) USING BTREE,
+  CONSTRAINT `cli_contract_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: do_upload
+-- Engine: InnoDB
+-- Rows: 321
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `do_upload`;
+CREATE TABLE `do_upload` (
+  `do_upload_id` int(11) NOT NULL AUTO_INCREMENT,
+  `do_id` int(11) DEFAULT NULL,
+  `upload_id` bigint(20) NOT NULL,
+  `do_upload_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`do_upload_id`) USING BTREE,
+  KEY `do_id` (`do_id`) USING BTREE,
+  KEY `upload_id` (`upload_id`) USING BTREE,
+  CONSTRAINT `do_upload_ibfk_1` FOREIGN KEY (`do_id`) REFERENCES `do` (`do_id`),
+  CONSTRAINT `do_upload_ibfk_2` FOREIGN KEY (`upload_id`) REFERENCES `sys_upload` (`upload_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=322 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_client_severity
+-- Engine: InnoDB
+-- Rows: 55
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_client_severity`;
+CREATE TABLE `cli_client_severity` (
+  `client_severity_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_id` smallint(6) NOT NULL,
+  `severity_id` tinyint(4) NOT NULL,
+  `client_severity_hour` smallint(6) NOT NULL DEFAULT 1,
+  `client_severity_respond_time` smallint(6) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`client_severity_id`) USING BTREE,
+  KEY `client_id` (`client_id`) USING BTREE,
+  KEY `severity_id` (`severity_id`) USING BTREE,
+  CONSTRAINT `cli_client_severity_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `cli_client` (`client_id`),
+  CONSTRAINT `cli_client_severity_ibfk_3` FOREIGN KEY (`severity_id`) REFERENCES `ref_severity` (`severity_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_checkpoint_assign
+-- Engine: InnoDB
+-- Rows: 16
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_checkpoint_assign`;
+CREATE TABLE `wfl_checkpoint_assign` (
+  `checkpoint_assign_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `checkpoint_assign_type` tinyint(4) NOT NULL COMMENT '1=Assign to himself\r\n2=Assign to User\r\n3=Assign to Group',
+  `checkpoint_id` smallint(6) NOT NULL,
+  `checkpoint_to` smallint(6) NOT NULL,
+  PRIMARY KEY (`checkpoint_assign_id`) USING BTREE,
+  KEY `checkpoint_id` (`checkpoint_id`) USING BTREE,
+  KEY `checkpoint_to` (`checkpoint_to`) USING BTREE,
+  CONSTRAINT `wfl_checkpoint_assign_ibfk_1` FOREIGN KEY (`checkpoint_id`) REFERENCES `wfl_checkpoint` (`checkpoint_id`),
+  CONSTRAINT `wfl_checkpoint_assign_ibfk_2` FOREIGN KEY (`checkpoint_to`) REFERENCES `wfl_checkpoint` (`checkpoint_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_nav_second
+-- Engine: InnoDB
+-- Rows: 53
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_nav_second`;
+CREATE TABLE `sys_nav_second` (
+  `nav_second_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `nav_id` smallint(6) NOT NULL,
+  `nav_second_desc` varchar(30) NOT NULL,
+  `nav_second_page` varchar(30) DEFAULT NULL,
+  `nav_second_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`nav_second_id`) USING BTREE,
+  KEY `sys_nav_second_sys_nav_nav_id_fk` (`nav_id`) USING BTREE,
+  KEY `sys_nav_second_nav_second_status_index` (`nav_second_status`) USING BTREE,
+  CONSTRAINT `sys_nav_second_ibfk_1` FOREIGN KEY (`nav_id`) REFERENCES `sys_nav` (`nav_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset_category
+-- Engine: InnoDB
+-- Rows: 168
+-- Size: 0.05 MB (Data: 0.02 MB, Index: 0.03 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset_category`;
+CREATE TABLE `ast_asset_category` (
+  `asset_category_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_category_name` varchar(150) NOT NULL,
+  `asset_category_desc` varchar(255) DEFAULT NULL,
+  `asset_group_id` smallint(6) NOT NULL,
+  `asset_category_time_created` timestamp NULL DEFAULT NULL,
+  `asset_category_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`asset_category_id`) USING BTREE,
+  KEY `asset_group_id` (`asset_group_id`) USING BTREE,
+  KEY `asset_category_status` (`asset_category_status`) USING BTREE,
+  CONSTRAINT `ast_asset_category_ibfk_1` FOREIGN KEY (`asset_group_id`) REFERENCES `ast_asset_group` (`asset_group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: noti_text
+-- Engine: InnoDB
+-- Rows: 25
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `noti_text`;
+CREATE TABLE `noti_text` (
+  `noti_text_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `noti_text_name` varchar(150) NOT NULL,
+  `noti_text_title` varchar(255) NOT NULL,
+  `noti_text_html` text NOT NULL,
+  `noti_text_status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`noti_text_id`) USING BTREE,
+  KEY `noti_text_status` (`noti_text_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_client
+-- Engine: InnoDB
+-- Rows: 17
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_client`;
+CREATE TABLE `cli_client` (
+  `client_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `client_name` varchar(150) NOT NULL,
+  `client_desc` varchar(255) DEFAULT NULL,
+  `client_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `client_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`client_id`) USING BTREE,
+  KEY `client_status` (`client_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_role
+-- Engine: InnoDB
+-- Rows: 23
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_role`;
+CREATE TABLE `ref_role` (
+  `role_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `role_desc` varchar(50) NOT NULL,
+  `role_type` tinyint(4) DEFAULT NULL,
+  `role_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`role_id`) USING BTREE,
+  KEY `ref_role_role_status_index` (`role_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_zone
+-- Engine: InnoDB
+-- Rows: 4
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_zone`;
+CREATE TABLE `cli_zone` (
+  `zone_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `zone_code` varchar(20) NOT NULL,
+  `zone_type` varchar(100) DEFAULT NULL,
+  `zone_name` varchar(200) NOT NULL,
+  `zone_status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`zone_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `cli_zone_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_store
+-- Engine: InnoDB
+-- Rows: 12
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_store`;
+CREATE TABLE `cli_store` (
+  `store_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `store_name` varchar(100) NOT NULL,
+  `store_desc` varchar(200) DEFAULT NULL,
+  `store_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`store_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `cli_store_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: utl_meter
+-- Engine: InnoDB
+-- Rows: 66
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `utl_meter`;
+CREATE TABLE `utl_meter` (
+  `meter_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) DEFAULT NULL,
+  `meter_type` enum('Water','Electricity') DEFAULT NULL,
+  `meter_name` varchar(100) DEFAULT NULL,
+  `meter_location` varchar(200) DEFAULT NULL,
+  `meter_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`meter_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `utl_meter_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_location
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_location`;
+CREATE TABLE `sys_location` (
+  `location_id` int(11) NOT NULL AUTO_INCREMENT,
+  `location_desc` varchar(255) NOT NULL,
+  `location_status` tinyint(4) NOT NULL DEFAULT 1,
+  `location_longitude` float(11,6) NOT NULL,
+  `location_latitude` float(11,6) NOT NULL,
+  PRIMARY KEY (`location_id`) USING BTREE,
+  KEY `location_status` (`location_status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: noti_parameter
+-- Engine: InnoDB
+-- Rows: 31
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `noti_parameter`;
+CREATE TABLE `noti_parameter` (
+  `noti_param_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `noti_text_id` smallint(6) NOT NULL,
+  `noti_param_code` varchar(30) NOT NULL,
+  `noti_param_desc` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`noti_param_id`) USING BTREE,
+  KEY `noti_text_id` (`noti_text_id`) USING BTREE,
+  CONSTRAINT `noti_parameter_ibfk_1` FOREIGN KEY (`noti_text_id`) REFERENCES `noti_text` (`noti_text_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_group
+-- Engine: InnoDB
+-- Rows: 24
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_group`;
+CREATE TABLE `sys_group` (
+  `group_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(150) DEFAULT NULL,
+  `group_type` tinyint(4) NOT NULL COMMENT '1=Internal, 2=Company, 3=Public',
+  `group_reg_no` varchar(30) DEFAULT NULL,
+  `group_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `group_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`group_id`) USING BTREE,
+  KEY `group_status` (`group_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: noti_log
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `noti_log`;
+CREATE TABLE `noti_log` (
+  `noti_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `noti_text_id` smallint(6) DEFAULT NULL,
+  `noti_to` text DEFAULT NULL,
+  `noti_title` varchar(255) DEFAULT NULL,
+  `noti_html` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `noti_id` bigint(20) DEFAULT NULL,
+  `noti_log_time_sent` timestamp NOT NULL DEFAULT current_timestamp(),
+  `noti_log_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`noti_log_id`) USING BTREE,
+  KEY `noti_log_status` (`noti_log_status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: email_template
+-- Engine: InnoDB
+-- Rows: 24
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `email_template`;
+CREATE TABLE `email_template` (
+  `email_template_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `email_template_name` varchar(150) NOT NULL,
+  `email_template_desc` varchar(255) DEFAULT NULL,
+  `email_template_title` varchar(150) NOT NULL,
+  `email_template_html` text NOT NULL,
+  `email_template_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`email_template_id`) USING BTREE,
+  KEY `email_template_status` (`email_template_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_audit_module
+-- Engine: InnoDB
+-- Rows: 16
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_audit_module`;
+CREATE TABLE `sys_audit_module` (
+  `audit_module_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `audit_module_desc` varchar(100) NOT NULL,
+  `audit_module_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`audit_module_id`) USING BTREE,
+  KEY `audit_module_status` (`audit_module_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: kpi_ppns
+-- Engine: InnoDB
+-- Rows: 221
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `kpi_ppns`;
+CREATE TABLE `kpi_ppns` (
+  `kpi_ppns_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kpi_id` smallint(6) NOT NULL,
+  `kpi_ppns_category` tinyint(4) DEFAULT NULL,
+  `kpi_ppns_param_1` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_2` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_3` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_4` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_5` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_6` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_7` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_8` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_param_9` decimal(12,2) DEFAULT NULL,
+  `kpi_ppns_weightage` decimal(3,3) NOT NULL DEFAULT 0.000,
+  `kpi_ppns_ncp` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `kpi_ppns_time_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`kpi_ppns_id`) USING BTREE,
+  KEY `kpi_id` (`kpi_id`) USING BTREE,
+  CONSTRAINT `kpi_ppns_ibfk_1` FOREIGN KEY (`kpi_id`) REFERENCES `kpi` (`kpi_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=242 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: kpi_info
+-- Engine: InnoDB
+-- Rows: 13
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `kpi_info`;
+CREATE TABLE `kpi_info` (
+  `kpi_info_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `kpi_info_version` tinyint(4) NOT NULL DEFAULT 1,
+  `kpi_info_category` tinyint(4) NOT NULL,
+  `kpi_info_service_description` varchar(200) DEFAULT NULL,
+  `kpi_info_performance_measure` varchar(200) DEFAULT NULL,
+  `kpi_info_target_value` text DEFAULT NULL,
+  `kpi_info_source_of_data` varchar(200) DEFAULT NULL,
+  `kpi_info_weightage` decimal(3,3) NOT NULL DEFAULT 0.000,
+  `kpi_info_ncp` varchar(200) DEFAULT NULL,
+  `kpi_info_remark` text DEFAULT NULL,
+  `kpi_info_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`kpi_info_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `kpi_info_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: email_parameter
+-- Engine: InnoDB
+-- Rows: 44
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `email_parameter`;
+CREATE TABLE `email_parameter` (
+  `email_param_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `email_template_id` smallint(6) NOT NULL,
+  `email_param_code` varchar(30) NOT NULL,
+  `email_param_desc` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`email_param_id`) USING BTREE,
+  KEY `email_template_id` (`email_template_id`) USING BTREE,
+  CONSTRAINT `email_parameter_ibfk_1` FOREIGN KEY (`email_template_id`) REFERENCES `email_template` (`email_template_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: cli_location_code
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_location_code`;
+CREATE TABLE `cli_location_code` (
+  `location_code_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `location_code_name` varchar(255) NOT NULL,
+  `location_code_desc` varchar(255) DEFAULT NULL,
+  `location_code_type` varchar(100) DEFAULT NULL,
+  `site_id` smallint(6) NOT NULL,
+  `location_code_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`location_code_id`) USING BTREE,
+  KEY `cli_location_code_ibfk_1` (`site_id`) USING BTREE,
+  CONSTRAINT `cli_location_code_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1124 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: kpi
+-- Engine: InnoDB
+-- Rows: 17
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `kpi`;
+CREATE TABLE `kpi` (
+  `kpi_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `site_id` smallint(6) NOT NULL,
+  `kpi_info_version` tinyint(4) NOT NULL DEFAULT 1,
+  `kpi_year` smallint(4) NOT NULL,
+  `kpi_month` tinyint(2) NOT NULL,
+  `kpi_portion_perc` tinyint(4) NOT NULL DEFAULT 5,
+  `kpi_portion_total_fee` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `kpi_last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`kpi_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `kpi_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_address
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_address`;
+CREATE TABLE `sys_address` (
+  `address_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `address_desc` varchar(255) DEFAULT NULL,
+  `address_postcode` varchar(5) DEFAULT NULL,
+  `address_city` varchar(100) DEFAULT NULL,
+  `state_id` smallint(6) DEFAULT NULL,
+  PRIMARY KEY (`address_id`) USING BTREE,
+  KEY `state_id` (`state_id`) USING BTREE,
+  CONSTRAINT `sys_address_ibfk_1` FOREIGN KEY (`state_id`) REFERENCES `ref_state` (`state_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: wfl_flow
+-- Engine: InnoDB
+-- Rows: 5
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wfl_flow`;
+CREATE TABLE `wfl_flow` (
+  `flow_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `flow_desc` varchar(150) NOT NULL,
+  `flow_due_day` smallint(6) NOT NULL DEFAULT 30,
+  `flow_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`flow_id`) USING BTREE,
+  KEY `flow_status` (`flow_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_zone
+-- Engine: InnoDB
+-- Rows: 35
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_zone`;
+CREATE TABLE `fca_zone` (
+  `fca_zone_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `fca_zone_name` varchar(200) NOT NULL,
+  `site_id` smallint(6) NOT NULL,
+  `fca_zone_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`fca_zone_id`) USING BTREE,
+  KEY `site_id` (`site_id`) USING BTREE,
+  CONSTRAINT `fca_zone_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `cli_site` (`site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_designation
+-- Engine: InnoDB
+-- Rows: 10
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_designation`;
+CREATE TABLE `ref_designation` (
+  `designation_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `designation_desc` varchar(255) NOT NULL,
+  `designation_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`designation_id`) USING BTREE,
+  KEY `designation_status` (`designation_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_department
+-- Engine: InnoDB
+-- Rows: 2
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_department`;
+CREATE TABLE `ref_department` (
+  `department_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `department_desc` varchar(150) NOT NULL,
+  `department_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`department_id`) USING BTREE,
+  KEY `department_status` (`department_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ast_asset_group
+-- Engine: InnoDB
+-- Rows: 24
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ast_asset_group`;
+CREATE TABLE `ast_asset_group` (
+  `asset_group_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `asset_group_name` varchar(150) NOT NULL,
+  `asset_group_desc` varchar(255) DEFAULT NULL,
+  `asset_group_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `asset_group_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`asset_group_id`) USING BTREE,
+  KEY `asset_group_status` (`asset_group_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_country
+-- Engine: InnoDB
+-- Rows: 182
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_country`;
+CREATE TABLE `ref_country` (
+  `country_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `country_desc` varchar(50) NOT NULL,
+  `country_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`country_id`) USING BTREE,
+  KEY `ref_country_country_status_index` (`country_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=183 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_severity
+-- Engine: InnoDB
+-- Rows: 18
+-- Size: 0.03 MB (Data: 0.02 MB, Index: 0.02 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_severity`;
+CREATE TABLE `ref_severity` (
+  `severity_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `severity_name` varchar(100) NOT NULL,
+  `severity_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`severity_id`) USING BTREE,
+  KEY `severity_status` (`severity_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: att_type
+-- Engine: InnoDB
+-- Rows: 17
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `att_type`;
+CREATE TABLE `att_type` (
+  `att_type_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `att_type_name` varchar(50) NOT NULL,
+  `att_type_short` varchar(2) NOT NULL,
+  `att_type_mode` enum('Normal','2 Shifts','3 Shifts','Leave','Training') DEFAULT NULL,
+  `att_type_color` varchar(30) DEFAULT NULL,
+  `att_type_color_done` varchar(30) DEFAULT NULL,
+  `att_type_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`att_type_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: pr_supplier
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pr_supplier`;
+CREATE TABLE `pr_supplier` (
+  `supplier_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `supplier_name` varchar(200) DEFAULT NULL,
+  `supplier_reg_no` varchar(30) DEFAULT NULL,
+  `supplier_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`supplier_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: pr_item
+-- Engine: InnoDB
+-- Rows: 0
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pr_item`;
+CREATE TABLE `pr_item` (
+  `pr_item_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `part_id` bigint(20) DEFAULT NULL,
+  `store_id` smallint(6) DEFAULT NULL,
+  `asset_group_id` smallint(6) DEFAULT NULL,
+  `item_type_id` smallint(6) DEFAULT NULL,
+  `item_id` smallint(6) DEFAULT NULL,
+  `pr_item_cost` decimal(12,2) DEFAULT NULL,
+  `pr_item_request` smallint(6) DEFAULT NULL,
+  `pr_item_pr` smallint(6) DEFAULT NULL,
+  `pr_item_received` smallint(6) DEFAULT NULL,
+  `pr_item_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`pr_item_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: fca_defect_category
+-- Engine: InnoDB
+-- Rows: 15
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fca_defect_category`;
+CREATE TABLE `fca_defect_category` (
+  `fca_defect_category_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `fca_defect_category_name` varchar(100) NOT NULL,
+  `fca_defect_category_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`fca_defect_category_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: sys_version
+-- Engine: InnoDB
+-- Rows: 38
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sys_version`;
+CREATE TABLE `sys_version` (
+  `version_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `version_name` varchar(20) NOT NULL,
+  `version_no` int(11) NOT NULL DEFAULT 1,
+  `version_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`version_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ppm_frequency
+-- Engine: InnoDB
+-- Rows: 9
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ppm_frequency`;
+CREATE TABLE `ppm_frequency` (
+  `frequency_id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `frequency_name` varchar(30) NOT NULL,
+  `frequency_code` varchar(2) DEFAULT NULL,
+  `frequency_desc` varchar(255) DEFAULT NULL,
+  `frequency_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`frequency_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_failure_code
+-- Engine: InnoDB
+-- Rows: 4
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_failure_code`;
+CREATE TABLE `ref_failure_code` (
+  `failure_code_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `failure_code_name` varchar(100) NOT NULL,
+  `failure_code_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`failure_code_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_document
+-- Engine: InnoDB
+-- Rows: 26
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_document`;
+CREATE TABLE `ref_document` (
+  `document_id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `document_desc` varchar(150) NOT NULL,
+  `document_type` varchar(100) DEFAULT NULL,
+  `document_status` tinyint(4) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`document_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- ----------------------------------------------------------------------
+-- Table: ref_status
+-- Engine: InnoDB
+-- Rows: 58
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- Comment: Reference status
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ref_status`;
+CREATE TABLE `ref_status` (
+  `status_id` tinyint(4) NOT NULL,
+  `status_desc` varchar(30) NOT NULL,
+  `status_action` varchar(30) DEFAULT NULL,
+  `status_color` varchar(20) DEFAULT NULL,
+  `status_color_code` varchar(7) DEFAULT NULL,
+  PRIMARY KEY (`status_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Reference status';
+
+-- ----------------------------------------------------------------------
+-- Table: cli_client_failure_code
+-- Engine: InnoDB
+-- Rows: 10
+-- Size: 0.02 MB (Data: 0.02 MB, Index: 0.00 MB)
+-- ----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `cli_client_failure_code`;
+CREATE TABLE `cli_client_failure_code` (
+  `client_failure_code_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_id` smallint(6) NOT NULL,
+  `failure_code_id` smallint(6) NOT NULL,
+  PRIMARY KEY (`client_failure_code_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+COMMIT;
+-- Export completed: 2025-08-01 15:53:47
+-- Tables processed: 118

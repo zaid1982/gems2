@@ -284,3 +284,64 @@
         </div>
     </div>
 </section>
+
+<!-- Modal for Work Order Details -->
+<div class="modal fade" id="modalWoDetails" tabindex="-1" role="dialog" aria-labelledby="modalWoDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalWoDetailsLabel">
+                    <i class="fas fa-list-alt mr-2"></i>Work Order Details - <span id="spanWoDetailsMonth"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card blue-grey lighten-5 z-depth-1">
+                            <div class="card-body p-3">
+                                <h6 class="grey-text font-weight-bold mb-1">Total WO</h6>
+                                <h4 class="teal-text font-weight-bold mb-0" id="h4WoDetailsTotal">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card green lighten-5 z-depth-1">
+                            <div class="card-body p-3">
+                                <h6 class="grey-text font-weight-bold mb-1">Completed WO</h6>
+                                <h4 class="green-text font-weight-bold mb-0" id="h4WoDetailsCompleted">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="dtWoDetails" class="table table-hover table-sm mb-0 display responsive">
+                        <thead>
+                        <tr class="th-strong">
+                            <th>WO No</th>
+                            <th>Description</th>
+                            <th>Asset</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created Date</th>
+                            <th>Target Date</th>
+                            <th>Completed Date</th>
+                            <th>On-Time Status</th>
+                            <th>Type</th>
+                            <th>Role</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

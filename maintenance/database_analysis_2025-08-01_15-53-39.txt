@@ -1,0 +1,1462 @@
+DATABASE ANALYSIS REPORT
+============================================================
+
+Database: gems
+Host: www.metadatasystem.my
+Generated: 2025-08-01 15:53:39
+Total Size: 4710.86 MB
+Total Tables: 118
+
+TABLE DETAILS:
+------------------------------------------------------------
+
+TABLE: ppm_task_qual
+  Engine: InnoDB
+  Rows: 5,099,976
+  Size: 1004.31 MB
+  Columns: 8
+  Column Types: bigint(3), varchar(2), text(1), tinyint(2)
+  Primary Key: ppm_task_qual_id
+  Indexed Columns: frequency_id, ppm_task_id, checklist_qual_id
+
+TABLE: sys_upload
+  Engine: InnoDB
+  Rows: 2,289,822
+  Size: 758.17 MB
+  Columns: 15
+  Column Types: bigint(1), smallint(1), varchar(6), int(4), blob(1), timestamp(1), tinyint(1)
+  Primary Key: upload_id
+  Indexed Columns: document_id, upload_status
+
+TABLE: ppm_task
+  Engine: InnoDB
+  Rows: 792,525
+  Size: 503.91 MB
+  Columns: 27
+  Column Types: bigint(4), varchar(2), date(2), text(2), tinyint(6), int(4), time(2), timestamp(5)
+  Primary Key: ppm_task_id
+  Indexed Columns: ppm_task_no, ppm_task_schedule_date, ppm_task_start_date, ppm_id, transaction_id, pdf_id, ppm_task_assigned_to, ppm_task_serviced_by, ppm_task_checked_by, ppm_task_verified_by, ppm_task_status
+
+TABLE: wfl_task
+  Engine: InnoDB
+  Rows: 1,875,936
+  Size: 499.47 MB
+  Columns: 17
+  Column Types: bigint(2), smallint(3), tinyint(5), int(2), text(1), date(1), timestamp(3)
+  Primary Key: task_id
+  Indexed Columns: transaction_id, checkpoint_id, role_id, group_id, task_current, task_created_user, task_created_group, task_claimed_user, task_date_due, task_status
+
+TABLE: ppm_task_quan
+  Engine: InnoDB
+  Rows: 2,804,827
+  Size: 474.78 MB
+  Columns: 12
+  Column Types: bigint(3), varchar(6), text(1), tinyint(2)
+  Primary Key: ppm_task_quan_id
+  Indexed Columns: frequency_id, ppm_task_id, checklist_quan_id
+
+TABLE: ppm_task_section
+  Engine: InnoDB
+  Rows: 5,633,145
+  Size: 467.36 MB
+  Columns: 4
+  Column Types: bigint(2), varchar(1), tinyint(1)
+  Primary Key: ppm_task_section_id
+  Indexed Columns: ppm_task_id, ppm_task_section_status
+
+TABLE: wfl_transaction
+  Engine: InnoDB
+  Rows: 2,016,957
+  Size: 285.06 MB
+  Columns: 11
+  Column Types: bigint(1), varchar(2), tinyint(2), int(1), smallint(1), date(1), timestamp(3)
+  Primary Key: transaction_id
+  Indexed Columns: flow_id, user_id, group_id, transaction_status
+
+TABLE: ppm_task_upload
+  Engine: InnoDB
+  Rows: 2,064,567
+  Size: 252.97 MB
+  Columns: 8
+  Column Types: bigint(3), tinyint(1), double(2), varchar(1), timestamp(1)
+  Primary Key: ppm_task_upload_id
+  Indexed Columns: ppm_task_id, upload_id
+
+TABLE: wfl_task_assign
+  Engine: InnoDB
+  Rows: 1,050,315
+  Size: 171.41 MB
+  Columns: 6
+  Column Types: bigint(2), smallint(2), tinyint(1), int(1)
+  Primary Key: task_assign_id
+  Indexed Columns: transaction_id, checkpoint_id, role_id, group_id, user_id
+
+TABLE: wo_task_upload
+  Engine: InnoDB
+  Rows: 414,227
+  Size: 59.14 MB
+  Columns: 8
+  Column Types: bigint(3), tinyint(1), double(2), varchar(1), timestamp(1)
+  Primary Key: wo_task_upload_id
+  Indexed Columns: wo_task_upload_type, wo_task_id, upload_id
+
+TABLE: ppm_task_frequency
+  Engine: InnoDB
+  Rows: 750,666
+  Size: 57.66 MB
+  Columns: 3
+  Column Types: bigint(2), tinyint(1)
+  Primary Key: ppm_task_freq_id
+  Indexed Columns: ppm_task_id, frequency_id
+
+TABLE: wo_task
+  Engine: InnoDB
+  Rows: 69,857
+  Size: 52.31 MB
+  Columns: 50
+  Column Types: bigint(5), varchar(4), tinyint(18), smallint(3), text(3), double(2), int(7), timestamp(8)
+  Primary Key: wo_task_id
+  Indexed Columns: wo_task_external_ref, wo_task_is_imported, site_id, zone_id, asset_id, ppm_group_id, wo_task_severity, transaction_id, pdf_id, pdf_id_wr, wo_task_created_by, wo_task_assigned_by, wo_task_wr_checked_by, wo_task_wr_verified_by, wo_task_fixed_by, wo_task_verified_by, wo_task_status
+
+TABLE: sys_pdf
+  Engine: InnoDB
+  Rows: 377,698
+  Size: 36.59 MB
+  Columns: 6
+  Column Types: bigint(1), varchar(3), timestamp(1), tinyint(1)
+  Primary Key: pdf_id
+  Indexed Columns: pdf_type, pdf_status
+
+TABLE: ast_asset
+  Engine: InnoDB
+  Rows: 30,711
+  Size: 21.09 MB
+  Columns: 62
+  Column Types: bigint(1), varchar(22), text(3), smallint(12), mediumint(1), int(3), date(6), decimal(6), tinyint(6), timestamp(2)
+  Primary Key: asset_id
+  Indexed Columns: asset_no, asset_group_id, asset_category_id, asset_type_id, asset_brand_id, asset_model_id, contract_id, zone_id, ppm_group_id, asset_registered_by, asset_status, checklist_id
+
+TABLE: ppm_task_parts
+  Engine: InnoDB
+  Rows: 151,105
+  Size: 14.03 MB
+  Columns: 3
+  Column Types: bigint(2), varchar(1)
+  Primary Key: ppm_task_parts_id
+  Indexed Columns: ppm_task_id
+
+TABLE: ppm
+  Engine: InnoDB
+  Rows: 22,690
+  Size: 8.67 MB
+  Columns: 17
+  Column Types: bigint(2), varchar(4), smallint(4), tinyint(2), date(1), int(2), text(1), timestamp(1)
+  Primary Key: ppm_id
+  Indexed Columns: ppm_set_id, asset_id, checklist_id, contract_id, ppm_group_id, ppm_created_by, ppm_status
+
+TABLE: att_transaction
+  Engine: InnoDB
+  Rows: 33,668
+  Size: 8.58 MB
+  Columns: 14
+  Column Types: bigint(1), date(1), smallint(2), int(1), tinyint(1), timestamp(4), point(2), enum(2)
+  Primary Key: att_transaction_id
+  Indexed Columns: att_participant_id, att_group_id, user_id, att_type_id
+
+TABLE: ast_part_sub
+  Engine: InnoDB
+  Rows: 21,085
+  Size: 6.45 MB
+  Columns: 19
+  Column Types: bigint(4), smallint(1), varchar(5), tinyint(2), date(1), decimal(1), int(2), timestamp(3)
+  Primary Key: part_sub_id
+  Indexed Columns: part_id, item_id, do_item_id, wo_task_parts_id
+
+TABLE: ppm_task_assist
+  Engine: InnoDB
+  Rows: 40,188
+  Size: 5.55 MB
+  Columns: 3
+  Column Types: bigint(2), int(1)
+  Primary Key: ppm_task_assist_id
+  Indexed Columns: ppm_task_id, user_id
+
+TABLE: email_send
+  Engine: InnoDB
+  Rows: 3,449
+  Size: 2.81 MB
+  Columns: 11
+  Column Types: bigint(1), smallint(1), varchar(4), text(1), int(1), tinyint(1), timestamp(2)
+  Primary Key: email_id
+  Indexed Columns: email_template_id, user_id, email_time_set
+
+TABLE: ppm_checklist_qual
+  Engine: InnoDB
+  Rows: 12,438
+  Size: 2.67 MB
+  Columns: 6
+  Column Types: bigint(1), text(1), varchar(1), tinyint(2), int(1)
+  Primary Key: checklist_qual_id
+  Indexed Columns: checklist_qual_numb, frequency_id, checklist_id, checklist_qual_status
+
+TABLE: wo_task_assist
+  Engine: InnoDB
+  Rows: 19,306
+  Size: 2.28 MB
+  Columns: 3
+  Column Types: bigint(2), int(1)
+  Primary Key: wo_task_assist_id
+  Indexed Columns: wo_task_id, user_id
+
+TABLE: ppm_checklist_quan
+  Engine: InnoDB
+  Rows: 7,801
+  Size: 1.97 MB
+  Columns: 8
+  Column Types: bigint(1), text(2), varchar(2), tinyint(2), int(1)
+  Primary Key: checklist_quan_id
+  Indexed Columns: checklist_quan_numb, frequency_id, checklist_id
+
+TABLE: ppm_checklist
+  Engine: InnoDB
+  Rows: 1,568
+  Size: 1.70 MB
+  Columns: 16
+  Column Types: int(2), tinyint(3), varchar(4), text(1), smallint(1), bigint(1), time(2), timestamp(2)
+  Primary Key: checklist_id
+  Indexed Columns: asset_type_id, pdf_id, checklist_registered_by, checklist_status
+
+TABLE: noti_send
+  Engine: InnoDB
+  Rows: 2,997
+  Size: 1.61 MB
+  Columns: 7
+  Column Types: bigint(1), smallint(1), text(2), varchar(1), int(1), timestamp(1)
+  Primary Key: noti_id
+  Indexed Columns: noti_text_id
+
+TABLE: sys_audit
+  Engine: InnoDB
+  Rows: 5,324
+  Size: 0.81 MB
+  Columns: 7
+  Column Types: bigint(1), int(1), varchar(2), timestamp(1), smallint(1), text(1)
+  Primary Key: audit_id
+  Indexed Columns: user_id, audit_action_id
+
+TABLE: wfl_checkpoint_user
+  Engine: InnoDB
+  Rows: 6,012
+  Size: 0.70 MB
+  Columns: 5
+  Column Types: bigint(1), smallint(2), int(1), tinyint(1)
+  Primary Key: checkpoint_user_id
+  Indexed Columns: checkpoint_id, user_id, role_id, group_id
+
+TABLE: sys_user
+  Engine: InnoDB
+  Rows: 1,283
+  Size: 0.69 MB
+  Columns: 21
+  Column Types: int(1), varchar(10), tinyint(3), smallint(1), bigint(2), timestamp(4)
+  Primary Key: user_id
+  Indexed Columns: user_name, user_password, user_type, site_id, upload_id, user_signature, user_status
+
+TABLE: utl_utility
+  Engine: InnoDB
+  Rows: 4,820
+  Size: 0.67 MB
+  Columns: 16
+  Column Types: int(2), date(1), enum(3), smallint(2), decimal(2), double(3), varchar(1), bigint(1), timestamp(1)
+  Primary Key: utility_id
+  Indexed Columns: site_id, meter_id, utility_image, utility_recorded_by
+
+TABLE: sys_user_role
+  Engine: InnoDB
+  Rows: 3,942
+  Size: 0.42 MB
+  Columns: 5
+  Column Types: bigint(1), int(1), tinyint(1), smallint(1), timestamp(1)
+  Primary Key: user_role_id
+  Indexed Columns: user_id, role_id, group_id
+
+TABLE: gmi_monthly
+  Engine: InnoDB
+  Rows: 2,242
+  Size: 0.42 MB
+  Columns: 36
+  Column Types: bigint(1), int(10), smallint(17), tinyint(2), varchar(2), decimal(4)
+  Primary Key: gmi_id
+  Indexed Columns: user_id, site_id
+
+TABLE: wo_task_request
+  Engine: InnoDB
+  Rows: 1,261
+  Size: 0.39 MB
+  Columns: 17
+  Column Types: bigint(4), varchar(2), smallint(1), tinyint(4), text(1), int(1), timestamp(4)
+  Primary Key: wo_task_request_id
+  Indexed Columns: wo_task_id, transaction_id, store_id, wo_task_request_severity, wo_task_request_mrf_pdf
+
+TABLE: sys_user_profile
+  Engine: InnoDB
+  Rows: 1,300
+  Size: 0.34 MB
+  Columns: 8
+  Column Types: bigint(2), int(1), varchar(2), tinyint(3)
+  Primary Key: user_profile_id
+  Indexed Columns: user_id, address_id, department_id, designation_id, user_profile_status
+
+TABLE: noti_web
+  Engine: InnoDB
+  Rows: 1,632
+  Size: 0.27 MB
+  Columns: 11
+  Column Types: bigint(1), tinyint(3), int(1), varchar(5), timestamp(1)
+  Primary Key: noti_web_id
+
+TABLE: cli_site_manual
+  Engine: InnoDB
+  Rows: 2,364
+  Size: 0.25 MB
+  Columns: 15
+  Column Types: smallint(2), date(1), int(12)
+  Primary Key: site_manual_id
+  Indexed Columns: site_id
+
+TABLE: wo_import_log
+  Engine: InnoDB
+  Rows: 203
+  Size: 0.25 MB
+  Columns: 8
+  Column Types: int(4), enum(1), text(2), datetime(1)
+  Primary Key: log_id
+  Indexed Columns: batch_id, import_status, wo_task_id
+
+TABLE: fca_task
+  Engine: InnoDB
+  Rows: 200
+  Size: 0.23 MB
+  Columns: 30
+  Column Types: int(4), varchar(5), bigint(5), smallint(4), tinyint(5), text(3), timestamp(4)
+  Primary Key: fca_task_id
+  Indexed Columns: transaction_id, site_id, fca_zone_id, asset_group_id, fca_defect_category_id, fca_task_image_1, fca_task_image_2, fca_task_image_rectify_1, fca_task_image_rectify_2, fca_task_exclude_report, fca_task_removed
+
+TABLE: wo_task_parts
+  Engine: InnoDB
+  Rows: 1,574
+  Size: 0.23 MB
+  Columns: 6
+  Column Types: bigint(3), int(1), text(1), tinyint(1)
+  Primary Key: wo_task_parts_id
+  Indexed Columns: wo_task_request_id, part_id
+
+TABLE: ppm_group_user
+  Engine: InnoDB
+  Rows: 2,220
+  Size: 0.19 MB
+  Columns: 3
+  Column Types: int(2), smallint(1)
+  Primary Key: ppm_group_user_id
+  Indexed Columns: ppm_group_id, user_id
+
+TABLE: drawing
+  Engine: InnoDB
+  Rows: 459
+  Size: 0.19 MB
+  Columns: 16
+  Column Types: bigint(3), varchar(6), smallint(1), tinyint(2), date(1), text(1), int(1), timestamp(1)
+  Primary Key: drawing_id
+  Indexed Columns: asset_group_id, drawing_published_by, drawing_dwg, drawing_pdf, drawing_created_by, drawing_status
+
+TABLE: gmi_config
+  Engine: InnoDB
+  Rows: 568
+  Size: 0.17 MB
+  Columns: 8
+  Column Types: int(2), varchar(4), timestamp(1), tinyint(1)
+  Primary Key: config_id
+  Indexed Columns: config_key
+
+TABLE: wo_task_request_2
+  Engine: InnoDB
+  Rows: 1,242
+  Size: 0.17 MB
+  Columns: 13
+  Column Types: bigint(4), varchar(1), text(1), int(1), tinyint(2), timestamp(4)
+  Primary Key: wo_task_request_id
+  Indexed Columns: wo_task_id
+
+TABLE: sys_user_group
+  Engine: InnoDB
+  Rows: 1,306
+  Size: 0.16 MB
+  Columns: 3
+  Column Types: bigint(1), int(1), smallint(1)
+  Primary Key: user_group_id
+  Indexed Columns: user_id, group_id
+
+TABLE: ast_part
+  Engine: InnoDB
+  Rows: 650
+  Size: 0.16 MB
+  Columns: 13
+  Column Types: bigint(1), smallint(10), text(1), tinyint(1)
+  Primary Key: part_id
+  Indexed Columns: site_id, store_id, asset_group_id, item_type_id, item_id, part_status
+
+TABLE: att_group
+  Engine: InnoDB
+  Rows: 78
+  Size: 0.13 MB
+  Columns: 28
+  Column Types: smallint(4), varchar(1), int(2), polygon(1), point(1), tinyint(2), time(12), enum(2), text(1), timestamp(2)
+  Primary Key: att_group_id
+  Indexed Columns: site_id, asset_group_id, att_group_supervisor, att_group_ot_approver, att_group_status
+
+TABLE: ast_asset_model
+  Engine: InnoDB
+  Rows: 1,099
+  Size: 0.13 MB
+  Columns: 7
+  Column Types: mediumint(1), varchar(2), smallint(2), timestamp(1), tinyint(1)
+  Primary Key: asset_model_id
+  Indexed Columns: asset_brand_id, asset_type_id, asset_model_status
+
+TABLE: wo_migration
+  Engine: InnoDB
+  Rows: 495
+  Size: 0.11 MB
+  Columns: 26
+  Column Types: bigint(2), varchar(5), tinyint(5), smallint(2), text(2), int(5), timestamp(5)
+
+TABLE: ppm_group
+  Engine: InnoDB
+  Rows: 553
+  Size: 0.11 MB
+  Columns: 6
+  Column Types: smallint(3), varchar(1), tinyint(2)
+  Primary Key: ppm_group_id
+  Indexed Columns: site_id, role_id, ppm_group_report_to, ppm_group_status
+
+TABLE: pr
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.11 MB
+  Columns: 23
+  Column Types: int(6), bigint(3), smallint(2), varchar(3), decimal(2), timestamp(6), tinyint(1)
+  Primary Key: pr_id
+  Indexed Columns: transaction_id, site_id, pr_quotation_upload, po_po_upload, supplier_id, pr_requested_by
+
+TABLE: ast_asset_type
+  Engine: InnoDB
+  Rows: 912
+  Size: 0.11 MB
+  Columns: 7
+  Column Types: smallint(2), varchar(2), tinyint(2), timestamp(1)
+  Primary Key: asset_type_id
+  Indexed Columns: asset_category_id, asset_type_status
+
+TABLE: do
+  Engine: InnoDB
+  Rows: 316
+  Size: 0.09 MB
+  Columns: 13
+  Column Types: int(4), smallint(2), varchar(2), enum(1), bigint(1), date(1), timestamp(1), tinyint(1)
+  Primary Key: do_id
+  Indexed Columns: pr_id, site_id, do_upload
+
+TABLE: ref_item
+  Engine: InnoDB
+  Rows: 570
+  Size: 0.09 MB
+  Columns: 9
+  Column Types: smallint(5), varchar(1), tinyint(2), text(1)
+  Primary Key: item_id
+  Indexed Columns: item_type_id, item_status
+
+TABLE: sys_nav_role
+  Engine: InnoDB
+  Rows: 272
+  Size: 0.08 MB
+  Columns: 5
+  Column Types: smallint(4), tinyint(1)
+  Primary Key: nav_role_id
+  Indexed Columns: role_id, nav_id, nav_second_id, nav_role_turn
+
+TABLE: att_participant
+  Engine: InnoDB
+  Rows: 154
+  Size: 0.08 MB
+  Columns: 15
+  Column Types: smallint(4), int(1), varchar(3), tinyint(2), enum(2), date(1), timestamp(2)
+  Primary Key: att_participant_id
+  Indexed Columns: att_group_id, user_id, asset_group_id, att_type_id
+
+TABLE: wfl_user_report
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.08 MB
+  Columns: 5
+  Column Types: int(3), tinyint(2)
+  Primary Key: user_report_id
+  Indexed Columns: user_id, role_id, report_to, report_role
+
+TABLE: cli_contract_user
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.08 MB
+  Columns: 5
+  Column Types: bigint(1), int(1), smallint(3)
+  Primary Key: contract_user_id
+  Indexed Columns: user_id, contract_id, location_code_id, asset_group_id
+
+TABLE: do_item
+  Engine: InnoDB
+  Rows: 417
+  Size: 0.08 MB
+  Columns: 9
+  Column Types: bigint(2), int(1), smallint(1), tinyint(1), date(1), decimal(2), timestamp(1)
+  Primary Key: do_item_id
+  Indexed Columns: do_id, part_id
+
+TABLE: wfl_checkpoint
+  Engine: InnoDB
+  Rows: 31
+  Size: 0.06 MB
+  Columns: 16
+  Column Types: smallint(6), tinyint(6), varchar(3), bit(1)
+  Primary Key: checkpoint_id
+  Indexed Columns: flow_id, role_id, group_id
+
+TABLE: wo_import_batch
+  Engine: InnoDB
+  Rows: 8
+  Size: 0.06 MB
+  Columns: 10
+  Column Types: int(6), varchar(1), enum(1), datetime(2)
+  Primary Key: batch_id
+  Indexed Columns: site_id, import_status, created_at
+
+TABLE: ref_city
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.06 MB
+  Columns: 4
+  Column Types: smallint(2), varchar(1), tinyint(1)
+  Primary Key: city_id
+  Indexed Columns: city_desc, state_id, city_status
+
+TABLE: ast_asset_brand
+  Engine: InnoDB
+  Rows: 626
+  Size: 0.06 MB
+  Columns: 5
+  Column Types: smallint(1), varchar(2), timestamp(1), tinyint(1)
+  Primary Key: asset_brand_id
+  Indexed Columns: asset_brand_status
+
+TABLE: fca_report
+  Engine: InnoDB
+  Rows: 3
+  Size: 0.06 MB
+  Columns: 13
+  Column Types: smallint(3), varchar(2), date(2), tinyint(2), int(2), bigint(1), timestamp(1)
+  Primary Key: fca_report_id
+  Indexed Columns: site_id, asset_group_id, pdf_id
+
+TABLE: ppm_set
+  Engine: InnoDB
+  Rows: 4
+  Size: 0.06 MB
+  Columns: 10
+  Column Types: smallint(5), varchar(2), int(1), timestamp(1), tinyint(1)
+  Primary Key: ppm_set_id
+  Indexed Columns: asset_type_id, ppm_group_id
+
+TABLE: email_log
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.06 MB
+  Columns: 13
+  Column Types: bigint(2), smallint(1), varchar(4), text(1), int(1), tinyint(2), timestamp(2)
+  Primary Key: email_log_id
+  Indexed Columns: email_template_id, user_id, email_time_sent
+
+TABLE: fca_task_section
+  Engine: InnoDB
+  Rows: 600
+  Size: 0.06 MB
+  Columns: 5
+  Column Types: bigint(1), varchar(2), int(1), tinyint(1)
+  Primary Key: fca_task_section_id
+  Indexed Columns: fca_task_id
+
+TABLE: wo_task_public
+  Engine: InnoDB
+  Rows: 31
+  Size: 0.06 MB
+  Columns: 10
+  Column Types: bigint(3), varchar(5), text(1), int(1)
+  Primary Key: wo_task_public
+  Indexed Columns: wo_task_id, transaction_id, user_id
+
+TABLE: ref_state
+  Engine: InnoDB
+  Rows: 16
+  Size: 0.06 MB
+  Columns: 4
+  Column Types: smallint(2), varchar(1), tinyint(1)
+  Primary Key: state_id
+  Indexed Columns: country_id, state_desc, state_status
+
+TABLE: sys_nav
+  Engine: InnoDB
+  Rows: 20
+  Size: 0.05 MB
+  Columns: 5
+  Column Types: smallint(1), varchar(3), tinyint(1)
+  Primary Key: nav_id
+  Indexed Columns: nav_status
+
+TABLE: ref_item_type
+  Engine: InnoDB
+  Rows: 105
+  Size: 0.05 MB
+  Columns: 5
+  Column Types: smallint(2), varchar(1), tinyint(2)
+  Primary Key: item_type_id
+  Indexed Columns: asset_group_id, item_type_status
+
+TABLE: fca_defect_category_site
+  Engine: InnoDB
+  Rows: 14
+  Size: 0.05 MB
+  Columns: 3
+  Column Types: int(1), smallint(2)
+  Primary Key: fca_defect_category_site_id
+  Indexed Columns: site_id, fca_defect_category_id
+
+TABLE: cli_site_problem_type
+  Engine: InnoDB
+  Rows: 4
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: smallint(2), varchar(1), tinyint(1)
+  Primary Key: site_problem_type_id
+  Indexed Columns: site_id, site_problem_type_status
+
+TABLE: gmi_weekly
+  Engine: InnoDB
+  Rows: 6
+  Size: 0.05 MB
+  Columns: 35
+  Column Types: bigint(1), int(10), smallint(16), tinyint(2), varchar(2), decimal(4)
+  Primary Key: gmw_id
+  Indexed Columns: user_id, site_id
+
+TABLE: ref_item_image
+  Engine: InnoDB
+  Rows: 403
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: int(1), bigint(1), smallint(1), timestamp(1)
+  Primary Key: item_image_id
+  Indexed Columns: upload_id, item_id
+
+TABLE: cli_site
+  Engine: InnoDB
+  Rows: 20
+  Size: 0.05 MB
+  Columns: 20
+  Column Types: smallint(3), varchar(3), int(6), tinyint(7), timestamp(1)
+  Primary Key: site_id
+  Indexed Columns: client_id, group_id
+
+TABLE: sys_audit_action
+  Engine: InnoDB
+  Rows: 227
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: smallint(2), varchar(1), tinyint(1)
+  Primary Key: audit_action_id
+  Indexed Columns: audit_module_id, audit_action_status
+
+TABLE: ppm_set_asset
+  Engine: InnoDB
+  Rows: 150
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: int(2), smallint(1), bigint(1)
+  Primary Key: ppm_set_asset_id
+  Indexed Columns: ppm_set_id, asset_id
+
+TABLE: ppm_asset
+  Engine: InnoDB
+  Rows: 20
+  Size: 0.05 MB
+  Columns: 3
+  Column Types: int(1), bigint(2)
+  Primary Key: ppm_asset_id
+  Indexed Columns: ppm_id, asset_id
+
+TABLE: cli_contract
+  Engine: InnoDB
+  Rows: 20
+  Size: 0.05 MB
+  Columns: 8
+  Column Types: smallint(2), varchar(2), date(2), timestamp(1), tinyint(1)
+  Primary Key: contract_id
+  Indexed Columns: site_id, contract_status
+
+TABLE: do_upload
+  Engine: InnoDB
+  Rows: 321
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: int(2), bigint(1), timestamp(1)
+  Primary Key: do_upload_id
+  Indexed Columns: do_id, upload_id
+
+TABLE: cli_client_severity
+  Engine: InnoDB
+  Rows: 55
+  Size: 0.05 MB
+  Columns: 5
+  Column Types: int(1), smallint(3), tinyint(1)
+  Primary Key: client_severity_id
+  Indexed Columns: client_id, severity_id
+
+TABLE: wfl_checkpoint_assign
+  Engine: InnoDB
+  Rows: 16
+  Size: 0.05 MB
+  Columns: 4
+  Column Types: smallint(3), tinyint(1)
+  Primary Key: checkpoint_assign_id
+  Indexed Columns: checkpoint_id, checkpoint_to
+
+TABLE: sys_nav_second
+  Engine: InnoDB
+  Rows: 53
+  Size: 0.05 MB
+  Columns: 5
+  Column Types: smallint(2), varchar(2), tinyint(1)
+  Primary Key: nav_second_id
+  Indexed Columns: nav_id, nav_second_status
+
+TABLE: ast_asset_category
+  Engine: InnoDB
+  Rows: 168
+  Size: 0.05 MB
+  Columns: 6
+  Column Types: smallint(2), varchar(2), timestamp(1), tinyint(1)
+  Primary Key: asset_category_id
+  Indexed Columns: asset_group_id, asset_category_status
+
+TABLE: noti_text
+  Engine: InnoDB
+  Rows: 25
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: smallint(1), varchar(2), text(1), tinyint(1)
+  Primary Key: noti_text_id
+  Indexed Columns: noti_text_status
+
+TABLE: cli_client
+  Engine: InnoDB
+  Rows: 17
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: smallint(1), varchar(2), timestamp(1), tinyint(1)
+  Primary Key: client_id
+  Indexed Columns: client_status
+
+TABLE: ref_role
+  Engine: InnoDB
+  Rows: 23
+  Size: 0.03 MB
+  Columns: 4
+  Column Types: tinyint(3), varchar(1)
+  Primary Key: role_id
+  Indexed Columns: role_status
+
+TABLE: cli_zone
+  Engine: InnoDB
+  Rows: 4
+  Size: 0.03 MB
+  Columns: 6
+  Column Types: smallint(2), varchar(3), tinyint(1)
+  Primary Key: zone_id
+  Indexed Columns: site_id
+
+TABLE: cli_store
+  Engine: InnoDB
+  Rows: 12
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: smallint(2), varchar(2), tinyint(1)
+  Primary Key: store_id
+  Indexed Columns: site_id
+
+TABLE: utl_meter
+  Engine: InnoDB
+  Rows: 66
+  Size: 0.03 MB
+  Columns: 6
+  Column Types: smallint(2), enum(1), varchar(2), tinyint(1)
+  Primary Key: meter_id
+  Indexed Columns: site_id
+
+TABLE: sys_location
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: int(1), varchar(1), tinyint(1), float(2)
+  Primary Key: location_id
+  Indexed Columns: location_status
+
+TABLE: noti_parameter
+  Engine: InnoDB
+  Rows: 31
+  Size: 0.03 MB
+  Columns: 4
+  Column Types: bigint(1), smallint(1), varchar(2)
+  Primary Key: noti_param_id
+  Indexed Columns: noti_text_id
+
+TABLE: sys_group
+  Engine: InnoDB
+  Rows: 24
+  Size: 0.03 MB
+  Columns: 6
+  Column Types: smallint(1), varchar(2), tinyint(2), timestamp(1)
+  Primary Key: group_id
+  Indexed Columns: group_status
+
+TABLE: noti_log
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.03 MB
+  Columns: 9
+  Column Types: bigint(2), smallint(1), text(2), varchar(1), int(1), timestamp(1), tinyint(1)
+  Primary Key: noti_log_id
+  Indexed Columns: noti_log_status
+
+TABLE: email_template
+  Engine: InnoDB
+  Rows: 24
+  Size: 0.03 MB
+  Columns: 6
+  Column Types: smallint(1), varchar(3), text(1), tinyint(1)
+  Primary Key: email_template_id
+  Indexed Columns: email_template_status
+
+TABLE: sys_audit_module
+  Engine: InnoDB
+  Rows: 16
+  Size: 0.03 MB
+  Columns: 3
+  Column Types: smallint(1), varchar(1), tinyint(1)
+  Primary Key: audit_module_id
+  Indexed Columns: audit_module_status
+
+TABLE: kpi_ppns
+  Engine: InnoDB
+  Rows: 221
+  Size: 0.03 MB
+  Columns: 15
+  Column Types: int(1), smallint(1), tinyint(1), decimal(11), timestamp(1)
+  Primary Key: kpi_ppns_id
+  Indexed Columns: kpi_id
+
+TABLE: kpi_info
+  Engine: InnoDB
+  Rows: 13
+  Size: 0.03 MB
+  Columns: 12
+  Column Types: smallint(2), tinyint(3), varchar(4), text(2), decimal(1)
+  Primary Key: kpi_info_id
+  Indexed Columns: site_id
+
+TABLE: email_parameter
+  Engine: InnoDB
+  Rows: 44
+  Size: 0.03 MB
+  Columns: 4
+  Column Types: bigint(1), smallint(1), varchar(2)
+  Primary Key: email_param_id
+  Indexed Columns: email_template_id
+
+TABLE: cli_location_code
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.03 MB
+  Columns: 6
+  Column Types: smallint(2), varchar(3), tinyint(1)
+  Primary Key: location_code_id
+  Indexed Columns: site_id
+
+TABLE: kpi
+  Engine: InnoDB
+  Rows: 17
+  Size: 0.03 MB
+  Columns: 8
+  Column Types: smallint(3), tinyint(3), decimal(1), timestamp(1)
+  Primary Key: kpi_id
+  Indexed Columns: site_id
+
+TABLE: sys_address
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: bigint(1), varchar(3), smallint(1)
+  Primary Key: address_id
+  Indexed Columns: state_id
+
+TABLE: wfl_flow
+  Engine: InnoDB
+  Rows: 5
+  Size: 0.03 MB
+  Columns: 4
+  Column Types: tinyint(2), varchar(1), smallint(1)
+  Primary Key: flow_id
+  Indexed Columns: flow_status
+
+TABLE: fca_zone
+  Engine: InnoDB
+  Rows: 35
+  Size: 0.03 MB
+  Columns: 4
+  Column Types: smallint(2), varchar(1), tinyint(1)
+  Primary Key: fca_zone_id
+  Indexed Columns: site_id
+
+TABLE: ref_designation
+  Engine: InnoDB
+  Rows: 10
+  Size: 0.03 MB
+  Columns: 3
+  Column Types: tinyint(2), varchar(1)
+  Primary Key: designation_id
+  Indexed Columns: designation_status
+
+TABLE: ref_department
+  Engine: InnoDB
+  Rows: 2
+  Size: 0.03 MB
+  Columns: 3
+  Column Types: tinyint(2), varchar(1)
+  Primary Key: department_id
+  Indexed Columns: department_status
+
+TABLE: ast_asset_group
+  Engine: InnoDB
+  Rows: 24
+  Size: 0.03 MB
+  Columns: 5
+  Column Types: smallint(1), varchar(2), timestamp(1), tinyint(1)
+  Primary Key: asset_group_id
+  Indexed Columns: asset_group_status
+
+TABLE: ref_country
+  Engine: InnoDB
+  Rows: 182
+  Size: 0.03 MB
+  Columns: 3
+  Column Types: smallint(1), varchar(1), tinyint(1)
+  Primary Key: country_id
+  Indexed Columns: country_status
+
+TABLE: ref_severity
+  Engine: InnoDB
+  Rows: 18
+  Size: 0.03 MB
+  Columns: 3
+  Column Types: tinyint(2), varchar(1)
+  Primary Key: severity_id
+  Indexed Columns: severity_status
+
+TABLE: att_type
+  Engine: InnoDB
+  Rows: 17
+  Size: 0.02 MB
+  Columns: 7
+  Column Types: tinyint(2), varchar(4), enum(1)
+  Primary Key: att_type_id
+
+TABLE: pr_supplier
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.02 MB
+  Columns: 4
+  Column Types: smallint(1), varchar(2), tinyint(1)
+  Primary Key: supplier_id
+
+TABLE: pr_item
+  Engine: InnoDB
+  Rows: 0
+  Size: 0.02 MB
+  Columns: 11
+  Column Types: bigint(2), smallint(7), decimal(1), tinyint(1)
+  Primary Key: pr_item_id
+
+TABLE: fca_defect_category
+  Engine: InnoDB
+  Rows: 15
+  Size: 0.02 MB
+  Columns: 3
+  Column Types: smallint(1), varchar(1), tinyint(1)
+  Primary Key: fca_defect_category_id
+
+TABLE: sys_version
+  Engine: InnoDB
+  Rows: 38
+  Size: 0.02 MB
+  Columns: 4
+  Column Types: smallint(1), varchar(1), int(1), tinyint(1)
+  Primary Key: version_id
+
+TABLE: ppm_frequency
+  Engine: InnoDB
+  Rows: 9
+  Size: 0.02 MB
+  Columns: 5
+  Column Types: tinyint(2), varchar(3)
+  Primary Key: frequency_id
+
+TABLE: ref_failure_code
+  Engine: InnoDB
+  Rows: 4
+  Size: 0.02 MB
+  Columns: 3
+  Column Types: smallint(1), varchar(1), tinyint(1)
+  Primary Key: failure_code_id
+
+TABLE: ref_document
+  Engine: InnoDB
+  Rows: 26
+  Size: 0.02 MB
+  Columns: 4
+  Column Types: smallint(1), varchar(2), tinyint(1)
+  Primary Key: document_id
+
+TABLE: ref_status
+  Engine: InnoDB
+  Rows: 58
+  Size: 0.02 MB
+  Columns: 5
+  Column Types: tinyint(1), varchar(4)
+  Primary Key: status_id
+
+TABLE: cli_client_failure_code
+  Engine: InnoDB
+  Rows: 10
+  Size: 0.02 MB
+  Columns: 3
+  Column Types: int(1), smallint(2)
+  Primary Key: client_failure_code_id
+
+
+RELATIONSHIPS:
+------------------------------------------------------------
+
+TABLE: ppm_task_qual
+  ppm_task_id -> ppm_task.ppm_task_id
+  frequency_id -> ppm_frequency.frequency_id
+
+TABLE: sys_upload
+  document_id -> ref_document.document_id
+
+TABLE: ppm_task
+  ppm_id -> ppm.ppm_id
+  ppm_task_serviced_by -> sys_user.user_id
+  ppm_task_checked_by -> sys_user.user_id
+  ppm_task_verified_by -> sys_user.user_id
+  ppm_task_assigned_to -> sys_user.user_id
+  pdf_id -> sys_pdf.pdf_id
+
+TABLE: wfl_task
+  transaction_id -> wfl_transaction.transaction_id
+  checkpoint_id -> wfl_checkpoint.checkpoint_id
+  role_id -> ref_role.role_id
+  group_id -> sys_group.group_id
+  task_created_user -> sys_user.user_id
+  task_claimed_user -> sys_user.user_id
+  task_created_group -> sys_group.group_id
+
+TABLE: ppm_task_quan
+  ppm_task_id -> ppm_task.ppm_task_id
+  frequency_id -> ppm_frequency.frequency_id
+
+TABLE: ppm_task_section
+  ppm_task_id -> ppm_task.ppm_task_id
+
+TABLE: wfl_transaction
+  flow_id -> wfl_flow.flow_id
+  user_id -> sys_user.user_id
+  group_id -> sys_group.group_id
+
+TABLE: ppm_task_upload
+  ppm_task_id -> ppm_task.ppm_task_id
+  upload_id -> sys_upload.upload_id
+
+TABLE: wfl_task_assign
+  transaction_id -> wfl_transaction.transaction_id
+  checkpoint_id -> wfl_checkpoint.checkpoint_id
+  group_id -> sys_group.group_id
+  user_id -> sys_user.user_id
+  role_id -> ref_role.role_id
+
+TABLE: ppm_task_frequency
+  ppm_task_id -> ppm_task.ppm_task_id
+  frequency_id -> ppm_frequency.frequency_id
+
+TABLE: wo_task
+  transaction_id -> wfl_transaction.transaction_id
+  wo_task_wr_checked_by -> sys_user.user_id
+  wo_task_wr_verified_by -> sys_user.user_id
+  asset_id -> ast_asset.asset_id
+  wo_task_severity -> ref_severity.severity_id
+  zone_id -> cli_zone.zone_id
+  pdf_id -> sys_pdf.pdf_id
+  wo_task_created_by -> sys_user.user_id
+  wo_task_assigned_by -> sys_user.user_id
+  wo_task_fixed_by -> sys_user.user_id
+  wo_task_verified_by -> sys_user.user_id
+  site_id -> cli_site.site_id
+  ppm_group_id -> ppm_group.ppm_group_id
+  pdf_id_wr -> sys_pdf.pdf_id
+
+TABLE: ast_asset
+  contract_id -> cli_contract.contract_id
+  ppm_group_id -> ppm_group.ppm_group_id
+  checklist_id -> ppm_checklist.checklist_id
+  zone_id -> cli_zone.zone_id
+  asset_group_id -> ast_asset_group.asset_group_id
+  asset_category_id -> ast_asset_category.asset_category_id
+  asset_type_id -> ast_asset_type.asset_type_id
+  asset_brand_id -> ast_asset_brand.asset_brand_id
+  asset_model_id -> ast_asset_model.asset_model_id
+  asset_registered_by -> sys_user.user_id
+
+TABLE: ppm_task_parts
+  ppm_task_id -> ppm_task.ppm_task_id
+
+TABLE: ppm
+  asset_id -> ast_asset.asset_id
+  contract_id -> cli_contract.contract_id
+  checklist_id -> ppm_checklist.checklist_id
+  ppm_created_by -> sys_user.user_id
+  ppm_group_id -> ppm_group.ppm_group_id
+  ppm_set_id -> ppm_set.ppm_set_id
+
+TABLE: att_transaction
+  att_type_id -> att_type.att_type_id
+  user_id -> sys_user.user_id
+  att_participant_id -> att_participant.att_participant_id
+  att_group_id -> att_group.att_group_id
+
+TABLE: ast_part_sub
+  part_id -> ast_part.part_id
+  item_id -> ref_item.item_id
+  wo_task_parts_id -> wo_task_parts.wo_task_parts_id
+  do_item_id -> do_item.do_item_id
+
+TABLE: ppm_task_assist
+  ppm_task_id -> ppm_task.ppm_task_id
+  user_id -> sys_user.user_id
+
+TABLE: email_send
+  email_template_id -> email_template.email_template_id
+  user_id -> sys_user.user_id
+
+TABLE: ppm_checklist_qual
+  checklist_id -> ppm_checklist.checklist_id
+  frequency_id -> ppm_frequency.frequency_id
+
+TABLE: wo_task_assist
+  wo_task_id -> wo_task.wo_task_id
+  user_id -> sys_user.user_id
+
+TABLE: ppm_checklist_quan
+  checklist_id -> ppm_checklist.checklist_id
+  frequency_id -> ppm_frequency.frequency_id
+
+TABLE: ppm_checklist
+  asset_type_id -> ast_asset_type.asset_type_id
+  checklist_registered_by -> sys_user.user_id
+  pdf_id -> sys_pdf.pdf_id
+
+TABLE: noti_send
+  noti_text_id -> noti_text.noti_text_id
+
+TABLE: wfl_checkpoint_user
+  checkpoint_id -> wfl_checkpoint.checkpoint_id
+  user_id -> sys_user.user_id
+  group_id -> sys_group.group_id
+  role_id -> ref_role.role_id
+
+TABLE: sys_user
+  user_status -> ref_status.status_id
+  upload_id -> sys_upload.upload_id
+  site_id -> cli_site.site_id
+  user_signature -> sys_upload.upload_id
+
+TABLE: utl_utility
+  site_id -> cli_site.site_id
+  meter_id -> utl_meter.meter_id
+  utility_recorded_by -> sys_user.user_id
+  utility_image -> sys_upload.upload_id
+
+TABLE: sys_user_role
+  role_id -> ref_role.role_id
+  user_id -> sys_user.user_id
+  group_id -> sys_group.group_id
+
+TABLE: gmi_monthly
+  user_id -> sys_user.user_id
+  site_id -> cli_site.site_id
+
+TABLE: wo_task_request
+  wo_task_id -> wo_task.wo_task_id
+  transaction_id -> wfl_transaction.transaction_id
+  wo_task_request_mrf_pdf -> sys_pdf.pdf_id
+  wo_task_request_severity -> ref_severity.severity_id
+  store_id -> cli_store.store_id
+
+TABLE: sys_user_profile
+  user_id -> sys_user.user_id
+  address_id -> sys_address.address_id
+  department_id -> ref_department.department_id
+  designation_id -> ref_designation.designation_id
+
+TABLE: cli_site_manual
+  site_id -> cli_site.site_id
+
+TABLE: wo_import_log
+  batch_id -> wo_import_batch.batch_id
+
+TABLE: fca_task
+  site_id -> cli_site.site_id
+  transaction_id -> wfl_transaction.transaction_id
+  asset_group_id -> ast_asset_group.asset_group_id
+  fca_defect_category_id -> fca_defect_category.fca_defect_category_id
+  fca_task_image_1 -> sys_upload.upload_id
+  fca_task_image_2 -> sys_upload.upload_id
+  fca_zone_id -> fca_zone.fca_zone_id
+  fca_task_image_rectify_1 -> sys_upload.upload_id
+  fca_task_image_rectify_2 -> sys_upload.upload_id
+
+TABLE: wo_task_parts
+  part_id -> ast_part.part_id
+  wo_task_request_id -> wo_task_request.wo_task_request_id
+
+TABLE: ppm_group_user
+  ppm_group_id -> ppm_group.ppm_group_id
+  user_id -> sys_user.user_id
+
+TABLE: drawing
+  drawing_dwg -> sys_upload.upload_id
+  drawing_pdf -> sys_upload.upload_id
+  drawing_created_by -> sys_user.user_id
+  asset_group_id -> ast_asset_group.asset_group_id
+
+TABLE: sys_user_group
+  user_id -> sys_user.user_id
+  group_id -> sys_group.group_id
+
+TABLE: ast_part
+  site_id -> cli_site.site_id
+  store_id -> cli_store.store_id
+  item_id -> ref_item.item_id
+  asset_group_id -> ast_asset_group.asset_group_id
+  item_type_id -> ref_item_type.item_type_id
+
+TABLE: att_group
+  site_id -> cli_site.site_id
+  att_group_supervisor -> sys_user.user_id
+  att_group_ot_approver -> sys_user.user_id
+  asset_group_id -> ast_asset_group.asset_group_id
+
+TABLE: ast_asset_model
+  asset_brand_id -> ast_asset_brand.asset_brand_id
+  asset_type_id -> ast_asset_type.asset_type_id
+
+TABLE: ppm_group
+  role_id -> ref_role.role_id
+  site_id -> cli_site.site_id
+  ppm_group_report_to -> ppm_group.ppm_group_id
+
+TABLE: pr
+  supplier_id -> pr_supplier.supplier_id
+  pr_requested_by -> sys_user.user_id
+  transaction_id -> wfl_transaction.transaction_id
+  site_id -> cli_site.site_id
+  pr_quotation_upload -> sys_upload.upload_id
+  po_po_upload -> sys_upload.upload_id
+
+TABLE: ast_asset_type
+  asset_category_id -> ast_asset_category.asset_category_id
+
+TABLE: do
+  pr_id -> pr.pr_id
+  do_upload -> sys_upload.upload_id
+  site_id -> cli_site.site_id
+
+TABLE: ref_item
+  item_type_id -> ref_item_type.item_type_id
+
+TABLE: sys_nav_role
+  role_id -> ref_role.role_id
+  nav_id -> sys_nav.nav_id
+  nav_second_id -> sys_nav_second.nav_second_id
+
+TABLE: att_participant
+  att_group_id -> att_group.att_group_id
+  user_id -> sys_user.user_id
+  asset_group_id -> ast_asset_group.asset_group_id
+  att_type_id -> att_type.att_type_id
+
+TABLE: wfl_user_report
+  user_id -> sys_user.user_id
+  role_id -> ref_role.role_id
+  report_to -> sys_user.user_id
+  report_role -> ref_role.role_id
+
+TABLE: cli_contract_user
+  user_id -> sys_user.user_id
+  contract_id -> cli_contract.contract_id
+  location_code_id -> cli_location_code.location_code_id
+  asset_group_id -> ast_asset_group.asset_group_id
+
+TABLE: do_item
+  part_id -> ast_part.part_id
+  do_id -> do.do_id
+
+TABLE: wfl_checkpoint
+  role_id -> ref_role.role_id
+  group_id -> sys_group.group_id
+  flow_id -> wfl_flow.flow_id
+
+TABLE: ref_city
+  state_id -> ref_state.state_id
+
+TABLE: fca_report
+  site_id -> cli_site.site_id
+  asset_group_id -> ast_asset_group.asset_group_id
+  pdf_id -> sys_pdf.pdf_id
+
+TABLE: ppm_set
+  asset_type_id -> ast_asset_type.asset_type_id
+  ppm_group_id -> ppm_group.ppm_group_id
+
+TABLE: email_log
+  email_template_id -> email_template.email_template_id
+
+TABLE: fca_task_section
+  fca_task_id -> fca_task.fca_task_id
+
+TABLE: wo_task_public
+  wo_task_id -> wo_task.wo_task_id
+  transaction_id -> wfl_transaction.transaction_id
+  user_id -> sys_user.user_id
+
+TABLE: ref_state
+  country_id -> ref_country.country_id
+
+TABLE: ref_item_type
+  asset_group_id -> ast_asset_group.asset_group_id
+
+TABLE: fca_defect_category_site
+  site_id -> cli_site.site_id
+  fca_defect_category_id -> fca_defect_category.fca_defect_category_id
+
+TABLE: cli_site_problem_type
+  site_id -> cli_site.site_id
+
+TABLE: ref_item_image
+  upload_id -> sys_upload.upload_id
+  item_id -> ref_item.item_id
+
+TABLE: cli_site
+  client_id -> cli_client.client_id
+  group_id -> sys_group.group_id
+
+TABLE: sys_audit_action
+  audit_module_id -> sys_audit_module.audit_module_id
+
+TABLE: ppm_set_asset
+  ppm_set_id -> ppm_set.ppm_set_id
+  asset_id -> ast_asset.asset_id
+
+TABLE: ppm_asset
+  ppm_id -> ppm.ppm_id
+  asset_id -> ast_asset.asset_id
+
+TABLE: cli_contract
+  site_id -> cli_site.site_id
+
+TABLE: do_upload
+  do_id -> do.do_id
+  upload_id -> sys_upload.upload_id
+
+TABLE: cli_client_severity
+  client_id -> cli_client.client_id
+  severity_id -> ref_severity.severity_id
+
+TABLE: wfl_checkpoint_assign
+  checkpoint_id -> wfl_checkpoint.checkpoint_id
+  checkpoint_to -> wfl_checkpoint.checkpoint_id
+
+TABLE: sys_nav_second
+  nav_id -> sys_nav.nav_id
+
+TABLE: ast_asset_category
+  asset_group_id -> ast_asset_group.asset_group_id
+
+TABLE: cli_zone
+  site_id -> cli_site.site_id
+
+TABLE: cli_store
+  site_id -> cli_site.site_id
+
+TABLE: utl_meter
+  site_id -> cli_site.site_id
+
+TABLE: noti_parameter
+  noti_text_id -> noti_text.noti_text_id
+
+TABLE: kpi_ppns
+  kpi_id -> kpi.kpi_id
+
+TABLE: kpi_info
+  site_id -> cli_site.site_id
+
+TABLE: email_parameter
+  email_template_id -> email_template.email_template_id
+
+TABLE: cli_location_code
+  site_id -> cli_site.site_id
+
+TABLE: kpi
+  site_id -> cli_site.site_id
+
+TABLE: sys_address
+  state_id -> ref_state.state_id
+
+TABLE: fca_zone
+  site_id -> cli_site.site_id
+
+
+VIEWS: 1
+
+TRIGGERS: 0
+
+INDEXES:
+  Total: 429
+  Unique: 122
+  Non-unique: 307
+
