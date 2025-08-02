@@ -15,15 +15,21 @@ class SysUser extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             
-            // Get current user's site information for site filtering
-            $currentUserData = DbMysql::selectSql("SELECT site_id FROM sys_user WHERE user_id = ?", array($this->userId));
-            $userSite = !empty($currentUserData) ? $currentUserData[0]['siteId'] : null;
+            // Get current user's site information for site filtering - using prepared statement to avoid WHERE clause conflict
+            $stmt = DbMysql::$DBH->prepare("SELECT site_id FROM sys_user WHERE user_id = ?");
+            $stmt->execute(array($this->userId));
+            $currentUserData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
+            $userSite = !empty($currentUserData) ? $currentUserData['site_id'] : null;
             
             // Debug: Log user information
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Current User ID: ' . $this->userId . ', Site ID: ' . $userSite);
             
-            // Check if user is administrator (roles 1 or 10)
-            $userRoles = DbMysql::selectSqlAll("SELECT role_id FROM sys_user_role WHERE user_id = ?", array($this->userId));
+            // Check if user is administrator (roles 1 or 10) - using prepared statement to avoid WHERE clause conflict
+            $stmt = DbMysql::$DBH->prepare("SELECT role_id FROM sys_user_role WHERE user_id = ?");
+            $stmt->execute(array($this->userId));
+            $userRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = null;
             $isAdministrator = false;
             foreach ($userRoles as $role) {
                 if (in_array($role['role_id'], [1, 10])) {
