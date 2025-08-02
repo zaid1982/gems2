@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Advanced Database Tool</title>
+    <!-- Monaco Editor for advanced SQL editing -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-bg: #1e1e1e;
+            --light-bg: #ffffff;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --border-color: #bdc3c7;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--text-light);
+            color: var(--text-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-tabs {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .sidebar-tab.active {
+            background: var(--light-bg);
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .editor-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 15px;
+        }
+        
+        .editor-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .editor-tab.active {
+            background: var(--light-bg);
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        
+        .editor-tab .close-btn {
+            margin-left: 8px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .editor-tab .close-btn:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .add-tab-btn {
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #editor {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .results-area {
+            min-height: 300px;
+            max-height: 50vh;
+            background: var(--light-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .results-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .results-content {
+            flex: 1;
+            overflow: auto;
+            padding: 15px;
+        }
+        
+        .db-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .info-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .table-grid {
+            display: grid;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .table-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+        }
+        
+        .table-card.selected {
+            border-color: var(--secondary-color);
+            background: #e3f2fd;
+        }
+        
+        .table-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .table-meta {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .column-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .column-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-item:last-child {
+            border-bottom: none;
+        }
+        
+        .column-name {
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .column-type {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .key-icon {
+            color: var(--warning-color);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #34495e;
+        }
+        
+        .data-table td {
+            padding: 8px;
+            border: 1px solid #e9ecef;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .data-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .status-bar {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .execution-time {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Dark Theme */
+        .dark-theme {
+            --light-bg: #2d3748;
+            --text-dark: #e2e8f0;
+            --border-color: #4a5568;
+        }
+        
+        .dark-theme body {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+        
+        .dark-theme .sidebar {
+            background: #2d3748;
+        }
+        
+        .dark-theme .sidebar-tabs {
+            background: #1a202c;
+        }
+        
+        .dark-theme .editor-tabs,
+        .dark-theme .editor-toolbar,
+        .dark-theme .results-toolbar {
+            background: #1a202c;
+        }
+        
+        .dark-theme .table-card {
+            background: #1a202c;
+            border-color: #4a5568;
+        }
+        
+        .dark-theme .info-card {
+            background: #1a202c;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                min-height: 300px;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .editor-toolbar {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🗄️</span>
+                GEMS2 Advanced Database Tool
+            </h1>
+            <div class="header-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span> Dark Mode
+                </button>
+                <div style="color: rgba(255,255,255,0.8); font-size: 14px;">
+                    Connected to: <strong id="db-connection">Loading...</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" onclick="switchSidebarTab('database')">
+                        📊 Database
+                    </button>
+                    <button class="sidebar-tab" onclick="switchSidebarTab('history')">
+                        📜 History
+                    </button>
+                    <button class="sidebar-tab" onclick="switchSidebarTab('templates')">
+                        📝 Templates
+                    </button>
+                </div>
+                
+                <div class="sidebar-content">
+                    <!-- Database Tab -->
+                    <div id="database-tab" class="tab-content">
+                        <div id="db-info" class="loading">
+                            <div class="spinner"></div>
+                            Loading database info...
+                        </div>
+                        
+                        <h3 style="margin: 20px 0 10px 0;">Tables</h3>
+                        <input type="text" class="search-box" id="table-search" 
+                               placeholder="🔍 Search tables..." onkeyup="filterTables()">
+                        
+                        <div id="table-list" class="table-grid">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                Loading tables...
+                            </div>
+                        </div>
+                        
+                        <div id="column-details" style="margin-top: 20px;">
+                            <h3>Table Columns</h3>
+                            <div style="padding: 20px; text-align: center; color: #7f8c8d;">
+                                Select a table to view columns
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- History Tab -->
+                    <div id="history-tab" class="tab-content" style="display: none;">
+                        <h3>Query History</h3>
+                        <div id="query-history">
+                            <div style="padding: 20px; text-align: center; color: #7f8c8d;">
+                                No queries executed yet
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Templates Tab -->
+                    <div id="templates-tab" class="tab-content" style="display: none;">
+                        <h3>Query Templates</h3>
+                        <div id="query-templates">
+                            <!-- Templates will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <div class="editor-tabs">
+                    <button class="editor-tab active" data-tab="1">
+                        📝 Query 1
+                        <span class="close-btn" onclick="closeTab(1)">&times;</span>
+                    </button>
+                    <button class="add-tab-btn" onclick="addNewTab()">+</button>
+                </div>
+                
+                <div class="editor-container">
+                    <div class="editor-toolbar">
+                        <button class="btn btn-primary" onclick="executeQuery()">
+                            ▶️ Execute
+                        </button>
+                        <button class="btn btn-success" onclick="formatQuery()">
+                            ✨ Format
+                        </button>
+                        <button class="btn btn-secondary" onclick="explainQuery()">
+                            🔍 Explain
+                        </button>
+                        <button class="btn btn-warning" onclick="saveQuery()">
+                            💾 Save
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearEditor()">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                    
+                    <div class="editor-wrapper">
+                        <div id="editor"></div>
+                    </div>
+                </div>
+                
+                <div class="results-area">
+                    <div class="results-toolbar">
+                        <div>
+                            <strong>Results</strong>
+                            <span id="result-count"></span>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="exportResults('csv')">
+                                📊 Export CSV
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportResults('json')">
+                                📄 Export JSON
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-content" id="results-content">
+                        <div style="padding: 20px; text-align: center; color: #7f8c8d;">
+                            Execute a query to see results here
+                        </div>
+                    </div>
+                    
+                    <div class="status-bar">
+                        <div id="status-info">Ready</div>
+                        <div id="execution-info"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let editor;
+        let currentQuery = '';
+        let queryResults = [];
+        let queryHistory = [];
+        let currentTab = 1;
+        let tabCounter = 1;
+        let selectedTable = '';
+        let isDarkTheme = false;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditor();
+            loadDatabaseInfo();
+            loadTables();
+            loadQueryTemplates();
+            loadQueryHistory();
+        });
+
+        // Initialize Monaco Editor
+        function initializeEditor() {
+            require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                editor = monaco.editor.create(document.getElementById('editor'), {
+                    value: 'SELECT * FROM sys_user LIMIT 10;',
+                    language: 'sql',
+                    theme: 'vs',
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    wordWrap: 'on'
+                });
+
+                // Add keyboard shortcuts
+                editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, executeQuery);
+                editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveQuery);
+            });
+        }
+
+        // Database operations
+        async function loadDatabaseInfo() {
+            try {
+                const response = await fetch('db_query_tool.php', {
+                    method: 'POST',
+                    body: new FormData().append('action', 'database_info')
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayDatabaseInfo(data.info);
+                }
+            } catch (error) {
+                console.error('Error loading database info:', error);
+            }
+        }
+
+        async function loadTables() {
+            try {
+                const response = await fetch('db_query_tool.php', {
+                    method: 'POST',
+                    body: new FormData().append('action', 'list_tables')
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTables(data.tables);
+                }
+            } catch (error) {
+                console.error('Error loading tables:', error);
+            }
+        }
+
+        function displayDatabaseInfo(info) {
+            document.getElementById('db-connection').textContent = `${info.database_name}@${info.host}`;
+            
+            const html = `
+                <div class="db-info-grid">
+                    <div class="info-card">
+                        <div class="info-value">${info.table_count}</div>
+                        <div class="info-label">Tables</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${info.size_mb} MB</div>
+                        <div class="info-label">Size</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${info.version.split('-')[0]}</div>
+                        <div class="info-label">Version</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('db-info').innerHTML = html;
+        }
+
+        function displayTables(tables) {
+            let html = '';
+            tables.forEach(table => {
+                html += `
+                    <div class="table-card" onclick="selectTable('${table.name}')">
+                        <div>
+                            <div class="table-name">${table.name}</div>
+                            <div class="table-meta">${table.rows} rows</div>
+                        </div>
+                        <div class="table-meta">${table.size}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('table-list').innerHTML = html;
+        }
+
+        // Query execution
+        async function executeQuery() {
+            const query = editor.getValue().trim();
+            if (!query) {
+                showStatus('Please enter a SQL query', 'error');
+                return;
+            }
+
+            addToHistory(query);
+            showLoading();
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'execute');
+                formData.append('query', query);
+
+                const response = await fetch('db_query_tool.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data.results, data.query_type, data.execution_time, data.affected_rows);
+                    showStatus(`Query executed successfully in ${data.execution_time}s`, 'success');
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+
+            hideLoading();
+        }
+
+        function displayResults(results, queryType, executionTime, affectedRows) {
+            const contentDiv = document.getElementById('results-content');
+            
+            if (queryType === 'SELECT' && results.length > 0) {
+                let html = '<table class="data-table"><thead><tr>';
+                Object.keys(results[0]).forEach(key => {
+                    html += `<th>${key}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                results.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td title="${value}">${value !== null ? value : '<i>NULL</i>'}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                
+                contentDiv.innerHTML = html;
+                document.getElementById('result-count').textContent = `(${results.length} rows)`;
+            } else {
+                contentDiv.innerHTML = `
+                    <div class="success-message">
+                        ✅ ${queryType} query executed successfully<br>
+                        ${affectedRows} row(s) affected
+                    </div>
+                `;
+                document.getElementById('result-count').textContent = '';
+            }
+            
+            document.getElementById('execution-info').innerHTML = 
+                `<span class="execution-time">⚡ ${executionTime}s</span>`;
+            
+            queryResults = results;
+        }
+
+        // UI Functions
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            
+            const themeIcon = document.getElementById('theme-icon');
+            themeIcon.textContent = isDarkTheme ? '☀️' : '🌙';
+            
+            if (editor) {
+                monaco.editor.setTheme(isDarkTheme ? 'vs-dark' : 'vs');
+            }
+        }
+
+        function switchSidebarTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.sidebar-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab and mark button as active
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        function selectTable(tableName) {
+            selectedTable = tableName;
+            
+            // Update visual selection
+            document.querySelectorAll('.table-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.table-card').classList.add('selected');
+            
+            loadTableColumns(tableName);
+            
+            // Insert table name into editor at cursor position
+            if (editor) {
+                const position = editor.getPosition();
+                editor.executeEdits('', [{
+                    range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                    text: tableName
+                }]);
+            }
+        }
+
+        async function loadTableColumns(tableName) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'table_columns');
+                formData.append('table', tableName);
+
+                const response = await fetch('db_query_tool.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayTableColumns(data.columns, tableName);
+                }
+            } catch (error) {
+                console.error('Error loading table columns:', error);
+            }
+        }
+
+        function displayTableColumns(columns, tableName) {
+            let html = `
+                <h3>📋 ${tableName}</h3>
+                <div class="column-list">
+            `;
+            
+            columns.forEach(column => {
+                const keyIcon = column.COLUMN_KEY === 'PRI' ? '🔑' : 
+                               column.COLUMN_KEY === 'UNI' ? '🔐' : 
+                               column.COLUMN_KEY === 'MUL' ? '🔗' : '';
+                
+                html += `
+                    <div class="column-item">
+                        <div class="column-name">
+                            <span class="key-icon">${keyIcon}</span>
+                            ${column.COLUMN_NAME}
+                        </div>
+                        <div class="column-type">${column.COLUMN_TYPE}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('column-details').innerHTML = html;
+        }
+
+        function filterTables() {
+            const searchTerm = document.getElementById('table-search').value.toLowerCase();
+            const tableCards = document.querySelectorAll('.table-card');
+            
+            tableCards.forEach(card => {
+                const tableName = card.querySelector('.table-name').textContent.toLowerCase();
+                if (tableName.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function showStatus(message, type) {
+            document.getElementById('status-info').innerHTML = 
+                `<span style="color: var(--${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'secondary'}-color)">${message}</span>`;
+        }
+
+        function showError(message) {
+            document.getElementById('results-content').innerHTML = `
+                <div class="error-message">
+                    ❌ ${message}
+                </div>
+            `;
+            showStatus('Query failed', 'error');
+        }
+
+        function showLoading() {
+            document.getElementById('results-content').innerHTML = `
+                <div class="loading" style="display: block;">
+                    <div class="spinner"></div>
+                    Executing query...
+                </div>
+            `;
+        }
+
+        function hideLoading() {
+            // Loading will be replaced by results
+        }
+
+        // Query management
+        function formatQuery() {
+            if (!editor) return;
+            
+            let query = editor.getValue();
+            
+            // Basic SQL formatting
+            query = query.replace(/\s+/g, ' ').trim();
+            query = query.replace(/\s*(SELECT|FROM|WHERE|ORDER BY|GROUP BY|HAVING|LIMIT|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|UNION)\s+/gi, '\n$1 ');
+            query = query.replace(/\s*,\s*/g, ',\n    ');
+            query = query.replace(/\s*(AND|OR)\s+/gi, '\n    $1 ');
+            
+            editor.setValue(query);
+        }
+
+        function clearEditor() {
+            if (editor) {
+                editor.setValue('');
+            }
+        }
+
+        function saveQuery() {
+            const query = editor.getValue().trim();
+            if (!query) return;
+            
+            const name = prompt('Enter a name for this query:');
+            if (name) {
+                // Save to localStorage for now (could be extended to server-side storage)
+                const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+                savedQueries.push({
+                    name: name,
+                    query: query,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+                loadQueryTemplates();
+                showStatus('Query saved successfully', 'success');
+            }
+        }
+
+        function addToHistory(query) {
+            queryHistory.unshift({
+                query: query,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 50 queries
+            if (queryHistory.length > 50) {
+                queryHistory = queryHistory.slice(0, 50);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyDiv = document.getElementById('query-history');
+            if (queryHistory.length === 0) {
+                historyDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">No queries executed yet</div>';
+                return;
+            }
+            
+            let html = '';
+            queryHistory.slice(0, 20).forEach((item, index) => {
+                html += `
+                    <div class="table-card" onclick="loadHistoryQuery(${index})">
+                        <div>
+                            <div class="table-name">${item.query.substring(0, 50)}${item.query.length > 50 ? '...' : ''}</div>
+                            <div class="table-meta">${new Date(item.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            historyDiv.innerHTML = html;
+        }
+
+        function loadHistoryQuery(index) {
+            if (editor && queryHistory[index]) {
+                editor.setValue(queryHistory[index].query);
+            }
+        }
+
+        function loadQueryTemplates() {
+            const templates = [
+                {
+                    name: "Select All Records",
+                    query: "SELECT * FROM table_name LIMIT 100;"
+                },
+                {
+                    name: "Count Records",
+                    query: "SELECT COUNT(*) as total_records FROM table_name;"
+                },
+                {
+                    name: "Table Structure",
+                    query: "DESCRIBE table_name;"
+                },
+                {
+                    name: "Show Create Table",
+                    query: "SHOW CREATE TABLE table_name;"
+                },
+                {
+                    name: "Find Duplicates",
+                    query: "SELECT column_name, COUNT(*) as count\nFROM table_name\nGROUP BY column_name\nHAVING COUNT(*) > 1;"
+                },
+                {
+                    name: "Recent Records",
+                    query: "SELECT * FROM table_name\nORDER BY created_at DESC\nLIMIT 10;"
+                }
+            ];
+            
+            // Add saved queries
+            const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+            
+            const templatesDiv = document.getElementById('query-templates');
+            let html = '';
+            
+            // Built-in templates
+            templates.forEach(template => {
+                html += `
+                    <div class="table-card" onclick="loadTemplate('${template.query.replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="table-name">${template.name}</div>
+                            <div class="table-meta">Built-in template</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Saved queries
+            if (savedQueries.length > 0) {
+                html += '<h4 style="margin: 20px 0 10px 0;">Saved Queries</h4>';
+                savedQueries.forEach((saved, index) => {
+                    html += `
+                        <div class="table-card">
+                            <div onclick="loadTemplate('${saved.query.replace(/'/g, "\\'")}')">
+                                <div class="table-name">${saved.name}</div>
+                                <div class="table-meta">${new Date(saved.timestamp).toLocaleDateString()}</div>
+                            </div>
+                            <button style="background: var(--danger-color); color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;" onclick="deleteSavedQuery(${index})">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+            
+            templatesDiv.innerHTML = html;
+        }
+
+        function loadTemplate(query) {
+            if (editor) {
+                editor.setValue(query);
+            }
+        }
+
+        function deleteSavedQuery(index) {
+            const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+            savedQueries.splice(index, 1);
+            localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+            loadQueryTemplates();
+        }
+
+        function loadQueryHistory() {
+            // Load from localStorage for now
+            queryHistory = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+            updateHistoryDisplay();
+        }
+
+        // Export functions
+        function exportResults(format) {
+            if (queryResults.length === 0) {
+                showStatus('No results to export', 'error');
+                return;
+            }
+            
+            if (format === 'csv') {
+                exportToCSV();
+            } else if (format === 'json') {
+                exportToJSON();
+            }
+        }
+
+        function exportToCSV() {
+            let csv = '';
+            if (queryResults.length > 0) {
+                // Headers
+                csv += Object.keys(queryResults[0]).join(',') + '\n';
+                
+                // Data
+                queryResults.forEach(row => {
+                    const values = Object.values(row).map(value => {
+                        if (value === null) return '';
+                        return '"' + String(value).replace(/"/g, '""') + '"';
+                    });
+                    csv += values.join(',') + '\n';
+                });
+            }
+            
+            downloadFile(csv, 'query_results.csv', 'text/csv');
+        }
+
+        function exportToJSON() {
+            const json = JSON.stringify(queryResults, null, 2);
+            downloadFile(json, 'query_results.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showStatus(`File exported: ${filename}`, 'success');
+        }
+
+        // Tab management (for future multi-tab support)
+        function addNewTab() {
+            // Placeholder for multi-tab functionality
+            showStatus('Multi-tab support coming soon!', 'info');
+        }
+
+        function closeTab(tabId) {
+            // Placeholder for multi-tab functionality
+            showStatus('Multi-tab support coming soon!', 'info');
+        }
+
+        function explainQuery() {
+            const query = editor.getValue().trim();
+            if (!query.toLowerCase().startsWith('select')) {
+                showStatus('EXPLAIN only works with SELECT queries', 'error');
+                return;
+            }
+            
+            const explainQuery = 'EXPLAIN ' + query;
+            editor.setValue(explainQuery);
+            executeQuery();
+        }
+
+        // Save query history to localStorage when page unloads
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
+        });
+    </script>
+</body>
+</html>

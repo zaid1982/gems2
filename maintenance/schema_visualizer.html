@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema Visualizer - GEMS2</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .select-field {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        #visualization {
+            height: 600px;
+            border: 1px solid #ddd;
+            margin: 20px;
+            border-radius: 8px;
+        }
+        
+        .info-panel {
+            margin: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .table-details {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .table-details-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-details-content {
+            padding: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .column-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .column-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-name {
+            font-weight: 500;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .column-type {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Database Schema Visualizer</h1>
+            <p>Interactive visualization of table relationships and foreign keys</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="loadSchema()">
+                🔄 Refresh Schema
+            </button>
+            <select class="select-field" id="layout-select" onchange="changeLayout()">
+                <option value="hierarchical">Hierarchical Layout</option>
+                <option value="force">Force Layout</option>
+                <option value="circular">Circular Layout</option>
+            </select>
+            <button class="btn btn-success" onclick="exportDiagram()">
+                💾 Export PNG
+            </button>
+            <button class="btn btn-warning" onclick="generateSQL()">
+                📜 Generate SQL
+            </button>
+            <label>
+                <input type="checkbox" id="show-columns" onchange="toggleColumns()"> 
+                Show Columns
+            </label>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>Regular Table</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>System Table</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #27ae60;"></div>
+                <span>View</span>
+            </div>
+            <div class="legend-item">
+                <div style="width: 20px; height: 2px; background: #f39c12;"></div>
+                <span>Foreign Key</span>
+            </div>
+        </div>
+        
+        <div id="visualization">
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading database schema...
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📊 Schema Statistics</h3>
+            <div id="schema-stats">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Table Details Modal -->
+    <div class="overlay" id="overlay" onclick="closeTableDetails()"></div>
+    <div class="table-details" id="table-details">
+        <div class="table-details-header">
+            <h3 id="table-title">Table Details</h3>
+            <button class="close-btn" onclick="closeTableDetails()">&times;</button>
+        </div>
+        <div class="table-details-content" id="table-content">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+
+    <script>
+        let network;
+        let nodes;
+        let edges;
+        let schemaData = {};
+        
+        // Initialize the visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSchema();
+        });
+        
+        async function loadSchema() {
+            try {
+                showLoading();
+                
+                // Try advanced_db_tool.php first, fallback to db_query_tool.php
+                let tablesData;
+                let useAdvanced = true;
+                
+                try {
+                    const tablesResponse = await fetch('advanced_db_tool.php', {
+                        method: 'POST',
+                        body: new FormData().append('action', 'list_tables')
+                    });
+                    tablesData = await tablesResponse.json();
+                    
+                    if (!tablesData.success) {
+                        throw new Error('Advanced tool failed, trying fallback');
+                    }
+                } catch (advancedError) {
+                    console.warn('Advanced tool failed, using fallback:', advancedError);
+                    useAdvanced = false;
+                    
+                    // Fallback to existing db_query_tool.php
+                    const formData = new FormData();
+                    formData.append('action', 'list_tables');
+                    
+                    const tablesResponse = await fetch('db_query_tool.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const fallbackData = await tablesResponse.json();
+                    
+                    if (!fallbackData.success) {
+                        throw new Error(fallbackData.error);
+                    }
+                    
+                    // Convert fallback format to expected format
+                    tablesData = {
+                        success: true,
+                        tables: fallbackData.tables.map(table => ({
+                            name: table.name,
+                            type: 'BASE TABLE',
+                            engine: 'Unknown',
+                            rows: table.rows || '0',
+                            size: table.size || '0 KB',
+                            size_kb: 0
+                        }))
+                    };
+                }
+                
+                // Load foreign key relationships
+                const relationships = await loadForeignKeys(tablesData.tables, useAdvanced);
+                
+                // Create visualization
+                createVisualization(tablesData.tables, relationships);
+                updateSchemaStats(tablesData.tables, relationships);
+                
+                // Show connection status
+                const statusMsg = useAdvanced ? 
+                    '✅ Connected via Advanced Tool' : 
+                    '⚠️ Connected via Fallback (limited features)';
+                    
+                document.querySelector('.header p').innerHTML = 
+                    'Interactive visualization of table relationships and foreign keys<br>' +
+                    `<small style="color: rgba(255,255,255,0.8);">${statusMsg}</small>`;
+                
+            } catch (error) {
+                document.getElementById('visualization').innerHTML = 
+                    `<div style="padding: 40px; text-align: center; color: #e74c3c;">
+                        ❌ Error loading schema: ${error.message}<br><br>
+                        <button class="btn btn-primary" onclick="loadSchema()" style="margin-top: 10px;">
+                            🔄 Retry Connection
+                        </button>
+                    </div>`;
+            }
+        }
+        
+        async function loadForeignKeys(tables, useAdvanced = true) {
+            const relationships = [];
+            
+            for (const table of tables) {
+                try {
+                    let response, data;
+                    
+                    if (useAdvanced) {
+                        response = await fetch('advanced_db_tool.php', {
+                            method: 'POST',
+                            body: Object.entries({
+                                action: 'table_columns',
+                                table: table.name
+                            }).reduce((fd, [key, val]) => (fd.append(key, val), fd), new FormData())
+                        });
+                    } else {
+                        // Use fallback db_query_tool.php
+                        const formData = new FormData();
+                        formData.append('action', 'table_columns');
+                        formData.append('table', table.name);
+                        
+                        response = await fetch('db_query_tool.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+                    }
+                    
+                    data = await response.json();
+                    
+                    if (data.success && data.columns) {
+                        data.columns.forEach(column => {
+                            // Check for foreign key patterns in column names or types
+                            if (column.FOREIGN_KEY) {
+                                relationships.push({
+                                    from: table.name,
+                                    to: column.FOREIGN_KEY.table,
+                                    fromColumn: column.COLUMN_NAME,
+                                    toColumn: column.FOREIGN_KEY.column
+                                });
+                            } else if (useAdvanced === false) {
+                                // For fallback, try to detect relationships by naming convention
+                                const columnName = column.COLUMN_NAME;
+                                if (columnName.endsWith('_id') && columnName !== 'id') {
+                                    const possibleTable = columnName.replace('_id', '');
+                                    const targetTable = tables.find(t => 
+                                        t.name === possibleTable || 
+                                        t.name === possibleTable + 's' ||
+                                        t.name === 'sys_' + possibleTable ||
+                                        t.name === 'ref_' + possibleTable
+                                    );
+                                    
+                                    if (targetTable) {
+                                        relationships.push({
+                                            from: table.name,
+                                            to: targetTable.name,
+                                            fromColumn: columnName,
+                                            toColumn: 'id'
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Could not load foreign keys for ${table.name}:`, error);
+                }
+            }
+            
+            return relationships;
+        }
+        
+        function createVisualization(tables, relationships) {
+            // Create nodes (tables)
+            const nodeArray = tables.map(table => ({
+                id: table.name,
+                label: table.name,
+                title: `${table.name}\n${table.rows} rows\n${table.size}`,
+                color: getTableColor(table),
+                font: { 
+                    size: 14,
+                    color: '#2c3e50'
+                },
+                shape: 'box',
+                margin: 10,
+                widthConstraint: { minimum: 80, maximum: 150 }
+            }));
+            
+            // Create edges (relationships)
+            const edgeArray = relationships.map((rel, index) => ({
+                id: index,
+                from: rel.from,
+                to: rel.to,
+                label: `${rel.fromColumn} → ${rel.toColumn}`,
+                color: {
+                    color: '#f39c12',
+                    highlight: '#e67e22'
+                },
+                arrows: {
+                    to: {
+                        enabled: true,
+                        scaleFactor: 1.2
+                    }
+                },
+                font: {
+                    size: 10,
+                    color: '#7f8c8d'
+                },
+                smooth: {
+                    enabled: true,
+                    type: 'curvedCW',
+                    roundness: 0.2
+                }
+            }));
+            
+            nodes = new vis.DataSet(nodeArray);
+            edges = new vis.DataSet(edgeArray);
+            
+            const container = document.getElementById('visualization');
+            const data = { nodes: nodes, edges: edges };
+            const options = {
+                layout: {
+                    hierarchical: {
+                        enabled: true,
+                        direction: 'DU',
+                        sortMethod: 'directed',
+                        levelSeparation: 150,
+                        nodeSpacing: 100
+                    }
+                },
+                physics: {
+                    enabled: false
+                },
+                interaction: {
+                    selectConnectedEdges: false,
+                    hover: true
+                },
+                nodes: {
+                    borderWidth: 2,
+                    borderWidthSelected: 3,
+                    chosen: {
+                        node: function(values, id, selected, hovering) {
+                            values.borderColor = '#3498db';
+                        }
+                    }
+                },
+                edges: {
+                    width: 2,
+                    selectionWidth: 3,
+                    hoverWidth: 3
+                }
+            };
+            
+            network = new vis.Network(container, data, options);
+            
+            // Add event listeners
+            network.on('doubleClick', function(params) {
+                if (params.nodes.length > 0) {
+                    showTableDetails(params.nodes[0]);
+                }
+            });
+            
+            network.on('hoverNode', function(params) {
+                container.style.cursor = 'pointer';
+            });
+            
+            network.on('blurNode', function(params) {
+                container.style.cursor = 'default';
+            });
+            
+            schemaData = { tables, relationships };
+        }
+        
+        function getTableColor(table) {
+            if (table.name.startsWith('sys_') || table.name.startsWith('ref_')) {
+                return {
+                    background: '#e74c3c',
+                    border: '#c0392b',
+                    highlight: {
+                        background: '#e55039',
+                        border: '#c0392b'
+                    }
+                };
+            } else if (table.type === 'VIEW') {
+                return {
+                    background: '#27ae60',
+                    border: '#229954',
+                    highlight: {
+                        background: '#2ed573',
+                        border: '#229954'
+                    }
+                };
+            } else {
+                return {
+                    background: '#3498db',
+                    border: '#2980b9',
+                    highlight: {
+                        background: '#5dade2',
+                        border: '#2980b9'
+                    }
+                };
+            }
+        }
+        
+        async function showTableDetails(tableName) {
+            try {
+                let response, data;
+                
+                // Try advanced tool first, fallback to basic tool
+                try {
+                    response = await fetch('advanced_db_tool.php', {
+                        method: 'POST',
+                        body: Object.entries({
+                            action: 'table_columns',
+                            table: tableName
+                        }).reduce((fd, [key, val]) => (fd.append(key, val), fd), new FormData())
+                    });
+                    data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error('Advanced tool failed');
+                    }
+                } catch (advancedError) {
+                    // Fallback to db_query_tool.php
+                    const formData = new FormData();
+                    formData.append('action', 'table_columns');
+                    formData.append('table', tableName);
+                    
+                    response = await fetch('db_query_tool.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    data = await response.json();
+                }
+                
+                if (data.success) {
+                    displayTableDetails(tableName, data.columns);
+                } else {
+                    console.error('Failed to load table details:', data.error);
+                    // Show basic info even if column details fail
+                    displayTableDetails(tableName, []);
+                }
+            } catch (error) {
+                console.error('Error loading table details:', error);
+                displayTableDetails(tableName, []);
+            }
+        }
+        
+        function displayTableDetails(tableName, columns) {
+            const table = schemaData.tables.find(t => t.name === tableName);
+            
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h4>📊 Table Information</h4>
+                    <p><strong>Name:</strong> ${tableName}</p>
+                    <p><strong>Engine:</strong> ${table?.engine || 'Unknown'}</p>
+                    <p><strong>Rows:</strong> ${table?.rows || 'Unknown'}</p>
+                    <p><strong>Size:</strong> ${table?.size || 'Unknown'}</p>
+                </div>
+                
+                <h4>📋 Columns (${columns.length})</h4>
+                <div class="column-list">
+            `;
+            
+            columns.forEach(column => {
+                const keyIcon = column.COLUMN_KEY === 'PRI' ? '🔑' : 
+                               column.COLUMN_KEY === 'UNI' ? '🔐' : 
+                               column.COLUMN_KEY === 'MUL' ? '🔗' : '';
+                
+                const foreignKey = column.FOREIGN_KEY ? 
+                    ` → ${column.FOREIGN_KEY.table}.${column.FOREIGN_KEY.column}` : '';
+                
+                html += `
+                    <div class="column-item">
+                        <div class="column-name">
+                            <span style="color: #f39c12;">${keyIcon}</span>
+                            ${column.COLUMN_NAME}${foreignKey}
+                        </div>
+                        <div class="column-type">${column.COLUMN_TYPE}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Find relationships
+            const incomingRels = schemaData.relationships.filter(r => r.to === tableName);
+            const outgoingRels = schemaData.relationships.filter(r => r.from === tableName);
+            
+            if (incomingRels.length > 0 || outgoingRels.length > 0) {
+                html += '<h4>🔗 Relationships</h4>';
+                
+                if (outgoingRels.length > 0) {
+                    html += '<p><strong>References:</strong></p><ul>';
+                    outgoingRels.forEach(rel => {
+                        html += `<li>${rel.fromColumn} → ${rel.to}.${rel.toColumn}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (incomingRels.length > 0) {
+                    html += '<p><strong>Referenced by:</strong></p><ul>';
+                    incomingRels.forEach(rel => {
+                        html += `<li>${rel.from}.${rel.fromColumn} → ${rel.toColumn}</li>`;
+                    });
+                    html += '</ul>';
+                }
+            }
+            
+            document.getElementById('table-title').textContent = `📋 ${tableName}`;
+            document.getElementById('table-content').innerHTML = html;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('table-details').style.display = 'block';
+        }
+        
+        function closeTableDetails() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('table-details').style.display = 'none';
+        }
+        
+        function changeLayout() {
+            const layout = document.getElementById('layout-select').value;
+            let options = {};
+            
+            switch (layout) {
+                case 'hierarchical':
+                    options = {
+                        layout: {
+                            hierarchical: {
+                                enabled: true,
+                                direction: 'DU',
+                                sortMethod: 'directed'
+                            }
+                        },
+                        physics: { enabled: false }
+                    };
+                    break;
+                case 'force':
+                    options = {
+                        layout: { hierarchical: { enabled: false } },
+                        physics: { 
+                            enabled: true,
+                            stabilization: { iterations: 100 }
+                        }
+                    };
+                    break;
+                case 'circular':
+                    options = {
+                        layout: { hierarchical: { enabled: false } },
+                        physics: { enabled: false }
+                    };
+                    // Position nodes in a circle
+                    const nodeIds = nodes.getIds();
+                    const updates = nodeIds.map((id, index) => {
+                        const angle = (2 * Math.PI * index) / nodeIds.length;
+                        const radius = 200;
+                        return {
+                            id: id,
+                            x: radius * Math.cos(angle),
+                            y: radius * Math.sin(angle)
+                        };
+                    });
+                    nodes.update(updates);
+                    break;
+            }
+            
+            if (layout !== 'circular') {
+                network.setOptions(options);
+            }
+        }
+        
+        function toggleColumns() {
+            const showColumns = document.getElementById('show-columns').checked;
+            // This would require additional implementation to show column details on nodes
+            console.log('Toggle columns:', showColumns);
+        }
+        
+        function exportDiagram() {
+            const canvas = network.canvas.frame.canvas;
+            const link = document.createElement('a');
+            link.download = 'database_schema.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function generateSQL() {
+            let sql = '-- Database Schema Export\n\n';
+            
+            schemaData.tables.forEach(table => {
+                sql += `-- Table: ${table.name}\n`;
+                sql += `-- Rows: ${table.rows}, Size: ${table.size}\n\n`;
+            });
+            
+            sql += '-- Foreign Key Relationships:\n';
+            schemaData.relationships.forEach(rel => {
+                sql += `-- ${rel.from}.${rel.fromColumn} → ${rel.to}.${rel.toColumn}\n`;
+            });
+            
+            const blob = new Blob([sql], { type: 'text/sql' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'schema_overview.sql';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function updateSchemaStats(tables, relationships) {
+            const stats = {
+                totalTables: tables.length,
+                systemTables: tables.filter(t => t.name.startsWith('sys_') || t.name.startsWith('ref_')).length,
+                totalRelationships: relationships.length,
+                totalRows: tables.reduce((sum, t) => sum + parseInt(t.rows.replace(/,/g, '') || 0), 0),
+                totalSize: tables.reduce((sum, t) => {
+                    const sizeStr = t.size_kb || 0;
+                    return sum + parseFloat(sizeStr);
+                }, 0)
+            };
+            
+            document.getElementById('schema-stats').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #3498db;">${stats.totalTables}</div>
+                        <div style="color: #7f8c8d;">Total Tables</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #e74c3c;">${stats.systemTables}</div>
+                        <div style="color: #7f8c8d;">System Tables</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #f39c12;">${stats.totalRelationships}</div>
+                        <div style="color: #7f8c8d;">Relationships</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #27ae60;">${stats.totalRows.toLocaleString()}</div>
+                        <div style="color: #7f8c8d;">Total Rows</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showLoading() {
+            document.getElementById('visualization').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading database schema...
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

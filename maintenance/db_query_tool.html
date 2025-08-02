@@ -537,6 +537,7 @@ SHOW CREATE TABLE wo_task;"></textarea>
         }
         
         function loadDatabaseInfo() {
+            console.log('loadDatabaseInfo called');
             const formData = new FormData();
             formData.append('action', 'database_info');
             
@@ -544,18 +545,27 @@ SHOW CREATE TABLE wo_task;"></textarea>
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Database info data:', data);
                 if (data.success) {
                     displayDatabaseInfo(data.info);
+                } else {
+                    console.error('Database info error:', data.error);
+                    document.getElementById('dbInfo').innerHTML = '<div style="color: red;">Error: ' + data.error + '</div>';
                 }
             })
             .catch(error => {
-                document.getElementById('dbInfo').innerHTML = '<div style="color: red;">Error loading database info</div>';
+                console.error('Database info fetch error:', error);
+                document.getElementById('dbInfo').innerHTML = '<div style="color: red;">Error loading database info: ' + error.message + '</div>';
             });
         }
         
         function loadTables() {
+            console.log('loadTables called');
             const formData = new FormData();
             formData.append('action', 'list_tables');
             
@@ -563,14 +573,22 @@ SHOW CREATE TABLE wo_task;"></textarea>
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Tables response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Tables data:', data);
                 if (data.success) {
                     displayTables(data.tables);
+                } else {
+                    console.error('Tables error:', data.error);
+                    document.getElementById('tableList').innerHTML = '<div style="color: red; padding: 20px;">Error: ' + data.error + '</div>';
                 }
             })
             .catch(error => {
-                document.getElementById('tableList').innerHTML = '<div style="color: red; padding: 20px;">Error loading tables</div>';
+                console.error('Tables fetch error:', error);
+                document.getElementById('tableList').innerHTML = '<div style="color: red; padding: 20px;">Error loading tables: ' + error.message + '</div>';
             });
         }
         

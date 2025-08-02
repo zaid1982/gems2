@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Performance Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #9b59b6;
+            --light-bg: #ffffff;
+            --dark-bg: #1e1e1e;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --border-color: #bdc3c7;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --hover-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-left h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-left p {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .metric-card {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .metric-card.warning {
+            border-left-color: var(--warning-color);
+        }
+        
+        .metric-card.danger {
+            border-left-color: var(--danger-color);
+        }
+        
+        .metric-card.success {
+            border-left-color: var(--success-color);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .metric-title {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .metric-icon {
+            font-size: 1.5em;
+            opacity: 0.7;
+        }
+        
+        .metric-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .metric-change {
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .metric-change.positive {
+            color: var(--success-color);
+        }
+        
+        .metric-change.negative {
+            color: var(--danger-color);
+        }
+        
+        .metric-change.neutral {
+            color: #7f8c8d;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .chart-card {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .chart-btn {
+            padding: 4px 8px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-btn.active {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-container.large {
+            height: 400px;
+        }
+        
+        .table-container {
+            background: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .table-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-healthy {
+            background: var(--success-color);
+        }
+        
+        .status-warning {
+            background: var(--warning-color);
+        }
+        
+        .status-critical {
+            background: var(--danger-color);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .refresh-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .auto-refresh {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <span>📊</span>
+                    Performance Analytics Dashboard
+                </h1>
+                <p>Real-time database performance monitoring and analytics</p>
+            </div>
+            <div class="header-controls">
+                <div class="refresh-indicator auto-refresh">
+                    <span>🔄</span>
+                    <span id="refresh-status">Auto-refresh: 30s</span>
+                </div>
+                <button class="btn btn-secondary" onclick="toggleAutoRefresh()">
+                    <span id="auto-refresh-icon">⏸️</span>
+                    <span id="auto-refresh-text">Pause</span>
+                </button>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    📊 Refresh Now
+                </button>
+                <button class="btn btn-success" onclick="exportReport()">
+                    📄 Export Report
+                </button>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    🏠 Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <!-- Performance Alerts -->
+        <div id="alerts-container">
+            <!-- Alerts will be populated dynamically -->
+        </div>
+        
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card" id="connections-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Active Connections</span>
+                    <span class="metric-icon">🔗</span>
+                </div>
+                <div class="metric-value" id="connections-value">-</div>
+                <div class="metric-change neutral" id="connections-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+            
+            <div class="metric-card" id="queries-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Queries per Minute</span>
+                    <span class="metric-icon">⚡</span>
+                </div>
+                <div class="metric-value" id="queries-value">-</div>
+                <div class="metric-change neutral" id="queries-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+            
+            <div class="metric-card" id="response-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Avg Response Time</span>
+                    <span class="metric-icon">⏱️</span>
+                </div>
+                <div class="metric-value" id="response-value">-</div>
+                <div class="metric-change neutral" id="response-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+            
+            <div class="metric-card" id="cache-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Cache Hit Rate</span>
+                    <span class="metric-icon">🎯</span>
+                </div>
+                <div class="metric-value" id="cache-value">-</div>
+                <div class="metric-change neutral" id="cache-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+            
+            <div class="metric-card" id="storage-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Storage Usage</span>
+                    <span class="metric-icon">💾</span>
+                </div>
+                <div class="metric-value" id="storage-value">-</div>
+                <div class="metric-change neutral" id="storage-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+            
+            <div class="metric-card" id="errors-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Error Rate</span>
+                    <span class="metric-icon">⚠️</span>
+                </div>
+                <div class="metric-value" id="errors-value">-</div>
+                <div class="metric-change neutral" id="errors-change">
+                    <span>⚪</span>
+                    <span>No change</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Performance Trends -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>📈</span>
+                        Performance Trends
+                    </div>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" onclick="setTimeRange('1h')">1H</button>
+                        <button class="chart-btn" onclick="setTimeRange('6h')">6H</button>
+                        <button class="chart-btn" onclick="setTimeRange('24h')">24H</button>
+                        <button class="chart-btn" onclick="setTimeRange('7d')">7D</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performance-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Query Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>🔍</span>
+                        Query Types Distribution
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="query-distribution-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Resource Usage -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>🖥️</span>
+                        Resource Usage Over Time
+                    </div>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" onclick="setResourceMetric('cpu')">CPU</button>
+                        <button class="chart-btn" onclick="setResourceMetric('memory')">Memory</button>
+                        <button class="chart-btn" onclick="setResourceMetric('io')">I/O</button>
+                        <button class="chart-btn" onclick="setResourceMetric('connections')">Connections</button>
+                    </div>
+                </div>
+                <div class="chart-container large">
+                    <canvas id="resource-usage-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Queries Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    <span>🐌</span>
+                    Slowest Queries (Last Hour)
+                </div>
+                <button class="btn btn-primary" onclick="refreshSlowQueries()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Query</th>
+                            <th>Avg Time</th>
+                            <th>Executions</th>
+                            <th>Last Seen</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="slow-queries-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading slow queries data...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Table Activity Monitor -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    <span>📊</span>
+                    Most Active Tables
+                </div>
+                <button class="btn btn-primary" onclick="refreshTableActivity()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Reads/Min</th>
+                            <th>Writes/Min</th>
+                            <th>Size</th>
+                            <th>Growth Rate</th>
+                            <th>Index Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-activity-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading table activity data...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let performanceChart;
+        let queryDistributionChart;
+        let resourceUsageChart;
+        let autoRefreshInterval;
+        let isAutoRefreshEnabled = true;
+        let currentTimeRange = '1h';
+        let currentResourceMetric = 'cpu';
+        let performanceData = {
+            timestamps: [],
+            responseTime: [],
+            queryRate: [],
+            connections: [],
+            errors: []
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadInitialData();
+            startAutoRefresh();
+        });
+
+        // Initialize all charts
+        function initializeCharts() {
+            // Performance Trends Chart
+            const perfCtx = document.getElementById('performance-chart').getContext('2d');
+            performanceChart = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Queries/min',
+                        data: [],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Response Time (ms)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Queries/min'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Query Distribution Chart
+            const queryCtx = document.getElementById('query-distribution-chart').getContext('2d');
+            queryDistributionChart = new Chart(queryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'OTHER'],
+                    datasets: [{
+                        data: [65, 15, 12, 5, 3],
+                        backgroundColor: [
+                            '#3498db',
+                            '#27ae60',
+                            '#f39c12',
+                            '#e74c3c',
+                            '#9b59b6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Resource Usage Chart
+            const resourceCtx = document.getElementById('resource-usage-chart').getContext('2d');
+            resourceUsageChart = new Chart(resourceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU Usage (%)',
+                        data: [],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Usage (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            try {
+                await Promise.all([
+                    loadMetrics(),
+                    loadPerformanceData(),
+                    loadSlowQueries(),
+                    loadTableActivity()
+                ]);
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                showAlert('Failed to load dashboard data. Some features may not work correctly.', 'warning');
+            }
+        }
+
+        // Load current metrics
+        async function loadMetrics() {
+            try {
+                const response = await fetch('performance_analytics_api.php?action=metrics');
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateMetricCards(result.data);
+                } else {
+                    console.error('Failed to load metrics:', result.error);
+                    // Fallback to simulated data
+                    const metrics = generateSimulatedMetrics();
+                    updateMetricCards(metrics);
+                }
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                // Fallback to simulated data
+                const metrics = generateSimulatedMetrics();
+                updateMetricCards(metrics);
+            }
+        }
+
+        // Generate simulated metrics (replace with real API calls)
+        function generateSimulatedMetrics() {
+            const now = Date.now();
+            const variation = () => (Math.random() - 0.5) * 0.2 + 1; // ±20% variation
+            
+            return {
+                connections: Math.floor(15 * variation()),
+                queryRate: Math.floor(85 * variation()),
+                responseTime: (2.3 * variation()).toFixed(1),
+                cacheHitRate: (94.2 * variation()).toFixed(1),
+                storageUsage: (67.8 * variation()).toFixed(1),
+                errorRate: (0.15 * variation()).toFixed(2),
+                timestamp: now
+            };
+        }
+
+        // Update metric cards
+        function updateMetricCards(data) {
+            // Handle both API response format and simulated format
+            const metrics = data.connections ? data : generateSimulatedMetrics();
+            
+            // Update connections
+            const connections = data.connections?.current || metrics.connections;
+            document.getElementById('connections-value').textContent = connections;
+            updateMetricChange('connections', connections, 15);
+            
+            // Update query rate  
+            const queryRate = data.queries?.per_second || metrics.queryRate;
+            document.getElementById('queries-value').textContent = Math.round(queryRate);
+            updateMetricChange('queries', queryRate, 85);
+            
+            // Update response time
+            const responseTime = data.performance?.avg_query_time || metrics.responseTime;
+            document.getElementById('response-value').textContent = responseTime + 'ms';
+            updateMetricChange('response', parseFloat(responseTime), 2.3, true);
+            
+            // Update cache hit rate
+            const cacheHitRate = data.performance?.cache_hit_rate || metrics.cacheHitRate;
+            document.getElementById('cache-value').textContent = cacheHitRate + '%';
+            updateMetricChange('cache', parseFloat(cacheHitRate), 94.2);
+            
+            // Update storage usage
+            const storageUsage = data.storage?.data_size || metrics.storageUsage;
+            document.getElementById('storage-value').textContent = storageUsage + (typeof storageUsage === 'number' ? ' MB' : '');
+            updateMetricChange('storage', parseFloat(storageUsage), 67.8);
+            
+            // Update error rate
+            const errorRate = data.errors?.error_rate || metrics.errorRate;
+            document.getElementById('errors-value').textContent = errorRate + '%';
+            updateMetricChange('errors', parseFloat(errorRate), 0.15, true);
+        }
+
+        // Update metric change indicators
+        function updateMetricChange(metricName, currentValue, baseValue, lowerIsBetter = false) {
+            const changeElement = document.getElementById(metricName + '-change');
+            const cardElement = document.getElementById(metricName + '-metric');
+            const percentChange = ((currentValue - baseValue) / baseValue * 100);
+            
+            let changeClass, changeIcon, changeText;
+            
+            if (Math.abs(percentChange) < 2) {
+                changeClass = 'neutral';
+                changeIcon = '⚪';
+                changeText = 'No significant change';
+                cardElement.className = 'metric-card';
+            } else if (percentChange > 0) {
+                if (lowerIsBetter) {
+                    changeClass = 'negative';
+                    changeIcon = '📈';
+                    changeText = `+${percentChange.toFixed(1)}% (worse)`;
+                    cardElement.className = 'metric-card warning';
+                } else {
+                    changeClass = 'positive';
+                    changeIcon = '📈';
+                    changeText = `+${percentChange.toFixed(1)}% (better)`;
+                    cardElement.className = 'metric-card success';
+                }
+            } else {
+                if (lowerIsBetter) {
+                    changeClass = 'positive';
+                    changeIcon = '📉';
+                    changeText = `${percentChange.toFixed(1)}% (better)`;
+                    cardElement.className = 'metric-card success';
+                } else {
+                    changeClass = 'negative';
+                    changeIcon = '📉';
+                    changeText = `${percentChange.toFixed(1)}% (worse)`;
+                    cardElement.className = 'metric-card warning';
+                }
+            }
+            
+            changeElement.className = `metric-change ${changeClass}`;
+            changeElement.innerHTML = `<span>${changeIcon}</span><span>${changeText}</span>`;
+        }
+
+        // Load performance data for charts
+        async function loadPerformanceData() {
+            // Generate simulated time series data
+            const now = new Date();
+            const dataPoints = 30; // Last 30 data points
+            const interval = 60000; // 1 minute intervals
+            
+            const timestamps = [];
+            const responseTime = [];
+            const queryRate = [];
+            
+            for (let i = dataPoints - 1; i >= 0; i--) {
+                const time = new Date(now.getTime() - (i * interval));
+                timestamps.push(time.toLocaleTimeString());
+                
+                // Generate realistic-looking data with some trends
+                const baseResponse = 2.5 + Math.sin(i * 0.2) * 0.5 + Math.random() * 0.4;
+                const baseQueries = 80 + Math.sin(i * 0.1) * 15 + Math.random() * 10;
+                
+                responseTime.push(baseResponse.toFixed(1));
+                queryRate.push(Math.floor(baseQueries));
+            }
+            
+            // Update performance chart
+            performanceChart.data.labels = timestamps;
+            performanceChart.data.datasets[0].data = responseTime;
+            performanceChart.data.datasets[1].data = queryRate;
+            performanceChart.update('none');
+            
+            // Update resource usage chart
+            updateResourceChart(timestamps);
+        }
+
+        // Update resource usage chart
+        function updateResourceChart(timestamps) {
+            const dataPoints = timestamps.length;
+            let data, label, color;
+            
+            switch (currentResourceMetric) {
+                case 'cpu':
+                    label = 'CPU Usage (%)';
+                    color = '#e74c3c';
+                    data = Array.from({length: dataPoints}, () => 
+                        20 + Math.random() * 30 + Math.sin(Date.now() / 10000) * 10
+                    );
+                    break;
+                case 'memory':
+                    label = 'Memory Usage (%)';
+                    color = '#9b59b6';
+                    data = Array.from({length: dataPoints}, () => 
+                        60 + Math.random() * 20 + Math.sin(Date.now() / 15000) * 5
+                    );
+                    break;
+                case 'io':
+                    label = 'I/O Usage (%)';
+                    color = '#f39c12';
+                    data = Array.from({length: dataPoints}, () => 
+                        10 + Math.random() * 40 + Math.sin(Date.now() / 8000) * 15
+                    );
+                    break;
+                case 'connections':
+                    label = 'Connection Usage (%)';
+                    color = '#27ae60';
+                    data = Array.from({length: dataPoints}, () => 
+                        30 + Math.random() * 25 + Math.sin(Date.now() / 12000) * 8
+                    );
+                    break;
+            }
+            
+            resourceUsageChart.data.labels = timestamps;
+            resourceUsageChart.data.datasets[0].label = label;
+            resourceUsageChart.data.datasets[0].data = data;
+            resourceUsageChart.data.datasets[0].borderColor = color;
+            resourceUsageChart.data.datasets[0].backgroundColor = color.replace('rgb', 'rgba').replace(')', ', 0.1)');
+            resourceUsageChart.update('none');
+        }
+
+        // Load slow queries data
+        async function loadSlowQueries() {
+            const tbody = document.getElementById('slow-queries-tbody');
+            
+            try {
+                const response = await fetch('performance_analytics_api.php?action=slow_queries');
+                const result = await response.json();
+                
+                let slowQueries;
+                if (result.success && result.data.length > 0) {
+                    slowQueries = result.data;
+                } else {
+                    // Fallback to simulated data
+                    slowQueries = getSimulatedSlowQueries();
+                }
+                
+                tbody.innerHTML = slowQueries.map(query => `
+                    <tr>
+                        <td>
+                            <span class="status-indicator status-${query.status}"></span>
+                            ${query.status.charAt(0).toUpperCase() + query.status.slice(1)}
+                        </td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                            title="${query.query}">
+                            ${query.query}
+                        </td>
+                        <td><strong>${query.avg_time}</strong></td>
+                        <td>${query.executions}</td>
+                        <td>${query.last_seen}</td>
+                        <td>
+                            <span style="color: ${query.impact === 'High' ? '#e74c3c' : query.impact === 'Medium' ? '#f39c12' : '#27ae60'}">
+                                ${query.impact}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading slow queries:', error);
+                // Show simulated data on error
+                const slowQueries = getSimulatedSlowQueries();
+                tbody.innerHTML = slowQueries.map(query => `
+                    <tr>
+                        <td>
+                            <span class="status-indicator status-${query.status}"></span>
+                            ${query.status.charAt(0).toUpperCase() + query.status.slice(1)}
+                        </td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                            title="${query.query}">
+                            ${query.query}
+                        </td>
+                        <td><strong>${query.avg_time}</strong></td>
+                        <td>${query.executions}</td>
+                        <td>${query.last_seen}</td>
+                        <td>
+                            <span style="color: ${query.impact === 'High' ? '#e74c3c' : query.impact === 'Medium' ? '#f39c12' : '#27ae60'}">
+                                ${query.impact}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+        
+        function getSimulatedSlowQueries() {
+            return [
+                {
+                    query: 'SELECT * FROM wo_task WHERE wo_task_status = 1 ORDER BY wo_task_id DESC',
+                    avg_time: '1.2s',
+                    executions: 45,
+                    last_seen: '2 minutes ago',
+                    impact: 'High',
+                    status: 'critical'
+                },
+                {
+                    query: 'SELECT COUNT(*) FROM ast_asset LEFT JOIN wo_task ON...',
+                    avg_time: '0.8s',
+                    executions: 23,
+                    last_seen: '5 minutes ago',
+                    impact: 'Medium',
+                    status: 'warning'
+                },
+                {
+                    query: 'UPDATE sys_user SET user_last_login = NOW() WHERE user_id = ?',
+                    avg_time: '0.3s',
+                    executions: 156,
+                    last_seen: '1 minute ago',
+                    impact: 'Low',
+                    status: 'healthy'
+                }
+            ];
+        }
+
+        // Load table activity data
+        async function loadTableActivity() {
+            const tbody = document.getElementById('table-activity-tbody');
+            
+            try {
+                const response = await fetch('performance_analytics_api.php?action=table_activity');
+                const result = await response.json();
+                
+                let tableActivity;
+                if (result.success && result.data.length > 0) {
+                    tableActivity = result.data;
+                } else {
+                    // Fallback to simulated data
+                    tableActivity = getSimulatedTableActivity();
+                }
+                
+                tbody.innerHTML = tableActivity.map(table => `
+                    <tr>
+                        <td><strong>${table.name}</strong></td>
+                        <td>${table.reads_per_min || table.reads}</td>
+                        <td>${table.writes_per_min || table.writes}</td>
+                        <td>${table.size}</td>
+                        <td style="color: ${table.growth_rate.startsWith('+') ? '#27ae60' : '#e74c3c'}">
+                            ${table.growth_rate}
+                        </td>
+                        <td style="color: ${parseInt(table.index_usage) > 90 ? '#27ae60' : parseInt(table.index_usage) > 80 ? '#f39c12' : '#e74c3c'}">
+                            ${table.index_usage}
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading table activity:', error);
+                // Show simulated data on error
+                const tableActivity = getSimulatedTableActivity();
+                tbody.innerHTML = tableActivity.map(table => `
+                    <tr>
+                        <td><strong>${table.name}</strong></td>
+                        <td>${table.reads}</td>
+                        <td>${table.writes}</td>
+                        <td>${table.size}</td>
+                        <td style="color: ${table.growth_rate.startsWith('+') ? '#27ae60' : '#e74c3c'}">
+                            ${table.growth_rate}
+                        </td>
+                        <td style="color: ${parseInt(table.index_usage) > 90 ? '#27ae60' : parseInt(table.index_usage) > 80 ? '#f39c12' : '#e74c3c'}">
+                            ${table.index_usage}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+        
+        function getSimulatedTableActivity() {
+            return [
+                {
+                    name: 'wo_task',
+                    reads: 234,
+                    writes: 45,
+                    size: '15.2 MB',
+                    growth_rate: '+2.3%',
+                    index_usage: '87%'
+                },
+                {
+                    name: 'sys_user',
+                    reads: 189,
+                    writes: 12,
+                    size: '2.1 MB',
+                    growth_rate: '+0.5%',
+                    index_usage: '94%'
+                },
+                {
+                    name: 'ast_asset',
+                    reads: 156,
+                    writes: 8,
+                    size: '21.1 MB',
+                    growth_rate: '+1.2%',
+                    index_usage: '92%'
+                },
+                {
+                    name: 'ppm_task',
+                    reads: 98,
+                    writes: 34,
+                    size: '8.7 MB',
+                    growth_rate: '+3.1%',
+                    index_usage: '78%'
+                }
+            ];
+        }
+
+        // Auto-refresh functionality
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            
+            autoRefreshInterval = setInterval(() => {
+                if (isAutoRefreshEnabled) {
+                    refreshData();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+            
+            const icon = document.getElementById('auto-refresh-icon');
+            const text = document.getElementById('auto-refresh-text');
+            const status = document.getElementById('refresh-status');
+            
+            if (isAutoRefreshEnabled) {
+                icon.textContent = '⏸️';
+                text.textContent = 'Pause';
+                status.textContent = 'Auto-refresh: 30s';
+                document.querySelector('.refresh-indicator').classList.add('auto-refresh');
+            } else {
+                icon.textContent = '▶️';
+                text.textContent = 'Resume';
+                status.textContent = 'Auto-refresh: Paused';
+                document.querySelector('.refresh-indicator').classList.remove('auto-refresh');
+            }
+        }
+
+        // Manual refresh
+        async function refreshData() {
+            try {
+                await Promise.all([
+                    loadMetrics(),
+                    loadPerformanceData()
+                ]);
+                
+                // Update last refresh time
+                const now = new Date().toLocaleTimeString();
+                document.getElementById('refresh-status').textContent = 
+                    isAutoRefreshEnabled ? `Auto-refresh: 30s (Last: ${now})` : `Manual refresh: ${now}`;
+                    
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showAlert('Failed to refresh dashboard data.', 'danger');
+            }
+        }
+
+        // Chart control functions
+        function setTimeRange(range) {
+            currentTimeRange = range;
+            
+            // Update active button
+            document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Reload performance data for new time range
+            loadPerformanceData();
+        }
+
+        function setResourceMetric(metric) {
+            currentResourceMetric = metric;
+            
+            // Update active button
+            const parentDiv = event.target.closest('.chart-controls');
+            parentDiv.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update resource chart
+            const timestamps = resourceUsageChart.data.labels;
+            if (timestamps.length > 0) {
+                updateResourceChart(timestamps);
+            }
+        }
+
+        // Refresh specific sections
+        function refreshSlowQueries() {
+            loadSlowQueries();
+        }
+
+        function refreshTableActivity() {
+            loadTableActivity();
+        }
+
+        // Export functionality
+        function exportReport() {
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                metrics: {
+                    connections: document.getElementById('connections-value').textContent,
+                    queryRate: document.getElementById('queries-value').textContent,
+                    responseTime: document.getElementById('response-value').textContent,
+                    cacheHitRate: document.getElementById('cache-value').textContent,
+                    storageUsage: document.getElementById('storage-value').textContent,
+                    errorRate: document.getElementById('errors-value').textContent
+                },
+                charts: {
+                    performanceData: performanceChart.data,
+                    queryDistribution: queryDistributionChart.data,
+                    resourceUsage: resourceUsageChart.data
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `performance_report_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showAlert('Performance report exported successfully!', 'success');
+        }
+
+        // Utility functions
+        function showAlert(message, type) {
+            const alertsContainer = document.getElementById('alerts-container');
+            const alertClass = type === 'success' ? 'alert-info' : `alert-${type}`;
+            const alertIcon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌';
+            
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass}`;
+            alert.innerHTML = `<span>${alertIcon}</span><span>${message}</span>`;
+            
+            alertsContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

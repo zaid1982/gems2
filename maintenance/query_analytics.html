@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Query Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #9b59b6;
+            --light-bg: #ffffff;
+            --dark-bg: #f8f9fa;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --hover-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-left h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-left p {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .analytics-card {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .analytics-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-section {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .query-analysis-section {
+            background: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .section-header {
+            padding: 20px 25px;
+            background: var(--dark-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: var(--dark-bg);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .query-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .performance-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .performance-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .performance-good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .performance-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .performance-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-container.large {
+            height: 400px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--dark-bg);
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .optimization-suggestion {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .suggestion-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .suggestion-text {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <span>🔍</span>
+                    Query Analytics
+                </h1>
+                <p>Detailed database query performance analysis and optimization suggestions</p>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-primary" onclick="analyzeQueries()">
+                    📊 Analyze Queries
+                </button>
+                <button class="btn btn-primary" onclick="exportAnalysis()">
+                    📄 Export Report
+                </button>
+                <a href="performance_dashboard.html" class="btn btn-secondary">
+                    📈 Performance Dashboard
+                </a>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    🏠 Main Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="filter-section">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>🔧</span>
+                    Analysis Filters
+                </div>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>Time Period</label>
+                    <select id="time-period">
+                        <option value="1h">Last Hour</option>
+                        <option value="6h">Last 6 Hours</option>
+                        <option value="24h" selected>Last 24 Hours</option>
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Query Type</label>
+                    <select id="query-type">
+                        <option value="all">All Queries</option>
+                        <option value="SELECT">SELECT</option>
+                        <option value="INSERT">INSERT</option>
+                        <option value="UPDATE">UPDATE</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Performance</label>
+                    <select id="performance-filter">
+                        <option value="all">All Performance</option>
+                        <option value="slow">Slow Queries (>1s)</option>
+                        <option value="critical">Critical (>5s)</option>
+                        <option value="frequent">High Frequency</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Table Filter</label>
+                    <input type="text" id="table-filter" placeholder="Table name..." />
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="applyFilters()" style="margin-top: 0;">
+                        🔍 Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Statistics -->
+        <div class="analytics-card full-width">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📊</span>
+                    Query Performance Summary
+                </div>
+            </div>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-queries">-</div>
+                    <div class="stat-label">Total Queries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avg-execution-time">-</div>
+                    <div class="stat-label">Avg Execution Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="slow-queries-count">-</div>
+                    <div class="stat-label">Slow Queries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="queries-per-second">-</div>
+                    <div class="stat-label">Queries/Second</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="cache-hit-rate">-</div>
+                    <div class="stat-label">Cache Hit Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="index-usage">-</div>
+                    <div class="stat-label">Index Usage</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>⏱️</span>
+                        Execution Time Distribution
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="execution-time-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📋</span>
+                        Query Type Breakdown
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="query-type-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="analytics-card full-width">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📈</span>
+                        Query Performance Over Time
+                    </div>
+                </div>
+                <div class="chart-container large">
+                    <canvas id="performance-timeline-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Query Analysis -->
+        <div class="query-analysis-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>🐌</span>
+                    Detailed Query Analysis
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Query</th>
+                            <th>Avg Time</th>
+                            <th>Max Time</th>
+                            <th>Executions</th>
+                            <th>Total Time</th>
+                            <th>Performance</th>
+                            <th>Optimization</th>
+                        </tr>
+                    </thead>
+                    <tbody id="query-analysis-tbody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading query analysis...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Optimization Suggestions -->
+        <div class="analytics-card full-width">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>💡</span>
+                    Optimization Suggestions
+                </div>
+            </div>
+            <div id="optimization-suggestions">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Analyzing queries for optimization opportunities...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let executionTimeChart;
+        let queryTypeChart;
+        let performanceTimelineChart;
+        let currentAnalysisData = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadInitialAnalysis();
+        });
+
+        // Initialize charts
+        function initializeCharts() {
+            // Execution Time Distribution Chart
+            const execCtx = document.getElementById('execution-time-chart').getContext('2d');
+            executionTimeChart = new Chart(execCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['< 0.1s', '0.1-0.5s', '0.5-1s', '1-5s', '> 5s'],
+                    datasets: [{
+                        label: 'Number of Queries',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#27ae60',
+                            '#2ecc71',
+                            '#f39c12',
+                            '#e67e22',
+                            '#e74c3c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Query Type Chart
+            const typeCtx = document.getElementById('query-type-chart').getContext('2d');
+            queryTypeChart = new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'OTHER'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#3498db',
+                            '#27ae60',
+                            '#f39c12',
+                            '#e74c3c',
+                            '#9b59b6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Performance Timeline Chart
+            const timelineCtx = document.getElementById('performance-timeline-chart').getContext('2d');
+            performanceTimelineChart = new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Avg Response Time (ms)',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Queries per Minute',
+                        data: [],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Response Time (ms)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Queries/min'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load initial analysis
+        async function loadInitialAnalysis() {
+            await analyzeQueries();
+        }
+
+        // Main analysis function
+        async function analyzeQueries() {
+            try {
+                showLoading();
+                
+                // Simulate API calls - replace with actual API endpoints
+                const [summaryData, queryData, performanceData] = await Promise.all([
+                    fetchQuerySummary(),
+                    fetchDetailedQueries(),
+                    fetchPerformanceTimeline()
+                ]);
+                
+                updateSummaryStats(summaryData);
+                updateCharts(summaryData, performanceData);
+                updateQueryAnalysisTable(queryData);
+                generateOptimizationSuggestions(queryData);
+                
+            } catch (error) {
+                console.error('Error analyzing queries:', error);
+                showError('Failed to analyze queries. Using simulated data.');
+                loadSimulatedData();
+            }
+        }
+
+        // Fetch query summary (simulated)
+        async function fetchQuerySummary() {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            return {
+                totalQueries: 15847,
+                avgExecutionTime: 0.23,
+                slowQueries: 23,
+                queriesPerSecond: 11.2,
+                cacheHitRate: 94.2,
+                indexUsage: 87.3,
+                executionTimeDistribution: [12450, 2890, 387, 97, 23],
+                queryTypeDistribution: [10285, 2456, 1891, 678, 537]
+            };
+        }
+
+        // Fetch detailed queries (simulated)
+        async function fetchDetailedQueries() {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            return [
+                {
+                    query: 'SELECT wo.*, ast.ast_asset_desc FROM wo_task wo LEFT JOIN ast_asset ast ON wo.wo_task_asset = ast.ast_asset_id WHERE wo.wo_task_status = 1 ORDER BY wo.wo_task_date_created DESC',
+                    avgTime: 1.245,
+                    maxTime: 3.891,
+                    executions: 234,
+                    totalTime: 291.33,
+                    performance: 'warning',
+                    tables: ['wo_task', 'ast_asset'],
+                    optimization: 'Add composite index on (wo_task_status, wo_task_date_created)'
+                },
+                {
+                    query: 'SELECT COUNT(*) FROM sys_user WHERE user_status = 1 AND user_site_filtering LIKE ?',
+                    avgTime: 0.892,
+                    maxTime: 2.156,
+                    executions: 156,
+                    totalTime: 139.15,
+                    performance: 'warning',
+                    tables: ['sys_user'],
+                    optimization: 'Consider adding index on user_status and optimizing LIKE query'
+                },
+                {
+                    query: 'UPDATE wo_task SET wo_task_status = ?, wo_task_date_completed = NOW() WHERE wo_task_id = ?',
+                    avgTime: 0.045,
+                    maxTime: 0.234,
+                    executions: 89,
+                    totalTime: 4.01,
+                    performance: 'good',
+                    tables: ['wo_task'],
+                    optimization: 'Query is well optimized'
+                },
+                {
+                    query: 'SELECT ppm.*, ast.ast_asset_desc FROM ppm_task ppm JOIN ast_asset ast ON ppm.ppm_asset = ast.ast_asset_id WHERE ppm.ppm_status = 1',
+                    avgTime: 0.678,
+                    maxTime: 1.445,
+                    executions: 67,
+                    totalTime: 45.43,
+                    performance: 'good',
+                    tables: ['ppm_task', 'ast_asset'],
+                    optimization: 'Consider adding covering index for frequently selected columns'
+                },
+                {
+                    query: 'DELETE FROM audit_trail WHERE audit_date < DATE_SUB(NOW(), INTERVAL 90 DAY)',
+                    avgTime: 5.234,
+                    maxTime: 12.567,
+                    executions: 3,
+                    totalTime: 15.70,
+                    performance: 'critical',
+                    tables: ['audit_trail'],
+                    optimization: 'Add index on audit_date column and consider archiving old data'
+                }
+            ];
+        }
+
+        // Fetch performance timeline (simulated)
+        async function fetchPerformanceTimeline() {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            const timestamps = [];
+            const responseTimes = [];
+            const queryRates = [];
+            const now = new Date();
+            
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - (i * 60 * 60 * 1000));
+                timestamps.push(time.getHours().toString().padStart(2, '0') + ':00');
+                
+                // Generate realistic data with some variation
+                responseTimes.push(Math.round(200 + Math.sin(i * 0.3) * 50 + Math.random() * 30));
+                queryRates.push(Math.round(10 + Math.sin(i * 0.2) * 3 + Math.random() * 2));
+            }
+            
+            return {
+                timestamps,
+                responseTimes,
+                queryRates
+            };
+        }
+
+        // Update summary statistics
+        function updateSummaryStats(data) {
+            document.getElementById('total-queries').textContent = data.totalQueries.toLocaleString();
+            document.getElementById('avg-execution-time').textContent = data.avgExecutionTime.toFixed(2) + 's';
+            document.getElementById('slow-queries-count').textContent = data.slowQueries;
+            document.getElementById('queries-per-second').textContent = data.queriesPerSecond.toFixed(1);
+            document.getElementById('cache-hit-rate').textContent = data.cacheHitRate.toFixed(1) + '%';
+            document.getElementById('index-usage').textContent = data.indexUsage.toFixed(1) + '%';
+        }
+
+        // Update charts
+        function updateCharts(summaryData, timelineData) {
+            // Update execution time distribution
+            executionTimeChart.data.datasets[0].data = summaryData.executionTimeDistribution;
+            executionTimeChart.update();
+            
+            // Update query type distribution
+            queryTypeChart.data.datasets[0].data = summaryData.queryTypeDistribution;
+            queryTypeChart.update();
+            
+            // Update performance timeline
+            performanceTimelineChart.data.labels = timelineData.timestamps;
+            performanceTimelineChart.data.datasets[0].data = timelineData.responseTimes;
+            performanceTimelineChart.data.datasets[1].data = timelineData.queryRates;
+            performanceTimelineChart.update();
+        }
+
+        // Update query analysis table
+        function updateQueryAnalysisTable(queries) {
+            const tbody = document.getElementById('query-analysis-tbody');
+            
+            tbody.innerHTML = queries.map(query => `
+                <tr>
+                    <td>
+                        <div class="query-text" title="${query.query}">
+                            ${query.query}
+                        </div>
+                        <small style="color: #666;">Tables: ${query.tables.join(', ')}</small>
+                    </td>
+                    <td><strong>${query.avgTime.toFixed(3)}s</strong></td>
+                    <td>${query.maxTime.toFixed(3)}s</td>
+                    <td>${query.executions}</td>
+                    <td>${query.totalTime.toFixed(2)}s</td>
+                    <td>
+                        <span class="performance-indicator performance-${query.performance}">
+                            ${getPerformanceIcon(query.performance)} ${getPerformanceLabel(query.performance)}
+                        </span>
+                    </td>
+                    <td style="max-width: 250px;">
+                        <small>${query.optimization}</small>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Generate optimization suggestions
+        function generateOptimizationSuggestions(queries) {
+            const suggestionsDiv = document.getElementById('optimization-suggestions');
+            const suggestions = [];
+            
+            // Analyze queries for suggestions
+            const slowQueries = queries.filter(q => q.avgTime > 1);
+            const frequentQueries = queries.filter(q => q.executions > 100);
+            const criticalQueries = queries.filter(q => q.performance === 'critical');
+            
+            if (criticalQueries.length > 0) {
+                suggestions.push({
+                    title: 'Critical Performance Issues Detected',
+                    text: `${criticalQueries.length} queries are performing critically slow (>5s). Immediate attention required.`,
+                    priority: 'high'
+                });
+            }
+            
+            if (slowQueries.length > 0) {
+                suggestions.push({
+                    title: 'Slow Query Optimization',
+                    text: `${slowQueries.length} queries are slower than 1 second. Consider adding indexes or optimizing query structure.`,
+                    priority: 'medium'
+                });
+            }
+            
+            // Check for missing indexes
+            const tableUsage = {};
+            queries.forEach(q => {
+                q.tables.forEach(table => {
+                    tableUsage[table] = (tableUsage[table] || 0) + q.executions;
+                });
+            });
+            
+            const heavyTables = Object.entries(tableUsage)
+                .filter(([table, count]) => count > 500)
+                .map(([table]) => table);
+                
+            if (heavyTables.length > 0) {
+                suggestions.push({
+                    title: 'High-Traffic Tables Need Optimization',
+                    text: `Tables ${heavyTables.join(', ')} are heavily queried. Review indexing strategy for these tables.`,
+                    priority: 'medium'
+                });
+            }
+            
+            // Cache optimization
+            const totalExecutions = queries.reduce((sum, q) => sum + q.executions, 0);
+            if (totalExecutions > 10000) {
+                suggestions.push({
+                    title: 'Query Caching Opportunities',
+                    text: 'High query volume detected. Consider implementing query result caching for frequently executed queries.',
+                    priority: 'low'
+                });
+            }
+            
+            // Render suggestions
+            if (suggestions.length === 0) {
+                suggestionsDiv.innerHTML = '<div class="optimization-suggestion"><div class="suggestion-title">✅ No Major Issues Detected</div><div class="suggestion-text">Your queries are performing well. Continue monitoring for any performance degradation.</div></div>';
+            } else {
+                suggestionsDiv.innerHTML = suggestions.map(suggestion => `
+                    <div class="optimization-suggestion">
+                        <div class="suggestion-title">
+                            ${getPriorityIcon(suggestion.priority)} ${suggestion.title}
+                        </div>
+                        <div class="suggestion-text">${suggestion.text}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Helper functions
+        function getPerformanceIcon(performance) {
+            const icons = {
+                excellent: '🟢',
+                good: '🟡',
+                warning: '🟠',
+                critical: '🔴'
+            };
+            return icons[performance] || '⚪';
+        }
+
+        function getPerformanceLabel(performance) {
+            const labels = {
+                excellent: 'Excellent',
+                good: 'Good',
+                warning: 'Needs Attention',
+                critical: 'Critical'
+            };
+            return labels[performance] || 'Unknown';
+        }
+
+        function getPriorityIcon(priority) {
+            const icons = {
+                high: '🚨',
+                medium: '⚠️',
+                low: '💡'
+            };
+            return icons[priority] || '📝';
+        }
+
+        // Filter functions
+        function applyFilters() {
+            const timePeriod = document.getElementById('time-period').value;
+            const queryType = document.getElementById('query-type').value;
+            const performanceFilter = document.getElementById('performance-filter').value;
+            const tableFilter = document.getElementById('table-filter').value;
+            
+            console.log('Applying filters:', { timePeriod, queryType, performanceFilter, tableFilter });
+            
+            // Show loading and re-analyze with filters
+            analyzeQueries();
+        }
+
+        function exportAnalysis() {
+            const analysisData = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    totalQueries: document.getElementById('total-queries').textContent,
+                    avgExecutionTime: document.getElementById('avg-execution-time').textContent,
+                    slowQueries: document.getElementById('slow-queries-count').textContent,
+                    queriesPerSecond: document.getElementById('queries-per-second').textContent
+                },
+                filters: {
+                    timePeriod: document.getElementById('time-period').value,
+                    queryType: document.getElementById('query-type').value,
+                    performanceFilter: document.getElementById('performance-filter').value,
+                    tableFilter: document.getElementById('table-filter').value
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(analysisData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `query_analysis_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showLoading() {
+            document.getElementById('query-analysis-tbody').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px;">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Analyzing queries...
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            document.getElementById('optimization-suggestions').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Generating optimization suggestions...
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            console.error(message);
+        }
+
+        function loadSimulatedData() {
+            // Fallback to simulated data if API fails
+            fetchQuerySummary().then(summary => {
+                updateSummaryStats(summary);
+                return Promise.all([
+                    fetchDetailedQueries(),
+                    fetchPerformanceTimeline()
+                ]);
+            }).then(([queries, timeline]) => {
+                updateCharts({ 
+                    executionTimeDistribution: [12450, 2890, 387, 97, 23],
+                    queryTypeDistribution: [10285, 2456, 1891, 678, 537]
+                }, timeline);
+                updateQueryAnalysisTable(queries);
+                generateOptimizationSuggestions(queries);
+            });
+        }
+    </script>
+</body>
+</html>

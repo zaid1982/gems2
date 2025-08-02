@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple DB Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 5px; }
+        #result { background: #f5f5f5; padding: 10px; margin: 10px 0; min-height: 100px; }
+        .table-list { max-height: 300px; overflow-y: auto; }
+        .table-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .table-item:hover { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Simple Database Query Tool</h1>
+    
+    <div class="section">
+        <h3>Database Info</h3>
+        <button onclick="loadDatabaseInfo()">Load DB Info</button>
+        <div id="dbInfo">Click button to load...</div>
+    </div>
+    
+    <div class="section">
+        <h3>Tables</h3>
+        <button onclick="loadTables()">Load Tables</button>
+        <div id="tableList" class="table-list">Click button to load...</div>
+    </div>
+    
+    <div class="section">
+        <h3>Query</h3>
+        <textarea id="sqlQuery" rows="5" cols="80" placeholder="Enter SQL query...">SELECT * FROM sys_user LIMIT 5;</textarea><br>
+        <button onclick="executeQuery()">Execute Query</button>
+        <div id="queryResult">Results will appear here...</div>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        function showResult(message) {
+            document.getElementById('result').innerHTML = message;
+        }
+
+        function loadDatabaseInfo() {
+            showResult('Loading database info...');
+            
+            const formData = new FormData();
+            formData.append('action', 'database_info');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Raw response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        const info = data.info;
+                        document.getElementById('dbInfo').innerHTML = `
+                            <strong>Database:</strong> ${info.database_name}<br>
+                            <strong>Tables:</strong> ${info.table_count}<br>
+                            <strong>Size:</strong> ${info.size_mb} MB<br>
+                            <strong>Version:</strong> ${info.version}<br>
+                            <strong>Host:</strong> ${info.host}
+                        `;
+                        showResult('Database info loaded successfully!');
+                    } else {
+                        showResult('Error: ' + data.error);
+                    }
+                } catch (e) {
+                    showResult('Parse error: ' + e.message + '<br>Raw response: ' + text);
+                }
+            })
+            .catch(error => {
+                showResult('Fetch error: ' + error.message);
+            });
+        }
+
+        function loadTables() {
+            showResult('Loading tables...');
+            
+            const formData = new FormData();
+            formData.append('action', 'list_tables');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        let html = '';
+                        data.tables.slice(0, 20).forEach(table => {
+                            html += `
+                                <div class="table-item" onclick="selectTable('${table.name}')">
+                                    <strong>${table.name}</strong> - ${table.rows} rows, ${table.size}
+                                </div>
+                            `;
+                        });
+                        document.getElementById('tableList').innerHTML = html;
+                        showResult(`Loaded ${data.tables.length} tables (showing first 20)`);
+                    } else {
+                        showResult('Error: ' + data.error);
+                    }
+                } catch (e) {
+                    showResult('Parse error: ' + e.message + '<br>Raw response: ' + text.substring(0, 500) + '...');
+                }
+            })
+            .catch(error => {
+                showResult('Fetch error: ' + error.message);
+            });
+        }
+
+        function selectTable(tableName) {
+            document.getElementById('sqlQuery').value = `SELECT * FROM ${tableName} LIMIT 10;`;
+            showResult(`Selected table: ${tableName}`);
+        }
+
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            if (!query) {
+                showResult('Please enter a query');
+                return;
+            }
+
+            showResult('Executing query...');
+            
+            const formData = new FormData();
+            formData.append('action', 'execute');
+            formData.append('query', query);
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        if (data.results && data.results.length > 0) {
+                            // Create table
+                            let html = '<table border="1" style="border-collapse: collapse; width: 100%;"><thead><tr>';
+                            Object.keys(data.results[0]).forEach(key => {
+                                html += `<th style="padding: 8px; background: #f0f0f0;">${key}</th>`;
+                            });
+                            html += '</tr></thead><tbody>';
+                            
+                            data.results.forEach(row => {
+                                html += '<tr>';
+                                Object.values(row).forEach(value => {
+                                    html += `<td style="padding: 8px; border: 1px solid #ddd;">${value !== null ? value : '<i>NULL</i>'}</td>`;
+                                });
+                                html += '</tr>';
+                            });
+                            html += '</tbody></table>';
+                            
+                            document.getElementById('queryResult').innerHTML = html;
+                            showResult(`Query executed successfully! ${data.results.length} rows returned in ${data.execution_time}s`);
+                        } else {
+                            document.getElementById('queryResult').innerHTML = 'No results returned';
+                            showResult(`Query executed successfully! ${data.affected_rows} row(s) affected in ${data.execution_time}s`);
+                        }
+                    } else {
+                        showResult('Query error: ' + data.error);
+                    }
+                } catch (e) {
+                    showResult('Parse error: ' + e.message + '<br>Raw response: ' + text.substring(0, 500) + '...');
+                }
+            })
+            .catch(error => {
+                showResult('Fetch error: ' + error.message);
+            });
+        }
+
+        // Auto-load on page load
+        window.addEventListener('load', function() {
+            loadDatabaseInfo();
+            loadTables();
+        });
+    </script>
+</body>
+</html>

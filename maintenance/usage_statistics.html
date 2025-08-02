@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Usage Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #9b59b6;
+            --light-bg: #ffffff;
+            --dark-bg: #f8f9fa;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --hover-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-left h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-left p {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .stat-card.trending-up {
+            border-left-color: var(--success-color);
+        }
+        
+        .stat-card.trending-down {
+            border-left-color: var(--warning-color);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stat-title {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            font-size: 1.5em;
+            opacity: 0.7;
+        }
+        
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+        
+        .stat-change.neutral {
+            color: #7f8c8d;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .chart-card {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-container.large {
+            height: 400px;
+        }
+        
+        .table-container {
+            background: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .table-header {
+            padding: 20px 25px;
+            background: var(--dark-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: var(--dark-bg);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .usage-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .usage-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .usage-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .usage-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .time-filter {
+            display: flex;
+            gap: 5px;
+            background: var(--dark-bg);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        
+        .time-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .time-btn.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <span>📈</span>
+                    Usage Statistics
+                </h1>
+                <p>Database tools usage analytics and trends</p>
+            </div>
+            <div class="header-controls">
+                <div class="time-filter">
+                    <button class="time-btn" onclick="setTimeRange('24h')">24H</button>
+                    <button class="time-btn active" onclick="setTimeRange('7d')">7D</button>
+                    <button class="time-btn" onclick="setTimeRange('30d')">30D</button>
+                    <button class="time-btn" onclick="setTimeRange('90d')">90D</button>
+                </div>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 Refresh
+                </button>
+                <button class="btn btn-primary" onclick="exportUsageReport()">
+                    📊 Export Report
+                </button>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    🏠 Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <!-- Usage Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Tool Usage</span>
+                    <span class="stat-icon">🎯</span>
+                </div>
+                <div class="stat-value" id="total-usage">-</div>
+                <div class="stat-change neutral" id="total-usage-change">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Active Users</span>
+                    <span class="stat-icon">👤</span>
+                </div>
+                <div class="stat-value" id="active-users">-</div>
+                <div class="stat-change neutral" id="users-change">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Queries Executed</span>
+                    <span class="stat-icon">⚡</span>
+                </div>
+                <div class="stat-value" id="queries-executed">-</div>
+                <div class="stat-change neutral" id="queries-change">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Most Popular Tool</span>
+                    <span class="stat-icon">🏆</span>
+                </div>
+                <div class="stat-value" id="popular-tool" style="font-size: 1.4em;">-</div>
+                <div class="stat-change neutral" id="popular-tool-usage">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Avg Session Duration</span>
+                    <span class="stat-icon">⏱️</span>
+                </div>
+                <div class="stat-value" id="avg-session">-</div>
+                <div class="stat-change neutral" id="session-change">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Success Rate</span>
+                    <span class="stat-icon">✅</span>
+                </div>
+                <div class="stat-value" id="success-rate">-</div>
+                <div class="stat-change neutral" id="success-rate-change">
+                    <span>⚪</span>
+                    <span>Loading...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>📊</span>
+                        Tool Usage Distribution
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tool-usage-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>📅</span>
+                        Usage by Time of Day
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="hourly-usage-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span>📈</span>
+                        Usage Trends Over Time
+                    </div>
+                </div>
+                <div class="chart-container large">
+                    <canvas id="usage-trends-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Usage Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    <span>🔍</span>
+                    Detailed Tool Usage
+                </div>
+                <button class="btn btn-primary" onclick="refreshTableData()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Total Uses</th>
+                            <th>Unique Users</th>
+                            <th>Avg Duration</th>
+                            <th>Success Rate</th>
+                            <th>Last Used</th>
+                            <th>Popularity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usage-table-tbody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading usage data...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- User Activity Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    <span>👥</span>
+                    Recent User Activity
+                </div>
+                <button class="btn btn-primary" onclick="refreshUserActivity()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User/IP</th>
+                            <th>Tool</th>
+                            <th>Action</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-activity-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading activity data...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let toolUsageChart;
+        let hourlyUsageChart;
+        let usageTrendsChart;
+        let currentTimeRange = '7d';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadUsageData();
+        });
+
+        // Initialize charts
+        function initializeCharts() {
+            // Tool Usage Distribution Chart
+            const toolCtx = document.getElementById('tool-usage-chart').getContext('2d');
+            toolUsageChart = new Chart(toolCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#3498db',
+                            '#27ae60',
+                            '#f39c12',
+                            '#e74c3c',
+                            '#9b59b6',
+                            '#1abc9c',
+                            '#e67e22'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Hourly Usage Chart
+            const hourlyCtx = document.getElementById('hourly-usage-chart').getContext('2d');
+            hourlyUsageChart = new Chart(hourlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0') + ':00'),
+                    datasets: [{
+                        label: 'Usage Count',
+                        data: [],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: '#3498db',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Usage Trends Chart
+            const trendsCtx = document.getElementById('usage-trends-chart').getContext('2d');
+            usageTrendsChart = new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Database Query Tool',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Advanced Tool',
+                            data: [],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Schema Visualizer',
+                            data: [],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Performance Dashboard',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load usage data
+        async function loadUsageData() {
+            try {
+                // Simulate loading delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const usageData = generateSimulatedUsageData();
+                updateUsageStats(usageData);
+                updateCharts(usageData);
+                updateUsageTable(usageData.toolDetails);
+                updateUserActivity(usageData.recentActivity);
+                
+            } catch (error) {
+                console.error('Error loading usage data:', error);
+            }
+        }
+
+        // Generate simulated usage data
+        function generateSimulatedUsageData() {
+            const tools = [
+                'Database Query Tool',
+                'Advanced DB Tool', 
+                'Schema Visualizer',
+                'Performance Dashboard',
+                'Query Analytics',
+                'Connection Test',
+                'Main Dashboard'
+            ];
+            
+            const now = new Date();
+            const timeframes = {
+                '24h': 1,
+                '7d': 7,
+                '30d': 30,
+                '90d': 90
+            };
+            
+            const days = timeframes[currentTimeRange];
+            
+            // Generate tool usage distribution
+            const toolUsage = tools.map(tool => ({
+                name: tool,
+                usage: Math.floor(Math.random() * 500) + 50,
+                users: Math.floor(Math.random() * 25) + 5,
+                avgDuration: (Math.random() * 10 + 2).toFixed(1),
+                successRate: (Math.random() * 20 + 80).toFixed(1),
+                lastUsed: new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000).toLocaleString()
+            }));
+            
+            // Generate hourly usage pattern
+            const hourlyUsage = Array.from({length: 24}, (_, hour) => {
+                // Simulate realistic work hours pattern
+                let baseUsage = 10;
+                if (hour >= 8 && hour <= 17) {
+                    baseUsage = 40 + Math.sin((hour - 8) / 9 * Math.PI) * 20;
+                } else if (hour >= 18 && hour <= 22) {
+                    baseUsage = 20;
+                }
+                return Math.floor(baseUsage + Math.random() * 10);
+            });
+            
+            // Generate trends data
+            const trendLabels = [];
+            const trendData = {};
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                trendLabels.push(date.toLocaleDateString());
+            }
+            
+            tools.slice(0, 4).forEach(tool => {
+                trendData[tool] = trendLabels.map(() => Math.floor(Math.random() * 50) + 10);
+            });
+            
+            // Generate recent activity
+            const recentActivity = [];
+            const actions = ['Query Execution', 'Schema View', 'Performance Check', 'Export Data', 'Connection Test'];
+            const statuses = ['Success', 'Error', 'Warning'];
+            
+            for (let i = 0; i < 20; i++) {
+                const tool = tools[Math.floor(Math.random() * tools.length)];
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const duration = (Math.random() * 30 + 1).toFixed(1) + 's';
+                const timestamp = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000);
+                
+                recentActivity.push({
+                    user: `User_${Math.floor(Math.random() * 100)}`,
+                    tool,
+                    action,
+                    duration,
+                    status,
+                    timestamp: timestamp.toLocaleString()
+                });
+            }
+            
+            return {
+                totalUsage: toolUsage.reduce((sum, tool) => sum + tool.usage, 0),
+                activeUsers: Math.max(...toolUsage.map(t => t.users)),
+                queriesExecuted: Math.floor(Math.random() * 5000) + 2000,
+                mostPopularTool: toolUsage.reduce((max, tool) => tool.usage > max.usage ? tool : max),
+                avgSessionDuration: (toolUsage.reduce((sum, tool) => sum + parseFloat(tool.avgDuration), 0) / toolUsage.length).toFixed(1),
+                overallSuccessRate: (toolUsage.reduce((sum, tool) => sum + parseFloat(tool.successRate), 0) / toolUsage.length).toFixed(1),
+                toolUsage: toolUsage.map(t => ({ name: t.name, usage: t.usage })),
+                hourlyUsage,
+                trendLabels,
+                trendData,
+                toolDetails: toolUsage,
+                recentActivity
+            };
+        }
+
+        // Update usage statistics
+        function updateUsageStats(data) {
+            document.getElementById('total-usage').textContent = data.totalUsage.toLocaleString();
+            document.getElementById('active-users').textContent = data.activeUsers;
+            document.getElementById('queries-executed').textContent = data.queriesExecuted.toLocaleString();
+            document.getElementById('popular-tool').textContent = data.mostPopularTool.name.split(' ')[0];
+            document.getElementById('avg-session').textContent = data.avgSessionDuration + 'm';
+            document.getElementById('success-rate').textContent = data.overallSuccessRate + '%';
+            
+            // Update change indicators (simulated)
+            updateChangeIndicator('total-usage-change', Math.random() * 20 - 10);
+            updateChangeIndicator('users-change', Math.random() * 30 - 15);
+            updateChangeIndicator('queries-change', Math.random() * 25 - 5);
+            updateChangeIndicator('popular-tool-usage', data.mostPopularTool.usage + ' uses');
+            updateChangeIndicator('session-change', Math.random() * 2 - 1);
+            updateChangeIndicator('success-rate-change', Math.random() * 5 - 2);
+        }
+
+        // Update change indicator
+        function updateChangeIndicator(elementId, change) {
+            const element = document.getElementById(elementId);
+            
+            if (typeof change === 'string') {
+                element.innerHTML = `<span>📊</span><span>${change}</span>`;
+                element.className = 'stat-change neutral';
+                return;
+            }
+            
+            const absChange = Math.abs(change);
+            const changeText = (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+            
+            if (absChange < 1) {
+                element.innerHTML = `<span>⚪</span><span>No significant change</span>`;
+                element.className = 'stat-change neutral';
+            } else if (change > 0) {
+                element.innerHTML = `<span>📈</span><span>${changeText}</span>`;
+                element.className = 'stat-change positive';
+            } else {
+                element.innerHTML = `<span>📉</span><span>${changeText}</span>`;
+                element.className = 'stat-change negative';
+            }
+        }
+
+        // Update charts
+        function updateCharts(data) {
+            // Update tool usage chart
+            toolUsageChart.data.labels = data.toolUsage.map(t => t.name);
+            toolUsageChart.data.datasets[0].data = data.toolUsage.map(t => t.usage);
+            toolUsageChart.update();
+            
+            // Update hourly usage chart
+            hourlyUsageChart.data.datasets[0].data = data.hourlyUsage;
+            hourlyUsageChart.update();
+            
+            // Update trends chart
+            usageTrendsChart.data.labels = data.trendLabels;
+            Object.keys(data.trendData).forEach((tool, index) => {
+                if (usageTrendsChart.data.datasets[index]) {
+                    usageTrendsChart.data.datasets[index].data = data.trendData[tool];
+                }
+            });
+            usageTrendsChart.update();
+        }
+
+        // Update usage table
+        function updateUsageTable(toolDetails) {
+            const tbody = document.getElementById('usage-table-tbody');
+            
+            tbody.innerHTML = toolDetails.map(tool => `
+                <tr>
+                    <td><strong>${tool.name}</strong></td>
+                    <td>${tool.usage}</td>
+                    <td>${tool.users}</td>
+                    <td>${tool.avgDuration}m</td>
+                    <td>
+                        <span class="usage-indicator usage-${getUsageLevel(tool.successRate)}">
+                            ${tool.successRate}%
+                        </span>
+                    </td>
+                    <td>${tool.lastUsed}</td>
+                    <td>
+                        <span class="usage-indicator usage-${getPopularityLevel(tool.usage)}">
+                            ${getPopularityLabel(tool.usage)}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update user activity table
+        function updateUserActivity(activities) {
+            const tbody = document.getElementById('user-activity-tbody');
+            
+            tbody.innerHTML = activities.map(activity => `
+                <tr>
+                    <td>${activity.user}</td>
+                    <td>${activity.tool}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.duration}</td>
+                    <td>
+                        <span class="usage-indicator ${getStatusClass(activity.status)}">
+                            ${activity.status}
+                        </span>
+                    </td>
+                    <td>${activity.timestamp}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Helper functions
+        function getUsageLevel(successRate) {
+            const rate = parseFloat(successRate);
+            if (rate >= 90) return 'high';
+            if (rate >= 75) return 'medium';
+            return 'low';
+        }
+
+        function getPopularityLevel(usage) {
+            if (usage >= 300) return 'high';
+            if (usage >= 150) return 'medium';
+            return 'low';
+        }
+
+        function getPopularityLabel(usage) {
+            if (usage >= 300) return 'High';
+            if (usage >= 150) return 'Medium';
+            return 'Low';
+        }
+
+        function getStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'success': return 'usage-high';
+                case 'warning': return 'usage-medium';
+                case 'error': return 'usage-low';
+                default: return 'usage-medium';
+            }
+        }
+
+        // Event handlers
+        function setTimeRange(range) {
+            currentTimeRange = range;
+            
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Reload data
+            loadUsageData();
+        }
+
+        function refreshData() {
+            loadUsageData();
+        }
+
+        function refreshTableData() {
+            const usageData = generateSimulatedUsageData();
+            updateUsageTable(usageData.toolDetails);
+        }
+
+        function refreshUserActivity() {
+            const usageData = generateSimulatedUsageData();
+            updateUserActivity(usageData.recentActivity);
+        }
+
+        function exportUsageReport() {
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                timeRange: currentTimeRange,
+                summary: {
+                    totalUsage: document.getElementById('total-usage').textContent,
+                    activeUsers: document.getElementById('active-users').textContent,
+                    queriesExecuted: document.getElementById('queries-executed').textContent,
+                    popularTool: document.getElementById('popular-tool').textContent,
+                    avgSession: document.getElementById('avg-session').textContent,
+                    successRate: document.getElementById('success-rate').textContent
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `usage_report_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

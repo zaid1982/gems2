@@ -16,6 +16,12 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 // Database configuration
 $host = Constant::$dbHost;
 $username = Constant::$dbUserName;
@@ -191,7 +197,7 @@ function handleListTables() {
         $stmt = $pdo->prepare("
             SELECT 
                 TABLE_NAME as name,
-                TABLE_ROWS as rows,
+                IFNULL(TABLE_ROWS, 0) as `rows`,
                 ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024, 2) AS size_kb,
                 CASE 
                     WHEN (DATA_LENGTH + INDEX_LENGTH) < 1024 THEN CONCAT(ROUND((DATA_LENGTH + INDEX_LENGTH), 0), ' B')
@@ -212,7 +218,11 @@ function handleListTables() {
         
         // Format row numbers
         foreach ($tables as &$table) {
-            $table['rows'] = number_format($table['rows']);
+            if ($table['rows'] !== null) {
+                $table['rows'] = number_format((int)$table['rows']);
+            } else {
+                $table['rows'] = '0';
+            }
         }
         
         sendResponse(true, [

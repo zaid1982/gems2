@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test DB Connection</title>
+</head>
+<body>
+    <h1>Testing Database Connection</h1>
+    <button onclick="testConnection()">Test Database Info</button>
+    <button onclick="testTables()">Test List Tables</button>
+    <div id="result"></div>
+
+    <script>
+        function testConnection() {
+            const formData = new FormData();
+            formData.append('action', 'database_info');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            });
+        }
+
+        function testTables() {
+            const formData = new FormData();
+            formData.append('action', 'list_tables');
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data.tables.slice(0, 5), null, 2) + '</pre>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>
