@@ -413,21 +413,62 @@ class AdvancedDatabaseTool {
     }
     
     private function isQuerySafe($query, $queryType) {
-        $query = strtoupper($query);
+        $query = trim($query);
+        $upperQuery = strtoupper($query);
         
-        // Dangerous patterns
+        // Allowed operations
+        $allowedTypes = ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN', 'INSERT', 'UPDATE', 'DELETE', 'ALTER'];
+        
+        if (!in_array($queryType, $allowedTypes)) {
+            return false;
+        }
+        
+        // Critical operations to block
         $dangerousPatterns = [
-            'DROP TABLE',
-            'DROP DATABASE',
-            'TRUNCATE',
-            'DELETE.*WHERE.*1\s*=\s*1',
-            'UPDATE.*WHERE.*1\s*=\s*1'
+            'DROP\s+DATABASE',
+            'DROP\s+SCHEMA',
+            'DROP\s+TABLE',
+            'TRUNCATE\s+TABLE',
+            'CREATE\s+DATABASE',
+            'CREATE\s+SCHEMA',
+            'DROP\s+USER',
+            'CREATE\s+USER',
+            'GRANT\s+',
+            'REVOKE\s+',
+            'FLUSH\s+',
+            'SHUTDOWN',
+            'KILL\s+',
+            'RESET\s+MASTER',
+            'RESET\s+SLAVE',
+            'CHANGE\s+MASTER',
+            'LOAD\s+DATA\s+INFILE',
+            'SELECT\s+.*\s+INTO\s+OUTFILE',
+            'SELECT\s+.*\s+INTO\s+DUMPFILE'
         ];
         
         foreach ($dangerousPatterns as $pattern) {
-            if (preg_match('/' . $pattern . '/i', $query)) {
+            if (preg_match('/\b' . $pattern . '\b/i', $upperQuery)) {
                 return false;
             }
+        }
+        
+        // Check for DELETE/UPDATE without WHERE (dangerous)
+        if (preg_match('/^DELETE\s+FROM\s+\w+\s*;?\s*$/i', $upperQuery)) {
+            return false;
+        }
+        
+        if (preg_match('/^UPDATE\s+\w+\s+SET\s+.*\s*;?\s*$/i', $upperQuery) && !preg_match('/\bWHERE\b/i', $upperQuery)) {
+            return false;
+        }
+        
+        // Check for multiple statements
+        $statements = explode(';', $query);
+        $nonEmptyStatements = array_filter($statements, function($stmt) {
+            return trim($stmt) !== '';
+        });
+        
+        if (count($nonEmptyStatements) > 1) {
+            return false;
         }
         
         return true;

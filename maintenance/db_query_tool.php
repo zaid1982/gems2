@@ -39,29 +39,108 @@ function sendResponse($success, $data = null, $error = null) {
     exit;
 }
 
-// Security check - basic protection
-function isSelectQuery($query) {
-    $query = trim(strtoupper($query));
-    $allowedStarts = ['SELECT', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN'];
+// Enhanced security check - allow safe operations
+function isSafeQuery($query) {
+    $query = trim($query);
+    $upperQuery = strtoupper($query);
     
+    // Allowed operations
+    $allowedStarts = [
+        'SELECT', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN',
+        'INSERT', 'UPDATE', 'DELETE', 'ALTER'
+    ];
+    
+    // Check if query starts with allowed operation
+    $isAllowed = false;
     foreach ($allowedStarts as $start) {
-        if (strpos($query, $start) === 0) {
-            return true;
+        if (strpos($upperQuery, $start) === 0) {
+            $isAllowed = true;
+            break;
         }
     }
-    return false;
+    
+    if (!$isAllowed) {
+        return [
+            'safe' => false,
+            'reason' => 'Operation not allowed. Only SELECT, INSERT, UPDATE, DELETE, ALTER, SHOW, DESCRIBE, and EXPLAIN are permitted.'
+        ];
+    }
+    
+    // Critical operations to block
+    $dangerousPatterns = [
+        'DROP\s+DATABASE',
+        'DROP\s+SCHEMA', 
+        'DROP\s+TABLE',
+        'TRUNCATE\s+TABLE',
+        'CREATE\s+DATABASE',
+        'CREATE\s+SCHEMA',
+        'DROP\s+USER',
+        'CREATE\s+USER',
+        'GRANT\s+',
+        'REVOKE\s+',
+        'FLUSH\s+',
+        'SHUTDOWN',
+        'KILL\s+',
+        'RESET\s+MASTER',
+        'RESET\s+SLAVE',
+        'CHANGE\s+MASTER',
+        'LOAD\s+DATA\s+INFILE',
+        'SELECT\s+.*\s+INTO\s+OUTFILE',
+        'SELECT\s+.*\s+INTO\s+DUMPFILE'
+    ];
+    
+    foreach ($dangerousPatterns as $pattern) {
+        if (preg_match('/\b' . $pattern . '\b/i', $upperQuery)) {
+            return [
+                'safe' => false,
+                'reason' => 'Dangerous operation detected: ' . str_replace('\\s+', ' ', $pattern) . '. This operation is blocked for security.'
+            ];
+        }
+    }
+    
+    // Additional safety checks for DELETE and UPDATE without WHERE clause
+    if (preg_match('/^DELETE\s+FROM\s+\w+\s*;?\s*$/i', $upperQuery)) {
+        return [
+            'safe' => false,
+            'reason' => 'DELETE without WHERE clause is dangerous. Please add a WHERE condition to limit affected rows.'
+        ];
+    }
+    
+    if (preg_match('/^UPDATE\s+\w+\s+SET\s+.*\s*;?\s*$/i', $upperQuery) && !preg_match('/\bWHERE\b/i', $upperQuery)) {
+        return [
+            'safe' => false,
+            'reason' => 'UPDATE without WHERE clause is dangerous. Please add a WHERE condition to limit affected rows.'
+        ];
+    }
+    
+    // Check for multiple statements (basic protection against SQL injection)
+    $statements = explode(';', $query);
+    $nonEmptyStatements = array_filter($statements, function($stmt) {
+        return trim($stmt) !== '';
+    });
+    
+    if (count($nonEmptyStatements) > 1) {
+        return [
+            'safe' => false,
+            'reason' => 'Multiple statements detected. Please execute one statement at a time for security.'
+        ];
+    }
+    
+    return [
+        'safe' => true,
+        'reason' => 'Query passed security checks'
+    ];
+}
+
+// Legacy function for backward compatibility
+function isSelectQuery($query) {
+    $check = isSafeQuery($query);
+    return $check['safe'] && preg_match('/^(SELECT|SHOW|DESCRIBE|DESC|EXPLAIN)/i', trim($query));
 }
 
 function isDangerousQuery($query) {
-    $query = strtoupper($query);
-    $dangerous = ['DROP', 'DELETE', 'TRUNCATE', 'ALTER', 'CREATE', 'INSERT', 'UPDATE'];
-    
-    foreach ($dangerous as $danger) {
-        if (strpos($query, $danger) !== false) {
-            return true;
-        }
-    }
-    return false;
+    $check = isSafeQuery($query);
+    return !$check['safe'];
 }
 
 // Create PDO connection
@@ -112,9 +191,10 @@ function handleExecuteQuery() {
         sendResponse(false, null, "No query provided");
     }
     
-    // Security checks
-    if (!isSelectQuery($query) && isDangerousQuery($query)) {
-        sendResponse(false, null, "For security reasons, only SELECT, SHOW, DESCRIBE, and EXPLAIN queries are allowed");
+    // Enhanced security checks
+    $safetyCheck = isSafeQuery($query);
+    if (!$safetyCheck['safe']) {
+        sendResponse(false, null, "Security Error: " . $safetyCheck['reason']);
     }
     
     try {
@@ -132,26 +212,52 @@ function handleExecuteQuery() {
         
         $results = [];
         $affectedRows = 0;
+        $message = '';
         
-        if ($queryType === 'SELECT' || $queryType === 'SHOW' || $queryType === 'DESCRIBE' || $queryType === 'DESC' || $queryType === 'EXPLAIN') {
+        if (in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN'])) {
+            // For queries that return data
             $results = $stmt->fetchAll();
             $affectedRows = count($results);
+            $message = "Query executed successfully. Returned {$affectedRows} row(s).";
         } else {
+            // For INSERT, UPDATE, DELETE, ALTER queries
             $affectedRows = $stmt->rowCount();
+            
+            switch ($queryType) {
+                case 'INSERT':
+                    $lastInsertId = $pdo->lastInsertId();
+                    $message = "INSERT executed successfully. {$affectedRows} row(s) inserted.";
+                    if ($lastInsertId) {
+                        $message .= " Last insert ID: {$lastInsertId}";
+                    }
+                    break;
+                case 'UPDATE':
+                    $message = "UPDATE executed successfully. {$affectedRows} row(s) updated.";
+                    break;
+                case 'DELETE':
+                    $message = "DELETE executed successfully. {$affectedRows} row(s) deleted.";
+                    break;
+                case 'ALTER':
+                    $message = "ALTER executed successfully. Table structure modified.";
+                    break;
+                default:
+                    $message = "Query executed successfully. {$affectedRows} row(s) affected.";
+            }
         }
         
         sendResponse(true, [
-            'results' => $results,
             'query_type' => $queryType,
             'execution_time' => $executionTime,
             'affected_rows' => $affectedRows,
-            'query' => $query
+            'message' => $message,
+            'results' => $results,
+            'has_data' => !empty($results)
         ]);
         
     } catch (PDOException $e) {
-        sendResponse(false, null, "Query error: " . $e->getMessage());
+        sendResponse(false, null, "SQL Error: " . $e->getMessage());
     } catch (Exception $e) {
-        sendResponse(false, null, "Execution error: " . $e->getMessage());
+        sendResponse(false, null, "Error: " . $e->getMessage());
     }
 }
 
