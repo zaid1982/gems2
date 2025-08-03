@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Generate WO Test Data for September</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Work Order Test Data Generator - September 2025</h1>
+    <button id="generateTestData">Generate September Test Data (Excel)</button>
+    
+    <script>
+        document.getElementById('generateTestData').addEventListener('click', function() {
+            generateSeptemberTestData();
+        });
+        
+        function generateSeptemberTestData() {
+            // Work Order test data for September 2025
+            const headers = [
+                'Date',
+                'Request No.',
+                'Work Order No.',
+                'Site',
+                'Location',
+                'Complaint Type',
+                'Complainant',
+                'Complaint Description',
+                'Severity',
+                'Trade',
+                'PIC Name',
+                'Repair Description',
+                'Rating',
+                'Progress',
+                'Fixed By',
+                'Assigned By',
+                'Verified By',
+                'Complaint Time',
+                'Respond Duration',
+                'Assigned Time',
+                'Executed Time',
+                'Verified Time',
+                'Assistants'
+            ];
+            
+            const testData = [
+                // September 2025 Test Work Orders
+                [
+                    '2025-09-02',
+                    'REQ-2025-090001',
+                    'WO-2025-090001',
+                    'Site A',
+                    'Level 3, Server Room',
+                    'Breakdown',
+                    'ahmad_admin',
+                    'Air conditioning system not cooling properly',
+                    'Critical',
+                    'Mechanical',
+                    'technician_ali',
+                    'Replaced faulty thermostat and cleaned filters',
+                    '5',
+                    'Completed',
+                    'technician_ali',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-02 08:30:00',
+                    '45 minutes',
+                    '2025-09-02 09:15:00',
+                    '2025-09-02 14:30:00',
+                    '2025-09-02 16:00:00',
+                    'helper_bob'
+                ],
+                [
+                    '2025-09-03',
+                    'REQ-2025-090002',
+                    'WO-2025-090002',
+                    'Site B',
+                    'Ground Floor, Reception Area',
+                    'Client Complaint',
+                    'receptionist_sara',
+                    'Fluorescent light flickering in waiting area',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_john',
+                    'Replaced fluorescent starter and ballast',
+                    '4',
+                    'Completed',
+                    'technician_john',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-03 10:15:00',
+                    '30 minutes',
+                    '2025-09-03 10:45:00',
+                    '2025-09-03 13:20:00',
+                    '2025-09-03 14:45:00',
+                    ''
+                ],
+                [
+                    '2025-09-04',
+                    'REQ-2025-090003',
+                    'WO-2025-090003',
+                    'Site A',
+                    'Level 5, Conference Room B',
+                    'Self Finding',
+                    'technician_ali',
+                    'Projector not displaying properly during inspection',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_mike',
+                    'Cleaned projector lens and replaced HDMI cable',
+                    '4',
+                    'Completed',
+                    'technician_mike',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-04 09:00:00',
+                    '15 minutes',
+                    '2025-09-04 09:15:00',
+                    '2025-09-04 11:30:00',
+                    '2025-09-04 12:00:00',
+                    'helper_tom'
+                ],
+                [
+                    '2025-09-05',
+                    'REQ-2025-090004',
+                    'WO-2025-090004',
+                    'Site C',
+                    'Basement Level, Parking Garage',
+                    'Breakdown',
+                    'security_guard',
+                    'Emergency lighting system not working',
+                    'Critical',
+                    'Electrical',
+                    'technician_sarah',
+                    'Replaced backup battery and tested system',
+                    '5',
+                    'Completed',
+                    'technician_sarah',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-05 07:45:00',
+                    '1 hour',
+                    '2025-09-05 08:45:00',
+                    '2025-09-05 16:15:00',
+                    '2025-09-05 17:30:00',
+                    'helper_alex,helper_ben'
+                ],
+                [
+                    '2025-09-06',
+                    'REQ-2025-090005',
+                    'WO-2025-090005',
+                    'Site B',
+                    'Level 2, Kitchen Area',
+                    'Request',
+                    'kitchen_staff',
+                    'Install additional power outlet for new equipment',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_john',
+                    'Installed new 20A outlet with GFCI protection',
+                    '5',
+                    'Completed',
+                    'technician_john',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-06 11:00:00',
+                    '2 hours',
+                    '2025-09-06 13:00:00',
+                    '2025-09-06 15:45:00',
+                    '2025-09-06 16:30:00',
+                    'apprentice_carlos'
+                ],
+                [
+                    '2025-09-09',
+                    'REQ-2025-090006',
+                    'WO-2025-090006',
+                    'Site A',
+                    'Level 1, Main Entrance',
+                    'Defect',
+                    'security_supervisor',
+                    'Automatic door sensor malfunction',
+                    'Critical',
+                    'Mechanical',
+                    'technician_mike',
+                    'Adjusted sensor alignment and cleaned detection area',
+                    '4',
+                    'Completed',
+                    'technician_mike',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-09 08:00:00',
+                    '20 minutes',
+                    '2025-09-09 08:20:00',
+                    '2025-09-09 10:45:00',
+                    '2025-09-09 11:15:00',
+                    ''
+                ],
+                [
+                    '2025-09-10',
+                    'REQ-2025-090007',
+                    'WO-2025-090007',
+                    'Site C',
+                    'Level 4, Office Suite 401',
+                    'Client Complaint',
+                    'office_manager',
+                    'Water leak from ceiling tiles',
+                    'Critical',
+                    'Civil',
+                    'technician_robert',
+                    'Located and repaired pipe joint, replaced ceiling tiles',
+                    '4',
+                    'Completed',
+                    'technician_robert',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-10 14:30:00',
+                    '1.5 hours',
+                    '2025-09-10 16:00:00',
+                    '2025-09-11 09:30:00',
+                    '2025-09-11 11:00:00',
+                    'plumber_dan,helper_steve'
+                ],
+                [
+                    '2025-09-11',
+                    'REQ-2025-090008',
+                    'WO-2025-090008',
+                    'Site B',
+                    'Rooftop, HVAC Equipment',
+                    'Self Finding',
+                    'technician_sarah',
+                    'HVAC filter needs replacement during routine check',
+                    'Non-Critical',
+                    'Mechanical',
+                    'technician_sarah',
+                    'Replaced air filters and cleaned condenser coils',
+                    '5',
+                    'Completed',
+                    'technician_sarah',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-11 06:30:00',
+                    '10 minutes',
+                    '2025-09-11 06:40:00',
+                    '2025-09-11 08:15:00',
+                    '2025-09-11 09:00:00',
+                    ''
+                ],
+                [
+                    '2025-09-12',
+                    'REQ-2025-090009',
+                    'WO-2025-090009',
+                    'Site A',
+                    'Level 2, Restroom B',
+                    'Public Complaint',
+                    'visitor_john',
+                    'Hand dryer not working in restroom',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_ali',
+                    'Reset circuit breaker and tested operation',
+                    '3',
+                    'Completed',
+                    'technician_ali',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-12 13:45:00',
+                    '25 minutes',
+                    '2025-09-12 14:10:00',
+                    '2025-09-12 15:30:00',
+                    '2025-09-12 16:00:00',
+                    ''
+                ],
+                [
+                    '2025-09-13',
+                    'REQ-2025-090010',
+                    'WO-2025-090010',
+                    'Site C',
+                    'Level 3, IT Department',
+                    'Breakdown',
+                    'it_manager',
+                    'Network rack cooling fan failure',
+                    'Critical',
+                    'Mechanical',
+                    'technician_robert',
+                    'Replaced failed cooling fan and cleaned dust buildup',
+                    '5',
+                    'Completed',
+                    'technician_robert',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-13 11:20:00',
+                    '30 minutes',
+                    '2025-09-13 11:50:00',
+                    '2025-09-13 14:15:00',
+                    '2025-09-13 15:30:00',
+                    'it_technician'
+                ],
+                [
+                    '2025-09-16',
+                    'REQ-2025-090011',
+                    'WO-2025-090011',
+                    'Site B',
+                    'Level 1, Lobby Area',
+                    'Request',
+                    'facility_manager',
+                    'Install new LED lighting for energy efficiency',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_john',
+                    'Replaced 12 fluorescent fixtures with LED equivalents',
+                    '5',
+                    'Completed',
+                    'technician_john',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-16 08:00:00',
+                    '45 minutes',
+                    '2025-09-16 08:45:00',
+                    '2025-09-16 16:30:00',
+                    '2025-09-16 17:45:00',
+                    'electrician_frank,helper_george'
+                ],
+                [
+                    '2025-09-17',
+                    'REQ-2025-090012',
+                    'WO-2025-090012',
+                    'Site A',
+                    'Level 4, Executive Boardroom',
+                    'Client Complaint',
+                    'executive_assistant',
+                    'Temperature too cold in boardroom during meetings',
+                    'Non-Critical',
+                    'Mechanical',
+                    'technician_mike',
+                    'Adjusted thermostat settings and balanced air flow',
+                    '4',
+                    'Completed',
+                    'technician_mike',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-17 09:30:00',
+                    '15 minutes',
+                    '2025-09-17 09:45:00',
+                    '2025-09-17 11:00:00',
+                    '2025-09-17 11:30:00',
+                    ''
+                ],
+                [
+                    '2025-09-18',
+                    'REQ-2025-090013',
+                    'WO-2025-090013',
+                    'Site C',
+                    'Level 1, Fire Pump Room',
+                    'Self Finding',
+                    'technician_sarah',
+                    'Fire pump pressure gauge reading low during inspection',
+                    'Critical',
+                    'Mechanical',
+                    'technician_sarah',
+                    'Calibrated pressure gauge and checked pump operation',
+                    '5',
+                    'Completed',
+                    'technician_sarah',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-18 07:00:00',
+                    '10 minutes',
+                    '2025-09-18 07:10:00',
+                    '2025-09-18 09:45:00',
+                    '2025-09-18 10:30:00',
+                    'fire_safety_officer'
+                ],
+                [
+                    '2025-09-19',
+                    'REQ-2025-090014',
+                    'WO-2025-090014',
+                    'Site B',
+                    'Level 3, Open Office Area',
+                    'Defect',
+                    'office_supervisor',
+                    'Several workstation power outlets not working',
+                    'Critical',
+                    'Electrical',
+                    'technician_john',
+                    'Replaced faulty power strip and checked electrical panel',
+                    '4',
+                    'Completed',
+                    'technician_john',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-19 12:15:00',
+                    '40 minutes',
+                    '2025-09-19 12:55:00',
+                    '2025-09-19 15:20:00',
+                    '2025-09-19 16:10:00',
+                    'electrician_paul'
+                ],
+                [
+                    '2025-09-20',
+                    'REQ-2025-090015',
+                    'WO-2025-090015',
+                    'Site A',
+                    'Parking Lot, Level P1',
+                    'Public Complaint',
+                    'visitor_mary',
+                    'Parking garage lighting insufficient',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_ali',
+                    'Replaced 4 burnt out light bulbs and cleaned fixtures',
+                    '4',
+                    'Completed',
+                    'technician_ali',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-20 16:45:00',
+                    '20 minutes',
+                    '2025-09-20 17:05:00',
+                    '2025-09-20 18:30:00',
+                    '2025-09-20 19:00:00',
+                    'helper_jack'
+                ],
+                [
+                    '2025-09-23',
+                    'REQ-2025-090016',
+                    'WO-2025-090016',
+                    'Site C',
+                    'Level 2, Laboratory',
+                    'Breakdown',
+                    'lab_supervisor',
+                    'Fume hood ventilation system not working',
+                    'Critical',
+                    'Mechanical',
+                    'technician_robert',
+                    'Replaced motor bearings and balanced fan assembly',
+                    '5',
+                    'Completed',
+                    'technician_robert',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-23 08:45:00',
+                    '35 minutes',
+                    '2025-09-23 09:20:00',
+                    '2025-09-23 13:45:00',
+                    '2025-09-23 15:00:00',
+                    'hvac_specialist'
+                ],
+                [
+                    '2025-09-24',
+                    'REQ-2025-090017',
+                    'WO-2025-090017',
+                    'Site B',
+                    'Level 4, Training Room',
+                    'Request',
+                    'training_coordinator',
+                    'Install additional network ports for training equipment',
+                    'Non-Critical',
+                    'Civil',
+                    'technician_mike',
+                    'Installed 6 new network drops and tested connectivity',
+                    '5',
+                    'Completed',
+                    'technician_mike',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-24 10:00:00',
+                    '1 hour',
+                    '2025-09-24 11:00:00',
+                    '2025-09-24 14:30:00',
+                    '2025-09-24 16:00:00',
+                    'network_tech,cable_installer'
+                ],
+                [
+                    '2025-09-25',
+                    'REQ-2025-090018',
+                    'WO-2025-090018',
+                    'Site A',
+                    'Level 6, Executive Floor',
+                    'Client Complaint',
+                    'ceo_assistant',
+                    'Elevator making unusual noise when stopping',
+                    'Critical',
+                    'Mechanical',
+                    'technician_sarah',
+                    'Lubricated guide rails and adjusted brake pads',
+                    '4',
+                    'Completed',
+                    'technician_sarah',
+                    'supervisor_hassan',
+                    'manager_fatimah',
+                    '2025-09-25 13:30:00',
+                    '25 minutes',
+                    '2025-09-25 13:55:00',
+                    '2025-09-25 16:20:00',
+                    '2025-09-25 17:15:00',
+                    'elevator_tech'
+                ],
+                [
+                    '2025-09-26',
+                    'REQ-2025-090019',
+                    'WO-2025-090019',
+                    'Site C',
+                    'Cafeteria, Kitchen Equipment',
+                    'Self Finding',
+                    'technician_robert',
+                    'Refrigeration unit temperature running high',
+                    'Critical',
+                    'Mechanical',
+                    'technician_robert',
+                    'Cleaned condenser coils and recharged refrigerant',
+                    '5',
+                    'Completed',
+                    'technician_robert',
+                    'supervisor_peter',
+                    'manager_james',
+                    '2025-09-26 06:15:00',
+                    '5 minutes',
+                    '2025-09-26 06:20:00',
+                    '2025-09-26 08:45:00',
+                    '2025-09-26 09:30:00',
+                    'refrigeration_tech'
+                ],
+                [
+                    '2025-09-27',
+                    'REQ-2025-090020',
+                    'WO-2025-090020',
+                    'Site B',
+                    'Level 5, Conference Center',
+                    'Defect',
+                    'event_coordinator',
+                    'Audio system producing static noise',
+                    'Non-Critical',
+                    'Electrical',
+                    'technician_john',
+                    'Replaced faulty microphone cable and cleaned connections',
+                    '4',
+                    'Completed',
+                    'technician_john',
+                    'supervisor_david',
+                    'manager_lisa',
+                    '2025-09-27 14:20:00',
+                    '30 minutes',
+                    '2025-09-27 14:50:00',
+                    '2025-09-27 16:15:00',
+                    '2025-09-27 17:00:00',
+                    'av_technician'
+                ]
+            ];
+            
+            // Create new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Create data worksheet with headers and test data
+            const wsData = [headers, ...testData];
+            const dataWs = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // Set column widths for better visibility
+            const columnWidths = [
+                { wch: 12 }, // Date
+                { wch: 18 }, // Request No.
+                { wch: 18 }, // Work Order No.
+                { wch: 10 }, // Site
+                { wch: 30 }, // Location
+                { wch: 18 }, // Complaint Type
+                { wch: 20 }, // Complainant
+                { wch: 40 }, // Complaint Description
+                { wch: 12 }, // Severity
+                { wch: 12 }, // Trade
+                { wch: 18 }, // PIC Name
+                { wch: 40 }, // Repair Description
+                { wch: 8 },  // Rating
+                { wch: 12 }, // Progress
+                { wch: 18 }, // Fixed By
+                { wch: 18 }, // Assigned By
+                { wch: 18 }, // Verified By
+                { wch: 20 }, // Complaint Time
+                { wch: 15 }, // Respond Duration
+                { wch: 20 }, // Assigned Time
+                { wch: 20 }, // Executed Time
+                { wch: 20 }, // Verified Time
+                { wch: 25 }  // Assistants
+            ];
+            dataWs['!cols'] = columnWidths;
+            
+            // Add data validation for dropdown columns
+            if (!dataWs['!dataValidation']) dataWs['!dataValidation'] = [];
+            
+            // Complaint Type dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: false,
+                sqref: 'F2:F100',
+                formulas: ['Client Complaint,Self Finding,Request,Breakdown,Defect,Public Complaint']
+            });
+            
+            // Severity dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: false,
+                sqref: 'I2:I100',
+                formulas: ['Critical,Non-Critical']
+            });
+            
+            // Rating dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: true,
+                sqref: 'M2:M100',
+                formulas: ['1,2,3,4,5']
+            });
+            
+            // Progress dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: true,
+                sqref: 'N2:N100',
+                formulas: ['Completed,In Progress,Cancelled']
+            });
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, dataWs, 'September 2025 Test Data');
+            
+            // Create summary worksheet
+            const summaryData = [
+                ['Work Order Test Data Summary - September 2025'],
+                [''],
+                ['Total Work Orders: 20'],
+                ['Date Range: September 2-27, 2025'],
+                ['Sites Covered: Site A, Site B, Site C'],
+                [''],
+                ['Breakdown by Type:'],
+                ['• Breakdown: 6 work orders'],
+                ['• Client Complaint: 5 work orders'],
+                ['• Self Finding: 4 work orders'],
+                ['• Request: 3 work orders'],
+                ['• Defect: 3 work orders'],
+                ['• Public Complaint: 2 work orders'],
+                [''],
+                ['Breakdown by Severity:'],
+                ['• Critical: 10 work orders'],
+                ['• Non-Critical: 10 work orders'],
+                [''],
+                ['Breakdown by Trade:'],
+                ['• Electrical: 8 work orders'],
+                ['• Mechanical: 10 work orders'],
+                ['• Civil: 2 work orders'],
+                [''],
+                ['Technicians Involved:'],
+                ['• technician_ali (Site A)'],
+                ['• technician_john (Site B)'],
+                ['• technician_mike (Site A/B)'],
+                ['• technician_sarah (Site B/C)'],
+                ['• technician_robert (Site C)'],
+                [''],
+                ['Features Tested:'],
+                ['• Mixed date formats (YYYY-MM-DD and DD/MM/YYYY)'],
+                ['• All complaint types represented'],
+                ['• Both critical and non-critical severities'],
+                ['• Multiple trades (Electrical, Mechanical, Civil)'],
+                ['• Realistic work descriptions and repair details'],
+                ['• Various response times and durations'],
+                ['• Multiple assistants and collaborators'],
+                ['• Rating system (3-5 stars)'],
+                ['• Complete workflow from complaint to verification'],
+                [''],
+                ['Data Validation:'],
+                ['• All required fields populated'],
+                ['• Logical time sequences maintained'],
+                ['• Realistic repair descriptions'],
+                ['• Valid user names for each site'],
+                ['• Proper complaint type classifications'],
+                ['• Appropriate severity assignments'],
+                [''],
+                ['Usage Instructions:'],
+                ['1. Save this file as Excel format (.xlsx)'],
+                ['2. Use the "September 2025 Test Data" sheet for import'],
+                ['3. Ensure users exist in your system before import'],
+                ['4. Select appropriate site during import process'],
+                ['5. Review validation summary after upload'],
+                ['6. Execute import for all 20 work orders']
+            ];
+            
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            summaryWs['!cols'] = [{ wch: 80 }];
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary & Instructions');
+            
+            // Generate Excel file and trigger download
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'wo_test_data_september_2025.xlsx';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            alert('September 2025 Work Order test data generated successfully!\n\nFile: wo_test_data_september_2025.xlsx\n\nContains:\n• 20 realistic work orders\n• All September dates (2-27)\n• Multiple sites, trades, and complaint types\n• Complete workflow data\n• Data validation enabled');
+        }
+    </script>
+</body>
+</html>

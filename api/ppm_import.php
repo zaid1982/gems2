@@ -1,10 +1,13 @@
 <?php
 // PPM Import API - GEMS System
-// Handles PPM task data import from CSV files
+// Handles PPM task data import from Excel files
 
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
+require_once '../vendor/autoload.php'; // For PhpSpreadsheet
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 $apiName = 'ppm_import';
 $isTransaction = false;
@@ -84,13 +87,13 @@ function handlePreviewImport() {
         throw new Exception('File upload error: ' . $file['error']);
     }
     
-    if (!str_ends_with(strtolower($file['name']), '.csv')) {
-        throw new Exception('Only CSV files are allowed');
+    if (!str_ends_with(strtolower($file['name']), '.xlsx') && !str_ends_with(strtolower($file['name']), '.xls')) {
+        throw new Exception('Only Excel files (.xlsx, .xls) are allowed');
     }
     
-    // Read and validate CSV file
-    $csvData = readCSVFile($file['tmp_name']);
-    $validationResult = validatePPMData($csvData);
+    // Read and validate Excel file
+    $excelData = readExcelFile($file['tmp_name']);
+    $validationResult = validatePPMData($excelData);
     
     return $validationResult;
 }
@@ -108,9 +111,9 @@ function handleExecuteImport() {
         throw new Exception('File upload error: ' . $file['error']);
     }
     
-    // Read and process CSV file
-    $csvData = readCSVFile($file['tmp_name']);
-    $validationResult = validatePPMData($csvData);
+    // Read and process Excel file
+    $excelData = readExcelFile($file['tmp_name']);
+    $validationResult = validatePPMData($excelData);
     
     if (!$validationResult['can_proceed']) {
         throw new Exception('File validation failed - cannot proceed with import');
@@ -122,67 +125,113 @@ function handleExecuteImport() {
     return $importResult;
 }
 
-function readCSVFile($filePath) {
-    $csvData = [];
-    $headers = [];
-    
-    if (($handle = fopen($filePath, 'r')) !== FALSE) {
-        $rowNumber = 0;
+function readExcelFile($filePath) {
+    try {
+        // Load the Excel file
+        $spreadsheet = IOFactory::load($filePath);
+        $worksheet = $spreadsheet->getActiveSheet();
         
-        while (($data = fgetcsv($handle, 10000, ',')) !== FALSE) {
-            $rowNumber++;
+        // Convert worksheet to array
+        $sheetData = $worksheet->toArray(null, true, true, true);
+        
+        if (empty($sheetData)) {
+            throw new Exception('Excel file is empty');
+        }
+        
+        // Get headers from first row
+        $firstRow = reset($sheetData);
+        $headers = [];
+        
+        foreach ($firstRow as $cellValue) {
+            $headers[] = trim($cellValue ?? '');
+        }
+        
+        // Filter out empty headers from the end
+        while (count($headers) > 0 && empty(end($headers))) {
+            array_pop($headers);
+        }
+        
+        if (empty($headers)) {
+            throw new Exception('No headers found in Excel file');
+        }
+        
+        // Process data rows
+        $excelData = [];
+        $rowIndex = 0;
+        
+        foreach ($sheetData as $rowNumber => $rowData) {
+            $rowIndex++;
             
-            if ($rowNumber === 1) {
-                // First row contains headers
-                $headers = array_map('trim', $data);
+            // Skip header row
+            if ($rowIndex === 1) {
                 continue;
             }
             
-            // Skip empty rows
-            if (empty(array_filter($data))) {
+            // Convert row data to array and trim values
+            $processedRow = [];
+            $hasData = false;
+            
+            $colIndex = 0;
+            foreach ($headers as $header) {
+                $cellValue = isset($rowData[array_keys($rowData)[$colIndex]]) ? 
+                            trim($rowData[array_keys($rowData)[$colIndex]] ?? '') : '';
+                
+                if (!empty($cellValue)) {
+                    $hasData = true;
+                }
+                
+                $processedRow[] = $cellValue;
+                $colIndex++;
+            }
+            
+            // Skip completely empty rows
+            if (!$hasData) {
                 continue;
             }
             
             // Ensure data array matches headers count
             $headerCount = count($headers);
-            $dataCount = count($data);
+            $dataCount = count($processedRow);
             
             if ($dataCount < $headerCount) {
                 // Pad with empty strings if data has fewer columns
-                $data = array_pad($data, $headerCount, '');
+                $processedRow = array_pad($processedRow, $headerCount, '');
             } elseif ($dataCount > $headerCount) {
                 // Trim excess columns if data has more columns
-                $data = array_slice($data, 0, $headerCount);
+                $processedRow = array_slice($processedRow, 0, $headerCount);
             }
             
-            // Now safely combine headers with data
-            $row = array_combine($headers, $data);
+            // Combine headers with data
+            $combinedRow = array_combine($headers, $processedRow);
             
-            if ($row === false) {
+            if ($combinedRow === false) {
                 throw new Exception("Failed to process row $rowNumber - header/data mismatch");
             }
             
-            $row['row_number'] = $rowNumber;
-            $csvData[] = $row;
+            $combinedRow['row_number'] = $rowIndex;
+            $excelData[] = $combinedRow;
         }
         
-        fclose($handle);
-    } else {
-        throw new Exception('Unable to read CSV file');
+        return [
+            'headers' => $headers,
+            'rows' => $excelData,
+            'total_rows' => count($excelData)
+        ];
+        
+    } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'Failed to process row') === 0) {
+            // Re-throw our custom row processing errors
+            throw $e;
+        }
+        throw new Exception('Unable to read Excel file: ' . $e->getMessage());
     }
-    
-    return [
-        'headers' => $headers,
-        'rows' => $csvData,
-        'total_rows' => count($csvData)
-    ];
 }
 
-function validatePPMData($csvData) {
+function validatePPMData($excelData) {
     global $fnMain;
     
-    $headers = $csvData['headers'];
-    $rows = $csvData['rows'];
+    $headers = $excelData['headers'];
+    $rows = $excelData['rows'];
     
     // Debug: Log the detected headers
     $fnMain->logDebug('API', 'ppm_import', __LINE__, 'Detected headers: ' . json_encode($headers));
@@ -496,7 +545,7 @@ function executePPMImport($validRows) {
         }
             
         try {
-            // Extract and validate data from CSV row
+            // Extract and validate data from Excel row
             $validationStartTime = microtime(true);
             $ppmTaskNo = trim($row['PPM Task No.']);
             $assetCode = trim($row['Asset Code']);
@@ -507,7 +556,7 @@ function executePPMImport($validRows) {
             // Assume all imported tasks are Complete status
             $status = 'Complete';
             
-            // Additional fields from CSV
+            // Additional fields from Excel
             $estimatedDuration = floatval($row['Estimated Duration (Hours)'] ?? 0);
             $workInstructions = trim($row['Work Instructions'] ?? '');
             $requiredTools = trim($row['Required Tools'] ?? '');
@@ -732,7 +781,7 @@ function executePPMImport($validRows) {
             if (strpos($errorMessage, 'Duplicate entry') !== false) {
                 $errorMessage = "Duplicate data detected: {$errorMessage}. Check for unique constraints violation.";
             } elseif (strpos($errorMessage, 'cannot be null') !== false) {
-                $errorMessage = "Required field missing: {$errorMessage}. Check CSV data completeness.";
+                $errorMessage = "Required field missing: {$errorMessage}. Check Excel data completeness.";
             } elseif (strpos($errorMessage, 'Foreign key constraint') !== false) {
                 $errorMessage = "Invalid reference data: {$errorMessage}. Check related asset, user, or PPM records.";
             } else {
@@ -780,7 +829,7 @@ function executePPMImport($validRows) {
     } elseif ($errorCount > 0) {
         $finalMessage = "Import completed with {$errorCount} issues. Review error details for specific problems.";
     } else {
-        $finalMessage = "No tasks processed - check CSV file format and content.";
+        $finalMessage = "No tasks processed - check Excel file format and content.";
     }
     
     return [
@@ -833,7 +882,7 @@ function getSampleAssets() {
         return [
             'sample_assets' => $sampleAssets,
             'count' => count($sampleAssets),
-            'message' => 'Use these asset numbers in your CSV file'
+            'message' => 'Use these asset numbers in your Excel file'
         ];
         
     } catch (Exception $e) {
@@ -864,7 +913,7 @@ function getSampleUsers() {
         return [
             'sample_users' => $sampleUsers,
             'count' => count($sampleUsers),
-            'message' => 'Use these usernames as Assigned Technician in your CSV file'
+            'message' => 'Use these usernames as Assigned Technician in your Excel file'
         ];
         
     } catch (Exception $e) {

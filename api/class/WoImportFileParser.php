@@ -4,6 +4,9 @@
  * Handles CSV, XLS, and XLSX files
  */
 
+// Include composer autoloader for PhpSpreadsheet
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 // Add PhpSpreadsheet imports
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;

@@ -91,6 +91,8 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <!-- SheetJS for Excel support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body class="fixed-sn light-blue-skin">
@@ -127,19 +129,22 @@
                                     
                                     <!-- Template Download -->
                                     <div class="template-download">
-                                        <h5><i class="fa fa-download"></i> Import Template & Format</h5>
-                                        <p>You can use either our standard template or your existing format:</p>
+                                        <h5><i class="fa fa-download"></i> Excel Import Template & Format</h5>
+                                        <p>Download our professional Excel template with data validation and instructions:</p>
                                         
                                         <div class="alert alert-info">
-                                            <strong>Flexible Import Support:</strong><br>
+                                            <strong>Excel Template Features:</strong><br>
+                                            • Professional two-sheet template (Data + Instructions)<br>
+                                            • Data validation dropdowns for consistent input<br>
                                             • Your existing columns: "Date", "Request No.", "Work Order No.", "Complaint Description", "PIC Name", etc.<br>
                                             • User names will be automatically matched to system users<br>
                                             • "Complaint Description" will be used as the work order title<br>
-                                            • Text values like "Critical"/"Non-Critical" are supported
+                                            • Text values like "Critical"/"Non-Critical" are supported<br>
+                                            • CSV format also supported for backward compatibility
                                         </div>
                                         
                                         <button class="btn btn-success" id="downloadTemplate">
-                                            <i class="fa fa-file-excel"></i> Download Standard CSV Template
+                                            <i class="fa fa-file-excel"></i> Download Excel Template
                                         </button>
                                         <button class="btn btn-info ml-2" id="viewSampleData">
                                             <i class="fa fa-eye"></i> View Sample Data Format
@@ -170,7 +175,7 @@
                                         <p class="text-muted">or click to browse and select a file</p>
                                         <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
                                         <div class="mt-2">
-                                            <small class="text-muted">Supported formats: CSV, XLS, XLSX | Max size: 10MB</small>
+                                            <small class="text-muted">Supported formats: Excel (XLSX, XLS), CSV | Max size: 10MB</small>
                                         </div>
                                     </div>
 
@@ -591,7 +596,7 @@
         }
 
         function downloadTemplate() {
-            // Create CSV template with the agreed format
+            // Create Excel template with Work Order import format
             const headers = [
                 'Date',
                 'Request No.',
@@ -618,82 +623,206 @@
                 'Assistants'
             ];
             
-            const sampleRow = [
-                '2025-01-15',
-                'REQ-2025-001',
-                'WO-2025-001',
-                'Site A',
-                'Level 2, Office Block A',
-                'Breakdown',
-                'john_complainant',
-                'Aircon not working in office area',
-                'Critical',
-                'Mechanical',
-                'john_technician',
-                'Replaced faulty compressor unit',
-                '5',
-                'Completed',
-                'john_technician',
-                'supervisor_name',
-                'manager_name',
-                '2025-01-15 09:00:00',
-                '30 minutes',
-                '2025-01-15 09:30:00',
-                '2025-01-16 14:00:00',
-                '2025-01-16 16:00:00',
-                'assistant1,assistant2'
+            const sampleRows = [
+                [
+                    '2025-01-15',
+                    'REQ-2025-001',
+                    'WO-2025-001',
+                    'Site A',
+                    'Level 2, Office Block A',
+                    'Breakdown',
+                    'john_complainant',
+                    'Aircon not working in office area',
+                    'Critical',
+                    'Mechanical',
+                    'john_technician',
+                    'Replaced faulty compressor unit',
+                    '5',
+                    'Completed',
+                    'john_technician',
+                    'supervisor_name',
+                    'manager_name',
+                    '2025-01-15 09:00:00',
+                    '30 minutes',
+                    '2025-01-15 09:30:00',
+                    '2025-01-16 14:00:00',
+                    '2025-01-16 16:00:00',
+                    'assistant1,assistant2'
+                ],
+                [
+                    '17/01/2025',
+                    'REQ-2025-002',
+                    'WO-2025-002',
+                    'Site B',
+                    'Ground Floor, Corridor B',
+                    'Self Finding',
+                    'jane_supervisor',
+                    'Lighting issue in corridor',
+                    'Non-Critical',
+                    'Electrical',
+                    'jane_technician',
+                    'Replaced fluorescent bulb',
+                    '4',
+                    'Completed',
+                    'jane_technician',
+                    'admin_user',
+                    'quality_manager',
+                    '17/01/2025 10:30:00',
+                    '1 hour',
+                    '17/01/2025 11:30:00',
+                    '18/01/2025 09:00:00',
+                    '18/01/2025 11:00:00',
+                    'helper1'
+                ]
             ];
 
-            // Create comprehensive CSV with headers and sample data
-            let csvContent = '';
+            // Create new workbook
+            const wb = XLSX.utils.book_new();
             
-            // Add header descriptions as comments
-            csvContent += '# Work Order Import Template - Customer Format\n';
-            csvContent += '# This template supports your existing column names\n';
-            csvContent += '# Required: Date, Request No./Work Order No., Location, Complaint Description, Complaint Type, Severity, PIC Name\n';
-            csvContent += '# Complaint Type: Client Complaint, Self Finding, Request, Breakdown, Defect, Public Complaint\n';
-            csvContent += '# Severity: Critical, Non-Critical\n';
-            csvContent += '# PIC Name/Fixed By: User name from system (user_name field)\n';
-            csvContent += '# Dates: YYYY-MM-DD or DD/MM/YYYY format, Times: YYYY-MM-DD HH:MM:SS\n';
-            csvContent += '\n';
+            // Create data worksheet with headers only (clean for data entry)
+            const dataWs = XLSX.utils.aoa_to_sheet([headers]);
             
-            // Add actual CSV headers and data
-            csvContent += headers.join(',') + '\n';
-            csvContent += sampleRow.join(',') + '\n';
-            
-            // Add a second sample row
-            const sampleRow2 = [
-                '17/01/2025',
-                'REQ-2025-002',
-                'WO-2025-002',
-                'Site B',
-                'Ground Floor, Corridor B',
-                'Self Finding',
-                'jane_supervisor',
-                'Lighting issue in corridor',
-                'Non-Critical',
-                'Electrical',
-                'jane_technician',
-                'Replaced fluorescent bulb',
-                '4',
-                'Completed',
-                'jane_technician',
-                'admin_user',
-                'quality_manager',
-                '17/01/2025 10:30:00',
-                '1 hour',
-                '17/01/2025 11:30:00',
-                '18/01/2025 09:00:00',
-                '18/01/2025 11:00:00',
-                'helper1'
+            // Set column widths for better visibility
+            const columnWidths = [
+                { wch: 12 }, // Date
+                { wch: 15 }, // Request No.
+                { wch: 15 }, // Work Order No.
+                { wch: 10 }, // Site
+                { wch: 25 }, // Location
+                { wch: 18 }, // Complaint Type
+                { wch: 15 }, // Complainant
+                { wch: 30 }, // Complaint Description
+                { wch: 12 }, // Severity
+                { wch: 12 }, // Trade
+                { wch: 15 }, // PIC Name
+                { wch: 30 }, // Repair Description
+                { wch: 8 },  // Rating
+                { wch: 12 }, // Progress
+                { wch: 15 }, // Fixed By
+                { wch: 15 }, // Assigned By
+                { wch: 15 }, // Verified By
+                { wch: 18 }, // Complaint Time
+                { wch: 15 }, // Respond Duration
+                { wch: 18 }, // Assigned Time
+                { wch: 18 }, // Executed Time
+                { wch: 18 }, // Verified Time
+                { wch: 20 }  // Assistants
             ];
-            csvContent += sampleRow2.join(',') + '\n';
+            dataWs['!cols'] = columnWidths;
             
-            const blob = new Blob([csvContent], { type: 'text/csv' });
+            // Add data validation for specific columns
+            if (!dataWs['!dataValidation']) dataWs['!dataValidation'] = [];
+            
+            // Complaint Type dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: false,
+                sqref: 'F2:F1000', // Complaint Type column
+                formulas: ['Client Complaint,Self Finding,Request,Breakdown,Defect,Public Complaint']
+            });
+            
+            // Severity dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: false,
+                sqref: 'I2:I1000', // Severity column
+                formulas: ['Critical,Non-Critical']
+            });
+            
+            // Rating dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: true,
+                sqref: 'M2:M1000', // Rating column
+                formulas: ['1,2,3,4,5']
+            });
+            
+            // Progress dropdown validation
+            dataWs['!dataValidation'].push({
+                type: 'list',
+                allowBlank: true,
+                sqref: 'N2:N1000', // Progress column
+                formulas: ['Completed,In Progress,Cancelled']
+            });
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, dataWs, 'WO Import Data');
+            
+            // Create instructions worksheet
+            const instructionsData = [
+                ['Work Order Import Template - GEMS System'],
+                [''],
+                ['IMPORTANT NOTES:'],
+                ['• This template supports your existing column names and format'],
+                ['• Required fields: Date, Request No./Work Order No., Location, Complaint Description, Complaint Type, Severity, PIC Name'],
+                ['• Date format: YYYY-MM-DD or DD/MM/YYYY (e.g., 2025-08-01 or 01/08/2025)'],
+                ['• Time format: YYYY-MM-DD HH:MM:SS (e.g., 2025-08-01 08:30:00)'],
+                ['• PIC Name/Fixed By: Must be valid username from system'],
+                ['• User names will be automatically matched to system users'],
+                [''],
+                ['REQUIRED COLUMNS:'],
+                ['• Date - Work order creation date'],
+                ['• Request No. OR Work Order No. - Unique identifier (either can be used)'],
+                ['• Location - Location where work was performed'],
+                ['• Complaint Description - Description of the issue/work (work order title)'],
+                ['• Complaint Type - Type of work order (use dropdown)'],
+                ['• Severity - Priority level (use dropdown)'],
+                ['• PIC Name OR Fixed By - Technician who performed the work (username)'],
+                [''],
+                ['OPTIONAL COLUMNS:'],
+                ['• Site - Site name (optional if specified in UI)'],
+                ['• Complainant - Person who reported the issue (username)'],
+                ['• Trade - Trade type (Mechanical, Electrical, Civil, etc.)'],
+                ['• Repair Description - Description of repair work performed'],
+                ['• Rating - Work quality rating (use dropdown 1-5)'],
+                ['• Progress - Work progress status (use dropdown)'],
+                ['• Assigned By - Person who assigned the work (username)'],
+                ['• Verified By - Person who verified the work (username)'],
+                ['• All time fields for tracking work timeline'],
+                ['• Assistants - Assistant technicians (comma-separated usernames)'],
+                [''],
+                ['DATA VALIDATION:'],
+                ['• Complaint Type: Use dropdown list provided'],
+                ['• Severity: Use dropdown list provided'],
+                ['• Rating: Use dropdown list provided (1-5)'],
+                ['• Progress: Use dropdown list provided'],
+                [''],
+                ['SAMPLE DATA FORMAT:'],
+                ['Below are sample rows showing the correct data format:'],
+                [''],
+                // Add headers row for sample data
+                [...headers],
+                // Add sample data rows
+                ...sampleRows,
+                [''],
+                ['NOTES ON SAMPLE DATA:'],
+                ['• Date: Both YYYY-MM-DD and DD/MM/YYYY formats are supported'],
+                ['• Request No./Work Order No.: Use unique identifiers'],
+                ['• Location: Be specific about work location'],
+                ['• Complaint Description: Clear description becomes work order title'],
+                ['• Complaint Type: Use exact values from dropdown'],
+                ['• Severity: Critical or Non-Critical only'],
+                ['• User Names: All user names must exist in system'],
+                ['• Times: All time fields use YYYY-MM-DD HH:MM:SS format'],
+                ['• Rating: Optional 1-5 rating for work quality'],
+                ['• Assistants: Comma-separated list of helper usernames']
+            ];
+            
+            const instructionsWs = XLSX.utils.aoa_to_sheet(instructionsData);
+            
+            // Set column widths for instructions
+            instructionsWs['!cols'] = [{ wch: 80 }];
+            
+            // Add instructions worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, instructionsWs, 'Instructions');
+            
+            // Generate Excel file and trigger download
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'wo_import_template.csv';
+            a.download = 'wo_import_template.xlsx';
             a.click();
             window.URL.revokeObjectURL(url);
         }
@@ -818,13 +947,15 @@
             
             if (sampleData.success) {
                 let html = '<div class="alert alert-success">';
-                html += '<h6><i class="fa fa-check-circle"></i> Customer Template Format Supported</h6>';
-                html += '<p>This template uses your existing column names and formats. The backend automatically maps your columns to our system:</p>';
+                html += '<h6><i class="fa fa-file-excel"></i> Excel Template Format with Data Validation</h6>';
+                html += '<p>Our professional Excel template includes data validation and uses your existing column names:</p>';
                 html += '<ul>';
+                html += '<li><strong>Excel features:</strong> Data validation dropdowns, two-sheet structure (Data + Instructions)</li>';
                 html += '<li><strong>Your columns:</strong> "Date", "Request No.", "Complaint Description", "PIC Name", etc.</li>';
                 html += '<li><strong>Text values:</strong> "Critical"/"Non-Critical", "Breakdown", "Self Finding" are automatically converted</li>';
                 html += '<li><strong>User names:</strong> Matched by user_name field in system</li>';
                 html += '<li><strong>Flexible dates:</strong> Both YYYY-MM-DD and DD/MM/YYYY formats supported</li>';
+                html += '<li><strong>CSV compatibility:</strong> Legacy CSV format also supported</li>';
                 html += '</ul>';
                 html += '</div>';
                 

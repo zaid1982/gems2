@@ -10,6 +10,9 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_wo.php';
 require_once 'class/WoImportFileParser.php';
+require_once '../vendor/autoload.php'; // For PhpSpreadsheet
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 $api_name = 'api_wo_import';
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');

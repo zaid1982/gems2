@@ -91,6 +91,8 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <!-- SheetJS for Excel file handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body class="fixed-sn light-blue-skin">
@@ -111,7 +113,7 @@
                 <section>
                     <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
                         <h2 class="h2-responsive mb-0"><i class="fa fa-upload mr-2"></i>PPM Import</h2>
-                        <p class="text-white-50 mb-0">Import PPM tasks from CSV file with comprehensive validation</p>
+                        <p class="text-white-50 mb-0">Import PPM tasks from Excel file with comprehensive validation</p>
                     </div>
                 </section>
 
@@ -130,17 +132,16 @@
                                         <h5><i class="fa fa-download"></i> PPM Import Template</h5>
                                         <p>Download the template and fill in your PPM task data:</p>
                                         
-                                        <div class="alert alert-info">
-                                            <strong>PPM Import Requirements:</strong><br>
-                                            • Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date<br>
-                                            • <strong>Note:</strong> All imported tasks are automatically set as "Complete" status<br>
-                                            • Asset Code: Must match existing assets in the system<br>
-                                            • Assigned Technician: Must be valid username from system<br>
-                                            • All dates in YYYY-MM-DD format<br>
-                                        </div>
-                                        
-                                        <button class="btn btn-success" id="downloadTemplate">
-                                            <i class="fa fa-file-excel"></i> Download PPM CSV Template
+                        <div class="alert alert-info">
+                            <strong>PPM Import Requirements:</strong><br>
+                            • Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date<br>
+                            • <strong>Note:</strong> All imported tasks are automatically set as "Complete" status<br>
+                            • Asset Code: Must match existing assets in the system<br>
+                            • Assigned Technician: Must be valid username from system<br>
+                            • All dates in YYYY-MM-DD format<br>
+                            • Excel format provides better data validation and formatting<br>
+                        </div>                                        <button class="btn btn-success" id="downloadTemplate">
+                                            <i class="fa fa-file-excel"></i> Download PPM Excel Template
                                         </button>
                                         <button class="btn btn-info ml-2" id="viewSampleData">
                                             <i class="fa fa-eye"></i> View Sample Data Format
@@ -152,9 +153,9 @@
                                         <div class="upload-icon">
                                             <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
                                         </div>
-                                        <h5>Drag & Drop PPM CSV File Here</h5>
-                                        <p class="text-muted">or click to browse files</p>
-                                        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                        <h5>Drag & Drop PPM Excel File Here</h5>
+                                        <p class="text-muted">or click to browse files (.xlsx, .xls)</p>
+                                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
                                         <button class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
                                             <i class="fa fa-folder-open mr-1"></i> Browse Files
                                         </button>
@@ -162,7 +163,7 @@
                                         <!-- File Info -->
                                         <div class="file-info mt-3" id="fileInfo" style="display: none;">
                                             <div class="alert alert-success mb-0">
-                                                <i class="fas fa-file-csv mr-2"></i>
+                                                <i class="fas fa-file-excel mr-2"></i>
                                                 <strong>File:</strong> <span id="fileName"></span><br>
                                                 <strong>Size:</strong> <span id="fileSize"></span><br>
                                                 <strong>Type:</strong> <span id="fileType"></span>
@@ -476,6 +477,13 @@
 
         function handleFileSelect(file) {
             if (!file) return;
+            
+            // Validate file type
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+                toastr['error']('Please select an Excel file (.xlsx or .xls)', _ALERT_TITLE_ERROR);
+                return;
+            }
             
             selectedFile = file;
             
@@ -850,105 +858,345 @@
         }
 
         function downloadTemplate() {
-            // Create CSV template with PPM import format
+            // Create Excel template with PPM import format
             const headers = [
                 'PPM Task No.',
                 'Asset Code',
                 'Assigned Technician',
                 'Task Description',
                 'Next Due Date',
-                'Estimated Duration (Hours)',
-                'Work Instructions',
-                'Required Tools',
-                'Required Parts',
-                'Completion Criteria'
+                'Site',
+                'Document No.',
+                'Asset Name',
+                'Asset Group',
+                'Location Code',
+                'Trade',
+                'Frequency',
+                'Asset Category',
+                'Asset Type',
+                'Location Description',
+                'Block',
+                'Level',
+                'Remark',
+                'Reviewer',
+                'Verifier',
+                'Time Scan',
+                'Time Executed',
+                'Time Reviewed',
+                'Time Verified',
+                'Lateness',
+                'Min Execution Time',
+                'Max Execution Time',
+                'Execution Status',
+                'Progress'
             ];
             
             const sampleRows = [
                 [
                     'PPM-2025-001',
-                    'GEN-001',
+                    'AC-001',
                     'attendance2',
-                    'Generator Monthly Inspection',
-                    '2025-08-15',
-                    '2.5',
-                    'Check oil levels and filters',
-                    'Wrench set, Oil meter',
-                    'Oil filter, Engine oil',
-                    'All checks completed successfully'
+                    'Monthly HVAC Maintenance',
+                    '2025-07-31',
+                    'Site A',
+                    'PPM-HVAC-001',
+                    'Air Conditioning Unit',
+                    'HVAC',
+                    'B1-001',
+                    'Mechanical',
+                    'Monthly',
+                    'HVAC',
+                    'Air Conditioner',
+                    'Basement Level 1, AC Room',
+                    'Block A',
+                    'Basement',
+                    'Monthly maintenance',
+                    'supervisor2',
+                    'manager1',
+                    '2025-07-31 08:00:00',
+                    '2025-07-31 10:30:00',
+                    '2025-07-31 11:00:00',
+                    '2025-07-31 11:15:00',
+                    0,
+                    120,
+                    180,
+                    'Completed',
+                    'Completed'
                 ],
                 [
                     'PPM-2025-002',
-                    'GEN-002',
+                    'GEN-001',
                     'attendance2',
-                    'Generator Quarterly Maintenance',
-                    '2025-08-07',
-                    '4.0',
-                    'Full system inspection and cleaning',
-                    'Cleaning equipment, Test meters',
-                    'Spark plugs, Air filter',
-                    'System running optimally'
+                    'Weekly Generator Test',
+                    '2025-08-01',
+                    'Site B',
+                    'PPM-GEN-001',
+                    'Emergency Generator',
+                    'Electrical',
+                    'B1-002',
+                    'Electrical',
+                    'Weekly',
+                    'Generator',
+                    'Diesel Generator',
+                    'Basement Level 1, Generator Room',
+                    'Block B',
+                    'Basement',
+                    'Weekly generator test',
+                    'supervisor2',
+                    'manager1',
+                    '2025-08-01 07:00:00',
+                    '2025-08-01 08:30:00',
+                    '2025-08-01 09:00:00',
+                    '2025-08-01 09:15:00',
+                    0,
+                    90,
+                    120,
+                    'Completed',
+                    'Completed'
                 ],
                 [
                     'PPM-2025-003',
-                    'AC-001',
+                    'PUMP-001',
                     'attendance2',
-                    'AC Unit Filter Replacement',
-                    '2025-08-20',
-                    '1.5',
-                    'Replace air filters and check cooling',
-                    'Screwdriver, Vacuum',
-                    'Air filters',
-                    'Filters replaced and airflow normal'
+                    'Quarterly Pump Maintenance',
+                    '2025-08-02',
+                    'Site C',
+                    'PPM-PUMP-001',
+                    'Water Pump System',
+                    'Mechanical',
+                    'B2-001',
+                    'Mechanical',
+                    'Quarterly',
+                    'Pump',
+                    'Centrifugal Pump',
+                    'Basement Level 2, Pump Room',
+                    'Block C',
+                    'Basement',
+                    'Quarterly pump maintenance',
+                    'supervisor2',
+                    'manager1',
+                    '2025-08-02 09:00:00',
+                    '2025-08-02 11:30:00',
+                    '2025-08-02 12:00:00',
+                    '2025-08-02 12:15:00',
+                    0,
+                    150,
+                    180,
+                    'Completed',
+                    'Completed'
                 ]
             ];
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
             
-            // Create CSV content
-            let csvContent = '';
+            // Create main data worksheet - headers only
+            const wsData = [headers];
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
             
-            // Add header descriptions as comments
-            csvContent += '# PPM Import Template - GEMS System\\n';
-            csvContent += '# All imported tasks are automatically set as "Complete" status\\n';
-            csvContent += '# Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date\\n';
-            csvContent += '# Dates: YYYY-MM-DD format\\n';
-            csvContent += '# Assigned Technician: Use valid username from system\\n';
-            csvContent += '\\n';
+            // Set column widths for better readability
+            const columnWidths = [
+                { wch: 15 }, // PPM Task No.
+                { wch: 12 }, // Asset Code
+                { wch: 15 }, // Assigned Technician
+                { wch: 30 }, // Task Description
+                { wch: 12 }, // Next Due Date
+                { wch: 10 }, // Site
+                { wch: 15 }, // Document No.
+                { wch: 25 }, // Asset Name
+                { wch: 12 }, // Asset Group
+                { wch: 12 }, // Location Code
+                { wch: 12 }, // Trade
+                { wch: 10 }, // Frequency
+                { wch: 15 }, // Asset Category
+                { wch: 15 }, // Asset Type
+                { wch: 30 }, // Location Description
+                { wch: 10 }, // Block
+                { wch: 10 }, // Level
+                { wch: 20 }, // Remark
+                { wch: 12 }, // Reviewer
+                { wch: 12 }, // Verifier
+                { wch: 18 }, // Time Scan
+                { wch: 18 }, // Time Executed
+                { wch: 18 }, // Time Reviewed
+                { wch: 18 }, // Time Verified
+                { wch: 10 }, // Lateness
+                { wch: 15 }, // Min Execution Time
+                { wch: 15 }, // Max Execution Time
+                { wch: 15 }, // Execution Status
+                { wch: 12 }  // Progress
+            ];
+            ws['!cols'] = columnWidths;
             
-            // Add actual CSV headers and sample data
-            csvContent += headers.join(',') + '\\n';
+            // Style the header row
+            const headerRange = XLSX.utils.decode_range(ws['!ref']);
+            for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+                if (!ws[cellAddress]) continue;
+                ws[cellAddress].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4472C4" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "000000" } },
+                        bottom: { style: "thin", color: { rgb: "000000" } },
+                        left: { style: "thin", color: { rgb: "000000" } },
+                        right: { style: "thin", color: { rgb: "000000" } }
+                    }
+                };
+            }
             
-            // Add sample rows
-            sampleRows.forEach(row => {
-                csvContent += row.join(',') + '\\n';
+            // Add data validation for specific columns
+            const validations = [];
+            
+            // Site validation (now column F - index 5)
+            const siteList = ['Site A', 'Site B', 'Site C', 'Site D'];
+            validations.push({
+                range: 'F2:F1000',
+                type: 'list',
+                formula1: `"${siteList.join(',')}"`
             });
-                'Electrical',
-                'Generator',
-                'Diesel Generator',
-                'B1-001',
-                'Basement Level 1, Generator Room',
-                'Block B',
-                'Basement',
-                'Weekly generator test',
-                'Electrical',
-                'attendance2',
-                'supervisor2',
-                'manager1',
-                '2025-08-01 07:00:00',
-                '2025-08-01 08:30:00',
-                '2025-08-01 09:00:00',
-                '2025-08-01 09:15:00',
-                '0',
-                '90',
-                '120',
-                'Completed',
-                'Completed'
-            // Create and download the CSV file
-            const blob = new Blob([csvContent], { type: 'text/csv' });
+            
+            // Trade validation (now column K - index 10)
+            const tradeList = ['Mechanical', 'Electrical', 'Civil', 'HVAC', 'Plumbing'];
+            validations.push({
+                range: 'K2:K1000',
+                type: 'list',
+                formula1: `"${tradeList.join(',')}"`
+            });
+            
+            // Frequency validation (now column L - index 11)
+            const frequencyList = ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'];
+            validations.push({
+                range: 'L2:L1000',
+                type: 'list',
+                formula1: `"${frequencyList.join(',')}"`
+            });
+            
+            // Status validation (now column AB - index 27)
+            const statusList = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
+            validations.push({
+                range: 'AB2:AB1000',
+                type: 'list',
+                formula1: `"${statusList.join(',')}"`
+            });
+            
+            // Add the main worksheet
+            XLSX.utils.book_append_sheet(wb, ws, "PPM Import Data");
+            
+            // Create instructions worksheet
+            const instructionsData = [
+                ['PPM Import Template - GEMS System'],
+                [''],
+                ['IMPORTANT NOTES:'],
+                ['• All imported tasks are automatically set as "Complete" status'],
+                ['• Required fields: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date'],
+                ['• Date format: YYYY-MM-DD (e.g., 2025-08-01)'],
+                ['• Time format: YYYY-MM-DD HH:MM:SS (e.g., 2025-08-01 08:30:00)'],
+                ['• Assigned Technician: Must be valid username from system'],
+                ['• Asset Code: Must match existing assets in the system'],
+                [''],
+                ['REQUIRED COLUMNS:'],
+                ['• PPM Task No. - Unique PPM task identifier'],
+                ['• Asset Code - Asset number/identifier from system'],
+                ['• Assigned Technician - Technician username who will execute the PPM'],
+                ['• Task Description - Description of the PPM task to be performed'],
+                ['• Next Due Date - Scheduled date for PPM execution'],
+                [''],
+                ['OPTIONAL COLUMNS:'],
+                ['• Site - Site name where PPM is performed'],
+                ['• Document No. - PPM document/checklist reference'],
+                ['• Asset Name - Full name/description of the asset'],
+                ['• Asset Group - Asset group classification'],
+                ['• Location Code - Location code from system'],
+                ['• Trade - Trade type (use dropdown)'],
+                ['• Frequency - PPM frequency (use dropdown)'],
+                ['• All time fields for tracking execution'],
+                [''],
+                ['DATA VALIDATION:'],
+                ['• Site: Use dropdown list provided'],
+                ['• Trade: Use dropdown list provided'],
+                ['• Frequency: Use dropdown list provided'],
+                ['• Execution Status: Use dropdown list provided'],
+                [''],
+                ['SAMPLE DATA FORMAT:'],
+                ['Below are sample rows showing the correct data format:'],
+                [''],
+                // Add headers row for sample data
+                [...headers],
+                // Add sample data rows
+                ...sampleRows,
+                [''],
+                ['NOTES ON SAMPLE DATA:'],
+                ['• PPM Task No.: Use unique identifiers like PPM-YYYY-001'],
+                ['• Asset Code: Must match existing asset codes in your system'],
+                ['• Assigned Technician: Use valid system usernames'],
+                ['• Task Description: Clear description of maintenance task'],
+                ['• Next Due Date: Use YYYY-MM-DD format only'],
+                ['• Times: All time fields use YYYY-MM-DD HH:MM:SS format'],
+                ['• Lateness: Number of days (0 = on time)'],
+                ['• Execution Times: In minutes']
+            ];
+            
+            const wsInstructions = XLSX.utils.aoa_to_sheet(instructionsData);
+            wsInstructions['!cols'] = [{ wch: 15 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 12 }];
+            
+            // Style the main title
+            wsInstructions['A1'].s = {
+                font: { bold: true, size: 14, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "4472C4" } },
+                alignment: { horizontal: "center" }
+            };
+            
+            // Find and style the sample data headers row
+            let sampleHeaderRowIndex = -1;
+            for (let i = 0; i < instructionsData.length; i++) {
+                if (instructionsData[i][0] === 'PPM Task No.') {
+                    sampleHeaderRowIndex = i + 1; // +1 because Excel rows are 1-indexed
+                    break;
+                }
+            }
+            
+            // Style sample data headers if found
+            if (sampleHeaderRowIndex > 0) {
+                for (let col = 0; col < headers.length; col++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: sampleHeaderRowIndex - 1, c: col });
+                    if (wsInstructions[cellAddress]) {
+                        wsInstructions[cellAddress].s = {
+                            font: { bold: true, color: { rgb: "FFFFFF" } },
+                            fill: { fgColor: { rgb: "28a745" } },
+                            alignment: { horizontal: "center" },
+                            border: {
+                                top: { style: "thin", color: { rgb: "000000" } },
+                                bottom: { style: "thin", color: { rgb: "000000" } },
+                                left: { style: "thin", color: { rgb: "000000" } },
+                                right: { style: "thin", color: { rgb: "000000" } }
+                            }
+                        };
+                    }
+                }
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsInstructions, "Instructions");
+            
+            // Generate and download the file
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            
+            function s2ab(s) {
+                const buf = new ArrayBuffer(s.length);
+                const view = new Uint8Array(buf);
+                for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+            
+            const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'ppm_import_template.csv';
+            a.download = 'ppm_import_template.xlsx';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         }
 
@@ -961,10 +1209,13 @@
                 template: {
                     required_columns: {
                         'PPM Task No.': 'Unique PPM task identifier (e.g., PPM-2025-001)',
+                        'Asset Code': 'Asset number/identifier from system',
+                        'Assigned Technician': 'Technician username who will execute the PPM',
+                        'Task Description': 'Description of the PPM task to be performed',
+                        'Next Due Date': 'Scheduled date for PPM execution (YYYY-MM-DD)',
+                        'Task Description': 'Description of the PPM task to be performed',
+                        'Next Due Date': 'Scheduled date for PPM execution (YYYY-MM-DD)',
                         'Site': 'Site name where PPM is performed',
-                        'Schedule Date': 'Scheduled date for PPM execution (YYYY-MM-DD)',
-                        'Asset No.': 'Asset number/identifier from system',
-                        'Executor': 'Technician username who will execute the PPM',
                         'Document No.': 'PPM document/checklist reference',
                         'Asset Name': 'Full name/description of the asset',
                         'Asset Group': 'Asset group classification (HVAC, Electrical, etc.)',
@@ -1040,14 +1291,15 @@
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered">
                             <thead class="thead-dark">
-                                <tr><th>CSV Column</th><th>Database Table</th><th>Database Column</th><th>Notes</th></tr>
+                                <tr><th>Excel Column</th><th>Database Table</th><th>Database Column</th><th>Notes</th></tr>
                             </thead>
                             <tbody>
                                 <tr><td>PPM Task No.</td><td>ppm_task</td><td>ppm_task_no</td><td>Primary identifier</td></tr>
+                                <tr><td>Asset Code</td><td>ast_asset</td><td>asset_no</td><td>Mapped to asset_id</td></tr>
+                                <tr><td>Assigned Technician</td><td>sys_user</td><td>user_name</td><td>Mapped to user_id</td></tr>
+                                <tr><td>Task Description</td><td>ppm_task</td><td>ppm_task_description</td><td>Task details</td></tr>
+                                <tr><td>Next Due Date</td><td>ppm_task</td><td>ppm_task_schedule_date</td><td>YYYY-MM-DD format</td></tr>
                                 <tr><td>Site</td><td>cli_site</td><td>site_name</td><td>Mapped to site_id</td></tr>
-                                <tr><td>Schedule Date</td><td>ppm_task</td><td>ppm_task_schedule_date</td><td>YYYY-MM-DD format</td></tr>
-                                <tr><td>Asset No.</td><td>ast_asset</td><td>asset_no</td><td>Mapped to asset_id</td></tr>
-                                <tr><td>Executor</td><td>sys_user</td><td>user_name</td><td>Mapped to user_id</td></tr>
                                 <tr><td>Document No.</td><td>ppm_task</td><td>ppm_task_guideline</td><td>PPM checklist reference</td></tr>
                                 <tr><td>Execution Status</td><td>ppm_task</td><td>ppm_task_status</td><td>Status mapping required</td></tr>
                                 <tr><td>Time Executed</td><td>ppm_task</td><td>ppm_task_time_end</td><td>Completion timestamp</td></tr>
@@ -1060,10 +1312,11 @@
                     <h6><i class="fas fa-check-circle text-primary"></i> Validation Rules</h6>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><i class="fas fa-check text-success"></i> PPM Task No. must be unique</li>
-                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Site must exist in system</li>
-                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Asset No. must exist in system</li>
-                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Executor must be a valid user</li>
-                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Schedule Date must be valid date format</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Asset Code must exist in system</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Assigned Technician must be a valid user</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Task Description is required</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Next Due Date must be valid date format</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success"></i> Site must exist in system (optional)</li>
                         <li class="list-group-item"><i class="fas fa-check text-success"></i> All time fields must be in YYYY-MM-DD HH:MM:SS format</li>
                     </ul>
                 </div>
@@ -1074,15 +1327,15 @@
                         <table class="table table-sm table-bordered">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>PPM Task No.</th><th>Site</th><th>Schedule Date</th><th>Asset No.</th><th>Asset Name</th><th>Executor</th>
+                                    <th>PPM Task No.</th><th>Asset Code</th><th>Assigned Technician</th><th>Task Description</th><th>Next Due Date</th><th>Site</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>PPM-2025-001</td><td>Site A</td><td>2025-07-31</td><td>AC-001</td><td>Air Conditioning Unit</td><td>attendance2</td>
+                                    <td>PPM-2025-001</td><td>AC-001</td><td>attendance2</td><td>Monthly HVAC Maintenance</td><td>2025-07-31</td><td>Site A</td>
                                 </tr>
                                 <tr>
-                                    <td>PPM-2025-002</td><td>Site B</td><td>2025-08-01</td><td>GEN-001</td><td>Emergency Generator</td><td>attendance2</td>
+                                    <td>PPM-2025-002</td><td>GEN-001</td><td>attendance2</td><td>Generator Monthly Check</td><td>2025-08-01</td><td>Site B</td>
                                 </tr>
                             </tbody>
                         </table>
