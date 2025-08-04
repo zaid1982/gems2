@@ -607,7 +607,7 @@ class Class_gamification {
             $returnArr['gmiPpmLate'] = 0;
             $returnArr['gmiPpmWithin'] = 0;
             $returnArr['gmiPpmAssist'] = 0;
-            $returnArr['gmiPpmTierPoint'] = 0.5;
+            $returnArr['gmiPpmTierPoint'] = 1;
             $returnArr['gmiPpmTierName'] = 'Under Rated';
             $returnArr['gmiWoTotal'] = 0;
             $returnArr['gmiWoCompleted'] = 0;
@@ -615,7 +615,7 @@ class Class_gamification {
             $returnArr['gmiWoLate'] = 0;
             $returnArr['gmiWoSelfFinding'] = 0;
             $returnArr['gmiWoAssist'] = 0;
-            $returnArr['gmiWoTierPoint'] = 0.5;
+            $returnArr['gmiWoTierPoint'] = 1;
             $returnArr['gmiWoTierName'] = 'Under Rated';
             $returnArr['gmiPointCompleted'] = 0;
             $returnArr['gmiPointOnTime'] = 0;
@@ -744,6 +744,14 @@ class Class_gamification {
 
                     foreach ($sumFields as $field) {
                         $gmiMonthlyAggregated[$userId][$field] += $weeklyData[str_replace('gmi', 'gmw', $field)];
+                    }
+                    
+                    // Store tier points from the latest weekly data (trade ratios)
+                    if (isset($weeklyData['gmwPpmTierPoint'])) {
+                        $gmiMonthlyAggregated[$userId]['gmiPpmTierPoint'] = $weeklyData['gmwPpmTierPoint'];
+                    }
+                    if (isset($weeklyData['gmwWoTierPoint'])) {
+                        $gmiMonthlyAggregated[$userId]['gmiWoTierPoint'] = $weeklyData['gmwWoTierPoint'];
                     }
                 }
             }
@@ -1017,6 +1025,8 @@ class Class_gamification {
                     // Productivity calculations
                     $gmi['gmiProductivityLevel'] = ($allWithin / $allTotal) * $this->getConfig('productivity_base', 90);
                     $gmi['gmiProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmi['gmiProductivityLevel'];
+                    // Step 3: Less Productive Point = (Within Time/PPM&WO Total) x Tier Point x Prod. Deduction perc. x 10,000
+                    // Productivity deduction should be treated as percentage (divide by 100)
                     $gmi['gmiPointLessProductive'] = ($allWithin / $allTotal) * $tierDivider * ($gmi['gmiProductivityDeduction'] / 100) * $this->getConfig('point_scale_factor', 10000);
                 } else {
                     $gmi['gmiPointCompleted'] = 0;
@@ -1030,7 +1040,7 @@ class Class_gamification {
                 $gmi['gmiPointSelfFinding'] = intval($gmi['gmiWoSelfFinding']) * $this->getConfig('self_finding_points', 5);
                 $gmi['gmiPointBeforeMinus'] = $gmi['gmiPointCompleted'] + $gmi['gmiPointLate'] + $gmi['gmiPointSelfFinding'] + $gmi['gmiPointOnTime'];
                 $gmi['gmiPointAfterMinus'] = $gmi['gmiPointBeforeMinus'] - $gmi['gmiPointLessProductive'];
-                $gmi['gmiPointTotal'] = $gmi['gmiPointAfterMinus'];
+                $gmi['gmiPointTotal'] = $gmi['gmiPointBeforeMinus'];
                 $gmi['gmiMbv'] = $mbv;
                 $gmi['gmiTierPoint'] = $tierDivider;
                 
@@ -1255,12 +1265,22 @@ class Class_gamification {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $ppm['siteId'], 0);
                 }
                 
-                // Apply trade ratio to task completion counts
-                $gmiWeekly[$userId]['gmwPpmTotal'] += round(intval($ppm['ppmTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmCompleted'] += round(intval($ppm['ppmCompleted']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmOnTime'] += round(intval($ppm['ppmOnTime']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmLate'] += round(intval($ppm['ppmLate']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmWithin'] += round(intval($ppm['ppmWithin']) * $tradeRatio);
+                // Store original counts (for display/reporting)
+                $gmiWeekly[$userId]['gmwPpmTotal'] += intval($ppm['ppmTotal']);
+                $gmiWeekly[$userId]['gmwPpmCompleted'] += intval($ppm['ppmCompleted']);
+                $gmiWeekly[$userId]['gmwPpmOnTime'] += intval($ppm['ppmOnTime']);
+                $gmiWeekly[$userId]['gmwPpmLate'] += intval($ppm['ppmLate']);
+                $gmiWeekly[$userId]['gmwPpmWithin'] += intval($ppm['ppmWithin']);
+                
+                // Store trade ratio adjusted counts for scoring calculations
+                $gmiWeekly[$userId]['gmwPpmTotalScore'] += round(intval($ppm['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmCompletedScore'] += round(intval($ppm['ppmCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmOnTimeScore'] += round(intval($ppm['ppmOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmLateScore'] += round(intval($ppm['ppmLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmWithinScore'] += round(intval($ppm['ppmWithin']) * $tradeRatio);
+                
+                // Set standard tier point (reverted from trade ratio)
+                $gmiWeekly[$userId]['gmwPpmTierPoint'] = 1;
             }
 
             // Get PPM Assist data for the week
@@ -1276,13 +1296,24 @@ class Class_gamification {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $ppmAssist['siteId'], 0);
                 }
                 
-                // Apply trade ratio to task completion counts
-                $gmiWeekly[$userId]['gmwPpmAssist'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmTotal'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmCompleted'] += round(intval($ppmAssist['ppmCompleted']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmOnTime'] += round(intval($ppmAssist['ppmOnTime']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmLate'] += round(intval($ppmAssist['ppmLate']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwPpmWithin'] += round(intval($ppmAssist['ppmWithin']) * $tradeRatio);
+                // Store original counts (for display/reporting)
+                $gmiWeekly[$userId]['gmwPpmAssist'] += intval($ppmAssist['ppmTotal']);
+                $gmiWeekly[$userId]['gmwPpmTotal'] += intval($ppmAssist['ppmTotal']);
+                $gmiWeekly[$userId]['gmwPpmCompleted'] += intval($ppmAssist['ppmCompleted']);
+                $gmiWeekly[$userId]['gmwPpmOnTime'] += intval($ppmAssist['ppmOnTime']);
+                $gmiWeekly[$userId]['gmwPpmLate'] += intval($ppmAssist['ppmLate']);
+                $gmiWeekly[$userId]['gmwPpmWithin'] += intval($ppmAssist['ppmWithin']);
+                
+                // Store trade ratio adjusted counts for scoring calculations
+                $gmiWeekly[$userId]['gmwPpmAssistScore'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmTotalScore'] += round(intval($ppmAssist['ppmTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmCompletedScore'] += round(intval($ppmAssist['ppmCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmOnTimeScore'] += round(intval($ppmAssist['ppmOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmLateScore'] += round(intval($ppmAssist['ppmLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwPpmWithinScore'] += round(intval($ppmAssist['ppmWithin']) * $tradeRatio);
+                
+                // Set standard tier point (reverted from trade ratio)
+                $gmiWeekly[$userId]['gmwPpmTierPoint'] = 1;
             }
 
             // Get WO data for the week
@@ -1298,12 +1329,22 @@ class Class_gamification {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $wo['siteId'], 0);
                 }
                 
-                // Apply trade ratio to task completion counts
-                $gmiWeekly[$userId]['gmwWoTotal'] += round(intval($wo['woTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoCompleted'] += round(intval($wo['woCompleted']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoOnTime'] += round(intval($wo['woOnTime']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoLate'] += round(intval($wo['woLate']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoSelfFinding'] += round(intval($wo['woSelfFinding']) * $tradeRatio);
+                // Store original counts (for display/reporting)
+                $gmiWeekly[$userId]['gmwWoTotal'] += intval($wo['woTotal']);
+                $gmiWeekly[$userId]['gmwWoCompleted'] += intval($wo['woCompleted']);
+                $gmiWeekly[$userId]['gmwWoOnTime'] += intval($wo['woOnTime']);
+                $gmiWeekly[$userId]['gmwWoLate'] += intval($wo['woLate']);
+                $gmiWeekly[$userId]['gmwWoSelfFinding'] += intval($wo['woSelfFinding']);
+                
+                // Store trade ratio adjusted counts for scoring calculations
+                $gmiWeekly[$userId]['gmwWoTotalScore'] += round(intval($wo['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoCompletedScore'] += round(intval($wo['woCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoOnTimeScore'] += round(intval($wo['woOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoLateScore'] += round(intval($wo['woLate']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoSelfFindingScore'] += round(intval($wo['woSelfFinding']) * $tradeRatio);
+                
+                // Set standard tier point (reverted from trade ratio)
+                $gmiWeekly[$userId]['gmwWoTierPoint'] = 1;
             }
 
             // Get WO Assist data for the week
@@ -1319,41 +1360,60 @@ class Class_gamification {
                     $gmiWeekly[$userId] = $this->setInitialGmiWeekArr($userId, $year, $month, $week, $woAssist['siteId'], 0);
                 }
                 
-                // Apply trade ratio to task completion counts
-                $gmiWeekly[$userId]['gmwWoAssist'] += round(intval($woAssist['woTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoTotal'] += round(intval($woAssist['woTotal']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoCompleted'] += round(intval($woAssist['woCompleted']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoOnTime'] += round(intval($woAssist['woOnTime']) * $tradeRatio);
-                $gmiWeekly[$userId]['gmwWoLate'] += round(intval($woAssist['woLate']) * $tradeRatio);
+                // Store original counts (for display/reporting)
+                $gmiWeekly[$userId]['gmwWoAssist'] += intval($woAssist['woTotal']);
+                $gmiWeekly[$userId]['gmwWoTotal'] += intval($woAssist['woTotal']);
+                $gmiWeekly[$userId]['gmwWoCompleted'] += intval($woAssist['woCompleted']);
+                $gmiWeekly[$userId]['gmwWoOnTime'] += intval($woAssist['woOnTime']);
+                $gmiWeekly[$userId]['gmwWoLate'] += intval($woAssist['woLate']);
+                
+                // Store trade ratio adjusted counts for scoring calculations
+                $gmiWeekly[$userId]['gmwWoAssistScore'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoTotalScore'] += round(intval($woAssist['woTotal']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoCompletedScore'] += round(intval($woAssist['woCompleted']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoOnTimeScore'] += round(intval($woAssist['woOnTime']) * $tradeRatio);
+                $gmiWeekly[$userId]['gmwWoLateScore'] += round(intval($woAssist['woLate']) * $tradeRatio);
+                
+                // Set standard tier point (reverted from trade ratio)
+                $gmiWeekly[$userId]['gmwWoTierPoint'] = 1;
             }
 
             // Calculate points for each user for this week
             foreach ($gmiWeekly as $userId => $gmi) {
-                // Calculate weekly totals
+                // Calculate weekly totals for display (original counts)
                 $allTotal = $gmi['gmwPpmTotal'] + $gmi['gmwWoTotal'];
                 $allCompleted = $gmi['gmwPpmCompleted'] + $gmi['gmwWoCompleted'];
-                $allOnTime = $gmi['gmwPpmOnTime'] + ($this->getConfig('wo_ontime_multiplier', 2)*$gmi['gmwWoOnTime']) + $gmi['gmwPpmWithin'];
                 $allWithin = $gmi['gmwWoOnTime'] + $gmi['gmwPpmWithin'];
                 $allLate = $gmi['gmwPpmLate'] + $gmi['gmwWoLate'];
-                $mbv = $allOnTime - $allLate;
                 
-                // Determine tier multiplier based on weekly MBV
-                if ($mbv <= $this->getConfig('mbv_tier1_threshold', 50)) {
+                // Calculate scoring totals (trade ratio adjusted counts)
+                $allTotalScore = ($gmi['gmwPpmTotalScore'] ?? 0) + ($gmi['gmwWoTotalScore'] ?? 0);
+                $allCompletedScore = ($gmi['gmwPpmCompletedScore'] ?? 0) + ($gmi['gmwWoCompletedScore'] ?? 0);
+                $allOnTimeScore = ($gmi['gmwPpmOnTimeScore'] ?? 0) + ($this->getConfig('wo_ontime_multiplier', 2) * ($gmi['gmwWoOnTimeScore'] ?? 0)) + ($gmi['gmwPpmWithinScore'] ?? 0);
+                $allWithinScore = ($gmi['gmwWoOnTimeScore'] ?? 0) + ($gmi['gmwPpmWithinScore'] ?? 0);
+                $allLateScore = ($gmi['gmwPpmLateScore'] ?? 0) + ($gmi['gmwWoLateScore'] ?? 0);
+                $mbvScore = $allOnTimeScore - $allLateScore;
+                
+                // Store original MBV for display purposes (using original counts)
+                $mbv = ($gmi['gmwPpmOnTime'] + ($this->getConfig('wo_ontime_multiplier', 2)*$gmi['gmwWoOnTime']) + $gmi['gmwPpmWithin']) - $allLate;
+                
+                // Determine tier multiplier based on weekly MBV (using scored values for consistency)
+                if ($mbvScore <= $this->getConfig('mbv_tier1_threshold', 50)) {
                     $tierDivider = $this->getConfig('mbv_tier1_multiplier', 1);
-                } else if ($mbv <= $this->getConfig('mbv_tier2_threshold', 100)) {
+                } else if ($mbvScore <= $this->getConfig('mbv_tier2_threshold', 100)) {
                     $tierDivider = $this->getConfig('mbv_tier2_multiplier', 3);
                 } else {
                     $tierDivider = $this->getConfig('mbv_tier3_multiplier', 5);
                 }
 
-                // Calculate weekly points
-                if ($allTotal > 0) {
-                    $gmiWeekly[$userId]['gmwPointCompleted'] = ($allCompleted/$allTotal) * $this->getConfig('weight_completed', 0.3) * $this->getConfig('point_scale_factor', 10000);
-                    $gmiWeekly[$userId]['gmwPointOnTime'] = (($allWithin/$allTotal) * $tierDivider) * $this->getConfig('weight_ontime', 0.7) * $this->getConfig('point_scale_factor', 10000);
+                // Calculate weekly points using scored values
+                if ($allTotalScore > 0) {
+                    $gmiWeekly[$userId]['gmwPointCompleted'] = ($allCompletedScore/$allTotalScore) * $this->getConfig('weight_completed', 0.3) * $this->getConfig('point_scale_factor', 10000);
+                    $gmiWeekly[$userId]['gmwPointOnTime'] = (($allWithinScore/$allTotalScore) * $tierDivider) * $this->getConfig('weight_ontime', 0.7) * $this->getConfig('point_scale_factor', 10000);
                     
                     // Fix division by zero: Only calculate late penalty if there are completed tasks
-                    if ($allCompleted > 0) {
-                        $gmiWeekly[$userId]['gmwPointLate'] = -(($allLate/$allCompleted) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
+                    if ($allCompletedScore > 0) {
+                        $gmiWeekly[$userId]['gmwPointLate'] = -(($allLateScore/$allCompletedScore) * $tierDivider) * $this->getConfig('weight_late_penalty', 0.15) * $this->getConfig('point_scale_factor', 10000);
                     } else {
                         // Log when this edge case occurs for debugging
                         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
@@ -1361,10 +1421,12 @@ class Class_gamification {
                         $gmiWeekly[$userId]['gmwPointLate'] = 0;
                     }
                     
-                    // Productivity calculations
-                    $gmiWeekly[$userId]['gmwProductivityLevel'] = $allWithin / $allTotal * $this->getConfig('productivity_base', 90);
+                    // Productivity calculations (use original counts for display, scored values for calculations)
+                    $gmiWeekly[$userId]['gmwProductivityLevel'] = ($allWithinScore / $allTotalScore) * $this->getConfig('productivity_base', 90);
                     $gmiWeekly[$userId]['gmwProductivityDeduction'] = $this->getConfig('productivity_base', 90) - $gmiWeekly[$userId]['gmwProductivityLevel'];
-                    $gmiWeekly[$userId]['gmwPointLessProductive'] = ($allWithin/$allTotal) * $tierDivider * ($gmiWeekly[$userId]['gmwProductivityDeduction']/100) * $this->getConfig('point_scale_factor', 10000);
+                    // Step 3: Less Productive Point = (Within Time/PPM&WO Total) x Tier Point x Prod. Deduction perc. x 10,000
+                    // Productivity deduction should be treated as percentage (divide by 100)
+                    $gmiWeekly[$userId]['gmwPointLessProductive'] = ($allWithinScore/$allTotalScore) * $tierDivider * ($gmiWeekly[$userId]['gmwProductivityDeduction'] / 100) * $this->getConfig('point_scale_factor', 10000);
                 } else {
                     $gmiWeekly[$userId]['gmwPointCompleted'] = 0;
                     $gmiWeekly[$userId]['gmwPointOnTime'] = 0;
@@ -1374,11 +1436,12 @@ class Class_gamification {
                     $gmiWeekly[$userId]['gmwPointLessProductive'] = 0;
                 }
                 
-                $gmiWeekly[$userId]['gmwPointSelfFinding'] = intval($gmi['gmwWoSelfFinding']) * $this->getConfig('self_finding_points', 5);
+                // Use scored values for self-finding calculation as well
+                $gmiWeekly[$userId]['gmwPointSelfFinding'] = intval(($gmi['gmwWoSelfFindingScore'] ?? $gmi['gmwWoSelfFinding'])) * $this->getConfig('self_finding_points', 5);
                 $gmiWeekly[$userId]['gmwPointRework'] = 0; // Default for rework points (you can implement logic if needed)
-                $gmiWeekly[$userId]['gmwPointBeforeMinus'] = $gmiWeekly[$userId]['gmwPointCompleted'] + $gmiWeekly[$userId]['gmwPointLate'] + $gmiWeekly[$userId]['gmwPointSelfFinding'] + $gmiWeekly[$userId]['gmwPointOnTime'] + $gmiWeekly[$userId]['gmwPointRework'];
-                $gmiWeekly[$userId]['gmwPointAfterMinus'] = $gmiWeekly[$userId]['gmwPointBeforeMinus'] - $gmiWeekly[$userId]['gmwPointLessProductive'];
-                $gmiWeekly[$userId]['gmwPointTotal'] = $gmiWeekly[$userId]['gmwPointAfterMinus'];
+                $gmiWeekly[$userId]['gmwPointBeforeMinus'] = $gmiWeekly[$userId]['gmwPointCompleted'] + $gmiWeekly[$userId]['gmwPointSelfFinding'] + $gmiWeekly[$userId]['gmwPointOnTime'] + $gmiWeekly[$userId]['gmwPointRework'];
+                $gmiWeekly[$userId]['gmwPointAfterMinus'] = $gmiWeekly[$userId]['gmwPointBeforeMinus'] - ($gmiWeekly[$userId]['gmwPointLessProductive'] - $gmiWeekly[$userId]['gmwPointLate']);
+                $gmiWeekly[$userId]['gmwPointTotal'] = $gmiWeekly[$userId]['gmwPointBeforeMinus'];
                 $gmiWeekly[$userId]['gmwMbv'] = $mbv;
                 $gmiWeekly[$userId]['gmwTierPoint'] = $tierDivider;
                 
@@ -1426,15 +1489,22 @@ class Class_gamification {
         $returnArr['gmwYear'] = $year;
         $returnArr['gmwWeek'] = $this->calculateWeekOfYear($year, $month, $week); // Convert month-week to year-week
         $returnArr['gmwPpmTierName'] = 'Under Rated';
-        $returnArr['gmwPpmTierPoint'] = 0.5;
+        $returnArr['gmwPpmTierPoint'] = 1;
         $returnArr['gmwPpmTotal'] = 0;
         $returnArr['gmwPpmCompleted'] = 0;
         $returnArr['gmwPpmOnTime'] = 0;
         $returnArr['gmwPpmLate'] = 0;
         $returnArr['gmwPpmWithin'] = 0;
         $returnArr['gmwPpmAssist'] = 0;
+        // Score fields for PPM (trade ratio adjusted)
+        $returnArr['gmwPpmTotalScore'] = 0;
+        $returnArr['gmwPpmCompletedScore'] = 0;
+        $returnArr['gmwPpmOnTimeScore'] = 0;
+        $returnArr['gmwPpmLateScore'] = 0;
+        $returnArr['gmwPpmWithinScore'] = 0;
+        $returnArr['gmwPpmAssistScore'] = 0;
         $returnArr['gmwWoTierName'] = 'Under Rated';
-        $returnArr['gmwWoTierPoint'] = 0.5;
+        $returnArr['gmwWoTierPoint'] = 1;
         $returnArr['gmwWoTotal'] = 0;
         $returnArr['gmwWoCompleted'] = 0;
         $returnArr['gmwWoOnTime'] = 0;
@@ -1442,6 +1512,13 @@ class Class_gamification {
         $returnArr['gmwWoRework'] = 0; // Existing field in your table
         $returnArr['gmwWoSelfFinding'] = 0;
         $returnArr['gmwWoAssist'] = 0;
+        // Score fields for WO (trade ratio adjusted)
+        $returnArr['gmwWoTotalScore'] = 0;
+        $returnArr['gmwWoCompletedScore'] = 0;
+        $returnArr['gmwWoOnTimeScore'] = 0;
+        $returnArr['gmwWoLateScore'] = 0;
+        $returnArr['gmwWoSelfFindingScore'] = 0;
+        $returnArr['gmwWoAssistScore'] = 0;
         $returnArr['gmwMbv'] = 0;
         $returnArr['gmwTierPoint'] = 1; // tinyint(1) in your table
         $returnArr['gmwPointCompleted'] = 0;

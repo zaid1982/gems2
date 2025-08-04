@@ -1588,16 +1588,19 @@ class Class_sql
             } else if ($title === 'vw_gamification_wo_daily') {
                 $sql = "SELECT 
                     w.wo_task_assigned_to as woTaskAssignedTo,
+                    w.wo_task_assigned_to as userId,
                     w.site_id as siteId,
                     w.ppm_group_id as ppmGroupId,
                     COUNT(*) AS woTotal,
-                    SUM(IF(w.wo_task_status = 16, 1, 0)) AS woCompleted,
-                    SUM(IF(w.wo_task_status = 16 AND w.wo_task_time_verified <= DATE_ADD(w.wo_task_time_assigned, INTERVAL 24 HOUR), 1, 0)) AS woOnTime,
-                    SUM(IF(w.wo_task_status = 16 AND w.wo_task_time_verified > DATE_ADD(w.wo_task_time_assigned, INTERVAL 24 HOUR), 1, 0)) AS woLate,
+                    SUM(IF(w.wo_task_status >= 16, 1, 0)) AS woCompleted,
+                    SUM(IF(w.wo_task_status >= 16 AND w.wo_task_time_verified IS NOT NULL AND w.wo_task_time_verified <= DATE_ADD(w.wo_task_time_created, INTERVAL 72 HOUR), 1, 0)) AS woOnTime,
+                    SUM(IF(w.wo_task_status >= 16 AND w.wo_task_time_verified IS NOT NULL AND w.wo_task_time_verified > DATE_ADD(w.wo_task_time_created, INTERVAL 72 HOUR), 1, 0)) AS woLate,
                     SUM(IF(w.wo_task_created_by = w.wo_task_assigned_to, 1, 0)) AS woSelfFinding
                 FROM wo_task w
-                WHERE w.wo_task_time_assigned >= '[dateStart]' AND w.wo_task_time_assigned <= '[dateEnd]'
-                AND w.wo_task_assigned_to IS NOT NULL
+                WHERE DATE(w.wo_task_time_created) >= '[dateStart]' AND DATE(w.wo_task_time_created) <= '[dateEnd]'
+                AND w.wo_task_status >= 16
+                AND w.wo_task_assigned_to IS NOT NULL 
+                AND w.wo_task_assigned_to != ''
                 GROUP BY w.wo_task_assigned_to, w.site_id, w.ppm_group_id";
             } else if ($title === 'vw_gamification_wo_assist_daily') {
                 $sql = "SELECT 
@@ -1610,7 +1613,7 @@ class Class_sql
                     SUM(IF(w.wo_task_status = 16 AND w.wo_task_time_verified > DATE_ADD(w.wo_task_time_assigned, INTERVAL 24 HOUR), 1, 0)) AS woLate
                 FROM wo_task_assist a
                 LEFT JOIN wo_task w ON w.wo_task_id = a.wo_task_id
-                WHERE w.wo_task_time_assigned >= '[dateStart]' AND w.wo_task_time_assigned <= '[dateEnd]'
+                WHERE w.wo_task_time_assigned >= '[dateStart]' AND w.wo_task_time_assigned < DATE_ADD('[dateEnd]', INTERVAL 1 DAY)
                 AND a.user_id IS NOT NULL
                 GROUP BY a.user_id, w.site_id, w.ppm_group_id";
             } else if ($title === 'vw_ref_att_group') {
