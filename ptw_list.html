@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>PTW - Permit List | GEMS2</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    
+    <style>
+        .ptw-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .ptw-card {
+            box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+            border-radius: 4px;
+        }
+        
+        .status-draft {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .status-pending-supervisor {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .status-pending-she {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .status-pending-fm {
+            background-color: #e83e8c;
+            color: white;
+        }
+        
+        .status-approved {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .status-expired {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .risk-high {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .risk-critical {
+            color: #dc3545;
+            font-weight: bold;
+            background-color: #fff5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .table-responsive {
+            border-radius: 4px;
+        }
+        
+        .btn-group-actions {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .btn-xs {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1 pb-1">
+                Permit to Work (PTW) - Management
+            </h5>
+        </nav>
+        
+        <nav class="navbar navbar-expand navbar-dark primary-color lighten-2 z-depth-4 mt-3">
+            <div class="collapse navbar-collapse" id="basicExampleNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="ptw_form.html">
+                            <i class="fas fa-plus mr-1"></i> New PTW
+                        </a>
+                    </li>
+                </ul>
+                <div class="navbar-nav ml-auto">
+                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4 mr-2" id="btnExportReport" type="button">
+                        <i class="fas fa-file-export mr-2"></i> Export
+                    </button>
+                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnRefreshData" type="button">
+                        <i class="fas fa-sync mr-2"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <section class="mt-4 mb-4">
+            <!-- Page Header -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4">
+                        <div class="card-header white p-0">
+                            <div class="float-left primary-color" style="width: 24px; height: 45px">&nbsp;</div>
+                            <h4 class="font-weight-bold pt-2 pl-4">PTW Permit Management</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                View and manage all PTW permits. Filter by status, risk level, or date range.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4">
+                        <div class="card-header white p-0">
+                            <div class="float-left primary-color" style="width: 24px; height: 45px">&nbsp;</div>
+                            <h4 class="font-weight-bold pt-2 pl-4">Filters</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="md-form">
+                                        <select id="filterStatus" class="form-control">
+                                            <option value="">All Statuses</option>
+                                            <option value="DRAFT">Draft</option>
+                                            <option value="PENDING_SUPERVISOR">Pending Supervisor</option>
+                                            <option value="PENDING_SHE">Pending SHE Officer</option>
+                                            <option value="PENDING_FM">Pending Facility Manager</option>
+                                            <option value="APPROVED">Approved</option>
+                                            <option value="ACTIVE">Active</option>
+                                            <option value="COMPLETED">Completed</option>
+                                            <option value="EXPIRED">Expired</option>
+                                            <option value="CANCELLED">Cancelled</option>
+                                        </select>
+                                        <label for="filterStatus">Status</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="md-form">
+                                        <select id="filterRiskLevel" class="form-control">
+                                            <option value="">All Risk Levels</option>
+                                            <option value="LOW">Low Risk</option>
+                                            <option value="MEDIUM">Medium Risk</option>
+                                            <option value="HIGH">High Risk</option>
+                                            <option value="CRITICAL">Critical Risk</option>
+                                        </select>
+                                        <label for="filterRiskLevel">Risk Level</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="md-form">
+                                        <input type="date" id="filterDateFrom" class="form-control">
+                                        <label for="filterDateFrom">Date From</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="md-form">
+                                        <input type="date" id="filterDateTo" class="form-control">
+                                        <label for="filterDateTo">Date To</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 text-right">
+                                    <button type="button" id="btnClearFilters" class="btn btn-outline-secondary mr-2">
+                                        <i class="fas fa-times mr-1"></i> Clear Filters
+                                    </button>
+                                    <button type="button" id="btnApplyFilters" class="btn btn-primary">
+                                        <i class="fas fa-search mr-1"></i> Apply Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PTW List Table -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card z-depth-3 mb-4">
+                        <div class="card-header white p-0">
+                            <div class="float-left primary-color" style="width: 24px; height: 45px">&nbsp;</div>
+                            <h4 class="font-weight-bold pt-2 pl-4">PTW Permits <span id="permitCount" class="badge badge-primary ml-2">0</span></h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="tablePtw" class="table table-hover table-sm mb-0 display responsive" style="width:100%">
+                                    <thead>
+                                        <tr class="th-strong">
+                                            <th>Permit #</th>
+                                            <th>Description</th>
+                                            <th>Work Area</th>
+                                            <th>Work Type</th>
+                                            <th>Risk Level</th>
+                                            <th>Status</th>
+                                            <th>Valid Period</th>
+                                            <th>Created By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center z-depth-3">
+                        <div class="card-body">
+                            <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
+                            <h5 class="card-title" id="statTotal">0</h5>
+                            <p class="card-text text-muted">Total Permits</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center z-depth-3">
+                        <div class="card-body">
+                            <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                            <h5 class="card-title" id="statPending">0</h5>
+                            <p class="card-text text-muted">Pending Approval</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center z-depth-3">
+                        <div class="card-body">
+                            <i class="fas fa-play fa-2x text-success mb-3"></i>
+                            <h5 class="card-title" id="statActive">0</h5>
+                            <p class="card-text text-muted">Active Permits</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center z-depth-3">
+                        <div class="card-body">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger mb-3"></i>
+                            <h5 class="card-title" id="statCritical">0</h5>
+                            <p class="card-text text-muted">Critical Risk</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="includeHtml" id="h-section_user_game"></div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- DataTables -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+    <script src="js/validate.js"></script>
+    <script src="js/common.js"></script>
+
+    <script>
+        let dataTable;
+        let currentFilters = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDataTable();
+            setupEventListeners();
+            loadPtwData();
+        });
+
+        function initializeDataTable() {
+            dataTable = $('#tablePtw').DataTable({
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                order: [[0, 'desc']], // Order by permit number descending
+                columnDefs: [
+                    {
+                        targets: [8], // Actions column
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                language: {
+                    search: "Search PTW Permits:",
+                    lengthMenu: "Show _MENU_ permits per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ permits",
+                    infoEmpty: "No permits found",
+                    infoFiltered: "(filtered from _MAX_ total permits)"
+                },
+                responsive: true
+            });
+        }
+
+        function setupEventListeners() {
+            // Filter buttons
+            $('#btnApplyFilters').on('click', function() {
+                applyFilters();
+            });
+
+            $('#btnClearFilters').on('click', function() {
+                clearFilters();
+            });
+
+            // Auto-apply filters on change
+            $('#filterStatus, #filterRiskLevel, #filterDateFrom, #filterDateTo').on('change', function() {
+                applyFilters();
+            });
+
+            // Refresh button
+            $('#btnRefreshData').on('click', function() {
+                loadPtwData();
+            });
+
+            // Export button
+            $('#btnExportReport').on('click', function() {
+                exportPtwReport();
+            });
+        }
+
+        function loadPtwData() {
+            // Show loading state
+            dataTable.clear();
+            dataTable.row.add(['<i class="fas fa-spinner fa-spin"></i>', 'Loading...', '', '', '', '', '', '', '']).draw();
+
+            // Load data from API
+            $.ajax({
+                url: 'api/ptw.php',
+                type: 'GET',
+                data: currentFilters,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        populateTable(response.result.permits);
+                        updateStatistics(response.result.statistics);
+                    } else {
+                        showError('Error loading PTW data: ' + response.errmsg);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showError('Error loading PTW data: ' + error);
+                }
+            });
+        }
+
+        function populateTable(permits) {
+            dataTable.clear();
+            
+            if (permits.length === 0) {
+                dataTable.row.add(['No permits found', '', '', '', '', '', '', '', '']).draw();
+                return;
+            }
+
+            permits.forEach(function(permit) {
+                const row = [
+                    permit.ptwPermitNumber,
+                    truncateText(permit.ptwPermitDescription, 50),
+                    permit.ptwWorkArea,
+                    permit.ptwWorkType,
+                    formatRiskLevel(permit.ptwRiskLevel),
+                    formatStatus(permit.ptwStatus),
+                    formatValidPeriod(permit.ptwValidFrom, permit.ptwValidTo),
+                    permit.createdByName,
+                    formatActions(permit)
+                ];
+                dataTable.row.add(row);
+            });
+            
+            dataTable.draw();
+            $('#permitCount').text(permits.length);
+        }
+
+        function formatRiskLevel(riskLevel) {
+            const classes = {
+                'LOW': '',
+                'MEDIUM': '',
+                'HIGH': 'risk-high',
+                'CRITICAL': 'risk-critical'
+            };
+            
+            const className = classes[riskLevel] || '';
+            return `<span class="${className}">${riskLevel}</span>`;
+        }
+
+        function formatStatus(status) {
+            const statusClasses = {
+                'DRAFT': 'status-draft',
+                'PENDING_SUPERVISOR': 'status-pending-supervisor',
+                'PENDING_SHE': 'status-pending-she',
+                'PENDING_FM': 'status-pending-fm',
+                'APPROVED': 'status-approved',
+                'ACTIVE': 'status-active',
+                'COMPLETED': 'status-completed',
+                'EXPIRED': 'status-expired',
+                'CANCELLED': 'status-cancelled'
+            };
+            
+            const className = statusClasses[status] || '';
+            const displayText = status.replace(/_/g, ' ');
+            
+            return `<span class="badge ${className}">${displayText}</span>`;
+        }
+
+        function formatValidPeriod(validFrom, validTo) {
+            const fromDate = new Date(validFrom);
+            const toDate = new Date(validTo);
+            const now = new Date();
+            
+            let className = '';
+            if (toDate < now) {
+                className = 'text-danger'; // Expired
+            } else if (fromDate <= now && now <= toDate) {
+                className = 'text-success'; // Currently active
+            }
+            
+            return `<span class="${className}">
+                        ${formatDateTime(validFrom)}<br>
+                        <small>to ${formatDateTime(validTo)}</small>
+                    </span>`;
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function formatActions(permit) {
+            let actions = '<div class="btn-group-actions">';
+            
+            // View action (always available)
+            actions += `<button type="button" class="btn btn-outline-info btn-xs" onclick="viewPermit('${permit.ptwPermitId}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>`;
+            
+            // Edit action (for draft status)
+            if (permit.ptwStatus === 'DRAFT') {
+                actions += `<button type="button" class="btn btn-outline-primary btn-xs" onclick="editPermit('${permit.ptwPermitId}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>`;
+            }
+            
+            // Approval actions based on status and user role
+            if (permit.ptwStatus === 'PENDING_SUPERVISOR' && permit.canApproveSupervisor) {
+                actions += `<button type="button" class="btn btn-outline-success btn-xs" onclick="approvePermit('${permit.ptwPermitId}', 'supervisor')" title="Supervisor Approval">
+                                <i class="fas fa-check"></i>
+                            </button>`;
+            }
+            
+            if (permit.ptwStatus === 'PENDING_SHE' && permit.canApproveShe) {
+                actions += `<button type="button" class="btn btn-outline-success btn-xs" onclick="approvePermit('${permit.ptwPermitId}', 'she')" title="SHE Approval">
+                                <i class="fas fa-shield-alt"></i>
+                            </button>`;
+            }
+            
+            if (permit.ptwStatus === 'PENDING_FM' && permit.canApproveFm) {
+                actions += `<button type="button" class="btn btn-outline-success btn-xs" onclick="approvePermit('${permit.ptwPermitId}', 'fm')" title="FM Approval">
+                                <i class="fas fa-user-shield"></i>
+                            </button>`;
+            }
+            
+            // Activate action (for approved permits)
+            if (permit.ptwStatus === 'APPROVED' && permit.canActivate) {
+                actions += `<button type="button" class="btn btn-outline-primary btn-xs" onclick="activatePermit('${permit.ptwPermitId}')" title="Activate">
+                                <i class="fas fa-play"></i>
+                            </button>`;
+            }
+            
+            // Complete action (for active permits)
+            if (permit.ptwStatus === 'ACTIVE' && permit.canComplete) {
+                actions += `<button type="button" class="btn btn-outline-info btn-xs" onclick="completePermit('${permit.ptwPermitId}')" title="Complete">
+                                <i class="fas fa-check-circle"></i>
+                            </button>`;
+            }
+            
+            // Cancel action (for non-completed permits)
+            if (!['COMPLETED', 'CANCELLED'].includes(permit.ptwStatus) && permit.canCancel) {
+                actions += `<button type="button" class="btn btn-outline-danger btn-xs" onclick="cancelPermit('${permit.ptwPermitId}')" title="Cancel">
+                                <i class="fas fa-times"></i>
+                            </button>`;
+            }
+            
+            actions += '</div>';
+            return actions;
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function applyFilters() {
+            currentFilters = {
+                status: $('#filterStatus').val(),
+                riskLevel: $('#filterRiskLevel').val(),
+                dateFrom: $('#filterDateFrom').val(),
+                dateTo: $('#filterDateTo').val()
+            };
+            
+            loadPtwData();
+        }
+
+        function clearFilters() {
+            $('#filterStatus').val('');
+            $('#filterRiskLevel').val('');
+            $('#filterDateFrom').val('');
+            $('#filterDateTo').val('');
+            
+            currentFilters = {};
+            loadPtwData();
+        }
+
+        function updateStatistics(stats) {
+            $('#statTotal').text(stats.total || 0);
+            $('#statPending').text(stats.pending || 0);
+            $('#statActive').text(stats.active || 0);
+            $('#statCritical').text(stats.critical || 0);
+        }
+
+        function showError(message) {
+            dataTable.clear();
+            dataTable.row.add([`<span class="text-danger">${message}</span>`, '', '', '', '', '', '', '', '']).draw();
+        }
+
+        // Action functions
+        function viewPermit(permitId) {
+            window.open(`ptw_view.html?id=${permitId}`, '_blank');
+        }
+
+        function editPermit(permitId) {
+            window.location.href = `ptw_edit.html?id=${permitId}`;
+        }
+
+        function approvePermit(permitId, approvalType) {
+            if (confirm(`Are you sure you want to approve this permit as ${approvalType.toUpperCase()}?`)) {
+                // TODO: Implement approval API call
+                alert('Approval functionality will be implemented in the next phase.');
+            }
+        }
+
+        function activatePermit(permitId) {
+            if (confirm('Are you sure you want to activate this permit? Work can begin once activated.')) {
+                // TODO: Implement activation API call
+                alert('Activation functionality will be implemented in the next phase.');
+            }
+        }
+
+        function completePermit(permitId) {
+            if (confirm('Are you sure you want to mark this permit as completed?')) {
+                // TODO: Implement completion API call
+                alert('Completion functionality will be implemented in the next phase.');
+            }
+        }
+
+        function exportPtwReport() {
+            // TODO: Implement export functionality
+            alert('Export functionality will be implemented in the next phase.');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>PTW - Create New Permit | GEMS2</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    
+    <style>
+        .ptw-form-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .ptw-card {
+            box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+            border-radius: 4px;
+        }
+        
+        .worker-row {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .btn-remove-worker {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+        
+        .risk-level-high {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .risk-level-critical {
+            color: #b71c1c;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+
+    <!-- Navigation following GEMS2 pattern -->
+    <header>
+        <nav class="navbar fixed-top navbar-expand-lg navbar-light light-blue lighten-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="home.html">
+                    <img src="asset/img/logo.png" height="30" alt="GEMS2">
+                </a>
+                <span class="navbar-text">
+                    <strong>Permit to Work (PTW) - Create New Permit</strong>
+                </span>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="ptw_list.html">
+                            <i class="fas fa-list"></i> PTW List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="pt-5 mx-lg-5">
+        <div class="ptw-form-container">
+            
+            <!-- Page Header -->
+            <div class="card ptw-card mb-4">
+                <div class="card-header light-blue lighten-4">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-hard-hat mr-2"></i>
+                        Create New Permit to Work
+                    </h4>
+                    <p class="card-text mb-0">
+                        Complete all required fields to create a new PTW permit for high-risk work activities.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PTW Creation Form -->
+            <form id="formPtwCreate" novalidate>
+                
+                <!-- Basic Information Section -->
+                <div class="card ptw-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Basic Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="md-form">
+                                    <textarea id="txtPtwDescription" class="md-textarea form-control" rows="3" required maxlength="500"></textarea>
+                                    <label for="txtPtwDescription">Work Description *</label>
+                                    <small class="form-text text-muted">Provide detailed description of the work to be performed</small>
+                                    <div class="invalid-feedback">Work description is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <input type="text" id="txtPtwWorkArea" class="form-control" required maxlength="255">
+                                    <label for="txtPtwWorkArea">Work Area/Location *</label>
+                                    <div class="invalid-feedback">Work area is required</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <select id="optPtwWorkType" class="form-control" required>
+                                        <option value="">Select Work Type</option>
+                                        <option value="Hot Work">Hot Work (Welding, Cutting, Grinding)</option>
+                                        <option value="Confined Space">Confined Space Entry</option>
+                                        <option value="Working at Height">Working at Height</option>
+                                        <option value="Electrical Work">Electrical Work</option>
+                                        <option value="Chemical Work">Chemical/Hazardous Material Work</option>
+                                        <option value="Excavation">Excavation Work</option>
+                                        <option value="Crane Operation">Crane/Heavy Equipment Operation</option>
+                                        <option value="Other">Other High-Risk Work</option>
+                                    </select>
+                                    <label for="optPtwWorkType">Work Type *</label>
+                                    <div class="invalid-feedback">Work type is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <select id="optPtwRiskLevel" class="form-control">
+                                        <option value="LOW">Low Risk</option>
+                                        <option value="MEDIUM" selected>Medium Risk</option>
+                                        <option value="HIGH">High Risk</option>
+                                        <option value="CRITICAL">Critical Risk</option>
+                                    </select>
+                                    <label for="optPtwRiskLevel">Risk Level</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <input type="text" id="txtPtwContractorCompany" class="form-control" maxlength="255">
+                                    <label for="txtPtwContractorCompany">Contractor Company</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validity Period Section -->
+                <div class="card ptw-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-clock mr-2"></i>
+                            Validity Period
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <input type="datetime-local" id="dtPtwValidFrom" class="form-control" required>
+                                    <label for="dtPtwValidFrom">Valid From *</label>
+                                    <div class="invalid-feedback">Valid from date/time is required</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="md-form">
+                                    <input type="datetime-local" id="dtPtwValidTo" class="form-control" required>
+                                    <label for="dtPtwValidTo">Valid To *</label>
+                                    <div class="invalid-feedback">Valid to date/time is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Permits are typically valid for 8-12 hours. Extended periods require additional approvals.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers Section -->
+                <div class="card ptw-card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users mr-2"></i>
+                            Workers Assigned
+                        </h5>
+                        <button type="button" id="btnAddWorker" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus mr-1"></i> Add Worker
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="workersContainer">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Add at least one worker to proceed with permit creation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information Section -->
+                <div class="card ptw-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-sticky-note mr-2"></i>
+                            Additional Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="md-form">
+                                    <textarea id="txtPtwRemarks" class="md-textarea form-control" rows="3" maxlength="1000"></textarea>
+                                    <label for="txtPtwRemarks">Remarks</label>
+                                    <small class="form-text text-muted">Additional notes, safety requirements, or special instructions</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card ptw-card mb-4">
+                    <div class="card-body text-center">
+                        <button type="button" id="btnSaveDraft" class="btn btn-outline-secondary mr-3">
+                            <i class="fas fa-save mr-1"></i> Save as Draft
+                        </button>
+                        <button type="submit" id="btnCreatePermit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i> Create Permit
+                        </button>
+                        <button type="button" id="btnCancel" class="btn btn-outline-danger ml-3">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- Worker Template (Hidden) -->
+    <div id="workerTemplate" style="display: none;">
+        <div class="worker-row position-relative">
+            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-worker">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <input type="text" class="form-control worker-name" required maxlength="255">
+                        <label>Worker Name *</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <input type="text" class="form-control worker-ic" maxlength="50">
+                        <label>IC/Passport Number</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <input type="text" class="form-control worker-phone" maxlength="20">
+                        <label>Phone Number</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <input type="text" class="form-control worker-company" maxlength="255">
+                        <label>Company</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <input type="text" class="form-control worker-trade" maxlength="100">
+                        <label>Trade/Specialization</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="md-form">
+                        <select class="form-control worker-role">
+                            <option value="WORKER">Worker</option>
+                            <option value="LEAD">Lead Worker</option>
+                            <option value="OBSERVER">Observer</option>
+                        </select>
+                        <label>Role</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GEMS2 Standard JavaScript Dependencies -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/mdb.lite.min.js"></script>
+    <script src="js/addons-pro/datatables.min.js"></script>
+    <script src="js/validate.js"></script>
+    <script src="js/common.js"></script>
+
+    <script>
+        let workerCount = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize form validation following GEMS2 pattern
+            initializeForm();
+            setupEventListeners();
+            setDefaultDates();
+        });
+
+        function initializeForm() {
+            // MDB form initialization
+            $('.md-form').each(function() {
+                if ($(this).find('input, textarea, select').val() !== '') {
+                    $(this).find('label').addClass('active');
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Add worker button
+            $('#btnAddWorker').on('click', function() {
+                addWorkerRow();
+            });
+
+            // Remove worker event delegation
+            $(document).on('click', '.btn-remove-worker', function() {
+                $(this).closest('.worker-row').remove();
+                updateWorkerNumbers();
+            });
+
+            // Risk level change handler
+            $('#optPtwRiskLevel').on('change', function() {
+                updateRiskLevelDisplay();
+            });
+
+            // Form submission
+            $('#formPtwCreate').on('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    createPermit();
+                }
+            });
+
+            // Save draft button
+            $('#btnSaveDraft').on('click', function() {
+                saveDraft();
+            });
+
+            // Cancel button
+            $('#btnCancel').on('click', function() {
+                if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
+                    window.location.href = 'ptw_list.html';
+                }
+            });
+
+            // Date validation
+            $('#dtPtwValidFrom, #dtPtwValidTo').on('change', function() {
+                validateDateRange();
+            });
+        }
+
+        function setDefaultDates() {
+            // Set default valid from to current time + 1 hour
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            $('#dtPtwValidFrom').val(formatDateTimeLocal(now));
+
+            // Set default valid to to 8 hours after valid from
+            const endTime = new Date(now);
+            endTime.setHours(endTime.getHours() + 8);
+            $('#dtPtwValidTo').val(formatDateTimeLocal(endTime));
+        }
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function addWorkerRow() {
+            workerCount++;
+            const template = $('#workerTemplate').html();
+            const workerHtml = template.replace(/worker-/g, `worker-${workerCount}-`);
+            
+            $('#workersContainer').append(workerHtml);
+            
+            // Initialize MDB components for new elements
+            $('#workersContainer .worker-row:last .md-form').each(function() {
+                $(this).find('label').removeClass('active');
+            });
+            
+            // Focus on first input
+            $('#workersContainer .worker-row:last .worker-name').focus();
+        }
+
+        function updateWorkerNumbers() {
+            let index = 1;
+            $('.worker-row').each(function() {
+                $(this).find('.worker-name').attr('placeholder', `Worker ${index} Name`);
+                index++;
+            });
+        }
+
+        function updateRiskLevelDisplay() {
+            const riskLevel = $('#optPtwRiskLevel').val();
+            const select = $('#optPtwRiskLevel');
+            
+            select.removeClass('risk-level-high risk-level-critical');
+            
+            if (riskLevel === 'HIGH') {
+                select.addClass('risk-level-high');
+            } else if (riskLevel === 'CRITICAL') {
+                select.addClass('risk-level-critical');
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Clear previous validation
+            $('.is-invalid').removeClass('is-invalid');
+            
+            // Validate required fields
+            const requiredFields = [
+                '#txtPtwDescription',
+                '#txtPtwWorkArea',
+                '#optPtwWorkType',
+                '#dtPtwValidFrom',
+                '#dtPtwValidTo'
+            ];
+            
+            requiredFields.forEach(function(field) {
+                const value = $(field).val().trim();
+                if (value === '') {
+                    $(field).addClass('is-invalid');
+                    isValid = false;
+                }
+            });
+            
+            // Validate workers
+            const workerRows = $('.worker-row').length;
+            if (workerRows === 0) {
+                alert('At least one worker must be assigned to the permit.');
+                isValid = false;
+            } else {
+                // Validate each worker has a name
+                $('.worker-name').each(function() {
+                    if ($(this).val().trim() === '') {
+                        $(this).addClass('is-invalid');
+                        isValid = false;
+                    }
+                });
+            }
+            
+            // Validate date range
+            if (!validateDateRange()) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function validateDateRange() {
+            const validFrom = new Date($('#dtPtwValidFrom').val());
+            const validTo = new Date($('#dtPtwValidTo').val());
+            const now = new Date();
+            
+            if (validFrom <= now) {
+                alert('Valid from date/time must be in the future.');
+                $('#dtPtwValidFrom').addClass('is-invalid');
+                return false;
+            }
+            
+            if (validTo <= validFrom) {
+                alert('Valid to date/time must be after valid from date/time.');
+                $('#dtPtwValidTo').addClass('is-invalid');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function collectFormData() {
+            // Collect basic permit data
+            const permitData = {
+                ptwPermitDescription: $('#txtPtwDescription').val().trim(),
+                ptwWorkArea: $('#txtPtwWorkArea').val().trim(),
+                ptwWorkType: $('#optPtwWorkType').val(),
+                ptwRiskLevel: $('#optPtwRiskLevel').val(),
+                ptwValidFrom: $('#dtPtwValidFrom').val(),
+                ptwValidTo: $('#dtPtwValidTo').val(),
+                ptwContractorCompany: $('#txtPtwContractorCompany').val().trim(),
+                ptwRemarks: $('#txtPtwRemarks').val().trim()
+            };
+            
+            // Collect workers data
+            const workers = [];
+            $('.worker-row').each(function() {
+                const worker = {
+                    workerName: $(this).find('.worker-name').val().trim(),
+                    workerIcNumber: $(this).find('.worker-ic').val().trim(),
+                    workerPhoneNumber: $(this).find('.worker-phone').val().trim(),
+                    workerCompany: $(this).find('.worker-company').val().trim(),
+                    workerTrade: $(this).find('.worker-trade').val().trim(),
+                    workerRole: $(this).find('.worker-role').val()
+                };
+                
+                if (worker.workerName !== '') {
+                    workers.push(worker);
+                }
+            });
+            
+            permitData.workers = workers;
+            return permitData;
+        }
+
+        function createPermit() {
+            const formData = collectFormData();
+            
+            // Show loading state
+            $('#btnCreatePermit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Creating...');
+            
+            // Submit to API following GEMS2 pattern
+            $.ajax({
+                url: 'api/ptw.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('PTW permit created successfully!\nPermit Number: ' + response.result.ptwPermitNumber);
+                        window.location.href = 'ptw_list.html';
+                    } else {
+                        alert('Error creating permit: ' + response.errmsg);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error creating permit: ' + error);
+                },
+                complete: function() {
+                    $('#btnCreatePermit').prop('disabled', false).html('<i class="fas fa-paper-plane mr-1"></i> Create Permit');
+                }
+            });
+        }
+
+        function saveDraft() {
+            if (!$('#txtPtwDescription').val().trim()) {
+                alert('Work description is required to save draft.');
+                return;
+            }
+            
+            // TODO: Implement save as draft functionality
+            alert('Draft save functionality will be implemented in the next phase.');
+        }
+    </script>
+
+</body>
+</html>

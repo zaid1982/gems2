@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Permit to Work Form | GEMS2</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    
+    <style>
+        .ptw-form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .section-header {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px 20px;
+            margin: 20px 0 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sub-section-header {
+            background-color: #f8f9fa;
+            border-left: 4px solid #2196F3;
+            padding: 10px 15px;
+            margin: 15px 0 10px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .checklist-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background-color: #fafafa;
+            display: none; /* Hidden by default */
+        }
+        
+        .checklist-section.active {
+            display: block;
+        }
+        
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .checklist-item label {
+            margin: 0;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .worker-table-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .file-upload-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: white;
+        }
+        
+        .file-upload-item label {
+            flex: 1;
+            margin-right: 15px;
+            font-weight: 500;
+        }
+        
+        .file-upload-input {
+            min-width: 200px;
+        }
+        
+        .hazard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .ppe-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .declaration-text {
+            background-color: #e3f2fd;
+            border: 1px solid #2196F3;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        
+        .form-actions {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 30px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+    </style>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1 pb-1">
+                Permit to Work (PTW) - New Permit Form
+            </h5>
+        </nav>
+        
+        <nav class="navbar navbar-expand navbar-dark primary-color lighten-2 z-depth-4 mt-3">
+            <div class="collapse navbar-collapse" id="basicExampleNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="ptw_list.html">
+                            <i class="fas fa-list mr-1"></i> PTW List
+                        </a>
+                    </li>
+                </ul>
+                <div class="navbar-nav ml-auto">
+                    <button class="btn btn-blue-grey text-white my-0 py-2 px-4" id="btnSaveDraft" type="button">
+                        <i class="fas fa-save mr-2"></i> Save Draft
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <section class="mt-4 mb-4">
+            <div class="ptw-form-container">
+                
+                <!-- Section 1: Requisition -->
+                <div class="section-header">
+                    <i class="fas fa-clipboard-list mr-2"></i>
+                    Section 1: Requisition
+                </div>
+                
+                <!-- Applicant Details -->
+                <div class="sub-section-header">Applicant Details</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="text" id="applicantName" class="form-control" required maxlength="255">
+                            <label for="applicantName">Applicant Name *</label>
+                            <div class="invalid-feedback">Applicant name is required</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="text" id="contactNo" class="form-control" required maxlength="50">
+                            <label for="contactNo">Contact No *</label>
+                            <div class="invalid-feedback">Contact number is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="text" id="companyDept" class="form-control" required maxlength="255">
+                            <label for="companyDept">Company/Department *</label>
+                            <div class="invalid-feedback">Company/Department is required</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="text" id="workDuration" class="form-control" maxlength="100">
+                            <label for="workDuration">Duration of Work</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="text" id="workArea" class="form-control" required maxlength="255">
+                            <label for="workArea">Work Area *</label>
+                            <div class="invalid-feedback">Work area is required</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="md-form">
+                            <input type="datetime-local" id="validFrom" class="form-control" required>
+                            <label for="validFrom">Valid From *</label>
+                            <div class="invalid-feedback">Valid from date/time is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="md-form">
+                            <textarea id="workDescription" class="md-textarea form-control" rows="3" required maxlength="500"></textarea>
+                            <label for="workDescription">Description of Work *</label>
+                            <div class="invalid-feedback">Work description is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Work Type Selection -->
+                <div class="sub-section-header">Work Type</div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-check form-check-inline mr-4">
+                            <input class="form-check-input" type="radio" name="workType" id="coldWork" value="Cold Work">
+                            <label class="form-check-label" for="coldWork">Cold Work</label>
+                        </div>
+                        <div class="form-check form-check-inline mr-4">
+                            <input class="form-check-input" type="radio" name="workType" id="hotWork" value="Hot Work">
+                            <label class="form-check-label" for="hotWork">Hot Work</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="workType" id="confinedSpace" value="Confined Space">
+                            <label class="form-check-label" for="confinedSpace">Confined Space</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- List of Workers -->
+                <div class="sub-section-header">
+                    List of Workers
+                    <button type="button" id="btnAddWorker" class="btn btn-primary btn-sm float-right">
+                        <i class="fas fa-plus mr-1"></i> Add Worker
+                    </button>
+                </div>
+                <div class="worker-table-container">
+                    <table id="workersTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Identification No</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="noWorkersRow">
+                                <td colspan="4" class="text-center text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    No workers added yet. Click "Add Worker" to begin.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Cold Work Checklist -->
+                <div id="coldWorkChecklist" class="checklist-section">
+                    <div class="sub-section-header">Cold Work Checklist</div>
+                    <div class="checklist-grid">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_scaffold_secure" name="coldWork[]" value="scaffold_secure">
+                            <label for="cold_scaffold_secure">Scaffold properly secured</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_isolation_complete" name="coldWork[]" value="isolation_complete">
+                            <label for="cold_isolation_complete">Isolation completed</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_area_barricaded" name="coldWork[]" value="area_barricaded">
+                            <label for="cold_area_barricaded">Work area barricaded</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_permit_displayed" name="coldWork[]" value="permit_displayed">
+                            <label for="cold_permit_displayed">Permit displayed at worksite</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_ppe_verified" name="coldWork[]" value="ppe_verified">
+                            <label for="cold_ppe_verified">PPE requirements verified</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cold_emergency_plan" name="coldWork[]" value="emergency_plan">
+                            <label for="cold_emergency_plan">Emergency procedures in place</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hot Work Checklist -->
+                <div id="hotWorkChecklist" class="checklist-section">
+                    <div class="sub-section-header">Hot Work Checklist</div>
+                    <div class="checklist-grid">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_fire_extinguisher" name="hotWork[]" value="fire_extinguisher">
+                            <label for="hot_fire_extinguisher">Fire extinguisher available</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_fire_blanket" name="hotWork[]" value="fire_blanket">
+                            <label for="hot_fire_blanket">Fire blanket available</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_combustibles_removed" name="hotWork[]" value="combustibles_removed">
+                            <label for="hot_combustibles_removed">Combustible materials removed</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_area_wetted" name="hotWork[]" value="area_wetted">
+                            <label for="hot_area_wetted">Area wetted down if required</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_fire_watch" name="hotWork[]" value="fire_watch">
+                            <label for="hot_fire_watch">Fire watch person assigned</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_emergency_contacts" name="hotWork[]" value="emergency_contacts">
+                            <label for="hot_emergency_contacts">Emergency contacts available</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_welding_shield" name="hotWork[]" value="welding_shield">
+                            <label for="hot_welding_shield">Welding shield in place</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="hot_gas_test" name="hotWork[]" value="gas_test">
+                            <label for="hot_gas_test">Gas test completed</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Confined Space Checklist -->
+                <div id="confinedSpaceChecklist" class="checklist-section">
+                    <div class="sub-section-header">Confined Space Checklist</div>
+                    <div class="checklist-grid">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_atmosphere_tested" name="confinedSpace[]" value="atmosphere_tested">
+                            <label for="cs_atmosphere_tested">Atmosphere tested</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_oxygen_level" name="confinedSpace[]" value="oxygen_level">
+                            <label for="cs_oxygen_level">Oxygen level 19.5% - 23.5%</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_gas_monitor" name="confinedSpace[]" value="gas_monitor">
+                            <label for="cs_gas_monitor">Continuous gas monitoring</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_ventilation" name="confinedSpace[]" value="ventilation">
+                            <label for="cs_ventilation">Forced ventilation operating</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_rescue_plan" name="confinedSpace[]" value="rescue_plan">
+                            <label for="cs_rescue_plan">Rescue plan in place</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_communication" name="confinedSpace[]" value="communication">
+                            <label for="cs_communication">Communication system working</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_attendant" name="confinedSpace[]" value="attendant">
+                            <label for="cs_attendant">Attendant stationed outside</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cs_retrieval_system" name="confinedSpace[]" value="retrieval_system">
+                            <label for="cs_retrieval_system">Retrieval system available</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section 2: Supporting Documents -->
+                <div class="section-header">
+                    <i class="fas fa-paperclip mr-2"></i>
+                    Section 2: Supporting Documents
+                </div>
+                
+                <div id="supportingDocuments">
+                    <div class="file-upload-item">
+                        <label>CIDB Green Card</label>
+                        <input type="file" class="form-control file-upload-input" data-doc-type="CIDB_GREEN_CARD" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                    <div class="file-upload-item">
+                        <label>Job Method Statement</label>
+                        <input type="file" class="form-control file-upload-input" data-doc-type="JOB_METHOD_STATEMENT" accept=".pdf,.doc,.docx">
+                    </div>
+                    <div class="file-upload-item">
+                        <label>Risk Assessment</label>
+                        <input type="file" class="form-control file-upload-input" data-doc-type="RISK_ASSESSMENT" accept=".pdf,.doc,.docx">
+                    </div>
+                    <div class="file-upload-item">
+                        <label>Safety Data Sheet (if applicable)</label>
+                        <input type="file" class="form-control file-upload-input" data-doc-type="SAFETY_DATA_SHEET" accept=".pdf">
+                    </div>
+                    <div class="file-upload-item">
+                        <label>Equipment Certificate</label>
+                        <input type="file" class="form-control file-upload-input" data-doc-type="EQUIPMENT_CERTIFICATE" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                </div>
+                
+                <!-- Section 3: Hazardous Activities -->
+                <div class="section-header">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Section 3: Hazardous Activities
+                </div>
+                
+                <div class="hazard-grid" id="hazardChecklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_slippery_floor" name="hazards[]" value="slippery_floor">
+                        <label for="hazard_slippery_floor">Slippery floor</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_fall_from_height" name="hazards[]" value="fall_from_height">
+                        <label for="hazard_fall_from_height">Fall from height</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_electrical" name="hazards[]" value="electrical">
+                        <label for="hazard_electrical">Electrical hazard</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_chemical" name="hazards[]" value="chemical">
+                        <label for="hazard_chemical">Chemical exposure</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_noise" name="hazards[]" value="noise">
+                        <label for="hazard_noise">High noise level</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_moving_machinery" name="hazards[]" value="moving_machinery">
+                        <label for="hazard_moving_machinery">Moving machinery</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_confined_space" name="hazards[]" value="confined_space">
+                        <label for="hazard_confined_space">Confined space</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_hot_surface" name="hazards[]" value="hot_surface">
+                        <label for="hazard_hot_surface">Hot surface</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hazard_radiation" name="hazards[]" value="radiation">
+                        <label for="hazard_radiation">Radiation</label>
+                    </div>
+                </div>
+                
+                <!-- Section 4: Contractor Declaration -->
+                <div class="section-header">
+                    <i class="fas fa-file-signature mr-2"></i>
+                    Section 4: Contractor Declaration & PPE
+                </div>
+                
+                <div class="declaration-text">
+                    <strong>Declaration:</strong> I acknowledge that I have received, read, and understood the contents of this permit. 
+                    I confirm that all safety requirements have been explained to the workers, and all necessary personal protective 
+                    equipment will be used during the work activities.
+                </div>
+                
+                <div class="sub-section-header">Personal Protective Equipment (PPE) Checklist</div>
+                <div class="ppe-grid" id="ppeChecklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_safety_helmet" name="ppe[]" value="safety_helmet">
+                        <label for="ppe_safety_helmet">Safety Helmet</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_safety_shoes" name="ppe[]" value="safety_shoes">
+                        <label for="ppe_safety_shoes">Safety Shoes</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_safety_glasses" name="ppe[]" value="safety_glasses">
+                        <label for="ppe_safety_glasses">Safety Glasses</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_high_vis_vest" name="ppe[]" value="high_vis_vest">
+                        <label for="ppe_high_vis_vest">High Visibility Vest</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_gloves" name="ppe[]" value="gloves">
+                        <label for="ppe_gloves">Safety Gloves</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_respiratory" name="ppe[]" value="respiratory">
+                        <label for="ppe_respiratory">Respiratory Protection</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_hearing" name="ppe[]" value="hearing">
+                        <label for="ppe_hearing">Hearing Protection</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="ppe_fall_protection" name="ppe[]" value="fall_protection">
+                        <label for="ppe_fall_protection">Fall Protection Harness</label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Submit Permit to Work
+                    </button>
+                </div>
+                
+            </form>
+        </section>
+        <div class="includeHtml" id="h-section_user_game"></div>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- DataTables -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Worker Modal -->
+    <div class="modal fade" id="workerModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Worker</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="workerForm">
+                        <input type="hidden" id="workerIndex" value="-1">
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerName" class="form-control" required>
+                            <label for="workerName">Worker Name *</label>
+                        </div>
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerIc" class="form-control">
+                            <label for="workerIc">IC Number</label>
+                        </div>
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerPhone" class="form-control">
+                            <label for="workerPhone">Phone Number</label>
+                        </div>
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerCompany" class="form-control">
+                            <label for="workerCompany">Company</label>
+                        </div>
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerDesignation" class="form-control">
+                            <label for="workerDesignation">Designation</label>
+                        </div>
+                        
+                        <div class="md-form">
+                            <input type="text" id="workerPtw" class="form-control">
+                            <label for="workerPtw">PTW Number</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveWorker">Save Worker</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workers = [];
+        let uploadedFiles = [];
+        let editingWorkerIndex = -1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupEventListeners();
+            setDefaultDateTime();
+        });
+
+        function initializeForm() {
+            // Initialize MDB components
+            $('.md-form').each(function() {
+                if ($(this).find('input, textarea, select').val() !== '') {
+                    $(this).find('label').addClass('active');
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Work type radio buttons
+            $('input[name="workType"]').on('change', function() {
+                showWorkTypeChecklist(this.value);
+            });
+
+            // Add worker button
+            $('#btnAddWorker').on('click', function() {
+                openWorkerModal();
+            });
+
+            // Save worker
+            $('#saveWorker').on('click', function() {
+                saveWorker();
+            });
+
+            // Form submission
+            $('#ptwForm').on('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    submitForm();
+                }
+            });
+
+            // File upload handlers
+            $('.file-upload-input').on('change', function() {
+                handleFileUpload(this);
+            });
+        }
+
+        function setDefaultDateTime() {
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            $('#validFrom').val(formatDateTimeLocal(now));
+        }
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function showWorkTypeChecklist(workType) {
+            // Hide all checklists
+            $('.checklist-section').removeClass('active');
+            
+            // Show the selected checklist
+            switch(workType) {
+                case 'Cold Work':
+                    $('#coldWorkChecklist').addClass('active');
+                    break;
+                case 'Hot Work':
+                    $('#hotWorkChecklist').addClass('active');
+                    break;
+                case 'Confined Space':
+                    $('#confinedSpaceChecklist').addClass('active');
+                    break;
+            }
+        }
+
+        function openWorkerModal(index = -1) {
+            editingWorkerIndex = index;
+            
+            if (index >= 0) {
+                // Editing existing worker
+                const worker = workers[index];
+                $('#modalTitle').text('Edit Worker');
+                $('#workerName').val(worker.name);
+                $('#workerDesignation').val(worker.designation);
+                $('#workerIdNo').val(worker.idNo);
+                $('#workerIndex').val(index);
+            } else {
+                // Adding new worker
+                $('#modalTitle').text('Add Worker');
+                $('#workerForm')[0].reset();
+                $('#workerIndex').val('');
+            }
+            
+            // Reset validation
+            $('.is-invalid').removeClass('is-invalid');
+            
+            $('#workerModal').modal('show');
+        }
+
+        function saveWorker() {
+            // Validate worker form
+            const name = $('#workerName').val().trim();
+            if (!name) {
+                $('#workerName').addClass('is-invalid');
+                return;
+            }
+
+            const worker = {
+                name: name,
+                designation: $('#workerDesignation').val().trim(),
+                idNo: $('#workerIdNo').val().trim()
+            };
+
+            if (editingWorkerIndex >= 0) {
+                // Update existing worker
+                workers[editingWorkerIndex] = worker;
+            } else {
+                // Add new worker
+                workers.push(worker);
+            }
+
+            updateWorkersTable();
+            $('#workerModal').modal('hide');
+        }
+
+        function updateWorkersTable() {
+            const tbody = $('#workersTable tbody');
+            tbody.empty();
+
+            if (workers.length === 0) {
+                tbody.append(`
+                    <tr id="noWorkersRow">
+                        <td colspan="4" class="text-center text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            No workers added yet. Click "Add Worker" to begin.
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+
+            workers.forEach((worker, index) => {
+                tbody.append(`
+                    <tr>
+                        <td>${worker.name}</td>
+                        <td>${worker.designation || '-'}</td>
+                        <td>${worker.idNo || '-'}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="openWorkerModal(${index})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger ml-1" onclick="removeWorker(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function removeWorker(index) {
+            if (confirm('Are you sure you want to remove this worker?')) {
+                workers.splice(index, 1);
+                updateWorkersTable();
+            }
+        }
+
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const docType = $(input).data('doc-type');
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('documentType', docType);
+            formData.append('ptwPermitId', getCurrentPtwPermitId()); // We'll need to get this from somewhere
+
+            // Show upload progress
+            $(input).prop('disabled', true);
+            $(input).after('<small class="text-info"><i class="fas fa-spinner fa-spin"></i> Uploading...</small>');
+
+            // Upload file to server
+            $.ajax({
+                url: 'api/ptw_upload.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const fileInfo = {
+                            documentId: response.result.documentId,
+                            name: response.result.originalName,
+                            type: docType,
+                            size: response.result.fileSize,
+                            path: response.result.filePath
+                        };
+                        
+                        uploadedFiles.push(fileInfo);
+                        $(input).next('small').remove();
+                        $(input).after('<small class="text-success"><i class="fas fa-check"></i> ' + fileInfo.name + ' uploaded successfully</small>');
+                    } else {
+                        $(input).next('small').remove();
+                        $(input).after('<small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Upload failed: ' + response.errmsg + '</small>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $(input).next('small').remove();
+                    $(input).after('<small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Upload error: ' + error + '</small>');
+                },
+                complete: function() {
+                    $(input).prop('disabled', false);
+                }
+            });
+        }
+
+        function getCurrentPtwPermitId() {
+            // For now, return null since we create the permit first, then upload files
+            // In a real implementation, you might need to create the permit first, then upload files
+            return null;
+        }
+
+        function collectChecklistData() {
+            const data = {};
+
+            // Collect work type specific checklist
+            const workType = $('input[name="workType"]:checked').val();
+            if (workType) {
+                let checklistName = '';
+                let checkboxSelector = '';
+
+                switch(workType) {
+                    case 'Cold Work':
+                        checklistName = 'coldWork';
+                        checkboxSelector = 'input[name="coldWork[]"]:checked';
+                        break;
+                    case 'Hot Work':
+                        checklistName = 'hotWork';
+                        checkboxSelector = 'input[name="hotWork[]"]:checked';
+                        break;
+                    case 'Confined Space':
+                        checklistName = 'confinedSpace';
+                        checkboxSelector = 'input[name="confinedSpace[]"]:checked';
+                        break;
+                }
+
+                if (checkboxSelector) {
+                    data[checklistName] = [];
+                    $(checkboxSelector).each(function() {
+                        data[checklistName].push(this.value);
+                    });
+                }
+            }
+
+            // Collect hazard checklist
+            data.hazards = [];
+            $('input[name="hazards[]"]:checked').each(function() {
+                data.hazards.push(this.value);
+            });
+
+            // Collect PPE checklist
+            data.ppe = [];
+            $('input[name="ppe[]"]:checked').each(function() {
+                data.ppe.push(this.value);
+            });
+
+            return data;
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // Clear previous validation
+            $('.is-invalid').removeClass('is-invalid');
+
+            // Validate required fields
+            const requiredFields = [
+                '#applicantName',
+                '#contactNo',
+                '#companyDept',
+                '#workArea',
+                '#validFrom',
+                '#workDescription'
+            ];
+
+            requiredFields.forEach(function(field) {
+                const value = $(field).val().trim();
+                if (value === '') {
+                    $(field).addClass('is-invalid');
+                    isValid = false;
+                }
+            });
+
+            // Validate work type selection
+            if (!$('input[name="workType"]:checked').length) {
+                alert('Please select a work type.');
+                isValid = false;
+            }
+
+            // Validate workers
+            if (workers.length === 0) {
+                alert('At least one worker must be assigned to the permit.');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function submitForm() {
+            const checklistData = collectChecklistData();
+            
+            // Prepare form data
+            const formData = {
+                // Basic information
+                ptwApplicantName: $('#applicantName').val().trim(),
+                ptwApplicantContact: $('#contactNo').val().trim(),
+                ptwApplicantCompanyDept: $('#companyDept').val().trim(),
+                ptwWorkDuration: $('#workDuration').val().trim(),
+                ptwWorkArea: $('#workArea').val().trim(),
+                ptwPermitDescription: $('#workDescription').val().trim(),
+                ptwWorkType: $('input[name="workType"]:checked').val(),
+                ptwValidFrom: $('#validFrom').val(),
+                
+                // Checklist data as JSON
+                ptwChecklistColdWork: checklistData.coldWork ? JSON.stringify(checklistData.coldWork) : null,
+                ptwChecklistHotWork: checklistData.hotWork ? JSON.stringify(checklistData.hotWork) : null,
+                ptwChecklistConfinedSpace: checklistData.confinedSpace ? JSON.stringify(checklistData.confinedSpace) : null,
+                ptwHazardChecklist: JSON.stringify(checklistData.hazards),
+                ptwDeclarationChecklist: JSON.stringify(checklistData.ppe),
+                
+                // Workers and files
+                workers: workers,
+                uploadedFiles: uploadedFiles
+            };
+
+            // Show loading state
+            const submitBtn = $('.btn-submit');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...');
+
+            // Submit to API
+            $.ajax({
+                url: 'api/ptw.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('PTW permit submitted successfully!\nPermit Number: ' + response.result.ptwPermitNumber);
+                        window.location.href = 'ptw_list.html';
+                    } else {
+                        alert('Error submitting permit: ' + response.errmsg);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error submitting permit: ' + error);
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i>Submit Permit to Work');
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
