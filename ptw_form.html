@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Stepper CSS - minified-->
+    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <style>
+        .config-section {
+            margin-bottom: 2rem;
+        }
+        .config-header {
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        .config-body {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .form-control:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #34a853, #4285f4);
+            border: none;
+        }
+        .btn-save:hover {
+            background: linear-gradient(45deg, #2e8b47, #3367d6);
+        }
+        .description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .invalid-feedback {
+            font-size: 0.8rem;
+            color: #dc3545;
+            margin-top: 5px;
+        }
+        .worker-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+        }
+        .checklist-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #ffffff;
+        }
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 1rem 0;
+        }
+        .risk-cell {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .risk-low { background-color: #d4edda; }
+        .risk-medium { background-color: #fff3cd; }
+        .risk-high { background-color: #f8d7da; }
+        .risk-critical { background-color: #dc3545; color: white; }
+        
+        /* Force native dropdown behavior - Override MDB select styling */
+        .native-dropdown select,
+        #optPtwWorkType,
+        #optPtwRiskLevel {
+            /* Force back to native select appearance */
+            -webkit-appearance: menulist !important;
+            -moz-appearance: menulist !important;
+            appearance: menulist !important;
+            
+            /* Reset MDB transformations */
+            background-image: none !important;
+            background-color: #fff !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.25rem !important;
+            padding: 0.375rem 0.75rem !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            color: #495057 !important;
+            
+            /* Ensure click events work */
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            z-index: 1 !important;
+            position: relative !important;
+        }
+        
+        .native-dropdown select:focus,
+        #optPtwWorkType:focus,
+        #optPtwRiskLevel:focus {
+            border-color: #4285f4 !important;
+            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25) !important;
+            outline: none !important;
+        }
+        
+        /* Hide any MDB-generated dropdown wrappers for native dropdowns */
+        .native-dropdown .select-wrapper,
+        .native-dropdown .dropdown-content,
+        .native-dropdown .caret {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        /* Prevent MDB wrapper creation */
+        .native-dropdown {
+            position: relative;
+        }
+        
+        .native-dropdown select {
+            width: 100% !important;
+            display: block !important;
+        }
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid" id="divPtwPageWidth">
+        <div id="mdb-lightbox-ui"></div>
+
+        <!-- Back Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button class="btn btn-outline-secondary" onclick="window.location.href='ptw_management.html'">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to PTW Management
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Title -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle">
+                    <i class="fas fa-shield-alt mr-3"></i>PTW Permit Form
+                </h2>
+                <p class="text-muted">Create or edit Permit to Work permits with comprehensive safety requirements</p>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="successMessage">PTW saved successfully!</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="errorMessage">An error occurred while saving PTW.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PTW Form -->
+        <section class="sectionPtwMain mb-4">
+            <form id="formPtw" name="formPtw">
+                <input type="hidden" id="lblPtwId" value="">
+                
+                <!-- Basic Information Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Basic Information</h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="txtPtwDescription">PTW Description *</label>
+                                            <textarea id="txtPtwDescription" class="form-control" rows="3" required placeholder="Describe the work to be performed"></textarea>
+                                            <div class="description">Provide a clear and detailed description of the work activities</div>
+                                            <div class="invalid-feedback" id="txtPtwDescriptionErr"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="txtPtwWorkArea">Work Area *</label>
+                                            <input type="text" id="txtPtwWorkArea" class="form-control" required placeholder="Enter work location">
+                                            <div class="description">Specify the exact location where work will be performed</div>
+                                            <div class="invalid-feedback" id="txtPtwWorkAreaErr"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group native-dropdown">
+                                            <label for="optPtwWorkType">Work Type *</label>
+                                            <select class="form-control" id="optPtwWorkType" required>
+                                                <option value="" disabled selected>Select Work Type</option>
+                                                <option value="HOT_WORK">Hot Work</option>
+                                                <option value="COLD_WORK">Cold Work</option>
+                                                <option value="ELECTRICAL">Electrical Work</option>
+                                                <option value="MECHANICAL">Mechanical Work</option>
+                                                <option value="CONFINED_SPACE">Confined Space</option>
+                                                <option value="HEIGHT_WORK">Work at Height</option>
+                                                <option value="EXCAVATION">Excavation Work</option>
+                                                <option value="CHEMICAL">Chemical Work</option>
+                                                <option value="LIFTING">Lifting Operations</option>
+                                                <option value="OTHER">Other</option>
+                                            </select>
+                                            <div class="description">Select the type of work being performed</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dtPtwValidFrom">Valid From *</label>
+                                            <input type="date" id="dtPtwValidFrom" class="form-control" required>
+                                            <div class="description">Start date and time for permit validity</div>
+                                            <div class="invalid-feedback" id="dtPtwValidFromErr"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dtPtwValidTo">Valid To *</label>
+                                            <input type="date" id="dtPtwValidTo" class="form-control" required>
+                                            <div class="description">End date and time for permit validity</div>
+                                            <div class="invalid-feedback" id="dtPtwValidToErr"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Assessment Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0"><i class="fas fa-exclamation-triangle mr-2"></i>Risk Assessment</h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group native-dropdown">
+                                            <label for="optPtwRiskLevel">Risk Level *</label>
+                                            <select class="form-control" id="optPtwRiskLevel" required>
+                                                <option value="" disabled selected>Select Risk Level</option>
+                                                <option value="LOW">Low Risk</option>
+                                                <option value="MEDIUM">Medium Risk</option>
+                                                <option value="HIGH">High Risk</option>
+                                                <option value="CRITICAL">Critical Risk</option>
+                                            </select>
+                                            <div class="description">Assess the overall risk level of the work activity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="txtPtwHazards">Identified Hazards</label>
+                                            <textarea id="txtPtwHazards" class="form-control" rows="3" placeholder="List potential hazards"></textarea>
+                                            <div class="description">Identify all potential hazards associated with the work</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="txtPtwControlMeasures">Control Measures</label>
+                                            <textarea id="txtPtwControlMeasures" class="form-control" rows="3" placeholder="Describe safety control measures"></textarea>
+                                            <div class="description">Detail the control measures to mitigate identified risks</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applicant Information Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0"><i class="fas fa-user mr-2"></i>Applicant Information</h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="txtPtwApplicantName">Applicant Name *</label>
+                                            <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant">
+                                            <div class="description">Name of the person applying for the permit</div>
+                                            <div class="invalid-feedback" id="txtPtwApplicantNameErr"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="txtPtwApplicantContact">Contact Number</label>
+                                            <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number">
+                                            <div class="description">Contact number for emergency communication</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="txtPtwApplicantDept">Department/Company</label>
+                                            <input type="text" id="txtPtwApplicantDept" class="form-control" placeholder="Department or company name">
+                                            <div class="description">Organizational affiliation of the applicant</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="txtPtwContractorCompany">Contractor Company</label>
+                                            <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Contractor company name">
+                                            <div class="description">Name of contracting company (if applicable)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="txtPtwRemarks">Remarks</label>
+                                            <textarea id="txtPtwRemarks" class="form-control" rows="2" placeholder="Additional notes or remarks"></textarea>
+                                            <div class="description">Any additional information or special notes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers Information Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users mr-2"></i>Workers Information
+                                    <button type="button" class="btn btn-sm btn-light ml-3" id="btnAddWorker">
+                                        <i class="fas fa-plus"></i> Add Worker
+                                    </button>
+                                </h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="description mb-3">Add all workers who will be involved in this work activity</div>
+                                <div id="workersContainer">
+                                    <!-- Workers will be added here dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Checklist Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0"><i class="fas fa-check-square mr-2"></i>Safety Checklist</h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="description mb-3">Complete all applicable safety requirements before work begins</div>
+                                
+                                <div class="checklist-section">
+                                    <h6><strong>General Safety Requirements</strong></h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkSafetyBriefing">
+                                                <label class="form-check-label" for="chkSafetyBriefing">Safety briefing conducted</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkPPEAvailable">
+                                                <label class="form-check-label" for="chkPPEAvailable">Appropriate PPE available and worn</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkEmergencyProcedure">
+                                                <label class="form-check-label" for="chkEmergencyProcedure">Emergency procedures explained</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkWorkAreaIsolated">
+                                                <label class="form-check-label" for="chkWorkAreaIsolated">Work area properly isolated</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkFirstAidAvailable">
+                                                <label class="form-check-label" for="chkFirstAidAvailable">First aid facilities available</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkCommunicationEstablished">
+                                                <label class="form-check-label" for="chkCommunicationEstablished">Communication established</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checklist-section">
+                                    <h6><strong>Work-Specific Requirements</strong></h6>
+                                    <div class="description mb-2">Additional requirements will appear based on selected work type</div>
+                                    
+                                    <div id="specificChecklistContainer">
+                                        <!-- Specific checklist items will be loaded based on work type -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <button class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveDraft">
+                            <i class="fas fa-save mr-2"></i> Save as Draft
+                        </button>
+                        <button class="btn btn-primary px-5 py-3 ml-3" id="btnSubmitApproval">
+                            <i class="fas fa-paper-plane mr-2"></i> Submit for Approval
+                        </button>
+                        <button class="btn btn-outline-secondary px-5 py-3 ml-3" onclick="window.location.href='ptw_management.html'">
+                            <i class="fas fa-times mr-2"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_pdf"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Toastr -->
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let versionLocal;
+    let changePasswordClass;
+    let ptwFormClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        
+        setTimeout(function () {
+            try {
+                initiatePages();
+                versionLocal = mzGetDataVersion();
+                changePasswordClass = new ModalChangePassword();
+                ptwFormClass_ = new PtwForm();
+
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal, 'siteId', [], 'site');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal, 'userId');
+                const userSite = mzGetUserInfoByParam('siteId');
+
+                ptwFormClass_.setUserSite(userSite);
+                ptwFormClass_.setRefSite(refSite_);
+                ptwFormClass_.setRefUser(refUser_);
+                ptwFormClass_.init();
+                
+                // Prevent MDB from transforming specific dropdowns
+                preventMDBDropdownTransformation();
+                
+                // Make globally accessible for debugging
+                window.ptwFormClass_ = ptwFormClass_;
+                
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 300);
+    });
+
+    // Function to prevent MDB from transforming specific dropdowns
+    function preventMDBDropdownTransformation() {
+        const protectedSelects = ['optPtwWorkType', 'optPtwRiskLevel'];
+        
+        protectedSelects.forEach(selectId => {
+            const selectElement = document.getElementById(selectId);
+            if (selectElement) {
+                // Remove any MDB classes that might have been added
+                selectElement.classList.remove('mdb-select', 'md-form', 'browser-default');
+                
+                // Ensure it has the standard Bootstrap class
+                selectElement.classList.add('form-control');
+                
+                // Remove any MDB-generated wrapper elements
+                const wrapper = selectElement.parentNode.querySelector('.select-wrapper');
+                if (wrapper) {
+                    wrapper.style.display = 'none';
+                }
+                
+                // Prevent MDB from re-initializing this select
+                selectElement.setAttribute('data-mdb-select-init', 'false');
+                selectElement.setAttribute('data-select-init', 'false');
+                
+                // Force native appearance
+                selectElement.style.webkitAppearance = 'menulist';
+                selectElement.style.mozAppearance = 'menulist';
+                selectElement.style.appearance = 'menulist';
+                
+                console.log(`Protected dropdown: ${selectId} from MDB transformation`);
+            }
+        });
+        
+        // Re-run protection after any potential MDB initialization
+        setTimeout(preventMDBDropdownTransformation, 100);
+        setTimeout(preventMDBDropdownTransformation, 500);
+        setTimeout(preventMDBDropdownTransformation, 1000);
+    }
+
+    // Alert functions similar to gamification_config
+    function showSuccess(message) {
+        document.getElementById('successMessage').textContent = message;
+        const alertElement = document.getElementById('alertSuccess');
+        alertElement.style.display = 'block';
+        alertElement.classList.add('show');
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+            alertElement.classList.remove('show');
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 150);
+        }, 5000);
+    }
+
+    function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        const alertElement = document.getElementById('alertError');
+        alertElement.style.display = 'block';
+        alertElement.classList.add('show');
+        
+        // Hide after 8 seconds
+        setTimeout(() => {
+            alertElement.classList.remove('show');
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 150);
+        }, 8000);
+    }
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/ptw_form.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
+
+</body>
+</html>
