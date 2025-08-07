@@ -1,0 +1,9 @@
+[2025-08-07 14:25:10] ERROR: Database connection failed: Connection timeout
+[2025-08-07 14:25:11] ERROR: Unable to connect to host: www.metadatasystem.my:3306
+[2025-08-07 14:26:45] ERROR: SQL Error: Table 'gems.invalid_table' doesn't exist
+[2025-08-07 14:27:12] ERROR: Authentication failed for user: guest@192.168.1.100
+[2025-08-07 14:28:33] ERROR: File not found: /uploads/document_12345.pdf
+[2025-08-07 14:29:01] ERROR: Permission denied: Unable to write to /tmp/cache/
+[2025-08-07 14:29:15] ERROR: Invalid JSON data received in request body
+[2025-08-07 14:29:45] ERROR: Session expired for user ID: 67890
+[2025-08-07 14:30:12] ERROR: Memory limit exceeded: 128MB reached

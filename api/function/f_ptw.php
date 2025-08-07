@@ -468,6 +468,170 @@ class Class_ptw {
             throw new Exception($this->get_exception('0013', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
+
+    /**
+     * Get PTW permits pending SHE approval
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_permits_for_she_approval($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting permits for SHE approval for site: {$site_id}");
+            
+            // Get permits with PENDING_SHE status
+            $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+                'ptw_status' => 'PENDING_SHE',
+                'site_id' => strval($site_id)
+            ));
+            
+            return $permits;
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0014', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Get recent SHE actions/approvals
+     * @param int $user_id
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_she_recent_actions($user_id, $site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting recent SHE actions for user: {$user_id}, site: {$site_id}");
+            
+            // Get permits that have been processed by SHE
+            $actions = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id)
+            ));
+            
+            // Filter to only include permits with SHE action in the last 30 days
+            $recent_actions = array();
+            foreach ($actions as $action) {
+                if (!empty($action['approved_she_date'])) {
+                    $action_date = strtotime($action['approved_she_date']);
+                    $thirty_days_ago = strtotime('-30 days');
+                    
+                    if ($action_date >= $thirty_days_ago) {
+                        $action['action_date'] = $action['approved_she_date'];
+                        $action['action_type'] = ($action['ptw_status'] == 'CANCELLED') ? 'SHE_REJECTED' : 'SHE_APPROVED';
+                        $action['remarks'] = '';
+                        $recent_actions[] = $action;
+                    }
+                }
+            }
+            
+            // Sort by date descending and limit to 20
+            usort($recent_actions, function($a, $b) {
+                return strtotime($b['action_date']) - strtotime($a['action_date']);
+            });
+            
+            return array_slice($recent_actions, 0, 20);
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0015', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Get summary statistics for SHE dashboard
+     * @param int $user_id
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_she_summary_statistics($user_id, $site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting SHE summary stats for user: {$user_id}, site: {$site_id}");
+            
+            $stats = array();
+            
+            // Get all permits for the site
+            $all_permits = Class_db::getInstance()->db_select('ptw_permit', array('site_id' => strval($site_id)));
+            
+            // Count by status
+            $pending = 0;
+            $approved = 0;
+            $rejected = 0;
+            
+            $thirty_days_ago = strtotime('-30 days');
+            
+            foreach ($all_permits as $permit) {
+                switch ($permit['ptw_status']) {
+                    case 'PENDING_SHE':
+                        $pending++;
+                        break;
+                    case 'PENDING_FM':
+                    case 'APPROVED':
+                    case 'ACTIVE':
+                        // Count as approved if SHE approved in last 30 days
+                        if (!empty($permit['approved_she_date'])) {
+                            $approved_date = strtotime($permit['approved_she_date']);
+                            if ($approved_date >= $thirty_days_ago) {
+                                $approved++;
+                            }
+                        }
+                        break;
+                    case 'CANCELLED':
+                        // Count as rejected if in last 30 days and rejected by SHE
+                        if (!empty($permit['approved_she_date'])) {
+                            $rejected_date = strtotime($permit['approved_she_date']);
+                            if ($rejected_date >= $thirty_days_ago) {
+                                $rejected++;
+                            }
+                        }
+                        break;
+                }
+            }
+            
+            $stats['pending'] = $pending;
+            $stats['approved'] = $approved;
+            $stats['rejected'] = $rejected;
+            $stats['total'] = $approved + $rejected;
+            
+            return $stats;
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0016', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Send PTW notification
+     * @param int $permit_id
+     * @param string $notification_type
+     * @return bool
+     * @throws Exception
+     */
+    public function send_ptw_notification($permit_id, $notification_type) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sending PTW notification: ' . $notification_type . ' for permit: ' . $permit_id);
+            
+            // Get permit details
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            if (!$permit) {
+                throw new Exception('PTW permit not found');
+            }
+            
+            // Log notification (simple logging for now)
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
+                "Notification sent: {$notification_type} for PTW {$permit['ptw_permit_number']}");
+            
+            // In a complete implementation, this would send actual emails/SMS
+            // For now, we just log the notification
+            return true;
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            return false;
+        }
+    }
 }
 
 ?>

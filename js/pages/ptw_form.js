@@ -11,6 +11,7 @@ class PtwForm {
         this.ptwId = null;
         this.workerCounter = 0;
         this.checklistCache = new Map(); // Performance cache for rendered checklists
+        this.userMode = null; // Will be set based on URL params (she_review, fm_review, etc.)
         this.workTypeChecklists = {
             'HOT_WORK': [
                 'Fire extinguishers available and checked',
@@ -125,14 +126,20 @@ class PtwForm {
         });
 
         // Save draft button
-        $('#btnSaveDraft').on('click', () => {
+        $('#btnSaveDraft').on('click', (e) => {
+            e.preventDefault(); // Prevent form submission
+            console.log('Save Draft button clicked');
             this.savePtw('DRAFT');
         });
 
         // Submit for approval button
-        $('#btnSubmitApproval').on('click', () => {
+        $('#btnSubmitApproval').on('click', (e) => {
+            e.preventDefault(); // Prevent form submission
+            console.log('Submit for Approval button clicked');
             if (this.validateForm()) {
                 this.savePtw('PENDING_APPROVAL');
+            } else {
+                console.log('Form validation failed');
             }
         });
 
@@ -223,12 +230,140 @@ class PtwForm {
     loadUrlParams() {
         const urlParams = new URLSearchParams(window.location.search);
         const ptwId = urlParams.get('id');
+        const mode = urlParams.get('mode');
+        
+        if (mode) {
+            this.userMode = mode;
+            this.configureFormForMode(mode);
+        }
         
         if (ptwId) {
             this.ptwId = ptwId;
             this.loadPtwData(ptwId);
-            $('#h5PtwFormTitle').html('<i class="fa fa-shield-alt mr-1"></i> Edit PTW Permit');
+            
+            // Update title based on mode
+            if (mode === 'she_review') {
+                $('#h5PtwFormTitle').html('<i class="fa fa-shield-alt mr-1"></i> SHE Review - PTW Permit');
+            } else if (mode === 'fm_review') {
+                $('#h5PtwFormTitle').html('<i class="fa fa-shield-alt mr-1"></i> FM Review - PTW Permit');
+            } else {
+                $('#h5PtwFormTitle').html('<i class="fa fa-shield-alt mr-1"></i> Edit PTW Permit');
+            }
         }
+    }
+
+    configureFormForMode(mode) {
+        if (mode === 'she_review') {
+            this.configureSheReviewMode();
+        } else if (mode === 'fm_review') {
+            this.configureFmReviewMode();
+        }
+    }
+
+    configureSheReviewMode() {
+        // Make most fields read-only except SHE approval section
+        this.setFormReadOnly(['section1', 'section2', 'section3', 'section4']);
+        
+        // Show approval section
+        $('#approvalSection').show();
+        
+        // Enable SHE approval controls
+        $('#sheApprovalBlock').removeClass('d-none');
+        $('#sheApprovalInputs').prop('disabled', false);
+        
+        // Keep supervisor block visible but disabled
+        $('#supervisorApprovalBlock').addClass('readonly-section');
+        
+        // Keep FM block disabled
+        $('#fmApprovalBlock').addClass('d-none');
+        
+        // Update action buttons for SHE
+        this.updateActionButtonsForShe();
+    }
+
+    configureFmReviewMode() {
+        // Similar to SHE but for FM review
+        this.setFormReadOnly(['section1', 'section2', 'section3', 'section4']);
+        
+        $('#approvalSection').show();
+        $('#supervisorApprovalBlock').addClass('readonly-section');
+        $('#sheApprovalBlock').addClass('readonly-section');
+        $('#fmApprovalBlock').removeClass('d-none');
+        
+        this.updateActionButtonsForFm();
+    }
+
+    setFormReadOnly(sections) {
+        sections.forEach(section => {
+            $(`#${section} input, #${section} select, #${section} textarea`).prop('readonly', true);
+            $(`#${section} button`).prop('disabled', true);
+        });
+    }
+
+    updateActionButtonsForShe() {
+        const actionHtml = `
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clipboard-check mr-2"></i>SHE Officer Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="sheRemarks">SHE Remarks:</label>
+                                <textarea id="sheRemarks" class="form-control" rows="3" placeholder="Enter approval remarks or conditions..."></textarea>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success btn-lg" onclick="approvePtwByShe()">
+                                    <i class="fas fa-check mr-2"></i>Approve PTW
+                                </button>
+                                <button type="button" class="btn btn-danger btn-lg" onclick="rejectPtwByShe()">
+                                    <i class="fas fa-times mr-2"></i>Reject PTW
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg" onclick="window.close()">
+                                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#actionButtonsSection').html(actionHtml);
+    }
+
+    updateActionButtonsForFm() {
+        const actionHtml = `
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clipboard-check mr-2"></i>Facility Manager Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="fmRemarks">FM Remarks:</label>
+                                <textarea id="fmRemarks" class="form-control" rows="3" placeholder="Enter approval remarks or conditions..."></textarea>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success btn-lg" onclick="approvePtwByFm()">
+                                    <i class="fas fa-check mr-2"></i>Final Approve PTW
+                                </button>
+                                <button type="button" class="btn btn-danger btn-lg" onclick="rejectPtwByFm()">
+                                    <i class="fas fa-times mr-2"></i>Reject PTW
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg" onclick="window.close()">
+                                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#actionButtonsSection').html(actionHtml);
     }
 
     loadPtwData(ptwId) {
@@ -242,7 +377,7 @@ class PtwForm {
                 permit_id: ptwId
             },
             headers: {
-                'Authorization': 'Bearer ' + mzGetStorage('mzat')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             },
             success: (response) => {
                 if (response.status === 'success' && response.data) {
@@ -629,10 +764,14 @@ class PtwForm {
     }
 
     savePtw(status) {
+        console.log('savePtw called with status:', status);
+        
         if (status !== 'DRAFT' && !this.validateForm()) {
+            console.log('Validation failed, returning');
             return;
         }
 
+        console.log('Starting PTW save process...');
         ShowLoader();
 
         const formData = {
@@ -656,29 +795,68 @@ class PtwForm {
             checklist_data: JSON.stringify(this.getChecklistData())
         };
 
+        console.log('Form data prepared:', formData);
+        console.log('API URL:', this.apiUrl);
+        console.log('Starting PTW submission process...');
+
+        // Disable submit buttons to prevent double submission
+        $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', true);
+
+        // Get auth token
+        let authToken = sessionStorage.getItem('token');
+        
+        // For testing: if no token available, use a test token
+        if (!authToken) {
+            authToken = 'test_token_123';
+            sessionStorage.setItem('token', authToken);
+            console.log('Using test auth token for development');
+        }
+        
+        console.log('Auth token available:', !!authToken);
+        
+        const headers = {};
+        if (authToken) {
+            headers['Authorization'] = 'Bearer ' + authToken;
+        }
+        
         $.ajax({
             url: this.apiUrl,
             type: 'POST',
             data: formData,
-            headers: {
-                'Authorization': 'Bearer ' + mzGetStorage('mzat')
-            },
+            headers: headers,
             success: (response) => {
-                if (response.status === 'success') {
-                    const message = status === 'DRAFT' ? 'PTW saved as draft' : 'PTW submitted for approval';
+                console.log('AJAX Success Response:', response);
+                if (response.success === true) {
+                    const message = response.result.status === 'DRAFT' ? 
+                        'PTW saved as draft successfully!' : 
+                        'PTW submitted for approval successfully!';
                     showSuccess(message);
                     
+                    console.log('PTW submission successful! Redirecting to ptw_management.html...');
+                    
+                    // Immediate redirect for better user experience
                     setTimeout(() => {
+                        console.log('Redirecting to PTW Management...');
                         window.location.href = 'ptw_management.html';
-                    }, 1500);
+                    }, 1000); // Reduced to 1 second for faster response
                 } else {
+                    console.log('API returned error:', response.message);
                     showError(response.message || 'Failed to save PTW');
+                    // Re-enable buttons on error
+                    $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', false);
                 }
                 HideLoader();
             },
             error: (xhr, status, error) => {
-                console.error('Save PTW Error:', error);
-                showError('Failed to save PTW');
+                console.error('AJAX Error Details:');
+                console.error('XHR:', xhr);
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response Text:', xhr.responseText);
+                showError('Failed to save PTW: ' + error);
+                
+                // Re-enable buttons on error
+                $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', false);
                 HideLoader();
             }
         });
@@ -712,4 +890,184 @@ class PtwForm {
             }
         });
     }
+}
+
+// Global functions for SHE actions
+function approvePtwByShe() {
+    const remarks = $('#sheRemarks').val();
+    
+    Swal.fire({
+        title: 'Confirm SHE Approval',
+        text: 'Are you sure you want to approve this PTW permit?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Approve',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processSheApprovalAction('approve', remarks);
+        }
+    });
+}
+
+function rejectPtwByShe() {
+    const remarks = $('#sheRemarks').val();
+    
+    if (!remarks.trim()) {
+        Swal.fire({
+            title: 'Remarks Required',
+            text: 'Please provide remarks for rejection.',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Confirm SHE Rejection',
+        text: 'Are you sure you want to reject this PTW permit?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processSheApprovalAction('reject', remarks);
+        }
+    });
+}
+
+function processSheApprovalAction(action, remarks) {
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: {
+            action: action === 'approve' ? 'she_approve' : 'she_reject',
+            permit_id: ptwFormClass_.ptwId,
+            remarks: remarks
+        },
+        headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                const message = action === 'approve' ? 
+                    'PTW permit approved successfully and forwarded to Facility Manager' : 
+                    'PTW permit rejected successfully';
+                    
+                Swal.fire({
+                    title: 'Success',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.close();
+                });
+            } else {
+                showError(response.message || `Failed to ${action} permit`);
+            }
+            HideLoader();
+        },
+        error: function(xhr, status, error) {
+            console.error(`SHE ${action} Error:`, error);
+            showError(`Failed to ${action} permit`);
+            HideLoader();
+        }
+    });
+}
+
+// Global functions for FM actions (for future use)
+function approvePtwByFm() {
+    const remarks = $('#fmRemarks').val();
+    
+    Swal.fire({
+        title: 'Confirm Final Approval',
+        text: 'Are you sure you want to give final approval to this PTW permit?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Final Approve',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processFmApprovalAction('approve', remarks);
+        }
+    });
+}
+
+function rejectPtwByFm() {
+    const remarks = $('#fmRemarks').val();
+    
+    if (!remarks.trim()) {
+        Swal.fire({
+            title: 'Remarks Required',
+            text: 'Please provide remarks for rejection.',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Confirm FM Rejection',
+        text: 'Are you sure you want to reject this PTW permit?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processFmApprovalAction('reject', remarks);
+        }
+    });
+}
+
+function processFmApprovalAction(action, remarks) {
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: {
+            action: action === 'approve' ? 'fm_approve' : 'fm_reject',
+            permit_id: ptwFormClass_.ptwId,
+            remarks: remarks
+        },
+        headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                const message = action === 'approve' ? 
+                    'PTW permit given final approval and is now ready for activation' : 
+                    'PTW permit rejected successfully';
+                    
+                Swal.fire({
+                    title: 'Success',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.close();
+                });
+            } else {
+                showError(response.message || `Failed to ${action} permit`);
+            }
+            HideLoader();
+        },
+        error: function(xhr, status, error) {
+            console.error(`FM ${action} Error:`, error);
+            showError(`Failed to ${action} permit`);
+            HideLoader();
+        }
+    });
 }

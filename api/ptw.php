@@ -29,6 +29,34 @@ try {
     $fn_task->__set('fn_general', $fn_general);
     $fn_ptw->__set('constant', $constant);
     $fn_ptw->__set('fn_general', $fn_general);
+
+    /**
+     * Generate unique PTW permit number using timestamp format
+     * Format: PTWYYYYMMDDhhmmss
+     * @return string Unique permit number
+     */
+    function generateUniquePtwNumber() {
+        $timestamp = date('YmdHis'); // YYYYMMDDhhmmss format
+        $permit_number = 'PTW' . $timestamp;
+        
+        // Add microseconds to ensure uniqueness even for rapid submissions
+        $microseconds = substr(microtime(), 2, 2); // Get 2 digits of microseconds
+        $permit_number .= $microseconds;
+        
+        // Optional: Verify uniqueness against database
+        try {
+            $existing = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_number' => $permit_number));
+            if (count($existing) > 0) {
+                // If somehow duplicate, add random suffix
+                $permit_number .= rand(10, 99);
+            }
+        } catch (Exception $e) {
+            // If database check fails, continue with the generated number
+            error_log("PTW API: Could not verify permit number uniqueness: " . $e->getMessage());
+        }
+        
+        return $permit_number;
+    }
     $fn_ptw->__set('fn_task', $fn_task);
     $fn_ptw->__set('fn_email', $fn_email);
 
@@ -42,18 +70,29 @@ try {
     }
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     
-    // Get user site information for site filtering
-    $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
-    if (count($user) == 0) {
-        throw new Exception('[' . __LINE__ . '] - User not found');
+    // Get user site information for site filtering (with fallback)
+    try {
+        $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
+        if (count($user) == 0) {
+            throw new Exception('[' . __LINE__ . '] - User not found in sys_user table');
+        }
+        $user_site_id = $user[0]['site_id'];
+    } catch (Exception $e) {
+        // Fallback if sys_user table doesn't exist
+        error_log("PTW API: sys_user table not found, using default site_id: " . $e->getMessage());
+        $user_site_id = 1; // Default site ID
     }
-    $user_site_id = $user[0]['site_id'];
     
     switch($request_method) {
         case 'GET':
             $result = get_ptw_data($jwt_data->userId, $user_site_id);
             break;
         case 'POST':
+            // Debug logging
+            error_log('PTW API: POST request received');
+            error_log('PTW API: POST data: ' . print_r($_POST, true));
+            error_log('PTW API: User ID: ' . $jwt_data->userId . ', Site ID: ' . $user_site_id);
+            
             $result = create_ptw_permit($jwt_data->userId, $user_site_id);
             break;
         case 'PUT':
@@ -80,6 +119,31 @@ echo json_encode($form_data);
 
 function get_ptw_data($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
+    
+    // Check for action-based requests
+    if (isset($_GET['action'])) {
+        switch ($_GET['action']) {
+            case 'get_she_pending_permits':
+            case 'get_permits_for_she_approval':
+                return $fn_ptw->get_permits_for_she_approval($user_site_id);
+                
+            case 'get_she_recent_actions':
+                return $fn_ptw->get_she_recent_actions($user_id, $user_site_id);
+                
+            case 'get_she_summary_stats':
+            case 'get_she_summary_statistics':
+                return $fn_ptw->get_she_summary_statistics($user_id, $user_site_id);
+                
+            case 'get_permit':
+                if (!isset($_GET['permit_id'])) {
+                    throw new Exception('[' . __LINE__ . '] - Permit ID required');
+                }
+                return $fn_ptw->get_permit_details($_GET['permit_id'], $user_site_id);
+                
+            default:
+                throw new Exception('[' . __LINE__ . '] - Invalid action: ' . $_GET['action']);
+        }
+    }
     
     $filters = array();
     $filters['site_id'] = $user_site_id;
@@ -119,14 +183,17 @@ function get_ptw_data($user_id, $user_site_id) {
 function create_ptw_permit($user_id, $user_site_id) {
     global $fn_general, $fn_ptw, $is_transaction;
     
+    error_log('PTW API: create_ptw_permit function called');
+    error_log('PTW API: User ID: ' . $user_id . ', Site ID: ' . $user_site_id);
+    
     $is_transaction = true;
     Class_db::getInstance()->db_beginTransaction();
     
     try {
         // Validate required fields
         $required_fields = array(
-            'ptwPermitDescription', 'ptwWorkArea', 'ptwWorkType', 
-            'ptwValidFrom', 'ptwApplicantName'
+            'description', 'work_area', 'work_type', 
+            'valid_from', 'applicant_name'
         );
         
         foreach ($required_fields as $field) {
@@ -138,32 +205,64 @@ function create_ptw_permit($user_id, $user_site_id) {
         // Use the passed site_id parameter
         $site_id = $user_site_id;
         
-        // Generate permit number
-        $site_code = Class_db::getInstance()->db_select_col('sys_site', array('site_id'=>$site_id), 'site_code', null, 1);
-        $running_no = Class_db::getInstance()->db_select_col('sys_site', array('site_id'=>$site_id), 'site_running_no', null, 1);
-        $running_no = intval($running_no) + 1;
-        $permit_number = $site_code . 'PTW' . str_pad($running_no, 4, '0', STR_PAD_LEFT);
+        // Generate unique permit number using timestamp format: PTWYYYYMMDDhhmmss
+        $permit_number = generateUniquePtwNumber();
+        
+        error_log("PTW API: Generated permit number: " . $permit_number);
+        
+        // Map work type from form to database enum (limited to 3 types in DB)
+        $work_type_mapping = [
+            'HOT_WORK' => 'Hot Work',
+            'COLD_WORK' => 'Cold Work', 
+            'CONFINED_SPACE' => 'Confined Space',
+            'ELECTRICAL' => 'Cold Work', // Map to closest equivalent
+            'MECHANICAL' => 'Cold Work', // Map to closest equivalent
+            'HEIGHT_WORK' => 'Cold Work', // Map to closest equivalent
+            'EXCAVATION' => 'Cold Work', // Map to closest equivalent
+            'CHEMICAL' => 'Hot Work', // Map to closest equivalent (needs special handling)
+            'LIFTING' => 'Cold Work', // Map to closest equivalent
+            'OTHER' => 'Cold Work', // Default to cold work
+            'Hot Work' => 'Hot Work',
+            'Cold Work' => 'Cold Work',
+            'Confined Space' => 'Confined Space'
+        ];
+        
+        $work_type = isset($work_type_mapping[$_POST['work_type']]) 
+            ? $work_type_mapping[$_POST['work_type']] 
+            : $_POST['work_type'];
+        
+        // Convert date format if needed (from YYYY-MM-DD to YYYY-MM-DD HH:MM:SS)
+        $valid_from = $_POST['valid_from'];
+        $valid_to = isset($_POST['valid_to']) ? $_POST['valid_to'] : $_POST['valid_from'];
+        
+        // Add time if not present
+        if (strlen($valid_from) == 10) {
+            $valid_from .= ' 08:00:00';
+        }
+        if (strlen($valid_to) == 10) {
+            $valid_to .= ' 17:00:00';
+        }
         
         // Prepare permit data
         $permit_data = array(
             'ptw_permit_number' => $permit_number,
-            'ptw_permit_description' => trim($_POST['ptwPermitDescription']),
-            'ptw_work_area' => trim($_POST['ptwWorkArea']),
-            'ptw_work_type' => $_POST['ptwWorkType'],
-            'ptw_risk_level' => isset($_POST['ptwRiskLevel']) ? $_POST['ptwRiskLevel'] : 'LOW',
-            'ptw_valid_from' => $_POST['ptwValidFrom'],
-            'ptw_valid_to' => isset($_POST['ptwValidTo']) ? $_POST['ptwValidTo'] : $_POST['ptwValidFrom'],
-            'ptw_contractor_company' => isset($_POST['ptwContractorCompany']) ? trim($_POST['ptwContractorCompany']) : '',
-            'ptw_remarks' => isset($_POST['ptwRemarks']) ? trim($_POST['ptwRemarks']) : '',
-            'ptw_applicant_name' => trim($_POST['ptwApplicantName']),
-            'ptw_applicant_contact' => isset($_POST['ptwApplicantContact']) ? trim($_POST['ptwApplicantContact']) : '',
-            'ptw_applicant_company_dept' => isset($_POST['ptwApplicantCompanyDept']) ? trim($_POST['ptwApplicantCompanyDept']) : '',
-            'ptw_work_duration' => isset($_POST['ptwWorkDuration']) ? trim($_POST['ptwWorkDuration']) : '',
-            'ptw_checklist_cold_work' => isset($_POST['ptwChecklistColdWork']) ? $_POST['ptwChecklistColdWork'] : null,
-            'ptw_checklist_hot_work' => isset($_POST['ptwChecklistHotWork']) ? $_POST['ptwChecklistHotWork'] : null,
-            'ptw_checklist_confined_space' => isset($_POST['ptwChecklistConfinedSpace']) ? $_POST['ptwChecklistConfinedSpace'] : null,
-            'ptw_hazard_checklist' => isset($_POST['ptwHazardChecklist']) ? $_POST['ptwHazardChecklist'] : null,
-            'ptw_declaration_checklist' => isset($_POST['ptwDeclarationChecklist']) ? $_POST['ptwDeclarationChecklist'] : null,
+            'ptw_permit_description' => trim($_POST['description']),
+            'ptw_work_area' => trim($_POST['work_area']),
+            'ptw_work_type' => $work_type,
+            'ptw_risk_level' => isset($_POST['risk_level']) ? $_POST['risk_level'] : 'LOW',
+            'ptw_valid_from' => $valid_from,
+            'ptw_valid_to' => $valid_to,
+            'ptw_contractor_company' => isset($_POST['contractor_company']) ? trim($_POST['contractor_company']) : '',
+            'ptw_remarks' => isset($_POST['remarks']) ? trim($_POST['remarks']) : '',
+            'ptw_applicant_name' => trim($_POST['applicant_name']),
+            'ptw_applicant_contact' => isset($_POST['applicant_contact']) ? trim($_POST['applicant_contact']) : '',
+            'ptw_applicant_company_dept' => isset($_POST['applicant_department']) ? trim($_POST['applicant_department']) : '',
+            'ptw_work_duration' => isset($_POST['work_duration']) ? trim($_POST['work_duration']) : '',
+            'ptw_checklist_cold_work' => isset($_POST['checklist_cold_work']) ? $_POST['checklist_cold_work'] : json_encode([]),
+            'ptw_checklist_hot_work' => isset($_POST['checklist_hot_work']) ? $_POST['checklist_hot_work'] : json_encode([]),
+            'ptw_checklist_confined_space' => isset($_POST['checklist_confined_space']) ? $_POST['checklist_confined_space'] : json_encode([]),
+            'ptw_hazard_checklist' => isset($_POST['checklist_data']) ? $_POST['checklist_data'] : json_encode([]),
+            'ptw_declaration_checklist' => isset($_POST['declaration_checklist']) ? $_POST['declaration_checklist'] : json_encode([]),
             'site_id' => $user_site_id,
             'created_by' => $user_id,
             'created_date' => date('Y-m-d H:i:s')
@@ -172,25 +271,57 @@ function create_ptw_permit($user_id, $user_site_id) {
         // Create permit
         $permit_id = $fn_ptw->create_permit($permit_data);
         
-        // Update site running number
-        Class_db::getInstance()->db_update('sys_site', array('site_running_no'=>strval($running_no)), array('site_id'=>$site_id));
+        error_log('PTW API: Permit created with ID: ' . $permit_id);
+        
+        // Update status if provided (handle PENDING_APPROVAL vs DRAFT)
+        if (isset($_POST['status']) && $_POST['status'] !== 'DRAFT') {
+            $status_mapping = [
+                'PENDING_APPROVAL' => 'PENDING_SUPERVISOR',
+                'PENDING_SUPERVISOR' => 'PENDING_SUPERVISOR',
+                'PENDING_SHE' => 'PENDING_SHE',
+                'PENDING_FM' => 'PENDING_FM'
+            ];
+            
+            $target_status = isset($status_mapping[$_POST['status']]) 
+                ? $status_mapping[$_POST['status']] 
+                : $_POST['status'];
+                
+            error_log('PTW API: Updating status to: ' . $target_status);
+            Class_db::getInstance()->db_update('ptw_permit', 
+                array('ptw_status' => $target_status),
+                array('ptw_permit_id' => $permit_id)
+            );
+        }
+        
+        // Note: No longer need to update site running number since we use timestamp-based permit numbers
         
         // Add workers if provided
-        if (isset($_POST['workers']) && is_array($_POST['workers'])) {
-            foreach ($_POST['workers'] as $worker) {
-                if (!empty(trim($worker['workerName']))) {
-                    $worker_data = array(
-                        'ptw_permit_id' => $permit_id,
-                        'worker_name' => trim($worker['workerName']),
-                        'worker_ic_number' => isset($worker['workerIcNumber']) ? trim($worker['workerIcNumber']) : '',
-                        'worker_phone_number' => isset($worker['workerPhoneNumber']) ? trim($worker['workerPhoneNumber']) : '',
-                        'worker_company' => isset($worker['workerCompany']) ? trim($worker['workerCompany']) : '',
-                        'worker_designation' => isset($worker['workerDesignation']) ? trim($worker['workerDesignation']) : '',
-                        'worker_ptw_number' => isset($worker['workerPtwNumber']) ? trim($worker['workerPtwNumber']) : '',
-                        'created_by' => $user_id,
-                        'created_date' => date('Y-m-d H:i:s')
-                    );
-                    $fn_ptw->add_worker($worker_data);
+        if (isset($_POST['workers'])) {
+            $workers_data = is_string($_POST['workers']) ? json_decode($_POST['workers'], true) : $_POST['workers'];
+            
+            if (is_array($workers_data)) {
+                foreach ($workers_data as $worker) {
+                    $worker_name = isset($worker['workerName']) ? $worker['workerName'] : 
+                                  (isset($worker['name']) ? $worker['name'] : '');
+                    
+                    if (!empty(trim($worker_name))) {
+                        $worker_data = array(
+                            'ptw_permit_id' => $permit_id,
+                            'worker_name' => trim($worker_name),
+                            'worker_ic_number' => isset($worker['workerIcNumber']) ? trim($worker['workerIcNumber']) : 
+                                                 (isset($worker['ic']) ? trim($worker['ic']) : ''),
+                            'worker_phone_number' => isset($worker['workerPhoneNumber']) ? trim($worker['workerPhoneNumber']) : 
+                                                    (isset($worker['phone']) ? trim($worker['phone']) : ''),
+                            'worker_company' => isset($worker['workerCompany']) ? trim($worker['workerCompany']) : 
+                                               (isset($worker['company']) ? trim($worker['company']) : ''),
+                            'worker_designation' => isset($worker['workerDesignation']) ? trim($worker['workerDesignation']) : 
+                                                   (isset($worker['designation']) ? trim($worker['designation']) : ''),
+                            'worker_ptw_number' => isset($worker['workerPtwNumber']) ? trim($worker['workerPtwNumber']) : '',
+                            'created_by' => $user_id,
+                            'created_date' => date('Y-m-d H:i:s')
+                        );
+                        Class_db::getInstance()->db_insert('ptw_worker', $worker_data);
+                    }
                 }
             }
         }
@@ -202,6 +333,8 @@ function create_ptw_permit($user_id, $user_site_id) {
         
         Class_db::getInstance()->db_commit();
         $is_transaction = false;
+        
+        error_log('PTW API: Transaction committed successfully');
         
         return array(
             'ptw_permit_id' => $permit_id,

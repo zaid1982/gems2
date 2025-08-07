@@ -1,5 +1,5 @@
--- PTW (Permit to Work) Database Setup
--- Following GEMS2 database patterns
+-- PTW (Permit to Work) Database Setup - Clean Version
+-- Only creates PTW tables, doesn't modify existing tables
 
 -- PTW Permit main table
 CREATE TABLE IF NOT EXISTS `ptw_permit` (
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `ptw_permit` (
   `ptw_permit_number` varchar(50) NOT NULL,
   `ptw_permit_description` text NOT NULL,
   `ptw_work_area` varchar(255) NOT NULL,
-  `ptw_work_type` enum('HOT_WORK','COLD_WORK','ELECTRICAL','CONFINED_SPACE','HEIGHT_WORK','EXCAVATION','CHEMICAL','LIFTING','MECHANICAL') NOT NULL,
+  `ptw_work_type` enum('HOT_WORK','COLD_WORK','ELECTRICAL','CONFINED_SPACE','HEIGHT_WORK','EXCAVATION','CHEMICAL','LIFTING','MECHANICAL','OTHER') NOT NULL,
   `ptw_risk_level` enum('LOW','MEDIUM','HIGH','CRITICAL') NOT NULL DEFAULT 'LOW',
   `ptw_valid_from` datetime NOT NULL,
   `ptw_valid_to` datetime NOT NULL,
@@ -117,15 +117,3 @@ CREATE TABLE IF NOT EXISTS `ptw_approval_log` (
   KEY `idx_ptw_approval_permit_id` (`ptw_permit_id`),
   CONSTRAINT `fk_ptw_approval_permit` FOREIGN KEY (`ptw_permit_id`) REFERENCES `ptw_permit` (`ptw_permit_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Add designation field to sys_user table if it doesn't exist
--- (Following existing GEMS2 user management patterns)
-ALTER TABLE `sys_user` 
-ADD COLUMN `user_designation` varchar(100) DEFAULT NULL AFTER `user_phone_number`;
-
--- Insert PTW sequence for permit numbering (following GEMS2 sequence patterns)
-INSERT INTO `sys_sequence` (`sequence_name`, `sequence_prefix`, `sequence_length`, `sequence_value`) 
-VALUES ('PTW', 'PTW', 8, 1)
-ON DUPLICATE KEY UPDATE 
-`sequence_prefix` = VALUES(`sequence_prefix`),
-`sequence_length` = VALUES(`sequence_length`);

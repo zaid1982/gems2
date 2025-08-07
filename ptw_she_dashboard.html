@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>SHE Officer Dashboard - GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <style>
+        .config-section {
+            margin-bottom: 2rem;
+        }
+        .config-header {
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        .config-body {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .stats-card {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .stats-icon {
+            font-size: 3rem;
+            opacity: 0.8;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        .stats-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+        .btn-action {
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table th {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        .badge-work-type {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-risk {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+        .breadcrumb {
+            background: none;
+            padding: 0;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "▸";
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body class="grey lighten-3">
+
+<main>
+    <div class="container-fluid" id="divShePageWidth">
+        <div id="mdb-lightbox-ui"></div>
+
+        <!-- Back Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button class="btn btn-outline-secondary" onclick="window.location.href='ptw_management.html'">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to PTW Management
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Title -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2 class="h2-responsive font-weight-bold page-title">
+                    <i class="fas fa-shield-alt mr-3"></i>SHE Officer Dashboard
+                </h2>
+                <p class="text-muted">Review and approve Permit to Work applications for safety compliance</p>
+                
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mt-2">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="home.html" class="text-primary">Home</a></li>
+                        <li class="breadcrumb-item"><a href="ptw_management.html" class="text-primary">PTW Management</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">SHE Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="config-section">
+            <div class="config-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Summary Statistics
+                </h5>
+            </div>
+            <div class="config-body">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                        <div class="card stats-card text-white" style="background: linear-gradient(45deg, #ff9a56, #ff6347);">
+                            <div class="card-body text-center">
+                                <div class="stats-icon mb-2">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h3 class="stats-number" id="pendingCount">0</h3>
+                                <p class="stats-label mb-0">Pending SHE Approval</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                        <div class="card stats-card text-white" style="background: linear-gradient(45deg, #56ab2f, #a8e6cf);">
+                            <div class="card-body text-center">
+                                <div class="stats-icon mb-2">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h3 class="stats-number" id="approvedCount">0</h3>
+                                <p class="stats-label mb-0">Approved by SHE</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                        <div class="card stats-card text-white" style="background: linear-gradient(45deg, #e53e3e, #ff6b6b);">
+                            <div class="card-body text-center">
+                                <div class="stats-icon mb-2">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <h3 class="stats-number" id="rejectedCount">0</h3>
+                                <p class="stats-label mb-0">Rejected by SHE</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                        <div class="card stats-card text-white" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                            <div class="card-body text-center">
+                                <div class="stats-icon mb-2">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                                <h3 class="stats-number" id="totalCount">0</h3>
+                                <p class="stats-label mb-0">Total Reviewed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PTW Permits Awaiting SHE Approval -->
+        <div class="config-section">
+            <div class="config-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    PTW Permits Awaiting SHE Approval
+                    <button type="button" class="btn btn-sm btn-light ml-3" onclick="loadShePermits()" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </h5>
+            </div>
+            <div class="config-body">
+                <div class="table-responsive">
+                    <table id="tblShePermits" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Permit Number</th>
+                                <th>Description</th>
+                                <th>Work Type</th>
+                                <th>Risk Level</th>
+                                <th>Applicant</th>
+                                <th>Valid From</th>
+                                <th>Valid To</th>
+                                <th>Supervisor</th>
+                                <th>Approved Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent SHE Actions -->
+        <div class="config-section">
+            <div class="config-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history mr-2"></i>
+                    Recent SHE Actions
+                </h5>
+            </div>
+            <div class="config-body">
+                <div class="table-responsive">
+                    <table id="tblRecentActions" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Permit Number</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="config-section">
+            <div class="config-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt mr-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="config-body text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-primary btn-action btn-lg" onclick="window.location.href='ptw_form.html'">
+                            <i class="fas fa-plus mr-2"></i>
+                            Create New PTW
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-info btn-action btn-lg" onclick="window.location.href='ptw_management.html'">
+                            <i class="fas fa-list mr-2"></i>
+                            View All PTWs
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-secondary btn-action btn-lg" onclick="generateReport()">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- jQuery (must load first) -->
+<script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Toastr -->
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+
+<!-- Custom scripts -->
+
+<script>
+let shePermitsTable;
+
+$(document).ready(function() {
+    // Initialize DataTable
+    shePermitsTable = $('#tblShePermits').DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        order: [[8, 'asc']], // Order by approved date ascending (oldest first)
+        columnDefs: [
+            {
+                targets: [9], // Actions column
+                orderable: false,
+                searchable: false
+            }
+        ]
+    });
+
+    // Initialize recent actions table
+    $('#tblRecentActions').DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        pageLength: 5,
+        order: [[0, 'desc']], // Order by date descending (newest first)
+        searching: false,
+        info: false
+    });
+
+    // Load initial data
+    loadShePermits();
+    loadRecentActions();
+    loadSummaryStats();
+});
+
+function loadShePermits() {
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: {
+            action: 'get_permits_for_she_approval'
+        },
+        headers: {
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
+        },
+        success: function(response) {
+            if (response.success) {
+                populateShePermitsTable(response.result);
+            } else {
+                showError(response.error || 'Failed to load permits');
+            }
+            HideLoader();
+        },
+        error: function(xhr, status, error) {
+            console.error('Load SHE Permits Error:', error);
+            showError('Failed to load permits');
+            HideLoader();
+        }
+    });
+}
+
+function populateShePermitsTable(permits) {
+    shePermitsTable.clear();
+    
+    permits.forEach(function(permit) {
+        const riskBadge = getRiskLevelBadge(permit.ptw_risk_level);
+        const workTypeBadge = getWorkTypeBadge(permit.ptw_work_type);
+        
+        const row = [
+            permit.ptw_permit_number,
+            permit.ptw_permit_description,
+            workTypeBadge,
+            riskBadge,
+            permit.ptw_applicant_name,
+            formatDateTime(permit.ptw_valid_from),
+            formatDateTime(permit.ptw_valid_to),
+            permit.supervisor_name || 'N/A',
+            formatDateTime(permit.ptw_supervisor_approved_date),
+            generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number)
+        ];
+        
+        shePermitsTable.row.add(row);
+    });
+    
+    shePermitsTable.draw();
+}
+
+function generateActionButtons(permitId, permitNumber) {
+    return `
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary btn-sm btn-action" onclick="viewPermit(${permitId})" title="View Permit">
+                <i class="fas fa-eye"></i> View
+            </button>
+            <button type="button" class="btn btn-success btn-sm btn-action" onclick="approvePermit(${permitId}, '${permitNumber}')" title="Approve Permit">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button type="button" class="btn btn-danger btn-sm btn-action" onclick="rejectPermit(${permitId}, '${permitNumber}')" title="Reject Permit">
+                <i class="fas fa-times"></i> Reject
+            </button>
+        </div>
+    `;
+}
+
+function viewPermit(permitId) {
+    window.open(`ptw_form.html?id=${permitId}&mode=she_review`, '_blank');
+}
+
+function approvePermit(permitId, permitNumber) {
+    Swal.fire({
+        title: 'Approve PTW Permit',
+        html: `
+            <p>Are you sure you want to approve PTW permit <strong>${permitNumber}</strong>?</p>
+            <div class="form-group mt-3">
+                <label for="approvalRemarks">Approval Remarks:</label>
+                <textarea id="approvalRemarks" class="form-control" rows="3" placeholder="Enter any remarks or conditions..."></textarea>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-check"></i> Approve',
+        cancelButtonText: 'Cancel',
+        focusConfirm: false,
+        preConfirm: () => {
+            return {
+                remarks: document.getElementById('approvalRemarks').value
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processSheApproval(permitId, 'approve', result.value.remarks);
+        }
+    });
+}
+
+function rejectPermit(permitId, permitNumber) {
+    Swal.fire({
+        title: 'Reject PTW Permit',
+        html: `
+            <p>Are you sure you want to reject PTW permit <strong>${permitNumber}</strong>?</p>
+            <div class="form-group mt-3">
+                <label for="rejectionReason">Rejection Reason: <span class="text-danger">*</span></label>
+                <textarea id="rejectionReason" class="form-control" rows="3" placeholder="Please provide reason for rejection..." required></textarea>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-times"></i> Reject',
+        cancelButtonText: 'Cancel',
+        focusConfirm: false,
+        preConfirm: () => {
+            const reason = document.getElementById('rejectionReason').value;
+            if (!reason.trim()) {
+                Swal.showValidationMessage('Rejection reason is required');
+                return false;
+            }
+            return {
+                remarks: reason
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            processSheApproval(permitId, 'reject', result.value.remarks);
+        }
+    });
+}
+
+function processSheApproval(permitId, action, remarks) {
+    ShowLoader();
+    
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: {
+            action: action === 'approve' ? 'she_approve' : 'she_reject',
+            permit_id: permitId,
+            remarks: remarks
+        },
+        headers: {
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
+        },
+        success: function(response) {
+            if (response.success) {
+                const message = action === 'approve' ? 
+                    'PTW permit approved successfully' : 
+                    'PTW permit rejected successfully';
+                showSuccess(message);
+                
+                // Reload data
+                loadShePermits();
+                loadRecentActions();
+                loadSummaryStats();
+            } else {
+                showError(response.error || `Failed to ${action} permit`);
+            }
+            HideLoader();
+        },
+        error: function(xhr, status, error) {
+            console.error(`SHE ${action} Error:`, error);
+            showError(`Failed to ${action} permit`);
+            HideLoader();
+        }
+    });
+}
+
+function loadRecentActions() {
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: {
+            action: 'get_she_recent_actions'
+        },
+        headers: {
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
+        },
+        success: function(response) {
+            if (response.success) {
+                populateRecentActionsTable(response.result);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Load Recent Actions Error:', error);
+        }
+    });
+}
+
+function populateRecentActionsTable(actions) {
+    const tbody = $('#tblRecentActions tbody');
+    tbody.empty();
+    
+    actions.forEach(function(action) {
+        const statusBadge = action.action_type === 'SHE_APPROVED' ? 
+            '<span class="badge badge-success">Approved</span>' : 
+            '<span class="badge badge-danger">Rejected</span>';
+            
+        const row = `
+            <tr>
+                <td>${formatDateTime(action.action_date)}</td>
+                <td>${action.ptw_permit_number}</td>
+                <td>${action.action_type.replace('_', ' ')}</td>
+                <td>${statusBadge}</td>
+                <td>${action.remarks || '-'}</td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+}
+
+function loadSummaryStats() {
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: {
+            action: 'get_she_summary_statistics'
+        },
+        headers: {
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
+        },
+        success: function(response) {
+            if (response.success) {
+                const stats = response.result;
+                $('#pendingCount').text(stats.pending || 0);
+                $('#approvedCount').text(stats.approved || 0);
+                $('#rejectedCount').text(stats.rejected || 0);
+                $('#totalCount').text(stats.total || 0);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Load Summary Stats Error:', error);
+        }
+    });
+}
+
+function getRiskLevelBadge(riskLevel) {
+    const badges = {
+        'LOW': '<span class="badge badge-success badge-risk">LOW</span>',
+        'MEDIUM': '<span class="badge badge-warning badge-risk">MEDIUM</span>',
+        'HIGH': '<span class="badge badge-danger badge-risk">HIGH</span>',
+        'CRITICAL': '<span class="badge badge-dark badge-risk">CRITICAL</span>'
+    };
+    return badges[riskLevel] || '<span class="badge badge-secondary badge-risk">Unknown</span>';
+}
+
+function getWorkTypeBadge(workType) {
+    const badges = {
+        'Hot Work': '<span class="badge badge-danger badge-work-type">Hot Work</span>',
+        'Cold Work': '<span class="badge badge-info badge-work-type">Cold Work</span>',
+        'Confined Space': '<span class="badge badge-dark badge-work-type">Confined Space</span>',
+        'ELECTRICAL': '<span class="badge badge-warning badge-work-type">Electrical</span>',
+        'HEIGHT_WORK': '<span class="badge badge-primary badge-work-type">Height Work</span>',
+        'EXCAVATION': '<span class="badge badge-secondary badge-work-type">Excavation</span>',
+        'CHEMICAL': '<span class="badge badge-success badge-work-type">Chemical</span>',
+        'LIFTING': '<span class="badge badge-info badge-work-type">Lifting</span>',
+        'MECHANICAL': '<span class="badge badge-warning badge-work-type">Mechanical</span>'
+    };
+    return badges[workType] || '<span class="badge badge-light badge-work-type">' + workType + '</span>';
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+function generateReport() {
+    // Placeholder for report generation functionality
+    toastr['info']('Report generation feature coming soon!', 'Information');
+}
+
+function showSuccess(message) {
+    toastr['success'](message, 'Success');
+}
+
+function showError(message) {
+    toastr['error'](message, 'Error');
+}
+
+function ShowLoader() {
+    // Show loading indicator
+    $('#divShePageWidth').addClass('position-relative');
+    if ($('#loader').length === 0) {
+        $('#divShePageWidth').append(`
+            <div id="loader" class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center" 
+                 style="top: 0; left: 0; background: rgba(255,255,255,0.8); z-index: 9999;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        `);
+    }
+}
+
+function HideLoader() {
+    $('#loader').remove();
+}
+
+// Include SweetAlert2 for better dialogs
+if (!document.querySelector('script[src*="sweetalert2"]')) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    document.head.appendChild(script);
+}
+
+// Include common functions
+document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>

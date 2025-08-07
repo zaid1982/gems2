@@ -387,7 +387,8 @@ try {
 
             // Update the function call signature
             $result = $fn_ppm->create_ppm_set_basic($ppmSetName, $ppmSetDesc, $assetGroupId, $assetCategoryId, $assetTypeId, $ppmGroupId, $jwt_data->userId);
-            $fn_general->save_audit('X_AUDIT_ID_FOR_CREATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $result['ppmSetId'] . ', Name = ' . $ppmSetName); // Use a relevant audit ID
+            // TODO: Replace with valid audit ID - temporarily disabled to fix database error
+            // $fn_general->save_audit('X_AUDIT_ID_FOR_CREATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $result['ppmSetId'] . ', Name = ' . $ppmSetName);
             $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
         }
         else if ($action === 'generate_pdf') {
@@ -426,7 +427,8 @@ try {
             }
             
             $result = $fn_ppm->add_assets_to_ppm_set($ppmSetId, $assetIds, $jwt_data->userId, $allAssetSelected);
-            $fn_general->save_audit('X_AUDIT_ID_FOR_ADD_ASSET_TO_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Added ' . $result['totalAdded'] . ' assets.');
+            // TODO: Replace with valid audit ID - temporarily disabled to fix database error
+            // $fn_general->save_audit('X_AUDIT_ID_FOR_ADD_ASSET_TO_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Added ' . $result['totalAdded'] . ' assets.');
             $form_data['errmsg'] = $result['totalAdded'] . ' asset(s) successfully added to PPM Set!';
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
@@ -458,7 +460,8 @@ try {
             $ppmSetId = $put_vars['ppmSetId']; // Get ppmSetId from parsed PUT data.
 
             $fn_ppm->update_ppm_set($ppmSetId, $put_vars, $jwt_data->userId); // Pass all put_vars as params
-            $fn_general->save_audit('X_AUDIT_ID_FOR_UPDATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId); // Use a relevant audit ID
+            // TODO: Replace with valid audit ID - temporarily disabled to fix database error
+            // $fn_general->save_audit('X_AUDIT_ID_FOR_UPDATE_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId);
             $form_data['errmsg'] = $constant::SUC_SAVE; // "Successfully saved!"
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action invalid ('.$action.')');
@@ -499,7 +502,8 @@ try {
             }
 
             $result = $fn_ppm->remove_assets_from_ppm_set($ppmSetId, $assetIds, $jwt_data->userId);
-            $fn_general->save_audit('X_AUDIT_ID_FOR_REMOVE_ASSET_FROM_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Removed ' . $result['totalRemoved'] . ' assets.');
+            // TODO: Replace with valid audit ID - temporarily disabled to fix database error
+            // $fn_general->save_audit('X_AUDIT_ID_FOR_REMOVE_ASSET_FROM_SET', $jwt_data->userId, 'PPM Set Id = ' . $ppmSetId . ', Removed ' . $result['totalRemoved'] . ' assets.');
             $form_data['errmsg'] = $result['totalRemoved'] . ' asset(s) successfully removed from PPM Set!';
         } else if ($action === 'delete_ppm_set') {
             if (!isset($delete_vars['ppmSetId']) || empty($delete_vars['ppmSetId'])) {

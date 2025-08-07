@@ -2,7 +2,52 @@
 
 This folder contains database maintenance and schema extraction utilities for the GEMS2 system.
 
-## 🗄️ Database Query Tool ⭐ **NEW**
+## �️ Available Tools
+
+### 1. **Interactive Data Editor** ⭐ NEW
+**File:** `data_editor.html` + `data_editor.php`
+- **Purpose**: Edit database records with spreadsheet-like interface
+- **Features**: 
+  - Visual cell editing with change tracking
+  - Batch updates with transaction safety
+  - Pagination and search capabilities
+  - Protected primary keys and auto-increment fields
+  - Real-time validation and error handling
+- **Perfect for**: Quick data maintenance, bulk updates, non-technical users
+- **Documentation**: `help_data_editor.html`
+
+### 2. **Database Query Tool**
+**File:** `db_query_tool.html` + `db_query_tool.php`
+- **Purpose**: Execute SQL queries and explore database structure
+- **Features**: 
+  - SQL query execution with syntax highlighting
+  - Table browsing and column information
+  - Export results to CSV format
+  - Query history and error handling
+- **Perfect for**: Advanced users, data analysis, development work
+
+### 3. **Schema Extraction Tools**
+**Files:** `extract_table_schemas*.php`
+- **Purpose**: Extract database schema as CREATE TABLE statements
+- **Variants**: Simple, advanced, and comprehensive extraction
+- **Features**: 
+  - Complete table structure extraction
+  - Foreign key relationships
+  - Triggers and stored procedures (advanced version)
+  - Statistics and analysis
+- **Perfect for**: Database documentation, migrations, backups
+
+### 4. **Database Management Dashboard**
+**File:** `dashboard.html`
+- **Purpose**: Central hub for all database tools
+- **Features**: 
+  - Quick access to all tools
+  - Database connection status
+  - Real-time statistics and metrics
+  - Tool descriptions and help links
+- **Perfect for**: Overview, navigation, system monitoring
+
+### 5. **SQL Deployment Scripts**
 
 ### `db_query_tool.html` + `db_query_tool.php`
 **Web-based database management interface**

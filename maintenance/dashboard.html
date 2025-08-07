@@ -336,6 +336,27 @@
             gap: 15px;
         }
         
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
         .footer {
             text-align: center;
             color: rgba(255,255,255,0.8);
@@ -470,15 +491,18 @@
         <div class="quick-actions">
             <h3>⚡ Quick Actions</h3>
             <div class="quick-actions-grid">
-                                    <button class="action-btn" onclick="window.location.href='performance_dashboard.html'">
-                        � Performance Analytics
-                    </button>
-                    <button class="action-btn" onclick="window.location.href='query_analytics.html'">
-                        🔍 Query Analytics
-                    </button>
-                    <button class="action-btn" onclick="window.location.href='usage_statistics.html'">
-                        📈 Usage Statistics
-                    </button>
+                <button class="action-btn" onclick="window.location.href='data_editor.html'">
+                    📊 Data Editor
+                </button>
+                <button class="action-btn" onclick="window.location.href='db_query_tool.html'">
+                    🔍 Query Tool
+                </button>
+                <button class="action-btn" onclick="testConnectionDetailed()">
+                    🔌 Test Connection
+                </button>
+                <button class="action-btn" onclick="showHelp()">
+                    ❓ Help & Guide
+                </button>
             </div>
         </div>
         
@@ -510,6 +534,74 @@
                     <button class="btn btn-secondary" onclick="showToolInfo('basic')">
                         ℹ️ Info
                     </button>
+                </div>
+            </div>
+            
+            <!-- Interactive Data Editor -->
+            <div class="tool-card featured">
+                <div class="tool-header">
+                    <div class="tool-icon">📊</div>
+                    <div>
+                        <div class="tool-title">
+                            Interactive Data Editor
+                            <span class="badge badge-new">New</span>
+                        </div>
+                        <div class="tool-subtitle">Spreadsheet-like database editing</div>
+                    </div>
+                </div>
+                <div class="tool-description">
+                    Edit database records with a powerful spreadsheet-like interface. Perfect for quick data maintenance, bulk updates, and non-technical users.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Visual cell editing with change tracking</li>
+                        <li>Batch updates with transaction safety</li>
+                        <li>Pagination and search capabilities</li>
+                        <li>Protected primary keys and constraints</li>
+                        <li>Real-time validation and error handling</li>
+                    </ul>
+                </div>
+                <div class="tool-actions">
+                    <a href="data_editor.html" class="btn btn-warning" target="_blank">
+                        🚀 Launch Editor
+                    </a>
+                    <a href="help_data_editor.html" class="btn btn-secondary" target="_blank">
+                        📖 User Guide
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Log Explorer -->
+            <div class="tool-card featured">
+                <div class="tool-header">
+                    <div class="tool-icon">📁</div>
+                    <div>
+                        <div class="tool-title">
+                            Log Explorer
+                            <span class="badge badge-new">New</span>
+                        </div>
+                        <div class="tool-subtitle">Browse and monitor log files</div>
+                    </div>
+                </div>
+                <div class="tool-description">
+                    Browse, download, and monitor log files with live viewing capabilities. Perfect for debugging and system monitoring.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Browse log directories and files</li>
+                        <li>Live log monitoring with auto-refresh</li>
+                        <li>Full-text search within log files</li>
+                        <li>Download logs for offline analysis</li>
+                        <li>Real-time tail functionality</li>
+                    </ul>
+                </div>
+                <div class="tool-actions">
+                    <a href="log_explorer.html" class="btn btn-warning" target="_blank">
+                        🚀 Launch Explorer
+                    </a>
+                    <a href="#" class="btn btn-secondary" onclick="showLogHelp()">
+                        📖 Quick Help
+                    </a>
                 </div>
             </div>
             
@@ -731,7 +823,7 @@
                 document.getElementById('db-size').textContent = 
                     data.info.size_mb ? `${data.info.size_mb} MB` : '-';
                 document.getElementById('connection-status').textContent = '✅ Connected';
-                document.getElementById('last-backup').textContent = '6';
+                document.getElementById('last-backup').textContent = '8';
             } else {
                 // Basic connection test response
                 document.getElementById('db-info').textContent = 
@@ -739,7 +831,7 @@
                 document.getElementById('table-count').textContent = data.table_count || '-';
                 document.getElementById('db-size').textContent = 'Unknown';
                 document.getElementById('connection-status').textContent = '✅ Connected';
-                document.getElementById('last-backup').textContent = '6';
+                document.getElementById('last-backup').textContent = '8';
             }
             
             dbStats = data;
@@ -817,6 +909,31 @@ ${JSON.stringify(data, null, 2)}
         
         function viewSchema() {
             window.open('schema_visualizer.html', '_blank');
+        }
+        
+        function showLogHelp() {
+            alert(`📁 Log Explorer Quick Help
+
+🔍 Features:
+• Browse log directories (debug, error, etc.)
+• View files with syntax highlighting
+• Live monitoring with auto-refresh
+• Search within log files
+• Download logs for offline analysis
+• Tail functionality for real-time viewing
+
+🚀 Quick Start:
+1. Click "Launch Explorer" to open the tool
+2. Select a directory (debug/error)
+3. Click on any log file to view
+4. Use "Start Live" for real-time monitoring
+5. Search within files using the search box
+
+💡 Pro Tips:
+• Live mode refreshes every 3 seconds
+• Tail shows last 50 lines automatically
+• Search is case-insensitive by default
+• Download large files for detailed analysis`);
         }
         
         function showHelp() {

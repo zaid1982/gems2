@@ -209,7 +209,7 @@
 
         <!-- PTW Form -->
         <section class="sectionPtwMain mb-4">
-            <form id="formPtw" name="formPtw">
+            <form id="formPtw" name="formPtw" onsubmit="return false;">
                 <input type="hidden" id="lblPtwId" value="">
                 
                 <!-- Basic Information Section -->
@@ -224,7 +224,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="txtPtwDescription">PTW Description *</label>
-                                            <textarea id="txtPtwDescription" class="form-control" rows="3" required placeholder="Describe the work to be performed"></textarea>
+                                            <textarea id="txtPtwDescription" class="form-control" rows="3" required placeholder="Describe the work to be performed">Testing PTW form submission - welding repair work on main pipeline section A</textarea>
                                             <div class="description">Provide a clear and detailed description of the work activities</div>
                                             <div class="invalid-feedback" id="txtPtwDescriptionErr"></div>
                                         </div>
@@ -234,7 +234,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="txtPtwWorkArea">Work Area *</label>
-                                            <input type="text" id="txtPtwWorkArea" class="form-control" required placeholder="Enter work location">
+                                            <input type="text" id="txtPtwWorkArea" class="form-control" required placeholder="Enter work location" value="Processing Unit A - Pipeline Section">
                                             <div class="description">Specify the exact location where work will be performed</div>
                                             <div class="invalid-feedback" id="txtPtwWorkAreaErr"></div>
                                         </div>
@@ -243,8 +243,8 @@
                                         <div class="form-group native-dropdown">
                                             <label for="optPtwWorkType">Work Type *</label>
                                             <select class="form-control" id="optPtwWorkType" required>
-                                                <option value="" disabled selected>Select Work Type</option>
-                                                <option value="HOT_WORK">Hot Work</option>
+                                                <option value="" disabled>Select Work Type</option>
+                                                <option value="HOT_WORK" selected>Hot Work</option>
                                                 <option value="COLD_WORK">Cold Work</option>
                                                 <option value="ELECTRICAL">Electrical Work</option>
                                                 <option value="MECHANICAL">Mechanical Work</option>
@@ -295,10 +295,10 @@
                                         <div class="form-group native-dropdown">
                                             <label for="optPtwRiskLevel">Risk Level *</label>
                                             <select class="form-control" id="optPtwRiskLevel" required>
-                                                <option value="" disabled selected>Select Risk Level</option>
+                                                <option value="" disabled>Select Risk Level</option>
                                                 <option value="LOW">Low Risk</option>
                                                 <option value="MEDIUM">Medium Risk</option>
-                                                <option value="HIGH">High Risk</option>
+                                                <option value="HIGH" selected>High Risk</option>
                                                 <option value="CRITICAL">Critical Risk</option>
                                             </select>
                                             <div class="description">Assess the overall risk level of the work activity</div>
@@ -307,7 +307,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="txtPtwHazards">Identified Hazards</label>
-                                            <textarea id="txtPtwHazards" class="form-control" rows="3" placeholder="List potential hazards"></textarea>
+                                            <textarea id="txtPtwHazards" class="form-control" rows="3" placeholder="List potential hazards">Fire hazards from welding operations, exposure to hot metal surfaces, potential gas leaks, electrical hazards from welding equipment</textarea>
                                             <div class="description">Identify all potential hazards associated with the work</div>
                                         </div>
                                     </div>
@@ -316,7 +316,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="txtPtwControlMeasures">Control Measures</label>
-                                            <textarea id="txtPtwControlMeasures" class="form-control" rows="3" placeholder="Describe safety control measures"></textarea>
+                                            <textarea id="txtPtwControlMeasures" class="form-control" rows="3" placeholder="Describe safety control measures">Fire watch assigned, fire extinguishers positioned, welding area isolated, gas monitors in place, emergency response team on standby, proper PPE mandatory</textarea>
                                             <div class="description">Detail the control measures to mitigate identified risks</div>
                                         </div>
                                     </div>
@@ -338,7 +338,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="txtPtwApplicantName">Applicant Name *</label>
-                                            <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant">
+                                            <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant" value="John Smith">
                                             <div class="description">Name of the person applying for the permit</div>
                                             <div class="invalid-feedback" id="txtPtwApplicantNameErr"></div>
                                         </div>
@@ -346,14 +346,14 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="txtPtwApplicantContact">Contact Number</label>
-                                            <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number">
+                                            <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number" value="012-345-6789">
                                             <div class="description">Contact number for emergency communication</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="txtPtwApplicantDept">Department/Company</label>
-                                            <input type="text" id="txtPtwApplicantDept" class="form-control" placeholder="Department or company name">
+                                            <input type="text" id="txtPtwApplicantDept" class="form-control" placeholder="Department or company name" value="Maintenance Department">
                                             <div class="description">Organizational affiliation of the applicant</div>
                                         </div>
                                     </div>
@@ -362,14 +362,14 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="txtPtwContractorCompany">Contractor Company</label>
-                                            <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Contractor company name">
+                                            <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Contractor company name" value="ABC Welding Services Sdn Bhd">
                                             <div class="description">Name of contracting company (if applicable)</div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="txtPtwRemarks">Remarks</label>
-                                            <textarea id="txtPtwRemarks" class="form-control" rows="2" placeholder="Additional notes or remarks"></textarea>
+                                            <textarea id="txtPtwRemarks" class="form-control" rows="2" placeholder="Additional notes or remarks">Critical repair work - requires immediate attention. Coordinate with operations team before starting.</textarea>
                                             <div class="description">Any additional information or special notes</div>
                                         </div>
                                     </div>
@@ -458,18 +458,115 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <button class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveDraft">
-                            <i class="fas fa-save mr-2"></i> Save as Draft
-                        </button>
-                        <button class="btn btn-primary px-5 py-3 ml-3" id="btnSubmitApproval">
-                            <i class="fas fa-paper-plane mr-2"></i> Submit for Approval
-                        </button>
-                        <button class="btn btn-outline-secondary px-5 py-3 ml-3" onclick="window.location.href='ptw_management.html'">
-                            <i class="fas fa-times mr-2"></i> Cancel
-                        </button>
+                <!-- Approval Section (Hidden by default, shown for reviewers) -->
+                <div id="approvalSection" class="config-section" style="display: none;">
+                    <div class="config-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-clipboard-check mr-2"></i>
+                            Approval Chain
+                        </h4>
+                    </div>
+                    <div class="config-body">
+                        <div class="row">
+                            <!-- Supervisor Approval Block -->
+                            <div class="col-md-4" id="supervisorApprovalBlock">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0"><i class="fas fa-user-tie mr-2"></i>Supervisor</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Approved By:</label>
+                                            <input type="text" id="supervisorName" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date:</label>
+                                            <input type="text" id="supervisorDate" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status:</label>
+                                            <span id="supervisorStatus" class="badge badge-info">Pending</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Remarks:</label>
+                                            <textarea id="supervisorRemarks" class="form-control" rows="2" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SHE Approval Block -->
+                            <div class="col-md-4" id="sheApprovalBlock">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0"><i class="fas fa-hard-hat mr-2"></i>SHE Officer</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Approved By:</label>
+                                            <input type="text" id="sheName" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date:</label>
+                                            <input type="text" id="sheDate" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status:</label>
+                                            <span id="sheStatus" class="badge badge-warning">Pending</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Remarks:</label>
+                                            <textarea id="sheRemarks" class="form-control" rows="2" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FM Approval Block -->
+                            <div class="col-md-4" id="fmApprovalBlock">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-user-cog mr-2"></i>Facility Manager</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Approved By:</label>
+                                            <input type="text" id="fmName" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date:</label>
+                                            <input type="text" id="fmDate" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status:</label>
+                                            <span id="fmStatus" class="badge badge-secondary">Pending</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Remarks:</label>
+                                            <textarea id="fmRemarks" class="form-control" rows="2" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Action Buttons Section -->
+                <div id="actionButtonsSection">
+                    <!-- Default Action Buttons -->
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveDraft">
+                                <i class="fas fa-save mr-2"></i> Save as Draft
+                            </button>
+                            <button type="button" class="btn btn-primary px-5 py-3 ml-3" id="btnSubmitApproval">
+                                <i class="fas fa-paper-plane mr-2"></i> Submit for Approval
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary px-5 py-3 ml-3" onclick="window.location.href='ptw_management.html'">
+                                <i class="fas fa-times mr-2"></i> Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -515,6 +612,17 @@
     document.addEventListener('DOMContentLoaded', function () {
         ShowLoader();
         
+        // Set default dates for testing
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const todayStr = today.toISOString().split('T')[0];
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        document.getElementById('dtPtwValidFrom').value = todayStr;
+        document.getElementById('dtPtwValidTo').value = tomorrowStr;
+        
         setTimeout(function () {
             try {
                 initiatePages();
@@ -531,8 +639,15 @@
                 ptwFormClass_.setRefUser(refUser_);
                 ptwFormClass_.init();
                 
+                // Prevent form submission
+                $('#formPtw').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Form submission prevented');
+                    return false;
+                });
+                
                 // Prevent MDB from transforming specific dropdowns
-                preventMDBDropdownTransformation();
+                initializeDropdownProtection();
                 
                 // Make globally accessible for debugging
                 window.ptwFormClass_ = ptwFormClass_;
@@ -543,6 +658,9 @@
             HideLoader();
         }, 300);
     });
+
+    // Flag to prevent multiple dropdown protection runs
+    let dropdownProtectionInitialized = false;
 
     // Function to prevent MDB from transforming specific dropdowns
     function preventMDBDropdownTransformation() {
@@ -571,15 +689,21 @@
                 selectElement.style.webkitAppearance = 'menulist';
                 selectElement.style.mozAppearance = 'menulist';
                 selectElement.style.appearance = 'menulist';
-                
-                console.log(`Protected dropdown: ${selectId} from MDB transformation`);
             }
         });
+    }
+
+    // Run protection only once after DOM is ready
+    function initializeDropdownProtection() {
+        if (dropdownProtectionInitialized) {
+            return; // Already initialized, don't run again
+        }
         
-        // Re-run protection after any potential MDB initialization
-        setTimeout(preventMDBDropdownTransformation, 100);
+        dropdownProtectionInitialized = true;
+        preventMDBDropdownTransformation();
+        
+        // Run once more after a short delay to catch any late MDB initialization
         setTimeout(preventMDBDropdownTransformation, 500);
-        setTimeout(preventMDBDropdownTransformation, 1000);
     }
 
     // Alert functions similar to gamification_config

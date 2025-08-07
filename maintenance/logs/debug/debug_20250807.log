@@ -1,0 +1,10 @@
+[2025-08-07 14:30:15] DEBUG: Application started successfully
+[2025-08-07 14:30:16] DEBUG: Database connection established
+[2025-08-07 14:30:17] DEBUG: Loading user session for ID: 12345
+[2025-08-07 14:30:18] DEBUG: Query executed: SELECT * FROM users WHERE active=1
+[2025-08-07 14:30:19] DEBUG: Cache hit for key: user_preferences_12345
+[2025-08-07 14:30:20] DEBUG: Processing maintenance task: cleanup_temp_files
+[2025-08-07 14:30:21] DEBUG: Memory usage: 45.2MB
+[2025-08-07 14:30:22] DEBUG: Response time: 125ms
+[2025-08-07 14:30:23] DEBUG: Session cleanup completed
+[2025-08-07 14:30:24] DEBUG: Application ready for requests

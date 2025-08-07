@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS2 Interactive Data Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #9b59b6;
+            --light-bg: #ffffff;
+            --dark-bg: #2c3e50;
+            --border-color: #bdc3c7;
+            --hover-color: #ecf0f1;
+            --edit-color: #fff3cd;
+            --save-color: #d4edda;
+            --error-color: #f8d7da;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--primary-color);
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header-left h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-left p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .controls-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--primary-color);
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #58d68d);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #f7dc6f);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #ec7063);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #bb8fce);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #8e44ad, var(--info-color));
+        }
+        
+        .sort-indicator {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--info-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .sort-indicator.show {
+            display: block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .table-info {
+            background: linear-gradient(135deg, var(--info-color), #bb8fce);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-info-left h3 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .table-info-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 0.9em;
+        }
+        
+        .data-table-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .table-wrapper {
+            overflow: auto;
+            max-height: 70vh;
+            position: relative;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        
+        .data-table th:hover {
+            background: linear-gradient(135deg, #34495e, var(--primary-color));
+        }
+        
+        .data-table th.sortable {
+            position: relative;
+        }
+        
+        .data-table th.sortable::after {
+            content: '⇅';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.6;
+            font-size: 12px;
+        }
+        
+        .data-table th.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+            color: #f39c12;
+        }
+        
+        .data-table th.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+            color: #f39c12;
+        }
+        
+        .data-table th:last-child {
+            border-right: none;
+        }
+        
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #f0f0f0;
+            position: relative;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .data-table td:last-child {
+            border-right: none;
+        }
+        
+        .data-table tr:hover {
+            background: var(--hover-color);
+        }
+        
+        .data-table tr.editing {
+            background: var(--edit-color);
+        }
+        
+        .data-table tr.changed {
+            background: var(--save-color);
+        }
+        
+        .data-table tr.error {
+            background: var(--error-color);
+        }
+        
+        .editable-cell {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .editable-cell:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .foreign-key-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+        
+        .foreign-key-link:hover {
+            background: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .foreign-key-link::after {
+            content: '🔗';
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        
+        .foreign-key-link:hover::after {
+            opacity: 1;
+        }
+        
+        .loading-link {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .loading-link::after {
+            content: '⏳';
+        }
+        
+        .cell-editor {
+            width: 100%;
+            border: 2px solid var(--secondary-color);
+            padding: 8px;
+            font-size: 14px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .cell-editor:focus {
+            outline: none;
+            border-color: var(--success-color);
+        }
+        
+        .row-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .row-btn {
+            padding: 5px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .row-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .btn-edit {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-save {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .pagination {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .pagination-info {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .page-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .page-btn.active {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status-bar {
+            padding: 15px 30px;
+            background: #e9ecef;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        
+        .status-left {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .changes-summary {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 2px solid var(--warning-color);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 300px;
+            display: none;
+        }
+        
+        .changes-summary.show {
+            display: block;
+        }
+        
+        .changes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+        
+        .changes-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .change-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success { background: var(--success-color); }
+        .notification.error { background: var(--danger-color); }
+        .notification.warning { background: var(--warning-color); }
+        .notification.info { background: var(--secondary-color); }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .controls {
+                padding: 15px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls-left, .controls-right {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .controls-right .btn {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .table-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .table-info-stats {
+                justify-content: center;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+            
+            .changes-summary {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <span>📊</span>
+                    Interactive Data Editor
+                </h1>
+                <p>Edit database records with spreadsheet-like interface</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-secondary" onclick="goBack()">
+                    ← Back to Dashboard
+                </button>
+                <button class="btn btn-primary" onclick="showHelp()">
+                    ❓ Help
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-left">
+                <div class="form-group">
+                    <label for="tableSelect">Select Table:</label>
+                    <select id="tableSelect" onchange="loadTable()">
+                        <option value="">Choose a table...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recordsPerPage">Records per page:</label>
+                    <select id="recordsPerPage" onchange="changePageSize()">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchInput">Search:</label>
+                    <input type="text" id="searchInput" placeholder="Search records..." onkeyup="searchRecords()">
+                </div>
+            </div>
+            
+            <div class="controls-right">
+                <button class="btn btn-info" onclick="clearSort()" disabled id="clearSortBtn">
+                    🔄 Clear Sort
+                </button>
+                <button class="btn btn-success" onclick="addNewRecord()" disabled id="addRecordBtn">
+                    ➕ Add Record
+                </button>
+                <button class="btn btn-warning" onclick="saveAllChanges()" disabled id="saveAllBtn">
+                    💾 Save All (<span id="changeCount">0</span>)
+                </button>
+                <button class="btn btn-secondary" onclick="reloadTable()" disabled id="reloadBtn">
+                    🔄 Reload
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div id="tableInfo" class="table-info" style="display: none;">
+                <div class="table-info-left">
+                    <h3 id="tableTitle">Table Name</h3>
+                    <div class="table-info-stats">
+                        <span>📊 <span id="totalRecords">0</span> records</span>
+                        <span>📄 <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                        <span>🔧 <span id="editableColumns">0</span> editable columns</span>
+                    </div>
+                </div>
+                <div class="table-info-right">
+                    <button class="btn btn-primary" onclick="showTableSchema()">
+                        🔍 View Schema
+                    </button>
+                </div>
+            </div>
+            
+            <div id="noTableSelected" class="text-center" style="padding: 60px; color: #7f8c8d;">
+                <h3>📋 Select a table to start editing</h3>
+                <p>Choose a table from the dropdown above to view and edit its data</p>
+            </div>
+            
+            <div id="dataTableContainer" class="data-table-container" style="display: none;">
+                <div class="table-wrapper">
+                    <table id="dataTable" class="data-table">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="showingTotal">0</span> records
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="page-btn" onclick="goToPage(1)" id="firstPageBtn">⏮️ First</button>
+                        <button class="page-btn" onclick="goToPage(currentPage - 1)" id="prevPageBtn">⬅️ Previous</button>
+                        <span id="pageNumbers"></span>
+                        <button class="page-btn" onclick="goToPage(currentPage + 1)" id="nextPageBtn">➡️ Next</button>
+                        <button class="page-btn" onclick="goToPage(totalPages)" id="lastPageBtn">⏭️ Last</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-left">
+                <div class="status-indicator">
+                    <div class="indicator-dot"></div>
+                    <span id="connectionStatus">Connected to database</span>
+                </div>
+                <span id="lastAction">Ready</span>
+            </div>
+            <div class="status-right">
+                <span id="currentTime"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sort Indicator -->
+    <div id="sortIndicator" class="sort-indicator">
+        <strong>Sorted by:</strong> <span id="sortInfo">None</span>
+    </div>
+    
+    <!-- Changes Summary Panel -->
+    <div id="changesSummary" class="changes-summary">
+        <div class="changes-header">
+            <span>📝 Pending Changes</span>
+            <button onclick="toggleChangesSummary()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+        </div>
+        <div id="changesList" class="changes-list"></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-success" onclick="saveAllChanges()" style="flex: 1;">💾 Save All</button>
+            <button class="btn btn-warning" onclick="discardChanges()" style="flex: 1;">🗑️ Discard</button>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
+            <div class="spinner"></div>
+            <div style="margin-top: 15px; font-weight: 500;">Processing...</div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentTable = '';
+        let currentData = [];
+        let tableSchema = {};
+        let pendingChanges = {};
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalRecords = 0;
+        let recordsPerPage = 25;
+        let editingCell = null;
+        let searchTerm = '';
+        let sortColumn = '';
+        let sortDirection = 'ASC';
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTables();
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+        });
+        
+        // Handle keyboard shortcuts
+        function handleKeyboardShortcuts(e) {
+            // Only handle shortcuts when not editing a cell
+            if (editingCell) return;
+            
+            // Ctrl/Cmd + R: Reload table
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                if (currentTable) {
+                    reloadTable();
+                }
+            }
+            
+            // Ctrl/Cmd + S: Save changes
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (Object.keys(pendingChanges).length > 0) {
+                    saveAllChanges();
+                }
+            }
+            
+            // Escape: Clear search and sort
+            if (e.key === 'Escape') {
+                document.getElementById('searchInput').value = '';
+                searchTerm = '';
+                if (sortColumn) {
+                    clearSort();
+                } else {
+                    loadTableData();
+                }
+            }
+        }
+        
+        // Update current time
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Load available tables
+        async function loadTables() {
+            try {
+                showLoading();
+                const response = await fetch('data_editor.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'action=list_tables'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('tableSelect');
+                    select.innerHTML = '<option value="">Choose a table...</option>';
+                    
+                    data.tables.forEach(table => {
+                        const option = document.createElement('option');
+                        option.value = table.name;
+                        option.textContent = `${table.name} (${table.rows} rows)`;
+                        select.appendChild(option);
+                    });
+                    
+                    updateStatus('Tables loaded successfully');
+                } else {
+                    showNotification('Error loading tables: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Network error: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Load selected table data
+        async function loadTable() {
+            const tableName = document.getElementById('tableSelect').value;
+            if (!tableName) {
+                resetInterface();
+                return;
+            }
+            
+            currentTable = tableName;
+            currentPage = 1;
+            searchTerm = '';
+            sortColumn = '';
+            sortDirection = 'ASC';
+            document.getElementById('searchInput').value = '';
+            
+            await loadTableSchema();
+            await loadTableData();
+            
+            // Enable controls
+            document.getElementById('addRecordBtn').disabled = false;
+            document.getElementById('reloadBtn').disabled = false;
+            document.getElementById('clearSortBtn').disabled = false;
+        }
+        
+        // Load table schema
+        async function loadTableSchema() {
+            try {
+                const response = await fetch('data_editor.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=table_schema&table=${encodeURIComponent(currentTable)}`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    tableSchema = data.schema;
+                    updateTableInfo();
+                } else {
+                    showNotification('Error loading table schema: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Schema error: ' + error.message, 'error');
+            }
+        }
+        
+        // Load table data with pagination
+        async function loadTableData() {
+            try {
+                showLoading();
+                
+                const params = new URLSearchParams({
+                    action: 'table_data',
+                    table: currentTable,
+                    page: currentPage,
+                    limit: recordsPerPage,
+                    search: searchTerm,
+                    sort_column: sortColumn,
+                    sort_direction: sortDirection
+                });
+                
+                const response = await fetch('data_editor.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentData = data.records;
+                    totalRecords = data.total;
+                    totalPages = Math.ceil(totalRecords / recordsPerPage);
+                    
+                    renderTable();
+                    updatePagination();
+                    updateStatus(`Loaded ${data.records.length} records from ${currentTable}${sortColumn ? ` (sorted by ${sortColumn} ${sortDirection})` : ''}`);
+                } else {
+                    showNotification('Error loading data: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Data loading error: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Render data table
+        function renderTable() {
+            if (!currentData.length) {
+                document.getElementById('dataTableContainer').style.display = 'none';
+                document.getElementById('noTableSelected').innerHTML = 
+                    '<h3>📭 No records found</h3><p>The table is empty or no records match your search criteria</p>';
+                document.getElementById('noTableSelected').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('noTableSelected').style.display = 'none';
+            document.getElementById('dataTableContainer').style.display = 'block';
+            
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            
+            // Create header
+            const columns = Object.keys(currentData[0]);
+            const primaryKey = tableSchema.primary_key;
+            
+            tableHead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                const columnInfo = tableSchema.columns.find(col => col.COLUMN_NAME === column);
+                const isPrimaryKey = primaryKey.includes(column);
+                
+                // Add sortable class and click handler
+                th.classList.add('sortable');
+                th.onclick = () => sortByColumn(column);
+                
+                // Add sort indicator if this column is currently sorted
+                if (sortColumn === column) {
+                    th.classList.add(sortDirection === 'ASC' ? 'sort-asc' : 'sort-desc');
+                }
+                
+                th.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; padding-right: 20px;">
+                        ${isPrimaryKey ? '🔑' : ''}
+                        ${column}
+                        <span style="font-size: 11px; opacity: 0.7;">
+                            ${columnInfo ? columnInfo.COLUMN_TYPE : ''}
+                        </span>
+                    </div>
+                `;
+                th.title = `Click to sort by ${column}`;
+                headerRow.appendChild(th);
+            });
+            
+            // Add actions column
+            const actionsHeader = document.createElement('th');
+            actionsHeader.textContent = 'Actions';
+            actionsHeader.style.width = '120px';
+            headerRow.appendChild(actionsHeader);
+            
+            tableHead.appendChild(headerRow);
+            
+            // Create body
+            tableBody.innerHTML = '';
+            
+            currentData.forEach((record, index) => {
+                const row = document.createElement('tr');
+                row.dataset.index = index;
+                row.dataset.originalData = JSON.stringify(record);
+                
+                columns.forEach(column => {
+                    const td = document.createElement('td');
+                    const columnInfo = tableSchema.columns.find(col => col.COLUMN_NAME === column);
+                    const isPrimaryKey = primaryKey.includes(column);
+                    const isEditable = !isPrimaryKey && columnInfo && !columnInfo.EXTRA.includes('auto_increment');
+                    const isForeignKey = tableSchema.foreign_key_map && tableSchema.foreign_key_map[column];
+                    
+                    const cellValue = record[column];
+                    td.dataset.column = column;
+                    td.dataset.originalValue = cellValue;
+                    
+                    // Handle foreign key links
+                    if (isForeignKey && cellValue !== null && cellValue !== '') {
+                        const fkInfo = tableSchema.foreign_key_map[column];
+                        td.innerHTML = `
+                            <a href="#" class="foreign-key-link" 
+                               onclick="navigateToForeignKey('${fkInfo.referenced_table}', '${fkInfo.referenced_column}', '${cellValue}', this)"
+                               title="Click to view ${fkInfo.referenced_table} record">
+                                ${cellValue}
+                            </a>
+                        `;
+                    } else {
+                        td.textContent = cellValue !== null ? cellValue : 'NULL';
+                    }
+                    
+                    if (isEditable) {
+                        td.classList.add('editable-cell');
+                        if (!isForeignKey) { // Don't add edit handler to foreign key links
+                            td.onclick = () => editCell(td);
+                        }
+                        td.title = `Click to edit ${column}`;
+                    } else {
+                        td.style.opacity = '0.7';
+                        td.title = isPrimaryKey ? 'Primary key (not editable)' : 'Auto-generated (not editable)';
+                    }
+                    
+                    row.appendChild(td);
+                });
+                
+                // Add actions column
+                const actionsCell = document.createElement('td');
+                actionsCell.innerHTML = `
+                    <div class="row-actions">
+                        <button class="row-btn btn-edit" onclick="editRow(${index})" title="Edit row">✏️</button>
+                        <button class="row-btn btn-delete" onclick="deleteRow(${index})" title="Delete row">🗑️</button>
+                    </div>
+                `;
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Edit individual cell
+        function editCell(cell) {
+            if (editingCell) {
+                saveCell();
+            }
+            
+            editingCell = cell;
+            const currentValue = cell.dataset.originalValue || '';
+            const row = cell.parentNode;
+            
+            row.classList.add('editing');
+            
+            // Create input editor
+            const editor = document.createElement('input');
+            editor.type = 'text';
+            editor.className = 'cell-editor';
+            editor.value = currentValue === 'null' ? '' : currentValue;
+            
+            cell.innerHTML = '';
+            cell.appendChild(editor);
+            
+            editor.focus();
+            editor.select();
+            
+            // Handle save/cancel
+            editor.onblur = saveCell;
+            editor.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveCell();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit();
+                }
+            };
+        }
+        
+        // Save cell edit
+        function saveCell() {
+            if (!editingCell) return;
+            
+            const editor = editingCell.querySelector('.cell-editor');
+            if (!editor) return;
+            
+            const newValue = editor.value.trim();
+            const originalValue = editingCell.dataset.originalValue;
+            const column = editingCell.dataset.column;
+            const row = editingCell.parentNode;
+            const rowIndex = row.dataset.index;
+            
+            // Update cell display
+            editingCell.textContent = newValue || 'NULL';
+            row.classList.remove('editing');
+            
+            // Track change
+            if (newValue !== originalValue) {
+                if (!pendingChanges[rowIndex]) {
+                    pendingChanges[rowIndex] = {
+                        type: 'update',
+                        original: JSON.parse(row.dataset.originalData),
+                        changes: {}
+                    };
+                }
+                
+                pendingChanges[rowIndex].changes[column] = newValue;
+                row.classList.add('changed');
+                
+                updateChangesDisplay();
+            } else {
+                // Remove change if value reverted
+                if (pendingChanges[rowIndex] && pendingChanges[rowIndex].changes[column] !== undefined) {
+                    delete pendingChanges[rowIndex].changes[column];
+                    
+                    if (Object.keys(pendingChanges[rowIndex].changes).length === 0) {
+                        delete pendingChanges[rowIndex];
+                        row.classList.remove('changed');
+                    }
+                    
+                    updateChangesDisplay();
+                }
+            }
+            
+            editingCell = null;
+        }
+        
+        // Cancel cell edit
+        function cancelEdit() {
+            if (!editingCell) return;
+            
+            const originalValue = editingCell.dataset.originalValue;
+            const row = editingCell.parentNode;
+            
+            editingCell.textContent = originalValue !== null ? originalValue : 'NULL';
+            row.classList.remove('editing');
+            editingCell = null;
+        }
+        
+        // Update changes display
+        function updateChangesDisplay() {
+            const changeCount = Object.keys(pendingChanges).length;
+            document.getElementById('changeCount').textContent = changeCount;
+            document.getElementById('saveAllBtn').disabled = changeCount === 0;
+            
+            if (changeCount > 0) {
+                document.getElementById('changesSummary').classList.add('show');
+                
+                const changesList = document.getElementById('changesList');
+                changesList.innerHTML = '';
+                
+                Object.entries(pendingChanges).forEach(([rowIndex, change]) => {
+                    const changeItem = document.createElement('div');
+                    changeItem.className = 'change-item';
+                    
+                    const changedColumns = Object.keys(change.changes);
+                    changeItem.innerHTML = `
+                        <strong>Row ${parseInt(rowIndex) + 1}</strong><br>
+                        ${changedColumns.map(col => 
+                            `${col}: <em>${change.original[col]}</em> → <strong>${change.changes[col]}</strong>`
+                        ).join('<br>')}
+                    `;
+                    
+                    changesList.appendChild(changeItem);
+                });
+            } else {
+                document.getElementById('changesSummary').classList.remove('show');
+            }
+        }
+        
+        // Save all pending changes
+        async function saveAllChanges() {
+            if (Object.keys(pendingChanges).length === 0) {
+                showNotification('No changes to save', 'info');
+                return;
+            }
+            
+            try {
+                showLoading();
+                
+                const response = await fetch('data_editor.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_changes',
+                        table: currentTable,
+                        changes: pendingChanges
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`Successfully saved ${data.updated} record(s)`, 'success');
+                    pendingChanges = {};
+                    updateChangesDisplay();
+                    
+                    // Remove changed styling
+                    document.querySelectorAll('.changed').forEach(row => {
+                        row.classList.remove('changed');
+                    });
+                    
+                    // Reload to get fresh data
+                    await loadTableData();
+                } else {
+                    showNotification('Error saving changes: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Save error: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Discard all changes
+        function discardChanges() {
+            if (confirm('Are you sure you want to discard all pending changes?')) {
+                pendingChanges = {};
+                updateChangesDisplay();
+                loadTableData(); // Reload original data
+                showNotification('Changes discarded', 'info');
+            }
+        }
+        
+        // Pagination functions
+        function goToPage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            
+            currentPage = page;
+            loadTableData();
+        }
+        
+        function changePageSize() {
+            recordsPerPage = parseInt(document.getElementById('recordsPerPage').value);
+            currentPage = 1;
+            loadTableData();
+        }
+        
+        function updatePagination() {
+            const start = (currentPage - 1) * recordsPerPage + 1;
+            const end = Math.min(currentPage * recordsPerPage, totalRecords);
+            
+            document.getElementById('showingStart').textContent = start;
+            document.getElementById('showingEnd').textContent = end;
+            document.getElementById('showingTotal').textContent = totalRecords;
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            // Update pagination buttons
+            document.getElementById('firstPageBtn').disabled = currentPage === 1;
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            document.getElementById('lastPageBtn').disabled = currentPage === totalPages;
+            
+            // Update page numbers
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+            
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToPage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+        
+        // Search functionality
+        function searchRecords() {
+            searchTerm = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            loadTableData();
+        }
+        
+        // Sort by column
+        function sortByColumn(column) {
+            // If clicking the same column, toggle direction
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'ASC' ? 'DESC' : 'ASC';
+            } else {
+                // New column, default to ASC
+                sortColumn = column;
+                sortDirection = 'ASC';
+            }
+            
+            // Reset to first page when sorting
+            currentPage = 1;
+            
+            // Update sort indicator
+            updateSortIndicator();
+            
+            // Reload data with new sort
+            loadTableData();
+            
+            showNotification(`Sorting by ${column} (${sortDirection})`, 'info', 2000);
+        }
+        
+        // Navigate to foreign key reference
+        async function navigateToForeignKey(referencedTable, referencedColumn, value, linkElement) {
+            if (!referencedTable || !referencedColumn || !value) {
+                showNotification('Invalid foreign key reference', 'error');
+                return;
+            }
+            
+            // Check for unsaved changes
+            if (Object.keys(pendingChanges).length > 0) {
+                const proceed = confirm(
+                    `You have ${Object.keys(pendingChanges).length} unsaved changes. ` +
+                    'Do you want to save them before navigating to the referenced record?'
+                );
+                
+                if (proceed) {
+                    try {
+                        await saveAllChanges();
+                    } catch (error) {
+                        showNotification('Failed to save changes: ' + error.message, 'error');
+                        return;
+                    }
+                }
+            }
+            
+            // Add loading state
+            linkElement.classList.add('loading-link');
+            
+            try {
+                // Switch to the referenced table
+                const tableSelect = document.getElementById('tableSelect');
+                tableSelect.value = referencedTable;
+                
+                // Reset state
+                currentTable = referencedTable;
+                currentPage = 1;
+                sortColumn = referencedColumn;
+                sortDirection = 'ASC';
+                searchTerm = value.toString();
+                
+                // Update search input to filter for the specific value
+                document.getElementById('searchInput').value = searchTerm;
+                
+                // Load the referenced table
+                await loadTableSchema();
+                await loadTableData();
+                
+                // Enable controls
+                document.getElementById('addRecordBtn').disabled = false;
+                document.getElementById('reloadBtn').disabled = false;
+                document.getElementById('clearSortBtn').disabled = false;
+                
+                // Update sort indicator
+                updateSortIndicator();
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                showNotification(
+                    `Navigated to ${referencedTable} filtered by ${referencedColumn} = "${value}"`, 
+                    'success', 
+                    3000
+                );
+                
+            } catch (error) {
+                showNotification('Navigation error: ' + error.message, 'error');
+            } finally {
+                linkElement.classList.remove('loading-link');
+            }
+        }
+        
+        // Enhanced foreign key navigation with exact record highlighting
+        async function navigateToExactRecord(referencedTable, referencedColumn, value, linkElement) {
+            if (!referencedTable || !referencedColumn || !value) {
+                showNotification('Invalid foreign key reference', 'error');
+                return;
+            }
+            
+            // Add loading state
+            linkElement.classList.add('loading-link');
+            
+            try {
+                // First, get display information for this foreign key
+                const response = await fetch('data_editor.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=get_foreign_key_display&table=${encodeURIComponent(referencedTable)}&column=${encodeURIComponent(referencedColumn)}&value=${encodeURIComponent(value)}`
+                });
+                
+                const fkData = await response.json();
+                
+                if (fkData.success) {
+                    // Navigate to the table and search for the record
+                    await navigateToForeignKey(referencedTable, referencedColumn, value, linkElement);
+                    
+                    showNotification(
+                        `Found: ${fkData.display_value} in ${referencedTable}`, 
+                        'info', 
+                        4000
+                    );
+                } else {
+                    showNotification('Referenced record not found: ' + fkData.error, 'warning');
+                }
+                
+            } catch (error) {
+                showNotification('Error loading referenced record: ' + error.message, 'error');
+            } finally {
+                linkElement.classList.remove('loading-link');
+            }
+        }
+        
+        // Clear sorting
+        function clearSort() {
+            sortColumn = '';
+            sortDirection = 'ASC';
+            currentPage = 1;
+            
+            // Hide sort indicator
+            document.getElementById('sortIndicator').classList.remove('show');
+            
+            loadTableData();
+            showNotification('Sorting cleared', 'info', 2000);
+        }
+        
+        // Update sort indicator
+        function updateSortIndicator() {
+            const indicator = document.getElementById('sortIndicator');
+            const sortInfo = document.getElementById('sortInfo');
+            
+            if (sortColumn) {
+                sortInfo.textContent = `${sortColumn} (${sortDirection === 'ASC' ? 'A→Z' : 'Z→A'})`;
+                indicator.classList.add('show');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 5000);
+            } else {
+                indicator.classList.remove('show');
+            }
+        }
+        
+        // Update table info
+        function updateTableInfo() {
+            document.getElementById('tableTitle').textContent = currentTable;
+            document.getElementById('editableColumns').textContent = 
+                tableSchema.columns.filter(col => 
+                    !tableSchema.primary_key.includes(col.COLUMN_NAME) && 
+                    !col.EXTRA.includes('auto_increment')
+                ).length;
+            
+            document.getElementById('tableInfo').style.display = 'block';
+        }
+        
+        // Reset interface
+        function resetInterface() {
+            currentTable = '';
+            currentData = [];
+            tableSchema = {};
+            pendingChanges = {};
+            sortColumn = '';
+            sortDirection = 'ASC';
+            
+            document.getElementById('tableInfo').style.display = 'none';
+            document.getElementById('dataTableContainer').style.display = 'none';
+            document.getElementById('noTableSelected').style.display = 'block';
+            document.getElementById('noTableSelected').innerHTML = 
+                '<h3>📋 Select a table to start editing</h3><p>Choose a table from the dropdown above to view and edit its data</p>';
+            
+            // Disable controls
+            document.getElementById('addRecordBtn').disabled = true;
+            document.getElementById('reloadBtn').disabled = true;
+            document.getElementById('clearSortBtn').disabled = true;
+            
+            updateChangesDisplay();
+        }
+        
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function showNotification(message, type = 'info', duration = 5000) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('lastAction').textContent = message;
+        }
+        
+        function reloadTable() {
+            if (currentTable) {
+                loadTableData();
+            }
+        }
+        
+        function toggleChangesSummary() {
+            document.getElementById('changesSummary').classList.toggle('show');
+        }
+        
+        function goBack() {
+            window.location.href = 'dashboard.html';
+        }
+        
+        function showHelp() {
+            window.open('help_data_editor.html', '_blank', 'width=800,height=600,scrollbars=yes');
+        }
+        
+        // Additional CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
