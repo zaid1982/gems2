@@ -4554,8 +4554,7 @@ class Class_ppm {
                  throw new Exception('[' . __LINE__ . '] - Failed to delete PPM Set: ' . $ppmSetId);
             }
 
-            // TODO: Replace with valid audit ID - temporarily disabled to fix database error
-            // $this->fn_general->save_audit('X_AUDIT_ID_FOR_DELETE_SET', $userId, 'Deleted PPM Set ID = ' . $ppmSetId);
+            $this->fn_general->save_audit('X_AUDIT_ID_FOR_DELETE_SET', $userId, 'Deleted PPM Set ID = ' . $ppmSetId);
             return true;
 
         } catch (Exception $ex) {

@@ -605,6 +605,40 @@
                 </div>
             </div>
             
+            <!-- Schema Extractor -->
+            <div class="tool-card featured">
+                <div class="tool-header">
+                    <div class="tool-icon">🗄️</div>
+                    <div>
+                        <div class="tool-title">
+                            Schema Extractor
+                            <span class="badge badge-new">New</span>
+                        </div>
+                        <div class="tool-subtitle">Extract and compare database schemas</div>
+                    </div>
+                </div>
+                <div class="tool-description">
+                    Extract complete database schemas and compare between development and production environments. Perfect for identifying structural differences.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Complete schema extraction with all details</li>
+                        <li>Side-by-side schema comparison</li>
+                        <li>Export to JSON, SQL, or CSV formats</li>
+                        <li>Table, column, and index analysis</li>
+                        <li>Foreign key relationship mapping</li>
+                    </ul>
+                </div>
+                <div class="tool-actions">
+                    <a href="schema_extractor.html" class="btn btn-warning" target="_blank">
+                        🚀 Launch Extractor
+                    </a>
+                    <a href="#" class="btn btn-secondary" onclick="showSchemaHelp()">
+                        📖 Quick Help
+                    </a>
+                </div>
+            </div>
+            
             <!-- Advanced Database Tool -->
                         <div class="tool-card" onclick="window.location.href='performance_dashboard.html'">
                 <div class="tool-icon">📊</div>
@@ -823,7 +857,7 @@
                 document.getElementById('db-size').textContent = 
                     data.info.size_mb ? `${data.info.size_mb} MB` : '-';
                 document.getElementById('connection-status').textContent = '✅ Connected';
-                document.getElementById('last-backup').textContent = '8';
+                document.getElementById('last-backup').textContent = '9';
             } else {
                 // Basic connection test response
                 document.getElementById('db-info').textContent = 
@@ -831,7 +865,7 @@
                 document.getElementById('table-count').textContent = data.table_count || '-';
                 document.getElementById('db-size').textContent = 'Unknown';
                 document.getElementById('connection-status').textContent = '✅ Connected';
-                document.getElementById('last-backup').textContent = '8';
+                document.getElementById('last-backup').textContent = '9';
             }
             
             dbStats = data;
@@ -934,6 +968,31 @@ ${JSON.stringify(data, null, 2)}
 • Tail shows last 50 lines automatically
 • Search is case-insensitive by default
 • Download large files for detailed analysis`);
+        }
+        
+        function showSchemaHelp() {
+            alert(`🗄️ Schema Extractor Quick Help
+
+🔍 Features:
+• Extract complete database schema information
+• Compare schemas between different environments
+• Export to multiple formats (JSON, SQL, CSV)
+• Analyze tables, columns, indexes, and foreign keys
+• Identify structural differences
+
+🚀 Quick Start:
+1. Click "Launch Extractor" to open the tool
+2. Use "Extract Schema" tab to get current database schema
+3. Use "Compare Schemas" tab to compare two schemas
+4. Upload JSON files or use current database
+5. Export results for documentation
+
+💡 Pro Tips:
+• JSON format preserves all schema details
+• Use for dev/prod environment comparison
+• Export CSV for spreadsheet analysis
+• Save extracted schemas for historical comparison
+• Check foreign key relationships and constraints`);
         }
         
         function showHelp() {
