@@ -44,6 +44,9 @@ class DbMysql {
             //self::$DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$DBH->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             self::$DBH->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+            
+            // Set SQL mode to allow empty strings in numeric columns (remove STRICT_TRANS_TABLES)
+            self::$DBH->exec("SET SESSION sql_mode = 'ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
         }
         catch(PDOException $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

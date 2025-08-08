@@ -1,14 +1,14 @@
 <?php
 
 class Constant {
-    //public static $dbUserName = 'root';
+    // public static $dbUserName = 'root';
     public static $dbUserName = 'gems';
     //public static $dbUserPassword = 'password';
     public static $dbUserPassword = 'Metadata@2025';
-    //public static $dbUserPassword = 'Globalfm@19';
+    // public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems';
     public static $dbHost = 'www.metadatasystem.my';
-    //public static $dbHost = '10.101.11.71';
+    // public static $dbHost = '10.101.11.69';
     //public static $folderDebug = '../../../logs/gems/debug/';
     //public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
