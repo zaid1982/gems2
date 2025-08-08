@@ -111,7 +111,7 @@ function MainWoAssign () {
                         return data !== null ? refWoType[data] : '';
                     }},
                 { mData: 'woTaskCreatedBy', mRender: function (data) {
-                        return data !== null ? refUser[data]['userFirstName'] : '';
+                        return (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
                     }},
                 { mData: 'taskTimeCreated'},
                 { mData: 'woTaskStatus', mRender: function (data) {
@@ -217,7 +217,7 @@ function MainWoAssign () {
                         return data !== null ? refWoType[data] : '';
                     }},
                 { mData: 'woTaskCreatedBy', mRender: function (data) {
-                        return data !== null ? refUser[data]['userFirstName'] : '';
+                        return (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
                     }},
                 { mData: 'woTaskSeverity', mRender: function (data) {
                         return data !== null ? refSeverity[data]['severityName'] : '';
@@ -277,6 +277,13 @@ function MainWoAssign () {
                 const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/pending_assign/site/${userSite}` : 'wo_v3/pending_assign';
                 mzFetch(apiUrl).then(res => {
                     $('#badgeWssTotalPending').text(res.length);
+                    
+                    // Check if refUser is empty and try to refresh
+                    if (!refUser || Object.keys(refUser).length === 0) {
+                        console.warn('refUser is empty, attempting to refresh reference data');
+                        self.refreshRefData();
+                    }
+                    
                     oTableWssPending.clear().rows.add(res).draw();
                     runPending = false;
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
@@ -336,5 +343,58 @@ function MainWoAssign () {
 
     this.setRefSeverity = function (_refSeverity) {
         refSeverity = _refSeverity;
+    };
+
+    this.refreshRefData = function () {
+        try {
+            const versionLocal = mzGetDataVersion();
+            const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal, 'user/ref');
+            const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal, 'status/ref');
+            const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal, 'severityId', [], 'severity');
+            
+            refUser = refUser_;
+            refStatus = refStatus_;
+            refSeverity = refSeverity_;
+            
+            // Redraw tables to reflect updated data
+            if (oTableWssPending) {
+                oTableWssPending.draw();
+            }
+            if (oTableWssSubmitted) {
+                oTableWssSubmitted.draw();
+            }
+            
+            console.log('Reference data refreshed successfully');
+            return true;
+        } catch (e) {
+            console.error('Failed to refresh reference data:', e.message);
+            toastr['error']('Failed to refresh reference data: ' + e.message, _ALERT_TITLE_ERROR);
+            return false;
+        }
+    };
+
+    this.debugRefData = function () {
+        console.log('=== Debug Reference Data ===');
+        console.log('refUser:', refUser);
+        console.log('refStatus:', refStatus);
+        console.log('refSeverity:', refSeverity);
+        console.log('refUser keys count:', refUser ? Object.keys(refUser).length : 'null/undefined');
+        
+        // Test specific user IDs
+        const testUserIds = [1, 1388, 1389];
+        testUserIds.forEach(userId => {
+            if (refUser && refUser[userId]) {
+                console.log(`User ${userId}:`, refUser[userId]);
+            } else {
+                console.log(`User ${userId}: NOT FOUND`);
+            }
+        });
+        
+        return {
+            refUser: refUser,
+            refStatus: refStatus,
+            refSeverity: refSeverity,
+            userCount: refUser ? Object.keys(refUser).length : 0
+        };
     };
 }

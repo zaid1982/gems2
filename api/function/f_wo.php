@@ -266,6 +266,10 @@ class Class_wo {
                 $siteId = Class_db::getInstance()->db_select_col('cli_site', array('group_id'=>$groupId), 'site_id', null, 1);
             }
 
+            // Convert empty strings to NULL for longitude and latitude to prevent MySQL errors
+            $woTaskLongitude = (empty($woTaskLongitude) || $woTaskLongitude === '') ? null : $woTaskLongitude;
+            $woTaskLatitude = (empty($woTaskLatitude) || $woTaskLatitude === '') ? null : $woTaskLatitude;
+
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'zone_id'=>$zoneId, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
             // MODIFIED: Remove old conditional block
@@ -718,33 +722,36 @@ class Class_wo {
     
             $createdBy = $dataLocal['wo_task_created_by'];
     
-            $result = array();
-            $arrStatus = $this->fn_general->getRefStatus();
-            $arrUserFullName = $this->fn_general->getUserFullName();
-            $arrSiteName = $this->fn_general->getSiteName();
-            $arrWoType = $this->get_wo_type();
+        $result = array();
+        $arrStatus = $this->fn_general->getRefStatus();
+        $arrUserFullName = $this->fn_general->getUserFullName();
+        $arrSiteName = $this->fn_general->getSiteName();
+        $arrWoType = $this->get_wo_type();
+
+        // Add debug logging for staging diagnosis
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Reference arrays loaded - Status: ' . count($arrStatus) . ', Users: ' . count($arrUserFullName) . ', Sites: ' . count($arrSiteName) . ', WoTypes: ' . count($arrWoType));
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Looking for createdBy: ' . $createdBy . ', siteId: ' . ($dataLocal['site_id'] ?? 'null') . ', status: ' . ($dataLocal['wo_task_status'] ?? 'null') . ', type: ' . ($dataLocal['wo_task_type'] ?? 'null'));        $result['woTaskId'] = $dataLocal['wo_task_id'];
+        $result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' ? '-' : $dataLocal['wo_task_no'];
+        $result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
+        $result['woTaskReportedBy'] = isset($arrUserFullName[intval($createdBy)]) ? $arrUserFullName[intval($createdBy)] : 'Unknown User';
+        $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
+        $result['woTaskCategory'] = isset($arrWoType[intval($dataLocal['wo_task_type'])]) ? $arrWoType[intval($dataLocal['wo_task_type'])] : 'Unknown Category';
+        $result['woTaskClient'] = !empty($dataLocal['site_id']) && isset($arrSiteName[intval($dataLocal['site_id'])]) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
+        $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+        $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+        $result['woTaskStatus'] = isset($arrStatus[intval($dataLocal['wo_task_status'])]) ? $arrStatus[intval($dataLocal['wo_task_status'])] : 'Unknown Status';
+
+        $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$createdBy, 'user_profile_status'=>'1'), null, 1);
+
+        $result['woTaskPhoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no'] ?? '');
+        $result['woTaskEmail'] = $this->fn_general->clear_null($userProfile['user_email'] ?? '');
     
-            $result['woTaskId'] = $dataLocal['wo_task_id'];
-            $result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' ? '-' : $dataLocal['wo_task_no'];
-            $result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
-            $result['woTaskReportedBy'] = $arrUserFullName[intval($createdBy)]; // Check if $createdBy is a valid key in $arrUserFullName
-            $result['woTaskTimeResponded'] = str_replace('-', '/', $this->fn_general->clear_null($dataLocal['wo_task_time_responded']));
-            $result['woTaskCategory'] = $arrWoType[intval($dataLocal['wo_task_type'])]; // Check if $dataLocal['wo_task_type'] is a valid key in $arrWoType
-            $result['woTaskClient'] = !empty($dataLocal['site_id']) ? $arrSiteName[intval($dataLocal['site_id'])] : '';
-            $result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
-            $result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
-            $result['woTaskStatus'] = $arrStatus[intval($dataLocal['wo_task_status'])];
-    
-            $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$createdBy, 'user_profile_status'=>'1'), null, 1);
-    
-            $result['woTaskPhoneNo'] = $this->fn_general->clear_null($userProfile['user_contact_no']);
-            $result['woTaskEmail'] = $this->fn_general->clear_null($userProfile['user_email']);
-    
-            $result['complaintImages'] = $this->get_wo_section_upload_m('1');
-            $result['assetNo'] = !empty($dataLocal['asset_id']) ? Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$dataLocal['asset_id']), 'asset_no') : null;
-            $result['zoneName'] = !empty($dataLocal['zone_id']) ? Class_db::getInstance()->db_select_col('cli_zone', array('zone_id'=>$dataLocal['zone_id']), 'zone_name') : null;
-    
-            return $result;
+        $result['complaintImages'] = $this->get_wo_section_upload_m('1');
+        $result['assetNo'] = !empty($dataLocal['asset_id']) ? Class_db::getInstance()->db_select_col('ast_asset', array('asset_id'=>$dataLocal['asset_id']), 'asset_no') : null;
+        $result['zoneName'] = !empty($dataLocal['zone_id']) ? Class_db::getInstance()->db_select_col('cli_zone', array('zone_id'=>$dataLocal['zone_id']), 'zone_name') : null;
+
+        // Add debug logging for final result
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Function completed. Images: ' . count($result['complaintImages']) . ', Result fields: ' . implode(', ', array_keys($result)));            return $result;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
