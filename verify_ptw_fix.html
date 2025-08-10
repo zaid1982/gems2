@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PTW Fix Verification</title>
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    
+    <!-- Load toastr BEFORE common.js (the fix) -->
+    <script type="text/javascript" src="js/modules/toastr.js"></script>
+    <script type="text/javascript" src="js/toastr-safe.js"></script>
+    
+    <!-- Initialize toastr immediately -->
+    <script>
+        if (typeof toastr !== 'undefined' && toastr) {
+            toastr.options = toastr.options || {};
+            Object.assign(toastr.options, {
+                "closeButton": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            });
+        }
+    </script>
+    
+    <!-- Now load common.js -->
+    <script type="text/javascript" src="js/common.js"></script>
+    
+    <style>
+        /* Toastr styles */
+        #toast-container { position: fixed; top: 12px; right: 12px; z-index: 999999; }
+        .toast { background-color: #030303; color: white; padding: 15px; border-radius: 3px; margin: 6px 0; }
+        .toast-success { background-color: #51a351; }
+        .toast-error { background-color: #bd362f; }
+        .toast-info { background-color: #2f96b4; }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { padding: 10px; margin: 5px 0; border-left: 4px solid #ccc; }
+        .success { border-color: green; background: #f0fff0; }
+        .error { border-color: red; background: #fff0f0; }
+    </style>
+</head>
+<body>
+    <h2>✅ PTW Toastr Fix Verification</h2>
+    <p>This test verifies that the "Cannot read properties of null (reading 'options')" error is fixed.</p>
+    
+    <div id="results"></div>
+    
+    <h3>Manual Tests</h3>
+    <button onclick="testToastrCall()">Test Toastr Call</button>
+    <button onclick="testErrorScenario()">Test Error Scenario</button>
+    <button onclick="testAPICall()">Test PTW API Call</button>
+    
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'result ' + type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function testToastrCall() {
+            try {
+                log('Testing toastr call...', 'info');
+                toastr.success('Toastr is working correctly!', 'Success');
+                log('✓ Toastr call successful', 'success');
+            } catch (e) {
+                log('✗ Toastr call failed: ' + e.message, 'error');
+            }
+        }
+        
+        function testErrorScenario() {
+            try {
+                log('Testing error scenario that caused original issue...', 'info');
+                const error = new Error('Simulated initialization error');
+                toastr['error'](error.message, 'ERROR');
+                log('✓ Error scenario handled without "Cannot read properties of null" error', 'success');
+            } catch (e) {
+                log('✗ Error scenario failed: ' + e.message, 'error');
+            }
+        }
+        
+        function testAPICall() {
+            try {
+                log('Testing PTW API call...', 'info');
+                $.ajax({
+                    url: 'api/ptw.php?action=list',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success && response.result) {
+                            log(`✓ PTW API successful - ${response.result.length} permits found`, 'success');
+                            toastr.info(`Found ${response.result.length} PTW permits`, 'API Success');
+                        } else {
+                            log('✗ PTW API returned no data', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        log('✗ PTW API call failed: ' + error, 'error');
+                    }
+                });
+            } catch (e) {
+                log('✗ API test failed: ' + e.message, 'error');
+            }
+        }
+        
+        // Auto-run verification tests
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔍 Starting automated verification tests...', 'info');
+            
+            // Test 1: Verify toastr is available
+            if (typeof toastr !== 'undefined') {
+                log('✓ Toastr is loaded and available', 'success');
+            } else {
+                log('✗ Toastr is not available', 'error');
+                return;
+            }
+            
+            // Test 2: Verify toastr.options exists
+            if (toastr.options) {
+                log('✓ Toastr.options is properly initialized', 'success');
+            } else {
+                log('✗ Toastr.options is null/undefined', 'error');
+            }
+            
+            // Test 3: Verify constants are loaded
+            if (typeof _ALERT_TITLE_ERROR !== 'undefined') {
+                log('✓ Common.js constants are loaded', 'success');
+            } else {
+                log('✗ Common.js constants not loaded', 'error');
+            }
+            
+            // Test 4: Automatic test calls
+            setTimeout(function() {
+                log('Running automatic tests...', 'info');
+                testToastrCall();
+                setTimeout(testErrorScenario, 500);
+                setTimeout(testAPICall, 1000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

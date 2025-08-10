@@ -105,44 +105,21 @@ class Class_ptw {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             
-            $where_clause = "WHERE p.site_id = " . intval($filters['site_id']);
-            $params = array();
-            
+            // Use simple db_select to avoid JOIN issues
+            $where_conditions = array();
+            if (isset($filters['site_id'])) {
+                $where_conditions['site_id'] = strval($filters['site_id']);
+            }
             if (isset($filters['ptw_status']) && !empty($filters['ptw_status'])) {
-                $where_clause .= " AND p.ptw_status = ?";
-                $params[] = $filters['ptw_status'];
+                $where_conditions['ptw_status'] = $filters['ptw_status'];
             }
-            
             if (isset($filters['ptw_risk_level']) && !empty($filters['ptw_risk_level'])) {
-                $where_clause .= " AND p.ptw_risk_level = ?";
-                $params[] = $filters['ptw_risk_level'];
+                $where_conditions['ptw_risk_level'] = $filters['ptw_risk_level'];
             }
             
-            if (isset($filters['date_from']) && !empty($filters['date_from'])) {
-                $where_clause .= " AND DATE(p.created_date) >= ?";
-                $params[] = $filters['date_from'];
-            }
+            $permits = Class_db::getInstance()->db_select('ptw_permit', $where_conditions, 'created_date DESC');
             
-            if (isset($filters['date_to']) && !empty($filters['date_to'])) {
-                $where_clause .= " AND DATE(p.created_date) <= ?";
-                $params[] = $filters['date_to'];
-            }
-            
-            $sql = "SELECT p.*, 
-                           u.user_full_name as created_by_name,
-                           s.site_name,
-                           COUNT(w.ptw_worker_id) as worker_count,
-                           COUNT(d.ptw_document_id) as document_count
-                    FROM ptw_permit p
-                    LEFT JOIN sys_user u ON p.created_by = u.user_id
-                    LEFT JOIN sys_site s ON p.site_id = s.site_id
-                    LEFT JOIN ptw_worker w ON p.ptw_permit_id = w.ptw_permit_id
-                    LEFT JOIN ptw_document d ON p.ptw_permit_id = d.ptw_permit_id
-                    {$where_clause}
-                    GROUP BY p.ptw_permit_id
-                    ORDER BY p.created_date DESC";
-            
-            return $this->execute_raw_query($sql, $params);
+            return $permits;
             
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

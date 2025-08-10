@@ -1,0 +1,138 @@
+<!-- Modal Create PTW -->
+<div class="modal fade" id="modalCreatePtw" tabindex="-1" role="dialog" aria-labelledby="modalCreatePtwLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCreatePtwLabel">Create New PTW Permit</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frmCreatePtw">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Applicant -->
+                            <div class="form-group">
+                                <label for="optMcpApplicant">Applicant <span class="text-danger">*</span></label>
+                                <select id="optMcpApplicant" class="form-control" required>
+                                    <option value="">Select Applicant *</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Work Type -->
+                            <div class="form-group">
+                                <label for="optMcpWorkType">Work Type <span class="text-danger">*</span></label>
+                                <select id="optMcpWorkType" class="form-control" required>
+                                    <option value="">Select Work Type *</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Risk Level -->
+                            <div class="form-group">
+                                <label for="optMcpRiskLevel">Risk Level <span class="text-danger">*</span></label>
+                                <select id="optMcpRiskLevel" class="form-control" required>
+                                    <option value="">Select Risk Level *</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Work Area -->
+                            <div class="form-group">
+                                <label for="txtMcpWorkArea">Work Area <span class="text-danger">*</span></label>
+                                <input type="text" id="txtMcpWorkArea" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label for="txtMcpDescription">Work Description <span class="text-danger">*</span></label>
+                                <textarea id="txtMcpDescription" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Valid From -->
+                            <div class="form-group">
+                                <label for="dtMcpValidFrom">Valid From <span class="text-danger">*</span></label>
+                                <input type="datetime-local" id="dtMcpValidFrom" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Valid To -->
+                            <div class="form-group">
+                                <label for="dtMcpValidTo">Valid To <span class="text-danger">*</span></label>
+                                <input type="datetime-local" id="dtMcpValidTo" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Workers Count -->
+                            <div class="form-group">
+                                <label for="numMcpWorkersCount">Number of Workers</label>
+                                <input type="number" id="numMcpWorkersCount" class="form-control" min="1" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Contractor -->
+                            <div class="form-group">
+                                <label for="txtMcpContractor">Contractor</label>
+                                <input type="text" id="txtMcpContractor" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Workers Section -->
+                    <div class="divMcpHideInitial">
+                        <h6 class="border-top pt-3">Workers Information</h6>
+                        <div id="divMcpWorkers">
+                            <!-- Worker rows will be added dynamically -->
+                        </div>
+                        <button type="button" id="btnMcpAddWorker" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-plus"></i> Add Worker
+                        </button>
+                    </div>
+                    
+                    <!-- Safety Precautions -->
+                    <div class="divMcpHideInitial">
+                        <h6 class="border-top pt-3">Safety Precautions</h6>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="chkMcpPpe" class="form-check-input">
+                                <label class="form-check-label" for="chkMcpPpe">Personal Protective Equipment (PPE) Required</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="chkMcpFireWatch" class="form-check-input">
+                                <label class="form-check-label" for="chkMcpFireWatch">Fire Watch Required</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="chkMcpGasTest" class="form-check-input">
+                                <label class="form-check-label" for="chkMcpGasTest">Gas Testing Required</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="chkMcpLockout" class="form-check-input">
+                                <label class="form-check-label" for="chkMcpLockout">Lock Out Tag Out (LOTO) Required</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="btnMcpSubmit" class="btn btn-primary">Create PTW Permit</button>
+            </div>
+        </div>
+    </div>
+</div>

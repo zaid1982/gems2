@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEMS2 Database Query Tool</title>
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/dialog/dialog.min.css">
     <style>
         * {
             margin: 0;
@@ -55,11 +60,12 @@
             border-right: 1px solid #e9ecef;
             padding: 20px;
             overflow-y: auto;
-            max-height: 80vh;
+            height: 100%;
         }
         
         .content {
             padding: 20px;
+            overflow-x: auto;
         }
         
         .section {
@@ -90,6 +96,188 @@
             font-size: 14px;
             resize: vertical;
             background: white;
+            /* Don't hide textarea initially - CodeMirror will handle this */
+        }
+        
+        /* CodeMirror Customizations */
+        .CodeMirror {
+            height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .CodeMirror:focus {
+            border-color: #3498db;
+        }
+        
+        .CodeMirror-scroll {
+            min-height: 300px;
+        }
+        
+        .CodeMirror-hints {
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .CodeMirror-hint {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .CodeMirror-hint-active {
+            background: #3498db;
+            color: white;
+        }
+        
+        /* Custom styling for alias-based hints */
+        .alias-hint {
+            background: #e8f5e8 !important;
+            border-left: 3px solid #27ae60 !important;
+        }
+        
+        .alias-hint.CodeMirror-hint-active {
+            background: #27ae60 !important;
+            color: white !important;
+        }
+        
+        .alias-hint {
+            background: #e8f5e8 !important;
+            border-left: 3px solid #27ae60;
+            font-style: italic;
+        }
+        
+        .alias-hint.CodeMirror-hint-active {
+            background: #27ae60 !important;
+            color: white;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .editor-info {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editor-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .editor-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .query-history {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-header {
+            padding: 10px;
+            background: #e9ecef;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .history-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-item:hover {
+            background: #e3f2fd;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .saved-queries {
+            margin-top: 15px;
+        }
+        
+        .saved-query-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .saved-query-item:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+        
+        .saved-query-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .saved-query-desc {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+        
+        .saved-query-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+        
+        .action-btn:hover {
+            background: #3498db;
+            color: white;
         }
         
         textarea:focus {
@@ -189,13 +377,20 @@
         .results-content {
             max-height: 500px;
             overflow: auto;
-            padding: 20px;
+            padding: 0;
+        }
+        
+        .table-wrapper {
+            overflow: auto;
+            max-height: 450px;
+            border: 1px solid #ddd;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin: 0;
+            min-width: 600px; /* Ensure minimum width for horizontal scrolling */
         }
         
         th, td {
@@ -203,6 +398,8 @@
             padding: 12px;
             text-align: left;
             word-wrap: break-word;
+            white-space: nowrap; /* Prevent text wrapping to show full content */
+            min-width: 100px; /* Minimum column width */
         }
         
         th {
@@ -220,6 +417,16 @@
         
         tr:hover {
             background: #e3f2fd;
+        }
+        
+        /* Non-table results styling */
+        .results-text {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin: 10px;
         }
         
         .status {
@@ -404,6 +611,20 @@
                 </div>
                 
                 <div class="section">
+                    <h3>📝 Saved Queries</h3>
+                    <div class="saved-queries">
+                        <button class="btn-secondary" onclick="showSaveQueryDialog()" style="width: 100%; margin-bottom: 10px; font-size: 12px;">
+                            💾 Save Current Query
+                        </button>
+                        <div id="savedQueriesList">
+                            <div style="padding: 20px; text-align: center; color: #7f8c8d; font-size: 12px;">
+                                No saved queries
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
                     <h3>🔍 Table Columns</h3>
                     <div id="columnDetails" class="column-details">
                         <div style="padding: 20px; text-align: center; color: #7f8c8d;">
@@ -429,13 +650,18 @@
                 <div class="section">
                     <h3>✏️ SQL Query Editor</h3>
                     <div class="query-container">
-                        <textarea id="sqlQuery" placeholder="Enter your SQL query here...
-
-Examples:
-SELECT * FROM sys_user LIMIT 10;
-DESCRIBE ast_asset;
-SELECT COUNT(*) FROM ppm_task;
-SHOW CREATE TABLE wo_task;"></textarea>
+                        <div class="editor-toolbar">
+                            <div class="editor-info">
+                                <span id="editorInfo">Press Ctrl+Space for autocomplete • Ctrl+F to find • Ctrl+/ to comment</span>
+                            </div>
+                            <div class="editor-controls">
+                                <button class="editor-btn" onclick="toggleTheme()">🌙 Theme</button>
+                                <button class="editor-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+                                <button class="editor-btn" onclick="showShortcuts()">⌨️ Shortcuts</button>
+                            </div>
+                        </div>
+                        
+                        <textarea id="sqlQuery" placeholder="Enter your SQL query here...">SELECT * FROM sys_user LIMIT 10;</textarea>
                         
                         <div class="button-group">
                             <button onclick="executeQuery()">
@@ -447,9 +673,24 @@ SHOW CREATE TABLE wo_task;"></textarea>
                             <button class="btn-success" onclick="formatQuery()">
                                 ✨ Format
                             </button>
+                            <button class="btn-secondary" onclick="explainQuery()">
+                                🔍 Explain
+                            </button>
                             <button class="btn-danger" onclick="exportResults()">
                                 📥 Export CSV
                             </button>
+                        </div>
+                        
+                        <div class="query-history">
+                            <div class="history-header">
+                                📚 Query History (Last 10)
+                                <button class="action-btn" onclick="clearHistory()" style="float: right;">Clear</button>
+                            </div>
+                            <div id="queryHistory">
+                                <div style="padding: 20px; text-align: center; color: #7f8c8d; font-size: 12px;">
+                                    No queries in history
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -468,46 +709,491 @@ SHOW CREATE TABLE wo_task;"></textarea>
         </div>
     </div>
     
+    <!-- CodeMirror JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
+    
     <script>
         let currentResults = [];
         let currentQuery = '';
+        let sqlEditor;
+        let queryHistory = JSON.parse(localStorage.getItem('queryHistory')) || [];
+        let savedQueries = JSON.parse(localStorage.getItem('savedQueries')) || [];
+        let currentTheme = localStorage.getItem('editorTheme') || 'default';
+        let tableNames = [];
+        let columnNames = {};
         
         // Load initial data
         document.addEventListener('DOMContentLoaded', function() {
+            initializeEditor();
             loadDatabaseInfo();
             loadTables();
+            loadQueryHistory();
+            loadSavedQueries();
         });
         
+        function initializeEditor() {
+            const textarea = document.getElementById('sqlQuery');
+            
+            try {
+                sqlEditor = CodeMirror.fromTextArea(textarea, {
+                    mode: 'text/x-sql',
+                    theme: currentTheme,
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    indentWithTabs: true,
+                    smartIndent: true,
+                    lineWrapping: true,
+                    autoCloseBrackets: true,
+                    styleActiveLine: true,
+                    extraKeys: {
+                        'Ctrl-Space': 'autocomplete',
+                        'Ctrl-/': 'toggleComment',
+                        'F11': function(cm) {
+                            cm.setOption('fullScreen', !cm.getOption('fullScreen'));
+                        },
+                        'Esc': function(cm) {
+                            if (cm.getOption('fullScreen')) cm.setOption('fullScreen', false);
+                        },
+                        'Ctrl-Enter': function(cm) {
+                            executeQuery();
+                        }
+                    },
+                    hintOptions: {
+                        tables: getTableHints(),
+                        completeSingle: false
+                    }
+                });
+                
+                // Custom autocomplete for table aliases
+                sqlEditor.on('inputRead', function(cm, change) {
+                    if (change.text[0] === '.') {
+                        // Trigger custom alias autocomplete
+                        setTimeout(() => {
+                            showAliasAutocomplete(cm);
+                        }, 100);
+                    }
+                });
+                
+                // Auto-resize editor
+                sqlEditor.on('change', function() {
+                    updateEditorInfo();
+                });
+                
+                // Set initial value
+                sqlEditor.setValue('SELECT * FROM sys_user LIMIT 10;');
+                updateEditorInfo();
+                
+                console.log('CodeMirror initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize CodeMirror:', error);
+                // Fallback to regular textarea
+                textarea.style.display = 'block';
+                textarea.value = 'SELECT * FROM sys_user LIMIT 10;';
+                showStatus('Editor loaded in fallback mode', 'info');
+            }
+        }
+        
+        function getTableHints() {
+            const hints = {};
+            tableNames.forEach(table => {
+                hints[table] = columnNames[table] || [];
+            });
+            return hints;
+        }
+        
+        function parseTableAliases(sql) {
+            const aliases = {};
+            
+            // Clean SQL - remove line breaks and extra spaces
+            const cleanSql = sql.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            console.log('Parsing SQL for aliases:', cleanSql);
+            
+            // Simplified regex patterns that are more flexible
+            const aliasPatterns = [
+                // FROM table_name alias
+                /FROM\s+(\w+)\s+(\w+)(?=\s|,|$|WHERE|ORDER|GROUP|HAVING|LIMIT|JOIN|\)|;)/gi,
+                // FROM table_name AS alias  
+                /FROM\s+(\w+)\s+AS\s+(\w+)(?=\s|,|$|WHERE|ORDER|GROUP|HAVING|LIMIT|JOIN|\)|;)/gi,
+                // JOIN table_name alias
+                /(?:LEFT\s+|RIGHT\s+|INNER\s+|OUTER\s+)?JOIN\s+(\w+)\s+(\w+)(?=\s|,|$|ON|WHERE|ORDER|GROUP|HAVING|LIMIT|JOIN|\)|;)/gi,
+                // JOIN table_name AS alias
+                /(?:LEFT\s+|RIGHT\s+|INNER\s+|OUTER\s+)?JOIN\s+(\w+)\s+AS\s+(\w+)(?=\s|,|$|ON|WHERE|ORDER|GROUP|HAVING|LIMIT|JOIN|\)|;)/gi
+            ];
+            
+            aliasPatterns.forEach((pattern, index) => {
+                let match;
+                pattern.lastIndex = 0; // Reset regex
+                console.log('Testing pattern', index + 1, ':', pattern);
+                while ((match = pattern.exec(cleanSql)) !== null) {
+                    const tableName = match[1];
+                    const aliasName = match[2];
+                    
+                    console.log('Pattern match found:', {tableName, aliasName, fullMatch: match[0]});
+                    
+                    // Only add if the alias is different from table name
+                    // Also check that alias is not a SQL keyword
+                    const sqlKeywords = ['WHERE', 'ON', 'AND', 'OR', 'ORDER', 'GROUP', 'HAVING', 'LIMIT', 'AS', 'SELECT', 'FROM', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'SET', 'VALUES'];
+                    
+                    if (aliasName && 
+                        aliasName.toLowerCase() !== tableName.toLowerCase() && 
+                        !sqlKeywords.includes(aliasName.toUpperCase())) {
+                        
+                        console.log('Adding alias:', aliasName, '->', tableName);
+                        console.log('Table exists in tableNames?', tableNames.includes(tableName));
+                        aliases[aliasName] = tableName;
+                    } else {
+                        console.log('Skipping alias:', {aliasName, tableName, isKeyword: sqlKeywords.includes(aliasName.toUpperCase())});
+                    }
+                }
+            });
+            
+            console.log('Final aliases object:', aliases);
+            return aliases;
+        }
+        
+        function showAliasAutocomplete(cm) {
+            const cursor = cm.getCursor();
+            const line = cm.getLine(cursor.line);
+            const sql = cm.getValue();
+            
+            // Find the word before the dot
+            let wordStart = cursor.ch - 2; // -1 for current position, -1 for the dot
+            while (wordStart > 0 && /\w/.test(line[wordStart - 1])) {
+                wordStart--;
+            }
+            
+            const alias = line.substring(wordStart, cursor.ch - 1);
+            
+            if (!alias) return;
+            
+            console.log('Looking for alias:', alias);
+            
+            // Parse aliases from the current SQL
+            const aliases = parseTableAliases(sql);
+            console.log('Found aliases:', aliases);
+            
+            const tableName = aliases[alias];
+            console.log('Table name for alias "' + alias + '":', tableName);
+            console.log('Available aliases:', Object.keys(aliases));
+            console.log('Available tables in columnNames:', Object.keys(columnNames));
+            console.log('tableNames array:', tableNames);
+            
+            if (tableName) {
+                // Check if we have columns loaded for this table
+                if (columnNames[tableName]) {
+                    console.log('Found columns for table:', tableName, columnNames[tableName]);
+                    const columns = columnNames[tableName];
+                    const suggestions = columns.map(col => ({
+                        text: col,
+                        displayText: `${col} (${tableName})`,
+                        className: 'alias-hint'
+                    }));
+                    
+                    console.log('Showing suggestions for table:', tableName, 'columns:', columns.length);
+                    
+                    // Show autocomplete
+                    cm.showHint({
+                        hint: function() {
+                            return {
+                                list: suggestions,
+                                from: {line: cursor.line, ch: cursor.ch},
+                                to: {line: cursor.line, ch: cursor.ch}
+                            };
+                        },
+                        completeSingle: false
+                    });
+                } else if (tableNames.includes(tableName)) {
+                    // Table exists but columns not loaded - load them dynamically
+                    console.log('Table exists but columns not loaded. Loading columns for:', tableName);
+                    loadTableColumnsForAutocomplete(tableName, function() {
+                        // Retry autocomplete after loading columns
+                        showAliasAutocomplete(cm);
+                    });
+                } else {
+                    console.log('Table not found:', tableName, 'Available tables:', tableNames.slice(0, 10));
+                }
+            } else {
+                console.log('No table found for alias:', alias, 'Available aliases:', Object.keys(aliases));
+            }
+        }
+        
+        function updateEditorInfo() {
+            const doc = sqlEditor.getDoc();
+            const cursor = doc.getCursor();
+            const lines = doc.lineCount();
+            const chars = doc.getValue().length;
+            const selected = doc.getSelection().length;
+            
+            let info = `Line ${cursor.line + 1}, Col ${cursor.ch + 1} • ${lines} lines • ${chars} chars`;
+            if (selected > 0) {
+                info += ` • ${selected} selected`;
+            }
+            
+            document.getElementById('editorInfo').textContent = info;
+        }
+        
+        function toggleTheme() {
+            currentTheme = currentTheme === 'default' ? 'material-darker' : 'default';
+            sqlEditor.setOption('theme', currentTheme);
+            localStorage.setItem('editorTheme', currentTheme);
+        }
+        
+        function toggleFullscreen() {
+            const isFullscreen = sqlEditor.getOption('fullScreen');
+            sqlEditor.setOption('fullScreen', !isFullscreen);
+        }
+        
+        function showShortcuts() {
+            alert(`Keyboard Shortcuts:
+• Ctrl+Space: Autocomplete
+• Ctrl+/: Toggle comment
+• Ctrl+F: Find
+• Ctrl+H: Find & Replace
+• Ctrl+Enter: Execute query
+• F11: Toggle fullscreen
+• Esc: Exit fullscreen
+• Tab: Indent
+• Shift+Tab: Unindent`);
+        }
+        
         function setQuery(query) {
-            document.getElementById('sqlQuery').value = query;
+            if (sqlEditor) {
+                sqlEditor.setValue(query);
+                sqlEditor.focus();
+            } else {
+                // Fallback to textarea
+                const textarea = document.getElementById('sqlQuery');
+                textarea.value = query;
+                textarea.focus();
+            }
         }
         
         function clearQuery() {
-            document.getElementById('sqlQuery').value = '';
+            if (sqlEditor) {
+                sqlEditor.setValue('');
+                sqlEditor.focus();
+            } else {
+                // Fallback to textarea
+                const textarea = document.getElementById('sqlQuery');
+                textarea.value = '';
+                textarea.focus();
+            }
             hideResults();
         }
         
         function formatQuery() {
-            const textarea = document.getElementById('sqlQuery');
-            let query = textarea.value;
+            let query;
             
-            // Basic SQL formatting
+            if (sqlEditor) {
+                query = sqlEditor.getValue();
+            } else {
+                // Fallback to textarea
+                query = document.getElementById('sqlQuery').value;
+            }
+            
+            // Advanced SQL formatting
             query = query.replace(/\s+/g, ' ').trim();
-            query = query.replace(/\s*(SELECT|FROM|WHERE|ORDER BY|GROUP BY|HAVING|LIMIT|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|UNION)\s+/gi, '\n$1 ');
+            
+            // Keywords
+            const keywords = ['SELECT', 'FROM', 'WHERE', 'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT', 
+                             'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN', 'UNION', 
+                             'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'INDEX'];
+            
+            keywords.forEach(keyword => {
+                const regex = new RegExp(`\\s*(${keyword})\\s+`, 'gi');
+                query = query.replace(regex, `\n${keyword} `);
+            });
+            
+            // Commas
             query = query.replace(/\s*,\s*/g, ',\n    ');
+            
+            // AND/OR
             query = query.replace(/\s*(AND|OR)\s+/gi, '\n    $1 ');
             
-            textarea.value = query;
+            // Clean up extra newlines
+            query = query.replace(/\n\s*\n/g, '\n').trim();
+            
+            if (sqlEditor) {
+                sqlEditor.setValue(query);
+                sqlEditor.focus();
+            } else {
+                // Fallback to textarea
+                const textarea = document.getElementById('sqlQuery');
+                textarea.value = query;
+                textarea.focus();
+            }
+        }
+        
+        function explainQuery() {
+            let query;
+            
+            if (sqlEditor) {
+                query = sqlEditor.getValue().trim();
+            } else {
+                query = document.getElementById('sqlQuery').value.trim();
+            }
+            
+            if (!query) {
+                showStatus('Please enter a SQL query', 'error');
+                return;
+            }
+            
+            const explainQuery = `EXPLAIN ${query}`;
+            
+            if (sqlEditor) {
+                sqlEditor.setValue(explainQuery);
+            } else {
+                document.getElementById('sqlQuery').value = explainQuery;
+            }
+            
+            executeQuery();
+        }
+        
+        function addToHistory(query) {
+            if (!query || query.trim() === '') return;
+            
+            // Remove duplicates and add to beginning
+            queryHistory = queryHistory.filter(item => item.query !== query);
+            queryHistory.unshift({
+                query: query,
+                timestamp: new Date().toISOString(),
+                id: Date.now()
+            });
+            
+            // Keep only last 10
+            queryHistory = queryHistory.slice(0, 10);
+            
+            localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
+            loadQueryHistory();
+        }
+        
+        function loadQueryHistory() {
+            const historyDiv = document.getElementById('queryHistory');
+            
+            if (queryHistory.length === 0) {
+                historyDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d; font-size: 12px;">No queries in history</div>';
+                return;
+            }
+            
+            let html = '';
+            queryHistory.forEach(item => {
+                const date = new Date(item.timestamp).toLocaleString();
+                const shortQuery = item.query.length > 50 ? item.query.substring(0, 50) + '...' : item.query;
+                
+                html += `
+                    <div class="history-item" onclick="setQuery('${item.query.replace(/'/g, "\\'")}')">
+                        <div style="font-weight: bold;">${shortQuery}</div>
+                        <div style="font-size: 10px; color: #7f8c8d; margin-top: 2px;">${date}</div>
+                    </div>
+                `;
+            });
+            
+            historyDiv.innerHTML = html;
+        }
+        
+        function clearHistory() {
+            if (confirm('Clear all query history?')) {
+                queryHistory = [];
+                localStorage.removeItem('queryHistory');
+                loadQueryHistory();
+            }
+        }
+        
+        function showSaveQueryDialog() {
+            let query;
+            
+            if (sqlEditor) {
+                query = sqlEditor.getValue().trim();
+            } else {
+                query = document.getElementById('sqlQuery').value.trim();
+            }
+            
+            if (!query) {
+                showStatus('Please enter a query to save', 'error');
+                return;
+            }
+            
+            const name = prompt('Enter a name for this query:');
+            if (name) {
+                const description = prompt('Enter a description (optional):') || '';
+                saveQuery(name, query, description);
+            }
+        }
+        
+        function saveQuery(name, query, description) {
+            const savedQuery = {
+                id: Date.now(),
+                name: name,
+                query: query,
+                description: description,
+                timestamp: new Date().toISOString()
+            };
+            
+            savedQueries.push(savedQuery);
+            localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+            loadSavedQueries();
+            showStatus('Query saved successfully', 'success');
+        }
+        
+        function loadSavedQueries() {
+            const listDiv = document.getElementById('savedQueriesList');
+            
+            if (savedQueries.length === 0) {
+                listDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d; font-size: 12px;">No saved queries</div>';
+                return;
+            }
+            
+            let html = '';
+            savedQueries.forEach(item => {
+                html += `
+                    <div class="saved-query-item" onclick="setQuery('${item.query.replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="saved-query-name">${item.name}</div>
+                            <div class="saved-query-desc">${item.description}</div>
+                        </div>
+                        <div class="saved-query-actions">
+                            <button class="action-btn" onclick="event.stopPropagation(); deleteSavedQuery(${item.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listDiv.innerHTML = html;
+        }
+        
+        function deleteSavedQuery(id) {
+            if (confirm('Delete this saved query?')) {
+                savedQueries = savedQueries.filter(item => item.id !== id);
+                localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+                loadSavedQueries();
+            }
         }
         
         function executeQuery() {
-            const query = document.getElementById('sqlQuery').value.trim();
+            let query;
+            
+            if (sqlEditor) {
+                query = sqlEditor.getValue().trim();
+            } else {
+                query = document.getElementById('sqlQuery').value.trim();
+            }
+            
             if (!query) {
                 showStatus('Please enter a SQL query', 'error');
                 return;
             }
             
             currentQuery = query;
+            addToHistory(query);
             showLoading();
             
             const formData = new FormData();
@@ -612,6 +1298,41 @@ SHOW CREATE TABLE wo_task;"></textarea>
             });
         }
         
+        function loadTableColumnsForAutocomplete(tableName, callback) {
+            const formData = new FormData();
+            formData.append('action', 'table_columns');
+            formData.append('table', tableName);
+            
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store columns for autocomplete without updating UI
+                    columnNames[tableName] = data.columns.map(col => col.COLUMN_NAME);
+                    console.log('Loaded columns for autocomplete:', tableName, columnNames[tableName]);
+                    
+                    // Update editor autocomplete
+                    if (sqlEditor) {
+                        sqlEditor.setOption('hintOptions', {
+                            tables: getTableHints(),
+                            completeSingle: false
+                        });
+                    }
+                    
+                    // Call callback if provided
+                    if (callback) {
+                        callback();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading columns for autocomplete:', error);
+            });
+        }
+        
         function displayDatabaseInfo(info) {
             const html = `
                 <h4>📊 ${info.database_name}</h4>
@@ -634,6 +1355,9 @@ SHOW CREATE TABLE wo_task;"></textarea>
         }
         
         function displayTables(tables) {
+            tableNames = tables.map(table => table.name);
+            console.log('Loaded table names:', tableNames);
+            
             let html = '';
             tables.forEach(table => {
                 html += `
@@ -649,9 +1373,21 @@ SHOW CREATE TABLE wo_task;"></textarea>
                 `;
             });
             document.getElementById('tableList').innerHTML = html;
+            
+            // Update editor autocomplete
+            if (sqlEditor) {
+                sqlEditor.setOption('hintOptions', {
+                    tables: getTableHints(),
+                    completeSingle: false
+                });
+            }
         }
         
         function displayTableColumns(columns, tableName) {
+            // Store columns for autocomplete
+            columnNames[tableName] = columns.map(col => col.COLUMN_NAME);
+            console.log('Loaded columns for table', tableName, ':', columnNames[tableName]);
+            
             let html = `<div style="padding: 10px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #ddd;">
                             📋 ${tableName}
                         </div>`;
@@ -697,6 +1433,14 @@ SHOW CREATE TABLE wo_task;"></textarea>
             `;
             
             document.getElementById('columnDetails').innerHTML = html;
+            
+            // Update editor autocomplete
+            if (sqlEditor) {
+                sqlEditor.setOption('hintOptions', {
+                    tables: getTableHints(),
+                    completeSingle: false
+                });
+            }
         }
         
         function selectTable(tableName) {
@@ -719,8 +1463,8 @@ SHOW CREATE TABLE wo_task;"></textarea>
             if (queryType === 'SELECT' && results.length > 0) {
                 headerDiv.textContent = `Query Results (${results.length} rows, ${executionTime}s)`;
                 
-                // Create table
-                let html = '<table><thead><tr>';
+                // Create table with wrapper for scrolling
+                let html = '<div class="table-wrapper"><table><thead><tr>';
                 Object.keys(results[0]).forEach(key => {
                     html += `<th>${key}</th>`;
                 });
@@ -729,16 +1473,21 @@ SHOW CREATE TABLE wo_task;"></textarea>
                 results.forEach(row => {
                     html += '<tr>';
                     Object.values(row).forEach(value => {
-                        html += `<td>${value !== null ? value : '<i>NULL</i>'}</td>`;
+                        // Handle long text values
+                        let displayValue = value !== null ? value : '<i style="color: #999;">NULL</i>';
+                        if (typeof displayValue === 'string' && displayValue.length > 100) {
+                            displayValue = `<span title="${displayValue.replace(/"/g, '&quot;')}">${displayValue.substring(0, 100)}...</span>`;
+                        }
+                        html += `<td>${displayValue}</td>`;
                     });
                     html += '</tr>';
                 });
-                html += '</tbody></table>';
+                html += '</tbody></table></div>';
                 
                 contentDiv.innerHTML = html;
             } else if (queryType === 'INSERT' || queryType === 'UPDATE' || queryType === 'DELETE') {
                 headerDiv.textContent = `${queryType} Query Executed (${executionTime}s)`;
-                contentDiv.innerHTML = `<div class="status success">
+                contentDiv.innerHTML = `<div class="status success" style="margin: 20px;">
                     ✅ ${affectedRows} row(s) affected
                 </div>`;
             } else if (results.length === 0) {
@@ -746,7 +1495,7 @@ SHOW CREATE TABLE wo_task;"></textarea>
                 contentDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">No results found</div>';
             } else {
                 headerDiv.textContent = `Query Results (${executionTime}s)`;
-                contentDiv.innerHTML = '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+                contentDiv.innerHTML = '<div class="results-text">' + JSON.stringify(results, null, 2) + '</div>';
             }
             
             resultsDiv.style.display = 'block';

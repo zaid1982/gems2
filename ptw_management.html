@@ -21,7 +21,71 @@
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-
+        /* Toastr Styles */
+        #toast-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 999999;
+        }
+        .toast {
+            background-color: #030303;
+            color: white;
+            padding: 15px 15px 15px 50px;
+            border-radius: 3px;
+            margin: 6px 0;
+            position: relative;
+            max-width: 300px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.6);
+        }
+        .toast-success { background-color: #51a351; }
+        .toast-error { background-color: #bd362f; }
+        .toast-info { background-color: #2f96b4; }
+        .toast-warning { background-color: #f89406; }
+        .toast-title { font-weight: bold; }
+        .toast-message { font-size: 14px; margin-top: 5px; }
+        .toast-close-button { 
+            position: absolute; 
+            right: 8px; 
+            top: 8px; 
+            color: white; 
+            cursor: pointer; 
+        }
+        
+        /* Custom PTW Page Styles */
+        .sectionPtwMain {
+            padding-top: 20px !important;
+            margin-top: 0 !important;
+        }
+        
+        /* Compact button group for status filters */
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Clean table styling */
+        .table-responsive {
+            border: none;
+        }
+        
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #e3e6f0;
+        }
+        
+        /* Remove excessive padding from main container */
+        .container-fluid {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* Compact form controls */
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -42,141 +106,143 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionPtwMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
-                    <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">PTW Management</h2>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="px-3 pt-3">
-                                    <h6 id="lblPtwSiteName"></h6>
-                                    <h6 class="mt-3">Status:</h6>
-                                    <div class="mt-1 pb-2">
-                                        <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwAll"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwDraft"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwPendingSupervisor"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwPendingShe"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwPendingFm"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwApproved"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwActive"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwCompleted"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkPtwStatus" id="linkPtwCancelled"></a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+        <section class="mb-3 mt-3 sectionPtwMain">
+            <!-- Page Header -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">PTW Management</h4>
+                            <h6 id="lblPtwSiteName" class="text-muted mb-0"></h6>
                         </div>
-                        <!--Chart-->
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-4">
-                                <div id="chartPtwByStatus" style="height: 537px; margin: 0"></div>
-                            </div>
-                            <div class="card-body">
-                                <div class="px-3 mt-4_5">
-                                    <div class="row">
-                                        <div class="col-md-7 select-outline">
-                                            <select id="optPtwColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                                <option value="" disabled>Choose Column Visibility</option>
-                                                <option value="1" selected>Date</option>
-                                                <option value="2" selected>Permit No.</option>
-                                                <option value="3" selected>Description</option>
-                                                <option value="4">Site</option>
-                                                <option value="5">Work Area</option>
-                                                <option value="6" selected>Work Type</option>
-                                                <option value="7" selected>Applicant</option>
-                                                <option value="8">Risk Level</option>
-                                                <option value="9" selected>Status</option>
-                                                <option value="10" selected>Valid From</option>
-                                                <option value="11" selected>Valid To</option>
-                                                <option value="12">Workers Count</option>
-                                                <option value="13">Contractor</option>
-                                                <option value="14" selected>Created By</option>
-                                                <option value="21">Approved Supervisor</option>
-                                                <option value="22">Approved SHE</option>
-                                                <option value="23">Approved FM</option>
-                                                <option value="24">Supervisor Date</option>
-                                                <option value="25">SHE Date</option>
-                                                <option value="26">FM Date</option>
-                                                <option value="27">Created Date</option>
-                                            </select>
-                                            <label for="optPtwColumns">Columns Visibility</label>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtPtwSearch" class="form-control">
-                                                <label for="txtPtwSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div>
+                            <button type="button" id="btnPtwAdd" class="btn btn-primary btn-sm mr-2" data-toggle="tooltip" title="Add New PTW Permit">
+                                <i class="fas fa-plus"></i> Add PTW
+                            </button>
+                            <button type="button" id="btnSheDashboard" class="btn btn-info btn-sm" data-toggle="tooltip" title="SHE Officer Dashboard">
+                                <i class="fas fa-shield-alt"></i> SHE Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Status Filter -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body py-2">
+                            <div class="d-flex flex-wrap align-items-center">
+                                <small class="text-muted mr-3">Quick Filter:</small>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="javascript:void(0);" class="btn btn-outline-secondary linkPtwStatus" id="linkPtwAll">All</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-secondary linkPtwStatus" id="linkPtwDraft">Draft</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-warning linkPtwStatus" id="linkPtwPendingSupervisor">Pending Supervisor</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-warning linkPtwStatus" id="linkPtwPendingShe">Pending SHE</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-warning linkPtwStatus" id="linkPtwPendingFm">Pending FM</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-success linkPtwStatus" id="linkPtwApproved">Approved</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-primary linkPtwStatus" id="linkPtwActive">Active</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-info linkPtwStatus" id="linkPtwCompleted">Completed</a>
+                                    <a href="javascript:void(0);" class="btn btn-outline-danger linkPtwStatus" id="linkPtwCancelled">Cancelled</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
-                <!--Section: Table-->
-                <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPtwAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add New PTW Permit"><i class="fas fa-plus mt-0"></i></button>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="PTW Permit List"
-                                   data-content="PTW Permit List for all permits filtered by selection."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtPtwRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">PTW Permit List</a>
-                            <div>
-                                <div id="btnDtPtwExport"></div>
-                            </div>
+                </div>
+            </div>
+            
+            <!-- Table Controls -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <select id="optPtwColumns" class="form-control form-control-sm" multiple>
+                        <option value="" disabled>Choose Column Visibility</option>
+                        <option value="1" selected>Date</option>
+                        <option value="2" selected>Permit No.</option>
+                        <option value="3" selected>Description</option>
+                        <option value="4">Site</option>
+                        <option value="5">Work Area</option>
+                        <option value="6" selected>Work Type</option>
+                        <option value="7" selected>Applicant</option>
+                        <option value="8">Risk Level</option>
+                        <option value="9" selected>Status</option>
+                        <option value="10" selected>Valid From</option>
+                        <option value="11" selected>Valid To</option>
+                        <option value="12">Workers Count</option>
+                        <option value="13">Contractor</option>
+                        <option value="14" selected>Created By</option>
+                        <option value="21">Approved Supervisor</option>
+                        <option value="22">Approved SHE</option>
+                        <option value="23">Approved FM</option>
+                        <option value="24">Supervisor Date</option>
+                        <option value="25">SHE Date</option>
+                        <option value="26">FM Date</option>
+                        <option value="27">Created Date</option>
+                    </select>
+                    <small class="text-muted">Column Visibility</small>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="txtPtwSearch" class="form-control form-control-sm" placeholder="Search permits...">
+                    <small class="text-muted">Keyword Search</small>
+                </div>
+            </div>
+            <!-- PTW Table -->
+            <div class="card">
+                <div class="card-header bg-primary text-white py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="button" id="btnDtPtwRefresh" class="btn btn-outline-light btn-sm mr-2" data-toggle="tooltip" title="Refresh data">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <a tabindex="0" role="button" class="btn btn-outline-light btn-sm mr-2"
+                               data-toggle="popover" data-trigger="focus" title="PTW Permit List"
+                               data-content="PTW Permit List for all permits filtered by selection.">
+                                <i class="fas fa-info"></i>
+                            </a>
                         </div>
-                        <div class="px-4 pb-4">
-                            <div class="table-responsive">
-                                <table id="dtPtw" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th style="width: 4%">#</th>
-                                        <th>Created Date</th>
-                                        <th>Permit No.</th>
-                                        <th>Description</th>
-                                        <th>Site</th>
-                                        <th>Work Area</th>
-                                        <th>Work Type</th>
-                                        <th>Applicant</th>
-                                        <th>Risk Level</th>
-                                        <th>Status</th>
-                                        <th>Valid From</th>
-                                        <th>Valid To</th>
-                                        <th>Workers Count</th>
-                                        <th>Contractor</th>
-                                        <th style="width: 8%">Created By</th>
-                                        <th style="width: 90px; min-width: 90px"></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th>Approved Supervisor</th>
-                                        <th>Approved SHE</th>
-                                        <th>Approved FM</th>
-                                        <th>Supervisor Date</th>
-                                        <th>SHE Date</th>
-                                        <th>FM Date</th>
-                                        <th>Created Date</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <h6 class="mb-0">PTW Permit List</h6>
+                        <div id="btnDtPtwExport"></div>
                     </div>
-                </section>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="dtPtw" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead class="thead-light">
+                            <tr>
+                                <th style="width: 4%">#</th>
+                                <th>Created Date</th>
+                                <th>Permit No.</th>
+                                <th>Description</th>
+                                <th>Site</th>
+                                <th>Work Area</th>
+                                <th>Work Type</th>
+                                <th>Applicant</th>
+                                <th>Risk Level</th>
+                                <th>Status</th>
+                                <th>Valid From</th>
+                                <th>Valid To</th>
+                                <th>Workers Count</th>
+                                <th>Contractor</th>
+                                <th style="width: 8%">Created By</th>
+                                <th style="width: 90px; min-width: 90px"></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>Approved Supervisor</th>
+                                <th>Approved SHE</th>
+                                <th>Approved FM</th>
+                                <th>Supervisor Date</th>
+                                <th>SHE Date</th>
+                                <th>FM Date</th>
+                                <th>Created Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -220,9 +286,36 @@
 <script type="text/javascript" src="js/vendor/highcharts/themes/dark-unica.js"></script>
 <!-- Moment JavaScript -->
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Toastr for notifications - MUST BE LOADED BEFORE common.js -->
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<!-- Safe Toastr wrapper -->
+<script type="text/javascript" src="js/toastr-safe.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">
+    // Initialize toastr immediately after it loads
+    if (typeof toastr !== 'undefined' && toastr) {
+        toastr.options = toastr.options || {};
+        Object.assign(toastr.options, {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        });
+    }
+    
+    // Now load common.js after toastr is ready
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal;
@@ -232,46 +325,195 @@
 
     $('.divHmeTopStats_ppm').hide();
 
+    // Safe toastr wrapper
+    function safeToast(type, message, title) {
+        try {
+            if (typeof toastr !== 'undefined' && toastr && toastr[type]) {
+                toastr[type](message, title);
+            } else {
+                console.error('Toastr not available:', type, message, title);
+                alert(title + ': ' + message); // Fallback to alert
+            }
+        } catch (e) {
+            console.error('Error showing toast:', e);
+            alert(title + ': ' + message); // Fallback to alert
+        }
+    }
+
+    // Global error handler for uncaught toastr errors
+    window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('options')) {
+            console.error('Caught toastr options error:', e);
+            e.preventDefault();
+            return true;
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
 
         ShowLoader();
-        setTimeout(function () {
+        
+        // Wait for common.js to be fully loaded
+        let commonJsCheckCount = 0;
+        const maxCommonJsChecks = 50; // 5 seconds maximum wait
+        
+        const checkCommonJsLoaded = setInterval(function() {
+            commonJsCheckCount++;
+            
+            if (typeof initiatePages === 'function' && 
+                typeof mzGetDataVersion === 'function' && 
+                typeof mzGetLocalArray === 'function' && 
+                typeof mzGetUserInfoByParam === 'function') {
+                
+                clearInterval(checkCommonJsLoaded);
+                console.log('✓ Common.js functions detected, proceeding with initialization...');
+                
+                setTimeout(function () {
             try {
+                console.log('=== PTW INITIALIZATION DEBUG ===');
+                console.log('Starting PTW page initialization...');
+                
+                console.log('1. Calling initiatePages()...');
                 initiatePages();
+                console.log('1. ✓ initiatePages() completed');
+                
+                console.log('2. Getting version...');
                 versionLocal_ = mzGetDataVersion();
+                console.log('2. ✓ Version obtained:', versionLocal_);
+                
+                console.log('3. Creating ModalChangePassword...');
                 changePasswordClass = new ModalChangePassword();
+                console.log('3. ✓ ModalChangePassword created:', changePasswordClass);
+                
+                console.log('4. Creating MainPtw...');
                 ptwClass_ = new MainPtw();
+                console.log('4. ✓ MainPtw created:', ptwClass_);
+                
+                console.log('5. Creating ModalCreatePtw...');
                 modalCreatePtw_= new ModalCreatePtw();
+                console.log('5. ✓ ModalCreatePtw created:', modalCreatePtw_);
+                
+                // Safety check for ModalCreatePtw
+                if (!modalCreatePtw_) {
+                    throw new Error('Failed to create ModalCreatePtw instance');
+                }
+                if (typeof modalCreatePtw_.init !== 'function') {
+                    throw new Error('ModalCreatePtw.init is not a function');
+                }
 
+                console.log('6. Getting reference data...');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                console.log('6a. ✓ refSite_:', refSite_);
+                
                 const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                console.log('6b. ✓ refUser_:', refUser_);
+                
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                console.log('6c. ✓ refPpmGroup_:', refPpmGroup_);
+                
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                console.log('6d. ✓ refStatus_:', refStatus_);
+                
                 const userSite = mzGetUserInfoByParam('siteId');
+                console.log('6e. ✓ userSite:', userSite);
 
+                console.log('7. Setting up modalCreatePtw_...');
+                console.log('7a. Setting classFrom...');
                 modalCreatePtw_.setClassFrom(ptwClass_);
+                console.log('7a. ✓ setClassFrom completed');
+                
+                console.log('7b. Setting siteId...');
                 modalCreatePtw_.setSiteId(userSite);
+                console.log('7b. ✓ setSiteId completed');
+                
+                console.log('7c. Setting refSite...');
                 modalCreatePtw_.setRefSite(refSite_);
+                console.log('7c. ✓ setRefSite completed');
+                
+                console.log('7d. Setting refUser...');
                 modalCreatePtw_.setRefUser(refUser_);
+                console.log('7d. ✓ setRefUser completed');
+                
+                console.log('7e. Setting refPpmGroup...');
                 modalCreatePtw_.setRefPpmGroup(refPpmGroup_);
-                modalCreatePtw_.init();
+                console.log('7e. ✓ setRefPpmGroup completed');
+                
+                // Wait for modal HTML to be loaded before initializing
+                console.log('8. Waiting for modal HTML to load...');
+                let modalHtmlCheckCount = 0;
+                const maxModalHtmlChecks = 50; // 5 seconds maximum wait
+                
+                const waitForModalHtml = setInterval(function() {
+                    modalHtmlCheckCount++;
+                    
+                    if (document.getElementById('optMcpApplicant')) {
+                        clearInterval(waitForModalHtml);
+                        console.log('8. ✓ Modal HTML loaded, optMcpApplicant element found');
+                        
+                        console.log('9. About to call modalCreatePtw_.init()...');
+                        console.log('9. modalCreatePtw_ object check:', modalCreatePtw_);
+                        console.log('9. modalCreatePtw_.init function check:', typeof modalCreatePtw_.init);
+                        modalCreatePtw_.init();
+                        console.log('9. ✓ modalCreatePtw_.init() completed successfully');
 
-                ptwClass_.setUserSite(userSite);
-                ptwClass_.setRefSite(refSite_);
-                ptwClass_.setRefUser(refUser_);
-                ptwClass_.setRefPpmGroup(refPpmGroup_);
-                ptwClass_.setRefStatus(refStatus_);
-                ptwClass_.setModalCreatePtw(modalCreatePtw_);
-                ptwClass_.init();
+                        console.log('10. Setting up ptwClass_...');
+                        ptwClass_.setUserSite(userSite);
+                        ptwClass_.setRefSite(refSite_);
+                        ptwClass_.setRefUser(refUser_);
+                        ptwClass_.setRefPpmGroup(refPpmGroup_);
+                        ptwClass_.setRefStatus(refStatus_);
+                        ptwClass_.setModalCreatePtw(modalCreatePtw_);
+                        console.log('10. ✓ ptwClass_ setup completed');
+                        
+                        console.log('11. About to call ptwClass_.init()...');
+                        ptwClass_.init();
+                        console.log('11. ✓ ptwClass_.init() completed successfully');
+                        
+                        console.log('=== PTW INITIALIZATION COMPLETED SUCCESSFULLY ===');
+                        HideLoader();
+                    } else if (modalHtmlCheckCount >= maxModalHtmlChecks) {
+                        clearInterval(waitForModalHtml);
+                        console.error('✗ Timeout waiting for modal HTML to load');
+                        console.error('optMcpApplicant element not found after 5 seconds');
+                        safeToast('error', 'Failed to load PTW modal. Please refresh the page.', 'Loading Error');
+                        HideLoader();
+                    } else {
+                        console.log('8. Still waiting for modal HTML... optMcpApplicant not found (attempt ' + modalHtmlCheckCount + '/' + maxModalHtmlChecks + ')');
+                    }
+                }, 100);
             } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                console.error('=== PTW INITIALIZATION ERROR ===');
+                console.error('Error occurred during PTW initialization:', e);
+                console.error('Error stack:', e.stack);
+                console.error('Error message:', e.message);
+                console.error('Error at line:', e.lineNumber || 'unknown');
+                console.error('modalCreatePtw_ object:', modalCreatePtw_);
+                console.error('ptwClass_ object:', ptwClass_);
+                safeToast('error', e.message, _ALERT_TITLE_ERROR || 'Error');
+                HideLoader();
             }
-
-            HideLoader();
-        }, 300);
+                }, 300);
+            } else if (commonJsCheckCount >= maxCommonJsChecks) {
+                clearInterval(checkCommonJsLoaded);
+                console.error('✗ Timeout waiting for common.js functions to load');
+                console.error('Available functions check:');
+                console.error('- initiatePages:', typeof initiatePages);
+                console.error('- mzGetDataVersion:', typeof mzGetDataVersion);
+                console.error('- mzGetLocalArray:', typeof mzGetLocalArray);
+                console.error('- mzGetUserInfoByParam:', typeof mzGetUserInfoByParam);
+                safeToast('error', 'Failed to load required JavaScript functions. Please refresh the page.', 'Loading Error');
+                HideLoader();
+            } else {
+                console.log('Waiting for common.js functions to load... (attempt ' + commonJsCheckCount + '/' + maxCommonJsChecks + ')');
+            }
+        }, 100); // Check every 100ms
 
         $('#btnPtwAdd').on('click', function () {
             window.location.href = 'ptw_form.html';
+        });
+
+        $('#btnSheDashboard').on('click', function () {
+            window.location.href = 'ptw_she_dashboard.html';
         });
     });
 

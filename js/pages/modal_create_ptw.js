@@ -7,7 +7,6 @@ function ModalCreatePtw() {
     let refUser;
     let refSite;
     let refPpmGroup;
-    let formValidate;
 
     this.init = function () {
         $('.divMcpHideInitial').hide();
@@ -108,17 +107,40 @@ function ModalCreatePtw() {
             }
         ];
 
-        formValidate = $('#frmMcp').bootstrapValidator({
-            excluded: [':disabled'],
-            feedbackIcons: {
-                valid: 'fa fa-check',
-                invalid: 'fa fa-times',
-                validating: 'fa fa-refresh'
-            },
-            fields: mzGetValidateField(vData)
-        }).on('success.form.bv', function (e) {
+        // Simple form validation setup
+        $('#frmMcp').on('submit', function (e) {
             e.preventDefault();
-            self.save();
+            
+            // Basic validation
+            let isValid = true;
+            const requiredFields = [
+                { id: 'txtMcpDescription', name: 'PTW Description' },
+                { id: 'txtMcpWorkArea', name: 'Work Area' },
+                { id: 'optMcpWorkType', name: 'Work Type' },
+                { id: 'optMcpRiskLevel', name: 'Risk Level' },
+                { id: 'dtMcpValidFrom', name: 'Valid From' },
+                { id: 'dtMcpValidTo', name: 'Valid To' },
+                { id: 'txtMcpApplicantName', name: 'Applicant Name' }
+            ];
+            
+            // Clear previous error states
+            $('.form-control').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
+            
+            requiredFields.forEach(function(field) {
+                const element = $('#' + field.id);
+                const value = element.val();
+                
+                if (!value || value.trim() === '') {
+                    isValid = false;
+                    element.addClass('is-invalid');
+                    element.after('<div class="invalid-feedback">' + field.name + ' is required</div>');
+                }
+            });
+            
+            if (isValid) {
+                self.save();
+            }
         });
 
         // Initialize date pickers
@@ -132,7 +154,7 @@ function ModalCreatePtw() {
 
         // Event handlers
         $('#btnMcpSave').off('click').on('click', function () {
-            $('#frmMcp').bootstrapValidator('validate');
+            $('#frmMcp').trigger('submit');
         });
 
         $('#btnMcpCancel').off('click').on('click', function () {
@@ -163,9 +185,9 @@ function ModalCreatePtw() {
         $('.worker-container').empty();
         self.addWorkerRow(); // Add one default worker row
         
-        if (formValidate) {
-            $('#frmMcp').bootstrapValidator('resetForm', true);
-        }
+        // Clear validation states
+        $('.form-control').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
     };
 
     this.addWorkerRow = function () {

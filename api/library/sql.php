@@ -256,23 +256,48 @@ class Class_sql
                 AND ppm_task_start_date >= CURDATE() - INTERVAL 2 MONTH AND ppm_task_start_date <= CURDATE() + INTERVAL 1 MONTH 
                 GROUP BY ppm_task.ppm_task_id";
             } else if ($title === 'mw_task_ppm_all') {
-                $sql = "SELECT
-                    ppm_task.*,
+                $sql = "SELECT DISTINCT
+                    ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_no,
+                    ppm_task.ppm_task_start_date,
+                    ppm_task.ppm_task_status,
+                    ppm_task.ppm_task_assigned_to,
+                    ppm_task.ppm_id,
                     ast_asset.asset_no,
                     ast_asset_type.asset_type_name,
                     cli_site.site_name,
                     ref_status.status_desc,
-                    GROUP_CONCAT(ppm_task_frequency.frequency_id) AS frequency
+                    (SELECT GROUP_CONCAT(frequency_id) 
+                     FROM ppm_task_frequency 
+                     WHERE ppm_task_frequency.ppm_task_id = ppm_task.ppm_task_id) AS frequency
                 FROM ppm_task 
-                LEFT JOIN ppm_task_frequency ON ppm_task_frequency.ppm_task_id = ppm_task.ppm_task_id                
-                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
-                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                INNER JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                INNER JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
                 LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
                 LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
-                LEFt JOIN cli_site ON cli_site.site_id = cli_contract.site_id
+                LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
                 LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
-                LEFT JOIN sys_user ON sys_user.user_id = ppm_task.ppm_task_assigned_to
-                WHERE [rest_filter] GROUP BY ppm_task.ppm_task_id";
+                WHERE [rest_filter]";
+            } else if ($title === 'mw_task_ppm_all_fast') {
+                $sql = "SELECT
+                    ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_no,
+                    ppm_task.ppm_task_start_date,
+                    ppm_task.ppm_task_status,
+                    ppm_task.ppm_task_assigned_to,
+                    ppm_task.ppm_id,
+                    ast_asset.asset_no,
+                    ast_asset_type.asset_type_name,
+                    cli_site.site_name,
+                    ref_status.status_desc
+                FROM ppm_task 
+                INNER JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                INNER JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN ast_asset_type ON ast_asset_type.asset_type_id = ast_asset.asset_type_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ast_asset.contract_id
+                LEFT JOIN cli_site ON cli_site.site_id = cli_contract.site_id
+                LEFT JOIN ref_status ON ref_status.status_id = ppm_task.ppm_task_status
+                WHERE [rest_filter]";
             } else if ($title === 'mw_task_ppm_calendar_count_all') {
                 $sql = "SELECT
                     ppm_task_start_date, GROUP_CONCAT(status_desc) AS status, COUNT(*) AS total

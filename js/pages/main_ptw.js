@@ -53,9 +53,11 @@ function MainPtw() {
                                     oTablePtw.cell(parseInt(rowId), 16).data(pdfId).draw();
                                     mzOpenPdfModal('/'+resultPdf.pdfFullPath);
                                 } else {
+                                    console.log('PTW PDF generation failed:', resultRequest.error);
                                     toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
                                 }
                             } catch (e) {
+                                console.log('PTW PDF generation error caught:', e.message, e);
                                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
                             }
                             HideLoader();
@@ -163,55 +165,136 @@ function MainPtw() {
     };
 
     this.refreshPtwData = function () {
+        console.log('DEBUG: refreshPtwData called');
         ShowLoader();
-        const resultRequest = mzAjaxRequest('ptw.php', 'GET', {action: 'list'});
-        if (resultRequest.success) {
+        
+        try {
+            console.log('DEBUG: About to call mzAjaxRequest for PTW data...');
+            const arrPtwData = mzAjaxRequest('ptw.php', 'GET', {action: 'list'});
+            console.log('DEBUG: PTW API returned data directly:', arrPtwData);
+            console.log('DEBUG: Data type:', typeof arrPtwData);
+            console.log('DEBUG: Is array?', Array.isArray(arrPtwData));
+            console.log('DEBUG: Length:', arrPtwData ? arrPtwData.length : 'N/A');
+            
+            // Show what we got
+            alert('PTW API Direct Response: ' + JSON.stringify({
+                dataType: typeof arrPtwData,
+                isArray: Array.isArray(arrPtwData),
+                length: arrPtwData ? arrPtwData.length : 'N/A',
+                firstRecord: arrPtwData && arrPtwData.length > 0 ? JSON.stringify(arrPtwData[0]) : 'None'
+            }, null, 2));
+            
+            console.log('DEBUG: PTW API call successful - clearing DataTable...');
             oTablePtw.clear();
-            const arrPtwData = resultRequest.result;
+            console.log('DEBUG: DataTable cleared');
             
-            arrPtwData.forEach(function(ptw, index) {
-                const statusBadge = self.getStatusBadge(ptw.ptwStatus);
-                const riskBadge = self.getRiskBadge(ptw.ptwRiskLevel);
-                const actionButtons = self.getActionButtons(ptw, index);
+            // Try adding a single minimal test row first
+            try {
+                console.log('DEBUG: Adding minimal test row...');
+                const testRow = ['1', 'Test Date', 'TEST-001', 'Test Description', 'Test Site', 'Test Area', 'Test Type', 'Test Applicant', 'Low', 'Active', '', '', '0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+                console.log('DEBUG: Test row data:', testRow);
+                console.log('DEBUG: Test row length:', testRow.length);
+                oTablePtw.row.add(testRow);
+                console.log('DEBUG: Test row added successfully');
+            } catch (testError) {
+                console.error('DEBUG: Error adding test row:', testError);
+            }
+            
+            let rowsAdded = 0;
+            
+            console.log('DEBUG: Checking PTW data conditions...');
+            console.log('DEBUG: arrPtwData exists?', !!arrPtwData);
+            console.log('DEBUG: arrPtwData is array?', Array.isArray(arrPtwData));
+            console.log('DEBUG: arrPtwData length > 0?', arrPtwData && arrPtwData.length > 0);
+            console.log('DEBUG: arrPtwData actual length:', arrPtwData ? arrPtwData.length : 'N/A');
+            
+            if (arrPtwData && Array.isArray(arrPtwData) && arrPtwData.length > 0) {
+                console.log('DEBUG: ✅ PTW data conditions met - Processing', arrPtwData.length, 'PTW records');
+                console.log('DEBUG: Full PTW array:', arrPtwData);
                 
-                oTablePtw.row.add([
-                    '', // Row number (auto-generated)
-                    ptw.createdDate,
-                    ptw.ptwPermitNumber,
-                    ptw.ptwPermitDescription,
-                    ptw.siteName,
-                    ptw.ptwWorkArea,
-                    ptw.ptwWorkType,
-                    ptw.ptwApplicantName,
-                    riskBadge,
-                    statusBadge,
-                    ptw.ptwValidFrom,
-                    ptw.ptwValidTo,
-                    ptw.workerCount || 0,
-                    ptw.ptwContractorCompany,
-                    ptw.createdByName,
-                    actionButtons,
-                    ptw.pdfId || '',
-                    ptw.ptwPermitId,
-                    ptw.ptwStatus,
-                    ptw.ptwRiskLevel,
-                    ptw.createdBy,
-                    ptw.approvedSupervisorName,
-                    ptw.approvedSheName,
-                    ptw.approvedFmName,
-                    ptw.approvedSupervisorDate,
-                    ptw.approvedSheDate,
-                    ptw.approvedFmDate,
-                    ptw.createdDate
-                ]);
-            });
+                // Just try the first record for now
+                const firstPtw = arrPtwData[0];
+                console.log('DEBUG: Processing first PTW record:', firstPtw);
+                console.log('DEBUG: First PTW record keys:', Object.keys(firstPtw || {}));
+                
+                try {
+                    const rowData = [
+                        '2', // Row number
+                        firstPtw.created_date || '',
+                        firstPtw.ptw_permit_number || '',
+                        firstPtw.ptw_permit_description || '',
+                        'Site Name', // Site name - simplified
+                        firstPtw.ptw_work_area || '',
+                        firstPtw.ptw_work_type || '',
+                        firstPtw.ptw_applicant_name || '',
+                        firstPtw.ptw_risk_level || '',
+                        firstPtw.ptw_status || '',
+                        firstPtw.ptw_valid_from || '',
+                        firstPtw.ptw_valid_to || '',
+                        '0', // Worker count
+                        firstPtw.ptw_contractor_company || '',
+                        'Creator Name', // Created by name
+                        '<i class="fas fa-eye"></i>', // Action buttons
+                        '', // PDF ID
+                        firstPtw.ptw_permit_id || '',
+                        firstPtw.ptw_status || '',
+                        firstPtw.ptw_risk_level || '',
+                        firstPtw.created_by || '',
+                        '', // Approved supervisor
+                        '', // Approved SHE
+                        '', // Approved FM
+                        firstPtw.approved_supervisor_date || '',
+                        firstPtw.approved_she_date || '',
+                        firstPtw.approved_fm_date || '',
+                        firstPtw.created_date || ''
+                    ];
+                    
+                    console.log('DEBUG: Adding first record row data:', rowData);
+                    console.log('DEBUG: Row data length:', rowData.length);
+                    oTablePtw.row.add(rowData);
+                    rowsAdded++;
+                    console.log('DEBUG: First record added successfully');
+                    
+                } catch (e) {
+                    console.error('DEBUG: Error processing first PTW record:', e);
+                    console.error('DEBUG: Record data:', firstPtw);
+                }
+            } else {
+                console.log('DEBUG: ❌ PTW data conditions NOT met');
+                console.log('DEBUG: arrPtwData exists?', !!arrPtwData);
+                console.log('DEBUG: arrPtwData is array?', Array.isArray(arrPtwData));
+                console.log('DEBUG: arrPtwData length:', arrPtwData ? arrPtwData.length : 'N/A');
+                console.log('DEBUG: arrPtwData value:', arrPtwData);
+                console.log('DEBUG: typeof arrPtwData:', typeof arrPtwData);
+                
+                if (arrPtwData && !Array.isArray(arrPtwData)) {
+                    console.log('DEBUG: arrPtwData is not an array, trying to convert...');
+                    if (typeof arrPtwData === 'object') {
+                        console.log('DEBUG: arrPtwData object keys:', Object.keys(arrPtwData));
+                    }
+                }
+            }
             
+            console.log('DEBUG: About to draw DataTable...');
+            console.log('DEBUG: DataTable rows count before draw:', oTablePtw.rows().count());
             oTablePtw.draw();
-            self.updateStatusLinks(arrPtwData);
-        } else {
-            toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
+            console.log('DEBUG: DataTable draw completed');
+            console.log('DEBUG: DataTable rows count after draw:', oTablePtw.rows().count());
+            
+            console.log('DEBUG: About to update status links...');
+            self.updateStatusLinks(arrPtwData || []);
+            console.log('DEBUG: Status links updated');
+            console.log('DEBUG: Table draw completed');
+            
+        } catch (error) {
+            console.log('DEBUG: PTW API call failed with error:', error);
+            console.log('DEBUG: Error message:', error.message);
+            alert('PTW API Error: ' + error.message);
+            toastr['error'](error.message, _ALERT_TITLE_ERROR);
         }
+        
         HideLoader();
+        console.log('DEBUG: refreshPtwData completed');
     };
 
     this.getStatusBadge = function(status) {
@@ -242,7 +325,7 @@ function MainPtw() {
         let buttons = '';
         buttons += '<a href="javascript:void(0);" class="lnkPtwView" id="lnkPtwView_' + index + '" data-toggle="tooltip" title="View Details"><i class="fas fa-eye text-info"></i></a> ';
         
-        if (ptw.ptwStatus === 'DRAFT') {
+        if (ptw.ptw_status === 'DRAFT') {
             buttons += '<a href="javascript:void(0);" class="lnkPtwEdit" id="lnkPtwEdit_' + index + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit text-primary"></i></a> ';
             buttons += '<a href="javascript:void(0);" class="lnkPtwDelete" id="lnkPtwDelete_' + index + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash text-danger"></i></a> ';
         }
@@ -284,8 +367,8 @@ function MainPtw() {
         };
 
         data.forEach(function(ptw) {
-            if (statusCounts.hasOwnProperty(ptw.ptwStatus)) {
-                statusCounts[ptw.ptwStatus]++;
+            if (statusCounts.hasOwnProperty(ptw.ptw_status)) {
+                statusCounts[ptw.ptw_status]++;
             }
         });
 
@@ -357,6 +440,7 @@ function MainPtw() {
             toastr['success']('PTW permit deleted successfully', _ALERT_TITLE_SUCCESS);
             self.refreshPtwData();
         } else {
+            console.log('PTW delete failed:', resultRequest.error);
             toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
         }
         HideLoader();
@@ -410,6 +494,7 @@ function viewPtwDetails(permitId) {
         // Show in modal or dedicated view
         mzShowAlert('PTW Permit Details', content);
     } else {
+        console.log('PTW details view failed:', resultRequest.error);
         toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
     }
 }
