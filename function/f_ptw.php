@@ -28,13 +28,13 @@ class Class_ptw {
             'ptw_supervisor_approval' => 'APPROVED',
             'ptw_she_approval' => 'PENDING',
             'ptw_status' => 'PENDING_SHE'
-        ), 'ptw_supervisor_approved_date ASC');
+        ), 'approved_supervisor_date ASC');
         
         // Enhance with supervisor names
         foreach ($permits as &$permit) {
-            if ($permit['ptw_supervisor_approved_by']) {
+            if ($permit['approved_supervisor_by']) {
                 $supervisor = Class_db::getInstance()->db_select_single('sys_user', array(
-                    'user_id' => $permit['ptw_supervisor_approved_by']
+                    'user_id' => $permit['approved_supervisor_by']
                 ));
                 if ($supervisor) {
                     $permit['supervisor_name'] = $supervisor['user_first_name'] . ' ' . $supervisor['user_last_name'];
@@ -87,15 +87,110 @@ class Class_ptw {
         // Get approved count (by current user)
         $approved_count = Class_db::getInstance()->db_count('ptw_permit', array(
             'site_id' => $user_site_id,
-            'ptw_she_approved_by' => $user_id,
+            'approved_she_by' => $user_id,
             'ptw_she_approval' => 'APPROVED'
         ));
         
         // Get rejected count (by current user)
         $rejected_count = Class_db::getInstance()->db_count('ptw_permit', array(
             'site_id' => $user_site_id,
-            'ptw_she_approved_by' => $user_id,
+            'approved_she_by' => $user_id,
             'ptw_she_approval' => 'REJECTED'
+        ));
+        
+        return array(
+            'pending' => $pending_count,
+            'approved' => $approved_count,
+            'rejected' => $rejected_count,
+            'total' => $approved_count + $rejected_count
+        );
+    }
+
+    /**
+     * Get permits pending FM approval
+     */
+    public function get_permits_for_fm_approval($user_site_id) {
+        // Using the db_select method
+        $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+            'site_id' => $user_site_id,
+            'ptw_supervisor_approval' => 'APPROVED',
+            'ptw_she_approval' => 'APPROVED',
+            'ptw_fm_approval' => 'PENDING',
+            'ptw_status' => 'PENDING_FM'
+        ), 'approved_she_date ASC');
+        
+        // Enhance with approval details
+        foreach ($permits as &$permit) {
+            if ($permit['approved_supervisor_by']) {
+                $supervisor = Class_db::getInstance()->db_select_single('sys_user', array(
+                    'user_id' => $permit['approved_supervisor_by']
+                ));
+                if ($supervisor) {
+                    $permit['supervisor_name'] = $supervisor['user_first_name'] . ' ' . $supervisor['user_last_name'];
+                }
+            }
+            
+            if ($permit['approved_she_by']) {
+                $she_officer = Class_db::getInstance()->db_select_single('sys_user', array(
+                    'user_id' => $permit['approved_she_by']
+                ));
+                if ($she_officer) {
+                    $permit['she_officer_name'] = $she_officer['user_first_name'] . ' ' . $she_officer['user_last_name'];
+                }
+            }
+        }
+        
+        return $permits;
+    }
+
+    /**
+     * Get recent FM actions
+     */
+    public function get_fm_recent_actions($user_id, $user_site_id) {
+        // Get recent actions by the FM
+        $actions = Class_db::getInstance()->db_select('ptw_status_history', array(
+            'action_by' => $user_id
+        ), 'action_date DESC', 10);
+        
+        // Enhance with permit information
+        foreach ($actions as &$action) {
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array(
+                'ptw_permit_id' => $action['ptw_permit_id'],
+                'site_id' => $user_site_id
+            ));
+            if ($permit) {
+                $action['permit_number'] = $permit['ptw_permit_number'];
+                $action['permit_description'] = $permit['ptw_permit_description'];
+            }
+        }
+        
+        return $actions;
+    }
+
+    /**
+     * Get FM summary statistics
+     */
+    public function get_fm_summary_statistics($user_id, $user_site_id) {
+        // Get pending count
+        $pending_count = Class_db::getInstance()->db_count('ptw_permit', array(
+            'site_id' => $user_site_id,
+            'ptw_supervisor_approval' => 'APPROVED',
+            'ptw_she_approval' => 'APPROVED',
+            'ptw_fm_approval' => 'PENDING'
+        ));
+        
+        // Get approved count (by current user)
+        $approved_count = Class_db::getInstance()->db_count('ptw_permit', array(
+            'site_id' => $user_site_id,
+            'approved_fm_by' => $user_id,
+            'ptw_fm_approval' => 'APPROVED'
+        ));
+        
+        // Get rejected count (by current user)
+        $rejected_count = Class_db::getInstance()->db_count('ptw_permit', array(
+            'site_id' => $user_site_id,
+            'approved_fm_by' => $user_id,
+            'ptw_fm_approval' => 'REJECTED'
         ));
         
         return array(
@@ -131,8 +226,8 @@ class Class_ptw {
         }
         
         // Get supervisor name
-        if ($permit_data['ptw_supervisor_approved_by']) {
-            $supervisor = Class_db::getInstance()->db_select_single('sys_user', array('user_id' => $permit_data['ptw_supervisor_approved_by']));
+        if ($permit_data['approved_supervisor_by']) {
+            $supervisor = Class_db::getInstance()->db_select_single('sys_user', array('user_id' => $permit_data['approved_supervisor_by']));
             if ($supervisor) {
                 $permit_data['supervisor_name'] = $supervisor['user_first_name'] . ' ' . $supervisor['user_last_name'];
             }

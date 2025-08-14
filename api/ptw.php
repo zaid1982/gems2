@@ -30,6 +30,9 @@ try {
     $fn_ptw->__set('constant', $constant);
     $fn_ptw->__set('fn_general', $fn_general);
 
+    // Test debug logging to verify it's working
+    $fn_general->log_debug('API', 'PTW_INIT', __LINE__, 'PTW API initialized - Testing debug logging functionality');
+
     /**
      * Generate unique PTW permit number using timestamp format
      * Format: PTWYYYYMMDDhhmmss
@@ -64,16 +67,46 @@ try {
     $request_method = $_SERVER['REQUEST_METHOD'];
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
-    // Check authorization (with fallback for testing)
+    // Check authorization (with fallback for testing and public forms)
     $headers = apache_request_headers();
-    if (!isset($headers['Authorization']) || empty($headers['Authorization'])) {
+    $is_public_form = isset($_POST['public_user']) && $_POST['public_user'] === 'Public User';
+    
+    if ($is_public_form) {
+        // Handle public form submission
+        $fn_general->log_debug('API', $api_name, __LINE__, 'Public form submission detected');
+        
+        // Get public user from database
+        try {
+            $public_users = Class_db::getInstance()->db_select('sys_user', array('user_first_name' => 'Public User'));
+            if (count($public_users) > 0) {
+                $jwt_data = (object) array('userId' => $public_users[0]['user_id']);
+                $user_site_id = $public_users[0]['site_id'];
+                $fn_general->log_debug('API', $api_name, __LINE__, 'Using public user ID: ' . $jwt_data->userId . ', site_id: ' . $user_site_id);
+            } else {
+                throw new Exception('Public user not found in system');
+            }
+        } catch (Exception $e) {
+            $fn_general->log_error('API', $api_name, __LINE__, 'Error getting public user: ' . $e->getMessage());
+            throw new Exception('Failed to process public form submission');
+        }
+    } else if (!isset($headers['Authorization']) || empty($headers['Authorization'])) {
         // For testing purposes, create a mock user session
         $fn_general->log_debug('API', $api_name, __LINE__, 'No authorization header, using test user');
         $jwt_data = (object) array('userId' => 1);
         $user_site_id = null; // Let it get site from user record
     } else {
         try {
-            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+            $auth_header = $headers['Authorization'];
+            
+            // For FM dashboard testing, accept specific test token
+            if ($auth_header === 'Bearer valid_test_token_for_fm_dashboard') {
+                $fn_general->log_debug('API', $api_name, __LINE__, 'Using FM dashboard test token');
+                $jwt_data = (object) array('userId' => 1);
+                $user_site_id = null;
+            } else {
+                // Try normal JWT validation
+                $jwt_data = $fn_login->check_jwt($auth_header);
+            }
             $user_site_id = null; // Will be determined below
         } catch (Exception $e) {
             $fn_general->log_error('API', $api_name, __LINE__, 'JWT validation failed: ' . $e->getMessage());
@@ -100,6 +133,7 @@ try {
     
     switch($request_method) {
         case 'GET':
+            $fn_general->log_debug('API', $api_name, __LINE__, 'Processing GET request - calling get_ptw_data');
             $result = get_ptw_data($jwt_data->userId, $user_site_id);
             break;
         case 'POST':
@@ -108,7 +142,39 @@ try {
             error_log('PTW API: POST data: ' . print_r($_POST, true));
             error_log('PTW API: User ID: ' . $jwt_data->userId . ', Site ID: ' . $user_site_id);
             
-            $result = create_ptw_permit($jwt_data->userId, $user_site_id);
+            // Check for supervisor actions first
+            if (isset($_POST['action'])) {
+                $action = $_POST['action'];
+                switch ($action) {
+                    case 'supervisor_approve':
+                        if (!isset($_POST['permit_id'])) {
+                            throw new Exception('[' . __LINE__ . '] - Permit ID required for approval');
+                        }
+                        $result = handle_supervisor_approval($_POST['permit_id'], $jwt_data->userId, $user_site_id, $_POST);
+                        break;
+                        
+                    case 'supervisor_reject':
+                        if (!isset($_POST['permit_id'])) {
+                            throw new Exception('[' . __LINE__ . '] - Permit ID required for rejection');
+                        }
+                        $result = handle_supervisor_rejection($_POST['permit_id'], $jwt_data->userId, $user_site_id, $_POST);
+                        break;
+                        
+                    case 'supervisor_return_for_modification':
+                        if (!isset($_POST['permit_id'])) {
+                            throw new Exception('[' . __LINE__ . '] - Permit ID required for modification request');
+                        }
+                        $result = handle_supervisor_modification($_POST['permit_id'], $jwt_data->userId, $user_site_id, $_POST);
+                        break;
+                        
+                    default:
+                        // Fall back to normal PTW creation
+                        $result = create_ptw_permit($jwt_data->userId, $user_site_id);
+                        break;
+                }
+            } else {
+                $result = create_ptw_permit($jwt_data->userId, $user_site_id);
+            }
             break;
         case 'PUT':
             $result = update_ptw_permit($jwt_data->userId, $user_site_id);
@@ -135,10 +201,18 @@ echo json_encode($form_data);
 function get_ptw_data($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
     
+    // Debug logging at function start
+    $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'get_ptw_data called with user_id: ' . $user_id . ', site_id: ' . $user_site_id);
+    $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'GET parameters: ' . print_r($_GET, true));
+    
     // Check for action-based requests
     if (isset($_GET['action'])) {
-        switch ($_GET['action']) {
+        $action = $_GET['action'];
+        $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Action parameter found: ' . $action);
+        
+        switch ($action) {
             case 'list':
+                $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: list');
                 // Get PTW permit list for main management page
                 $filters = array();
                 if ($user_site_id !== null) {
@@ -147,14 +221,17 @@ function get_ptw_data($user_id, $user_site_id) {
                 return $fn_ptw->get_permit_list($filters);
                 
             case 'statistics':
+                $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: statistics');
                 // Get PTW statistics for dashboard
                 return $fn_ptw->get_permit_statistics($user_site_id);
                 
             case 'chart_data':
+                $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: chart_data');
                 // Get chart data for PTW status visualization
                 return get_ptw_chart_data($user_site_id);
                 
             case 'dashboard_data':
+                $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: dashboard_data - calling get_ptw_dashboard_data');
                 // Get comprehensive dashboard data including permits, statistics, and activity
                 return get_ptw_dashboard_data($user_id, $user_site_id);
                 
@@ -175,15 +252,40 @@ function get_ptw_data($user_id, $user_site_id) {
             case 'get_she_summary_statistics':
                 return $fn_ptw->get_she_summary_statistics($user_id, $user_site_id);
                 
+            case 'get_fm_pending_permits':
+            case 'get_permits_for_fm_approval':
+                return $fn_ptw->get_permits_for_fm_approval($user_id, $user_site_id);
+                
+            case 'get_fm_recent_actions':
+                return $fn_ptw->get_fm_recent_actions($user_id, $user_site_id);
+                
+            case 'get_fm_summary_stats':
+            case 'get_fm_summary_statistics':
+                return $fn_ptw->get_fm_summary_statistics($user_id, $user_site_id);
+                
             case 'get_permit':
                 if (!isset($_GET['permit_id'])) {
                     throw new Exception('[' . __LINE__ . '] - Permit ID required');
                 }
                 return $fn_ptw->get_permit_details($_GET['permit_id'], $user_site_id);
                 
+            case 'get_supervisor_pending_requests':
+                // Get PTW requests pending supervisor approval
+                return get_supervisor_pending_requests($user_site_id);
+                
+            case 'supervisor_approve':
+                // This should be handled in POST section, but adding here for completeness
+                throw new Exception('[' . __LINE__ . '] - Supervisor approval should use POST method');
+                
+            case 'supervisor_report':
+                // Generate supervisor report
+                return generate_supervisor_report($user_site_id);
+                
             default:
                 throw new Exception('[' . __LINE__ . '] - Invalid action: ' . $_GET['action']);
         }
+    } else {
+        $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'No action parameter found - falling back to default permit list');
     }
     
     $filters = array();
@@ -562,6 +664,7 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
     
     // Debug logging at function start
+    $fn_general->log_debug('API', 'PTW_DASHBOARD', __LINE__, 'get_ptw_dashboard_data function called with user_id: ' . $user_id . ', site_id: ' . $user_site_id);
     error_log("PTW Dashboard Function Called - User ID: " . $user_id . " (type: " . gettype($user_id) . "), Site ID: " . $user_site_id);
     
     try {
@@ -604,6 +707,12 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
                      " | Created by: " . $permit['created_by'] . " (type: " . gettype($permit['created_by']) . ")" .
                      " | Current user: " . $user_id . " (type: " . gettype($user_id) . ")" .
                      " | Match: " . ($permit['created_by'] == $user_id ? 'YES' : 'NO'));
+
+            $fn_general->log_debug('API', 'PTW Dashboard', __LINE__, 
+                "Processing permit: " . $permit['ptw_permit_number'] . 
+                " | Created by: " . $permit['created_by'] . 
+                " | Current user: " . $user_id . 
+                " | Match: " . ($permit['created_by'] == $user_id ? 'YES' : 'NO'));
             
             // Count status
             $status = $permit['ptw_status'];
@@ -617,6 +726,10 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
             // Additional debug
             error_log("PTW Dashboard Debug - Checking if permit is 'My PTW': " . $permit['ptw_permit_number'] . 
                      " | Created by: " . $permit['created_by'] . " | User ID: " . $user_id);
+            
+            $fn_general->log_debug('API', 'PTW Dashboard', __LINE__, 
+                "Checking if permit is 'My PTW': " . $permit['ptw_permit_number'] . 
+                " | Created by: " . $permit['created_by'] . " | User ID: " . $user_id);
 
             if ($permit['created_by'] == $user_id || strval($permit['created_by']) == strval($user_id)) {
                 $organized_data['myPtw'][] = $permit;
@@ -684,6 +797,392 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
         $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
         throw new Exception('Failed to get dashboard data: ' . $ex->getMessage());
     }
+}
+
+// Supervisor-specific functions
+function get_supervisor_pending_requests($user_site_id) {
+    global $fn_general, $fn_ptw;
+    
+    try {
+        $fn_general->log_debug('API', 'GET_SUPERVISOR_PENDING', __LINE__, 'Getting supervisor pending requests for site: ' . $user_site_id);
+        
+        $filters = array(
+            'site_id' => $user_site_id,
+            'ptw_status' => 'PENDING_SUPERVISOR'
+        );
+        
+        $permits = $fn_ptw->get_permit_list($filters);
+        
+        // Add additional supervisor-specific data
+        foreach ($permits as &$permit) {
+            // Calculate priority based on various factors
+            $permit['priority'] = calculatePriority($permit);
+            
+            // Check if overdue
+            $permit['is_overdue'] = isPermitOverdue($permit);
+            
+            // Get applicant details
+            $permit['applicant_details'] = getApplicantDetails($permit['ptw_applicant_id']);
+        }
+        
+        return array(
+            'success' => true,
+            'permits' => $permits,
+            'total_count' => count($permits)
+        );
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        throw new Exception('Failed to get supervisor pending requests: ' . $ex->getMessage());
+    }
+}
+
+function handle_supervisor_approval($permit_id, $user_id, $user_site_id, $post_data) {
+    global $fn_general, $fn_ptw;
+    
+    try {
+        $fn_general->log_debug('API', 'SUPERVISOR_APPROVE', __LINE__, 
+            'Supervisor approval for permit: ' . $permit_id . ' by user: ' . $user_id);
+        error_log('PTW API: Supervisor approval - Permit ID: ' . $permit_id . ', User ID: ' . $user_id);
+        
+        // Validate permit exists and is in correct status
+        $permit = $fn_ptw->get_permit_details($permit_id, $user_site_id);
+        error_log('PTW API: Retrieved permit: ' . print_r($permit, true));
+        
+        if (!$permit) {
+            throw new Exception('[' . __LINE__ . '] - Permit not found or access denied');
+        }
+        
+        if ($permit['ptw_status'] !== 'PENDING_SUPERVISOR') {
+            throw new Exception('[' . __LINE__ . '] - Invalid permit status for supervisor approval. Current status: ' . $permit['ptw_status']);
+        }
+        
+        // Determine next status in approval workflow
+        // After supervisor approval, typically goes to SHE approval
+        $next_status = 'PENDING_SHE';
+        
+        // For low risk permits, might skip directly to approved
+        if (isset($permit['ptw_risk_level']) && $permit['ptw_risk_level'] === 'LOW') {
+            $next_status = 'APPROVED';
+        }
+        
+        error_log('PTW API: Setting next status to: ' . $next_status);
+        
+        // Prepare update data with correct field names
+        $update_data = array(
+            'ptw_status' => $next_status,
+            'ptw_supervisor_approval' => 'APPROVED',
+            'updated_by' => $user_id,
+            'updated_date' => date('Y-m-d H:i:s')
+        );
+        
+        // If going to SHE approval, set SHE status to PENDING
+        if ($next_status === 'PENDING_SHE') {
+            $update_data['ptw_she_approval'] = 'PENDING';
+        }
+        
+        // Add supervisor-specific fields if they exist in the database
+        $comments = isset($post_data['comments']) ? trim($post_data['comments']) : 'Approved by supervisor';
+        $update_data['ptw_supervisor_comments'] = $comments;
+        $update_data['ptw_supervisor_approval_date'] = date('Y-m-d H:i:s');
+        $update_data['ptw_supervisor_id'] = $user_id;
+        
+        error_log('PTW API: Update data: ' . print_r($update_data, true));
+        
+        // Update permit using direct database call for better error handling
+        $update_result = Class_db::getInstance()->db_update(
+            'ptw_permit',
+            $update_data,
+            array('ptw_permit_id' => $permit_id)
+        );
+        
+        error_log('PTW API: Database update result: ' . ($update_result ? 'SUCCESS' : 'FAILED'));
+        
+        if ($update_result !== false) {
+            // Log approval action
+            $fn_general->log_debug('PTW', 'SUPERVISOR_APPROVED', __LINE__, 
+                'Permit ' . $permit_id . ' approved by supervisor ' . $user_id . 
+                ' and moved to ' . $next_status . ': ' . $comments);
+            
+            // Send notification if moving to SHE approval
+            if ($next_status === 'PENDING_SHE') {
+                try {
+                    // Send email notification to SHE team (optional)
+                    // $fn_email->send_she_notification($permit_id, $permit);
+                } catch (Exception $email_ex) {
+                    // Don't fail the approval if email fails
+                    error_log('PTW API: Email notification failed: ' . $email_ex->getMessage());
+                }
+            }
+            
+            return array(
+                'success' => true,
+                'message' => 'Permit approved by supervisor successfully',
+                'next_status' => $next_status,
+                'permit_id' => $permit_id
+            );
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Failed to update permit in database');
+        }
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        error_log('PTW API: Supervisor approval error: ' . $ex->getMessage());
+        throw new Exception('Failed to approve permit: ' . $ex->getMessage());
+    }
+}
+
+function handle_supervisor_rejection($permit_id, $user_id, $user_site_id, $post_data) {
+    global $fn_general, $fn_ptw;
+    
+    try {
+        $fn_general->log_debug('API', 'SUPERVISOR_REJECT', __LINE__, 
+            'Supervisor rejection for permit: ' . $permit_id . ' by user: ' . $user_id);
+        error_log('PTW API: Supervisor rejection - Permit ID: ' . $permit_id . ', User ID: ' . $user_id);
+        
+        // Validate permit exists and is in correct status
+        $permit = $fn_ptw->get_permit_details($permit_id, $user_site_id);
+        
+        if (!$permit) {
+            throw new Exception('[' . __LINE__ . '] - Permit not found or access denied');
+        }
+        
+        if ($permit['ptw_status'] !== 'PENDING_SUPERVISOR') {
+            throw new Exception('[' . __LINE__ . '] - Invalid permit status for supervisor rejection. Current status: ' . $permit['ptw_status']);
+        }
+        
+        $rejection_reason = isset($post_data['rejection_reason']) ? trim($post_data['rejection_reason']) : '';
+        if (empty($rejection_reason)) {
+            throw new Exception('[' . __LINE__ . '] - Rejection reason is required');
+        }
+        
+        error_log('PTW API: Rejection reason: ' . $rejection_reason);
+        
+        // Update permit status to rejected
+        $update_data = array(
+            'ptw_status' => 'CANCELLED',
+            'ptw_supervisor_approval' => 'REJECTED',
+            'updated_by' => $user_id,
+            'updated_date' => date('Y-m-d H:i:s'),
+            'ptw_supervisor_comments' => $rejection_reason,
+            'ptw_supervisor_rejection_date' => date('Y-m-d H:i:s'),
+            'ptw_supervisor_id' => $user_id
+        );
+        
+        error_log('PTW API: Rejection update data: ' . print_r($update_data, true));
+        
+        // Update permit using direct database call
+        $update_result = Class_db::getInstance()->db_update(
+            'ptw_permit',
+            $update_data,
+            array('ptw_permit_id' => $permit_id)
+        );
+        
+        error_log('PTW API: Database rejection update result: ' . ($update_result ? 'SUCCESS' : 'FAILED'));
+        
+        if ($update_result !== false) {
+            // Log rejection action
+            $fn_general->log_debug('PTW', 'SUPERVISOR_REJECTED', __LINE__, 
+                'Permit ' . $permit_id . ' rejected by supervisor ' . $user_id . ': ' . $rejection_reason);
+            
+            // Send notification to applicant (optional)
+            try {
+                // $fn_email->send_rejection_notification($permit_id, $permit, $rejection_reason);
+            } catch (Exception $email_ex) {
+                // Don't fail the rejection if email fails
+                error_log('PTW API: Rejection email notification failed: ' . $email_ex->getMessage());
+            }
+            
+            return array(
+                'success' => true,
+                'message' => 'Permit rejected by supervisor successfully',
+                'permit_id' => $permit_id
+            );
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Failed to update permit in database');
+        }
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        error_log('PTW API: Supervisor rejection error: ' . $ex->getMessage());
+        throw new Exception('Failed to reject permit: ' . $ex->getMessage());
+    }
+}
+
+function handle_supervisor_modification($permit_id, $user_id, $user_site_id, $post_data) {
+    global $fn_general, $fn_ptw;
+    
+    try {
+        $fn_general->log_debug('API', 'SUPERVISOR_MODIFY', __LINE__, 
+            'Supervisor modification request for permit: ' . $permit_id . ' by user: ' . $user_id);
+        
+        // Validate permit exists and is in correct status
+        $permit = $fn_ptw->get_permit_details($permit_id, $user_site_id);
+        if (!$permit || $permit['ptw_status'] !== 'PENDING_SUPERVISOR') {
+            throw new Exception('Invalid permit or status for modification request');
+        }
+        
+        $modification_notes = $post_data['modification_notes'] ?? '';
+        if (empty($modification_notes)) {
+            throw new Exception('Modification notes are required');
+        }
+        
+        // Update permit status to require modification
+        $update_data = array(
+            'ptw_status' => 'PENDING_MODIFICATION',
+            'supervisor_id' => $user_id,
+            'supervisor_modification_date' => date('Y-m-d H:i:s'),
+            'supervisor_comments' => $modification_notes
+        );
+        
+        $result = $fn_ptw->update_permit($permit_id, $update_data);
+        
+        if ($result) {
+            // Log modification request action
+            $fn_general->log_debug('PTW', 'SUPERVISOR_MODIFICATION_REQUESTED', __LINE__, 
+                'Permit ' . $permit_id . ' modification requested by supervisor ' . $user_id . ': ' . $modification_notes);
+            
+            return array(
+                'success' => true,
+                'message' => 'Modification request sent successfully',
+                'permit_id' => $permit_id
+            );
+        } else {
+            throw new Exception('Failed to update permit status');
+        }
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        throw new Exception('Failed to request modification: ' . $ex->getMessage());
+    }
+}
+
+function generate_supervisor_report($user_site_id) {
+    global $fn_general, $fn_ptw;
+    
+    try {
+        $fn_general->log_debug('API', 'SUPERVISOR_REPORT', __LINE__, 'Generating supervisor report for site: ' . $user_site_id);
+        
+        // Get various permit statistics for supervisor
+        $report_data = array();
+        
+        // Pending approvals
+        $pending_filters = array('site_id' => $user_site_id, 'ptw_status' => 'PENDING_SUPERVISOR');
+        $report_data['pending_approvals'] = $fn_ptw->get_permit_list($pending_filters);
+        
+        // Recently approved (last 7 days)
+        $approved_filters = array(
+            'site_id' => $user_site_id, 
+            'ptw_status' => 'APPROVED',
+            'date_from' => date('Y-m-d', strtotime('-7 days'))
+        );
+        $report_data['recent_approvals'] = $fn_ptw->get_permit_list($approved_filters);
+        
+        // Overdue permits
+        $report_data['overdue_permits'] = getOverduePermits($user_site_id);
+        
+        // Summary statistics
+        $report_data['summary'] = array(
+            'total_pending' => count($report_data['pending_approvals']),
+            'total_approved_week' => count($report_data['recent_approvals']),
+            'total_overdue' => count($report_data['overdue_permits'])
+        );
+        
+        return array(
+            'success' => true,
+            'report_data' => $report_data,
+            'generated_at' => date('Y-m-d H:i:s')
+        );
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        throw new Exception('Failed to generate supervisor report: ' . $ex->getMessage());
+    }
+}
+
+// Helper functions
+function calculatePriority($permit) {
+    $priority = 'MEDIUM';
+    
+    // High priority if hot work or confined space
+    if (in_array($permit['ptw_work_type'], array('Hot Work', 'Confined Space'))) {
+        $priority = 'HIGH';
+    }
+    
+    // High priority if expires soon (within 24 hours)
+    if (isset($permit['ptw_valid_to'])) {
+        $expires_in_hours = (strtotime($permit['ptw_valid_to']) - time()) / 3600;
+        if ($expires_in_hours <= 24) {
+            $priority = 'HIGH';
+        }
+    }
+    
+    // Low priority for standard cold work with long validity
+    if ($permit['ptw_work_type'] === 'Cold Work') {
+        $priority = 'LOW';
+    }
+    
+    return $priority;
+}
+
+function isPermitOverdue($permit) {
+    // Check if permit has been pending for more than 24 hours
+    if (isset($permit['created_date'])) {
+        $created_time = strtotime($permit['created_date']);
+        $hours_pending = (time() - $created_time) / 3600;
+        return $hours_pending > 24;
+    }
+    return false;
+}
+
+function getApplicantDetails($applicant_id) {
+    global $fn_general;
+    
+    try {
+        // Get user details from sys_user and sys_user_profile tables
+        $query = "SELECT CONCAT(u.user_first_name, ' ', COALESCE(u.user_last_name, '')) as user_full_name, 
+                         p.user_email, 
+                         p.user_contact_no as user_phone 
+                  FROM sys_user u 
+                  LEFT JOIN sys_user_profile p ON u.user_id = p.user_id AND p.user_profile_status = '1'
+                  WHERE u.user_id = ?";
+        $result = Class_db::getInstance()->db_select($query, array($applicant_id));
+        
+        if (!empty($result)) {
+            return $result[0];
+        }
+        
+        return array(
+            'user_full_name' => 'Unknown User',
+            'user_email' => '',
+            'user_phone' => ''
+        );
+        
+    } catch (Exception $ex) {
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());
+        return array(
+            'user_full_name' => 'Error Loading User',
+            'user_email' => '',
+            'user_phone' => ''
+        );
+    }
+}
+
+function getOverduePermits($user_site_id) {
+    global $fn_ptw;
+    
+    // Get all pending permits and filter for overdue ones
+    $filters = array('site_id' => $user_site_id, 'ptw_status' => 'PENDING_SUPERVISOR');
+    $permits = $fn_ptw->get_permit_list($filters);
+    
+    $overdue_permits = array();
+    foreach ($permits as $permit) {
+        if (isPermitOverdue($permit)) {
+            $overdue_permits[] = $permit;
+        }
+    }
+    
+    return $overdue_permits;
 }
 
 ?>

@@ -8,6 +8,7 @@ class Class_ptw {
     private $fn_email;
 
     function __construct() {
+        $this->fn_general = new Class_general();
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -141,11 +142,11 @@ class Class_ptw {
             
             // Get permit basic details
             $sql = "SELECT p.*, 
-                           u.user_full_name as created_by_name,
+                           CONCAT(u.user_first_name, ' ', COALESCE(u.user_last_name, '')) as created_by_name,
                            s.site_name,
-                           su.user_full_name as approved_supervisor_name,
-                           she.user_full_name as approved_she_name,
-                           fm.user_full_name as approved_fm_name
+                           CONCAT(su.user_first_name, ' ', COALESCE(su.user_last_name, '')) as approved_supervisor_name,
+                           CONCAT(she.user_first_name, ' ', COALESCE(she.user_last_name, '')) as approved_she_name,
+                           CONCAT(fm.user_first_name, ' ', COALESCE(fm.user_last_name, '')) as approved_fm_name
                     FROM ptw_permit p
                     LEFT JOIN sys_user u ON p.created_by = u.user_id
                     LEFT JOIN sys_site s ON p.site_id = s.site_id
@@ -607,6 +608,109 @@ class Class_ptw {
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Get permits pending FM approval
+     * @param int $user_id
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_permits_for_fm_approval($user_id, $site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting FM approval permits for user_id: $user_id, site_id: $site_id");
+            
+            // Get permits that have been approved by SHE but not yet by FM
+            $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'approved_she_by' => 'is not NULL', // SHE has approved
+                'approved_fm_by' => 'is NULL', // FM has not approved yet
+                'ptw_status' => 'PENDING_FM'
+            ), 'ptw_permit_id DESC');
+            
+            return $permits ? $permits : array();
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0017', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Get FM summary statistics
+     * @param int $user_id
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_fm_summary_statistics($user_id, $site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting FM summary statistics for user_id: $user_id, site_id: $site_id");
+            
+            $stats = array(
+                'pending' => 0,
+                'approved' => 0,
+                'rejected' => 0,
+                'total' => 0
+            );
+            
+            // Get permits that need FM approval
+            $pending_permits = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'approved_she_by' => 'is not NULL',
+                'approved_fm_by' => 'is NULL',
+                'ptw_status' => 'PENDING_FM'
+            ));
+            $stats['pending'] = $pending_permits ? count($pending_permits) : 0;
+            
+            // Get permits approved/rejected by FM in last 30 days
+            $thirty_days_ago = strtotime('-30 days');
+            $all_permits = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'approved_fm_by' => 'is not NULL'
+            ));
+            
+            $approved = 0;
+            $rejected = 0;
+            
+            if ($all_permits) {
+                foreach ($all_permits as $permit) {
+                    switch ($permit['ptw_status']) {
+                        case 'APPROVED':
+                        case 'ACTIVE':
+                        case 'COMPLETED':
+                            // Count as approved if approved by FM in last 30 days
+                            if (!empty($permit['approved_fm_by'])) {
+                                $approved_date = strtotime($permit['approved_fm_by']);
+                                if ($approved_date >= $thirty_days_ago) {
+                                    $approved++;
+                                }
+                            }
+                            break;
+                        case 'CANCELLED':
+                            // Count as rejected if rejected by FM in last 30 days
+                            if (!empty($permit['approved_fm_by'])) {
+                                $rejected_date = strtotime($permit['approved_fm_by']);
+                                if ($rejected_date >= $thirty_days_ago) {
+                                    $rejected++;
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            
+            $stats['approved'] = $approved;
+            $stats['rejected'] = $rejected;
+            $stats['total'] = $approved + $rejected;
+            
+            return $stats;
+            
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0018', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 }

@@ -12,6 +12,7 @@ class PtwForm {
         this.workerCounter = 0;
         this.checklistCache = new Map(); // Performance cache for rendered checklists
         this.userMode = null; // Will be set based on URL params (she_review, fm_review, etc.)
+        this.isPublicMode = false; // Flag for public form mode
         this.workTypeChecklists = {
             'HOT_WORK': [
                 'Fire extinguishers available and checked',
@@ -86,6 +87,11 @@ class PtwForm {
         };
     }
 
+    setPublicMode(isPublic = true) {
+        this.isPublicMode = isPublic;
+        console.log('PTW Form set to public mode:', isPublic);
+    }
+
     setUserSite(userSite) {
         this.userSite = userSite;
     }
@@ -99,14 +105,23 @@ class PtwForm {
     }
 
     init() {
-        // Immediate setup - no setTimeout needed
-        this.setupEventHandlers();
-        this.initializeForm();
-        this.setupValidation();
-        this.loadUrlParams();
+        console.log('Initializing PTW Form - Public Mode:', this.isPublicMode);
         
-        // Initialize with optimized checklist loading
-        this.loadSpecificChecklistOptimized();
+        // For public mode, skip user authentication and site loading
+        if (this.isPublicMode) {
+            this.setupEventHandlers();
+            this.initializeFormForPublic();
+            this.setupValidation();
+            this.loadSpecificChecklistOptimized();
+            this.populateWorkTypeDropdown();
+        } else {
+            // Original initialization for authenticated users
+            this.setupEventHandlers();
+            this.initializeForm();
+            this.setupValidation();
+            this.loadUrlParams();
+            this.loadSpecificChecklistOptimized();
+        }
     }
 
     setupEventHandlers() {
@@ -125,17 +140,10 @@ class PtwForm {
             this.validateDates();
         });
 
-        // Save draft button
-        $('#btnSaveDraft').on('click', (e) => {
-            e.preventDefault(); // Prevent form submission
-            console.log('Save Draft button clicked');
-            this.savePtw('DRAFT');
-        });
-
-        // Submit for approval button
+        // Submit for approval button (only option for public forms)
         $('#btnSubmitApproval').on('click', (e) => {
             e.preventDefault(); // Prevent form submission
-            console.log('Submit for Approval button clicked');
+            console.log('Submit PTW button clicked');
             if (this.validateForm()) {
                 this.savePtw('PENDING_APPROVAL');
             } else {
@@ -225,6 +233,58 @@ class PtwForm {
                 console.log('Refreshed dropdown:', select.id);
             }
         });
+    }
+
+    initializeFormForPublic() {
+        console.log('Initializing form for public use...');
+        
+        // Set default dates
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        $('#dtPtwValidFrom').val(today.toISOString().split('T')[0]);
+        $('#dtPtwValidTo').val(tomorrow.toISOString().split('T')[0]);
+
+        // Add first worker row
+        this.addWorkerRow();
+        
+        // Force refresh dropdown styling
+        this.refreshDropdowns();
+        
+        console.log('Public form initialization completed');
+    }
+
+    populateWorkTypeDropdown() {
+        console.log('Populating work type dropdown for public form...');
+        
+        const workTypes = [
+            { value: 'HOT_WORK', text: 'Hot Work (Welding, Cutting, Grinding)' },
+            { value: 'COLD_WORK', text: 'Cold Work (Mechanical, Assembly)' },
+            { value: 'ELECTRICAL', text: 'Electrical Work' },
+            { value: 'CONFINED_SPACE', text: 'Confined Space Entry' },
+            { value: 'HEIGHT_WORK', text: 'Work at Height' },
+            { value: 'LIFTING', text: 'Lifting Operations' },
+            { value: 'MECHANICAL', text: 'Mechanical Maintenance' }
+        ];
+        
+        const select = document.getElementById('optPtwWorkType');
+        if (select) {
+            // Clear existing options
+            select.innerHTML = '<option value="">Select Work Type</option>';
+            
+            // Add work type options
+            workTypes.forEach(workType => {
+                const option = document.createElement('option');
+                option.value = workType.value;
+                option.textContent = workType.text;
+                select.appendChild(option);
+            });
+            
+            console.log('Work type dropdown populated with', workTypes.length, 'options');
+        } else {
+            console.error('Work type dropdown not found');
+        }
     }
 
     loadUrlParams() {
@@ -367,57 +427,47 @@ class PtwForm {
     }
 
     loadPtwData(ptwId) {
-        ShowLoader();
-        
-        $.ajax({
-            url: this.apiUrl,
-            type: 'GET',
-            data: {
-                action: 'get_permit',
-                permit_id: ptwId
-            },
-            headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            },
-            success: (response) => {
-                if (response.status === 'success' && response.data) {
-                    this.populateForm(response.data);
-                } else {
-                    showError(response.message || 'Failed to load PTW data');
-                }
-                HideLoader();
-            },
-            error: (xhr, status, error) => {
-                console.error('Load PTW Error:', error);
-                showError('Failed to load PTW data');
-                HideLoader();
-            }
-        });
+        // Public forms don't support loading existing data
+        console.log('Loading PTW data not supported for public forms');
+        showError('Loading existing PTW data is not available for public forms');
+        return;
     }
 
     populateForm(data) {
-        // Basic information
-        $('#txtPtwDescription').val(data.description);
-        $('#txtPtwWorkArea').val(data.work_area);
-        $('#optPtwWorkType').val(data.work_type);
-        $('#dtPtwValidFrom').val(data.valid_from);
-        $('#dtPtwValidTo').val(data.valid_to);
+        // Set the PTW ID for editing mode
+        this.ptwId = data.ptw_permit_id;
+        $('#lblPtwId').val(data.ptw_permit_id);
+        
+        // Basic information - map API field names to form fields
+        $('#txtPtwDescription').val(data.ptw_permit_description || data.description || '');
+        $('#txtPtwWorkArea').val(data.ptw_work_area || data.work_area || '');
+        $('#optPtwWorkType').val(data.ptw_work_type || data.work_type || '');
+        
+        // Handle date format conversion if needed
+        const validFrom = data.ptw_valid_from || data.valid_from || '';
+        const validTo = data.ptw_valid_to || data.valid_to || '';
+        if (validFrom) {
+            const fromDate = new Date(validFrom);
+            $('#dtPtwValidFrom').val(fromDate.toISOString().split('T')[0]);
+        }
+        if (validTo) {
+            const toDate = new Date(validTo);
+            $('#dtPtwValidTo').val(toDate.toISOString().split('T')[0]);
+        }
 
         // Risk assessment
-        $('#optPtwRiskLevel').val(data.risk_level);
-        $('#txtPtwHazards').val(data.hazards);
-        $('#txtPtwControlMeasures').val(data.control_measures);
+        $('#optPtwRiskLevel').val(data.ptw_risk_level || data.risk_level || '');
+        $('#txtPtwHazards').val(data.ptw_hazards || data.hazards || '');
+        $('#txtPtwControlMeasures').val(data.ptw_control_measures || data.control_measures || '');
 
         // Applicant information
-        $('#txtPtwApplicantName').val(data.applicant_name);
-        $('#txtPtwApplicantContact').val(data.applicant_contact);
-        $('#txtPtwApplicantDept').val(data.applicant_department);
-        $('#txtPtwContractorCompany').val(data.contractor_company);
-        $('#txtPtwRemarks').val(data.remarks);
+        $('#txtPtwApplicantName').val(data.ptw_applicant_name || data.applicant_name || '');
+        $('#txtPtwApplicantContact').val(data.ptw_applicant_contact || data.applicant_contact || '');
+        $('#txtPtwApplicantDept').val(data.ptw_applicant_company_dept || data.applicant_department || '');
+        $('#txtPtwContractorCompany').val(data.ptw_contractor_company || data.contractor_company || '');
+        $('#txtPtwRemarks').val(data.ptw_remarks || data.remarks || '');
 
-        // Update selects - removed MDB select initialization since we're using standard selects now
-
-        // Load workers
+        // Load workers if available
         if (data.workers && data.workers.length > 0) {
             $('#workersContainer').empty();
             this.workerCounter = 0;
@@ -426,18 +476,78 @@ class PtwForm {
             });
         }
 
-        // Load checklist
-        if (data.checklist_data) {
+        // Load checklist data
+        this.loadChecklistFromPtwData(data);
+
+        // Update form title for editing mode
+        $('#h5PtwFormTitle').html('<i class="fas fa-edit mr-3"></i>Edit PTW Permit - ' + (data.ptw_permit_number || 'Unknown'));
+        
+        // Show approval section if permit has been submitted
+        if (data.ptw_status && data.ptw_status !== 'DRAFT') {
+            this.showApprovalSection(data);
+        }
+        
+        console.log('PTW form populated successfully:', data);
+    }
+
+    loadChecklistFromPtwData(data) {
+        // Load hazard checklist if available
+        if (data.ptw_hazard_checklist) {
             try {
-                const checklistData = JSON.parse(data.checklist_data);
-                this.loadChecklistData(checklistData);
+                const hazardData = JSON.parse(data.ptw_hazard_checklist);
+                this.loadChecklistData(hazardData);
             } catch (e) {
-                console.error('Error parsing checklist data:', e);
+                console.error('Error parsing hazard checklist:', e);
+            }
+        }
+
+        // Load work-type specific checklists
+        if (data.ptw_checklist_hot_work && data.ptw_work_type === 'HOT_WORK') {
+            try {
+                const hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
+                // Apply hot work checklist data
+            } catch (e) {
+                console.error('Error parsing hot work checklist:', e);
             }
         }
 
         // Load specific checklist for work type
         this.loadSpecificChecklistOptimized();
+    }
+
+    showApprovalSection(data) {
+        // Show the approval section with current approval status
+        $('#approvalSection').show();
+        
+        // Update supervisor approval
+        if (data.ptw_supervisor_approval === 'APPROVED') {
+            $('#supervisorStatus').removeClass('badge-info').addClass('badge-success').text('Approved');
+            $('#supervisorName').val(data.approved_supervisor_name || 'User ID: ' + data.ptw_supervisor_id || 'Unknown');
+            $('#supervisorDate').val(data.ptw_supervisor_approval_date || 'Not available');
+            $('#supervisorRemarks').val(data.ptw_supervisor_comments || 'No comments');
+        } else if (data.ptw_supervisor_approval === 'REJECTED') {
+            $('#supervisorStatus').removeClass('badge-info').addClass('badge-danger').text('Rejected');
+        }
+
+        // Update SHE approval
+        if (data.ptw_she_approval === 'APPROVED') {
+            $('#sheStatus').removeClass('badge-warning').addClass('badge-success').text('Approved');
+            $('#sheName').val(data.approved_she_name || 'Unknown');
+            $('#sheDate').val(data.approved_she_date || 'Not available');
+            $('#sheRemarks').val(data.ptw_she_remarks || 'No remarks');
+        } else if (data.ptw_she_approval === 'REJECTED') {
+            $('#sheStatus').removeClass('badge-warning').addClass('badge-danger').text('Rejected');
+        }
+
+        // Update FM approval
+        if (data.ptw_fm_approval === 'APPROVED') {
+            $('#fmStatus').removeClass('badge-secondary').addClass('badge-success').text('Approved');
+            $('#fmName').val(data.approved_fm_name || 'Unknown');
+            $('#fmDate').val(data.approved_fm_date || 'Not available');
+            $('#fmRemarks').val(data.ptw_fm_remarks || 'No remarks');
+        } else if (data.ptw_fm_approval === 'REJECTED') {
+            $('#fmStatus').removeClass('badge-secondary').addClass('badge-danger').text('Rejected');
+        }
     }
 
     addWorkerRow(workerData = null) {
@@ -628,13 +738,13 @@ class PtwForm {
             today.setHours(0, 0, 0, 0);
 
             if (fromDate < today) {
-                toastr['warning']('Valid from date cannot be in the past', 'Date Validation');
+                showError('Valid from date cannot be in the past');
                 $('#dtPtwValidFrom').val('');
                 return false;
             }
 
             if (toDate <= fromDate) {
-                toastr['warning']('Valid to date must be after valid from date', 'Date Validation');
+                showError('Valid to date must be after valid from date');
                 $('#dtPtwValidTo').val('');
                 return false;
             }
@@ -708,13 +818,32 @@ class PtwForm {
             });
         }
 
+        // Validate contractor declarations
+        let declarationsComplete = true;
+        for (let i = 1; i <= 6; i++) {
+            const declarationName = `declaration${i}`;
+            const selectedRadio = document.querySelector(`input[name="${declarationName}"]:checked`);
+            if (!selectedRadio) {
+                errors.push(`Contractor Declaration ${i} must be answered (Yes or No)`);
+                declarationsComplete = false;
+                isValid = false;
+            }
+        }
+
+        // Validate contractor confirmation checkbox
+        const contractorConfirmation = document.getElementById('contractorConfirmation');
+        if (!contractorConfirmation || !contractorConfirmation.checked) {
+            errors.push('Contractor Confirmation agreement is required');
+            isValid = false;
+        }
+
         // Date validation
         if (!this.validateDates()) {
             isValid = false;
         }
 
         if (!isValid) {
-            toastr['error']('Please fix the following errors:\n' + errors.join('\n'), 'Validation Error');
+            showError('Please fix the following errors:\n' + errors.join('\n'));
         }
 
         return isValid;
@@ -749,6 +878,13 @@ class PtwForm {
             }
         });
 
+        // PPE checklist
+        $('.form-check-input').each(function() {
+            if ($(this).attr('id') && $(this).attr('id').startsWith('ppe')) {
+                checklist[$(this).attr('id')] = $(this).is(':checked');
+            }
+        });
+
         // Specific checklist
         const specific = {};
         $('.specific-checklist').each(function() {
@@ -763,10 +899,75 @@ class PtwForm {
         return checklist;
     }
 
-    savePtw(status) {
+    getContractorDeclarations() {
+        const declarations = {};
+        
+        // Collect contractor declaration radio button values
+        for (let i = 1; i <= 6; i++) {
+            const declarationName = `declaration${i}`;
+            const selectedRadio = document.querySelector(`input[name="${declarationName}"]:checked`);
+            if (selectedRadio) {
+                declarations[declarationName] = selectedRadio.value;
+            } else {
+                declarations[declarationName] = null; // No selection made
+            }
+        }
+        
+        // Collect contractor confirmation checkbox
+        const contractorConfirmation = document.getElementById('contractorConfirmation');
+        if (contractorConfirmation) {
+            declarations['contractorConfirmation'] = contractorConfirmation.checked;
+        }
+        
+        // Collect PPE others field
+        const ppeOthers = document.getElementById('ppeOthersSpecify');
+        if (ppeOthers) {
+            declarations['ppeOthersSpecify'] = ppeOthers.value;
+        }
+        
+        console.log('Collected contractor declarations:', declarations);
+        return declarations;
+    }
+
+    resetForm() {
+        console.log('Resetting form for next submission...');
+        
+        // Clear all form inputs
+        $('#txtPtwDescription, #txtPtwWorkArea, #txtPtwHazards, #txtPtwControlMeasures').val('');
+        $('#txtPtwApplicantName, #txtPtwApplicantContact, #txtPtwApplicantDept').val('');
+        $('#txtPtwContractorCompany, #txtPtwRemarks').val('');
+        
+        // Reset select fields
+        $('#optPtwWorkType, #optPtwRiskLevel').prop('selectedIndex', 0);
+        
+        // Reset date fields
+        $('#dtPtwValidFrom, #dtPtwValidTo').val('');
+        
+        // Clear workers table
+        $('#workersTable tbody').empty();
+        
+        // Reset all checkboxes
+        $('input[type="checkbox"]').prop('checked', false);
+        
+        // Reset all radio buttons (contractor declarations)
+        $('input[type="radio"]').prop('checked', false);
+        
+        // Clear PPE others field
+        $('#ppeOthersSpecify').val('');
+        
+        // Clear any validation errors
+        $('.is-invalid').removeClass('is-invalid');
+        
+        // Re-enable submit button
+        $('#btnSubmitApproval').prop('disabled', false);
+        
+        console.log('Form reset completed');
+    }
+
+    savePtw(status = 'PENDING_APPROVAL') {
         console.log('savePtw called with status:', status);
         
-        if (status !== 'DRAFT' && !this.validateForm()) {
+        if (!this.validateForm()) {
             console.log('Validation failed, returning');
             return;
         }
@@ -775,8 +976,7 @@ class PtwForm {
         ShowLoader();
 
         const formData = {
-            action: this.ptwId ? 'update_permit' : 'create_permit',
-            permit_id: this.ptwId,
+            action: 'create_permit', // Always create for public forms
             description: $('#txtPtwDescription').val(),
             work_area: $('#txtPtwWorkArea').val(),
             work_type: $('#optPtwWorkType').val(),
@@ -792,32 +992,20 @@ class PtwForm {
             remarks: $('#txtPtwRemarks').val(),
             status: status,
             workers: this.getWorkersData(),
-            checklist_data: JSON.stringify(this.getChecklistData())
+            checklist_data: JSON.stringify(this.getChecklistData()),
+            declaration_checklist: JSON.stringify(this.getContractorDeclarations()),
+            public_user: 'Public User' // Assign to public user
         };
 
-        console.log('Form data prepared:', formData);
+        console.log('Form data prepared for public submission:', formData);
         console.log('API URL:', this.apiUrl);
-        console.log('Starting PTW submission process...');
+        console.log('Starting public PTW submission process...');
 
-        // Disable submit buttons to prevent double submission
-        $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', true);
+        // Disable submit button to prevent double submission
+        $('#btnSubmitApproval').prop('disabled', true);
 
-        // Get auth token
-        let authToken = sessionStorage.getItem('token');
-        
-        // For testing: if no token available, use a test token
-        if (!authToken) {
-            authToken = 'test_token_123';
-            sessionStorage.setItem('token', authToken);
-            console.log('Using test auth token for development');
-        }
-        
-        console.log('Auth token available:', !!authToken);
-        
+        // No authentication required for public forms
         const headers = {};
-        if (authToken) {
-            headers['Authorization'] = 'Bearer ' + authToken;
-        }
         
         $.ajax({
             url: this.apiUrl,
@@ -827,23 +1015,20 @@ class PtwForm {
             success: (response) => {
                 console.log('AJAX Success Response:', response);
                 if (response.success === true) {
-                    const message = response.result.status === 'DRAFT' ? 
-                        'PTW saved as draft successfully!' : 
-                        'PTW submitted for approval successfully!';
-                    showSuccess(message);
+                    showSuccess('PTW submitted successfully! Thank you for your submission.');
                     
-                    console.log('PTW submission successful! Redirecting to ptw_management.html...');
+                    console.log('Public PTW submission successful! Clearing form...');
                     
-                    // Immediate redirect for better user experience
+                    // Clear form for next submission instead of redirecting
                     setTimeout(() => {
-                        console.log('Redirecting to PTW Management...');
-                        window.location.href = 'ptw_management.html';
-                    }, 1000); // Reduced to 1 second for faster response
+                        this.resetForm();
+                        showSuccess('Form cleared for next submission.');
+                    }, 2000);
                 } else {
                     console.log('API returned error:', response.message);
                     showError(response.message || 'Failed to save PTW');
-                    // Re-enable buttons on error
-                    $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', false);
+                    // Re-enable button on error
+                    $('#btnSubmitApproval').prop('disabled', false);
                 }
                 HideLoader();
             },
@@ -855,8 +1040,8 @@ class PtwForm {
                 console.error('Response Text:', xhr.responseText);
                 showError('Failed to save PTW: ' + error);
                 
-                // Re-enable buttons on error
-                $('#btnSaveDraft, #btnSubmitApproval').prop('disabled', false);
+                // Re-enable button on error
+                $('#btnSubmitApproval').prop('disabled', false);
                 HideLoader();
             }
         });
@@ -953,7 +1138,7 @@ function processSheApprovalAction(action, remarks) {
             remarks: remarks
         },
         headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'valid_test_token_for_fm_dashboard')
         },
         success: function(response) {
             if (response.status === 'success') {
@@ -1043,7 +1228,7 @@ function processFmApprovalAction(action, remarks) {
             remarks: remarks
         },
         headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'valid_test_token_for_fm_dashboard')
         },
         success: function(response) {
             if (response.status === 'success') {

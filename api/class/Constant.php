@@ -8,7 +8,7 @@ class Constant {
     // public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems';
     public static $dbHost = 'www.metadatasystem.my';
-    // public static $dbHost = '10.101.11.69';
+    // public static $dbHost = '10.101.11.71';
     //public static $folderDebug = '../../../logs/gems/debug/';
     //public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';

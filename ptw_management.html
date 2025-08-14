@@ -119,8 +119,11 @@
                             <button type="button" id="btnPtwAdd" class="btn btn-primary btn-sm mr-2" data-toggle="tooltip" title="Add New PTW Permit">
                                 <i class="fas fa-plus"></i> Add PTW
                             </button>
-                            <button type="button" id="btnSheDashboard" class="btn btn-info btn-sm" data-toggle="tooltip" title="SHE Officer Dashboard">
+                            <button type="button" id="btnSheDashboard" class="btn btn-info btn-sm mr-2" data-toggle="tooltip" title="SHE Officer Dashboard">
                                 <i class="fas fa-shield-alt"></i> SHE Dashboard
+                            </button>
+                            <button type="button" id="btnFmDashboard" class="btn btn-success btn-sm" data-toggle="tooltip" title="Facility Manager Dashboard">
+                                <i class="fas fa-user-cog"></i> FM Dashboard
                             </button>
                         </div>
                     </div>
@@ -514,6 +517,10 @@
 
         $('#btnSheDashboard').on('click', function () {
             window.location.href = 'ptw_she_dashboard.html';
+        });
+
+        $('#btnFmDashboard').on('click', function () {
+            window.location.href = 'ptw_fm_dashboard.html';
         });
     });
 

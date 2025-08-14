@@ -21,6 +21,28 @@
     <link href="css/style.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
+        /* Form container centering and width control */
+        #divPtwPageWidth {
+            max-width: 80%; /* 80% width with 10% margin on each side */
+            margin: 0 auto; /* Center the container */
+            padding: 0 15px; /* Add some internal padding */
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #divPtwPageWidth {
+                max-width: 95%; /* More width on smaller screens */
+                margin: 0 auto;
+                padding: 0 10px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            #divPtwPageWidth {
+                max-width: 75%; /* Slightly narrower on large screens */
+            }
+        }
+        
         .config-section {
             margin-bottom: 2rem;
         }
@@ -153,37 +175,300 @@
             width: 100% !important;
             display: block !important;
         }
+        
+        /* Loading overlay styles */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced public form styling */
+        .public-form-header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Radio button styling for tables */
+        .table input[type="radio"] {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 auto !important;
+            display: block !important;
+            position: relative !important;
+            cursor: pointer !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 1 !important;
+        }
+
+        .table td.text-center {
+            vertical-align: middle !important;
+            padding: 10px !important;
+        }
+
+        /* Ensure radio buttons are visible and clickable */
+        input[type="radio"]:not(.form-check-input) {
+            -webkit-appearance: auto !important;
+            -moz-appearance: auto !important;
+            appearance: auto !important;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            cursor: pointer !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Force radio button functionality */
+        .table input[type="radio"] {
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 999 !important;
+            background: white !important;
+            border: 1px solid #666 !important;
+        }
+
+        /* Override any framework radio button hiding */
+        input[type="radio"] {
+            -webkit-appearance: radio !important;
+            -moz-appearance: radio !important;
+            appearance: radio !important;
+            opacity: 1 !important;
+            position: relative !important;
+            display: inline-block !important;
+            width: auto !important;
+            height: auto !important;
+            margin: 3px 3px 0px 5px !important;
+            cursor: pointer !important;
+            outline: none !important;
+        }
+        
+        .public-form-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .public-form-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Help system styling */
+        .help-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-color: #4285f4;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .help-icon:hover {
+            background-color: #3367d6;
+            transform: scale(1.1);
+        }
+        
+        .help-example {
+            display: none;
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #1565c0;
+            position: relative;
+        }
+        
+        .help-example.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+        
+        .help-example::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #2196f3;
+        }
+        
+        .help-example strong {
+            color: #0d47a1;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .help-example .example-text {
+            font-style: italic;
+            color: #1976d2;
+            background-color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+            border-left: 3px solid #2196f3;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced form labels with help icons */
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .label-text {
+            flex: 1;
+        }
+        
+        /* Company logo styling - Global Header */
+        .global-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: transparent;
+            z-index: 1000;
+            padding: 15px 20px;
+        }
+        
+        .company-logo {
+            margin: 0;
+        }
+        
+        .company-logo img {
+            height: 50px;
+            width: auto;
+            max-width: 180px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+        }
+        
+        /* Adjust main content to account for fixed header */
+        main {
+            margin-top: 40px !important;
+        }
+        
+        /* Responsive logo adjustments */
+        @media (max-width: 768px) {
+            .global-header {
+                padding: 12px 15px;
+            }
+            
+            .company-logo img {
+                height: 40px;
+                max-width: 140px;
+            }
+            
+            main {
+                margin-top: 35px !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .global-header {
+                padding: 10px 10px;
+            }
+            
+            .company-logo img {
+                height: 50px;
+            }
+            
+            main {
+                margin-top: 30px !important;
+            }
+        }
     </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <!-- PTW Form Classes - Load early to ensure availability -->
+    <script type="text/javascript" src="js/pages/ptw_form.js"></script>
 </head>
 <body class="fixed-sn light-blue-skin">
-<header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
+
+<!-- Global Header with Logo -->
+<header class="global-header">
+    <div class="company-logo">
+        <img src="img/icon/gfm-logo-transparent.png" alt="GFM Logo">
+    </div>
 </header>
-<main>
+
+<main style="padding: 0px; padding-top: 5.5rem;">
     <div class="container-fluid" id="divPtwPageWidth">
         <div id="mdb-lightbox-ui"></div>
-
-        <!-- Back Button -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <button class="btn btn-outline-secondary" onclick="window.location.href='ptw_management.html'">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to PTW Management
-                </button>
-            </div>
-        </div>
 
         <!-- Page Title -->
         <div class="row mt-3">
             <div class="col-12">
                 <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle">
-                    <i class="fas fa-shield-alt mr-3"></i>PTW Permit Form
+                    <i class="fas fa-shield-alt mr-3"></i>Public PTW Permit Application
                 </h2>
-                <p class="text-muted">Create or edit Permit to Work permits with comprehensive safety requirements</p>
+                <p class="text-muted">Submit your Permit to Work application - No login required</p>
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Need help?</strong> Click the <span class="help-icon" style="display: inline-block; vertical-align: middle; margin: 0 5px;">?</span> icons next to field labels for examples and guidance.
+                </div>
             </div>
         </div>
 
@@ -223,9 +508,19 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label for="txtPtwDescription">PTW Description *</label>
+                                            <label for="txtPtwDescription">
+                                                <span class="label-text">PTW Description *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-description')">?</span>
+                                            </label>
                                             <textarea id="txtPtwDescription" class="form-control" rows="3" required placeholder="Describe the work to be performed">Testing PTW form submission - welding repair work on main pipeline section A</textarea>
                                             <div class="description">Provide a clear and detailed description of the work activities</div>
+                                            <div class="help-example" id="help-description">
+                                                <strong>What to include:</strong>
+                                                • Specific work activities (welding, cutting, assembly, etc.)<br>
+                                                • Equipment or systems involved<br>
+                                                • Duration and scope of work
+                                                <div class="example-text">Example: "Hot work welding repair on damaged pipeline flange connection in Processing Unit A, estimated 4 hours duration"</div>
+                                            </div>
                                             <div class="invalid-feedback" id="txtPtwDescriptionErr"></div>
                                         </div>
                                     </div>
@@ -233,15 +528,28 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwWorkArea">Work Area *</label>
+                                            <label for="txtPtwWorkArea">
+                                                <span class="label-text">Work Area *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-workarea')">?</span>
+                                            </label>
                                             <input type="text" id="txtPtwWorkArea" class="form-control" required placeholder="Enter work location" value="Processing Unit A - Pipeline Section">
                                             <div class="description">Specify the exact location where work will be performed</div>
+                                            <div class="help-example" id="help-workarea">
+                                                <strong>Be specific about location:</strong>
+                                                • Building/Unit name and number<br>
+                                                • Floor level or area designation<br>
+                                                • Equipment tag numbers if applicable
+                                                <div class="example-text">Example: "Building 3, Level 2, Pump Room - Equipment P-301A"</div>
+                                            </div>
                                             <div class="invalid-feedback" id="txtPtwWorkAreaErr"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group native-dropdown">
-                                            <label for="optPtwWorkType">Work Type *</label>
+                                            <label for="optPtwWorkType">
+                                                <span class="label-text">Work Type *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-worktype')">?</span>
+                                            </label>
                                             <select class="form-control" id="optPtwWorkType" required>
                                                 <option value="" disabled>Select Work Type</option>
                                                 <option value="HOT_WORK" selected>Hot Work</option>
@@ -256,23 +564,52 @@
                                                 <option value="OTHER">Other</option>
                                             </select>
                                             <div class="description">Select the type of work being performed</div>
+                                            <div class="help-example" id="help-worktype">
+                                                <strong>Choose the primary work type:</strong>
+                                                • <strong>Hot Work:</strong> Welding, cutting, grinding, brazing<br>
+                                                • <strong>Cold Work:</strong> Mechanical assembly, maintenance<br>
+                                                • <strong>Electrical:</strong> Electrical installations, repairs<br>
+                                                • <strong>Confined Space:</strong> Work inside tanks, vessels<br>
+                                                • <strong>Height Work:</strong> Work above 2 meters<br>
+                                                • <strong>Lifting:</strong> Crane operations, heavy lifting
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="dtPtwValidFrom">Valid From *</label>
+                                            <label for="dtPtwValidFrom">
+                                                <span class="label-text">Valid From *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-validfrom')">?</span>
+                                            </label>
                                             <input type="date" id="dtPtwValidFrom" class="form-control" required>
                                             <div class="description">Start date and time for permit validity</div>
+                                            <div class="help-example" id="help-validfrom">
+                                                <strong>When does work start?</strong>
+                                                • Cannot be in the past<br>
+                                                • Should be the actual work start date<br>
+                                                • Consider preparation time needed
+                                                <div class="example-text">Tip: Allow time for approvals - permits need 24-48 hours for processing</div>
+                                            </div>
                                             <div class="invalid-feedback" id="dtPtwValidFromErr"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="dtPtwValidTo">Valid To *</label>
+                                            <label for="dtPtwValidTo">
+                                                <span class="label-text">Valid To *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-validto')">?</span>
+                                            </label>
                                             <input type="date" id="dtPtwValidTo" class="form-control" required>
                                             <div class="description">End date and time for permit validity</div>
+                                            <div class="help-example" id="help-validto">
+                                                <strong>When will work be completed?</strong>
+                                                • Must be after "Valid From" date<br>
+                                                • Include buffer time for delays<br>
+                                                • Maximum validity typically 7 days
+                                                <div class="example-text">Tip: If work extends beyond this date, a new permit will be required</div>
+                                            </div>
                                             <div class="invalid-feedback" id="dtPtwValidToErr"></div>
                                         </div>
                                     </div>
@@ -293,7 +630,10 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group native-dropdown">
-                                            <label for="optPtwRiskLevel">Risk Level *</label>
+                                            <label for="optPtwRiskLevel">
+                                                <span class="label-text">Risk Level *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-risklevel')">?</span>
+                                            </label>
                                             <select class="form-control" id="optPtwRiskLevel" required>
                                                 <option value="" disabled>Select Risk Level</option>
                                                 <option value="LOW">Low Risk</option>
@@ -302,22 +642,51 @@
                                                 <option value="CRITICAL">Critical Risk</option>
                                             </select>
                                             <div class="description">Assess the overall risk level of the work activity</div>
+                                            <div class="help-example" id="help-risklevel">
+                                                <strong>Risk Level Guidelines:</strong>
+                                                • <strong>Low:</strong> Routine maintenance, minimal hazards<br>
+                                                • <strong>Medium:</strong> Standard operations with some risks<br>
+                                                • <strong>High:</strong> Hot work, electrical, height work<br>
+                                                • <strong>Critical:</strong> Confined space, major operations
+                                                <div class="example-text">When in doubt, choose a higher risk level for better safety coverage</div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwHazards">Identified Hazards</label>
+                                            <label for="txtPtwHazards">
+                                                <span class="label-text">Identified Hazards</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-hazards')">?</span>
+                                            </label>
                                             <textarea id="txtPtwHazards" class="form-control" rows="3" placeholder="List potential hazards">Fire hazards from welding operations, exposure to hot metal surfaces, potential gas leaks, electrical hazards from welding equipment</textarea>
                                             <div class="description">Identify all potential hazards associated with the work</div>
+                                            <div class="help-example" id="help-hazards">
+                                                <strong>Common hazards to consider:</strong>
+                                                • Fire/explosion risks • Electrical hazards<br>
+                                                • Chemical exposure • Fall hazards<br>
+                                                • Equipment failure • Environmental conditions
+                                                <div class="example-text">Example: "Fire risk from welding sparks, electrical shock from equipment, fall hazard from working at height"</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label for="txtPtwControlMeasures">Control Measures</label>
+                                            <label for="txtPtwControlMeasures">
+                                                <span class="label-text">Control Measures</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-controls')">?</span>
+                                            </label>
                                             <textarea id="txtPtwControlMeasures" class="form-control" rows="3" placeholder="Describe safety control measures">Fire watch assigned, fire extinguishers positioned, welding area isolated, gas monitors in place, emergency response team on standby, proper PPE mandatory</textarea>
                                             <div class="description">Detail the control measures to mitigate identified risks</div>
+                                            <div class="help-example" id="help-controls">
+                                                <strong>Control measures should address each hazard:</strong>
+                                                • Safety equipment and PPE requirements<br>
+                                                • Personnel assignments (fire watch, safety observer)<br>
+                                                • Equipment setup and monitoring<br>
+                                                • Emergency response procedures
+                                                <div class="example-text">Example: "Fire extinguisher within 10m, trained fire watch assigned, welding screens erected, gas monitoring every 30 minutes"</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -337,40 +706,91 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="txtPtwApplicantName">Applicant Name *</label>
+                                            <label for="txtPtwApplicantName">
+                                                <span class="label-text">Applicant Name *</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-applicantname')">?</span>
+                                            </label>
                                             <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant" value="John Smith">
                                             <div class="description">Name of the person applying for the permit</div>
+                                            <div class="help-example" id="help-applicantname">
+                                                <strong>Enter the responsible person:</strong>
+                                                • Full legal name<br>
+                                                • Person who will oversee the work<br>
+                                                • Must be present during work execution
+                                                <div class="example-text">Example: "Ahmad bin Abdullah" or "Sarah Johnson"</div>
+                                            </div>
                                             <div class="invalid-feedback" id="txtPtwApplicantNameErr"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="txtPtwApplicantContact">Contact Number</label>
+                                            <label for="txtPtwApplicantContact">
+                                                <span class="label-text">Contact Number</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-contact')">?</span>
+                                            </label>
                                             <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number" value="012-345-6789">
                                             <div class="description">Contact number for emergency communication</div>
+                                            <div class="help-example" id="help-contact">
+                                                <strong>Emergency contact information:</strong>
+                                                • Mobile number preferred<br>
+                                                • Must be reachable during work hours<br>
+                                                • Include country/area code if needed
+                                                <div class="example-text">Example: "012-345-6789" or "+60123456789"</div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="txtPtwApplicantDept">Department/Company</label>
+                                            <label for="txtPtwApplicantDept">
+                                                <span class="label-text">Department/Company</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-department')">?</span>
+                                            </label>
                                             <input type="text" id="txtPtwApplicantDept" class="form-control" placeholder="Department or company name" value="Maintenance Department">
                                             <div class="description">Organizational affiliation of the applicant</div>
+                                            <div class="help-example" id="help-department">
+                                                <strong>Your organization details:</strong>
+                                                • Department name (if internal staff)<br>
+                                                • Company name (if contractor)<br>
+                                                • Division or team name
+                                                <div class="example-text">Example: "Maintenance Department" or "Facilities Management Team"</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwContractorCompany">Contractor Company</label>
+                                            <label for="txtPtwContractorCompany">
+                                                <span class="label-text">Contractor Company</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-contractor')">?</span>
+                                            </label>
                                             <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Contractor company name" value="ABC Welding Services Sdn Bhd">
                                             <div class="description">Name of contracting company (if applicable)</div>
+                                            <div class="help-example" id="help-contractor">
+                                                <strong>External contractor information:</strong>
+                                                • Full registered company name<br>
+                                                • Include "Sdn Bhd", "Pte Ltd" etc.<br>
+                                                • Leave blank if internal work
+                                                <div class="example-text">Example: "ABC Engineering Services Sdn Bhd"</div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwRemarks">Remarks</label>
+                                            <label for="txtPtwRemarks">
+                                                <span class="label-text">Remarks</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-remarks')">?</span>
+                                            </label>
                                             <textarea id="txtPtwRemarks" class="form-control" rows="2" placeholder="Additional notes or remarks">Critical repair work - requires immediate attention. Coordinate with operations team before starting.</textarea>
                                             <div class="description">Any additional information or special notes</div>
+                                            <div class="help-example" id="help-remarks">
+                                                <strong>Additional important information:</strong>
+                                                • Coordination requirements<br>
+                                                • Special conditions or constraints<br>
+                                                • Emergency contact information<br>
+                                                • Access requirements
+                                                <div class="example-text">Example: "Work must be coordinated with operations team. Emergency contact: John at 012-888-9999"</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -386,6 +806,7 @@
                             <div class="config-header">
                                 <h5 class="mb-0">
                                     <i class="fas fa-users mr-2"></i>Workers Information
+                                    <span class="help-icon ml-2" onclick="toggleHelp('help-workers')">?</span>
                                     <button type="button" class="btn btn-sm btn-light ml-3" id="btnAddWorker">
                                         <i class="fas fa-plus"></i> Add Worker
                                     </button>
@@ -393,6 +814,14 @@
                             </div>
                             <div class="config-body">
                                 <div class="description mb-3">Add all workers who will be involved in this work activity</div>
+                                <div class="help-example" id="help-workers">
+                                    <strong>Worker Information Guidelines:</strong>
+                                    • Include all personnel who will be on-site<br>
+                                    • Add both skilled workers and assistants<br>
+                                    • Include supervisors and safety personnel<br>
+                                    • Specify their roles and responsibilities
+                                    <div class="example-text">Example: "John Smith - Lead Welder", "Sarah Lee - Fire Watch", "Ahmad Rahman - Safety Supervisor"</div>
+                                </div>
                                 <div id="workersContainer">
                                     <!-- Workers will be added here dynamically -->
                                 </div>
@@ -406,10 +835,21 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="config-header">
-                                <h5 class="mb-0"><i class="fas fa-check-square mr-2"></i>Safety Checklist</h5>
+                                <h5 class="mb-0">
+                                    <i class="fas fa-check-square mr-2"></i>Safety Checklist
+                                    <span class="help-icon ml-2" onclick="toggleHelp('help-checklist')">?</span>
+                                </h5>
                             </div>
                             <div class="config-body">
                                 <div class="description mb-3">Complete all applicable safety requirements before work begins</div>
+                                <div class="help-example" id="help-checklist">
+                                    <strong>Safety Checklist Guidelines:</strong>
+                                    • Check all boxes that apply to your work<br>
+                                    • Additional specific requirements will appear based on your selected work type<br>
+                                    • All safety measures must be in place before work starts<br>
+                                    • If unsure about any item, consult with safety personnel
+                                    <div class="example-text">Tip: When in doubt, implement extra safety measures - it's better to be over-prepared than under-prepared</div>
+                                </div>
                                 
                                 <div class="checklist-section">
                                     <h6><strong>General Safety Requirements</strong></h6>
@@ -451,6 +891,289 @@
                                     
                                     <div id="specificChecklistContainer">
                                         <!-- Specific checklist items will be loaded based on work type -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contractor Declaration Section -->
+                <div class="row config-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="config-header">
+                                <h5 class="mb-0"><i class="fas fa-clipboard-check mr-2"></i>Section 4: Contractor Declaration</h5>
+                            </div>
+                            <div class="config-body">
+                                <div class="description mb-3">Contractor must confirm compliance with all safety requirements and procedures</div>
+                                
+                                <!-- Compliance Declarations -->
+                                <div class="checklist-section">
+                                    <h6>
+                                        <strong>Contractor Compliance Declarations</strong>
+                                        <span class="help-icon" onclick="toggleHelp('contractorDeclarations')">?</span>
+                                    </h6>
+                                    <div id="contractorDeclarations" class="help-example" style="display: none;">
+                                        <div class="help-content">
+                                            <strong>Contractor Declaration Guidelines:</strong><br>
+                                            • <strong>Legal Requirement:</strong> All declarations must be truthfully answered - false declarations may result in permit denial or legal action<br>
+                                            • <strong>Documentation:</strong> Ensure you have supporting documents ready (certifications, training records, insurance)<br>
+                                            • <strong>Safety Compliance:</strong> Verify all team members meet stated requirements before declaring compliance<br>
+                                            • <strong>Insurance Verification:</strong> Confirm coverage amounts and validity dates before submission<br><br>
+                                            <strong>Common Declaration Areas:</strong><br>
+                                            • Personnel training and certification status<br>
+                                            • Equipment inspection and maintenance records<br>
+                                            • Insurance coverage and liability limits<br>
+                                            • Emergency response procedures understanding<br>
+                                            • Site-specific safety requirement compliance
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th width="5%">No</th>
+                                                    <th width="70%">Description</th>
+                                                    <th width="12.5%">Yes</th>
+                                                    <th width="12.5%">No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>i)</td>
+                                                    <td>All assigned workers are briefed on relevant SHE Procedure and only activities stated in JHA are permitted to carry out</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration1" id="declaration1Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration1" id="declaration1No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>ii)</td>
+                                                    <td>All documentation given are valid during Permit To Work validity</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration2" id="declaration2Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration2" id="declaration2No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>iii)</td>
+                                                    <td>Ensure all appointed staff/workers are briefed on relevant job step and safety procedures before start work</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration3" id="declaration3Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration3" id="declaration3No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>iv)</td>
+                                                    <td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration4" id="declaration4Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration4" id="declaration4No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>v)</td>
+                                                    <td>Permit to work shall be displayed at the work site all the time</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration5" id="declaration5Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration5" id="declaration5No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>vi)</td>
+                                                    <td>All safety equipment has been checked and deem safe</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration6" id="declaration6Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration6" id="declaration6No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- PPE Requirements -->
+                                <div class="checklist-section mt-4">
+                                    <h6>
+                                        <strong>Appropriate PPE are provided/wear, please tick below:</strong>
+                                        <span class="help-icon" onclick="toggleHelp('ppeRequirements')">?</span>
+                                    </h6>
+                                    <div id="ppeRequirements" class="help-example" style="display: none;">
+                                        <div class="help-content">
+                                            <strong>PPE Selection Guidelines:</strong><br>
+                                            • <strong>Mandatory PPE:</strong> Required for all personnel on site - safety helmet, safety shoes, and high visibility vest are minimum requirements<br>
+                                            • <strong>Task-Specific PPE:</strong> Select based on work activities - welding requires face shields, chemical work needs gloves<br>
+                                            • <strong>Environmental PPE:</strong> Choose based on site conditions - respirators for dusty areas, ear protection for noisy environments<br><br>
+                                            <strong>Examples by Work Type:</strong><br>
+                                            • Electrical work: Safety helmet, safety shoes, insulated gloves, safety vest<br>
+                                            • Welding: Safety helmet, safety shoes, welding mask, fire-resistant clothing<br>
+                                            • Chemical handling: Safety helmet, chemical-resistant gloves, respirator, safety vest<br>
+                                            • Height work: Safety helmet, safety harness, safety shoes, lanyard
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <!-- Mandatory Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Mandatory</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeSafetyHelmet">
+                                                <label class="form-check-label" for="ppeSafetyHelmet">Safety helmet</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeSafetyShoes">
+                                                <label class="form-check-label" for="ppeSafetyShoes">Safety shoes</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFallProtection">
+                                                <label class="form-check-label" for="ppeFallProtection">Fall protection</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFullBodyHarness">
+                                                <label class="form-check-label" for="ppeFullBodyHarness">Full Body Harness with lanyard</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Respiratory Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Respiratory Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeHalfMaskRespirator">
+                                                <label class="form-check-label" for="ppeHalfMaskRespirator">Half mask respirator</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFullFaceRespirator">
+                                                <label class="form-check-label" for="ppeFullFaceRespirator">Full face respirator (SCBA)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeAirLineSet">
+                                                <label class="form-check-label" for="ppeAirLineSet">Air line set</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppePAPR">
+                                                <label class="form-check-label" for="ppePAPR">PAPR</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeOthersResp">
+                                                <label class="form-check-label" for="ppeOthersResp">Others</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeLifeJacket">
+                                                <label class="form-check-label" for="ppeLifeJacket">Life jacket/vest</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Eye, Face & Body Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Eye, Face & Body Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeGoggles">
+                                                <label class="form-check-label" for="ppeGoggles">Goggles</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFaceShield">
+                                                <label class="form-check-label" for="ppeFaceShield">Face shield</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeWeldingMask">
+                                                <label class="form-check-label" for="ppeWeldingMask">Welding mask</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeHood">
+                                                <label class="form-check-label" for="ppeHood">Hood</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeDisposableSuit">
+                                                <label class="form-check-label" for="ppeDisposableSuit">Disposable suit</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeChemicalSuit">
+                                                <label class="form-check-label" for="ppeChemicalSuit">Chemical suit</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeRubberBoots">
+                                                <label class="form-check-label" for="ppeRubberBoots">Rubber boots</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hand Protection & Hearing Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Hand Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeCottonGloves">
+                                                <label class="form-check-label" for="ppeCottonGloves">Cotton gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeLeatherGloves">
+                                                <label class="form-check-label" for="ppeLeatherGloves">Leather gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeRubberGloves">
+                                                <label class="form-check-label" for="ppeRubberGloves">Rubber gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeChemicalGloves">
+                                                <label class="form-check-label" for="ppeChemicalGloves">Chemical gloves</label>
+                                            </div>
+                                            
+                                            <h6 class="text-primary mt-3"><strong>Hearing Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeEarPlug">
+                                                <label class="form-check-label" for="ppeEarPlug">Ear plug</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeEarMuff">
+                                                <label class="form-check-label" for="ppeEarMuff">Ear muff</label>
+                                            </div>
+                                            
+                                            <div class="form-group mt-3">
+                                                <label for="ppeOthersSpecify">
+                                                    <strong>Others (pls specify):</strong>
+                                                    <span class="help-icon" onclick="toggleHelp('ppeOthersSpecify')">?</span>
+                                                </label>
+                                                <input type="text" id="ppeOthersSpecify" class="form-control" placeholder="Specify other PPE">
+                                                <div id="ppeOthersSpecify" class="help-example" style="display: none;">
+                                                    <div class="help-content">
+                                                        <strong>Specialized PPE Examples:</strong><br>
+                                                        • <strong>Chemical Protection:</strong> Chemical aprons, acid-resistant suits, chemical splash goggles<br>
+                                                        • <strong>Electrical Work:</strong> Insulated mats, arc flash suits, voltage-rated gloves<br>
+                                                        • <strong>Confined Space:</strong> Tripods, winches, gas detectors, escape respirators<br>
+                                                        • <strong>Specialized Tasks:</strong> Cut-resistant sleeves, knee pads, anti-static clothing<br><br>
+                                                        <strong>Example Entries:</strong><br>
+                                                        "Chemical splash apron and goggles", "Arc flash suit Class 2", "Confined space tripod and winch"
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contractor Confirmation -->
+                                <div class="checklist-section mt-4">
+                                    <div class="alert alert-info">
+                                        <h6><strong>Contractor Confirmation</strong></h6>
+                                        <p class="mb-2">
+                                            I/ We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by the building owners and GFM. 
+                                            I / We shall brief all my workers involved in this work and ensure that they are carry out work safely at all times.
+                                        </p>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="contractorConfirmation" required>
+                                            <label class="form-check-label font-weight-bold" for="contractorConfirmation">
+                                                I confirm and agree to the above declaration *
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -554,17 +1277,14 @@
 
                 <!-- Dynamic Action Buttons Section -->
                 <div id="actionButtonsSection">
-                    <!-- Default Action Buttons -->
+                    <!-- Public Form Action Buttons -->
                     <div class="row">
                         <div class="col-12 text-center">
-                            <button type="button" class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveDraft">
-                                <i class="fas fa-save mr-2"></i> Save as Draft
+                            <button type="button" class="btn btn-primary btn-lg px-5 py-3" id="btnSubmitApproval">
+                                <i class="fas fa-paper-plane mr-2"></i> Submit PTW Application
                             </button>
-                            <button type="button" class="btn btn-primary px-5 py-3 ml-3" id="btnSubmitApproval">
-                                <i class="fas fa-paper-plane mr-2"></i> Submit for Approval
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary px-5 py-3 ml-3" onclick="window.location.href='ptw_management.html'">
-                                <i class="fas fa-times mr-2"></i> Cancel
+                            <button type="button" class="btn btn-outline-secondary btn-lg px-5 py-3 ml-3" onclick="location.reload()">
+                                <i class="fas fa-refresh mr-2"></i> Clear Form
                             </button>
                         </div>
                     </div>
@@ -603,14 +1323,58 @@
 
 <!--Custom scripts-->
 <script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    let ptwFormClass_; // Main PTW form class instance
 
-    let versionLocal;
-    let changePasswordClass;
-    let ptwFormClass_;
+    // Initialize radio buttons for contractor declarations
+    function initializeRadioButtons() {
+        // Get all radio buttons in the contractor declaration table
+        const radioButtons = document.querySelectorAll('input[type="radio"][name^="declaration"]');
+        
+        radioButtons.forEach(function(radio) {
+            // Remove any existing event listeners
+            radio.onclick = null;
+            radio.onchange = null;
+            
+            // Force radio button properties
+            radio.style.display = 'inline-block';
+            radio.style.opacity = '1';
+            radio.style.visibility = 'visible';
+            radio.style.pointerEvents = 'auto';
+            radio.style.position = 'relative';
+            radio.style.zIndex = '999';
+            
+            // Add click event listener
+            radio.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('Radio button clicked:', this.name, this.value);
+                
+                // Manually handle radio button selection
+                const name = this.name;
+                const otherRadios = document.querySelectorAll(`input[type="radio"][name="${name}"]`);
+                otherRadios.forEach(function(otherRadio) {
+                    otherRadio.checked = false;
+                });
+                this.checked = true;
+                
+                // Trigger change event
+                this.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            
+            // Add change event listener for debugging
+            radio.addEventListener('change', function(e) {
+                console.log('Radio button changed:', this.name, this.value, 'checked:', this.checked);
+            });
+        });
+        
+        console.log('Initialized', radioButtons.length, 'radio buttons');
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
+        // Initialize radio buttons for contractor declarations
+        initializeRadioButtons();
+        
+        // Simple loading indicator
+        showLoadingIndicator();
         
         // Set default dates for testing
         const today = new Date();
@@ -625,18 +1389,11 @@
         
         setTimeout(function () {
             try {
-                initiatePages();
-                versionLocal = mzGetDataVersion();
-                changePasswordClass = new ModalChangePassword();
+                // Initialize PTW form class with public configuration
                 ptwFormClass_ = new PtwForm();
-
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal, 'siteId', [], 'site');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal, 'userId');
-                const userSite = mzGetUserInfoByParam('siteId');
-
-                ptwFormClass_.setUserSite(userSite);
-                ptwFormClass_.setRefSite(refSite_);
-                ptwFormClass_.setRefUser(refUser_);
+                
+                // Set public form configuration
+                ptwFormClass_.setPublicMode(true);
                 ptwFormClass_.init();
                 
                 // Prevent form submission
@@ -653,9 +1410,10 @@
                 window.ptwFormClass_ = ptwFormClass_;
                 
             } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                showError('Failed to initialize form: ' + e.message);
+                console.error('PTW Form initialization error:', e);
             }
-            HideLoader();
+            hideLoadingIndicator();
         }, 300);
     });
 
@@ -706,7 +1464,7 @@
         setTimeout(preventMDBDropdownTransformation, 500);
     }
 
-    // Alert functions similar to gamification_config
+    // Alert functions for public form
     function showSuccess(message) {
         document.getElementById('successMessage').textContent = message;
         const alertElement = document.getElementById('alertSuccess');
@@ -737,8 +1495,109 @@
         }, 8000);
     }
 
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/ptw_form.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    // Loading indicator functions to replace ShowLoader/HideLoader
+    function showLoadingIndicator() {
+        // Create overlay if it doesn't exist
+        let overlay = document.getElementById('loadingOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'loadingOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            `;
+            
+            const spinner = document.createElement('div');
+            spinner.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                ">
+                    <div style="
+                        border: 4px solid #f3f3f3;
+                        border-top: 4px solid #4285f4;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        animation: spin 1s linear infinite;
+                        margin: 0 auto 10px;
+                    "></div>
+                    <div style="color: #333; font-weight: 500;">Loading...</div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            overlay.appendChild(spinner);
+            document.body.appendChild(overlay);
+        }
+        overlay.style.display = 'flex';
+    }
+
+    function hideLoadingIndicator() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    }
+
+    // Global functions for PTW form class compatibility
+    window.ShowLoader = showLoadingIndicator;
+    window.HideLoader = hideLoadingIndicator;
+    window.showSuccess = showSuccess;
+    window.showError = showError;
+
+    // Help system functionality
+    function toggleHelp(helpId) {
+        const helpElement = document.getElementById(helpId);
+        if (helpElement) {
+            // Hide all other help examples first
+            document.querySelectorAll('.help-example.show').forEach(el => {
+                if (el.id !== helpId) {
+                    el.classList.remove('show');
+                }
+            });
+            
+            // Toggle the clicked help example
+            helpElement.classList.toggle('show');
+            
+            // Smooth scroll to help if it's being shown
+            if (helpElement.classList.contains('show')) {
+                setTimeout(() => {
+                    helpElement.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+                }, 100);
+            }
+        }
+    }
+
+    // Close help examples when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.help-icon') && !event.target.closest('.help-example')) {
+            document.querySelectorAll('.help-example.show').forEach(el => {
+                el.classList.remove('show');
+            });
+        }
+    });
+
+    // Scripts now loaded in head section to ensure availability before instantiation
+    // All dependencies removed for public form - no authentication required
 
 </script>
 

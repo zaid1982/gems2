@@ -789,7 +789,8 @@ function loadDashboardData() {
     
     try {
         // Load PTW data from API
-        const ptwData = mzAjaxRequest('ptw.php', 'GET', {action: 'dashboard_data'});
+        console.log('Requesting PTW dashboard data...');
+        const ptwData = mzAjaxRequest('ptw.php?action=dashboard_data', 'GET', {action: 'dashboard_data'});
         
         if (ptwData) {
             updateSummaryCards(ptwData);

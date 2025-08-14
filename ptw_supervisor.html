@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>PTW Supervisor Dashboard - GEMS2</title>
+    
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <style>
+        .supervisor-dashboard {
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-stats {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-card.pending {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            color: white;
+        }
+        
+        .stat-card.approved-today {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .stat-card.overdue {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        
+        .priority-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .table-actions {
+            white-space: nowrap;
+        }
+        
+        .review-btn {
+            margin-right: 5px;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+        }
+        
+        .days-pending {
+            font-weight: bold;
+        }
+        
+        .days-pending.urgent {
+            color: #dc3545;
+        }
+        
+        .days-pending.warning {
+            color: #ffc107;
+        }
+        
+        .quick-actions {
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+        }
+        
+        .approval-summary {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dashboard-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Toastr Styles */
+        #toast-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 999999;
+        }
+    </style>
+    
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!-- JQuery Migrate -->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+
+<body>
+<main class="supervisor-dashboard">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="home.html">Home</a></li>
+            <li class="breadcrumb-item"><a href="ptw.html">PTW Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Supervisor Approval</li>
+        </ol>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-user-tie mr-2"></i>PTW Supervisor Dashboard</h2>
+                <p class="mb-0">Review and approve Permit to Work requests awaiting your authorization</p>
+            </div>
+            <div class="col-md-4 text-right">
+                <div class="d-flex justify-content-end align-items-center">
+                    <span class="mr-3" id="lblSupervisorInfo">
+                        <i class="fas fa-user"></i> <span id="lblCurrentSupervisor">Loading...</span><br>
+                        <small><i class="fas fa-building"></i> <span id="lblCurrentSite">Loading...</span></small>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Statistics -->
+    <div class="dashboard-stats">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card pending">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h3 id="statPendingCount">0</h3>
+                    <small>Pending Review</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card approved-today">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h3 id="statApprovedToday">0</h3>
+                    <small>Approved Today</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card overdue">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h3 id="statOverdueCount">0</h3>
+                    <small>Overdue Review</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white;">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <h3 id="statAvgProcessingTime">0</h3>
+                    <small>Avg. Hours to Approve</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="approval-summary">
+                    <h5><i class="fas fa-info-circle mr-2"></i>Approval Guidelines</h5>
+                    <p class="mb-2">As a GFM Supervisor, you are responsible for:</p>
+                    <ul class="mb-0">
+                        <li>Verifying work scope and location details</li>
+                        <li>Ensuring adequate safety measures are in place</li>
+                        <li>Confirming contractor competency and qualifications</li>
+                        <li>Checking that risk assessments are complete</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="fas fa-bolt mr-1"></i>Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="refreshDashboard()">
+                            <i class="fas fa-sync mr-1"></i> Refresh List
+                        </button>
+                        <button class="btn btn-info btn-sm btn-block mb-2" onclick="showApprovalHistory()">
+                            <i class="fas fa-history mr-1"></i> Approval History
+                        </button>
+                        <button class="btn btn-success btn-sm btn-block mb-2" onclick="generateReport()">
+                            <i class="fas fa-file-excel mr-1"></i> Export Report
+                        </button>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="autoRefreshToggle" checked onchange="toggleAutoRefresh()">
+                            <label class="custom-control-label" for="autoRefreshToggle">
+                                <small>Auto-refresh (5 min)</small>
+                            </label>
+                        </div>
+                        <div id="autoRefreshStatus" class="text-muted mt-1">
+                            <small><i class="fas fa-clock mr-1"></i>Next refresh: <span id="nextRefreshTime">--</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4><i class="fas fa-clipboard-list mr-2"></i>PTW Requests Pending Supervisor Approval</h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterByPriority('all')" id="btnFilterAll">
+                            All
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterByPriority('urgent')" id="btnFilterUrgent">
+                            Urgent
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="filterByPriority('overdue')" id="btnFilterOverdue">
+                            Overdue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover" id="dtPendingPTW">
+                    <thead>
+                        <tr>
+                            <th>Permit No.</th>
+                            <th>Description</th>
+                            <th>Applicant</th>
+                            <th>Work Area</th>
+                            <th>Risk Level</th>
+                            <th>Submitted Date</th>
+                            <th>Days Pending</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here via DataTables -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-2 mb-0">Loading PTW requests...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PTW Review Modal -->
+    <div class="modal fade" id="ptwReviewModal" tabindex="-1" role="dialog" aria-labelledby="ptwReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="ptwReviewModalLabel">
+                        <i class="fas fa-clipboard-check mr-2"></i>
+                        <strong>PERMIT TO WORK</strong> - SUPERVISOR REVIEW
+                        <br><small>WORK FAST, THINK SMART, STAY SAFE</small>
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0" id="ptwReviewContent">
+                    <div class="text-center p-4">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading permit details...</span>
+                        </div>
+                        <p class="mt-2">Loading permit details...</p>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <div class="row w-100">
+                        <div class="col-md-8">
+                            <div class="form-group mb-0">
+                                <label for="supervisorComments" class="font-weight-bold">Supervisor Comments:</label>
+                                <textarea class="form-control" id="supervisorComments" rows="2" placeholder="Add your review comments here..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">
+                                <i class="fas fa-times mr-1"></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-warning mr-1" onclick="requestModification()">
+                                <i class="fas fa-edit mr-1"></i>Request Changes
+                            </button>
+                            <button type="button" class="btn btn-danger mr-1" onclick="rejectPermit()">
+                                <i class="fas fa-times-circle mr-1"></i>Reject
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="approvePermit()">
+                                <i class="fas fa-check-circle mr-1"></i>Approve
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- SCRIPTS -->
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.js"></script>
+<!-- DataTables.net -->
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Toastr for notifications -->
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<!-- Safe Toastr wrapper -->
+<script type="text/javascript" src="js/toastr-safe.js"></script>
+
+<!-- Load common.js directly -->
+<script type="text/javascript" src="js/common.js"></script>
+
+<script type="text/javascript">
+// Global variables
+let refSite, refUser, userSite, currentFilter = 'all';
+let pendingPTWTable;
+let autoRefreshInterval;
+let autoRefreshEnabled = true;
+let currentReviewPermit = null;
+
+// Safe toastr wrapper
+function safeToast(type, message, title) {
+    try {
+        if (typeof toastr !== 'undefined' && toastr && toastr[type]) {
+            toastr[type](message, title);
+        } else {
+            console.error('Toastr not available:', type, message, title);
+            alert(title + ': ' + message);
+        }
+    } catch (e) {
+        console.error('Error showing toast:', e);
+        alert(title + ': ' + message);
+    }
+}
+
+// Initialize supervisor dashboard
+$(document).ready(function() {
+    console.log('PTW Supervisor Dashboard initializing...');
+    
+    // Wait for common.js to load
+    let commonJsCheckCount = 0;
+    const maxCommonJsChecks = 50;
+    
+    const checkCommonJsLoaded = setInterval(function() {
+        commonJsCheckCount++;
+        
+        if (typeof mzAjaxRequest === 'function' || typeof window.mzAjaxRequest === 'function') {
+            clearInterval(checkCommonJsLoaded);
+            console.log('✓ Common.js loaded successfully');
+            
+            // Use window references if direct references aren't available
+            if (typeof mzAjaxRequest !== 'function' && typeof window.mzAjaxRequest === 'function') {
+                window.mzAjaxRequest = window.mzAjaxRequest;
+            }
+            
+            try {
+                // Initialize user data
+                initializeUserData();
+                
+                // Initialize DataTable
+                initializeDataTable();
+                
+                // Load dashboard data
+                loadDashboardData();
+                
+                // Set up auto-refresh interval (every 5 minutes for supervisor)
+                startAutoRefresh();
+                
+            } catch (initError) {
+                console.error('Error during initialization:', initError);
+                safeToast('error', 'Error during initialization: ' + initError.message, 'Initialization Error');
+            }
+            
+        } else if (commonJsCheckCount >= maxCommonJsChecks) {
+            clearInterval(checkCommonJsLoaded);
+            console.error('✗ Timeout waiting for common.js functions to load');
+            
+            // Try fallback initialization
+            try {
+                initializeFallback();
+            } catch (fallbackError) {
+                console.error('Fallback initialization failed:', fallbackError);
+                safeToast('error', 'Failed to load required functions. Please refresh the page.', 'Loading Error');
+            }
+        }
+    }, 100);
+});
+
+function initializeUserData() {
+    try {
+        refUser = JSON.parse(sessionStorage.getItem('refUser'));
+        refSite = JSON.parse(sessionStorage.getItem('refSite'));
+        userSite = sessionStorage.getItem('userSite');
+        
+        if (refUser && refSite && userSite) {
+            const userId = sessionStorage.getItem('userId');
+            $('#lblCurrentSupervisor').text(refUser[userId] ? refUser[userId]['userFullName'] : 'Supervisor');
+            $('#lblCurrentSite').text(refSite[userSite] ? refSite[userSite]['siteName'] : 'Site');
+        } else {
+            $('#lblCurrentSupervisor').text('Supervisor');
+            $('#lblCurrentSite').text('Site');
+        }
+    } catch (e) {
+        console.error('Error loading user data:', e);
+        $('#lblCurrentSupervisor').text('Supervisor');
+        $('#lblCurrentSite').text('Site');
+    }
+}
+
+function initializeFallback() {
+    console.log('Initializing fallback mode...');
+    initializeUserData();
+    initializeDataTable();
+    
+    // Load placeholder data
+    loadPlaceholderData();
+    safeToast('warning', 'Running in limited mode. Some features may not be available.', 'Limited Mode');
+}
+
+function initializeDataTable() {
+    pendingPTWTable = $('#dtPendingPTW').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 25,
+        order: [[5, 'asc']], // Sort by submitted date (oldest first)
+        language: {
+            emptyTable: "No PTW requests pending supervisor approval"
+        },
+        columns: [
+            { 
+                data: 'ptw_permit_number',
+                width: '12%'
+            },
+            { 
+                data: 'ptw_permit_description',
+                width: '20%',
+                render: function(data, type, row) {
+                    if (type === 'display' && data.length > 50) {
+                        return data.substring(0, 50) + '...';
+                    }
+                    return data;
+                }
+            },
+            { 
+                data: 'ptw_applicant_name',
+                width: '12%'
+            },
+            { 
+                data: 'ptw_work_area',
+                width: '12%'
+            },
+            { 
+                data: 'ptw_risk_level',
+                width: '8%',
+                render: function(data) {
+                    return getRiskBadge(data);
+                }
+            },
+            { 
+                data: 'created_date',
+                width: '10%',
+                render: function(data) {
+                    return moment(data).format('DD/MM/YYYY HH:mm');
+                }
+            },
+            { 
+                data: null,
+                width: '8%',
+                render: function(data, type, row) {
+                    return getDaysPending(row.created_date);
+                }
+            },
+            { 
+                data: null,
+                width: '8%',
+                render: function(data, type, row) {
+                    return getPriorityBadge(row);
+                }
+            },
+            { 
+                data: null,
+                width: '10%',
+                render: function(data, type, row) {
+                    return getActionButtons(row);
+                }
+            }
+        ],
+        drawCallback: function() {
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    });
+}
+
+function loadDashboardData(isAutoRefresh = false) {
+    console.log('Loading supervisor dashboard data...', isAutoRefresh ? '(auto-refresh)' : '(manual)');
+    
+    // Only show loading modal for manual refresh
+    if (!isAutoRefresh) {
+        $('#loadingModal').modal('show');
+    }
+    
+    // Set a timeout to hide loading modal if it takes too long (fallback safety)
+    // const loadingTimeout = setTimeout(function() {
+    //     console.warn('Loading timeout reached - hiding modal and showing error');
+    //     if (!isAutoRefresh) {
+    //         $('#loadingModal').modal('hide');
+    //     }
+    //     safeToast('error', 'Loading timeout. Please check your connection and try again.', 'Timeout Error');
+    //     loadPlaceholderData();
+    // }, 10000); // 10 second timeout
+    
+    try {
+        // Load PTW requests pending supervisor approval
+        console.log('Making API call to get_supervisor_pending_requests...');
+        const pendingRequests = mzAjaxRequest('ptw.php?action=get_supervisor_pending_requests', 'GET', {});
+        
+        console.log('API Response:', pendingRequests);
+        
+        // Hide loading modal immediately after getting response
+       
+        if (!isAutoRefresh) {
+            $('#loadingModal').modal('hide');
+        }
+        
+        if (pendingRequests && pendingRequests.success && pendingRequests.result) {
+            console.log('Pending requests loaded successfully:', pendingRequests.result.permits);
+            updateDashboardStats(pendingRequests.result.permits || []);
+            populateDataTable(pendingRequests.result.permits || []);
+        } else if (pendingRequests && pendingRequests.permits) {
+            // Handle case where success flag might not be set
+            console.log('Pending requests loaded (no success flag):', pendingRequests.permits);
+            updateDashboardStats(pendingRequests.permits);
+            populateDataTable(pendingRequests.permits);
+        } else {
+            console.log('No pending requests or API failed, trying fallback...');
+            // Fallback: get all permits and filter for pending supervisor
+            const allPermits = mzAjaxRequest('ptw.php', 'GET', {
+                action: 'dashboard_data'
+            });
+            
+            console.log('Fallback API Response:', allPermits);
+            
+            if (allPermits && allPermits.permits) {
+                const pendingOnly = filterPendingSupervisor(allPermits.permits);
+                console.log('Filtered pending supervisor requests:', pendingOnly);
+                updateDashboardStats(pendingOnly);
+                populateDataTable(pendingOnly);
+            } else {
+                console.log('Fallback also failed, loading placeholder data');
+                loadPlaceholderData();
+                safeToast('warning', 'No PTW data available. Please check your permissions.', 'No Data');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+       
+        if (!isAutoRefresh) {
+            $('#loadingModal').modal('hide');
+        }
+        safeToast('error', 'Failed to load PTW requests. Error: ' + error.message, 'Loading Error');
+        loadPlaceholderData();
+    } finally {
+        // Ensure modal is hidden and timeout is cleared
+       
+        if (!isAutoRefresh) {
+            $('#loadingModal').modal('hide');
+        }
+        
+        // Update next refresh time if auto-refresh is enabled
+        if (autoRefreshEnabled) {
+            updateNextRefreshTime();
+        }
+    }
+}
+
+function filterPendingSupervisor(allPermits) {
+    if (!Array.isArray(allPermits)) {
+        const permitArray = allPermits.result || allPermits.permits || [];
+        return permitArray.filter(permit => permit.ptw_status === 'PENDING_SUPERVISOR');
+    }
+    return allPermits.filter(permit => permit.ptw_status === 'PENDING_SUPERVISOR');
+}
+
+function updateDashboardStats(pendingRequests) {
+    const requests = Array.isArray(pendingRequests) ? pendingRequests : (pendingRequests.result || []);
+    
+    // Pending count
+    $('#statPendingCount').text(requests.length);
+    
+    // Calculate overdue count (more than 24 hours)
+    const overdueCount = requests.filter(request => {
+        const daysPending = moment().diff(moment(request.created_date), 'hours');
+        return daysPending > 24;
+    }).length;
+    $('#statOverdueCount').text(overdueCount);
+    
+    // Approved today count (would need separate API call, using placeholder)
+    $('#statApprovedToday').text('--');
+    
+    // Average processing time (placeholder)
+    $('#statAvgProcessingTime').text('--');
+}
+
+function populateDataTable(data) {
+    const requests = Array.isArray(data) ? data : (data.result || []);
+    
+    console.log('Populating DataTable with', requests.length, 'requests');
+    
+    // Clear existing data
+    pendingPTWTable.clear();
+    
+    // Add new data
+    if (requests.length > 0) {
+        pendingPTWTable.rows.add(requests);
+    }
+    
+    // Redraw table
+    pendingPTWTable.draw();
+    
+    // Apply current filter
+    applyFilter(currentFilter);
+}
+
+function loadPlaceholderData() {
+    $('#statPendingCount').text('0');
+    $('#statApprovedToday').text('--');
+    $('#statOverdueCount').text('0');
+    $('#statAvgProcessingTime').text('--');
+    
+    pendingPTWTable.clear().draw();
+}
+
+// Utility functions
+function getRiskBadge(risk) {
+    const badges = {
+        'LOW': '<span class="badge badge-success">Low</span>',
+        'MEDIUM': '<span class="badge badge-warning">Medium</span>',
+        'HIGH': '<span class="badge badge-danger">High</span>',
+        'CRITICAL': '<span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> Critical</span>'
+    };
+    return badges[risk] || '<span class="badge badge-light">' + risk + '</span>';
+}
+
+function getDaysPending(createdDate) {
+    const daysPending = moment().diff(moment(createdDate), 'days');
+    const hoursPending = moment().diff(moment(createdDate), 'hours');
+    
+    let displayText = '';
+    let cssClass = 'days-pending';
+    
+    if (daysPending >= 2) {
+        displayText = daysPending + ' days';
+        cssClass += ' urgent';
+    } else if (hoursPending >= 24) {
+        displayText = '1 day';
+        cssClass += ' warning';
+    } else {
+        displayText = hoursPending + ' hrs';
+    }
+    
+    return `<span class="${cssClass}">${displayText}</span>`;
+}
+
+function getPriorityBadge(request) {
+    const hoursPending = moment().diff(moment(request.created_date), 'hours');
+    const isHighRisk = request.ptw_risk_level === 'HIGH' || request.ptw_risk_level === 'CRITICAL';
+    
+    if (hoursPending > 48 || (isHighRisk && hoursPending > 24)) {
+        return '<span class="priority-badge badge badge-danger">Urgent</span>';
+    } else if (hoursPending > 24 || isHighRisk) {
+        return '<span class="priority-badge badge badge-warning">High</span>';
+    } else {
+        return '<span class="priority-badge badge badge-info">Normal</span>';
+    }
+}
+
+function getActionButtons(request) {
+    return `
+        <div class="table-actions">
+            <button class="btn btn-primary btn-sm review-btn" 
+                    onclick="reviewPTW('${request.ptw_permit_id}')" 
+                    data-toggle="tooltip" title="Review PTW Request">
+                <i class="fas fa-eye"></i> Review
+            </button>
+            <button class="btn btn-success btn-sm" 
+                    onclick="quickApprove('${request.ptw_permit_id}')" 
+                    data-toggle="tooltip" title="Quick Approve">
+                <i class="fas fa-check"></i>
+            </button>
+        </div>
+    `;
+}
+
+// Action functions
+function reviewPTW(permitId) {
+    console.log('Reviewing PTW:', permitId);
+    
+    try {
+        // Show the review modal
+        $('#ptwReviewModal').modal('show');
+        $('#ptwReviewModalLabel').html(`
+            <i class="fas fa-clipboard-check mr-2"></i>
+            <strong>PERMIT TO WORK</strong> - SUPERVISOR REVIEW
+            <br><small>Loading permit details...</small>
+        `);
+        
+        // Load permit details
+        const permitDetails = mzAjaxRequest('ptw.php?action=get_permit&permit_id=' + permitId, 'GET', {});
+        
+        console.log('Permit details loaded:', permitDetails);
+        
+        // Handle different response structures
+        let permit = null;
+        
+        if (permitDetails && permitDetails.success && permitDetails.result) {
+            // API returns nested structure: {success: true, result: {permit_data}}
+            permit = permitDetails.result;
+            console.log('Using nested response structure');
+        } else if (permitDetails && permitDetails.result) {
+            // Handle case where success flag might not be set but we have result
+            permit = permitDetails.result;
+            console.log('Using result without success flag');
+        } else if (permitDetails && permitDetails.ptw_permit_id) {
+            // Handle case where mzAjaxRequest automatically extracts result or API returns permit data directly
+            permit = permitDetails;
+            console.log('Using direct permit data');
+        } else {
+            throw new Error('Failed to load permit details - no valid permit data found');
+        }
+        
+        if (permit) {
+            console.log('Setting currentReviewPermit to:', permit);
+            currentReviewPermit = permit;
+            
+            // Update modal title with permit number
+            $('#ptwReviewModalLabel').html(`
+                <i class="fas fa-clipboard-check mr-2"></i>
+                <strong>PERMIT TO WORK</strong> - SUPERVISOR REVIEW
+                <br><small>PTW No: ${permit.ptw_permit_number || permitId}</small>
+            `);
+            
+            displayPermitDetails(permit);
+        }
+        
+    } catch (error) {
+        console.error('Error loading permit for review:', error);
+        safeToast('error', 'Failed to load permit details. Please try again.', 'Review Error');
+        $('#ptwReviewModal').modal('hide');
+    }
+}
+
+function displayPermitDetails(permit) {
+    const content = `
+        <div class="container-fluid">
+            <!-- Header Section -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h5 class="mb-0"><strong>PTW NO: ${permit.ptw_permit_number || 'N/A'}</strong></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Requisition -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><strong>SECTION 1 - REQUISITION (To be filled-up by Applicant)</strong></h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary font-weight-bold mb-3">DETAILS OF JOB APPLICATION</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td style="width: 40%"><strong>Applicant Name:</strong></td>
+                                    <td>${permit.ptw_applicant_name || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Contractor Supervisor in Charge:</strong></td>
+                                    <td>${permit.ptw_contractor_company || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Company / Department:</strong></td>
+                                    <td>${permit.ptw_applicant_company_dept || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Work Area:</strong></td>
+                                    <td>${permit.ptw_work_area || 'N/A'}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary font-weight-bold mb-3">&nbsp;</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td style="width: 40%"><strong>Contact No:</strong></td>
+                                    <td>${permit.ptw_applicant_contact || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Staff No. / NRIC No:</strong></td>
+                                    <td>N/A</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Identification No:</strong></td>
+                                    <td>N/A</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Level:</strong></td>
+                                    <td>${permit.ptw_risk_level || 'N/A'}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>Duration of Work - From: Date</strong></td>
+                                    <td>${formatDate(permit.ptw_valid_from)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-2">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>Time</strong></td>
+                                    <td>${formatTime(permit.ptw_valid_from)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>To: Date</strong></td>
+                                    <td>${formatDate(permit.ptw_valid_to)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-2">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>Time</strong></td>
+                                    <td>${formatTime(permit.ptw_valid_to)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Description of Work:</label>
+                                <div class="p-2 border bg-light" style="min-height: 60px;">
+                                    ${permit.ptw_permit_description || 'No description provided'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${generateWorkTypeSection(permit)}
+                </div>
+            </div>
+
+            <!-- Section 2: Supporting Documents -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><strong>SECTION 2: SUPPORTING DOCUMENTS</strong></h6>
+                </div>
+                <div class="card-body">
+                    ${generateSupportingDocumentsSection(permit)}
+                </div>
+            </div>
+
+            <!-- Workers List Section -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><strong>ASSIGNED WORKERS</strong></h6>
+                </div>
+                <div class="card-body">
+                    ${generateWorkersSection(permit)}
+                </div>
+            </div>
+
+            <!-- Section 3: Hazardous Activities -->
+            <div class="card mb-3">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><strong>SECTION 3: HAZARDOUS ACTIVITIES</strong></h6>
+                </div>
+                <div class="card-body">
+                    ${generateHazardSection(permit)}
+                </div>
+            </div>
+
+            <!-- Section 4: Contractor Declaration -->
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><strong>SECTION 4: CONTRACTOR DECLARATION</strong></h6>
+                </div>
+                <div class="card-body">
+                    ${generateDeclarationSection(permit)}
+                </div>
+            </div>
+
+            <!-- Supervisor Review Guidelines -->
+            <div class="alert alert-info">
+                <h6><i class="fas fa-clipboard-check mr-2"></i>Supervisor Review Guidelines</h6>
+                <ul class="mb-0">
+                    <li>Verify that work scope and location are clearly defined</li>
+                    <li>Ensure all safety measures and precautions are adequate</li>
+                    <li>Confirm contractor competency and proper authorization</li>
+                    <li>Check that all risk assessments are complete and appropriate</li>
+                    <li>Validate the proposed work schedule and duration</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    $('#ptwReviewContent').html(content);
+}
+
+function generateWorkTypeSection(permit) {
+    const workType = permit.ptw_work_type || '';
+    const isColdWork = workType.toLowerCase().includes('cold');
+    const isHotWork = workType.toLowerCase().includes('hot');
+    const isConfinedSpace = workType.toLowerCase().includes('confined');
+
+    // Parse checklist data
+    let coldWorkData = {};
+    let hotWorkData = {};
+    let confinedSpaceData = {};
+    
+    try {
+        if (permit.ptw_checklist_cold_work) {
+            coldWorkData = JSON.parse(permit.ptw_checklist_cold_work);
+        }
+        if (permit.ptw_checklist_hot_work) {
+            hotWorkData = JSON.parse(permit.ptw_checklist_hot_work);
+        }
+        if (permit.ptw_checklist_confined_space) {
+            confinedSpaceData = JSON.parse(permit.ptw_checklist_confined_space);
+        }
+    } catch (e) {
+        console.log('Error parsing work type checklists:', e);
+    }
+
+    return `
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header ${isColdWork ? 'bg-success' : 'bg-light'} text-${isColdWork ? 'white' : 'dark'}">
+                        <h6 class="mb-0"><strong>COLD WORK / OTHER WORKS</strong></h6>
+                        <small>CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.electrical_work ? 'checked' : ''}><label class="form-check-label">ELECTRICAL WORK</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.working_under_load ? 'checked' : ''}><label class="form-check-label">WORKING UNDER LOAD</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.working_at_height ? 'checked' : ''}><label class="form-check-label">WORKING AT HEIGHT</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.lifting_work ? 'checked' : ''}><label class="form-check-label">LIFTING WORK</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.excavation_work ? 'checked' : ''}><label class="form-check-label">EXCAVATION WORK</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${coldWorkData.chemical_handling ? 'checked' : ''}><label class="form-check-label">CHEMICAL HANDLING</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        ${isHotWork ? `
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><strong>HOT WORK</strong></h6>
+                        <small>CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>TYPE OF HOT WORK</h6>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Welding</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Flame Cutting</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Open Flame</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Grinding</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Blasting</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>CONTROLS REQUIRED</h6>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Fire retardant screen</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Cover potentially flammable screen/drain/sump</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Locate spark producing equipment away from potential</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Remove flammable/highly combustible materials</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Others:</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+
+        ${isConfinedSpace ? `
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><strong>CONFINED SPACE ENTRY</strong></h6>
+                        <small>CONDITIONS TO BE IMPLEMENTED BY ENTRY SUPERVISOR</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>ENTRY CONDITION</h6>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Acceptable Atmosphere</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Inacceptable Atmosphere</label></div>
+                                <h6 class="mt-3">CONTROLS REQUIRED</h6>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">First entry using SCBA or air line set</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Entrants are CSE certified</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Entrants briefed of risk by supervisor</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Confined space entry checklist attached</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Rescue equipment</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Complete CSE Checklist</label></div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Type of communication to be used</label></div>
+                                <div style="margin-left: 20px;">
+                                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Rope signals</label></div>
+                                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Walkie talkie</label></div>
+                                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Whistle/horn</label></div>
+                                </div>
+                                <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Others:</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+    `;
+}
+
+function generateHazardSection(permit) {
+    // Parse hazard checklist data
+    let hazardData = {};
+    try {
+        if (permit.ptw_hazard_checklist) {
+            hazardData = JSON.parse(permit.ptw_hazard_checklist);
+        }
+    } catch (e) {
+        console.log('Error parsing hazard checklist:', e);
+        hazardData = {};
+    }
+    
+    // Map the actual hazard data structure to display items
+    // The actual data has general safety checks and specific hazard items
+    const specificHazards = hazardData.specific || {};
+    
+    // Define hazard items - these are generic hazard types
+    const hazardItems = [
+        // Column 1
+        ['slippery_floor', 'Slippery floor'],
+        ['sharp_objects', 'Sharp object/edges'],
+        ['overhead_clearance', 'Overhead clearance'],
+        ['moving_machinery', 'Moving vehicle/machinery'],
+        ['volatile_liquid', 'Volatile liquid'],
+        ['illumination_deficiency', 'Illumination deficiency'],
+        ['rotating_parts', 'Rotating parts'],
+        // Column 2
+        ['dropped_objects', 'Dropped objects'],
+        ['fall_height', 'Fall from height'],
+        ['unstable_structure', 'Unstable structure'],
+        ['gas_fumes', 'Gas/fumes'],
+        ['simultaneous_operation', 'Simultaneous operation'],
+        ['chemical', 'Chemical'],
+        ['ionizing_radiation', 'Ionizing Radiation'],
+        // Column 3
+        ['radioactive_material', 'Radioactive material'],
+        ['extreme_weather', 'Extreme weather'],
+        ['flying_object', 'Flying object'],
+        ['wild_animals', 'Wild animals/insects'],
+        ['oxygen_deficiency', 'Oxygen deficiency'],
+        ['poisonous_substance', 'Poisonous substance'],
+        ['infectious_substance', 'Infectious substance'],
+        // Column 4
+        ['pinch_points', 'Pinch points'],
+        ['excessive_noise', 'Excessive noise'],
+        ['excessive_vibration', 'Excessive vibration'],
+        ['pressurized_equipment', 'Pressurized equipment'],
+        ['equipment', 'Equipment'],
+        ['mud', 'Mud'],
+        ['others', 'Others:']
+    ];
+    
+    // Create columns
+    const columns = [[], [], [], []];
+    hazardItems.forEach((item, index) => {
+        const columnIndex = Math.floor(index / 7);
+        if (columnIndex < 4) {
+            const [key, label] = item;
+            // For now, show as unchecked since the data structure doesn't match
+            // In the future, you might want to map specific keys to these generic hazards
+            const isChecked = specificHazards[label] || false; // Try to match by label
+            columns[columnIndex].push(`
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" disabled ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label">${label}</label>
+                </div>
+            `);
+        }
+    });
+    
+    // Add any specific hazards that were actually checked
+    let specificHazardsHtml = '';
+    if (Object.keys(specificHazards).length > 0) {
+        specificHazardsHtml = `
+            <div class="mt-3">
+                <h6><strong>Specific Work-Related Hazards Identified:</strong></h6>
+                <div class="row">
+                    <div class="col-12">
+                        ${Object.entries(specificHazards).map(([key, value]) => `
+                            <div class="form-check form-check-inline">
+                                <input type="checkbox" class="form-check-input" disabled ${value ? 'checked' : ''}>
+                                <label class="form-check-label">${key}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add general safety checks at the top
+    const generalChecks = `
+        <div class="mb-3">
+            <h6><strong>General Safety Checks:</strong></h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkSafetyBriefing ? 'checked' : ''}><label class="form-check-label">Safety briefing completed</label></div>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkPPEAvailable ? 'checked' : ''}><label class="form-check-label">PPE available and suitable</label></div>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkEmergencyProcedure ? 'checked' : ''}><label class="form-check-label">Emergency procedures established</label></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkWorkAreaIsolated ? 'checked' : ''}><label class="form-check-label">Work area properly isolated</label></div>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkFirstAidAvailable ? 'checked' : ''}><label class="form-check-label">First aid facilities available</label></div>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" disabled ${hazardData.chkCommunicationEstablished ? 'checked' : ''}><label class="form-check-label">Communication established</label></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return `
+        ${generalChecks}
+        <h6><strong>Potential Hazards Assessment:</strong></h6>
+        <div class="row">
+            <div class="col-md-3">
+                ${columns[0].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[1].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[2].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[3].join('')}
+            </div>
+        </div>
+        ${specificHazardsHtml}
+    `;
+}
+
+function generateDeclarationSection(permit) {
+    // Parse declaration checklist data
+    let declarationData = {};
+    try {
+        if (permit.ptw_declaration_checklist) {
+            declarationData = JSON.parse(permit.ptw_declaration_checklist);
+        }
+    } catch (e) {
+        console.log('Error parsing declaration checklist:', e);
+        declarationData = {};
+    }
+    
+    // For now, default all declarations to true (backward compatibility)
+    // In the future, these can be read from declarationData
+    const declarations = [
+        'All assigned workers are briefed on relevant SHE Procedure and only activities stated in JHA are permitted to carry out',
+        'All documentation listed in supporting documents during briefing have been verified',
+        'Ensure all appointed staff/workers are briefed on relevant job site and safety procedures before start work',
+        'GFM is not liable for any incident occurred on site if violation of the Permit To Work',
+        'Permit to work shall be displayed at the work site at all the time',
+        'All safety equipment has been checked and deem safe'
+    ];
+    
+    return `
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th width="5%">No</th>
+                    <th width="70%">Description</th>
+                    <th width="12.5%">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${declarations.map((description, index) => {
+                    const romanNumeral = ['i)', 'ii)', 'iii)', 'iv)', 'v)', 'vi)'][index] || (index + 1) + ')';
+                    return `
+                        <tr>
+                            <td>${romanNumeral}</td>
+                            <td>${description}</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6><strong>Appropriate PPE are provided/wear, please tick below:</strong></h6>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled checked><label class="form-check-label">Safety helmet</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled checked><label class="form-check-label">Safety shoes</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Fall protection</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Full Body Harness with lanyard</label></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Respiratory Protection</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Half face respirator</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Full face respirator (SCBA)</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Air line set</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">PAPR</label></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Eye, Face & Body Protection</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled checked><label class="form-check-label">Goggles</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Welding mask</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Disposable suit</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Chemical suit</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Rubber boots</label></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Hand Protection</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled checked><label class="form-check-label">Cotton gloves</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Rubber gloves</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Chemical gloves</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Hearing protection</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled checked><label class="form-check-label">Ear plug</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Ear muff</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Others</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Life jacket/vest</label></div>
+                        <div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Others (pls specify):</label></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function formatDate(dateTimeStr) {
+    if (!dateTimeStr) return 'N/A';
+    return moment(dateTimeStr).format('DD/MM/YYYY');
+}
+
+function formatTime(dateTimeStr) {
+    if (!dateTimeStr) return 'N/A';
+    return moment(dateTimeStr).format('HH:mm');
+}
+
+function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return 'N/A';
+    return moment(dateTimeStr).format('DD/MM/YYYY HH:mm');
+}
+
+function formatChecklist(checklistData) {
+    if (!checklistData) return 'No checklist data';
+    
+    try {
+        const data = typeof checklistData === 'string' ? JSON.parse(checklistData) : checklistData;
+        if (Array.isArray(data)) {
+            return data.map(item => `<span class="badge badge-light mr-1">${item}</span>`).join('');
+        }
+        return JSON.stringify(data);
+    } catch (e) {
+        return 'Invalid checklist format';
+    }
+}
+
+function approvePermit() {
+    console.log('approvePermit called, currentReviewPermit:', currentReviewPermit);
+    
+    if (!currentReviewPermit) {
+        console.error('No current review permit available');
+        safeToast('error', 'No permit selected for approval. Please try again.', 'Approval Error');
+        return;
+    }
+    
+    const permitId = currentReviewPermit.ptw_permit_id || currentReviewPermit.permit_id;
+    
+    if (!permitId) {
+        console.error('No permit ID found in currentReviewPermit:', currentReviewPermit);
+        safeToast('error', 'Permit ID not found. Please close and reopen the review.', 'Approval Error');
+        return;
+    }
+    
+    const comments = $('#supervisorComments').val().trim();
+    
+    if (confirm('Are you sure you want to APPROVE this PTW permit? It will proceed to the next approval stage.')) {
+        try {
+            console.log('Approving permit:', permitId);
+            
+            const result = mzAjaxRequest('ptw.php', 'POST', {
+                action: 'supervisor_approve',
+                permit_id: permitId,
+                comments: comments || 'Approved by supervisor'
+            });
+            
+            console.log('Approval result:', result);
+            
+            if (result && result.success) {
+                safeToast('success', 'PTW approved successfully!', 'Approval Success');
+                $('#ptwReviewModal').modal('hide');
+                currentReviewPermit = null; // Clear the current permit
+                loadDashboardData(); // Refresh the table
+            } else {
+                safeToast('error', result.message || result.error || 'Failed to approve PTW', 'Approval Failed');
+            }
+        } catch (error) {
+            console.error('Error approving PTW:', error);
+            safeToast('error', 'Failed to approve PTW. Please try again. Error: ' + error.message, 'Approval Error');
+        }
+    }
+}
+
+function rejectPermit() {
+    console.log('rejectPermit called, currentReviewPermit:', currentReviewPermit);
+    
+    if (!currentReviewPermit) {
+        console.error('No current review permit available');
+        safeToast('error', 'No permit selected for rejection. Please try again.', 'Rejection Error');
+        return;
+    }
+    
+    const permitId = currentReviewPermit.ptw_permit_id || currentReviewPermit.permit_id;
+    
+    if (!permitId) {
+        console.error('No permit ID found in currentReviewPermit:', currentReviewPermit);
+        safeToast('error', 'Permit ID not found. Please close and reopen the review.', 'Rejection Error');
+        return;
+    }
+    
+    const comments = $('#supervisorComments').val().trim();
+    
+    if (!comments) {
+        safeToast('warning', 'Please provide a reason for rejection in the comments field.', 'Rejection Reason Required');
+        $('#supervisorComments').focus();
+        return;
+    }
+    
+    if (confirm('Are you sure you want to REJECT this PTW permit? This action cannot be undone.')) {
+        try {
+            console.log('Rejecting permit:', permitId);
+            
+            const result = mzAjaxRequest('ptw.php', 'POST', {
+                action: 'supervisor_reject',
+                permit_id: permitId,
+                rejection_reason: comments
+            });
+            
+            console.log('Rejection result:', result);
+            
+            if (result && result.success) {
+                safeToast('success', 'PTW rejected successfully.', 'Rejection Success');
+                $('#ptwReviewModal').modal('hide');
+                currentReviewPermit = null; // Clear the current permit
+                loadDashboardData(); // Refresh the table
+            } else {
+                safeToast('error', result.message || result.error || 'Failed to reject PTW', 'Rejection Failed');
+            }
+        } catch (error) {
+            console.error('Error rejecting PTW:', error);
+            safeToast('error', 'Failed to reject PTW. Please try again. Error: ' + error.message, 'Rejection Error');
+        }
+    }
+}
+
+function requestModification() {
+    console.log('requestModification called, currentReviewPermit:', currentReviewPermit);
+    
+    if (!currentReviewPermit) {
+        console.error('No current review permit available');
+        safeToast('error', 'No permit selected for modification. Please try again.', 'Modification Error');
+        return;
+    }
+    
+    const permitId = currentReviewPermit.ptw_permit_id || currentReviewPermit.permit_id;
+    
+    if (!permitId) {
+        console.error('No permit ID found in currentReviewPermit:', currentReviewPermit);
+        safeToast('error', 'Permit ID not found. Please close and reopen the review.', 'Modification Error');
+        return;
+    }
+    
+    const comments = $('#supervisorComments').val().trim();
+    
+    if (!comments) {
+        safeToast('warning', 'Please provide specific modification requirements in the comments field.', 'Modification Notes Required');
+        $('#supervisorComments').focus();
+        return;
+    }
+    
+    if (confirm('Are you sure you want to request modifications to this PTW permit? It will be sent back to the applicant.')) {
+        try {
+            console.log('Requesting modification for permit:', permitId);
+            
+            const result = mzAjaxRequest('ptw.php', 'POST', {
+                action: 'supervisor_return_for_modification',
+                permit_id: permitId,
+                modification_notes: comments
+            });
+            
+            console.log('Modification request result:', result);
+            
+            if (result && result.success) {
+                safeToast('success', 'Modification request sent successfully.', 'Modification Request Success');
+                $('#ptwReviewModal').modal('hide');
+                currentReviewPermit = null; // Clear the current permit
+                loadDashboardData(); // Refresh the table
+            } else {
+                safeToast('error', result.message || result.error || 'Failed to send modification request', 'Modification Request Failed');
+            }
+        } catch (error) {
+            console.error('Error requesting modification:', error);
+            safeToast('error', 'Failed to send modification request. Please try again. Error: ' + error.message, 'Modification Error');
+        }
+    }
+}
+
+function quickApprove(permitId) {
+    if (confirm('Are you sure you want to quickly approve this PTW permit? It will proceed to the next approval stage.')) {
+        try {
+            console.log('Quick approving permit:', permitId);
+            const result = mzAjaxRequest('ptw.php', 'POST', {
+                action: 'supervisor_approve',
+                permit_id: permitId,
+                comments: 'Quick approval by supervisor'
+            });
+            
+            console.log('Quick approval result:', result);
+            
+            if (result && result.success) {
+                safeToast('success', 'PTW approved successfully!', 'Quick Approval Success');
+                loadDashboardData(); // Refresh the table
+            } else {
+                safeToast('error', result.message || result.error || 'Failed to approve PTW', 'Quick Approval Failed');
+            }
+        } catch (error) {
+            console.error('Error in quick approve:', error);
+            safeToast('error', 'Failed to approve PTW. Please try again. Error: ' + error.message, 'Quick Approval Error');
+        }
+    }
+}
+
+// Filter functions
+function filterByPriority(priority) {
+    currentFilter = priority;
+    
+    // Update button states
+    $('.btn-group button').removeClass('active');
+    $(`#btnFilter${priority.charAt(0).toUpperCase() + priority.slice(1)}`).addClass('active');
+    
+    applyFilter(priority);
+}
+
+function applyFilter(priority) {
+    if (priority === 'all') {
+        pendingPTWTable.column(7).search('').draw(); // Clear priority filter
+    } else if (priority === 'urgent') {
+        pendingPTWTable.column(7).search('Urgent').draw();
+    } else if (priority === 'overdue') {
+        pendingPTWTable.column(6).search('days').draw(); // Search for "days" in days pending column
+    }
+}
+
+// Dashboard actions
+function refreshDashboard() {
+    loadDashboardData();
+    safeToast('info', 'Dashboard refreshed', 'Refresh');
+}
+
+function showApprovalHistory() {
+    // Navigate to approval history page (to be implemented)
+    safeToast('info', 'Approval history feature will be implemented soon', 'Coming Soon');
+}
+
+function generateReport() {
+    try {
+        console.log('Generating supervisor report...');
+        const result = mzAjaxRequest('ptw.php', 'GET', {
+            action: 'supervisor_report',
+            format: 'excel'
+        });
+        
+        console.log('Report result:', result);
+        
+        if (result && result.success && result.filePath) {
+            window.open(result.filePath, '_blank');
+            safeToast('success', 'Report generated successfully', 'Report');
+        } else {
+            safeToast('info', 'Report generation feature will be implemented soon', 'Coming Soon');
+        }
+    } catch (error) {
+        console.error('Error generating report:', error);
+        safeToast('info', 'Report generation feature will be implemented soon', 'Coming Soon');
+    }
+}
+
+// Auto-refresh functions
+function startAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    if (autoRefreshEnabled) {
+        // Auto-refresh every 5 minutes (300,000 milliseconds)
+        autoRefreshInterval = setInterval(function() {
+            console.log('Auto-refreshing supervisor dashboard...');
+            
+            // Show subtle indicator for auto-refresh
+            $('#nextRefreshTime').html('<i class="fas fa-sync fa-spin text-primary"></i> Refreshing...');
+            
+            loadDashboardData(true); // true indicates auto-refresh
+        }, 300000);
+        
+        updateNextRefreshTime();
+        console.log('Auto-refresh started: every 5 minutes');
+    }
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+    $('#nextRefreshTime').text('Disabled');
+    console.log('Auto-refresh stopped');
+}
+
+function toggleAutoRefresh() {
+    autoRefreshEnabled = $('#autoRefreshToggle').is(':checked');
+    
+    if (autoRefreshEnabled) {
+        startAutoRefresh();
+        safeToast('info', 'Auto-refresh enabled (every 5 minutes)', 'Auto-Refresh');
+    } else {
+        stopAutoRefresh();
+        safeToast('info', 'Auto-refresh disabled', 'Auto-Refresh');
+    }
+    
+    // Save preference to localStorage
+    localStorage.setItem('ptw_supervisor_auto_refresh', autoRefreshEnabled);
+}
+
+function updateNextRefreshTime() {
+    if (autoRefreshEnabled) {
+        const nextRefresh = new Date(Date.now() + 300000); // 5 minutes from now
+        $('#nextRefreshTime').text(nextRefresh.toLocaleTimeString());
+        
+        // Update the countdown every minute
+        setTimeout(function() {
+            if (autoRefreshEnabled) {
+                updateNextRefreshTime();
+            }
+        }, 60000);
+    } else {
+        $('#nextRefreshTime').text('Disabled');
+    }
+}
+
+function generateWorkersSection(permit) {
+    if (!permit.workers || !Array.isArray(permit.workers) || permit.workers.length === 0) {
+        return `
+            <div class="text-center text-muted">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <p>No workers assigned to this permit</p>
+            </div>
+        `;
+    }
+    
+    let workersHtml = `
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Worker Name</th>
+                        <th>IC Number</th>
+                        <th>Phone Number</th>
+                        <th>Company</th>
+                        <th>Designation</th>
+                        <th>PTW Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    permit.workers.forEach((worker, index) => {
+        workersHtml += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${worker.worker_name || 'N/A'}</strong></td>
+                <td>${worker.worker_ic_number || 'N/A'}</td>
+                <td>${worker.worker_phone_number || 'N/A'}</td>
+                <td>${worker.worker_company || 'N/A'}</td>
+                <td>${worker.worker_designation || 'N/A'}</td>
+                <td>${worker.worker_ptw_number || 'N/A'}</td>
+            </tr>
+        `;
+    });
+    
+    workersHtml += `
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-2">
+            <small class="text-muted">
+                <i class="fas fa-info-circle mr-1"></i>
+                Total Workers: <strong>${permit.workers.length}</strong>
+            </small>
+        </div>
+    `;
+    
+    return workersHtml;
+}
+
+function generateSupportingDocumentsSection(permit) {
+    // Parse supporting documents data if available
+    let documentsData = {};
+    try {
+        // Check if there's a documents field or supporting_documents field
+        if (permit.supporting_documents) {
+            documentsData = typeof permit.supporting_documents === 'string' 
+                ? JSON.parse(permit.supporting_documents) 
+                : permit.supporting_documents;
+        } else if (permit.documents && Array.isArray(permit.documents)) {
+            // Convert documents array to a lookup object
+            permit.documents.forEach(doc => {
+                if (doc.document_type) {
+                    documentsData[doc.document_type.toLowerCase().replace(/\s+/g, '_')] = true;
+                }
+            });
+        }
+    } catch (e) {
+        console.log('Error parsing supporting documents data:', e);
+        documentsData = {};
+    }
+    
+    // Define supporting document items with their keys
+    const supportingDocs = [
+        // Column 1
+        ['cdm_green_card', 'CDM Green Card'],
+        ['aesb_card', 'AESB Card'],
+        ['competency_certificate', 'Competency Person Certificate'],
+        ['contractor_checklist', 'Contractor Checklist'],
+        ['medical_checkup', 'Medical Check Up'],
+        ['calibration_certificate', 'Calibration Certificate'],
+        // Column 2
+        ['toolbox_talk_record', 'Toolbox Talk Record'],
+        ['safety_data_sheet', 'Safety Data Sheet'],
+        ['job_method_statement', 'Job Method Statement'],
+        ['risk_hazard_analysis', 'Risk Hazard Analysis'],
+        ['hirac_jha', 'HIRAC / JHA'],
+        ['traffic_management_plan', 'Traffic Management Plan'],
+        // Column 3
+        ['excavation_cert', 'Excavation Cert No.:'],
+        ['lifting_cert', 'Lifting Cert No.:'],
+        ['lifting_plan', 'Lifting Plan'],
+        ['lifting_checklist', 'Lifting Checklist'],
+        ['electrical_isolation_cert', 'Electrical Isolation Cert No.:'],
+        ['electrical_isolation_plan', 'Electrical Isolation Plan No.:'],
+        // Column 4
+        ['confined_space_cert', 'Confined Space Cert No.:'],
+        ['others', 'Others (please specify)']
+    ];
+    
+    // Create columns
+    const columns = [[], [], [], []];
+    supportingDocs.forEach((item, index) => {
+        const columnIndex = Math.floor(index / 6);
+        if (columnIndex < 4) {
+            const [key, label] = item;
+            const isChecked = documentsData[key] || false;
+            columns[columnIndex].push(`
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" disabled ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label">${label}</label>
+                </div>
+            `);
+        }
+    });
+    
+    return `
+        <div class="row">
+            <div class="col-md-3">
+                ${columns[0].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[1].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[2].join('')}
+            </div>
+            <div class="col-md-3">
+                ${columns[3].join('')}
+            </div>
+        </div>
+        ${permit.documents && permit.documents.length > 0 ? `
+            <div class="mt-3">
+                <h6><strong>Uploaded Documents:</strong></h6>
+                <ul class="list-group">
+                    ${permit.documents.map(doc => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-file-alt mr-2"></i>${doc.document_name || doc.document_type || 'Unknown Document'}</span>
+                            <small class="text-muted">${formatDateTime(doc.created_date)}</small>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+}
+
+// Load auto-refresh preference on page load
+$(document).ready(function() {
+    const savedPreference = localStorage.getItem('ptw_supervisor_auto_refresh');
+    if (savedPreference !== null) {
+        autoRefreshEnabled = savedPreference === 'true';
+        $('#autoRefreshToggle').prop('checked', autoRefreshEnabled);
+    }
+});
+</script>
+
+</main>
+</body>
+</html>

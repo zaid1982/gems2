@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>PTW Supervisor Dashboard - GEMS2</title>
+    
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- DataTables.net -->
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <!-- Your custom styles -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <style>
+        .supervisor-dashboard {
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-stats {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-pending {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+        
+        .stat-approved {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .stat-rejected {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+            color: white;
+        }
+        
+        .stat-total {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+        
+        .permit-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .btn-approve:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+        
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .btn-reject:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+            color: white;
+        }
+        
+        .btn-view {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .btn-view:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+            color: white;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .status-approved {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-rejected {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .approval-notice {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .approval-notice h5 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .approval-notice p {
+            color: #424242;
+            margin-bottom: 0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+            color: white;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .approval-chain {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .approval-step {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .approval-step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .step-pending {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .step-approved {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-current {
+            background: #007bff;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+        
+        .step-info {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .step-status {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .authority-notice {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .authority-notice i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body class="supervisor-dashboard">
+    <div class="container-fluid">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2><i class="fas fa-shield-alt"></i> PTW Supervisor Approval Dashboard</h2>
+                    <p class="mb-0">First-level permit approval and safety verification</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <div class="text-white-50">
+                        <small>Last Updated: <span id="lastUpdated">Loading...</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authority Notice -->
+        <div class="authority-notice">
+            <i class="fas fa-info-circle"></i>
+            <strong>Supervisor Authority:</strong> You have the authority to review and approve/reject permit applications as the first line of safety verification. Your approval is required before permits can proceed to SHE review.
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="dashboard-stats">
+            <div class="row" id="statisticsContainer">
+                <div class="col-md-3">
+                    <div class="stat-card stat-pending">
+                        <h3 id="pendingCount">--</h3>
+                        <p>Pending Approval</p>
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card stat-approved">
+                        <h3 id="approvedCount">--</h3>
+                        <p>Approved (30 days)</p>
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card stat-rejected">
+                        <h3 id="rejectedCount">--</h3>
+                        <p>Rejected (30 days)</p>
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card stat-total">
+                        <h3 id="totalCount">--</h3>
+                        <p>Total Processed</p>
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permits Table -->
+        <div class="permit-table">
+            <div class="row">
+                <div class="col-12">
+                    <h4><i class="fas fa-list"></i> Permits Pending Supervisor Approval</h4>
+                    <hr>
+                    <div id="tableContainer">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p>Loading permit data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-search"></i> PTW Permit Review
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Approval Chain Status -->
+                    <div class="approval-chain">
+                        <h6><i class="fas fa-route"></i> Approval Chain Status</h6>
+                        <div class="approval-step">
+                            <div class="step-icon step-current">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Supervisor Review</div>
+                                <div class="step-status">Current: Pending your approval</div>
+                            </div>
+                        </div>
+                        <div class="approval-step">
+                            <div class="step-icon step-pending">
+                                <i class="fas fa-hard-hat"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">SHE Review</div>
+                                <div class="step-status">Pending: Waiting for supervisor approval</div>
+                            </div>
+                        </div>
+                        <div class="approval-step">
+                            <div class="step-icon step-pending">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">FM Final Authorization</div>
+                                <div class="step-status">Pending: Waiting for SHE approval</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permit Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle"></i> Permit Information</h6>
+                            <table class="table table-sm">
+                                <tbody id="permitDetails">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs"></i> Work Details</h6>
+                            <table class="table table-sm">
+                                <tbody id="workDetails">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="form-group">
+                        <label for="reviewComments">
+                            <i class="fas fa-comment"></i> Review Comments
+                        </label>
+                        <textarea class="form-control" id="reviewComments" rows="3" 
+                                  placeholder="Enter your comments for this review..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-reject" onclick="approvePermit('reject')">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                    <button type="button" class="btn btn-approve" onclick="approvePermit('approve')">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="js/vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="js/vendor/popper.js/popper.min.js"></script>
+    <script type="text/javascript" src="js/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/vendor/mdb/js/mdb.min.js"></script>
+    <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        let currentPermitId = null;
+        let permitsTable = null;
+
+        $(document).ready(function() {
+            loadStatistics();
+            loadPermits();
+            
+            // Update timestamp
+            $('#lastUpdated').text(new Date().toLocaleString());
+        });
+
+        // Load dashboard statistics
+        function loadStatistics() {
+            $.ajax({
+                url: 'api/ptw.php',
+                method: 'GET',
+                data: {
+                    action: 'get_supervisor_summary_statistics',
+                    user_id: 1, // TODO: Get from session
+                    site_id: 1  // TODO: Get from session
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        const stats = response.data;
+                        $('#pendingCount').text(stats.pending || 0);
+                        $('#approvedCount').text(stats.approved || 0);
+                        $('#rejectedCount').text(stats.rejected || 0);
+                        $('#totalCount').text(stats.total || 0);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading statistics:', error);
+                }
+            });
+        }
+
+        // Load permits for approval
+        function loadPermits() {
+            $.ajax({
+                url: 'api/ptw.php',
+                method: 'GET',
+                data: {
+                    action: 'get_permits_for_supervisor_approval',
+                    user_id: 1, // TODO: Get from session
+                    site_id: 1  // TODO: Get from session
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        displayPermitsTable(response.data);
+                    } else {
+                        showNoData('Error loading permits: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading permits:', error);
+                    showNoData('Error loading permits. Please try again.');
+                }
+            });
+        }
+
+        // Display permits in DataTable
+        function displayPermitsTable(permits) {
+            const container = $('#tableContainer');
+            
+            if (!permits || permits.length === 0) {
+                showNoData('No permits pending supervisor approval.');
+                return;
+            }
+
+            // Create table
+            let tableHtml = `
+                <table class="table table-striped" id="permitsTable">
+                    <thead>
+                        <tr>
+                            <th>Permit No</th>
+                            <th>Permit Type</th>
+                            <th>Location</th>
+                            <th>Applicant</th>
+                            <th>Start Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            permits.forEach(permit => {
+                tableHtml += `
+                    <tr>
+                        <td><strong>${permit.ptw_permit_no || 'N/A'}</strong></td>
+                        <td>${permit.ptw_permit_type || 'N/A'}</td>
+                        <td>${permit.location || 'N/A'}</td>
+                        <td>${permit.applicant_name || 'N/A'}</td>
+                        <td>${permit.start_date || 'N/A'}</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-view btn-sm me-1" onclick="viewPermit(${permit.ptw_permit_id})">
+                                <i class="fas fa-eye"></i> Review
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+
+            container.html(tableHtml);
+
+            // Initialize DataTable
+            if (permitsTable) {
+                permitsTable.destroy();
+            }
+            
+            permitsTable = $('#permitsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                language: {
+                    emptyTable: "No permits pending supervisor approval",
+                    info: "Showing _START_ to _END_ of _TOTAL_ permits",
+                    infoEmpty: "No permits available",
+                    lengthMenu: "Show _MENU_ permits per page",
+                    search: "Search permits:"
+                }
+            });
+        }
+
+        // Show no data message
+        function showNoData(message) {
+            $('#tableContainer').html(`
+                <div class="no-data">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p>${message}</p>
+                </div>
+            `);
+        }
+
+        // View permit details in modal
+        function viewPermit(permitId) {
+            currentPermitId = permitId;
+            
+            // Load permit details
+            $.ajax({
+                url: 'api/ptw.php',
+                method: 'GET',
+                data: {
+                    action: 'get_permit_details',
+                    permit_id: permitId,
+                    site_id: 1  // TODO: Get from session
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        populateModal(response.data);
+                        $('#reviewModal').modal('show');
+                    } else {
+                        alert('Error loading permit details: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading permit details:', error);
+                    alert('Error loading permit details. Please try again.');
+                }
+            });
+        }
+
+        // Populate modal with permit details
+        function populateModal(permit) {
+            // Permit details
+            $('#permitDetails').html(`
+                <tr><td><strong>Permit No:</strong></td><td>${permit.ptw_permit_no || 'N/A'}</td></tr>
+                <tr><td><strong>Type:</strong></td><td>${permit.ptw_permit_type || 'N/A'}</td></tr>
+                <tr><td><strong>Status:</strong></td><td><span class="status-badge status-pending">Pending Supervisor</span></td></tr>
+                <tr><td><strong>Priority:</strong></td><td>${permit.priority || 'Normal'}</td></tr>
+                <tr><td><strong>Applied Date:</strong></td><td>${permit.created_date || 'N/A'}</td></tr>
+            `);
+
+            // Work details
+            $('#workDetails').html(`
+                <tr><td><strong>Location:</strong></td><td>${permit.location || 'N/A'}</td></tr>
+                <tr><td><strong>Start Date:</strong></td><td>${permit.start_date || 'N/A'}</td></tr>
+                <tr><td><strong>End Date:</strong></td><td>${permit.end_date || 'N/A'}</td></tr>
+                <tr><td><strong>Applicant:</strong></td><td>${permit.applicant_name || 'N/A'}</td></tr>
+                <tr><td><strong>Description:</strong></td><td>${permit.work_description || 'N/A'}</td></tr>
+            `);
+
+            // Clear previous comments
+            $('#reviewComments').val('');
+        }
+
+        // Approve or reject permit
+        function approvePermit(action) {
+            const comments = $('#reviewComments').val();
+            
+            if (!comments.trim()) {
+                alert('Please enter review comments before ' + action + 'ing the permit.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to ${action} this permit?`)) {
+                return;
+            }
+
+            const actionData = {
+                permit_id: currentPermitId,
+                action: action,
+                comments: comments,
+                role: 'supervisor',
+                user_id: 1, // TODO: Get from session
+                site_id: 1  // TODO: Get from session
+            };
+
+            $.ajax({
+                url: 'api/ptw_approve.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(actionData),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(`Permit ${action}d successfully!`);
+                        $('#reviewModal').modal('hide');
+                        
+                        // Refresh the data
+                        loadStatistics();
+                        loadPermits();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error processing approval:', error);
+                    alert('Error processing approval. Please try again.');
+                }
+            });
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(function() {
+            loadStatistics();
+            loadPermits();
+            $('#lastUpdated').text(new Date().toLocaleString());
+        }, 300000);
+    </script>
+</body>
+</html>
