@@ -48,93 +48,11 @@
         }
         .config-header {
             background: linear-gradient(45deg, #4285f4, #34a853);
-        }
-        
-        /* View Mode Styles */
-        .view-mode-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 15px;
             border-radius: 8px 8px 0 0;
             margin-bottom: 0;
         }
-        
-        .view-mode-indicator {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            display: inline-block;
-            margin-left: 10px;
-        }
-        
-        .view-mode .form-control,
-        .view-mode .form-check-input,
-        .view-mode select,
-        .view-mode textarea {
-            background-color: #f8f9fa !important;
-            border: 1px solid #e9ecef !important;
-            pointer-events: none;
-            cursor: default;
-        }
-        
-        .view-mode .btn:not(.approval-btn):not(.modal-close-btn) {
-            display: none !important;
-        }
-        
-        .view-mode .help-icon {
-            display: none;
-        }
-        
-        .approval-section {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .approval-section.supervisor {
-            border-color: #007bff;
-            background: #e7f3ff;
-        }
-        
-        .approval-section.she {
-            border-color: #28a745;
-            background: #e8f5e8;
-        }
-        
-        .approval-section.facility-manager {
-            border-color: #dc3545;
-            background: #ffeaea;
-        }
-        
-        .approval-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .signature-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-        }
-        
-        .modal-view-mode .modal-dialog {
-            max-width: 95%;
-            margin: 10px auto;
-        }
-        
-        .modal-view-mode .modal-body {
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 0;
-        }
-        
         .config-body {
             background: #f8f9fa;
             padding: 20px;
@@ -523,23 +441,6 @@
             /* Removed min-height to allow natural content height */
         }
         
-        /* Ensure tab panes take only necessary space */
-        .tab-pane {
-            padding: 0;
-        }
-
-        .tab-content .tab-pane { display: none; }
-        .tab-content .tab-pane.active.show { display: block; }
-        
-        .tab-pane .card-body {
-            padding: 1.5rem;
-        }
-        
-        /* Reduce form group spacing for more compact layout */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
         .card-footer {
             background: #f8f9fa;
             border-top: 1px solid #dee2e6;
@@ -672,10 +573,9 @@
         <div class="row mt-3">
             <div class="col-12">
                 <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle">
-                    <i class="fas fa-shield-alt mr-3"></i><span id="formTitleText">Public PTW Permit Application</span>
-                    <span id="viewModeIndicator" class="view-mode-indicator" style="display: none;"></span>
+                    <i class="fas fa-shield-alt mr-3"></i>Public PTW Permit Application
                 </h2>
-                <p class="text-muted" id="formSubtitle">Submit your Permit to Work application - No login required</p>
+                <p class="text-muted">Submit your Permit to Work application - No login required</p>
                 <div class="alert alert-info mb-4">
                     <i class="fas fa-info-circle mr-2"></i>
                     <strong>Need help?</strong> Click the <span class="help-icon" style="display: inline-block; vertical-align: middle; margin: 0 5px;">?</span> icons next to field labels for examples and guidance.
@@ -704,7 +604,7 @@
         </div>
 
         <!-- PTW Form with Tabbed Interface -->
-        <section class="sectionPtwMain mb-2">
+        <section class="sectionPtwMain mb-4">
             <div class="card">
                 <!-- Section Navigation Tabs -->
                 <div class="card-header p-0">
@@ -744,17 +644,17 @@
                         <!-- Section 1: Requisition -->
                         <div class="tab-pane fade show active" id="section1" role="tabpanel" aria-labelledby="section1-tab">
                             <div class="card-body">
-                                <h5 class="mb-3"><strong>SECTION 1: REQUISITION</strong></h5>
+                                <h5 class="mb-4"><strong>SECTION 1: REQUISITION</strong></h5>
                                 
                                 <div class="row">
                                     <!-- Left Column -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwApplicantName">
+                                            <label for="txtApplicantName">
                                                 <span class="label-text">Applicant Name *</span>
                                                 <span class="help-icon" onclick="toggleHelp('help-applicantname')">?</span>
                                             </label>
-                                            <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant">
+                                            <input type="text" id="txtApplicantName" class="form-control" required placeholder="Full name of applicant">
                                             <div class="help-example" id="help-applicantname">
                                                 <strong>Enter the responsible person:</strong>
                                                 • Full legal name<br>
@@ -780,11 +680,11 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="txtPtwContractorCompany">
+                                            <label for="txtCompanyDept">
                                                 <span class="label-text">Company / Department</span>
                                                 <span class="help-icon" onclick="toggleHelp('help-company')">?</span>
                                             </label>
-                                            <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Company or department name">
+                                            <input type="text" id="txtCompanyDept" class="form-control" placeholder="Company or department name">
                                             <div class="help-example" id="help-company">
                                                 <strong>Organization details:</strong>
                                                 • Full company name if contractor<br>
@@ -795,11 +695,11 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="txtPtwWorkArea">
+                                            <label for="txtWorkArea">
                                                 <span class="label-text">Work Area</span>
                                                 <span class="help-icon" onclick="toggleHelp('help-workarea')">?</span>
                                             </label>
-                                            <input type="text" id="txtPtwWorkArea" class="form-control" placeholder="Specific work location">
+                                            <input type="text" id="txtWorkArea" class="form-control" placeholder="Specific work location">
                                             <div class="help-example" id="help-workarea">
                                                 <strong>Be specific about location:</strong>
                                                 • Building/Unit name and number<br>
@@ -874,11 +774,11 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="txtPtwDescription">
+                                            <label for="txtWorkDescription">
                                                 <span class="label-text">Description of Work</span>
                                                 <span class="help-icon" onclick="toggleHelp('help-description')">?</span>
                                             </label>
-                                            <textarea id="txtPtwDescription" class="form-control" rows="4" placeholder="Detailed description of work to be performed"></textarea>
+                                            <textarea id="txtWorkDescription" class="form-control" rows="4" placeholder="Detailed description of work to be performed"></textarea>
                                             <div class="help-example" id="help-description">
                                                 <strong>What to include:</strong>
                                                 • Specific work activities<br>
@@ -893,11 +793,11 @@
                                     <!-- Right Column -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="txtPtwApplicantContact">
+                                            <label for="txtContactNo">
                                                 <span class="label-text">Contact No</span>
                                                 <span class="help-icon" onclick="toggleHelp('help-contact')">?</span>
                                             </label>
-                                            <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number">
+                                            <input type="text" id="txtContactNo" class="form-control" placeholder="Phone number">
                                             <div class="help-example" id="help-contact">
                                                 <strong>Emergency contact information:</strong>
                                                 • Mobile number preferred<br>
@@ -955,11 +855,11 @@
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <label for="dtPtwValidFrom">
+                                                    <label for="txtDurationFrom">
                                                         <span class="label-text">Duration of Work - From</span>
                                                         <span class="help-icon" onclick="toggleHelp('help-duration')">?</span>
                                                     </label>
-                                                    <input type="date" id="dtPtwValidFrom" class="form-control">
+                                                    <input type="date" id="txtDurationFrom" class="form-control">
                                                     <div class="help-example" id="help-duration">
                                                         <strong>Work schedule:</strong>
                                                         • Start date cannot be in the past<br>
@@ -971,10 +871,10 @@
                                             </div>
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <label for="dtPtwValidTo">
+                                                    <label for="txtDurationTo">
                                                         <span class="label-text">To</span>
                                                     </label>
-                                                    <input type="date" id="dtPtwValidTo" class="form-control">
+                                                    <input type="date" id="txtDurationTo" class="form-control">
                                                 </div>
                                             </div>
                                         </div>
@@ -997,7 +897,7 @@
                                 </div>
 
                                 <!-- List of Workers Section -->
-                                <div class="mt-3">
+                                <div class="mt-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6><strong>List of Workers</strong></h6>
                                         <button type="button" class="btn btn-sm btn-primary" id="btnAddWorker">
@@ -1024,7 +924,7 @@
                                 </div>
 
                                 <!-- Hazardous Activities Section -->
-                                <div class="mt-3">
+                                <div class="mt-4">
                                     <h6><strong>Hazardous Activities</strong></h6>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle"></i>
@@ -1226,7 +1126,7 @@
                         <!-- Section 2: Supporting Documents -->
                         <div class="tab-pane fade" id="section2" role="tabpanel" aria-labelledby="section2-tab">
                             <div class="card-body">
-                                <h5 class="mb-3"><strong>SECTION 2: SUPPORTING DOCUMENTS</strong></h5>
+                                <h5 class="mb-4"><strong>SECTION 2: SUPPORTING DOCUMENTS</strong></h5>
                                 
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle mr-2"></i>
@@ -1303,9 +1203,9 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group mt-3">
-                                    <label for="txtPtwRemarks"><strong>Additional Document Notes</strong></label>
-                                    <textarea id="txtPtwRemarks" class="form-control" rows="3" 
+                                <div class="form-group mt-4">
+                                    <label for="txtDocumentRemarks"><strong>Additional Document Notes</strong></label>
+                                    <textarea id="txtDocumentRemarks" class="form-control" rows="3" 
                                               placeholder="Specify any additional documents or special requirements..."></textarea>
                                 </div>
                             </div>
@@ -1314,7 +1214,7 @@
                         <!-- Section 3: Risk Assessment & Safety Measures -->
                         <div class="tab-pane fade" id="section3" role="tabpanel" aria-labelledby="section3-tab">
                             <div class="card-body">
-                                <h5 class="mb-3"><strong>SECTION 3: RISK ASSESSMENT & SAFETY MEASURES</strong></h5>
+                                <h5 class="mb-4"><strong>SECTION 3: RISK ASSESSMENT & SAFETY MEASURES</strong></h5>
                                 
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle"></i>
@@ -1327,7 +1227,7 @@
                                 </div>
 
                                 <!-- Risk Assessment -->
-                                <div class="card mb-3">
+                                <div class="card mb-4">
                                     <div class="card-header bg-info text-white">
                                         <h6 class="mb-0"><strong>RISK ASSESSMENT</strong></h6>
                                     </div>
@@ -1335,8 +1235,8 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="txtPtwHazards"><strong>Identified Hazards</strong></label>
-                                                    <textarea id="txtPtwHazards" class="form-control" rows="4" 
+                                                    <label for="txtIdentifiedHazards"><strong>Identified Hazards</strong></label>
+                                                    <textarea id="txtIdentifiedHazards" class="form-control" rows="4" 
                                                               placeholder="List all potential hazards associated with this work..."></textarea>
                                                 </div>
                                                 
@@ -1349,20 +1249,6 @@
                                                         <option value="high">High Risk</option>
                                                         <option value="critical">Critical Risk</option>
                                                     </select>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="txtPtwControlMeasures"><strong>Control Measures</strong></label>
-                                                    <textarea id="txtPtwControlMeasures" class="form-control" rows="4" 
-                                                              placeholder="Describe control measures to mitigate identified risks..."></textarea>
-                                                </div>
-                                                
-                                                <div class="form-group">
-                                                    <label for="txtEmergencyProcedures"><strong>Emergency Procedures</strong></label>
-                                                    <textarea id="txtEmergencyProcedures" class="form-control" rows="4" 
-                                                              placeholder="Describe emergency procedures and contacts..."></textarea>
                                                 </div>
                                             </div>
                                             
@@ -1384,7 +1270,7 @@
                                 </div>
 
                                 <!-- Additional Safety Requirements -->
-                                <div class="card mb-3">
+                                <div class="card mb-4">
                                     <div class="card-header bg-success text-white">
                                         <h6 class="mb-0"><strong>ADDITIONAL SAFETY REQUIREMENTS</strong></h6>
                                     </div>
@@ -1442,246 +1328,626 @@
                         </div>
                         
                         <!-- Section 4: Contractor Declaration -->
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><strong>CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</strong></h6>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldElectricalWork">
+                                                    <label class="form-check-label" for="coldElectricalWork">Electrical Work</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldVisualInspection">
+                                                    <label class="form-check-label" for="coldVisualInspection">Visual Inspection</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldLockOutTagOut">
+                                                    <label class="form-check-label" for="coldLockOutTagOut">Lock Out & Tagged Out</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldFireExtinguisher">
+                                                    <label class="form-check-label" for="coldFireExtinguisher">Fire Extinguisher</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldMainSupplyCutOff">
+                                                    <label class="form-check-label" for="coldMainSupplyCutOff">Main Supply Cut Off</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldOthers">
+                                                    <label class="form-check-label" for="coldOthers">Others</label>
+                                                </div>
+                                                <input type="text" id="coldOthersText" class="form-control mt-2" placeholder="Please specify others...">
+
+                                                <div class="mt-3">
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldWorkingAtHeight">
+                                                        <label class="form-check-label" for="coldWorkingAtHeight">Working at height</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldAdvertisingWork">
+                                                        <label class="form-check-label" for="coldAdvertisingWork">Advertising Work</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldScaffolding">
+                                                        <label class="form-check-label" for="coldScaffolding">Scaffolding</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldGondola">
+                                                        <label class="form-check-label" for="coldGondola">Gondola</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldWorkingAtRooftop">
+                                                        <label class="form-check-label" for="coldWorkingAtRooftop">Working at Rooftop</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldSlings">
+                                                        <label class="form-check-label" for="coldSlings">Slings</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldOthersHeight">
+                                                        <label class="form-check-label" for="coldOthersHeight">Others</label>
+                                                    </div>
+                                                    <input type="text" id="coldOthersHeightText" class="form-control mt-2" placeholder="Please specify others...">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <h6><strong>Please Tick (✓ or ✗)</strong></h6>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldExcavationWork">
+                                                    <label class="form-check-label" for="coldExcavationWork">Excavation Work</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldDepth12Meter">
+                                                    <label class="form-check-label" for="coldDepth12Meter">Depth > 1.2 meter</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldDepth14Meter">
+                                                    <label class="form-check-label" for="coldDepth14Meter">Depth > 1.4 meter (considered confined space work)</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldSupportSystem">
+                                                    <label class="form-check-label" for="coldSupportSystem">Support System</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldProtectionFromFallingMaterial">
+                                                    <label class="form-check-label" for="coldProtectionFromFallingMaterial">Protection from falling material</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldProtectionFromEquipment">
+                                                    <label class="form-check-label" for="coldProtectionFromEquipment">Protection from equipment</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="coldOthersProtection">
+                                                    <label class="form-check-label" for="coldOthersProtection">Others</label>
+                                                </div>
+
+                                                <div class="mt-3">
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldWorkingUnderLoad">
+                                                        <label class="form-check-label" for="coldWorkingUnderLoad">Working under load</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldLiftingWork">
+                                                        <label class="form-check-label" for="coldLiftingWork">Lifting Work</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" id="coldChemicalHandling">
+                                                        <label class="form-check-label" for="coldChemicalHandling">Chemical Handling</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group mt-3">
+                                                    <label for="coldSpecialPrecautions"><strong>Special precautions (if any)</strong></label>
+                                                    <textarea id="coldSpecialPrecautions" class="form-control" rows="4" 
+                                                              placeholder="Describe any special precautions or safety measures..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hot Work Section -->
+                                <div class="card mb-4" id="hotWorkSection">
+                                    <div class="card-header bg-danger text-white">
+                                        <h6 class="mb-0"><strong>HOT WORK</strong></h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><strong>Controls Required</strong></h6>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotGasMonitoring">
+                                                    <label class="form-check-label" for="hotGasMonitoring">Gas monitoring</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotContinuous">
+                                                    <label class="form-check-label" for="hotContinuous">Continuous</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotEvery30Min">
+                                                    <label class="form-check-label" for="hotEvery30Min">Every 30 min</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotFirewatchName">
+                                                    <label class="form-check-label" for="hotFirewatchName">Firewatch name:</label>
+                                                </div>
+                                                <input type="text" id="hotFirewatchNameText" class="form-control mb-2" placeholder="Enter firewatch name">
+                                                
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotFireExtinguisher">
+                                                    <label class="form-check-label" for="hotFireExtinguisher">Fire extinguisher</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotFireBlanket">
+                                                    <label class="form-check-label" for="hotFireBlanket">Fire blanket</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotFireRetardantScreen">
+                                                    <label class="form-check-label" for="hotFireRetardantScreen">Fire retardant screen</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotCoverPotentialFlammable">
+                                                    <label class="form-check-label" for="hotCoverPotentialFlammable">Cover potentially flammable sewer/drain/sump</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotLocateEquipment">
+                                                    <label class="form-check-label" for="hotLocateEquipment">Locate mobile equipment away from potential flammable sewer/environment</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotRemoveFlammable">
+                                                    <label class="form-check-label" for="hotRemoveFlammable">Remove flammable/highly combustible materials</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotOthersControl">
+                                                    <label class="form-check-label" for="hotOthersControl">Others:</label>
+                                                </div>
+                                                <input type="text" id="hotOthersControlText" class="form-control" placeholder="Please specify others...">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <h6><strong>Type of Hot Work</strong></h6>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotWelding">
+                                                            <label class="form-check-label" for="hotWelding">Welding</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotFlameCutting">
+                                                            <label class="form-check-label" for="hotFlameCutting">Flame Cutting</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotOpenFlame">
+                                                            <label class="form-check-label" for="hotOpenFlame">Open Flame</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotGrinding">
+                                                            <label class="form-check-label" for="hotGrinding">Grinding</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotBlasting">
+                                                            <label class="form-check-label" for="hotBlasting">Blasting</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotPowerBrushing">
+                                                            <label class="form-check-label" for="hotPowerBrushing">Power Brushing</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotRouting">
+                                                            <label class="form-check-label" for="hotRouting">Routing</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotPostWeldHeatTreatment">
+                                                            <label class="form-check-label" for="hotPostWeldHeatTreatment">Post Weld Heat Treatment</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotUseOfPhosphoric">
+                                                            <label class="form-check-label" for="hotUseOfPhosphoric">Use of phosphoric material</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="hotOthersType">
+                                                    <label class="form-check-label" for="hotOthersType">Others:</label>
+                                                </div>
+                                                <input type="text" id="hotOthersTypeText" class="form-control mb-3" placeholder="Please specify others...">
+
+                                                <div class="form-group">
+                                                    <label for="hotSpecialPrecautions"><strong>Special precautions (if any)</strong></label>
+                                                    <textarea id="hotSpecialPrecautions" class="form-control" rows="6" 
+                                                              placeholder="Describe special precautions for hot work..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Confined Space Section -->
+                                <div class="card mb-4" id="confinedSpaceSection">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0"><strong>CONFINED SPACE</strong></h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><strong>Entry Condition</strong></h6>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csRespiratoryAtmosphere">
+                                                    <label class="form-check-label" for="csRespiratoryAtmosphere">Respiratory Atmosphere</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csNonRespiratoryAtmosphere">
+                                                    <label class="form-check-label" for="csNonRespiratoryAtmosphere">Non-Respiratory Atmosphere</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csWhenylFormVentilation">
+                                                    <label class="form-check-label" for="csWhenylFormVentilation">When/yl-form</label>
+                                                </div>
+
+                                                <h6 class="mt-3"><strong>Controls Required</strong></h6>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csFirstEntryInSCABA">
+                                                    <label class="form-check-label" for="csFirstEntryInSCABA">First entry using SCABA or air line 5m</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csEntrantBreath">
+                                                    <label class="form-check-label" for="csEntrantBreath">Entrant breathe of risk air supervisor</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csEntryStatisKnowledge">
+                                                    <label class="form-check-label" for="csEntryStatisKnowledge">Entry statis knowledge</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csMaximumNoOfPersonsAllowed">
+                                                    <label class="form-check-label" for="csMaximumNoOfPersonsAllowed">Maximum no. of persons allowed:</label>
+                                                </div>
+                                                <input type="text" id="csMaximumNoOfPersonsAllowedText" class="form-control mb-2" placeholder="Enter number">
+                                                
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csContinuousVentilation">
+                                                    <label class="form-check-label" for="csContinuousVentilation">Continuous ventilation</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csEntry">
+                                                    <label class="form-check-label" for="csEntry">Entry</label>
+                                                </div>
+                                                <input type="text" id="csEntryHours" class="form-control mb-2" placeholder="Hours">
+                                                
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csStandbyPerson">
+                                                    <label class="form-check-label" for="csStandbyPerson">Standby person</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csEntryCanOnlyVoltage">
+                                                    <label class="form-check-label" for="csEntryCanOnlyVoltage">Entry can only voltage lighting (24V maximum)</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csLocateMobileEquipment">
+                                                    <label class="form-check-label" for="csLocateMobileEquipment">Locate mobile equipment away from multiple openings</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csCertifiedSpaceEntryChecklistAttached">
+                                                    <label class="form-check-label" for="csCertifiedSpaceEntryChecklistAttached">Certified space entry checklist attached</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csRescueEquipment">
+                                                    <label class="form-check-label" for="csRescueEquipment">Rescue equipment</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csCompleteCSRCheckOut">
+                                                    <label class="form-check-label" for="csCompleteCSRCheckOut">Complete CSR Check-out</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csTypeOfCommunicationUsed">
+                                                    <label class="form-check-label" for="csTypeOfCommunicationUsed">Type of communication used:</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csRopeSignals">
+                                                    <label class="form-check-label" for="csRopeSignals">Rope signals</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csVoiceTalkie">
+                                                    <label class="form-check-label" for="csVoiceTalkie">Voice talkie</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csWhisleHorn">
+                                                    <label class="form-check-label" for="csWhisleHorn">Whisle/horn</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input" id="csOthersComm">
+                                                    <label class="form-check-label" for="csOthersComm">Others:</label>
+                                                </div>
+                                                <input type="text" id="csOthersCommText" class="form-control mb-3" placeholder="Specify communication method">
+
+                                                <div class="form-group">
+                                                    <label for="csSpecialPrecautions"><strong>Special precautions (if any)</strong></label>
+                                                    <textarea id="csSpecialPrecautions" class="form-control" rows="6" 
+                                                              placeholder="Describe special precautions for confined space entry..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section 4: Contractor Declaration -->
                         <div class="tab-pane fade" id="section4" role="tabpanel" aria-labelledby="section4-tab">
                             <div class="card-body">
-                                <h5 class="mb-3"><strong>SECTION 4: CONTRACTOR DECLARATION</strong></h5>
+                                <h5 class="mb-4"><strong>SECTION 4: CONTRACTOR DECLARATION</strong></h5>
                                 
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                    <strong>Important:</strong> Contractor must confirm compliance with all safety requirements and procedures
-                                </div>
+                                <div class="description mb-3">Contractor must confirm compliance with all safety requirements and procedures</div>
                                 
-                                <!-- Contractor Compliance Declarations -->
-                                <div class="card mb-4">
-                                    <div class="card-header bg-primary text-white">
-                                        <h6 class="mb-0"><strong>Contractor Compliance Declarations</strong></h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered mb-0">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th width="5%">No</th>
-                                                        <th width="70%">Description</th>
-                                                        <th width="12.5%" class="text-center">Yes</th>
-                                                        <th width="12.5%" class="text-center">No</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="text-center">i)</td>
-                                                        <td>All assigned workers are briefed on relevant SHE Procedure and only activities stated in JHA are permitted to carry out</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration1" id="declaration1_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration1" id="declaration1_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">ii)</td>
-                                                        <td>All documentation given are valid during Permit To Work validity</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration2" id="declaration2_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration2" id="declaration2_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">iii)</td>
-                                                        <td>Ensure all appointed staff/workers are briefed on relevant job step and safety procedures before start work</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration3" id="declaration3_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration3" id="declaration3_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">iv)</td>
-                                                        <td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration4" id="declaration4_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration4" id="declaration4_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">v)</td>
-                                                        <td>Permit to work shall be displayed at the work site all the time</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration5" id="declaration5_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration5" id="declaration5_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">vi)</td>
-                                                        <td>All safety equipment has been checked and deem safe</td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration6" id="declaration6_yes" value="yes">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="radio" name="declaration6" id="declaration6_no" value="no">
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                <!-- Compliance Declarations -->
+                                <div class="checklist-section">
+                                    <h6>
+                                        <strong>Contractor Compliance Declarations</strong>
+                                        <span class="help-icon" onclick="toggleHelp('contractorDeclarations')">?</span>
+                                    </h6>
+                                    <div id="contractorDeclarations" class="help-example" style="display: none;">
+                                        <div class="help-content">
+                                            <strong>Contractor Declaration Guidelines:</strong><br>
+                                            • <strong>Legal Requirement:</strong> All declarations must be truthfully answered - false declarations may result in permit denial or legal action<br>
+                                            • <strong>Documentation:</strong> Ensure you have supporting documents ready (certifications, training records, insurance)<br>
+                                            • <strong>Safety Compliance:</strong> Verify all team members meet stated requirements before declaring compliance<br>
+                                            • <strong>Insurance Verification:</strong> Confirm coverage amounts and validity dates before submission<br><br>
+                                            <strong>Common Declaration Areas:</strong><br>
+                                            • Personnel training and certification status<br>
+                                            • Equipment inspection and maintenance records<br>
+                                            • Insurance coverage and liability limits<br>
+                                            • Emergency response procedures understanding<br>
+                                            • Site-specific safety requirement compliance
                                         </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th width="5%">No</th>
+                                                    <th width="70%">Description</th>
+                                                    <th width="12.5%">Yes</th>
+                                                    <th width="12.5%">No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>i)</td>
+                                                    <td>All assigned workers are briefed on relevant SHE Procedure and only activities stated in JHA are permitted to carry out</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration1" id="declaration1Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration1" id="declaration1No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>ii)</td>
+                                                    <td>All documentation given are valid during Permit To Work validity</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration2" id="declaration2Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration2" id="declaration2No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>iii)</td>
+                                                    <td>Ensure all appointed staff/workers are briefed on relevant job step and safety procedures before start work</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration3" id="declaration3Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration3" id="declaration3No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>iv)</td>
+                                                    <td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration4" id="declaration4Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration4" id="declaration4No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>v)</td>
+                                                    <td>Permit to work shall be displayed at the work site all the time</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration5" id="declaration5Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration5" id="declaration5No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>vi)</td>
+                                                    <td>All safety equipment has been checked and deem safe</td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration6" id="declaration6Yes" value="yes" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="radio" name="declaration6" id="declaration6No" value="no" style="transform: scale(1.5); margin: 5px; opacity: 1; visibility: visible; position: relative; z-index: 1;">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
                                 <!-- PPE Requirements -->
-                                <div class="card mb-4">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><strong>Personal Protective Equipment (PPE)</strong></h6>
+                                <div class="checklist-section mt-4">
+                                    <h6>
+                                        <strong>Appropriate PPE are provided/wear, please tick below:</strong>
+                                        <span class="help-icon" onclick="toggleHelp('ppeRequirements')">?</span>
+                                    </h6>
+                                    <div id="ppeRequirements" class="help-example" style="display: none;">
+                                        <div class="help-content">
+                                            <strong>PPE Selection Guidelines:</strong><br>
+                                            • <strong>Mandatory PPE:</strong> Required for all personnel on site - safety helmet, safety shoes, and high visibility vest are minimum requirements<br>
+                                            • <strong>Task-Specific PPE:</strong> Select based on work activities - welding requires face shields, chemical work needs gloves<br>
+                                            • <strong>Environmental PPE:</strong> Choose based on site conditions - respirators for dusty areas, ear protection for noisy environments<br><br>
+                                            <strong>Examples by Work Type:</strong><br>
+                                            • Electrical work: Safety helmet, safety shoes, insulated gloves, safety vest<br>
+                                            • Welding: Safety helmet, safety shoes, welding mask, fire-resistant clothing<br>
+                                            • Chemical handling: Safety helmet, chemical-resistant gloves, respirator, safety vest<br>
+                                            • Height work: Safety helmet, safety harness, safety shoes, lanyard
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <p><strong>Appropriate PPE are provided/wear, please tick below:</strong></p>
-                                        
-                                        <!-- Mandatory PPE -->
-                                        <div class="row mb-3">
-                                            <div class="col-md-3">
-                                                <h6><strong>Mandatory</strong></h6>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_safety_helmet">
-                                                    <label class="form-check-label" for="ppe_safety_helmet">Safety Helmet</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_safety_shoes">
-                                                    <label class="form-check-label" for="ppe_safety_shoes">Safety Shoes</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_high_vis_vest">
-                                                    <label class="form-check-label" for="ppe_high_vis_vest">High Visibility Vest</label>
-                                                </div>
+                                    <div class="row">
+                                        <!-- Mandatory Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Mandatory</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeSafetyHelmet">
+                                                <label class="form-check-label" for="ppeSafetyHelmet">Safety helmet</label>
                                             </div>
-                                            
-                                            <!-- Respiratory Protection -->
-                                            <div class="col-md-3">
-                                                <h6><strong>Respiratory Protection</strong></h6>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_dust_mask">
-                                                    <label class="form-check-label" for="ppe_dust_mask">Dust Mask</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_respirator">
-                                                    <label class="form-check-label" for="ppe_respirator">Respirator</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_scba">
-                                                    <label class="form-check-label" for="ppe_scba">SCBA</label>
-                                                </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeSafetyShoes">
+                                                <label class="form-check-label" for="ppeSafetyShoes">Safety shoes</label>
                                             </div>
-                                            
-                                            <!-- Eye, Face & Body Protection -->
-                                            <div class="col-md-3">
-                                                <h6><strong>Eye, Face & Body Protection</strong></h6>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_safety_glasses">
-                                                    <label class="form-check-label" for="ppe_safety_glasses">Safety Glasses</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_face_shield">
-                                                    <label class="form-check-label" for="ppe_face_shield">Face Shield</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_coveralls">
-                                                    <label class="form-check-label" for="ppe_coveralls">Coveralls</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_chemical_suit">
-                                                    <label class="form-check-label" for="ppe_chemical_suit">Chemical Suit</label>
-                                                </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFallProtection">
+                                                <label class="form-check-label" for="ppeFallProtection">Fall protection</label>
                                             </div>
-                                            
-                                            <!-- Hand Protection -->
-                                            <div class="col-md-3">
-                                                <h6><strong>Hand Protection</strong></h6>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_work_gloves">
-                                                    <label class="form-check-label" for="ppe_work_gloves">Work Gloves</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_chemical_gloves">
-                                                    <label class="form-check-label" for="ppe_chemical_gloves">Chemical Gloves</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_cut_resistant">
-                                                    <label class="form-check-label" for="ppe_cut_resistant">Cut Resistant Gloves</label>
-                                                </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFullBodyHarness">
+                                                <label class="form-check-label" for="ppeFullBodyHarness">Full Body Harness with lanyard</label>
                                             </div>
                                         </div>
-                                        
-                                        <!-- Hearing Protection & Others -->
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <h6><strong>Hearing Protection</strong></h6>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_ear_plugs">
-                                                    <label class="form-check-label" for="ppe_ear_plugs">Ear Plugs</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="ppe_ear_muffs">
-                                                    <label class="form-check-label" for="ppe_ear_muffs">Ear Muffs</label>
-                                                </div>
+
+                                        <!-- Respiratory Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Respiratory Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeHalfMaskRespirator">
+                                                <label class="form-check-label" for="ppeHalfMaskRespirator">Half mask respirator</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFullFaceRespirator">
+                                                <label class="form-check-label" for="ppeFullFaceRespirator">Full face respirator (SCBA)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeAirLineSet">
+                                                <label class="form-check-label" for="ppeAirLineSet">Air line set</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppePAPR">
+                                                <label class="form-check-label" for="ppePAPR">PAPR</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeOthersResp">
+                                                <label class="form-check-label" for="ppeOthersResp">Others</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeLifeJacket">
+                                                <label class="form-check-label" for="ppeLifeJacket">Life jacket/vest</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Eye, Face & Body Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Eye, Face & Body Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeGoggles">
+                                                <label class="form-check-label" for="ppeGoggles">Goggles</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeFaceShield">
+                                                <label class="form-check-label" for="ppeFaceShield">Face shield</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeWeldingMask">
+                                                <label class="form-check-label" for="ppeWeldingMask">Welding mask</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeHood">
+                                                <label class="form-check-label" for="ppeHood">Hood</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeDisposableSuit">
+                                                <label class="form-check-label" for="ppeDisposableSuit">Disposable suit</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeChemicalSuit">
+                                                <label class="form-check-label" for="ppeChemicalSuit">Chemical suit</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeRubberBoots">
+                                                <label class="form-check-label" for="ppeRubberBoots">Rubber boots</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hand Protection & Hearing Protection Column -->
+                                        <div class="col-md-3">
+                                            <h6 class="text-primary"><strong>Hand Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeCottonGloves">
+                                                <label class="form-check-label" for="ppeCottonGloves">Cotton gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeLeatherGloves">
+                                                <label class="form-check-label" for="ppeLeatherGloves">Leather gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeRubberGloves">
+                                                <label class="form-check-label" for="ppeRubberGloves">Rubber gloves</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeChemicalGloves">
+                                                <label class="form-check-label" for="ppeChemicalGloves">Chemical gloves</label>
                                             </div>
                                             
-                                            <div class="col-md-6">
-                                                <h6><strong>Others (please specify):</strong></h6>
-                                                <textarea id="ppe_others" class="form-control" rows="3" placeholder="Specify any additional PPE requirements..."></textarea>
+                                            <h6 class="text-primary mt-3"><strong>Hearing Protection</strong></h6>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeEarPlug">
+                                                <label class="form-check-label" for="ppeEarPlug">Ear plug</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="ppeEarMuff">
+                                                <label class="form-check-label" for="ppeEarMuff">Ear muff</label>
+                                            </div>
+                                            
+                                            <div class="form-group mt-3">
+                                                <label for="ppeOthersSpecify">
+                                                    <strong>Others (pls specify):</strong>
+                                                    <span class="help-icon" onclick="toggleHelp('ppeOthersSpecify')">?</span>
+                                                </label>
+                                                <input type="text" id="ppeOthersSpecify" class="form-control" placeholder="Specify other PPE">
+                                                <div id="ppeOthersSpecify" class="help-example" style="display: none;">
+                                                    <div class="help-content">
+                                                        <strong>Specialized PPE Examples:</strong><br>
+                                                        • <strong>Chemical Protection:</strong> Chemical aprons, acid-resistant suits, chemical splash goggles<br>
+                                                        • <strong>Electrical Work:</strong> Insulated mats, arc flash suits, voltage-rated gloves<br>
+                                                        • <strong>Confined Space:</strong> Tripods, winches, gas detectors, escape respirators<br>
+                                                        • <strong>Specialized Tasks:</strong> Cut-resistant sleeves, knee pads, anti-static clothing<br><br>
+                                                        <strong>Example Entries:</strong><br>
+                                                        "Chemical splash apron and goggles", "Arc flash suit Class 2", "Confined space tripod and winch"
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Contractor Signature -->
-                                <div class="card">
-                                    <div class="card-header bg-warning text-dark">
-                                        <h6 class="mb-0"><strong>Contractor Acknowledgment</strong></h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="contractor_name"><strong>Contractor Name:</strong></label>
-                                                    <input type="text" id="contractor_name" class="form-control" placeholder="Full name of contractor representative">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="contractor_designation"><strong>Designation:</strong></label>
-                                                    <input type="text" id="contractor_designation" class="form-control" placeholder="Job title/position">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="contractor_date"><strong>Date:</strong></label>
-                                                    <input type="date" id="contractor_date" class="form-control">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="contractor_signature"><strong>Signature:</strong></label>
-                                                    <div class="signature-section">
-                                                        <p class="text-muted mb-0">Digital signature will be applied upon form submission</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="alert alert-info mt-3">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            <strong>Declaration:</strong> I hereby declare that all information provided is accurate and complete. I understand that any false declaration may result in permit cancellation and legal consequences.
-                                        </div>
-                                        
-                                        <!-- Final Contractor Confirmation -->
-                                        <div class="alert alert-warning mt-3">
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="contractorConfirmation" required>
-                                                <label class="form-check-label font-weight-bold" for="contractorConfirmation">
-                                                    <strong>I confirm and agree to all the above declarations and acknowledge that I have read and understood all safety requirements. *</strong>
-                                                </label>
-                                            </div>
+                                <!-- Contractor Confirmation -->
+                                <div class="checklist-section mt-4">
+                                    <div class="alert alert-info">
+                                        <h6><strong>Contractor Confirmation</strong></h6>
+                                        <p class="mb-2">
+                                            I/ We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by the building owners and GFM. 
+                                            I / We shall brief all my workers involved in this work and ensure that they are carry out work safely at all times.
+                                        </p>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="contractorConfirmation" required>
+                                            <label class="form-check-label font-weight-bold" for="contractorConfirmation">
+                                                I confirm and agree to the above declaration *
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -1702,120 +1968,9 @@
                             <button type="button" class="btn btn-primary" id="btnNext">
                                 Next<i class="fas fa-arrow-right ml-2"></i>
                             </button>
-                            <button type="button" class="btn btn-warning btn-sm mr-2" id="btnTestInsert">
-                                <i class="fas fa-magic mr-2"></i>Test Insert
-                            </button>
                             <button type="button" class="btn btn-success btn-lg" id="btnSubmitApproval" style="display: none;">
                                 <i class="fas fa-paper-plane mr-2"></i>Submit PTW Application
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Approval Workflow Sections (Hidden by default, shown in view mode) -->
-                <div id="approvalSections" style="display: none;">
-                    <!-- Supervisor Approval -->
-                    <div class="approval-section supervisor" id="supervisorApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-user-tie mr-2"></i>PTW Supervisor Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Review Comments</strong></label>
-                                    <textarea id="supervisorComments" class="form-control" rows="3" 
-                                              placeholder="Enter review comments (required for rejection)"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
-                                <div class="approval-actions">
-                                    <button type="button" class="btn btn-success approval-btn" id="btnSupervisorApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
-                                    </button>
-                                    <button type="button" class="btn btn-danger approval-btn" id="btnSupervisorReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>Digital Signature:</strong> <span id="supervisorSignature">Pending</span>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Date:</strong> <span id="supervisorDate">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SHE Approval -->
-                    <div class="approval-section she" id="sheApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-hard-hat mr-2"></i>Safety, Health & Environment (SHE) Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Safety Review Comments</strong></label>
-                                    <textarea id="sheComments" class="form-control" rows="3" 
-                                              placeholder="Enter safety review comments (required for rejection)"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
-                                <div class="approval-actions">
-                                    <button type="button" class="btn btn-success approval-btn" id="btnSheApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
-                                    </button>
-                                    <button type="button" class="btn btn-danger approval-btn" id="btnSheReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>Digital Signature:</strong> <span id="sheSignature">Pending</span>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Date:</strong> <span id="sheDate">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Facility Manager Approval -->
-                    <div class="approval-section facility-manager" id="facilityManagerApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-building mr-2"></i>Facility Manager Final Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Final Review Comments</strong></label>
-                                    <textarea id="facilityManagerComments" class="form-control" rows="3" 
-                                              placeholder="Enter final review comments (required for rejection)"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
-                                <div class="approval-actions">
-                                    <button type="button" class="btn btn-success approval-btn" id="btnFacilityManagerApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
-                                    </button>
-                                    <button type="button" class="btn btn-danger approval-btn" id="btnFacilityManagerReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>Digital Signature:</strong> <span id="facilityManagerSignature">Pending</span>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Date:</strong> <span id="facilityManagerDate">-</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1900,462 +2055,69 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Check if this is view mode first
-        const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const role = urlParams.get('role');
-        const ptwId = urlParams.get('id');
-        const isViewMode = mode === 'view' && role && ptwId;
+        // Initialize tab navigation
+        initializeTabNavigation();
         
-        if (isViewMode) {
-            // Initialize view mode
-            initializeViewMode();
-            // Still initialize basic functionality for view mode
-            initializeTabNavigation();
-            initializeWorkTypeHandlers();
-        } else {
-            // Normal form initialization
-            // Initialize tab navigation
-            initializeTabNavigation();
-            
-            // Initialize work type handlers
-            initializeWorkTypeHandlers();
-            
-            // Initialize radio buttons for contractor declarations
-            initializeRadioButtons();
-            
-            // Simple loading indicator
-            showLoadingIndicator();
-            
-            // Set default dates for testing
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            const todayStr = today.toISOString().split('T')[0];
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            
-            // Use the new field IDs from Section 1
-            const fromDateField = document.getElementById('txtDurationFrom');
-            const toDateField = document.getElementById('txtDurationTo');
-            
-            if (fromDateField) fromDateField.value = todayStr;
-            if (toDateField) toDateField.value = tomorrowStr;
-            
-            setTimeout(function () {
-                try {
-                    // Initialize PTW form class with public configuration
-                    ptwFormClass_ = new PtwForm();
-                    
-                    // Set public mode configuration
-                    ptwFormClass_.setPublicMode(true);
-                    
-                    // Add null checks for required elements before initialization
-                    const requiredElements = ['optPtwWorkType', 'specificChecklistContainer'];
-                    const missingElements = requiredElements.filter(id => !document.getElementById(id));
-                    
-                    if (missingElements.length > 0) {
-                        console.warn('Missing required elements:', missingElements);
-                        // Initialize anyway but with error handling
-                    }
-                    
-                    ptwFormClass_.init();
-                    
-                    // Prevent form submission
-                    $('#formPtw').on('submit', function(e) {
-                        e.preventDefault();
-                        console.log('Form submission prevented');
-                        return false;
-                    });
-                    
-                    // Make globally accessible for debugging
-                    window.ptwFormClass_ = ptwFormClass_;
-                    
-                } catch (e) {
-                    showError('Failed to initialize form: ' + e.message);
-                    console.error('PTW Form initialization error:', e);
-                }
-                hideLoadingIndicator();
-            }, 300);
-        }
-    });
-
-    // View Mode Detection and Initialization
-    function initializeViewMode() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const role = urlParams.get('role');
-        const ptwId = urlParams.get('id');
-
-        if (mode === 'view' && role && ptwId) {
-            // Apply view mode styling
-            document.body.classList.add('view-mode');
-            
-            // Update page title and subtitle based on role
-            const roleNames = {
-                'supervisor': 'PTW Supervisor Review',
-                'she': 'Safety, Health & Environment Review',
-                'facility_manager': 'Facility Manager Final Review'
-            };
-            
-            const roleIcons = {
-                'supervisor': 'fas fa-user-tie',
-                'she': 'fas fa-hard-hat',
-                'facility_manager': 'fas fa-building'
-            };
-            
-            const formTitleText = document.getElementById('formTitleText');
-            const formSubtitle = document.getElementById('formSubtitle');
-            const viewModeIndicator = document.getElementById('viewModeIndicator');
-            
-            if (formTitleText) {
-                formTitleText.innerHTML = `<i class="${roleIcons[role]} mr-2"></i>${roleNames[role]}`;
-            }
-            
-            if (formSubtitle) {
-                formSubtitle.textContent = `PTW Application Review - ID: ${ptwId}`;
-            }
-            
-            if (viewModeIndicator) {
-                viewModeIndicator.textContent = 'READ ONLY';
-                viewModeIndicator.style.display = 'inline-block';
-            }
-            
-            // Show appropriate approval section
-            const approvalSections = document.getElementById('approvalSections');
-            if (approvalSections) {
-                approvalSections.style.display = 'block';
-            }
-            
-            const sectionMap = {
-                'supervisor': 'supervisorApprovalSection',
-                'she': 'sheApprovalSection',
-                'facility_manager': 'facilityManagerApprovalSection'
-            };
-            
-            const targetSection = document.getElementById(sectionMap[role]);
-            if (targetSection) {
-                targetSection.style.display = 'block';
-            }
-            
-            // Load PTW data
-            loadPtwData(ptwId);
-            
-            // Initialize approval actions
-            initializeApprovalActions(role, ptwId);
-            
-            // Hide normal form actions
-            const cardFooter = document.querySelector('.card-footer');
-            if (cardFooter) {
-                cardFooter.style.display = 'none';
-            }
-            
-            return true;
-        }
+        // Initialize work type handlers
+        initializeWorkTypeHandlers();
         
-        return false;
-    }
-
-    // Load PTW Data for View Mode
-    function loadPtwData(ptwId) {
-        // Show loading indicator
+        // Initialize radio buttons for contractor declarations
+        initializeRadioButtons();
+        
+        // Simple loading indicator
         showLoadingIndicator();
         
-        // Make API call to load PTW data using the correct endpoint
-        fetch(`api/ptw_approval.php?action=get&id=${ptwId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    populateFormWithData(data.data);
-                    // Make form read-only after populating data
-                    makeFormReadOnly();
-                } else {
-                    showError('Failed to load PTW data: ' + (data.message || 'Unknown error'));
+        // Set default dates for testing
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const todayStr = today.toISOString().split('T')[0];
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        // Use the new field IDs from Section 1
+        const fromDateField = document.getElementById('txtDurationFrom');
+        const toDateField = document.getElementById('txtDurationTo');
+        
+        if (fromDateField) fromDateField.value = todayStr;
+        if (toDateField) toDateField.value = tomorrowStr;
+        
+        setTimeout(function () {
+            try {
+                // Initialize PTW form class with public configuration
+                ptwFormClass_ = new PtwForm();
+                
+                // Set public mode configuration
+                ptwFormClass_.setPublicMode(true);
+                
+                // Add null checks for required elements before initialization
+                const requiredElements = ['optPtwWorkType', 'specificChecklistContainer'];
+                const missingElements = requiredElements.filter(id => !document.getElementById(id));
+                
+                if (missingElements.length > 0) {
+                    console.warn('Missing required elements:', missingElements);
+                    // Initialize anyway but with error handling
                 }
-            })
-            .catch(error => {
-                console.error('Error loading PTW data:', error);
-                showError('Failed to load PTW data: ' + error.message);
-            })
-            .finally(() => {
-                hideLoadingIndicator();
-            });
-    }
-
-    // Populate Form with PTW Data
-    function populateFormWithData(data) {
-        console.log('Populating form with data:', data);
-        
-        // Populate basic fields - map API data to form fields
-        const fieldMapping = {
-            'txtPtwApplicantName': 'applicant_name',
-            'txtContractorSupervisor': 'contractor_supervisor', 
-            'txtPtwContractorCompany': 'contractor_company',
-            'txtPtwWorkArea': 'work_area',
-            'optPtwRiskLevel': 'risk_level',
-            'txtPtwDescription': 'work_description',
-            'txtPtwApplicantContact': 'applicant_contact',
-            'txtStaffNoNRIC': 'staff_nric',
-            'txtContactNoSupervisor': 'supervisor_contact',
-            'txtIdentificationNo': 'identification_no',
-            'dtPtwValidFrom': 'valid_from',
-            'dtPtwValidTo': 'valid_to',
-            'txtLevel': 'level',
-            'txtPtwRemarks': 'remarks'
-        };
-        
-        Object.keys(fieldMapping).forEach(fieldId => {
-            const element = document.getElementById(fieldId);
-            const dataKey = fieldMapping[fieldId];
-            if (element && data[dataKey]) {
-                if (element.type === 'date' || element.type === 'datetime-local') {
-                    // Format date for date inputs
-                    const date = new Date(data[dataKey]);
-                    element.value = date.toISOString().split('T')[0];
-                } else {
-                    element.value = data[dataKey];
-                }
-            }
-        });
-        
-        // Populate work types - fixed mapping
-        if (data.work_type) {
-            console.log('Populating work type:', data.work_type);
-            
-            // Clear all work type checkboxes first
-            document.getElementById('chkColdWork').checked = false;
-            document.getElementById('chkHotWork').checked = false;
-            document.getElementById('chkConfinedSpace').checked = false;
-            
-            // Set the appropriate checkbox based on work type
-            const workTypeMapping = {
-                'cold_work': 'chkColdWork',
-                'hot_work': 'chkHotWork', 
-                'confined_space': 'chkConfinedSpace'
-            };
-            
-            if (workTypeMapping[data.work_type]) {
-                const checkbox = document.getElementById(workTypeMapping[data.work_type]);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    console.log('Set checkbox:', workTypeMapping[data.work_type], 'to checked');
-                }
-            }
-            
-            // Also set the hidden select for compatibility
-            const selectElement = document.getElementById('optPtwWorkType');
-            if (selectElement) {
-                selectElement.value = data.work_type;
-            }
-        }
-        
-        // Populate workers
-        if (data.workers && Array.isArray(data.workers)) {
-            const tbody = document.querySelector('#workersTable tbody');
-            if (tbody) {
-                tbody.innerHTML = ''; // Clear existing rows
-                data.workers.forEach((worker, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td><input type="text" class="form-control worker-name" value="${worker.name || ''}" readonly></td>
-                        <td><input type="text" class="form-control worker-designation" value="${worker.designation || ''}" readonly></td>
-                        <td><input type="text" class="form-control worker-id" value="${worker.identification || ''}" readonly></td>
-                        <td>-</td>
-                    `;
-                    tbody.appendChild(row);
+                
+                ptwFormClass_.init();
+                
+                // Prevent form submission
+                $('#formPtw').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Form submission prevented');
+                    return false;
                 });
+                
+                // Make globally accessible for debugging
+                window.ptwFormClass_ = ptwFormClass_;
+                
+            } catch (e) {
+                showError('Failed to initialize form: ' + e.message);
+                console.error('PTW Form initialization error:', e);
             }
-        }
-        
-        // Populate hazardous activities (checkboxes and text fields)
-        const hazardActivities = ['cold', 'hot', 'cs'];
-        hazardActivities.forEach(prefix => {
-            // Handle checkboxes
-            if (data[`${prefix}_activities`]) {
-                const activities = data[`${prefix}_activities`].split(',');
-                activities.forEach(activity => {
-                    const checkbox = document.getElementById(`${prefix}${activity.charAt(0).toUpperCase() + activity.slice(1)}`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-            }
-            
-            // Handle special precautions
-            const precautionsField = document.getElementById(`${prefix}SpecialPrecautions`);
-            if (precautionsField && data[`${prefix}_precautions`]) {
-                precautionsField.value = data[`${prefix}_precautions`];
-            }
-            
-            // Handle "others" text field
-            const othersField = document.getElementById(`${prefix}OthersText`);
-            if (othersField && data[`${prefix}_others`]) {
-                othersField.value = data[`${prefix}_others`];
-            }
-        });
-        
-        // Populate supporting documents
-        if (data.supporting_docs) {
-            const docs = data.supporting_docs.split(',');
-            docs.forEach(doc => {
-                const checkbox = document.getElementById(`doc${doc.charAt(0).toUpperCase() + doc.slice(1)}`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                }
-            });
-        }
-        
-        console.log('Form populated with PTW data:', data);
-    }
-
-    // Make Form Read-Only for View Mode
-    function makeFormReadOnly() {
-        // Disable all input fields
-        const inputs = document.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            input.readOnly = true;
-            input.disabled = true;
-            input.style.backgroundColor = '#f8f9fa';
-            input.style.cursor = 'not-allowed';
-        });
-        
-        // Keep checkboxes and radio buttons visible but disabled
-        const checkboxes = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.disabled = true;
-            checkbox.style.backgroundColor = 'transparent';
-            checkbox.style.cursor = 'not-allowed';
-        });
-        
-        // Disable buttons except approval/rejection buttons in approval sections
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            // Don't disable approval/rejection buttons
-            if (!button.id.includes('Approve') && !button.id.includes('Reject')) {
-                button.disabled = true;
-                button.style.opacity = '0.6';
-                button.style.cursor = 'not-allowed';
-            }
-        });
-        
-        // Hide stepper navigation in view mode
-        const stepperNav = document.querySelector('.stepper-navigation');
-        if (stepperNav) {
-            stepperNav.style.display = 'none';
-        }
-        
-        // Hide submit button
-        const submitBtn = document.getElementById('btnSubmitPTW');
-        if (submitBtn) {
-            submitBtn.style.display = 'none';
-        }
-        
-        console.log('Form has been made read-only for view mode');
-    }
-
-    // Initialize Approval Actions
-    function initializeApprovalActions(role, ptwId) {
-        const approveBtn = document.getElementById(`btn${role.charAt(0).toUpperCase() + role.slice(1).replace('_', '')}Approve`);
-        const rejectBtn = document.getElementById(`btn${role.charAt(0).toUpperCase() + role.slice(1).replace('_', '')}Reject`);
-        const commentsField = document.getElementById(`${role}Comments`);
-        
-        if (approveBtn) {
-            approveBtn.addEventListener('click', () => {
-                handleApproval(role, ptwId, 'approved', commentsField?.value || '');
-            });
-        }
-        
-        if (rejectBtn) {
-            rejectBtn.addEventListener('click', () => {
-                const comments = commentsField?.value?.trim();
-                if (!comments) {
-                    showError('Comments are required for rejection');
-                    return;
-                }
-                handleApproval(role, ptwId, 'rejected', comments);
-            });
-        }
-    }
-
-    // Handle Approval/Rejection
-    function handleApproval(role, ptwId, decision, comments) {
-        if (decision === 'rejected' && !comments.trim()) {
-            showError('Comments are required for rejection');
-            return;
-        }
-        
-        const confirmMessage = decision === 'approved' 
-            ? `Are you sure you want to APPROVE this PTW application?` 
-            : `Are you sure you want to REJECT this PTW application?`;
-            
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-        
-        showLoadingIndicator();
-        
-        const payload = {
-            action: 'approve',
-            id: ptwId,
-            role: role,
-            decision: decision,
-            comments: comments,
-            timestamp: new Date().toISOString()
-        };
-        
-        fetch('api/ptw_approval.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showSuccess(`PTW application ${decision} successfully`);
-                
-                // Update signature section
-                const signatureSpan = document.getElementById(`${role}Signature`);
-                const dateSpan = document.getElementById(`${role}Date`);
-                
-                if (signatureSpan) {
-                    signatureSpan.textContent = `${data.approver_name} (${decision.toUpperCase()})`;
-                }
-                
-                if (dateSpan) {
-                    dateSpan.textContent = new Date().toLocaleString();
-                }
-                
-                // Disable approval buttons
-                const approveBtn = document.getElementById(`btn${role.charAt(0).toUpperCase() + role.slice(1).replace('_', '')}Approve`);
-                const rejectBtn = document.getElementById(`btn${role.charAt(0).toUpperCase() + role.slice(1).replace('_', '')}Reject`);
-                
-                if (approveBtn) approveBtn.disabled = true;
-                if (rejectBtn) rejectBtn.disabled = true;
-                
-                // Close modal if in modal mode
-                if (window.parent && window.parent !== window) {
-                    setTimeout(() => {
-                        window.parent.location.reload();
-                    }, 2000);
-                }
-                
-            } else {
-                showError('Failed to process approval: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error processing approval:', error);
-            showError('Failed to process approval: ' + error.message);
-        })
-        .finally(() => {
             hideLoadingIndicator();
-        });
-    }
-
-    // Additional DOM ready handler for view mode (removed duplicate)
+        }, 300);
+    });
 
     // Tab navigation functionality
     function initializeTabNavigation() {
@@ -2428,125 +2190,11 @@
             }
         }
         
-        // Submit button functionality
-        if (btnSubmit) {
-            btnSubmit.addEventListener('click', function() {
-                if (validateContractorDeclaration()) {
-                    // If validation passes, proceed with form submission
-                    if (window.ptwFormClass_ && typeof window.ptwFormClass_.handleSubmit === 'function') {
-                        window.ptwFormClass_.handleSubmit();
-                    } else {
-                        // Fallback submission
-                        alert('Form submitted successfully! (Demo mode)');
-                    }
-                } else {
-                    showError('Please complete all required contractor declarations before submitting.');
-                }
-            });
-        }
-        
         // Add event listener for the Add Worker button
         const btnAddWorker = document.getElementById('btnAddWorker');
         if (btnAddWorker) {
             btnAddWorker.addEventListener('click', addWorkerToTable);
         }
-        
-        // Add event listener for the Test Insert button
-        const btnTestInsert = document.getElementById('btnTestInsert');
-        if (btnTestInsert) {
-            btnTestInsert.addEventListener('click', performTestInsert);
-        }
-    }
-    
-    // Validate contractor declaration section
-    function validateContractorDeclaration() {
-        console.log('Validating contractor declaration section...');
-        
-        // Check if contractor final confirmation checkbox is checked
-        const contractorConfirmation = document.getElementById('contractorConfirmation');
-        console.log('Final confirmation checkbox:', contractorConfirmation);
-        console.log('Final confirmation checked:', contractorConfirmation ? contractorConfirmation.checked : 'element not found');
-        
-        // Also check for alternative contractor confirmation IDs (in case there are multiple)
-        const alternativeConfirmations = [
-            'contractorConfirmation',
-            'contractor_confirmation',
-            'finalConfirmation'
-        ];
-        
-        let anyConfirmationChecked = false;
-        let confirmationElement = contractorConfirmation;
-        
-        if (contractorConfirmation && contractorConfirmation.checked) {
-            anyConfirmationChecked = true;
-        } else {
-            // Check alternative IDs
-            for (const altId of alternativeConfirmations) {
-                const altElement = document.getElementById(altId);
-                if (altElement && altElement.checked) {
-                    anyConfirmationChecked = true;
-                    confirmationElement = altElement;
-                    console.log(`Found alternative confirmation element: ${altId}, checked: ${altElement.checked}`);
-                    break;
-                }
-            }
-        }
-        
-        if (!confirmationElement) {
-            console.error('No contractor confirmation checkbox found!');
-            alert('Error: Contractor confirmation checkbox is missing from the form.');
-            return false;
-        }
-        
-        if (!anyConfirmationChecked) {
-            console.log('No contractor confirmation checkbox is checked');
-            alert('Please confirm that you agree to all contractor declarations by checking the final confirmation checkbox.');
-            
-            // Scroll to the checkbox to help user find it
-            confirmationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Navigate to Section 4 if not already there
-            const section4Tab = document.getElementById('section4-tab');
-            if (section4Tab) {
-                $(section4Tab).tab('show');
-            }
-            
-            return false;
-        }
-        
-        // Check if at least one declaration radio button is selected for each declaration
-        const declarations = ['declaration1', 'declaration2', 'declaration3', 'declaration4', 'declaration5', 'declaration6'];
-        let missingDeclarations = [];
-        
-        declarations.forEach((declaration, index) => {
-            const yesRadio = document.getElementById(declaration + '_yes');
-            const noRadio = document.getElementById(declaration + '_no');
-            
-            console.log(`Checking ${declaration}:`, {
-                yesRadio: yesRadio ? yesRadio.checked : 'not found',
-                noRadio: noRadio ? noRadio.checked : 'not found'
-            });
-            
-            if ((!yesRadio || !yesRadio.checked) && (!noRadio || !noRadio.checked)) {
-                missingDeclarations.push('Declaration ' + (index + 1));
-            }
-        });
-        
-        if (missingDeclarations.length > 0) {
-            console.log('Missing declarations:', missingDeclarations);
-            alert('Please complete the following contractor declarations: ' + missingDeclarations.join(', '));
-            
-            // Navigate to Section 4 to show the missing declarations
-            const section4Tab = document.getElementById('section4-tab');
-            if (section4Tab) {
-                $(section4Tab).tab('show');
-            }
-            
-            return false;
-        }
-        
-        console.log('✅ All contractor declarations validated successfully');
-        return true;
     }
 
     // Work type checkbox handlers - Simplified version (no hiding/showing)
@@ -2559,24 +2207,15 @@
         function updateWorkTypeDropdown() {
             // Update hidden dropdown to sync with checkboxes for JavaScript compatibility
             if (workTypeDropdown) {
-                // Priority order: hot_work > confined_space > cold_work (most restrictive first)
-                if (hotWorkCheckbox && hotWorkCheckbox.checked) {
+                if (coldWorkCheckbox && coldWorkCheckbox.checked) {
+                    workTypeDropdown.value = 'cold_work';
+                } else if (hotWorkCheckbox && hotWorkCheckbox.checked) {
                     workTypeDropdown.value = 'hot_work';
                 } else if (confinedSpaceCheckbox && confinedSpaceCheckbox.checked) {
                     workTypeDropdown.value = 'confined_space';
-                } else if (coldWorkCheckbox && coldWorkCheckbox.checked) {
-                    workTypeDropdown.value = 'cold_work';
                 } else {
                     workTypeDropdown.value = '';
                 }
-                
-                // Trigger change event to notify any listeners
-                if (workTypeDropdown.value) {
-                    const event = new Event('change', { bubbles: true });
-                    workTypeDropdown.dispatchEvent(event);
-                }
-                
-                console.log('Work type dropdown updated to:', workTypeDropdown.value);
             }
         }
 
@@ -2595,9 +2234,6 @@
 
         // Initialize dropdown
         updateWorkTypeDropdown();
-        
-        // Make function globally accessible for Test Insert functionality
-        window.updateWorkTypeDropdown = updateWorkTypeDropdown;
     }
 
     // Worker management for the new table format
@@ -2640,274 +2276,6 @@
     // Make functions globally accessible
     window.addWorkerToTable = addWorkerToTable;
     window.removeWorkerRow = removeWorkerRow;
-
-    // Comprehensive Test Insert Function
-    function performTestInsert() {
-        console.log('Starting comprehensive test data insertion...');
-        
-        try {
-            // === SECTION 1: REQUISITION ===
-            
-            // Basic Information
-            setValue('txtPtwApplicantName', 'Ahmad bin Abdullah');
-            setValue('txtContractorSupervisor', 'Muhammad Ali - Senior Supervisor');
-            setValue('txtPtwContractorCompany', 'ABC Engineering Sdn Bhd');
-            setValue('txtPtwWorkArea', 'Building 3, Level 2, Pump Room - Equipment P-301A');
-            setValue('txtPtwApplicantContact', '012-345-6789');
-            setValue('txtStaffNoNRIC', '123456-12-1234');
-            setValue('txtContactNoSupervisor', '012-987-6543');
-            setValue('txtIdentificationNo', 'PKK-12345-A');
-            setValue('txtLevel', 'Level 3');
-            
-            // Set dates
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            setValue('dtPtwValidFrom', today.toISOString().split('T')[0]);
-            setValue('dtPtwValidTo', tomorrow.toISOString().split('T')[0]);
-            
-            // Work description
-            setValue('txtPtwDescription', 'Welding repair on damaged pipeline flange connection in Processing Unit A, estimated 4 hours duration with pre-heating requirements');
-            
-            // Set work types (select multiple for testing)
-            setCheckbox('chkColdWork', true);
-            setCheckbox('chkHotWork', true);
-            
-            // Update work type dropdown
-            if (window.updateWorkTypeDropdown) {
-                window.updateWorkTypeDropdown();
-            }
-            
-            // Set risk level
-            setValue('optPtwRiskLevel', 'high');
-            
-            // Add sample workers
-            addSampleWorkers();
-            
-            // Fill hazardous activities
-            fillHazardousActivities();
-            
-            // === SECTION 2: SUPPORTING DOCUMENTS ===
-            fillSupportingDocuments();
-            
-            // === SECTION 3: RISK ASSESSMENT ===
-            fillRiskAssessment();
-            
-            // === SECTION 4: CONTRACTOR DECLARATION ===
-            fillContractorDeclaration();
-            
-            console.log('✅ Test data insertion completed successfully!');
-            showSuccess('Test data inserted successfully! All form sections have been populated with sample data.');
-            
-        } catch (error) {
-            console.error('❌ Error during test data insertion:', error);
-            showError('Error inserting test data: ' + error.message);
-        }
-    }
-    
-    // Helper function to set input values safely
-    function setValue(elementId, value) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.value = value;
-            // Trigger change event for any listeners
-            element.dispatchEvent(new Event('change', { bubbles: true }));
-            element.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-            console.warn(`Element not found: ${elementId}`);
-        }
-    }
-    
-    // Helper function to set checkbox values safely
-    function setCheckbox(elementId, checked) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.checked = checked;
-            // Trigger change event for any listeners
-            element.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-            console.warn(`Checkbox not found: ${elementId}`);
-        }
-    }
-    
-    // Helper function to set radio button values safely
-    function setRadio(name, value) {
-        const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
-        if (radio) {
-            radio.checked = true;
-            // Trigger change event
-            radio.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-            console.warn(`Radio button not found: ${name}=${value}`);
-        }
-    }
-    
-    // Add sample workers to the table
-    function addSampleWorkers() {
-        const sampleWorkers = [
-            { name: 'Ahmad bin Yusof', designation: 'Senior Welder', id: '890123-45-6789' },
-            { name: 'Siti Aminah', designation: 'Safety Officer', id: '234567-89-0123' },
-            { name: 'Kumar Rajesh', designation: 'Mechanical Technician', id: '567890-12-3456' },
-            { name: 'Wong Wei Ming', designation: 'Supervisor Assistant', id: '345678-90-1234' }
-        ];
-        
-        // Clear existing workers first
-        const tbody = document.querySelector('#workersTable tbody');
-        if (tbody) {
-            tbody.innerHTML = '';
-        }
-        
-        // Add each sample worker
-        sampleWorkers.forEach((worker, index) => {
-            addWorkerToTable();
-            
-            // Fill the worker data
-            const rows = document.querySelectorAll('#workersTable tbody tr');
-            const currentRow = rows[rows.length - 1];
-            
-            if (currentRow) {
-                const nameInput = currentRow.querySelector('.worker-name');
-                const designationInput = currentRow.querySelector('.worker-designation');
-                const idInput = currentRow.querySelector('.worker-id');
-                
-                if (nameInput) nameInput.value = worker.name;
-                if (designationInput) designationInput.value = worker.designation;
-                if (idInput) idInput.value = worker.id;
-            }
-        });
-        
-        console.log(`Added ${sampleWorkers.length} sample workers`);
-    }
-    
-    // Fill hazardous activities sections
-    function fillHazardousActivities() {
-        // Cold Work Activities
-        setCheckbox('coldElectricalWork', true);
-        setCheckbox('coldVisualInspection', true);
-        setValue('coldOthersText', 'Pressure testing and leak detection');
-        setValue('coldSpecialPrecautions', 'Ensure proper ventilation, use non-sparking tools, maintain clean work area, and have fire watch personnel on standby.');
-        
-        // Hot Work Activities
-        setCheckbox('hotWelding', true);
-        setCheckbox('hotCutting', true);
-        setCheckbox('hotGrinding', true);
-        setValue('hotOthersText', 'Arc welding with pre-heating');
-        setValue('hotSpecialPrecautions', 'Clear 35ft radius of combustibles, fire watch for 60 minutes post-work, hot work permit displayed, fire extinguisher on standby.');
-        
-        // Confined Space Activities
-        setCheckbox('csEntryPermit', true);
-        setCheckbox('csGasMonitoring', true);
-        setCheckbox('csVentilation', true);
-        setCheckbox('csRescueStandby', true);
-        setValue('csOthersText', 'Continuous atmospheric monitoring');
-        setValue('csSpecialPrecautions', 'Continuous air monitoring, emergency retrieval system, attendant posted outside, communication equipment tested.');
-        
-        console.log('Filled hazardous activities sections');
-    }
-    
-    // Fill supporting documents section
-    function fillSupportingDocuments() {
-        // Check relevant documents
-        setCheckbox('docJHA', true);
-        setCheckbox('docMSDS', true);
-        setCheckbox('docDrawings', true);
-        setCheckbox('docProcedures', true);
-        setCheckbox('docCertificates', true);
-        setCheckbox('docInsurance', true);
-        
-        // Add remarks
-        setValue('txtPtwRemarks', 'All required documentation verified and approved. Workers have been briefed on safety procedures. Emergency response plan reviewed.');
-        
-        console.log('Filled supporting documents section');
-    }
-    
-    // Fill risk assessment section
-    function fillRiskAssessment() {
-        // Environmental Controls
-        setCheckbox('envNoiseControl', true);
-        setCheckbox('envDustControl', true);
-        setCheckbox('envWasteManagement', true);
-        setCheckbox('envWaterProtection', true);
-        
-        // Traffic and Access Control
-        setCheckbox('trafficBarricades', true);
-        setCheckbox('trafficSignage', true);
-        setCheckbox('trafficFlagman', true);
-        
-        // Emergency Preparedness
-        setCheckbox('emergencyFireExtinguisher', true);
-        setCheckbox('emergencyFirstAid', true);
-        setCheckbox('emergencyEvacuation', true);
-        setCheckbox('emergencyCommunication', true);
-        
-        console.log('Filled risk assessment section');
-    }
-    
-    // Fill contractor declaration section
-    function fillContractorDeclaration() {
-        // Answer all contractor declarations (mix of yes/no for realism)
-        setRadio('declaration1', 'yes');  // Workers briefed on SHE procedures
-        setRadio('declaration2', 'yes');  // Documentation valid
-        setRadio('declaration3', 'yes');  // Staff briefed on safety
-        setRadio('declaration4', 'yes');  // GFM liability acknowledged
-        setRadio('declaration5', 'yes');  // Permit displayed
-        setRadio('declaration6', 'yes');  // Safety equipment checked
-        
-        // Fill PPE requirements
-        fillPPERequirements();
-        
-        // Fill contractor acknowledgment
-        setValue('contractor_name', 'Ahmad bin Abdullah');
-        setValue('contractor_designation', 'Project Manager');
-        setValue('contractor_date', new Date().toISOString().split('T')[0]);
-        
-        // Check final confirmation
-        setCheckbox('contractorFinalConfirmation', true);
-        
-        // Ensure the checkbox is properly checked and visible
-        const finalConfirmationCheckbox = document.getElementById('contractorConfirmation');
-        if (finalConfirmationCheckbox) {
-            finalConfirmationCheckbox.checked = true;
-            finalConfirmationCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log('Final contractor confirmation checkbox set to:', finalConfirmationCheckbox.checked);
-        }
-        
-        console.log('Filled contractor declaration section');
-    }
-    
-    // Fill PPE requirements comprehensively
-    function fillPPERequirements() {
-        // Mandatory PPE
-        setCheckbox('ppe_safety_helmet', true);
-        setCheckbox('ppe_safety_shoes', true);
-        setCheckbox('ppe_high_vis_vest', true);
-        
-        // Respiratory Protection
-        setCheckbox('ppe_dust_mask', true);
-        setCheckbox('ppe_respirator', true);
-        
-        // Eye, Face & Body Protection
-        setCheckbox('ppe_safety_glasses', true);
-        setCheckbox('ppe_face_shield', true);
-        setCheckbox('ppe_coveralls', true);
-        
-        // Hand Protection
-        setCheckbox('ppe_work_gloves', true);
-        setCheckbox('ppe_chemical_gloves', true);
-        setCheckbox('ppe_cut_resistant', true);
-        
-        // Hearing Protection
-        setCheckbox('ppe_ear_plugs', true);
-        setCheckbox('ppe_ear_muffs', true);
-        
-        // Others
-        setValue('ppe_others', 'Arc flash suit Class 2, insulated mats, voltage-rated gloves');
-        
-        console.log('Filled PPE requirements comprehensively');
-    }
-    
-    // Make test insert function globally accessible
-    window.performTestInsert = performTestInsert;
 
     // Flag to prevent multiple dropdown protection runs
     let dropdownProtectionInitialized = false;

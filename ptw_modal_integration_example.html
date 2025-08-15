@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PTW Modal Integration Example</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    
+    <style>
+        .ptw-modal .modal-dialog {
+            max-width: 95%;
+            margin: 10px auto;
+        }
+        
+        .ptw-modal .modal-body {
+            padding: 0;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .ptw-modal iframe {
+            width: 100%;
+            min-height: 80vh;
+            border: none;
+        }
+        
+        .action-btn {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>PTW Modal Integration Example</h2>
+        <p>This demonstrates how to integrate PTW view mode into modals from dashboard pages.</p>
+        
+        <!-- Example Dashboard Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5>PTW Applications Dashboard</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>PTW ID</th>
+                            <th>Applicant</th>
+                            <th>Work Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PTW-2025-001</td>
+                            <td>John Doe</td>
+                            <td>Hot Work</td>
+                            <td><span class="badge badge-warning">Pending Supervisor Review</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary action-btn" 
+                                        onclick="openPtwModal('PTW-2025-001', 'supervisor')">
+                                    <i class="fas fa-user-tie mr-1"></i>Supervisor Review
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PTW-2025-002</td>
+                            <td>Jane Smith</td>
+                            <td>Confined Space</td>
+                            <td><span class="badge badge-info">Pending SHE Review</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success action-btn" 
+                                        onclick="openPtwModal('PTW-2025-002', 'she')">
+                                    <i class="fas fa-hard-hat mr-1"></i>SHE Review
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PTW-2025-003</td>
+                            <td>Mike Johnson</td>
+                            <td>Cold Work</td>
+                            <td><span class="badge badge-danger">Pending Final Approval</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-danger action-btn" 
+                                        onclick="openPtwModal('PTW-2025-003', 'facility_manager')">
+                                    <i class="fas fa-building mr-1"></i>Final Approval
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Usage Instructions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Integration Instructions</h5>
+            </div>
+            <div class="card-body">
+                <h6>How to integrate PTW view mode into your dashboard:</h6>
+                <ol>
+                    <li><strong>URL Parameters:</strong> Use the following format:
+                        <code>ptw_form.html?mode=view&role={ROLE}&id={PTW_ID}</code>
+                    </li>
+                    <li><strong>Supported Roles:</strong>
+                        <ul>
+                            <li><code>supervisor</code> - PTW Supervisor Review</li>
+                            <li><code>she</code> - Safety, Health & Environment Review</li>
+                            <li><code>facility_manager</code> - Facility Manager Final Approval</li>
+                        </ul>
+                    </li>
+                    <li><strong>Modal Integration:</strong> Load the URL in an iframe within a Bootstrap modal</li>
+                    <li><strong>API Endpoints:</strong>
+                        <ul>
+                            <li><code>GET api/ptw.php?action=get&id={PTW_ID}</code> - Load PTW data</li>
+                            <li><code>POST api/ptw_approval.php</code> - Submit approval/rejection</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- PTW Modal -->
+    <div class="modal fade ptw-modal" id="ptwModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ptwModalTitle">PTW Review</h5>
+                    <button type="button" class="close modal-close-btn" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="ptwIframe" src="" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/jquery-3.7.0.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    
+    <script>
+        // Function to open PTW in modal
+        function openPtwModal(ptwId, role) {
+            const roleNames = {
+                'supervisor': 'PTW Supervisor Review',
+                'she': 'Safety, Health & Environment Review',
+                'facility_manager': 'Facility Manager Final Approval'
+            };
+            
+            // Set modal title
+            document.getElementById('ptwModalTitle').textContent = roleNames[role] + ' - ' + ptwId;
+            
+            // Build URL with view mode parameters
+            const url = `ptw_form.html?mode=view&role=${role}&id=${ptwId}`;
+            
+            // Set iframe source
+            document.getElementById('ptwIframe').src = url;
+            
+            // Show modal
+            $('#ptwModal').modal('show');
+            
+            console.log('Opening PTW modal:', { ptwId, role, url });
+        }
+        
+        // Close modal and refresh page when iframe sends message
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'ptwApprovalComplete') {
+                $('#ptwModal').modal('hide');
+                
+                // Optionally refresh the page or update the table
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            }
+        });
+        
+        // Handle modal close events
+        $('#ptwModal').on('hidden.bs.modal', function () {
+            // Clear iframe source to stop any ongoing processes
+            document.getElementById('ptwIframe').src = 'about:blank';
+        });
+    </script>
+</body>
+</html>

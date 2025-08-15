@@ -48,6 +48,34 @@
             transition: transform 0.2s;
         }
         
+        /* PTW Modal Integration Styles */
+        .ptw-modal .modal-dialog {
+            max-width: 95%;
+            margin: 10px auto;
+        }
+        
+        .ptw-modal .modal-body {
+            padding: 0;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .ptw-modal iframe {
+            width: 100%;
+            min-height: 80vh;
+            border: none;
+        }
+        
+        .action-btn-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn-group .btn {
+            margin: 2px;
+        }
+        
         .stat-card:hover {
             transform: translateY(-2px);
         }
@@ -435,6 +463,30 @@
         </div>
     </div>
 
+    <!-- PTW View Mode Modal -->
+    <div class="modal fade ptw-modal" id="ptwModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ptwModalTitle">
+                        <i class="fas fa-user-tie mr-2"></i>PTW Supervisor Review
+                    </h5>
+                    <button type="button" class="close modal-close-btn" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="ptwIframe" src="" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="text/javascript" src="js/vendor/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="js/vendor/popper.js/popper.min.js"></script>
@@ -540,9 +592,14 @@
                         <td>${permit.start_date || 'N/A'}</td>
                         <td><span class="status-badge status-pending">Pending</span></td>
                         <td>
-                            <button class="btn btn-view btn-sm me-1" onclick="viewPermit(${permit.ptw_permit_id})">
-                                <i class="fas fa-eye"></i> Review
-                            </button>
+                            <div class="action-btn-group">
+                                <button class="btn btn-primary btn-sm" onclick="openPtwModal('${permit.ptw_permit_no}', 'supervisor')" title="Full PTW Review">
+                                    <i class="fas fa-eye"></i> Review PTW
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="viewPermit(${permit.ptw_permit_id})" title="Quick Review (Legacy)">
+                                    <i class="fas fa-list"></i> Quick
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -681,6 +738,54 @@
                 }
             });
         }
+
+        // PTW Modal Integration Functions
+        function openPtwModal(ptwId, role) {
+            // Set modal title
+            document.getElementById('ptwModalTitle').innerHTML = 
+                '<i class="fas fa-user-tie mr-2"></i>PTW Supervisor Review - ' + ptwId;
+            
+            // Build URL with view mode parameters
+            const url = `ptw_form.html?mode=view&role=${role}&id=${ptwId}`;
+            
+            // Set iframe source
+            document.getElementById('ptwIframe').src = url;
+            
+            // Show modal
+            $('#ptwModal').modal('show');
+            
+            console.log('Opening PTW modal:', { ptwId, role, url });
+        }
+
+        // Handle PTW modal events
+        $('#ptwModal').on('hidden.bs.modal', function () {
+            // Clear iframe source to stop any ongoing processes
+            document.getElementById('ptwIframe').src = 'about:blank';
+            
+            // Refresh data in case approval was processed
+            setTimeout(() => {
+                loadStatistics();
+                loadPermits();
+                $('#lastUpdated').text(new Date().toLocaleString());
+            }, 500);
+        });
+
+        // Listen for messages from iframe (approval completion)
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'ptwApprovalComplete') {
+                $('#ptwModal').modal('hide');
+                
+                // Show success message
+                alert('PTW approval processed successfully!');
+                
+                // Refresh the dashboard
+                setTimeout(() => {
+                    loadStatistics();
+                    loadPermits();
+                    $('#lastUpdated').text(new Date().toLocaleString());
+                }, 500);
+            }
+        });
 
         // Auto-refresh every 5 minutes
         setInterval(function() {

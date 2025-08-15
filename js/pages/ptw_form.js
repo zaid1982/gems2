@@ -22,7 +22,21 @@ class PtwForm {
                 'Ventilation adequate',
                 'Gas monitors operational'
             ],
+            'hot_work': [ // HTML form value
+                'Fire extinguishers available and checked',
+                'Hot work permit displayed',
+                'Fire watch assigned',
+                'Combustible materials removed',
+                'Ventilation adequate',
+                'Gas monitors operational'
+            ],
             'COLD_WORK': [
+                'Tools inspected and in good condition',
+                'Work area clear of hazards',
+                'Lockout/Tagout procedures followed',
+                'Mechanical isolation confirmed'
+            ],
+            'cold_work': [ // HTML form value
                 'Tools inspected and in good condition',
                 'Work area clear of hazards',
                 'Lockout/Tagout procedures followed',
@@ -37,6 +51,14 @@ class PtwForm {
                 'Arc flash protection available'
             ],
             'CONFINED_SPACE': [
+                'Atmospheric testing completed',
+                'Ventilation system operational',
+                'Entry supervisor assigned',
+                'Rescue equipment available',
+                'Communication system established',
+                'Emergency response plan activated'
+            ],
+            'confined_space': [ // HTML form value
                 'Atmospheric testing completed',
                 'Ventilation system operational',
                 'Entry supervisor assigned',
@@ -149,6 +171,13 @@ class PtwForm {
             } else {
                 console.log('Form validation failed');
             }
+        });
+
+        // Test Insert button for auto-filling sample data
+        $('#btnTestInsert').on('click', (e) => {
+            e.preventDefault();
+            console.log('Test Insert button clicked');
+            this.fillSampleData();
         });
 
         // Risk level change
@@ -759,25 +788,64 @@ class PtwForm {
     }
 
     validateForm() {
+        console.log('validateForm called');
         let isValid = true;
         const errors = [];
 
-        // Basic validation
-        if (!$('#txtPtwDescription').val().trim()) {
+        // Check if elements exist first
+        const requiredElements = [
+            'txtPtwDescription', 'txtPtwWorkArea', 'txtPtwApplicantName', 
+            'dtPtwValidFrom', 'dtPtwValidTo', 'optPtwWorkType', 'optPtwRiskLevel'
+        ];
+        
+        const missingElements = [];
+        requiredElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) {
+                missingElements.push(id);
+                console.error('Missing element:', id);
+            }
+        });
+        
+        if (missingElements.length > 0) {
+            console.error('Missing required elements:', missingElements);
+            errors.push('Form not properly initialized. Missing elements: ' + missingElements.join(', '));
+            showError('Form validation error: Missing required form elements');
+            return false;
+        }
+
+        // Basic validation with safe checks
+        const description = $('#txtPtwDescription').val();
+        console.log('Description value:', description);
+        if (!description || !description.trim()) {
             errors.push('PTW Description is required');
             $('#txtPtwDescription').addClass('is-invalid');
             isValid = false;
         }
 
-        if (!$('#txtPtwWorkArea').val().trim()) {
+        const workArea = $('#txtPtwWorkArea').val();
+        console.log('Work Area value:', workArea);
+        if (!workArea || !workArea.trim()) {
             errors.push('Work Area is required');
             $('#txtPtwWorkArea').addClass('is-invalid');
             isValid = false;
         }
 
         if (!$('#optPtwWorkType').val()) {
-            errors.push('Work Type is required');
-            isValid = false;
+            // Check if any work type checkboxes are selected as fallback
+            const anyWorkTypeSelected = $('#chkColdWork').is(':checked') || 
+                                      $('#chkHotWork').is(':checked') || 
+                                      $('#chkConfinedSpace').is(':checked');
+            
+            if (!anyWorkTypeSelected) {
+                errors.push('Work Type is required - please select at least one work type');
+                isValid = false;
+            } else {
+                // Sync the dropdown if checkboxes are selected but dropdown is empty
+                if (typeof window.updateWorkTypeDropdown === 'function') {
+                    window.updateWorkTypeDropdown();
+                }
+            }
         }
 
         if (!$('#dtPtwValidFrom').val()) {
@@ -792,7 +860,8 @@ class PtwForm {
             isValid = false;
         }
 
-        if (!$('#txtPtwApplicantName').val().trim()) {
+        const applicantName = $('#txtPtwApplicantName').val();
+        if (!applicantName || !applicantName.trim()) {
             errors.push('Applicant Name is required');
             $('#txtPtwApplicantName').addClass('is-invalid');
             isValid = false;
@@ -851,20 +920,47 @@ class PtwForm {
 
     getWorkersData() {
         const workers = [];
-        $('.worker-section').each(function() {
-            const sectionId = $(this).attr('id');
-            const workerId = sectionId.replace('workerSection', '');
-            
-            const worker = {
-                id: workerId,
-                name: $(`#txtWorkerName${workerId}`).val(),
-                contact_number: $(`#txtWorkerContact${workerId}`).val(),
-                role: $(`#txtWorkerRole${workerId}`).val(),
-                is_certified: $(`#chkWorkerCertified${workerId}`).is(':checked')
-            };
-            
-            workers.push(worker);
-        });
+        
+        // Check if using table format (HTML form) or div format (JS class)
+        const tbody = document.querySelector('#workersTable tbody');
+        if (tbody && tbody.children.length > 0) {
+            // Table format - get data from table rows
+            Array.from(tbody.children).forEach((row, index) => {
+                const nameInput = row.querySelector('.worker-name');
+                const designationInput = row.querySelector('.worker-designation');
+                const idInput = row.querySelector('.worker-id');
+                
+                if (nameInput) {
+                    const worker = {
+                        id: index + 1,
+                        name: nameInput.value || '',
+                        contact_number: '', // Table format doesn't have contact - this is expected
+                        role: designationInput ? designationInput.value || '' : '',
+                        identification: idInput ? idInput.value || '' : '',
+                        is_certified: false // Table format doesn't have certification checkbox
+                    };
+                    workers.push(worker);
+                    console.log('Worker from table:', worker);
+                }
+            });
+        } else {
+            // Div format - original method
+            $('.worker-section').each(function() {
+                const sectionId = $(this).attr('id');
+                const workerId = sectionId.replace('workerSection', '');
+                
+                const worker = {
+                    id: workerId,
+                    name: $(`#txtWorkerName${workerId}`).val(),
+                    contact_number: $(`#txtWorkerContact${workerId}`).val(),
+                    role: $(`#txtWorkerRole${workerId}`).val(),
+                    is_certified: $(`#chkWorkerCertified${workerId}`).is(':checked')
+                };
+                
+                workers.push(worker);
+            });
+        }
+        
         return workers;
     }
 
@@ -967,6 +1063,12 @@ class PtwForm {
     savePtw(status = 'PENDING_APPROVAL') {
         console.log('savePtw called with status:', status);
         
+        // Ensure work type synchronization before validation
+        if (typeof window.updateWorkTypeDropdown === 'function') {
+            window.updateWorkTypeDropdown();
+            console.log('Work type synchronized before validation:', $('#optPtwWorkType').val());
+        }
+        
         if (!this.validateForm()) {
             console.log('Validation failed, returning');
             return;
@@ -975,11 +1077,27 @@ class PtwForm {
         console.log('Starting PTW save process...');
         ShowLoader();
 
+        // Final check: if work_type is empty but checkboxes are selected, fix it
+        let workType = $('#optPtwWorkType').val();
+        if (!workType) {
+            if ($('#chkHotWork').is(':checked')) {
+                workType = 'hot_work';
+                $('#optPtwWorkType').val('hot_work');
+            } else if ($('#chkConfinedSpace').is(':checked')) {
+                workType = 'confined_space';
+                $('#optPtwWorkType').val('confined_space');
+            } else if ($('#chkColdWork').is(':checked')) {
+                workType = 'cold_work';
+                $('#optPtwWorkType').val('cold_work');
+            }
+            console.log('Work type fixed from checkboxes:', workType);
+        }
+
         const formData = {
             action: 'create_permit', // Always create for public forms
             description: $('#txtPtwDescription').val(),
             work_area: $('#txtPtwWorkArea').val(),
-            work_type: $('#optPtwWorkType').val(),
+            work_type: workType,
             valid_from: $('#dtPtwValidFrom').val(),
             valid_to: $('#dtPtwValidTo').val(),
             risk_level: $('#optPtwRiskLevel').val(),
@@ -998,6 +1116,8 @@ class PtwForm {
         };
 
         console.log('Form data prepared for public submission:', formData);
+        console.log('Work type value being sent:', formData.work_type);
+        console.log('Workers data being sent:', formData.workers);
         console.log('API URL:', this.apiUrl);
         console.log('Starting public PTW submission process...');
 
@@ -1055,25 +1175,177 @@ class PtwForm {
 
         // Real-time validation for specific fields
         $('#txtPtwDescription').on('blur', function() {
-            if (!$(this).val().trim()) {
+            const value = $(this).val();
+            if (!value || !value.trim()) {
                 $(this).addClass('is-invalid');
                 $('#txtPtwDescriptionErr').text('PTW Description is required');
             }
         });
 
         $('#txtPtwWorkArea').on('blur', function() {
-            if (!$(this).val().trim()) {
+            const value = $(this).val();
+            if (!value || !value.trim()) {
                 $(this).addClass('is-invalid');
                 $('#txtPtwWorkAreaErr').text('Work Area is required');
             }
         });
 
         $('#txtPtwApplicantName').on('blur', function() {
-            if (!$(this).val().trim()) {
+            const value = $(this).val();
+            if (!value || !value.trim()) {
                 $(this).addClass('is-invalid');
                 $('#txtPtwApplicantNameErr').text('Applicant Name is required');
             }
         });
+    }
+
+    fillSampleData() {
+        console.log('Filling form with sample data for testing...');
+        
+        // Basic Information (Section 1)
+        $('#txtPtwDescription').val('Hot work welding operations on main pipeline connections for maintenance upgrade');
+        $('#txtPtwWorkArea').val('Production Area - Block B, Level 2');
+        $('#optPtwWorkType').val('hot_work');
+        
+        // Sync with checkboxes - check the Hot Work checkbox
+        $('#chkHotWork').prop('checked', true);
+        $('#chkColdWork').prop('checked', false);
+        $('#chkConfinedSpace').prop('checked', false);
+        
+        // Trigger the checkbox change event to sync the hidden dropdown
+        $('#chkHotWork').trigger('change');
+        
+        // Also manually call the sync function as backup
+        setTimeout(() => {
+            if (typeof window.updateWorkTypeDropdown === 'function') {
+                window.updateWorkTypeDropdown();
+                console.log('Work type synchronized via Test Insert:', $('#optPtwWorkType').val());
+            } else {
+                console.warn('updateWorkTypeDropdown function not available');
+            }
+        }, 100);
+        
+        // Set valid dates
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        $('#dtPtwValidFrom').val(today.toISOString().split('T')[0]);
+        $('#dtPtwValidTo').val(tomorrow.toISOString().split('T')[0]);
+        
+        // Risk Assessment
+        $('#optPtwRiskLevel').val('high');
+        $('#txtPtwHazards').val('Hot sparks, fire hazard, toxic fumes, burns, electrical shock, confined space risks');
+        $('#txtPtwControlMeasures').val('Fire watch assigned, fire extinguishers ready, proper ventilation, safety barriers installed, emergency response team on standby');
+        
+        // Applicant Information
+        $('#txtPtwApplicantName').val('John Smith');
+        $('#txtPtwApplicantContact').val('+60123456789');
+        $('#txtPtwApplicantDept').val('Maintenance Department');
+        $('#txtPtwContractorCompany').val('ABC Engineering Services Sdn Bhd');
+        $('#txtPtwRemarks').val('Emergency maintenance required due to pipeline leak detected during routine inspection');
+        
+        // Clear existing workers table and add sample workers
+        const tbody = document.querySelector('#workersTable tbody');
+        if (tbody) {
+            tbody.innerHTML = ''; // Clear existing workers
+            
+            // Add sample workers to table
+            const workers = [
+                { name: 'Ahmad bin Abdullah', designation: 'Certified Welder', id: '123456-12-3456' },
+                { name: 'Raj Kumar', designation: 'Fire Watch', id: '234567-23-4567' },
+                { name: 'Wong Wei Ming', designation: 'Safety Supervisor', id: '345678-34-5678' }
+            ];
+            
+            workers.forEach((worker, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><input type="text" class="form-control worker-name" value="${worker.name}" required></td>
+                    <td><input type="text" class="form-control worker-designation" value="${worker.designation}"></td>
+                    <td><input type="text" class="form-control worker-id" value="${worker.id}"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeWorkerRow(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Reset worker counter for JS class consistency  
+        this.workerCounter = 0;
+        
+        // Fill hazardous activities checklist
+        setTimeout(() => {
+            $('#chkHazActivity1').prop('checked', true); // Welding
+            $('#chkHazActivity2').prop('checked', true); // Cutting
+            $('#chkHazActivity3').prop('checked', false); // Grinding
+            $('#chkHazActivity4').prop('checked', true); // Hot tapping
+            $('#chkHazActivity5').prop('checked', false); // Brazing
+            $('#chkHazActivity6').prop('checked', true); // Working at height
+            $('#chkHazActivity7').prop('checked', false); // Confined space
+            $('#chkHazActivity8').prop('checked', true); // Electrical work
+            $('#chkHazActivity9').prop('checked', false); // Chemical handling
+            $('#chkHazActivity10').prop('checked', true); // Heavy lifting
+        }, 100);
+        
+        // Fill PPE checklist
+        setTimeout(() => {
+            $('#ppeHardHat').prop('checked', true);
+            $('#ppeSafetyGlasses').prop('checked', true);
+            $('#ppeHearingProtection').prop('checked', true);
+            $('#ppeRespirator').prop('checked', true);
+            $('#ppeSafetyShoes').prop('checked', true);
+            $('#ppeReflectiveVest').prop('checked', true);
+            $('#ppeFallProtection').prop('checked', true);
+            $('#ppeChemicalGloves').prop('checked', false);
+            $('#ppeFaceShield').prop('checked', true);
+            $('#ppeFireRetardant').prop('checked', true);
+            $('#ppeOthers').prop('checked', true);
+            $('#ppeOthersSpecify').val('Heat-resistant apron, welding helmet with auto-darkening filter');
+        }, 200);
+        
+        // Fill contractor declarations
+        setTimeout(() => {
+            // Declaration 1: Work area isolated
+            $('input[name="declaration1"][value="Yes"]').prop('checked', true);
+            // Declaration 2: Equipment inspected
+            $('input[name="declaration2"][value="Yes"]').prop('checked', true);
+            // Declaration 3: Emergency procedures
+            $('input[name="declaration3"][value="Yes"]').prop('checked', true);
+            // Declaration 4: Workers trained
+            $('input[name="declaration4"][value="Yes"]').prop('checked', true);
+            // Declaration 5: Safety equipment available
+            $('input[name="declaration5"][value="Yes"]').prop('checked', true);
+            // Declaration 6: Environmental considerations
+            $('input[name="declaration6"][value="Yes"]').prop('checked', true);
+            
+            // Contractor confirmation
+            $('#contractorConfirmation').prop('checked', true);
+        }, 300);
+        
+        // Load work-type specific checklist
+        setTimeout(() => {
+            this.loadSpecificChecklistOptimized('hot_work');
+            
+            // After checklist loads, check some items
+            setTimeout(() => {
+                $('.specific-checklist').each(function(index) {
+                    // Check first 4 items as an example
+                    if (index < 4) {
+                        $(this).prop('checked', true);
+                    }
+                });
+            }, 100);
+        }, 400);
+        
+        // Trigger change events to update any dependent fields
+        $('#optPtwWorkType').trigger('change');
+        $('#optPtwRiskLevel').trigger('change');
+        
+        console.log('Sample data filled successfully!');
+        showSuccess('Sample data has been filled in all form fields for testing purposes.');
     }
 }
 

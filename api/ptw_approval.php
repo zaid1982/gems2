@@ -1,0 +1,508 @@
+<?php
+/**
+ * PTW Approval API Endpoint
+ * Handles viewing PTW permits and processing approvals
+ */
+
+// Clean output buffer and suppress warnings that could break JSON
+ob_start();
+error_reporting(0); // Suppress all PHP errors/warnings for clean JSON output
+ini_set('display_errors', 0);
+
+// Set content type to JSON
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle OPTIONS request for CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    ob_end_clean();
+    exit(0);
+}
+
+// Include required files for database access
+try {
+    require_once 'library/constant.php';
+    require_once 'function/db.php';
+    require_once 'function/f_general.php';
+    require_once 'function/f_ptw.php';
+
+    // Initialize classes
+    $constant = new Class_constant();
+    $fn_general = new Class_general();
+    $fn_ptw = new Class_ptw();
+
+    // Set up dependencies
+    $fn_general->__set('constant', $constant);
+    $fn_ptw->__set('constant', $constant);
+    $fn_ptw->__set('fn_general', $fn_general);
+    
+    // Ensure database connection is established
+    Class_db::getInstance()->db_connect();
+    
+} catch (Exception $e) {
+    ob_end_clean();
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to initialize: ' . $e->getMessage()
+    ]);
+    exit;
+}
+
+try {
+    // Clean any output buffer content that might interfere with JSON
+    ob_clean();
+    
+    // Get request data
+    $input = json_decode(file_get_contents('php://input'), true);
+    $action = $input['action'] ?? $_GET['action'] ?? '';
+    
+    switch ($action) {
+        case 'get':
+            handleGetPtw();
+            break;
+            
+        case 'approve':
+            handleApproval($input);
+            break;
+            
+        default:
+            throw new Exception('Invalid action');
+    }
+    
+} catch (Exception $e) {
+    // Clean output buffer before sending error response
+    ob_clean();
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+} finally {
+    ob_end_flush();
+}
+
+/**
+ * Get PTW data for view mode
+ */
+function handleGetPtw() {
+    global $fn_ptw, $fn_general;
+    
+    $ptwId = $_GET['id'] ?? '';
+    
+    if (empty($ptwId)) {
+        throw new Exception('PTW ID is required');
+    }
+    
+    try {
+        // Ensure database connection is active
+        $db = Class_db::getInstance();
+        
+        // Try to get permit by ID (numeric) or permit number (string)
+        $permit_data = null;
+        
+        if (is_numeric($ptwId)) {
+            // Get by permit ID - query directly from database
+            $permits = $db->db_select('ptw_permit', array(
+                'ptw_permit_id' => $ptwId
+            ));
+            
+            if (!empty($permits)) {
+                $permit_data = $permits[0];
+                // Get workers separately
+                $workers = $db->db_select('ptw_worker', array(
+                    'ptw_permit_id' => $ptwId
+                ), 'ptw_worker_id');
+                $permit_data['workers'] = $workers;
+            }
+        } else {
+            // Search by permit number
+            $permits = $db->db_select('ptw_permit', array(
+                'ptw_permit_number' => $ptwId
+            ));
+            
+            if (!empty($permits)) {
+                $permit_data = $permits[0];
+                // Get workers separately
+                $workers = $db->db_select('ptw_worker', array(
+                    'ptw_permit_id' => $permit_data['ptw_permit_id']
+                ), 'ptw_worker_id');
+                $permit_data['workers'] = $workers;
+            }
+        }
+        
+        if (!$permit_data) {
+            // Check if any permits exist to debug database connectivity
+            $allPermits = $db->db_select('ptw_permit', array(), 'ptw_permit_id DESC LIMIT 3');
+            
+            echo json_encode([
+                'success' => false,
+                'message' => 'PTW not found',
+                'searched_id' => $ptwId,
+                'available_permits' => array_map(function($p) {
+                    return ['id' => $p['ptw_permit_id'], 'number' => $p['ptw_permit_number']];
+                }, $allPermits)
+            ]);
+        } else {
+            // Transform database data to frontend format
+            $transformed_data = transformDatabaseToFrontend($permit_data);
+            echo json_encode([
+                'success' => true,
+                'data' => $transformed_data,
+                'source' => 'database'
+            ]);
+        }
+        
+    } catch (Exception $e) {
+        // Return error with debugging information
+        echo json_encode([
+            'success' => false,
+            'message' => 'Database error: ' . $e->getMessage(),
+            'searched_id' => $ptwId,
+            'fallback_note' => 'Could not connect to database'
+        ]);
+    }
+}
+
+/**
+ * Transform database fields to frontend expected format
+ */
+function transformDatabaseToFrontend($dbData) {
+    // Map database fields to frontend field names based on actual database schema
+    $transformed = array(
+        'id' => $dbData['ptw_permit_number'] ?? $dbData['ptw_permit_id'],
+        'applicant_name' => $dbData['ptw_applicant_name'] ?? '',
+        'contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? 'Not specified',
+        'contractor_company' => $dbData['ptw_contractor_company'] ?? '',
+        'work_area' => $dbData['ptw_work_area'] ?? '',
+        'work_type' => mapWorkType($dbData['ptw_work_type'] ?? 'Cold Work'),
+        'risk_level' => strtolower($dbData['ptw_risk_level'] ?? 'medium'),
+        'work_description' => $dbData['ptw_permit_description'] ?? '',
+        'applicant_contact' => $dbData['ptw_applicant_contact'] ?? '',
+        'staff_nric' => $dbData['ptw_staff_nric'] ?? 'N/A',
+        'supervisor_contact' => $dbData['ptw_supervisor_contact'] ?? '',
+        'identification_no' => $dbData['ptw_identification_no'] ?? '',
+        'valid_from' => formatDate($dbData['ptw_valid_from']),
+        'valid_to' => formatDate($dbData['ptw_valid_to']),
+        'level' => $dbData['ptw_level'] ?? 'Ground Level',
+        'remarks' => $dbData['ptw_remarks'] ?? '',
+        'work_duration' => $dbData['ptw_work_duration'] ?? '',
+        'hazards' => $dbData['ptw_hazards'] ?? '',
+        'control_measures' => $dbData['ptw_control_measures'] ?? '',
+        'applicant_company_dept' => $dbData['ptw_applicant_company_dept'] ?? ''
+    );
+    
+    // Handle workers data
+    if (isset($dbData['workers']) && is_array($dbData['workers'])) {
+        $transformed['workers'] = array();
+        foreach ($dbData['workers'] as $worker) {
+            $transformed['workers'][] = array(
+                'name' => $worker['worker_name'] ?? '',
+                'role' => $worker['worker_role'] ?? 'Worker',
+                'designation' => $worker['worker_designation'] ?? 'Worker',
+                'identification' => $worker['worker_identification'] ?? ($worker['worker_ic_number'] ?? ''),
+                'contact_number' => $worker['worker_phone_number'] ?? '',
+                'company' => $worker['worker_company'] ?? '',
+                'is_certified' => isset($worker['is_certified']) ? (bool)$worker['is_certified'] : false
+            );
+        }
+    } else {
+        $transformed['workers'] = array();
+    }
+    
+    // Handle work type specific data based on type
+    $workType = $transformed['work_type'];
+    if (strpos($workType, 'hot') !== false) {
+        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? '') ?: 'welding';
+        $transformed['hot_precautions'] = 'Standard hot work precautions';
+    } elseif (strpos($workType, 'confined') !== false) {
+        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
+        $transformed['cs_precautions'] = 'Standard confined space precautions';
+    } else {
+        $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
+        $transformed['cold_precautions'] = 'Standard safety precautions';
+    }
+    
+    // Supporting documents - default for now
+    $transformed['supporting_docs'] = 'riskAssessment,methodStatement';
+    
+    return $transformed;
+}
+
+/**
+ * Map database work type to frontend format
+ */
+function mapWorkType($dbWorkType) {
+    $workTypeMap = array(
+        'Hot Work' => 'hot_work',
+        'Cold Work' => 'cold_work',
+        'Confined Space' => 'confined_space',
+        'Electrical' => 'electrical',
+        'Height Work' => 'height_work',
+        'Excavation' => 'excavation',
+        'Chemical' => 'chemical',
+        'Lifting' => 'lifting',
+        'Mechanical' => 'mechanical'
+    );
+    
+    return $workTypeMap[$dbWorkType] ?? 'cold_work';
+}
+
+/**
+ * Parse checklist data (could be JSON or comma-separated)
+ */
+function parseChecklistData($checklistData) {
+    if (empty($checklistData)) {
+        return '';
+    }
+    
+    // Try to decode as JSON first
+    $decoded = json_decode($checklistData, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return implode(',', array_keys(array_filter($decoded)));
+    }
+    
+    // Return as is if not JSON
+    return $checklistData;
+}
+
+/**
+ * Format date for frontend
+ */
+function formatDate($dateString) {
+    if (empty($dateString)) {
+        return date('Y-m-d');
+    }
+    return date('Y-m-d', strtotime($dateString));
+}
+
+/**
+ * Create sample PTW data for testing/fallback
+ */
+function createSamplePtwData($ptwId) {
+    // TODO: Replace with actual database query
+    // This is sample data for demonstration
+    $sampleData = [
+        'PTW-2025-001' => [
+            'id' => 'PTW-2025-001',
+            'applicant_name' => 'John Doe',
+            'contractor_supervisor' => 'Mike Wilson',
+            'contractor_company' => 'ABC Engineering Sdn Bhd',
+            'work_area' => 'Building 3, Level 2, Pump Room',
+            'work_type' => 'hot_work',
+            'risk_level' => 'high',
+            'work_description' => 'Welding repair on damaged pipeline flange connection',
+            'applicant_contact' => '012-345-6789',
+            'staff_nric' => 'STF001234',
+            'supervisor_contact' => '012-987-6543',
+            'identification_no' => 'PKK-12345-A',
+            'valid_from' => '2025-08-16',
+            'valid_to' => '2025-08-17',
+            'level' => 'Level 2',
+            'workers' => [
+                ['name' => 'Ahmad Ali', 'designation' => 'Welder', 'identification' => '123456-78-9012'],
+                ['name' => 'Siti Noor', 'designation' => 'Helper', 'identification' => '234567-89-0123']
+            ],
+            'hot_activities' => 'welding,cutting,grinding',
+            'hot_precautions' => 'Fire extinguisher available, firewatch assigned, adequate ventilation',
+            'supporting_docs' => 'riskAssessment,methodStatement,trainingRecords',
+            'remarks' => 'High priority repair work'
+        ],
+        'PTW-2025-002' => [
+            'id' => 'PTW-2025-002',
+            'applicant_name' => 'Jane Smith',
+            'contractor_supervisor' => 'David Lee',
+            'contractor_company' => 'Safety First Solutions',
+            'work_area' => 'Tank Farm Area A',
+            'work_type' => 'confined_space',
+            'risk_level' => 'critical',
+            'work_description' => 'Internal tank inspection and cleaning',
+            'applicant_contact' => '013-456-7890',
+            'staff_nric' => 'STF002345',
+            'supervisor_contact' => '013-876-5432',
+            'identification_no' => 'CS-67890-B',
+            'valid_from' => '2025-08-17',
+            'valid_to' => '2025-08-18',
+            'level' => 'Ground Level',
+            'workers' => [
+                ['name' => 'Raj Kumar', 'designation' => 'Confined Space Specialist', 'identification' => '345678-90-1234'],
+                ['name' => 'Lisa Wong', 'designation' => 'Safety Attendant', 'identification' => '456789-01-2345']
+            ],
+            'cs_activities' => 'respiratoryAtmosphere,gasMonitoring,ventilation,entryAttendant',
+            'cs_precautions' => 'Continuous gas monitoring, emergency rescue equipment ready, dedicated attendant',
+            'supporting_docs' => 'riskAssessment,methodStatement,equipmentCerts,trainingRecords',
+            'remarks' => 'Critical confined space entry - maximum safety protocols required'
+        ],
+        // Add sample data that matches supervisor dashboard permit numbers
+        'PTW-SPV-001' => [
+            'id' => 'PTW-SPV-001',
+            'applicant_name' => 'Ahmad Hassan',
+            'contractor_supervisor' => 'Robert Smith',
+            'contractor_company' => 'Elite Engineering Solutions',
+            'work_area' => 'Production Line A, Section 2',
+            'work_type' => 'hot_work',
+            'risk_level' => 'medium',
+            'work_description' => 'Repair welding on conveyor support structure',
+            'applicant_contact' => '014-567-8901',
+            'staff_nric' => 'STF003456',
+            'supervisor_contact' => '014-765-4321',
+            'identification_no' => 'EE-12345-C',
+            'valid_from' => '2025-08-18',
+            'valid_to' => '2025-08-19',
+            'level' => 'Ground Level',
+            'workers' => [
+                ['name' => 'Hassan Ali', 'designation' => 'Senior Welder', 'identification' => '567890-12-3456'],
+                ['name' => 'Kumar Singh', 'designation' => 'Safety Observer', 'identification' => '678901-23-4567']
+            ],
+            'hot_activities' => 'welding,grinding',
+            'hot_precautions' => 'Fire watch assigned, area cleared of flammables, proper ventilation',
+            'supporting_docs' => 'riskAssessment,methodStatement,trainingRecords,equipmentCerts',
+            'remarks' => 'Standard repair work with medium risk level'
+        ]
+    ];
+    
+    // Handle both exact matches and partial matches for compatibility
+    $matchedData = null;
+    if (isset($sampleData[$ptwId])) {
+        $matchedData = $sampleData[$ptwId];
+    } else {
+        // Try to find partial matches for supervisor dashboard compatibility
+        foreach ($sampleData as $key => $data) {
+            if (strpos($key, $ptwId) !== false || strpos($ptwId, $key) !== false) {
+                $matchedData = $data;
+                break;
+            }
+        }
+    }
+    
+    if (!$matchedData) {
+        // If no sample data found, create generic data structure
+        $matchedData = [
+            'id' => $ptwId,
+            'applicant_name' => 'Sample Applicant',
+            'contractor_supervisor' => 'Sample Supervisor',
+            'contractor_company' => 'Sample Company Ltd',
+            'work_area' => 'Sample Work Area',
+            'work_type' => 'cold_work',
+            'risk_level' => 'medium',
+            'work_description' => 'Sample work description for permit ' . $ptwId,
+            'applicant_contact' => '012-000-0000',
+            'staff_nric' => 'STF000000',
+            'supervisor_contact' => '012-111-1111',
+            'identification_no' => 'ID-000000',
+            'valid_from' => date('Y-m-d'),
+            'valid_to' => date('Y-m-d', strtotime('+1 day')),
+            'level' => 'Ground Level',
+            'workers' => [
+                ['name' => 'Sample Worker', 'designation' => 'General Worker', 'identification' => '000000-00-0000']
+            ],
+            'cold_activities' => 'visualInspection,lockOutTagOut',
+            'cold_precautions' => 'Standard safety precautions applied',
+            'supporting_docs' => 'riskAssessment,methodStatement',
+            'remarks' => 'Sample PTW data for testing - ID: ' . $ptwId
+        ];
+    }
+    
+    return $matchedData;
+}
+
+/**
+ * Handle approval/rejection
+ */
+function handleApproval($input) {
+    $ptwId = $input['id'] ?? '';
+    $role = $input['role'] ?? '';
+    $decision = $input['decision'] ?? '';
+    $comments = $input['comments'] ?? '';
+    $timestamp = $input['timestamp'] ?? date('Y-m-d H:i:s');
+    
+    // Validate input
+    if (empty($ptwId) || empty($role) || empty($decision)) {
+        throw new Exception('Missing required fields');
+    }
+    
+    if (!in_array($role, ['supervisor', 'she', 'facility_manager'])) {
+        throw new Exception('Invalid role');
+    }
+    
+    if (!in_array($decision, ['approved', 'rejected'])) {
+        throw new Exception('Invalid decision');
+    }
+    
+    if ($decision === 'rejected' && empty(trim($comments))) {
+        throw new Exception('Comments are required for rejection');
+    }
+    
+    // TODO: Replace with actual database operations
+    // This would typically involve:
+    // 1. Update PTW status in database
+    // 2. Insert approval record
+    // 3. Send notifications
+    // 4. Update workflow state
+    
+    // Simulate database operation
+    $approvalData = [
+        'ptw_id' => $ptwId,
+        'role' => $role,
+        'decision' => $decision,
+        'comments' => $comments,
+        'timestamp' => $timestamp,
+        'approver_name' => getCurrentUserName($role), // This would come from session/auth
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
+    ];
+    
+    // Log the approval for audit trail
+    error_log('PTW Approval: ' . json_encode($approvalData));
+    
+    echo json_encode([
+        'success' => true,
+        'message' => "PTW {$decision} successfully",
+        'approver_name' => getCurrentUserName($role),
+        'timestamp' => $timestamp,
+        'data' => $approvalData
+    ]);
+}
+
+/**
+ * Get current user name based on role (mock implementation)
+ */
+function getCurrentUserName($role) {
+    // TODO: Replace with actual user authentication system
+    $mockUsers = [
+        'supervisor' => 'Ahmad Supervisor',
+        'she' => 'Sarah SHE Officer',
+        'facility_manager' => 'Robert Facility Manager'
+    ];
+    
+    return $mockUsers[$role] ?? 'Unknown User';
+}
+
+/**
+ * Database operations would go here
+ * Example structure:
+ * 
+ * CREATE TABLE ptw_applications (
+ *     id VARCHAR(50) PRIMARY KEY,
+ *     applicant_name VARCHAR(255),
+ *     status ENUM('draft', 'pending_supervisor', 'pending_she', 'pending_facility_manager', 'approved', 'rejected'),
+ *     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ *     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ *     -- ... other fields
+ * );
+ * 
+ * CREATE TABLE ptw_approvals (
+ *     id INT AUTO_INCREMENT PRIMARY KEY,
+ *     ptw_id VARCHAR(50),
+ *     role ENUM('supervisor', 'she', 'facility_manager'),
+ *     decision ENUM('approved', 'rejected'),
+ *     comments TEXT,
+ *     approver_name VARCHAR(255),
+ *     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ *     ip_address VARCHAR(45),
+ *     user_agent TEXT,
+ *     FOREIGN KEY (ptw_id) REFERENCES ptw_applications(id)
+ * );
+ */
+?>

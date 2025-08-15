@@ -367,7 +367,11 @@ function create_ptw_permit($user_id, $user_site_id) {
             'OTHER' => 'Cold Work', // Default to cold work
             'Hot Work' => 'Hot Work',
             'Cold Work' => 'Cold Work',
-            'Confined Space' => 'Confined Space'
+            'Confined Space' => 'Confined Space',
+            // Add lowercase versions for form compatibility
+            'hot_work' => 'Hot Work',
+            'cold_work' => 'Cold Work',
+            'confined_space' => 'Confined Space'
         ];
         
         $work_type = isset($work_type_mapping[$_POST['work_type']]) 
@@ -401,6 +405,8 @@ function create_ptw_permit($user_id, $user_site_id) {
             'ptw_applicant_contact' => isset($_POST['applicant_contact']) ? trim($_POST['applicant_contact']) : '',
             'ptw_applicant_company_dept' => isset($_POST['applicant_department']) ? trim($_POST['applicant_department']) : '',
             'ptw_work_duration' => isset($_POST['work_duration']) ? trim($_POST['work_duration']) : '',
+            'ptw_hazards' => isset($_POST['hazards']) ? trim($_POST['hazards']) : '',
+            'ptw_control_measures' => isset($_POST['control_measures']) ? trim($_POST['control_measures']) : '',
             'ptw_checklist_cold_work' => isset($_POST['checklist_cold_work']) ? $_POST['checklist_cold_work'] : json_encode([]),
             'ptw_checklist_hot_work' => isset($_POST['checklist_hot_work']) ? $_POST['checklist_hot_work'] : json_encode([]),
             'ptw_checklist_confined_space' => isset($_POST['checklist_confined_space']) ? $_POST['checklist_confined_space'] : json_encode([]),
@@ -454,11 +460,15 @@ function create_ptw_permit($user_id, $user_site_id) {
                             'worker_ic_number' => isset($worker['workerIcNumber']) ? trim($worker['workerIcNumber']) : 
                                                  (isset($worker['ic']) ? trim($worker['ic']) : ''),
                             'worker_phone_number' => isset($worker['workerPhoneNumber']) ? trim($worker['workerPhoneNumber']) : 
-                                                    (isset($worker['phone']) ? trim($worker['phone']) : ''),
+                                                    (isset($worker['phone']) ? trim($worker['phone']) : 
+                                                    (isset($worker['contact_number']) ? trim($worker['contact_number']) : '')),
                             'worker_company' => isset($worker['workerCompany']) ? trim($worker['workerCompany']) : 
                                                (isset($worker['company']) ? trim($worker['company']) : ''),
                             'worker_designation' => isset($worker['workerDesignation']) ? trim($worker['workerDesignation']) : 
                                                    (isset($worker['designation']) ? trim($worker['designation']) : ''),
+                            'worker_role' => isset($worker['role']) ? trim($worker['role']) : '',
+                            'worker_identification' => isset($worker['identification']) ? trim($worker['identification']) : '',
+                            'is_certified' => isset($worker['is_certified']) ? (bool)$worker['is_certified'] : false,
                             'worker_ptw_number' => isset($worker['workerPtwNumber']) ? trim($worker['workerPtwNumber']) : '',
                             'created_by' => $user_id,
                             'created_date' => date('Y-m-d H:i:s')
