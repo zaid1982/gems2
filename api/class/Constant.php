@@ -10,11 +10,11 @@ class Constant {
     public static $dbHost = 'www.metadatasystem.my';
     // public static $dbHost = '10.101.11.71';
     //public static $folderDebug = '../../../logs/gems/debug/';
-    //public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
-    public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
+    public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
+    // public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
     //public static $folderError = '../../../logs/gems/error/';
-    //public static string $folderError = 'C:\xampp\logs\gems\error\\';
-    public static $folderError = '/Applications/XAMPP/logs/gems/error/';
+    public static string $folderError = 'C:\xampp\logs\gems\error\\';
+    // public static $folderError = '/Applications/XAMPP/logs/gems/error/';
     public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
     // public static $url = '//gems.metadatasystem.my/api/';

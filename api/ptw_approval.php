@@ -103,30 +103,36 @@ function handleGetPtw() {
         $permit_data = null;
         
         if (is_numeric($ptwId)) {
-            // Get by permit ID - query directly from database
+            // Get by permit ID - use ptw_permit_id which is the correct column name
             $permits = $db->db_select('ptw_permit', array(
                 'ptw_permit_id' => $ptwId
             ));
             
             if (!empty($permits)) {
                 $permit_data = $permits[0];
+                // Get the actual permit ID for worker lookup
+                $permit_id = $permit_data['ptw_permit_id'] ?? $ptwId;
+                
                 // Get workers separately
                 $workers = $db->db_select('ptw_worker', array(
-                    'ptw_permit_id' => $ptwId
+                    'ptw_permit_id' => $permit_id
                 ), 'ptw_worker_id');
                 $permit_data['workers'] = $workers;
             }
         } else {
-            // Search by permit number
+            // Search by permit number - use ptw_permit_number which is the correct column name
             $permits = $db->db_select('ptw_permit', array(
                 'ptw_permit_number' => $ptwId
             ));
             
             if (!empty($permits)) {
                 $permit_data = $permits[0];
+                // Get the actual permit ID for worker lookup  
+                $permit_id = $permit_data['ptw_permit_id'] ?? $ptwId;
+                
                 // Get workers separately
                 $workers = $db->db_select('ptw_worker', array(
-                    'ptw_permit_id' => $permit_data['ptw_permit_id']
+                    'ptw_permit_id' => $permit_id
                 ), 'ptw_worker_id');
                 $permit_data['workers'] = $workers;
             }
@@ -141,7 +147,10 @@ function handleGetPtw() {
                 'message' => 'PTW not found',
                 'searched_id' => $ptwId,
                 'available_permits' => array_map(function($p) {
-                    return ['id' => $p['ptw_permit_id'], 'number' => $p['ptw_permit_number']];
+                    return [
+                        'id' => $p['ptw_permit_id'], 
+                        'number' => $p['ptw_permit_number']
+                    ];
                 }, $allPermits)
             ]);
         } else {
@@ -169,28 +178,84 @@ function handleGetPtw() {
  * Transform database fields to frontend expected format
  */
 function transformDatabaseToFrontend($dbData) {
+    // Parse additional data from remarks field (stored as JSON with [ADDITIONAL_DATA] prefix)
+    $additional_data = array();
+    $remarks = $dbData['ptw_remarks'] ?? '';
+    if (strpos($remarks, '[ADDITIONAL_DATA]') !== false) {
+        $json_start = strpos($remarks, '[ADDITIONAL_DATA]') + strlen('[ADDITIONAL_DATA]');
+        $json_data = substr($remarks, $json_start);
+        $additional_data = json_decode($json_data, true) ?: array();
+        // Remove the additional data from remarks for display
+        $remarks = trim(substr($remarks, 0, strpos($remarks, '[ADDITIONAL_DATA]')));
+    }
+    
+    // Handle multiple work types
+    $selected_work_types = isset($additional_data['selected_work_types']) ? $additional_data['selected_work_types'] : '';
+    $work_types_array = !empty($selected_work_types) ? explode(',', $selected_work_types) : array();
+    
+    // Map database work type back to frontend format
+    $primary_work_type = mapWorkType($dbData['ptw_work_type'] ?? 'COLD_WORK');
+    
+    // If no work types in additional data, at least include the primary work type
+    if (empty($work_types_array) && !empty($primary_work_type)) {
+        $work_types_array = array($primary_work_type);
+    }
+    
     // Map database fields to frontend field names based on actual database schema
     $transformed = array(
         'id' => $dbData['ptw_permit_number'] ?? $dbData['ptw_permit_id'],
         'applicant_name' => $dbData['ptw_applicant_name'] ?? '',
-        'contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? 'Not specified',
+        'contractor_supervisor' => $additional_data['contractor_supervisor'] ?? '',
         'contractor_company' => $dbData['ptw_contractor_company'] ?? '',
         'work_area' => $dbData['ptw_work_area'] ?? '',
-        'work_type' => mapWorkType($dbData['ptw_work_type'] ?? 'Cold Work'),
+        'work_type' => $primary_work_type, // Primary work type for backward compatibility
+        'work_types_selected' => $work_types_array, // Array of all selected work types
         'risk_level' => strtolower($dbData['ptw_risk_level'] ?? 'medium'),
         'work_description' => $dbData['ptw_permit_description'] ?? '',
         'applicant_contact' => $dbData['ptw_applicant_contact'] ?? '',
-        'staff_nric' => $dbData['ptw_staff_nric'] ?? 'N/A',
-        'supervisor_contact' => $dbData['ptw_supervisor_contact'] ?? '',
-        'identification_no' => $dbData['ptw_identification_no'] ?? '',
+        'staff_nric' => $additional_data['staff_nric'] ?? '',
+        'supervisor_contact' => $additional_data['supervisor_contact'] ?? '',
+        'identification_no' => $additional_data['identification_no'] ?? '',
         'valid_from' => formatDate($dbData['ptw_valid_from']),
         'valid_to' => formatDate($dbData['ptw_valid_to']),
-        'level' => $dbData['ptw_level'] ?? 'Ground Level',
-        'remarks' => $dbData['ptw_remarks'] ?? '',
-        'work_duration' => $dbData['ptw_work_duration'] ?? '',
+        'level' => $additional_data['level'] ?? 'Ground Level',
+        'remarks' => $remarks,
+        'work_duration' => $dbData['ptw_work_duration'] ?? $additional_data['work_duration'] ?? '',
         'hazards' => $dbData['ptw_hazards'] ?? '',
         'control_measures' => $dbData['ptw_control_measures'] ?? '',
-        'applicant_company_dept' => $dbData['ptw_applicant_company_dept'] ?? ''
+        'applicant_company_dept' => $dbData['ptw_applicant_company_dept'] ?? '',
+        
+        // Additional fields from database
+        'status' => $dbData['ptw_status'] ?? 'DRAFT',
+        'created_date' => formatDate($dbData['created_date']),
+        'updated_date' => formatDate($dbData['updated_date']),
+        
+        // Approval status fields
+        'supervisor_approval' => $dbData['ptw_supervisor_approval'] ?? 'PENDING',
+        'supervisor_comments' => $dbData['ptw_supervisor_comments'] ?? '',
+        'supervisor_approval_date' => formatDate($dbData['ptw_supervisor_approval_date']),
+        'she_approval' => $dbData['ptw_she_approval'] ?? 'PENDING',
+        'she_remarks' => $dbData['ptw_she_remarks'] ?? '',
+        'she_approval_date' => formatDate($dbData['approved_she_date']),
+        'fm_approval' => $dbData['ptw_fm_approval'] ?? 'PENDING',
+        'fm_remarks' => $dbData['ptw_fm_remarks'] ?? '',
+        'fm_approval_date' => formatDate($dbData['approved_fm_date']),
+        
+        // Checklist data from additional data (priority) then database columns
+        'checklist_cold_work' => parseChecklistData($additional_data['checklist_cold_work'] ?? $dbData['ptw_checklist_cold_work'] ?? ''),
+        'checklist_hot_work' => parseChecklistData($additional_data['checklist_hot_work'] ?? $dbData['ptw_checklist_hot_work'] ?? ''),
+        'checklist_confined_space' => parseChecklistData($additional_data['checklist_confined_space'] ?? $dbData['ptw_checklist_confined_space'] ?? ''),
+        'hazard_checklist' => parseChecklistData($additional_data['hazard_checklist'] ?? $dbData['ptw_hazard_checklist'] ?? ''),
+        'declaration_checklist' => parseChecklistData($additional_data['declaration_checklist'] ?? $dbData['ptw_declaration_checklist'] ?? ''),
+        'supporting_docs_checklist' => parseChecklistData($additional_data['supporting_docs_checklist'] ?? $dbData['ptw_supporting_docs_checklist'] ?? ''),
+        
+        // Certificate numbers from additional data (priority) then database columns
+        'certificate_numbers' => parseChecklistData($additional_data['certificate_numbers'] ?? $dbData['ptw_certificate_numbers'] ?? ''),
+        
+        // Site and user info
+        'site_id' => $dbData['site_id'] ?? '',
+        'created_by' => $dbData['created_by'] ?? '',
+        'updated_by' => $dbData['updated_by'] ?? ''
     );
     
     // Handle workers data
@@ -214,18 +279,19 @@ function transformDatabaseToFrontend($dbData) {
     // Handle work type specific data based on type
     $workType = $transformed['work_type'];
     if (strpos($workType, 'hot') !== false) {
-        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? '') ?: 'welding';
+        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? $additional_data['checklist_hot_work'] ?? '') ?: 'welding';
         $transformed['hot_precautions'] = 'Standard hot work precautions';
     } elseif (strpos($workType, 'confined') !== false) {
-        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
+        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? $additional_data['checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
         $transformed['cs_precautions'] = 'Standard confined space precautions';
     } else {
-        $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
+        $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? $additional_data['checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
         $transformed['cold_precautions'] = 'Standard safety precautions';
     }
     
-    // Supporting documents - default for now
-    $transformed['supporting_docs'] = 'riskAssessment,methodStatement';
+    // Supporting documents - extract from database first, then additional data
+    $supporting_docs_data = parseChecklistData($dbData['ptw_supporting_docs_checklist'] ?? $additional_data['supporting_docs_checklist'] ?? '');
+    $transformed['supporting_docs'] = $supporting_docs_data ?: 'riskAssessment,methodStatement';
     
     return $transformed;
 }
@@ -235,6 +301,18 @@ function transformDatabaseToFrontend($dbData) {
  */
 function mapWorkType($dbWorkType) {
     $workTypeMap = array(
+        // Database ENUM values
+        'HOT_WORK' => 'hot_work',
+        'COLD_WORK' => 'cold_work', 
+        'CONFINED_SPACE' => 'confined_space',
+        'ELECTRICAL' => 'electrical',
+        'HEIGHT_WORK' => 'height_work',
+        'EXCAVATION' => 'excavation',
+        'CHEMICAL' => 'chemical',
+        'LIFTING' => 'lifting',
+        'MECHANICAL' => 'mechanical',
+        'OTHER' => 'cold_work',
+        // Legacy string values (for backward compatibility)
         'Hot Work' => 'hot_work',
         'Cold Work' => 'cold_work',
         'Confined Space' => 'confined_space',
@@ -250,20 +328,47 @@ function mapWorkType($dbWorkType) {
 }
 
 /**
- * Parse checklist data (could be JSON or comma-separated)
+ * Parse checklist data (could be JSON, comma-separated, or array)
  */
 function parseChecklistData($checklistData) {
     if (empty($checklistData)) {
         return '';
     }
     
+    // If it's already an array, convert to comma-separated string
+    if (is_array($checklistData)) {
+        return implode(',', array_keys(array_filter($checklistData)));
+    }
+    
     // Try to decode as JSON first
     $decoded = json_decode($checklistData, true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-        return implode(',', array_keys(array_filter($decoded)));
+        // Handle different JSON structures
+        if (isset($decoded[0]) && is_array($decoded[0])) {
+            // Array of objects
+            return implode(',', array_column($decoded, 'value'));
+        } else {
+            // Key-value pairs, return keys of truthy values
+            $selected = array_keys(array_filter($decoded, function($value) {
+                return $value === true || $value === 'true' || $value === 'yes' || $value === 1 || $value === '1';
+            }));
+            return implode(',', $selected);
+        }
     }
     
-    // Return as is if not JSON
+    // If it's a JSON string nested inside a string (like the database data), try to decode again
+    if (is_string($checklistData) && (strpos($checklistData, '{') === 0 || strpos($checklistData, '[') === 0)) {
+        // Try double decoding for nested JSON strings
+        $double_decoded = json_decode($checklistData, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($double_decoded)) {
+            $selected = array_keys(array_filter($double_decoded, function($value) {
+                return $value === true || $value === 'true' || $value === 'yes' || $value === 1 || $value === '1';
+            }));
+            return implode(',', $selected);
+        }
+    }
+    
+    // Return as is if not JSON (could be comma-separated string)
     return $checklistData;
 }
 

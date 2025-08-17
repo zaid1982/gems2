@@ -496,6 +496,19 @@ class PtwForm {
         $('#txtPtwContractorCompany').val(data.ptw_contractor_company || data.contractor_company || '');
         $('#txtPtwRemarks').val(data.ptw_remarks || data.remarks || '');
 
+        // Enhanced applicant/contractor fields
+        $('#txtContractorSupervisor').val(data.ptw_contractor_supervisor || data.contractor_supervisor || '');
+        $('#txtStaffNric').val(data.ptw_staff_nric || data.staff_nric || '');
+        $('#txtSupervisorContact').val(data.ptw_supervisor_contact || data.supervisor_contact || '');
+        $('#txtIdentificationNo').val(data.ptw_identification_no || data.identification_no || '');
+        $('#txtLevel').val(data.ptw_level || data.level || '');
+        $('#txtWorkDuration').val(data.ptw_work_duration || data.work_duration || '');
+
+        // Load multiple work types
+        if (data.ptw_work_types || data.work_types_selected) {
+            this.loadMultipleWorkTypes(data.ptw_work_types || data.work_types_selected);
+        }
+
         // Load workers if available
         if (data.workers && data.workers.length > 0) {
             $('#workersContainer').empty();
@@ -519,7 +532,60 @@ class PtwForm {
         console.log('PTW form populated successfully:', data);
     }
 
+    /**
+     * Load multiple work types from saved data
+     */
+    loadMultipleWorkTypes(workTypesData) {
+        try {
+            let workTypes = [];
+            
+            // Handle different data formats
+            if (typeof workTypesData === 'string') {
+                if (workTypesData.includes(',')) {
+                    // Comma-separated string: "cold_work,hot_work,confined_space"
+                    workTypes = workTypesData.split(',').map(type => type.trim());
+                } else {
+                    // JSON string
+                    try {
+                        workTypes = JSON.parse(workTypesData);
+                    } catch (e) {
+                        workTypes = [workTypesData];
+                    }
+                }
+            } else if (Array.isArray(workTypesData)) {
+                workTypes = workTypesData;
+            }
+
+            // Check the appropriate work type checkboxes using correct IDs
+            workTypes.forEach(workType => {
+                let checkboxId = '';
+                switch(workType) {
+                    case 'cold_work':
+                        checkboxId = 'chkColdWork';
+                        break;
+                    case 'hot_work':
+                        checkboxId = 'chkHotWork';
+                        break;
+                    case 'confined_space':
+                        checkboxId = 'chkConfinedSpace';
+                        break;
+                }
+                
+                if (checkboxId) {
+                    $(`#${checkboxId}`).prop('checked', true);
+                    console.log(`Checked work type: ${workType} (${checkboxId})`);
+                }
+            });
+
+            console.log('Loaded multiple work types:', workTypes);
+        } catch (error) {
+            console.error('Error loading multiple work types:', error);
+        }
+    }
+
     loadChecklistFromPtwData(data) {
+        console.log('Loading checklist data from PTW:', data);
+
         // Load hazard checklist if available
         if (data.ptw_hazard_checklist) {
             try {
@@ -530,13 +596,95 @@ class PtwForm {
             }
         }
 
-        // Load work-type specific checklists
-        if (data.ptw_checklist_hot_work && data.ptw_work_type === 'HOT_WORK') {
+        // Load hot work checklist
+        if (data.ptw_checklist_hot_work) {
             try {
                 const hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
-                // Apply hot work checklist data
+                if (Array.isArray(hotWorkData)) {
+                    hotWorkData.forEach(itemId => {
+                        $(`#chkHotWork_${itemId}`).prop('checked', true);
+                    });
+                }
+                console.log('Loaded hot work checklist:', hotWorkData);
             } catch (e) {
                 console.error('Error parsing hot work checklist:', e);
+            }
+        }
+
+        // Load cold work checklist
+        if (data.ptw_checklist_cold_work) {
+            try {
+                const coldWorkData = JSON.parse(data.ptw_checklist_cold_work);
+                if (Array.isArray(coldWorkData)) {
+                    coldWorkData.forEach(itemId => {
+                        $(`#chkColdWork_${itemId}`).prop('checked', true);
+                    });
+                }
+                console.log('Loaded cold work checklist:', coldWorkData);
+            } catch (e) {
+                console.error('Error parsing cold work checklist:', e);
+            }
+        }
+
+        // Load confined space checklist
+        if (data.ptw_checklist_confined_space) {
+            try {
+                const confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
+                if (Array.isArray(confinedSpaceData)) {
+                    confinedSpaceData.forEach(itemId => {
+                        $(`#chkConfinedSpace_${itemId}`).prop('checked', true);
+                    });
+                }
+                console.log('Loaded confined space checklist:', confinedSpaceData);
+            } catch (e) {
+                console.error('Error parsing confined space checklist:', e);
+            }
+        }
+
+        // Load declaration checklist
+        if (data.ptw_declaration_checklist) {
+            try {
+                const declarationData = JSON.parse(data.ptw_declaration_checklist);
+                Object.keys(declarationData).forEach(key => {
+                    const value = declarationData[key];
+                    if (key === 'contractorConfirmation') {
+                        $(`#chkContractorConfirmation`).prop('checked', value === true || value === 'true');
+                    } else {
+                        // Handle yes/no declarations
+                        $(`input[name="${key}"][value="${value}"]`).prop('checked', true);
+                    }
+                });
+                console.log('Loaded declaration checklist:', declarationData);
+            } catch (e) {
+                console.error('Error parsing declaration checklist:', e);
+            }
+        }
+
+        // Load supporting documents checklist
+        if (data.ptw_supporting_docs_checklist) {
+            try {
+                const supportingDocsData = JSON.parse(data.ptw_supporting_docs_checklist);
+                if (Array.isArray(supportingDocsData)) {
+                    supportingDocsData.forEach(docId => {
+                        $(`#chkSupportingDoc_${docId}`).prop('checked', true);
+                    });
+                }
+                console.log('Loaded supporting docs checklist:', supportingDocsData);
+            } catch (e) {
+                console.error('Error parsing supporting docs checklist:', e);
+            }
+        }
+
+        // Load certificate numbers
+        if (data.ptw_certificate_numbers) {
+            try {
+                const certificateData = JSON.parse(data.ptw_certificate_numbers);
+                Object.keys(certificateData).forEach(key => {
+                    $(`#txt${key.charAt(0).toUpperCase() + key.slice(1)}`).val(certificateData[key]);
+                });
+                console.log('Loaded certificate numbers:', certificateData);
+            } catch (e) {
+                console.error('Error parsing certificate numbers:', e);
             }
         }
 

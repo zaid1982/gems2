@@ -39,26 +39,49 @@ try {
      * @return string Unique permit number
      */
     function generateUniquePtwNumber() {
-        $timestamp = date('YmdHis'); // YYYYMMDDhhmmss format
-        $permit_number = 'PTW' . $timestamp;
+        $max_attempts = 10;
+        $attempt = 0;
         
-        // Add microseconds to ensure uniqueness even for rapid submissions
-        $microseconds = substr(microtime(), 2, 2); // Get 2 digits of microseconds
-        $permit_number .= $microseconds;
-        
-        // Optional: Verify uniqueness against database
-        try {
-            $existing = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_number' => $permit_number));
-            if (count($existing) > 0) {
-                // If somehow duplicate, add random suffix
-                $permit_number .= rand(10, 99);
+        do {
+            $attempt++;
+            
+            // Generate base timestamp
+            $timestamp = date('YmdHis'); // YYYYMMDDhhmmss format
+            
+            // Add microseconds for additional uniqueness
+            $microseconds = substr(microtime(), 2, 3); // Get 3 digits of microseconds
+            
+            // Add random component to ensure uniqueness
+            $random = rand(100, 999);
+            
+            $permit_number = 'PTW' . $timestamp . $microseconds . $random;
+            
+            // Check for uniqueness in database
+            try {
+                $db = Class_db::getInstance();
+                $existing = $db->db_select('ptw_permit', array('ptw_permit_number' => $permit_number));
+                
+                if (empty($existing)) {
+                    // Unique number found
+                    return $permit_number;
+                }
+                
+                // If duplicate found, wait a tiny bit and try again
+                usleep(1000); // 1ms delay
+                
+            } catch (Exception $e) {
+                // If database check fails, log error and return the generated number
+                error_log("PTW API: Could not verify permit number uniqueness (attempt $attempt): " . $e->getMessage());
+                return $permit_number;
             }
-        } catch (Exception $e) {
-            // If database check fails, continue with the generated number
-            error_log("PTW API: Could not verify permit number uniqueness: " . $e->getMessage());
-        }
+            
+        } while ($attempt < $max_attempts);
         
-        return $permit_number;
+        // If we couldn't generate a unique number after max attempts, add timestamp suffix
+        $fallback_number = 'PTW' . date('YmdHis') . microtime(true) . rand(1000, 9999);
+        error_log("PTW API: Used fallback permit number generation: $fallback_number");
+        
+        return $fallback_number;
     }
     $fn_ptw->__set('fn_task', $fn_task);
     $fn_ptw->__set('fn_email', $fn_email);
@@ -324,7 +347,7 @@ function get_ptw_data($user_id, $user_site_id) {
 }
 
 function create_ptw_permit($user_id, $user_site_id) {
-    global $fn_general, $fn_ptw, $is_transaction;
+    global $fn_general, $fn_ptw, $is_transaction, $api_name;
     
     error_log('PTW API: create_ptw_permit function called');
     error_log('PTW API: User ID: ' . $user_id . ', Site ID: ' . $user_site_id);
@@ -353,30 +376,38 @@ function create_ptw_permit($user_id, $user_site_id) {
         
         error_log("PTW API: Generated permit number: " . $permit_number);
         
-        // Map work type from form to database enum (limited to 3 types in DB)
+        // Handle multiple work types - store all selected types in additional data
+        $selected_work_types = isset($_POST['work_types_selected']) ? $_POST['work_types_selected'] : '';
+        $primary_work_type = isset($_POST['work_type']) ? $_POST['work_type'] : '';
+        
+        // Map primary work type from form to database enum (for backward compatibility)
         $work_type_mapping = [
-            'HOT_WORK' => 'Hot Work',
-            'COLD_WORK' => 'Cold Work', 
-            'CONFINED_SPACE' => 'Confined Space',
-            'ELECTRICAL' => 'Cold Work', // Map to closest equivalent
-            'MECHANICAL' => 'Cold Work', // Map to closest equivalent
-            'HEIGHT_WORK' => 'Cold Work', // Map to closest equivalent
-            'EXCAVATION' => 'Cold Work', // Map to closest equivalent
-            'CHEMICAL' => 'Hot Work', // Map to closest equivalent (needs special handling)
-            'LIFTING' => 'Cold Work', // Map to closest equivalent
-            'OTHER' => 'Cold Work', // Default to cold work
-            'Hot Work' => 'Hot Work',
-            'Cold Work' => 'Cold Work',
-            'Confined Space' => 'Confined Space',
+            'HOT_WORK' => 'HOT_WORK',
+            'COLD_WORK' => 'COLD_WORK', 
+            'CONFINED_SPACE' => 'CONFINED_SPACE',
+            'ELECTRICAL' => 'COLD_WORK', // Map to closest equivalent
+            'MECHANICAL' => 'COLD_WORK', // Map to closest equivalent
+            'HEIGHT_WORK' => 'COLD_WORK', // Map to closest equivalent
+            'EXCAVATION' => 'COLD_WORK', // Map to closest equivalent
+            'CHEMICAL' => 'HOT_WORK', // Map to closest equivalent (needs special handling)
+            'LIFTING' => 'COLD_WORK', // Map to closest equivalent
+            'OTHER' => 'COLD_WORK', // Default to cold work
+            'Hot Work' => 'HOT_WORK',
+            'Cold Work' => 'COLD_WORK',
+            'Confined Space' => 'CONFINED_SPACE',
             // Add lowercase versions for form compatibility
-            'hot_work' => 'Hot Work',
-            'cold_work' => 'Cold Work',
-            'confined_space' => 'Confined Space'
+            'hot_work' => 'HOT_WORK',
+            'cold_work' => 'COLD_WORK',
+            'confined_space' => 'CONFINED_SPACE'
         ];
         
-        $work_type = isset($work_type_mapping[$_POST['work_type']]) 
-            ? $work_type_mapping[$_POST['work_type']] 
-            : $_POST['work_type'];
+        // Use primary work type for database enum field
+        $work_type = isset($work_type_mapping[$primary_work_type]) 
+            ? $work_type_mapping[$primary_work_type] 
+            : 'COLD_WORK'; // Default fallback
+            
+        error_log("PTW API: Primary work type: $primary_work_type -> $work_type");
+        error_log("PTW API: All selected work types: $selected_work_types");
         
         // Convert date format if needed (from YYYY-MM-DD to YYYY-MM-DD HH:MM:SS)
         $valid_from = $_POST['valid_from'];
@@ -389,8 +420,11 @@ function create_ptw_permit($user_id, $user_site_id) {
         if (strlen($valid_to) == 10) {
             $valid_to .= ' 17:00:00';
         }
-        
-        // Prepare permit data
+
+        // Use original remarks as-is since we now store additional data in proper database fields
+        $combined_remarks = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
+
+        // Prepare comprehensive permit data with all enhanced fields
         $permit_data = array(
             'ptw_permit_number' => $permit_number,
             'ptw_permit_description' => trim($_POST['description']),
@@ -400,27 +434,112 @@ function create_ptw_permit($user_id, $user_site_id) {
             'ptw_valid_from' => $valid_from,
             'ptw_valid_to' => $valid_to,
             'ptw_contractor_company' => isset($_POST['contractor_company']) ? trim($_POST['contractor_company']) : '',
-            'ptw_remarks' => isset($_POST['remarks']) ? trim($_POST['remarks']) : '',
+            'ptw_remarks' => $combined_remarks,
             'ptw_applicant_name' => trim($_POST['applicant_name']),
             'ptw_applicant_contact' => isset($_POST['applicant_contact']) ? trim($_POST['applicant_contact']) : '',
             'ptw_applicant_company_dept' => isset($_POST['applicant_department']) ? trim($_POST['applicant_department']) : '',
-            'ptw_work_duration' => isset($_POST['work_duration']) ? trim($_POST['work_duration']) : '',
             'ptw_hazards' => isset($_POST['hazards']) ? trim($_POST['hazards']) : '',
             'ptw_control_measures' => isset($_POST['control_measures']) ? trim($_POST['control_measures']) : '',
-            'ptw_checklist_cold_work' => isset($_POST['checklist_cold_work']) ? $_POST['checklist_cold_work'] : json_encode([]),
-            'ptw_checklist_hot_work' => isset($_POST['checklist_hot_work']) ? $_POST['checklist_hot_work'] : json_encode([]),
-            'ptw_checklist_confined_space' => isset($_POST['checklist_confined_space']) ? $_POST['checklist_confined_space'] : json_encode([]),
-            'ptw_hazard_checklist' => isset($_POST['checklist_data']) ? $_POST['checklist_data'] : json_encode([]),
-            'ptw_declaration_checklist' => isset($_POST['declaration_checklist']) ? $_POST['declaration_checklist'] : json_encode([]),
             'site_id' => $user_site_id,
             'created_by' => $user_id,
             'created_date' => date('Y-m-d H:i:s')
         );
+
+        // Add enhanced applicant/contractor fields
+        if (isset($_POST['contractor_supervisor']) && !empty(trim($_POST['contractor_supervisor']))) {
+            $permit_data['ptw_contractor_supervisor'] = trim($_POST['contractor_supervisor']);
+        }
+        if (isset($_POST['staff_nric']) && !empty(trim($_POST['staff_nric']))) {
+            $permit_data['ptw_staff_nric'] = trim($_POST['staff_nric']);
+        }
+        if (isset($_POST['supervisor_contact']) && !empty(trim($_POST['supervisor_contact']))) {
+            $permit_data['ptw_supervisor_contact'] = trim($_POST['supervisor_contact']);
+        }
+        if (isset($_POST['identification_no']) && !empty(trim($_POST['identification_no']))) {
+            $permit_data['ptw_identification_no'] = trim($_POST['identification_no']);
+        }
+        if (isset($_POST['level']) && !empty(trim($_POST['level']))) {
+            $permit_data['ptw_level'] = trim($_POST['level']);
+        }
+        if (isset($_POST['work_duration']) && !empty(trim($_POST['work_duration']))) {
+            $permit_data['ptw_work_duration'] = trim($_POST['work_duration']);
+        }
+
+        // Add multiple work types support
+        if (isset($_POST['work_types_selected']) && !empty($_POST['work_types_selected'])) {
+            $permit_data['ptw_work_types'] = $_POST['work_types_selected'];
+        }
+
+        // Add checklist data
+        if (isset($_POST['checklist_data']) && !empty($_POST['checklist_data'])) {
+            $permit_data['ptw_hazard_checklist'] = $_POST['checklist_data'];
+        }
+        if (isset($_POST['checklist_hot_work']) && !empty($_POST['checklist_hot_work'])) {
+            $permit_data['ptw_checklist_hot_work'] = $_POST['checklist_hot_work'];
+        }
+        if (isset($_POST['checklist_cold_work']) && !empty($_POST['checklist_cold_work'])) {
+            $permit_data['ptw_checklist_cold_work'] = $_POST['checklist_cold_work'];
+        }
+        if (isset($_POST['checklist_confined_space']) && !empty($_POST['checklist_confined_space'])) {
+            $permit_data['ptw_checklist_confined_space'] = $_POST['checklist_confined_space'];
+        }
+        if (isset($_POST['declaration_checklist']) && !empty($_POST['declaration_checklist'])) {
+            $permit_data['ptw_declaration_checklist'] = $_POST['declaration_checklist'];
+        }
+        if (isset($_POST['supporting_docs_checklist']) && !empty($_POST['supporting_docs_checklist'])) {
+            $permit_data['ptw_supporting_docs_checklist'] = $_POST['supporting_docs_checklist'];
+        }
+        if (isset($_POST['certificate_numbers']) && !empty($_POST['certificate_numbers'])) {
+            $permit_data['ptw_certificate_numbers'] = $_POST['certificate_numbers'];
+        }
+
+        // Store complete form data for comprehensive processing
+        if (isset($_POST['complete_form_data']) && !empty($_POST['complete_form_data'])) {
+            // Validate JSON before storing
+            $complete_data = json_decode($_POST['complete_form_data'], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $permit_data['ptw_complete_form_data'] = $_POST['complete_form_data'];
+            } else {
+                $fn_general->log_debug('API', $api_name, __LINE__, 'Invalid JSON in complete_form_data: ' . json_last_error_msg());
+            }
+        }
         
-        // Create permit
-        $permit_id = $fn_ptw->create_permit($permit_data);
+        // Log the comprehensive permit data being inserted
+        $fn_general->log_debug('API', $api_name, __LINE__, 'Creating permit with enhanced data: ' . json_encode($permit_data, JSON_PRETTY_PRINT));
         
-        error_log('PTW API: Permit created with ID: ' . $permit_id);
+        // Create permit with better error handling
+        try {
+            $permit_id = $fn_ptw->create_permit($permit_data);
+            
+            if (!$permit_id) {
+                throw new Exception("Failed to create permit - no ID returned");
+            }
+            
+            error_log('PTW API: Permit created successfully with ID: ' . $permit_id);
+            
+        } catch (Exception $e) {
+            // Check if it's a duplicate permit number error
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'uk_ptw_permit_number') !== false) {
+                error_log('PTW API: Duplicate permit number detected, generating new number...');
+                
+                // Generate a new permit number and try again
+                $new_permit_number = generateUniquePtwNumber();
+                $permit_data['ptw_permit_number'] = $new_permit_number;
+                
+                error_log('PTW API: Retrying with new permit number: ' . $new_permit_number);
+                
+                try {
+                    $permit_id = $fn_ptw->create_permit($permit_data);
+                    error_log('PTW API: Permit created successfully on retry with ID: ' . $permit_id);
+                } catch (Exception $retry_error) {
+                    error_log('PTW API: Failed to create permit even on retry: ' . $retry_error->getMessage());
+                    throw $retry_error;
+                }
+            } else {
+                error_log('PTW API: Error creating permit: ' . $e->getMessage());
+                throw $e;
+            }
+        }
         
         // Update status if provided (handle PENDING_APPROVAL vs DRAFT)
         if (isset($_POST['status']) && $_POST['status'] !== 'DRAFT') {
@@ -531,7 +650,8 @@ function update_ptw_permit($user_id, $user_site_id) {
         'ptw_valid_from', 'ptw_valid_to', 'ptw_contractor_company', 'ptw_remarks',
         'ptw_applicant_name', 'ptw_applicant_contact', 'ptw_applicant_company_dept',
         'ptw_work_duration', 'ptw_checklist_cold_work', 'ptw_checklist_hot_work',
-        'ptw_checklist_confined_space', 'ptw_hazard_checklist', 'ptw_declaration_checklist'
+        'ptw_checklist_confined_space', 'ptw_hazard_checklist', 'ptw_declaration_checklist',
+        'ptw_supporting_docs_checklist', 'ptw_certificate_numbers'
     );
     
     foreach ($updatable_fields as $field) {
@@ -825,14 +945,23 @@ function get_supervisor_pending_requests($user_site_id) {
         
         // Add additional supervisor-specific data
         foreach ($permits as &$permit) {
+            // Add debug logging to see what fields are available
+            $fn_general->log_error('API', __FUNCTION__, __LINE__, 
+                "Permit fields available: " . implode(', ', array_keys($permit)));
+            
             // Calculate priority based on various factors
             $permit['priority'] = calculatePriority($permit);
             
             // Check if overdue
             $permit['is_overdue'] = isPermitOverdue($permit);
             
-            // Get applicant details
-            $permit['applicant_details'] = getApplicantDetails($permit['ptw_applicant_id']);
+            // Get applicant details from stored permit data
+            $permit['applicant_details'] = array(
+                'user_full_name' => isset($permit['ptw_applicant_name']) ? $permit['ptw_applicant_name'] : 'Unknown Applicant',
+                'user_email' => '', // Not stored in PTW permits
+                'user_phone' => isset($permit['ptw_applicant_contact']) ? $permit['ptw_applicant_contact'] : '',
+                'company_dept' => isset($permit['ptw_applicant_company_dept']) ? $permit['ptw_applicant_company_dept'] : ''
+            );
         }
         
         return array(
@@ -1149,24 +1278,57 @@ function getApplicantDetails($applicant_id) {
     global $fn_general;
     
     try {
-        // Get user details from sys_user and sys_user_profile tables
-        $query = "SELECT CONCAT(u.user_first_name, ' ', COALESCE(u.user_last_name, '')) as user_full_name, 
-                         p.user_email, 
-                         p.user_contact_no as user_phone 
-                  FROM sys_user u 
-                  LEFT JOIN sys_user_profile p ON u.user_id = p.user_id AND p.user_profile_status = '1'
-                  WHERE u.user_id = ?";
-        $result = Class_db::getInstance()->db_select($query, array($applicant_id));
-        
-        if (!empty($result)) {
-            return $result[0];
+        // Validate applicant_id
+        if (empty($applicant_id)) {
+            $fn_general->log_error('API', __FUNCTION__, __LINE__, 'Empty applicant_id provided');
+            return array(
+                'user_full_name' => 'Invalid User ID',
+                'user_email' => '',
+                'user_phone' => ''
+            );
         }
         
-        return array(
-            'user_full_name' => 'Unknown User',
-            'user_email' => '',
-            'user_phone' => ''
+        // Try to get user basic info first using simple query
+        $user_result = Class_db::getInstance()->db_select('sys_user', array('user_id' => $applicant_id));
+        
+        if (empty($user_result)) {
+            $fn_general->log_error('API', __FUNCTION__, __LINE__, "No user found in sys_user for applicant_id: " . $applicant_id);
+            return array(
+                'user_full_name' => 'Unknown User',
+                'user_email' => '',
+                'user_phone' => ''
+            );
+        }
+        
+        $user = $user_result[0];
+        
+        // Build full name
+        $full_name = trim($user['user_first_name'] . ' ' . (isset($user['user_last_name']) ? $user['user_last_name'] : ''));
+        if (empty($full_name)) {
+            $full_name = 'Unknown User';
+        }
+        
+        // Try to get profile info
+        $profile_result = Class_db::getInstance()->db_select('sys_user_profile', 
+            array('user_id' => $applicant_id, 'user_profile_status' => '1'));
+        
+        $email = '';
+        $phone = '';
+        
+        if (!empty($profile_result)) {
+            $profile = $profile_result[0];
+            $email = isset($profile['user_email']) ? $profile['user_email'] : '';
+            $phone = isset($profile['user_contact_no']) ? $profile['user_contact_no'] : '';
+        }
+        
+        $result = array(
+            'user_full_name' => $full_name,
+            'user_email' => $email,
+            'user_phone' => $phone
         );
+        
+        $fn_general->log_error('API', __FUNCTION__, __LINE__, "Found user data: " . json_encode($result));
+        return $result;
         
     } catch (Exception $ex) {
         $fn_general->log_error('API', __FUNCTION__, __LINE__, $ex->getMessage());

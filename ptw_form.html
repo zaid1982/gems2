@@ -208,7 +208,6 @@
         
         /* Force native dropdown behavior - Override MDB select styling */
         .native-dropdown select,
-        #optPtwWorkType,
         #optPtwRiskLevel {
             /* Force back to native select appearance */
             -webkit-appearance: menulist !important;
@@ -225,15 +224,32 @@
             line-height: 1.5 !important;
             color: #495057 !important;
             
+            /* Ensure visibility and functionality */
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 38px !important;
+            
             /* Ensure click events work */
             pointer-events: auto !important;
             cursor: pointer !important;
             z-index: 1 !important;
             position: relative !important;
+            
+            /* Remove any transforms that might hide the dropdown */
+            transform: none !important;
+            overflow: visible !important;
+        }
+        
+        /* Work type dropdown should remain hidden - URS requires checkboxes only */
+        #optPtwWorkType {
+            display: none !important;
+            visibility: hidden !important;
         }
         
         .native-dropdown select:focus,
-        #optPtwWorkType:focus,
         #optPtwRiskLevel:focus {
             border-color: #4285f4 !important;
             box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25) !important;
@@ -403,11 +419,17 @@
             font-size: 0.85rem;
             color: #1565c0;
             position: relative;
+            z-index: 1000;
         }
         
-        .help-example.show {
-            display: block;
+        .help-example.show,
+        div.help-example.show {
+            display: block !important;
             animation: fadeInDown 0.3s ease;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: auto !important;
+            overflow: visible !important;
         }
         
         .help-example::before {
@@ -436,6 +458,59 @@
             border-radius: 4px;
             margin-top: 6px;
             border-left: 3px solid #2196f3;
+        }
+        
+        /* Validation styling */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .is-valid {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+        
+        .validation-error {
+            color: #dc3545 !important;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .validation-success {
+            color: #28a745 !important;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .form-control.is-invalid:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .form-control.is-valid:focus {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+        
+        .form-check-input.is-invalid {
+            border-color: #dc3545 !important;
+        }
+        
+        .form-check-input.is-invalid:checked {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+        
+        .form-check-input.is-valid {
+            border-color: #28a745 !important;
+        }
+        
+        .form-check-input.is-valid:checked {
+            background-color: #28a745 !important;
+            border-color: #28a745 !important;
         }
         
         @keyframes fadeInDown {
@@ -647,6 +722,373 @@
                 display: none;
             }
         }
+        
+        /* Supporting Documents Section Styling */
+        .documents-section {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .documents-checklist {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .cert-number-input {
+            margin-left: 25px;
+            margin-top: 8px;
+            max-width: 250px;
+        }
+        
+        .cert-number-input input {
+            font-size: 0.9rem;
+            padding: 6px 10px;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #4285f4;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #3367d6;
+            background: #e8f0fe;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #34a853;
+            background: #e8f5e8;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #4285f4;
+            margin-bottom: 15px;
+        }
+        
+        .documents-table {
+            margin-top: 20px;
+        }
+        
+        .documents-table table {
+            background: white;
+            border: 1px solid #dee2e6;
+        }
+        
+        .documents-table th {
+            background: #4285f4;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px 8px;
+        }
+        
+        .documents-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 10px 8px;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .document-actions .btn {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        
+        .file-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .hidden-file-input {
+            display: none;
+        }
+        
+        /* Responsive adjustments for documents section */
+        @media (max-width: 768px) {
+            .documents-table th,
+            .documents-table td {
+                font-size: 0.85rem;
+                padding: 8px 4px;
+            }
+            
+            .file-name {
+                max-width: 120px;
+            }
+            
+            .cert-number-input {
+                margin-left: 0;
+                max-width: 100%;
+            }
+        }
+        
+        /* Work Type Checkboxes - Responsive List Layout */
+        .work-type-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px 0;
+        }
+        
+        .work-type-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .work-type-item:hover {
+            background: #e9ecef;
+            border-color: #4285f4;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .work-type-item .form-check-input {
+            margin-right: 12px;
+            margin-top: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .work-type-item .form-check-label {
+            margin-bottom: 0;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            color: #495057;
+        }
+        
+        .work-type-item:hover .form-check-label {
+            color: #4285f4;
+        }
+        
+        .work-type-item .form-check-input:checked {
+            background-color: #4285f4;
+            border-color: #4285f4;
+        }
+        
+        .work-type-item .form-check-input:checked + .form-check-label {
+            color: #4285f4;
+            font-weight: 600;
+        }
+        
+        /* Success/Error states for work type checkboxes */
+        .work-type-item .form-check-input.is-valid {
+            border-color: #28a745;
+        }
+        
+        .work-type-item .form-check-input.is-valid:checked {
+            background-color: #28a745;
+        }
+        
+        .work-type-item .form-check-input.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        /* Responsive breakpoints for work type checkboxes */
+        @media (min-width: 768px) {
+            .work-type-checkboxes {
+                gap: 15px;
+            }
+            
+            .work-type-item {
+                flex: 1;
+                justify-content: center;
+                text-align: center;
+                min-height: 60px;
+                align-items: center;
+            }
+            
+            .work-type-item .form-check-input {
+                margin-right: 8px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .work-type-checkboxes {
+                gap: 20px;
+            }
+            
+            .work-type-item {
+                padding: 16px 20px;
+                border-radius: 8px;
+            }
+        }
+        
+        /* Universal Checkbox Styling - Applied to all checkboxes */
+        .checkbox-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .checkbox-item:hover {
+            background: #e9ecef;
+            border-color: #4285f4;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        
+        .checkbox-item .form-check-input {
+            margin-right: 12px;
+            margin-top: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-item .form-check-label {
+            margin-bottom: 0;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            color: #495057;
+            line-height: 1.4;
+        }
+        
+        .checkbox-item:hover .form-check-label {
+            color: #4285f4;
+        }
+        
+        .checkbox-item .form-check-input:checked {
+            background-color: #4285f4;
+            border-color: #4285f4;
+        }
+        
+        .checkbox-item .form-check-input:checked + .form-check-label {
+            color: #4285f4;
+            font-weight: 600;
+        }
+        
+        /* Success/Error states for checkbox items */
+        .checkbox-item .form-check-input.is-valid {
+            border-color: #28a745;
+        }
+        
+        .checkbox-item .form-check-input.is-valid:checked {
+            background-color: #28a745;
+        }
+        
+        .checkbox-item .form-check-input.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        /* Compact checkbox grid for large lists */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        
+        @media (min-width: 576px) {
+            .checkbox-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .checkbox-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .checkbox-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+        }
+        
+        /* Smaller checkbox items for grid layout */
+        .checkbox-grid .checkbox-item {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            min-height: 48px;
+        }
+        
+        .checkbox-grid .checkbox-item .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+        }
+        
+        /* Special styling for documents section - better readability */
+        .documents-section .checkbox-grid {
+            gap: 12px;
+            padding: 12px 0;
+        }
+        
+        .documents-section .checkbox-item {
+            padding: 14px 18px;
+            font-size: 1rem;
+            min-height: 52px;
+            border-radius: 8px;
+            line-height: 1.4;
+        }
+        
+        .documents-section .checkbox-item .form-check-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .documents-section .checkbox-item:hover .form-check-label {
+            color: #4285f4;
+        }
+        
+        @media (min-width: 768px) {
+            .documents-section .checkbox-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .documents-section .checkbox-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
     </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -679,6 +1121,15 @@
                 <div class="alert alert-info mb-4">
                     <i class="fas fa-info-circle mr-2"></i>
                     <strong>Need help?</strong> Click the <span class="help-icon" style="display: inline-block; vertical-align: middle; margin: 0 5px;">?</span> icons next to field labels for examples and guidance.
+                    
+                    <!-- Debug: Test Help Button -->
+                    <div style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <small><strong>Debug:</strong> Test help system 
+                        <button type="button" class="btn btn-sm btn-info" onclick="testAllHelpButtons()">Test All Help Buttons</button>
+                        <button type="button" class="btn btn-sm btn-warning ml-2" onclick="validatePTWForm()">Test Validation</button>
+                        <button type="button" class="btn btn-sm btn-secondary ml-2" onclick="clearValidationErrors()">Clear Errors</button>
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -824,24 +1275,18 @@
                                             </select>
                                             
                                             <!-- Visible checkbox interface -->
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="chkColdWork">
-                                                        <label class="form-check-label" for="chkColdWork">Cold Work</label>
-                                                    </div>
+                                            <div class="work-type-checkboxes">
+                                                <div class="form-check checkbox-item">
+                                                    <input type="checkbox" class="form-check-input" id="chkColdWork">
+                                                    <label class="form-check-label" for="chkColdWork">Cold Work</label>
                                                 </div>
-                                                <div class="col-4">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="chkHotWork">
-                                                        <label class="form-check-label" for="chkHotWork">Hot Work</label>
-                                                    </div>
+                                                <div class="form-check checkbox-item">
+                                                    <input type="checkbox" class="form-check-input" id="chkHotWork">
+                                                    <label class="form-check-label" for="chkHotWork">Hot Work</label>
                                                 </div>
-                                                <div class="col-4">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="chkConfinedSpace">
-                                                        <label class="form-check-label" for="chkConfinedSpace">Confined Space</label>
-                                                    </div>
+                                                <div class="form-check checkbox-item">
+                                                    <input type="checkbox" class="form-check-input" id="chkConfinedSpace">
+                                                    <label class="form-check-label" for="chkConfinedSpace">Confined Space</label>
                                                 </div>
                                             </div>
                                             <div class="help-example" id="help-worktype">
@@ -1040,41 +1485,43 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <h6><strong>CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</strong></h6>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldElectricalWork">
-                                                        <label class="form-check-label" for="coldElectricalWork">Electrical Work</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldVisualInspection">
-                                                        <label class="form-check-label" for="coldVisualInspection">Visual Inspection</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldLockOutTagOut">
-                                                        <label class="form-check-label" for="coldLockOutTagOut">Lock Out & Tagged Out</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldFireExtinguisher">
-                                                        <label class="form-check-label" for="coldFireExtinguisher">Fire Extinguisher</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldMainSupplyCutOff">
-                                                        <label class="form-check-label" for="coldMainSupplyCutOff">Main Supply Cut Off</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldWorkingAtHeight">
-                                                        <label class="form-check-label" for="coldWorkingAtHeight">Working at Height</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldExcavationWork">
-                                                        <label class="form-check-label" for="coldExcavationWork">Excavation Work</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldLiftingWork">
-                                                        <label class="form-check-label" for="coldLiftingWork">Lifting Work</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="coldOthers">
-                                                        <label class="form-check-label" for="coldOthers">Others</label>
+                                                    <div class="checkbox-container">
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldElectricalWork">
+                                                            <label class="form-check-label" for="coldElectricalWork">Electrical Work</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldVisualInspection">
+                                                            <label class="form-check-label" for="coldVisualInspection">Visual Inspection</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldLockOutTagOut">
+                                                            <label class="form-check-label" for="coldLockOutTagOut">Lock Out & Tagged Out</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldFireExtinguisher">
+                                                            <label class="form-check-label" for="coldFireExtinguisher">Fire Extinguisher</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldMainSupplyCutOff">
+                                                            <label class="form-check-label" for="coldMainSupplyCutOff">Main Supply Cut Off</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldWorkingAtHeight">
+                                                            <label class="form-check-label" for="coldWorkingAtHeight">Working at Height</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldExcavationWork">
+                                                            <label class="form-check-label" for="coldExcavationWork">Excavation Work</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldLiftingWork">
+                                                            <label class="form-check-label" for="coldLiftingWork">Lifting Work</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="coldOthers">
+                                                            <label class="form-check-label" for="coldOthers">Others</label>
+                                                        </div>
                                                     </div>
                                                     <input type="text" id="coldOthersText" class="form-control mt-2" placeholder="Please specify others...">
                                                 </div>
@@ -1097,56 +1544,60 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <h6><strong>Controls Required</strong></h6>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotGasMonitoring">
-                                                        <label class="form-check-label" for="hotGasMonitoring">Gas monitoring</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotFirewatch">
-                                                        <label class="form-check-label" for="hotFirewatch">Firewatch</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotRemoveFlammables">
-                                                        <label class="form-check-label" for="hotRemoveFlammables">Remove flammable materials</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotFireExtinguisher">
-                                                        <label class="form-check-label" for="hotFireExtinguisher">Fire extinguisher available</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotVentilation">
-                                                        <label class="form-check-label" for="hotVentilation">Adequate ventilation</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="hotBarricades">
-                                                        <label class="form-check-label" for="hotBarricades">Barricades in place</label>
+                                                    <div class="checkbox-container">
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotGasMonitoring">
+                                                            <label class="form-check-label" for="hotGasMonitoring">Gas monitoring</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotFirewatch">
+                                                            <label class="form-check-label" for="hotFirewatch">Firewatch</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotRemoveFlammables">
+                                                            <label class="form-check-label" for="hotRemoveFlammables">Remove flammable materials</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotFireExtinguisher">
+                                                            <label class="form-check-label" for="hotFireExtinguisher">Fire extinguisher available</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotVentilation">
+                                                            <label class="form-check-label" for="hotVentilation">Adequate ventilation</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="hotBarricades">
+                                                            <label class="form-check-label" for="hotBarricades">Barricades in place</label>
+                                                        </div>
                                                     </div>
                                                     
                                                     <div class="mt-3">
                                                         <h6><strong>Type of Hot Work</strong></h6>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotWelding">
-                                                            <label class="form-check-label" for="hotWelding">Welding</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotCutting">
-                                                            <label class="form-check-label" for="hotCutting">Cutting</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotGrinding">
-                                                            <label class="form-check-label" for="hotGrinding">Grinding</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotBrazing">
-                                                            <label class="form-check-label" for="hotBrazing">Brazing</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotSoldering">
-                                                            <label class="form-check-label" for="hotSoldering">Soldering</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="hotOthers">
-                                                            <label class="form-check-label" for="hotOthers">Others</label>
+                                                        <div class="checkbox-container">
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotWelding">
+                                                                <label class="form-check-label" for="hotWelding">Welding</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotCutting">
+                                                                <label class="form-check-label" for="hotCutting">Cutting</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotGrinding">
+                                                                <label class="form-check-label" for="hotGrinding">Grinding</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotBrazing">
+                                                                <label class="form-check-label" for="hotBrazing">Brazing</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotSoldering">
+                                                                <label class="form-check-label" for="hotSoldering">Soldering</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="hotOthers">
+                                                                <label class="form-check-label" for="hotOthers">Others</label>
+                                                            </div>
                                                         </div>
                                                         <input type="text" id="hotOthersText" class="form-control mt-2" placeholder="Please specify others...">
                                                     </div>
@@ -1170,44 +1621,48 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <h6><strong>Entry Condition</strong></h6>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csRespiratoryAtmosphere">
-                                                        <label class="form-check-label" for="csRespiratoryAtmosphere">Respiratory Atmosphere</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csNonRespiratoryAtmosphere">
-                                                        <label class="form-check-label" for="csNonRespiratoryAtmosphere">Non-Respiratory Atmosphere</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csGasMonitoring">
-                                                        <label class="form-check-label" for="csGasMonitoring">Gas Monitoring Required</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csVentilation">
-                                                        <label class="form-check-label" for="csVentilation">Mechanical Ventilation</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csEntryAttendant">
-                                                        <label class="form-check-label" for="csEntryAttendant">Entry Attendant Present</label>
-                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input type="checkbox" class="form-check-input" id="csRescueEquipment">
-                                                        <label class="form-check-label" for="csRescueEquipment">Rescue Equipment Available</label>
+                                                    <div class="checkbox-container">
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csRespiratoryAtmosphere">
+                                                            <label class="form-check-label" for="csRespiratoryAtmosphere">Respiratory Atmosphere</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csNonRespiratoryAtmosphere">
+                                                            <label class="form-check-label" for="csNonRespiratoryAtmosphere">Non-Respiratory Atmosphere</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csGasMonitoring">
+                                                            <label class="form-check-label" for="csGasMonitoring">Gas Monitoring Required</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csVentilation">
+                                                            <label class="form-check-label" for="csVentilation">Mechanical Ventilation</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csEntryAttendant">
+                                                            <label class="form-check-label" for="csEntryAttendant">Entry Attendant Present</label>
+                                                        </div>
+                                                        <div class="form-check checkbox-item">
+                                                            <input type="checkbox" class="form-check-input" id="csRescueEquipment">
+                                                            <label class="form-check-label" for="csRescueEquipment">Rescue Equipment Available</label>
+                                                        </div>
                                                     </div>
                                                     
                                                     <div class="mt-3">
                                                         <h6><strong>Communication Methods</strong></h6>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="csRadio">
-                                                            <label class="form-check-label" for="csRadio">Radio Communication</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="csVisualSignals">
-                                                            <label class="form-check-label" for="csVisualSignals">Visual Signals</label>
-                                                        </div>
-                                                        <div class="form-check mb-2">
-                                                            <input type="checkbox" class="form-check-input" id="csRopeTugging">
-                                                            <label class="form-check-label" for="csRopeTugging">Rope Tugging System</label>
+                                                        <div class="checkbox-container">
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="csRadio">
+                                                                <label class="form-check-label" for="csRadio">Radio Communication</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="csVisualSignals">
+                                                                <label class="form-check-label" for="csVisualSignals">Visual Signals</label>
+                                                            </div>
+                                                            <div class="form-check checkbox-item">
+                                                                <input type="checkbox" class="form-check-input" id="csRopeTugging">
+                                                                <label class="form-check-label" for="csRopeTugging">Rope Tugging System</label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1230,76 +1685,185 @@
                                 
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle mr-2"></i>
-                                    <strong>Document Requirements:</strong> Please ensure all relevant supporting documents are prepared before work commencement.
+                                    <strong>Document Requirements:</strong> Please ensure all relevant supporting documents are prepared and uploaded before work commencement.
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label><strong>Risk Assessment Documents</strong></label>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docRiskAssessment">
-                                                <label class="form-check-label" for="docRiskAssessment">Job Hazard Analysis (JHA) completed</label>
+                                <div class="documents-section">
+                                    <h6 class="mb-3"><strong>Required Documents Checklist (URS Compliant)</strong></h6>
+                                    
+                                    <div class="checkbox-grid">
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="electrical_work_permit" id="docElectricalWork">
+                                            <label class="form-check-label" for="docElectricalWork">1. Electrical Work Permit/Certificate</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="hot_work_permit" id="docHotWork">
+                                            <label class="form-check-label" for="docHotWork">2. Hot Work Permit</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="confined_space_permit" id="docConfinedSpace">
+                                            <label class="form-check-label" for="docConfinedSpace">3. Confined Space Entry Permit</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="height_work_permit" id="docHeightWork">
+                                            <label class="form-check-label" for="docHeightWork">4. Work at Height Permit/Certificate</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="radiation_work_permit" id="docRadiationWork">
+                                            <label class="form-check-label" for="docRadiationWork">5. Radiation Work Permit</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="excavation_work_permit" id="docExcavationWork">
+                                            <label class="form-check-label" for="docExcavationWork">6. Excavation Work Permit</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="crane_lifting_certificate" id="docCraneLifting">
+                                            <label class="form-check-label" for="docCraneLifting">7. Crane/Lifting Operation Certificate</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="chemical_handling_permit" id="docChemicalHandling">
+                                            <label class="form-check-label" for="docChemicalHandling">8. Chemical Handling Permit/MSDS</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="environmental_clearance" id="docEnvironmentalClearing">
+                                            <label class="form-check-label" for="docEnvironmentalClearing">9. Environmental Clearance/Permit</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="safety_training_certificate" id="docSafetyTraining">
+                                            <label class="form-check-label" for="docSafetyTraining">10. Safety Training Certificate</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="medical_fitness_certificate" id="docMedicalFitness">
+                                            <label class="form-check-label" for="docMedicalFitness">11. Medical Fitness Certificate</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="insurance_coverage" id="docInsurance">
+                                            <label class="form-check-label" for="docInsurance">12. Insurance Coverage</label>
+                                        </div>
+                                        
+                                        <div class="form-check checkbox-item">
+                                            <input type="checkbox" class="form-check-input" name="supportingDocs" value="others" id="docOthers">
+                                            <label class="form-check-label" for="docOthers">13. Others (specify)</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Certificate/Permit Numbers Section -->
+                                <div class="documents-section">
+                                    <h6 class="mb-3"><strong>Certificate / Permit Numbers</strong></h6>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="certElectricalWork" class="form-label">Electrical Work Certificate No.:</label>
+                                                <input type="text" class="form-control" id="certElectricalWork" placeholder="Enter certificate number">
                                             </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docMethodStatement">
-                                                <label class="form-check-label" for="docMethodStatement">Method Statement prepared</label>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certHotWork" class="form-label">Hot Work Permit No.:</label>
+                                                <input type="text" class="form-control" id="certHotWork" placeholder="Enter permit number">
                                             </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docSafetyPlan">
-                                                <label class="form-check-label" for="docSafetyPlan">Safety Plan available</label>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certConfinedSpace" class="form-label">Confined Space Permit No.:</label>
+                                                <input type="text" class="form-control" id="certConfinedSpace" placeholder="Enter permit number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certHeightWork" class="form-label">Height Work Certificate No.:</label>
+                                                <input type="text" class="form-control" id="certHeightWork" placeholder="Enter certificate number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certRadiationWork" class="form-label">Radiation Work Permit No.:</label>
+                                                <input type="text" class="form-control" id="certRadiationWork" placeholder="Enter permit number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certExcavationWork" class="form-label">Excavation Work Permit No.:</label>
+                                                <input type="text" class="form-control" id="certExcavationWork" placeholder="Enter permit number">
                                             </div>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label><strong>Personnel Certifications</strong></label>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docTrainingRecords">
-                                                <label class="form-check-label" for="docTrainingRecords">Training records verified</label>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="certCraneLifting" class="form-label">Crane/Lifting Certificate No.:</label>
+                                                <input type="text" class="form-control" id="certCraneLifting" placeholder="Enter certificate number">
                                             </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docCompetencyCerts">
-                                                <label class="form-check-label" for="docCompetencyCerts">Competency certificates available</label>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certChemicalHandling" class="form-label">Chemical Handling Permit No.:</label>
+                                                <input type="text" class="form-control" id="certChemicalHandling" placeholder="Enter permit number">
                                             </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docMedicalFitness">
-                                                <label class="form-check-label" for="docMedicalFitness">Medical fitness certificates</label>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certEnvironmentalClearing" class="form-label">Environmental Clearance No.:</label>
+                                                <input type="text" class="form-control" id="certEnvironmentalClearing" placeholder="Enter clearance number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certSafetyTraining" class="form-label">Safety Training Certificate No.:</label>
+                                                <input type="text" class="form-control" id="certSafetyTraining" placeholder="Enter certificate number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certMedicalFitness" class="form-label">Medical Fitness Certificate No.:</label>
+                                                <input type="text" class="form-control" id="certMedicalFitness" placeholder="Enter certificate number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certInsurance" class="form-label">Insurance Coverage No.:</label>
+                                                <input type="text" class="form-control" id="certInsurance" placeholder="Enter policy number">
+                                            </div>
+                                            
+                                            <div class="form-group mb-2">
+                                                <label for="certOthers" class="form-label">Others (specify):</label>
+                                                <input type="text" class="form-control" id="certOthers" placeholder="Specify and enter number">
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label><strong>Equipment Documentation</strong></label>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docEquipmentCerts">
-                                                <label class="form-check-label" for="docEquipmentCerts">Equipment certificates available</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docInspectionReports">
-                                                <label class="form-check-label" for="docInspectionReports">Pre-use inspection reports</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docMaintenanceRecords">
-                                                <label class="form-check-label" for="docMaintenanceRecords">Maintenance records current</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label><strong>Insurance & Legal</strong></label>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docInsuranceCert">
-                                                <label class="form-check-label" for="docInsuranceCert">Insurance certificate valid</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docContractorLicense">
-                                                <label class="form-check-label" for="docContractorLicense">Contractor license current</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="docEnvironmentalPermit">
-                                                <label class="form-check-label" for="docEnvironmentalPermit">Environmental permits (if required)</label>
-                                            </div>
-                                        </div>
+                                <!-- File Upload Section -->
+                                <div class="documents-section">
+                                    <h6 class="mb-3"><strong>Document Upload</strong></h6>
+                                    
+                                    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                        <h6>Click here to upload documents</h6>
+                                        <p class="text-muted mb-0">Or drag and drop files here</p>
+                                        <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB each)</small>
+                                    </div>
+                                    
+                                    <input type="file" id="fileInput" class="hidden-file-input" multiple 
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                    
+                                    <div class="documents-table">
+                                        <table class="table table-bordered" id="documentsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 50px;">No</th>
+                                                    <th>Name</th>
+                                                    <th style="width: 120px;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="documentsTableBody">
+                                                <tr id="noDocumentsRow">
+                                                    <td colspan="3" class="text-muted">No documents uploaded yet</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -1392,41 +1956,45 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <h6><strong>Environmental Considerations</strong></h6>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="envNoiseControl">
-                                                    <label class="form-check-label" for="envNoiseControl">Noise control measures required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="envDustControl">
-                                                    <label class="form-check-label" for="envDustControl">Dust control measures required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="envWasteManagement">
-                                                    <label class="form-check-label" for="envWasteManagement">Special waste management required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="envWaterProtection">
-                                                    <label class="form-check-label" for="envWaterProtection">Water/drainage protection required</label>
+                                                <div class="checkbox-container">
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="envNoiseControl">
+                                                        <label class="form-check-label" for="envNoiseControl">Noise control measures required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="envDustControl">
+                                                        <label class="form-check-label" for="envDustControl">Dust control measures required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="envWasteManagement">
+                                                        <label class="form-check-label" for="envWasteManagement">Special waste management required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="envWaterProtection">
+                                                        <label class="form-check-label" for="envWaterProtection">Water/drainage protection required</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                             
                                             <div class="col-md-6">
                                                 <h6><strong>Traffic & Access Control</strong></h6>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="trafficBarricades">
-                                                    <label class="form-check-label" for="trafficBarricades">Barricades required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="trafficSignage">
-                                                    <label class="form-check-label" for="trafficSignage">Warning signage required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="trafficFlagman">
-                                                    <label class="form-check-label" for="trafficFlagman">Flagman/traffic control required</label>
-                                                </div>
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="trafficAlternateRoute">
-                                                    <label class="form-check-label" for="trafficAlternateRoute">Alternate route arrangement</label>
+                                                <div class="checkbox-container">
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="trafficBarricades">
+                                                        <label class="form-check-label" for="trafficBarricades">Barricades required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="trafficSignage">
+                                                        <label class="form-check-label" for="trafficSignage">Warning signage required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="trafficFlagman">
+                                                        <label class="form-check-label" for="trafficFlagman">Flagman/traffic control required</label>
+                                                    </div>
+                                                    <div class="form-check checkbox-item">
+                                                        <input type="checkbox" class="form-check-input" id="trafficAlternateRoute">
+                                                        <label class="form-check-label" for="trafficAlternateRoute">Alternate route arrangement</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1699,11 +2267,11 @@
                             </button>
                         </div>
                         <div class="col-6 text-right">
+                            <button type="button" class="btn btn-warning mr-2" id="btnTestDataCollection">
+                                <i class="fas fa-bug mr-2"></i>Test Data Collection
+                            </button>
                             <button type="button" class="btn btn-primary" id="btnNext">
                                 Next<i class="fas fa-arrow-right ml-2"></i>
-                            </button>
-                            <button type="button" class="btn btn-warning btn-sm mr-2" id="btnTestInsert">
-                                <i class="fas fa-magic mr-2"></i>Test Insert
                             </button>
                             <button type="button" class="btn btn-success btn-lg" id="btnSubmitApproval" style="display: none;">
                                 <i class="fas fa-paper-plane mr-2"></i>Submit PTW Application
@@ -1902,10 +2470,22 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Check if this is view mode first
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const role = urlParams.get('role');
+        
+        // Support both formats: mode=view&role=supervisor OR viewmode=supervisor
+        let mode = urlParams.get('mode');
+        let role = urlParams.get('role');
+        const viewMode = urlParams.get('viewmode');
+        
+        // If viewmode parameter is used, extract mode and role from it
+        if (viewMode && !mode && !role) {
+            mode = 'view';
+            role = viewMode; // supervisor, she, facility_manager, etc.
+        }
+        
         const ptwId = urlParams.get('id');
-        const isViewMode = mode === 'view' && role && ptwId;
+        const isViewMode = mode === 'view' && ptwId; // Only require mode=view and id parameter
+        
+        console.log('URL Parameters:', { mode, role, ptwId, viewMode, isViewMode });
         
         if (isViewMode) {
             // Initialize view mode
@@ -1983,66 +2563,99 @@
     // View Mode Detection and Initialization
     function initializeViewMode() {
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const role = urlParams.get('role');
+        
+        // Support both formats: mode=view&role=supervisor OR viewmode=supervisor
+        let mode = urlParams.get('mode');
+        let role = urlParams.get('role');
+        const viewMode = urlParams.get('viewmode');
+        
+        // If viewmode parameter is used, extract mode and role from it
+        if (viewMode && !mode && !role) {
+            mode = 'view';
+            role = viewMode;
+        }
+        
         const ptwId = urlParams.get('id');
+        
+        console.log('initializeViewMode:', { mode, role, ptwId, viewMode });
 
-        if (mode === 'view' && role && ptwId) {
+        if (mode === 'view' && ptwId) { // Only require mode=view and id parameter
             // Apply view mode styling
             document.body.classList.add('view-mode');
             
-            // Update page title and subtitle based on role
-            const roleNames = {
-                'supervisor': 'PTW Supervisor Review',
-                'she': 'Safety, Health & Environment Review',
-                'facility_manager': 'Facility Manager Final Review'
-            };
-            
-            const roleIcons = {
-                'supervisor': 'fas fa-user-tie',
-                'she': 'fas fa-hard-hat',
-                'facility_manager': 'fas fa-building'
-            };
-            
-            const formTitleText = document.getElementById('formTitleText');
-            const formSubtitle = document.getElementById('formSubtitle');
-            const viewModeIndicator = document.getElementById('viewModeIndicator');
-            
-            if (formTitleText) {
-                formTitleText.innerHTML = `<i class="${roleIcons[role]} mr-2"></i>${roleNames[role]}`;
-            }
-            
-            if (formSubtitle) {
-                formSubtitle.textContent = `PTW Application Review - ID: ${ptwId}`;
-            }
-            
-            if (viewModeIndicator) {
-                viewModeIndicator.textContent = 'READ ONLY';
-                viewModeIndicator.style.display = 'inline-block';
-            }
-            
-            // Show appropriate approval section
-            const approvalSections = document.getElementById('approvalSections');
-            if (approvalSections) {
-                approvalSections.style.display = 'block';
-            }
-            
-            const sectionMap = {
-                'supervisor': 'supervisorApprovalSection',
-                'she': 'sheApprovalSection',
-                'facility_manager': 'facilityManagerApprovalSection'
-            };
-            
-            const targetSection = document.getElementById(sectionMap[role]);
-            if (targetSection) {
-                targetSection.style.display = 'block';
-            }
-            
-            // Load PTW data
+            // Load PTW data first (always needed in view mode)
             loadPtwData(ptwId);
             
-            // Initialize approval actions
-            initializeApprovalActions(role, ptwId);
+            // Role-specific UI setup (only if role is provided)
+            if (role) {
+                // Update page title and subtitle based on role
+                const roleNames = {
+                    'supervisor': 'PTW Supervisor Review',
+                    'she': 'Safety, Health & Environment Review',
+                    'facility_manager': 'Facility Manager Final Review'
+                };
+                
+                const roleIcons = {
+                    'supervisor': 'fas fa-user-tie',
+                    'she': 'fas fa-hard-hat',
+                    'facility_manager': 'fas fa-building'
+                };
+                
+                const formTitleText = document.getElementById('formTitleText');
+                const formSubtitle = document.getElementById('formSubtitle');
+                const viewModeIndicator = document.getElementById('viewModeIndicator');
+                
+                if (formTitleText) {
+                    formTitleText.innerHTML = `<i class="${roleIcons[role]} mr-2"></i>${roleNames[role]}`;
+                }
+                
+                if (formSubtitle) {
+                    formSubtitle.textContent = `PTW Application Review - ID: ${ptwId}`;
+                }
+                
+                if (viewModeIndicator) {
+                    viewModeIndicator.textContent = 'READ ONLY';
+                    viewModeIndicator.style.display = 'inline-block';
+                }
+                
+                // Show appropriate approval section
+                const approvalSections = document.getElementById('approvalSections');
+                if (approvalSections) {
+                    approvalSections.style.display = 'block';
+                }
+                
+                const sectionMap = {
+                    'supervisor': 'supervisorApprovalSection',
+                    'she': 'sheApprovalSection',
+                    'facility_manager': 'facilityManagerApprovalSection'
+                };
+                
+                const targetSection = document.getElementById(sectionMap[role]);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+                
+                // Initialize approval actions
+                initializeApprovalActions(role, ptwId);
+            } else {
+                // Generic view mode without specific role
+                const formTitleText = document.getElementById('formTitleText');
+                const formSubtitle = document.getElementById('formSubtitle');
+                const viewModeIndicator = document.getElementById('viewModeIndicator');
+                
+                if (formTitleText) {
+                    formTitleText.innerHTML = `<i class="fas fa-eye mr-2"></i>PTW View Mode`;
+                }
+                
+                if (formSubtitle) {
+                    formSubtitle.textContent = `PTW Application - ID: ${ptwId}`;
+                }
+                
+                if (viewModeIndicator) {
+                    viewModeIndicator.textContent = 'READ ONLY';
+                    viewModeIndicator.style.display = 'inline-block';
+                }
+            }
             
             // Hide normal form actions
             const cardFooter = document.querySelector('.card-footer');
@@ -2058,27 +2671,105 @@
 
     // Load PTW Data for View Mode
     function loadPtwData(ptwId) {
+        console.log('🔄 Attempting to load PTW data with ID:', ptwId);
+        
+        // Validate PTW ID first
+        if (!ptwId || ptwId.trim() === '') {
+            console.error('❌ No PTW ID provided');
+            showError('No PTW ID provided. Cannot load PTW data.', true); // Critical error
+            disableFormForError();
+            return;
+        }
+        
         // Show loading indicator
         showLoadingIndicator();
+        console.log('📡 Making API request to load PTW data...');
+        
+        const apiUrl = `api/ptw_approval.php?action=get&id=${encodeURIComponent(ptwId)}`;
+        console.log('🌐 API URL:', apiUrl);
         
         // Make API call to load PTW data using the correct endpoint
-        fetch(`api/ptw_approval.php?action=get&id=${ptwId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    populateFormWithData(data.data);
-                    // Make form read-only after populating data
-                    makeFormReadOnly();
-                } else {
-                    showError('Failed to load PTW data: ' + (data.message || 'Unknown error'));
+        fetch(apiUrl)
+            .then(response => {
+                console.log('📥 Received API response:', response.status, response.statusText);
+                console.log('📥 Response headers:', response.headers);
+                
+                // Check if response is ok (status 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text(); // Get as text first to debug
+            })
+            .then(text => {
+                console.log('📥 Raw API response text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('📋 Parsed API response data:', data);
+                    
+                    // Enhanced validation of response data
+                    if (data && data.success === true) {
+                        console.log('✅ Successfully loaded PTW data, populating form...');
+                        
+                        // Validate that we actually have data
+                        if (!data.data || Object.keys(data.data).length === 0) {
+                            throw new Error('No PTW data found for the provided ID');
+                        }
+                        
+                        populateFormWithData(data.data);
+                        makeFormReadOnly();
+                    } else {
+                        console.error('❌ API returned error:', data);
+                        let errorMessage = 'Failed to load PTW data. ';
+                        
+                        if (data && data.message) {
+                            errorMessage += data.message;
+                        } else {
+                            errorMessage += 'Unknown error occurred.';
+                        }
+                        
+                        // Show available permits if provided for debugging
+                        if (data && data.available_permits) {
+                            console.log('Available permits:', data.available_permits);
+                            errorMessage += '\\n\\nAvailable PTW IDs: ' + 
+                                data.available_permits.map(p => p.id + ' (' + p.number + ')').join(', ');
+                        }
+                        
+                        showError(errorMessage, true);
+                        disableFormForError();
+                    }
+                } catch (parseError) {
+                    console.error('❌ Failed to parse API response as JSON:', parseError);
+                    console.error('❌ Raw response that failed to parse:', text);
+                    showError('Invalid response format from server: ' + parseError.message, true);
+                    disableFormForError();
                 }
             })
             .catch(error => {
-                console.error('Error loading PTW data:', error);
-                showError('Failed to load PTW data: ' + error.message);
+                console.error('❌ Error loading PTW data:', error);
+                
+                // Provide more specific error messages based on error type
+                let errorMessage = 'Unable to load PTW data. ';
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage += 'Network connection failed. Please check your internet connection.';
+                } else if (error.message.includes('HTTP 404')) {
+                    errorMessage += 'PTW record not found.';
+                } else if (error.message.includes('HTTP 403')) {
+                    errorMessage += 'Access denied to PTW record.';
+                } else if (error.message.includes('HTTP 500')) {
+                    errorMessage += 'Server error occurred. Please try again later.';
+                } else {
+                    errorMessage += error.message || 'An unexpected error occurred.';
+                }
+                
+                showError(errorMessage, true); // Critical error
+                
+                // Disable the form to prevent accidental use
+                disableFormForError();
             })
             .finally(() => {
                 hideLoadingIndicator();
+                console.log('🏁 PTW data loading process completed');
             });
     }
 
@@ -2118,16 +2809,37 @@
             }
         });
         
-        // Populate work types - fixed mapping
-        if (data.work_type) {
-            console.log('Populating work type:', data.work_type);
+        // Populate work types - handle multiple selections
+        console.log('Populating work types. Primary:', data.work_type, 'Selected:', data.work_types_selected);
+        
+        // Clear all work type checkboxes first
+        document.getElementById('chkColdWork').checked = false;
+        document.getElementById('chkHotWork').checked = false;
+        document.getElementById('chkConfinedSpace').checked = false;
+        
+        // Handle multiple work types if available
+        if (data.work_types_selected && Array.isArray(data.work_types_selected)) {
+            console.log('Setting multiple work types:', data.work_types_selected);
             
-            // Clear all work type checkboxes first
-            document.getElementById('chkColdWork').checked = false;
-            document.getElementById('chkHotWork').checked = false;
-            document.getElementById('chkConfinedSpace').checked = false;
+            data.work_types_selected.forEach(workType => {
+                const workTypeMapping = {
+                    'cold_work': 'chkColdWork',
+                    'hot_work': 'chkHotWork', 
+                    'confined_space': 'chkConfinedSpace'
+                };
+                
+                if (workTypeMapping[workType]) {
+                    const checkbox = document.getElementById(workTypeMapping[workType]);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        console.log('Set checkbox:', workTypeMapping[workType], 'to checked');
+                    }
+                }
+            });
+        } else if (data.work_type) {
+            // Fallback to single work type for backward compatibility
+            console.log('Setting single work type:', data.work_type);
             
-            // Set the appropriate checkbox based on work type
             const workTypeMapping = {
                 'cold_work': 'chkColdWork',
                 'hot_work': 'chkHotWork', 
@@ -2141,12 +2853,12 @@
                     console.log('Set checkbox:', workTypeMapping[data.work_type], 'to checked');
                 }
             }
-            
-            // Also set the hidden select for compatibility
-            const selectElement = document.getElementById('optPtwWorkType');
-            if (selectElement) {
-                selectElement.value = data.work_type;
-            }
+        }
+        
+        // Set the hidden select for compatibility (use primary work type)
+        const selectElement = document.getElementById('optPtwWorkType');
+        if (selectElement && data.work_type) {
+            selectElement.value = data.work_type;
         }
         
         // Populate workers
@@ -2252,6 +2964,85 @@
         }
         
         console.log('Form has been made read-only for view mode');
+    }
+
+    // Disable Form Completely When Data Loading Fails
+    function disableFormForError() {
+        // Disable all input fields and make them look disabled
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.readOnly = true;
+            input.disabled = true;
+            input.style.backgroundColor = '#e9ecef';
+            input.style.color = '#6c757d';
+            input.style.cursor = 'not-allowed';
+            input.style.border = '1px solid #dee2e6';
+        });
+        
+        // Disable all checkboxes and radio buttons
+        const checkboxes = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = true;
+            checkbox.style.cursor = 'not-allowed';
+        });
+        
+        // Disable all buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+        });
+        
+        // Hide tab navigation to prevent navigation
+        const tabNavigation = document.querySelectorAll('.nav-tabs .nav-link');
+        tabNavigation.forEach(tab => {
+            tab.style.pointerEvents = 'none';
+            tab.style.opacity = '0.5';
+        });
+        
+        // Add a disabled overlay to the main content
+        const mainContent = document.querySelector('#divPtwPageWidth');
+        if (mainContent) {
+            const overlay = document.createElement('div');
+            overlay.id = 'formDisabledOverlay';
+            overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(248, 249, 250, 0.8);
+                z-index: 999;
+                pointer-events: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            `;
+            
+            const message = document.createElement('div');
+            message.style.cssText = `
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                max-width: 400px;
+                border-left: 4px solid #dc3545;
+            `;
+            message.innerHTML = `
+                <i class="fas fa-exclamation-triangle text-danger mb-2" style="font-size: 2rem;"></i>
+                <h5 class="text-danger mb-2">Data Loading Failed</h5>
+                <p class="text-muted mb-0">This form cannot be used because the PTW data could not be loaded. Please check the PTW ID and try again.</p>
+            `;
+            
+            overlay.appendChild(message);
+            mainContent.style.position = 'relative';
+            mainContent.appendChild(overlay);
+        }
+        
+        console.log('Form has been disabled due to data loading error');
     }
 
     // Initialize Approval Actions
@@ -2431,16 +3222,65 @@
         // Submit button functionality
         if (btnSubmit) {
             btnSubmit.addEventListener('click', function() {
-                if (validateContractorDeclaration()) {
+                console.log('Submit button clicked - starting validation...');
+                
+                // Clear any existing validation errors first
+                clearValidationErrors();
+                
+                // Run comprehensive form validation
+                const isFormValid = validatePTWForm();
+                const isDeclarationValid = validateContractorDeclaration();
+                
+                if (isFormValid && isDeclarationValid) {
+                    console.log('✅ All validations passed - proceeding with submission');
+                    
+                    // Collect complete form data for debugging and submission
+                    console.log('🔧 Collecting complete form data before submission...');
+                    const completeFormData = collectCompleteFormData();
+                    console.log('📋 FORM DATA FOR BACKEND SUBMISSION:', JSON.stringify(completeFormData, null, 2));
+                    
+                    // Show loading indicator
+                    showLoadingIndicator();
+                    
                     // If validation passes, proceed with form submission
                     if (window.ptwFormClass_ && typeof window.ptwFormClass_.handleSubmit === 'function') {
                         window.ptwFormClass_.handleSubmit();
                     } else {
                         // Fallback submission
-                        alert('Form submitted successfully! (Demo mode)');
+                        setTimeout(() => {
+                            hideLoadingIndicator();
+                            showSuccess('Form submitted successfully! (Demo mode)');
+                        }, 2000);
                     }
                 } else {
-                    showError('Please complete all required contractor declarations before submitting.');
+                    console.log('❌ Validation failed - cannot submit form');
+                    
+                    if (!isFormValid) {
+                        showError('Please correct all highlighted errors in the form fields before submitting.');
+                    } else if (!isDeclarationValid) {
+                        showError('Please complete all required contractor declarations before submitting.');
+                    }
+                    
+                    // Scroll to first error
+                    const firstError = document.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => firstError.focus(), 500);
+                    }
+                }
+            });
+        }
+        
+        // Test Data Collection button functionality
+        const btnTestDataCollection = document.getElementById('btnTestDataCollection');
+        if (btnTestDataCollection) {
+            btnTestDataCollection.addEventListener('click', function() {
+                console.log('🔧 Testing complete form data collection...');
+                try {
+                    collectCompleteFormData();
+                    console.log('✅ Data collection completed successfully! Check the console for detailed output.');
+                } catch (error) {
+                    console.error('❌ Error during data collection:', error);
                 }
             });
         }
@@ -2450,12 +3290,723 @@
         if (btnAddWorker) {
             btnAddWorker.addEventListener('click', addWorkerToTable);
         }
-        
-        // Add event listener for the Test Insert button
-        const btnTestInsert = document.getElementById('btnTestInsert');
-        if (btnTestInsert) {
-            btnTestInsert.addEventListener('click', performTestInsert);
+    }
+    
+    // ===============================
+    // COMPREHENSIVE FORM VALIDATION
+    // ===============================
+    
+    // Validation utility functions
+    function validateLength(value, maxLength, fieldName) {
+        if (value && value.length > maxLength) {
+            return `${fieldName} must not exceed ${maxLength} characters (current: ${value.length})`;
         }
+        return null;
+    }
+    
+    function validateAlphanumeric(value, fieldName) {
+        if (value && !/^[a-zA-Z0-9\s\-_.,()@]+$/.test(value)) {
+            return `${fieldName} contains invalid characters. Only alphanumeric characters, spaces, and basic punctuation are allowed`;
+        }
+        return null;
+    }
+    
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            return 'Please enter a valid email address';
+        }
+        return null;
+    }
+    
+    function validateContact(contact, fieldName) {
+        if (contact && !/^[\d\s\-+()]+$/.test(contact)) {
+            return `${fieldName} should contain only numbers, spaces, hyphens, plus signs, and parentheses`;
+        }
+        return null;
+    }
+    
+    function validateDateRange(fromDate, toDate) {
+        if (fromDate && toDate) {
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            if (to < from) {
+                return 'End date cannot be earlier than start date';
+            }
+        }
+        return null;
+    }
+    
+    function showValidationError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            // Remove existing styling
+            field.classList.remove('is-invalid', 'is-valid');
+            const existingError = field.parentNode.querySelector('.validation-error');
+            const existingSuccess = field.parentNode.querySelector('.validation-success');
+            if (existingError) existingError.remove();
+            if (existingSuccess) existingSuccess.remove();
+            
+            // Add error styling and message
+            field.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'validation-error text-danger mt-1';
+            errorDiv.style.fontSize = '0.875rem';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+            
+            // Scroll to first error
+            if (!document.querySelector('.is-invalid[data-scrolled]')) {
+                field.setAttribute('data-scrolled', 'true');
+                setTimeout(() => {
+                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    field.focus();
+                }, 100);
+            }
+        }
+    }
+    
+    function showValidationSuccess(fieldId, message = null) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            // Remove existing styling
+            field.classList.remove('is-invalid', 'is-valid');
+            const existingError = field.parentNode.querySelector('.validation-error');
+            const existingSuccess = field.parentNode.querySelector('.validation-success');
+            if (existingError) existingError.remove();
+            if (existingSuccess) existingSuccess.remove();
+            
+            // Add success styling
+            field.classList.add('is-valid');
+            
+            // Add success message if provided
+            if (message) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'validation-success text-success mt-1';
+                successDiv.style.fontSize = '0.875rem';
+                successDiv.textContent = message;
+                field.parentNode.appendChild(successDiv);
+            }
+        }
+    }
+    
+    function clearValidationErrors() {
+        // Remove all validation styling and messages
+        document.querySelectorAll('.is-invalid, .is-valid').forEach(field => {
+            field.classList.remove('is-invalid', 'is-valid');
+            field.removeAttribute('data-scrolled');
+        });
+        document.querySelectorAll('.validation-error, .validation-success').forEach(message => {
+            message.remove();
+        });
+    }
+    
+    // Main validation function
+    function validatePTWForm() {
+        console.log('Starting comprehensive PTW form validation...');
+        clearValidationErrors();
+        
+        let isValid = true;
+        const errors = [];
+        
+        // 1. Applicant Name - Alphanumeric, 200 chars, Mandatory
+        const applicantName = document.getElementById('txtPtwApplicantName')?.value?.trim();
+        if (!applicantName) {
+            showValidationError('txtPtwApplicantName', 'Applicant Name is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(applicantName, 200, 'Applicant Name');
+            const alphaError = validateAlphanumeric(applicantName, 'Applicant Name');
+            if (lengthError) {
+                showValidationError('txtPtwApplicantName', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtPtwApplicantName', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtPtwApplicantName');
+            }
+        }
+        
+        // 2. Contact No - Alphanumeric, 18 chars, Mandatory
+        const contactNo = document.getElementById('txtPtwApplicantContact')?.value?.trim();
+        if (!contactNo) {
+            showValidationError('txtPtwApplicantContact', 'Contact Number is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(contactNo, 18, 'Contact Number');
+            const contactError = validateContact(contactNo, 'Contact Number');
+            if (lengthError) {
+                showValidationError('txtPtwApplicantContact', lengthError);
+                isValid = false;
+            } else if (contactError) {
+                showValidationError('txtPtwApplicantContact', contactError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtPtwApplicantContact');
+            }
+        }
+        
+        // 3. Contractor Supervisor - Alphanumeric, 200 chars, Mandatory
+        const supervisorName = document.getElementById('txtContractorSupervisor')?.value?.trim();
+        if (!supervisorName) {
+            showValidationError('txtContractorSupervisor', 'Contractor Supervisor in Charge is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(supervisorName, 200, 'Contractor Supervisor');
+            const alphaError = validateAlphanumeric(supervisorName, 'Contractor Supervisor');
+            if (lengthError) {
+                showValidationError('txtContractorSupervisor', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtContractorSupervisor', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtContractorSupervisor');
+            }
+        }
+        
+        // 4. Supervisor Contact No - Alphanumeric, 18 chars, Mandatory
+        const supervisorContact = document.getElementById('txtContactNoSupervisor')?.value?.trim();
+        if (!supervisorContact) {
+            showValidationError('txtContactNoSupervisor', 'Supervisor Contact Number is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(supervisorContact, 18, 'Supervisor Contact Number');
+            const contactError = validateContact(supervisorContact, 'Supervisor Contact Number');
+            if (lengthError) {
+                showValidationError('txtContactNoSupervisor', lengthError);
+                isValid = false;
+            } else if (contactError) {
+                showValidationError('txtContactNoSupervisor', contactError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtContactNoSupervisor');
+            }
+        }
+        
+        // 5. Company/Department - Alphanumeric, 200 chars, Mandatory
+        const company = document.getElementById('txtPtwContractorCompany')?.value?.trim();
+        if (!company) {
+            showValidationError('txtPtwContractorCompany', 'Company/Department is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(company, 200, 'Company/Department');
+            const alphaError = validateAlphanumeric(company, 'Company/Department');
+            if (lengthError) {
+                showValidationError('txtPtwContractorCompany', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtPtwContractorCompany', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtPtwContractorCompany');
+            }
+        }
+        
+        // 6 & 7. Duration of Work - Date validation
+        const fromDate = document.getElementById('dtPtwValidFrom')?.value;
+        const toDate = document.getElementById('dtPtwValidTo')?.value;
+        const dateRangeError = validateDateRange(fromDate, toDate);
+        if (dateRangeError) {
+            showValidationError('dtPtwValidTo', dateRangeError);
+            isValid = false;
+        } else if (fromDate && toDate) {
+            showValidationSuccess('dtPtwValidFrom');
+            showValidationSuccess('dtPtwValidTo');
+        }
+        
+        // 8. Work Area - Alphanumeric, 200 chars, Mandatory
+        const workArea = document.getElementById('txtPtwWorkArea')?.value?.trim();
+        if (!workArea) {
+            showValidationError('txtPtwWorkArea', 'Work Area is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(workArea, 200, 'Work Area');
+            const alphaError = validateAlphanumeric(workArea, 'Work Area');
+            if (lengthError) {
+                showValidationError('txtPtwWorkArea', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtPtwWorkArea', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtPtwWorkArea');
+            }
+        }
+        
+        // 9. Level - Alphanumeric, 50 chars, Mandatory
+        const level = document.getElementById('txtLevel')?.value?.trim();
+        if (!level) {
+            showValidationError('txtLevel', 'Level is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(level, 50, 'Level');
+            const alphaError = validateAlphanumeric(level, 'Level');
+            if (lengthError) {
+                showValidationError('txtLevel', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtLevel', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtLevel');
+            }
+        }
+        
+        // 10. Staff No/NRIC - Alphanumeric, 200 chars, Mandatory
+        const staffNoNRIC = document.getElementById('txtStaffNoNRIC')?.value?.trim();
+        if (!staffNoNRIC) {
+            showValidationError('txtStaffNoNRIC', 'Staff No/NRIC is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(staffNoNRIC, 200, 'Staff No/NRIC');
+            const alphaError = validateAlphanumeric(staffNoNRIC, 'Staff No/NRIC');
+            if (lengthError) {
+                showValidationError('txtStaffNoNRIC', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtStaffNoNRIC', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtStaffNoNRIC');
+            }
+        }
+        
+        // 11. Work Type - At least one checkbox must be selected
+        const coldWork = document.getElementById('chkColdWork')?.checked;
+        const hotWork = document.getElementById('chkHotWork')?.checked;
+        const confinedSpace = document.getElementById('chkConfinedSpace')?.checked;
+        
+        if (!coldWork && !hotWork && !confinedSpace) {
+            showValidationError('chkColdWork', 'At least one Work Type must be selected');
+            isValid = false;
+        } else {
+            // Show success for the work type section
+            if (coldWork) showValidationSuccess('chkColdWork');
+            if (hotWork) showValidationSuccess('chkHotWork');
+            if (confinedSpace) showValidationSuccess('chkConfinedSpace');
+        }
+        
+        // 12. Description of Work - Alphanumeric, 2000 chars, Mandatory
+        const description = document.getElementById('txtPtwDescription')?.value?.trim();
+        if (!description) {
+            showValidationError('txtPtwDescription', 'Description of Work is required');
+            isValid = false;
+        } else {
+            const lengthError = validateLength(description, 2000, 'Description of Work');
+            const alphaError = validateAlphanumeric(description, 'Description of Work');
+            if (lengthError) {
+                showValidationError('txtPtwDescription', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtPtwDescription', alphaError);
+                isValid = false;
+            } else {
+                showValidationSuccess('txtPtwDescription');
+            }
+        }
+        
+        // Validate conditional sections based on work type selection
+        isValid = validateConditionalSections() && isValid;
+        
+        // Validate hazardous activity "Others" field
+        isValid = validateHazardousActivityOthers() && isValid;
+        
+        if (isValid) {
+            console.log('✅ All form validations passed');
+        } else {
+            console.log('❌ Form validation failed');
+            showError('Please correct the highlighted errors before submitting the form.');
+        }
+        
+        return isValid;
+    }
+    
+    // Validate conditional sections (Cold Work, Hot Work, Confined Space)
+    function validateConditionalSections() {
+        let isValid = true;
+        
+        // Special precautions validation (if fields exist)
+        const coldWorkPrecautions = document.getElementById('txtColdWorkPrecautions')?.value?.trim();
+        const hotWorkPrecautions = document.getElementById('txtHotWorkPrecautions')?.value?.trim();
+        const confinedSpacePrecautions = document.getElementById('txtConfinedSpacePrecautions')?.value?.trim();
+        
+        // Validate special precautions length (2000 chars, optional)
+        if (coldWorkPrecautions) {
+            const lengthError = validateLength(coldWorkPrecautions, 2000, 'Cold Work Special Precautions');
+            const alphaError = validateAlphanumeric(coldWorkPrecautions, 'Cold Work Special Precautions');
+            if (lengthError) {
+                showValidationError('txtColdWorkPrecautions', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtColdWorkPrecautions', alphaError);
+                isValid = false;
+            }
+        }
+        
+        if (hotWorkPrecautions) {
+            const lengthError = validateLength(hotWorkPrecautions, 2000, 'Hot Work Special Precautions');
+            const alphaError = validateAlphanumeric(hotWorkPrecautions, 'Hot Work Special Precautions');
+            if (lengthError) {
+                showValidationError('txtHotWorkPrecautions', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtHotWorkPrecautions', alphaError);
+                isValid = false;
+            }
+        }
+        
+        if (confinedSpacePrecautions) {
+            const lengthError = validateLength(confinedSpacePrecautions, 2000, 'Confined Space Special Precautions');
+            const alphaError = validateAlphanumeric(confinedSpacePrecautions, 'Confined Space Special Precautions');
+            if (lengthError) {
+                showValidationError('txtConfinedSpacePrecautions', lengthError);
+                isValid = false;
+            } else if (alphaError) {
+                showValidationError('txtConfinedSpacePrecautions', alphaError);
+                isValid = false;
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Validate hazardous activity "Others" field
+    function validateHazardousActivityOthers() {
+        let isValid = true;
+        
+        // Find "Others" checkbox for hazardous activities
+        const othersCheckbox = document.querySelector('input[type="checkbox"][value*="others" i], input[type="checkbox"][id*="others" i]');
+        const othersTextField = document.querySelector('input[type="text"][id*="others" i], textarea[id*="others" i]');
+        
+        if (othersCheckbox && othersCheckbox.checked && othersTextField) {
+            const othersValue = othersTextField.value?.trim();
+            if (!othersValue) {
+                showValidationError(othersTextField.id, 'Please specify details when "Others" is selected');
+                isValid = false;
+            } else {
+                const lengthError = validateLength(othersValue, 200, 'Others specification');
+                const alphaError = validateAlphanumeric(othersValue, 'Others specification');
+                if (lengthError) {
+                    showValidationError(othersTextField.id, lengthError);
+                    isValid = false;
+                } else if (alphaError) {
+                    showValidationError(othersTextField.id, alphaError);
+                    isValid = false;
+                }
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Real-time validation event listeners
+    function initializeValidation() {
+        console.log('Initializing form validation...');
+        
+        // Add real-time validation for all fields
+        const validationFields = [
+            { id: 'txtPtwApplicantName', type: 'text', maxLength: 200, required: true },
+            { id: 'txtPtwApplicantContact', type: 'contact', maxLength: 18, required: true },
+            { id: 'txtContractorSupervisor', type: 'text', maxLength: 200, required: true },
+            { id: 'txtContactNoSupervisor', type: 'contact', maxLength: 18, required: true },
+            { id: 'txtPtwContractorCompany', type: 'text', maxLength: 200, required: true },
+            { id: 'txtPtwWorkArea', type: 'text', maxLength: 200, required: true },
+            { id: 'txtLevel', type: 'text', maxLength: 50, required: true },
+            { id: 'txtStaffNoNRIC', type: 'text', maxLength: 200, required: true },
+            { id: 'txtPtwDescription', type: 'text', maxLength: 2000, required: true }
+        ];
+        
+        validationFields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (element) {
+                element.addEventListener('blur', function() {
+                    validateSingleField(field.id, field.type, field.maxLength, field.required);
+                });
+                
+                element.addEventListener('input', function() {
+                    // Clear validation styling on input, but don't validate until blur
+                    element.classList.remove('is-invalid', 'is-valid');
+                    const existingError = element.parentNode.querySelector('.validation-error');
+                    const existingSuccess = element.parentNode.querySelector('.validation-success');
+                    if (existingError) existingError.remove();
+                    if (existingSuccess) existingSuccess.remove();
+                });
+            }
+        });
+        
+        // Date range validation
+        const fromDate = document.getElementById('dtPtwValidFrom');
+        const toDate = document.getElementById('dtPtwValidTo');
+        if (fromDate && toDate) {
+            [fromDate, toDate].forEach(dateField => {
+                dateField.addEventListener('change', function() {
+                    const dateRangeError = validateDateRange(fromDate.value, toDate.value);
+                    
+                    // Clear existing styling first
+                    fromDate.classList.remove('is-invalid', 'is-valid');
+                    toDate.classList.remove('is-invalid', 'is-valid');
+                    const existingErrorFrom = fromDate.parentNode.querySelector('.validation-error');
+                    const existingErrorTo = toDate.parentNode.querySelector('.validation-error');
+                    const existingSuccessFrom = fromDate.parentNode.querySelector('.validation-success');
+                    const existingSuccessTo = toDate.parentNode.querySelector('.validation-success');
+                    if (existingErrorFrom) existingErrorFrom.remove();
+                    if (existingErrorTo) existingErrorTo.remove();
+                    if (existingSuccessFrom) existingSuccessFrom.remove();
+                    if (existingSuccessTo) existingSuccessTo.remove();
+                    
+                    if (dateRangeError) {
+                        showValidationError('dtPtwValidTo', dateRangeError);
+                    } else if (fromDate.value && toDate.value) {
+                        showValidationSuccess('dtPtwValidFrom');
+                        showValidationSuccess('dtPtwValidTo');
+                    }
+                });
+            });
+        }
+        
+        console.log('Form validation initialized successfully');
+    }
+    
+    function validateSingleField(fieldId, type, maxLength, required) {
+        const element = document.getElementById(fieldId);
+        if (!element) return;
+        
+        const value = element.value?.trim();
+        
+        // Clear existing styling
+        element.classList.remove('is-invalid', 'is-valid');
+        const existingError = element.parentNode.querySelector('.validation-error');
+        const existingSuccess = element.parentNode.querySelector('.validation-success');
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+        
+        // Required field check
+        if (required && !value) {
+            showValidationError(fieldId, `This field is required`);
+            return;
+        }
+        
+        if (value) {
+            // Length validation
+            const lengthError = validateLength(value, maxLength, element.getAttribute('data-field-name') || 'Field');
+            if (lengthError) {
+                showValidationError(fieldId, lengthError);
+                return;
+            }
+            
+            // Type-specific validation
+            let hasError = false;
+            switch (type) {
+                case 'text':
+                    const alphaError = validateAlphanumeric(value, element.getAttribute('data-field-name') || 'Field');
+                    if (alphaError) {
+                        showValidationError(fieldId, alphaError);
+                        hasError = true;
+                    }
+                    break;
+                case 'contact':
+                    const contactError = validateContact(value, element.getAttribute('data-field-name') || 'Contact');
+                    if (contactError) {
+                        showValidationError(fieldId, contactError);
+                        hasError = true;
+                    }
+                    break;
+                case 'email':
+                    const emailError = validateEmail(value);
+                    if (emailError) {
+                        showValidationError(fieldId, emailError);
+                        hasError = true;
+                    }
+                    break;
+            }
+            
+            // Show success if no errors
+            if (!hasError) {
+                showValidationSuccess(fieldId);
+            }
+        } else if (!required) {
+            // Optional field that's empty - neutral state
+            element.classList.remove('is-invalid', 'is-valid');
+        }
+    }
+    
+    // Make validation functions globally available
+    window.validatePTWForm = validatePTWForm;
+    window.clearValidationErrors = clearValidationErrors;
+    
+    // ===============================
+    // WORK TYPE CONDITIONAL SECTIONS
+    // ===============================
+    
+    function initializeWorkTypeConditionalSections() {
+        console.log('Initializing work type conditional sections...');
+        
+        const coldWorkCheckbox = document.getElementById('chkColdWork');
+        const hotWorkCheckbox = document.getElementById('chkHotWork');
+        const confinedSpaceCheckbox = document.getElementById('chkConfinedSpace');
+        
+        if (coldWorkCheckbox) {
+            coldWorkCheckbox.addEventListener('change', function() {
+                toggleConditionalSection('coldWork', this.checked);
+            });
+        }
+        
+        if (hotWorkCheckbox) {
+            hotWorkCheckbox.addEventListener('change', function() {
+                toggleConditionalSection('hotWork', this.checked);
+            });
+        }
+        
+        if (confinedSpaceCheckbox) {
+            confinedSpaceCheckbox.addEventListener('change', function() {
+                toggleConditionalSection('confinedSpace', this.checked);
+            });
+        }
+        
+        // Initialize sub-checkbox dependencies for each section
+        initializeSubCheckboxDependencies();
+        
+        console.log('Work type conditional sections initialized');
+    }
+    
+    function toggleConditionalSection(sectionType, isEnabled) {
+        console.log(`Toggling ${sectionType} section: ${isEnabled ? 'enabled' : 'disabled'}`);
+        
+        // Find the section container (this will depend on your HTML structure)
+        let sectionSelector = '';
+        switch (sectionType) {
+            case 'coldWork':
+                sectionSelector = '.cold-work-section, #coldWorkSection, [data-section="cold-work"]';
+                break;
+            case 'hotWork':
+                sectionSelector = '.hot-work-section, #hotWorkSection, [data-section="hot-work"]';
+                break;
+            case 'confinedSpace':
+                sectionSelector = '.confined-space-section, #confinedSpaceSection, [data-section="confined-space"]';
+                break;
+        }
+        
+        const section = document.querySelector(sectionSelector);
+        if (section) {
+            if (isEnabled) {
+                section.style.display = 'block';
+                section.classList.remove('d-none');
+                
+                // Enable all form controls in the section
+                const formControls = section.querySelectorAll('input, select, textarea');
+                formControls.forEach(control => {
+                    control.disabled = false;
+                });
+                
+                console.log(`${sectionType} section enabled`);
+            } else {
+                section.style.display = 'none';
+                section.classList.add('d-none');
+                
+                // Disable and clear all form controls in the section
+                const formControls = section.querySelectorAll('input, select, textarea');
+                formControls.forEach(control => {
+                    control.disabled = true;
+                    if (control.type === 'checkbox' || control.type === 'radio') {
+                        control.checked = false;
+                    } else {
+                        control.value = '';
+                    }
+                });
+                
+                console.log(`${sectionType} section disabled and cleared`);
+            }
+        } else {
+            console.warn(`Section not found for ${sectionType} with selector: ${sectionSelector}`);
+        }
+    }
+    
+    function initializeSubCheckboxDependencies() {
+        // Find all main checkboxes and their dependent sub-checkboxes
+        const mainCheckboxes = document.querySelectorAll('input[type="checkbox"][data-has-sub-items="true"]');
+        
+        mainCheckboxes.forEach(mainCheckbox => {
+            const sectionId = mainCheckbox.getAttribute('data-section-id');
+            if (sectionId) {
+                mainCheckbox.addEventListener('change', function() {
+                    toggleSubCheckboxes(sectionId, this.checked);
+                });
+                
+                // Initialize state
+                toggleSubCheckboxes(sectionId, mainCheckbox.checked);
+            }
+        });
+        
+        // Initialize "Others" text field dependencies
+        initializeOthersTextFieldDependencies();
+    }
+    
+    function toggleSubCheckboxes(sectionId, isEnabled) {
+        const subCheckboxes = document.querySelectorAll(`input[type="checkbox"][data-parent-section="${sectionId}"]`);
+        
+        subCheckboxes.forEach(subCheckbox => {
+            if (isEnabled) {
+                subCheckbox.disabled = false;
+                subCheckbox.parentNode.style.opacity = '1';
+            } else {
+                subCheckbox.disabled = true;
+                subCheckbox.checked = false;
+                subCheckbox.parentNode.style.opacity = '0.5';
+                
+                // Also disable any dependent "Others" text fields
+                const othersFieldId = subCheckbox.getAttribute('data-others-field');
+                if (othersFieldId) {
+                    const othersField = document.getElementById(othersFieldId);
+                    if (othersField) {
+                        othersField.disabled = true;
+                        othersField.value = '';
+                        othersField.style.display = 'none';
+                    }
+                }
+            }
+        });
+    }
+    
+    function initializeOthersTextFieldDependencies() {
+        // Find all "Others" checkboxes and their text fields
+        const othersCheckboxes = document.querySelectorAll('input[type="checkbox"][data-others-field]');
+        
+        othersCheckboxes.forEach(checkbox => {
+            const textFieldId = checkbox.getAttribute('data-others-field');
+            const textField = document.getElementById(textFieldId);
+            
+            if (textField) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        textField.style.display = 'block';
+                        textField.disabled = false;
+                        textField.required = true;
+                        textField.focus();
+                    } else {
+                        textField.style.display = 'none';
+                        textField.disabled = true;
+                        textField.required = false;
+                        textField.value = '';
+                        
+                        // Clear validation errors
+                        textField.classList.remove('is-invalid');
+                        const existingError = textField.parentNode.querySelector('.validation-error');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                    }
+                });
+                
+                // Initialize state
+                if (!checkbox.checked) {
+                    textField.style.display = 'none';
+                    textField.disabled = true;
+                    textField.required = false;
+                }
+            }
+        });
     }
     
     // Validate contractor declaration section
@@ -2596,7 +4147,7 @@
         // Initialize dropdown
         updateWorkTypeDropdown();
         
-        // Make function globally accessible for Test Insert functionality
+        // Make function globally accessible
         window.updateWorkTypeDropdown = updateWorkTypeDropdown;
     }
 
@@ -2641,286 +4192,20 @@
     window.addWorkerToTable = addWorkerToTable;
     window.removeWorkerRow = removeWorkerRow;
 
-    // Comprehensive Test Insert Function
-    function performTestInsert() {
-        console.log('Starting comprehensive test data insertion...');
-        
-        try {
-            // === SECTION 1: REQUISITION ===
-            
-            // Basic Information
-            setValue('txtPtwApplicantName', 'Ahmad bin Abdullah');
-            setValue('txtContractorSupervisor', 'Muhammad Ali - Senior Supervisor');
-            setValue('txtPtwContractorCompany', 'ABC Engineering Sdn Bhd');
-            setValue('txtPtwWorkArea', 'Building 3, Level 2, Pump Room - Equipment P-301A');
-            setValue('txtPtwApplicantContact', '012-345-6789');
-            setValue('txtStaffNoNRIC', '123456-12-1234');
-            setValue('txtContactNoSupervisor', '012-987-6543');
-            setValue('txtIdentificationNo', 'PKK-12345-A');
-            setValue('txtLevel', 'Level 3');
-            
-            // Set dates
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            setValue('dtPtwValidFrom', today.toISOString().split('T')[0]);
-            setValue('dtPtwValidTo', tomorrow.toISOString().split('T')[0]);
-            
-            // Work description
-            setValue('txtPtwDescription', 'Welding repair on damaged pipeline flange connection in Processing Unit A, estimated 4 hours duration with pre-heating requirements');
-            
-            // Set work types (select multiple for testing)
-            setCheckbox('chkColdWork', true);
-            setCheckbox('chkHotWork', true);
-            
-            // Update work type dropdown
-            if (window.updateWorkTypeDropdown) {
-                window.updateWorkTypeDropdown();
-            }
-            
-            // Set risk level
-            setValue('optPtwRiskLevel', 'high');
-            
-            // Add sample workers
-            addSampleWorkers();
-            
-            // Fill hazardous activities
-            fillHazardousActivities();
-            
-            // === SECTION 2: SUPPORTING DOCUMENTS ===
-            fillSupportingDocuments();
-            
-            // === SECTION 3: RISK ASSESSMENT ===
-            fillRiskAssessment();
-            
-            // === SECTION 4: CONTRACTOR DECLARATION ===
-            fillContractorDeclaration();
-            
-            console.log('✅ Test data insertion completed successfully!');
-            showSuccess('Test data inserted successfully! All form sections have been populated with sample data.');
-            
-        } catch (error) {
-            console.error('❌ Error during test data insertion:', error);
-            showError('Error inserting test data: ' + error.message);
-        }
-    }
-    
-    // Helper function to set input values safely
-    function setValue(elementId, value) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.value = value;
-            // Trigger change event for any listeners
-            element.dispatchEvent(new Event('change', { bubbles: true }));
-            element.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-            console.warn(`Element not found: ${elementId}`);
-        }
-    }
-    
-    // Helper function to set checkbox values safely
-    function setCheckbox(elementId, checked) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.checked = checked;
-            // Trigger change event for any listeners
-            element.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-            console.warn(`Checkbox not found: ${elementId}`);
-        }
-    }
-    
-    // Helper function to set radio button values safely
-    function setRadio(name, value) {
-        const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
-        if (radio) {
-            radio.checked = true;
-            // Trigger change event
-            radio.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-            console.warn(`Radio button not found: ${name}=${value}`);
-        }
-    }
-    
-    // Add sample workers to the table
-    function addSampleWorkers() {
-        const sampleWorkers = [
-            { name: 'Ahmad bin Yusof', designation: 'Senior Welder', id: '890123-45-6789' },
-            { name: 'Siti Aminah', designation: 'Safety Officer', id: '234567-89-0123' },
-            { name: 'Kumar Rajesh', designation: 'Mechanical Technician', id: '567890-12-3456' },
-            { name: 'Wong Wei Ming', designation: 'Supervisor Assistant', id: '345678-90-1234' }
-        ];
-        
-        // Clear existing workers first
-        const tbody = document.querySelector('#workersTable tbody');
-        if (tbody) {
-            tbody.innerHTML = '';
-        }
-        
-        // Add each sample worker
-        sampleWorkers.forEach((worker, index) => {
-            addWorkerToTable();
-            
-            // Fill the worker data
-            const rows = document.querySelectorAll('#workersTable tbody tr');
-            const currentRow = rows[rows.length - 1];
-            
-            if (currentRow) {
-                const nameInput = currentRow.querySelector('.worker-name');
-                const designationInput = currentRow.querySelector('.worker-designation');
-                const idInput = currentRow.querySelector('.worker-id');
-                
-                if (nameInput) nameInput.value = worker.name;
-                if (designationInput) designationInput.value = worker.designation;
-                if (idInput) idInput.value = worker.id;
-            }
-        });
-        
-        console.log(`Added ${sampleWorkers.length} sample workers`);
-    }
-    
-    // Fill hazardous activities sections
-    function fillHazardousActivities() {
-        // Cold Work Activities
-        setCheckbox('coldElectricalWork', true);
-        setCheckbox('coldVisualInspection', true);
-        setValue('coldOthersText', 'Pressure testing and leak detection');
-        setValue('coldSpecialPrecautions', 'Ensure proper ventilation, use non-sparking tools, maintain clean work area, and have fire watch personnel on standby.');
-        
-        // Hot Work Activities
-        setCheckbox('hotWelding', true);
-        setCheckbox('hotCutting', true);
-        setCheckbox('hotGrinding', true);
-        setValue('hotOthersText', 'Arc welding with pre-heating');
-        setValue('hotSpecialPrecautions', 'Clear 35ft radius of combustibles, fire watch for 60 minutes post-work, hot work permit displayed, fire extinguisher on standby.');
-        
-        // Confined Space Activities
-        setCheckbox('csEntryPermit', true);
-        setCheckbox('csGasMonitoring', true);
-        setCheckbox('csVentilation', true);
-        setCheckbox('csRescueStandby', true);
-        setValue('csOthersText', 'Continuous atmospheric monitoring');
-        setValue('csSpecialPrecautions', 'Continuous air monitoring, emergency retrieval system, attendant posted outside, communication equipment tested.');
-        
-        console.log('Filled hazardous activities sections');
-    }
-    
-    // Fill supporting documents section
-    function fillSupportingDocuments() {
-        // Check relevant documents
-        setCheckbox('docJHA', true);
-        setCheckbox('docMSDS', true);
-        setCheckbox('docDrawings', true);
-        setCheckbox('docProcedures', true);
-        setCheckbox('docCertificates', true);
-        setCheckbox('docInsurance', true);
-        
-        // Add remarks
-        setValue('txtPtwRemarks', 'All required documentation verified and approved. Workers have been briefed on safety procedures. Emergency response plan reviewed.');
-        
-        console.log('Filled supporting documents section');
-    }
-    
-    // Fill risk assessment section
-    function fillRiskAssessment() {
-        // Environmental Controls
-        setCheckbox('envNoiseControl', true);
-        setCheckbox('envDustControl', true);
-        setCheckbox('envWasteManagement', true);
-        setCheckbox('envWaterProtection', true);
-        
-        // Traffic and Access Control
-        setCheckbox('trafficBarricades', true);
-        setCheckbox('trafficSignage', true);
-        setCheckbox('trafficFlagman', true);
-        
-        // Emergency Preparedness
-        setCheckbox('emergencyFireExtinguisher', true);
-        setCheckbox('emergencyFirstAid', true);
-        setCheckbox('emergencyEvacuation', true);
-        setCheckbox('emergencyCommunication', true);
-        
-        console.log('Filled risk assessment section');
-    }
-    
-    // Fill contractor declaration section
-    function fillContractorDeclaration() {
-        // Answer all contractor declarations (mix of yes/no for realism)
-        setRadio('declaration1', 'yes');  // Workers briefed on SHE procedures
-        setRadio('declaration2', 'yes');  // Documentation valid
-        setRadio('declaration3', 'yes');  // Staff briefed on safety
-        setRadio('declaration4', 'yes');  // GFM liability acknowledged
-        setRadio('declaration5', 'yes');  // Permit displayed
-        setRadio('declaration6', 'yes');  // Safety equipment checked
-        
-        // Fill PPE requirements
-        fillPPERequirements();
-        
-        // Fill contractor acknowledgment
-        setValue('contractor_name', 'Ahmad bin Abdullah');
-        setValue('contractor_designation', 'Project Manager');
-        setValue('contractor_date', new Date().toISOString().split('T')[0]);
-        
-        // Check final confirmation
-        setCheckbox('contractorFinalConfirmation', true);
-        
-        // Ensure the checkbox is properly checked and visible
-        const finalConfirmationCheckbox = document.getElementById('contractorConfirmation');
-        if (finalConfirmationCheckbox) {
-            finalConfirmationCheckbox.checked = true;
-            finalConfirmationCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log('Final contractor confirmation checkbox set to:', finalConfirmationCheckbox.checked);
-        }
-        
-        console.log('Filled contractor declaration section');
-    }
-    
-    // Fill PPE requirements comprehensively
-    function fillPPERequirements() {
-        // Mandatory PPE
-        setCheckbox('ppe_safety_helmet', true);
-        setCheckbox('ppe_safety_shoes', true);
-        setCheckbox('ppe_high_vis_vest', true);
-        
-        // Respiratory Protection
-        setCheckbox('ppe_dust_mask', true);
-        setCheckbox('ppe_respirator', true);
-        
-        // Eye, Face & Body Protection
-        setCheckbox('ppe_safety_glasses', true);
-        setCheckbox('ppe_face_shield', true);
-        setCheckbox('ppe_coveralls', true);
-        
-        // Hand Protection
-        setCheckbox('ppe_work_gloves', true);
-        setCheckbox('ppe_chemical_gloves', true);
-        setCheckbox('ppe_cut_resistant', true);
-        
-        // Hearing Protection
-        setCheckbox('ppe_ear_plugs', true);
-        setCheckbox('ppe_ear_muffs', true);
-        
-        // Others
-        setValue('ppe_others', 'Arc flash suit Class 2, insulated mats, voltage-rated gloves');
-        
-        console.log('Filled PPE requirements comprehensively');
-    }
-    
-    // Make test insert function globally accessible
-    window.performTestInsert = performTestInsert;
-
     // Flag to prevent multiple dropdown protection runs
     let dropdownProtectionInitialized = false;
 
     // Function to prevent MDB from transforming specific dropdowns
     function preventMDBDropdownTransformation() {
-        const protectedSelects = ['optPtwWorkType', 'optPtwRiskLevel'];
+        const protectedSelects = ['optPtwRiskLevel']; // Removed optPtwWorkType - should stay hidden per URS
         
         protectedSelects.forEach(selectId => {
             const selectElement = document.getElementById(selectId);
             if (selectElement) {
+                console.log(`Protecting dropdown: ${selectId}`);
+                
                 // Remove any MDB classes that might have been added
-                selectElement.classList.remove('mdb-select', 'md-form', 'browser-default');
+                selectElement.classList.remove('mdb-select', 'md-form', 'browser-default', 'select-dropdown');
                 
                 // Ensure it has the standard Bootstrap class
                 selectElement.classList.add('form-control');
@@ -2928,19 +4213,53 @@
                 // Remove any MDB-generated wrapper elements
                 const wrapper = selectElement.parentNode.querySelector('.select-wrapper');
                 if (wrapper) {
+                    console.log(`Hiding MDB wrapper for ${selectId}`);
                     wrapper.style.display = 'none';
+                    wrapper.style.visibility = 'hidden';
+                }
+                
+                // Remove any dropdown content elements
+                const dropdownContent = selectElement.parentNode.querySelector('.dropdown-content');
+                if (dropdownContent) {
+                    console.log(`Removing dropdown content for ${selectId}`);
+                    dropdownContent.remove();
                 }
                 
                 // Prevent MDB from re-initializing this select
                 selectElement.setAttribute('data-mdb-select-init', 'false');
                 selectElement.setAttribute('data-select-init', 'false');
+                selectElement.setAttribute('data-mdb-select', 'false');
                 
-                // Force native appearance
+                // Force native appearance and visibility
                 selectElement.style.webkitAppearance = 'menulist';
                 selectElement.style.mozAppearance = 'menulist';
                 selectElement.style.appearance = 'menulist';
+                selectElement.style.display = 'block';
+                selectElement.style.visibility = 'visible';
+                selectElement.style.opacity = '1';
+                selectElement.style.width = '100%';
+                selectElement.style.height = 'auto';
+                selectElement.style.minHeight = '38px';
+                selectElement.style.pointerEvents = 'auto';
+                selectElement.style.cursor = 'pointer';
+                selectElement.style.position = 'relative';
+                selectElement.style.zIndex = '1';
+                selectElement.style.transform = 'none';
+                selectElement.style.overflow = 'visible';
+                
+                console.log(`Successfully protected ${selectId} - visible: ${selectElement.offsetHeight > 0}`);
+            } else {
+                console.warn(`Dropdown element not found: ${selectId}`);
             }
         });
+        
+        // Ensure work type dropdown stays hidden (URS compliance)
+        const workTypeDropdown = document.getElementById('optPtwWorkType');
+        if (workTypeDropdown) {
+            workTypeDropdown.style.display = 'none';
+            workTypeDropdown.style.visibility = 'hidden';
+            console.log('Work type dropdown hidden per URS requirements');
+        }
     }
 
     // Run protection only once after DOM is ready
@@ -2950,11 +4269,133 @@
         }
         
         dropdownProtectionInitialized = true;
+        console.log('Initializing dropdown protection...');
+        
+        // Run protection immediately
         preventMDBDropdownTransformation();
         
-        // Run once more after a short delay to catch any late MDB initialization
-        setTimeout(preventMDBDropdownTransformation, 500);
+        // Run again after short delays to catch any late MDB initialization
+        setTimeout(() => {
+            console.log('Running delayed dropdown protection (500ms)...');
+            preventMDBDropdownTransformation();
+        }, 500);
+        
+        setTimeout(() => {
+            console.log('Running delayed dropdown protection (1000ms)...');
+            preventMDBDropdownTransformation();
+            
+            // Final check for Risk Level visibility
+            const riskLevelSelect = document.getElementById('optPtwRiskLevel');
+            if (riskLevelSelect) {
+                const isVisible = riskLevelSelect.offsetHeight > 0 && riskLevelSelect.offsetWidth > 0;
+                console.log(`Risk Level dropdown final visibility check: ${isVisible}`);
+                
+                if (!isVisible) {
+                    console.warn('Risk Level dropdown still not visible, applying emergency fix...');
+                    // Emergency visibility fix
+                    riskLevelSelect.style.cssText = `
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        width: 100% !important;
+                        height: auto !important;
+                        min-height: 38px !important;
+                        background-color: #fff !important;
+                        border: 1px solid #ced4da !important;
+                        border-radius: 0.25rem !important;
+                        padding: 0.375rem 0.75rem !important;
+                        font-size: 1rem !important;
+                        line-height: 1.5 !important;
+                        color: #495057 !important;
+                        pointer-events: auto !important;
+                        cursor: pointer !important;
+                        position: relative !important;
+                        z-index: 1 !important;
+                        -webkit-appearance: menulist !important;
+                        -moz-appearance: menulist !important;
+                        appearance: menulist !important;
+                    `;
+                }
+            }
+        }, 1000);
+        
+        // Add a final check after 2 seconds
+        setTimeout(() => {
+            console.log('Final dropdown protection check (2000ms)...');
+            preventMDBDropdownTransformation();
+        }, 2000);
     }
+
+    // Manual fix function for Risk Level dropdown visibility
+    function fixRiskLevelDropdown() {
+        const riskLevelSelect = document.getElementById('optPtwRiskLevel');
+        if (!riskLevelSelect) {
+            console.error('Risk Level dropdown not found!');
+            return false;
+        }
+        
+        console.log('Manually fixing Risk Level dropdown...');
+        
+        // Remove any problematic classes
+        riskLevelSelect.className = 'form-control';
+        
+        // Apply comprehensive visibility fix
+        riskLevelSelect.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 38px !important;
+            max-height: none !important;
+            background-color: #fff !important;
+            background-image: none !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.25rem !important;
+            padding: 0.375rem 0.75rem !important;
+            margin: 0 !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            color: #495057 !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 1 !important;
+            transform: none !important;
+            overflow: visible !important;
+            -webkit-appearance: menulist !important;
+            -moz-appearance: menulist !important;
+            appearance: menulist !important;
+        `;
+        
+        // Remove any wrapper interference
+        const parent = riskLevelSelect.parentNode;
+        if (parent) {
+            const wrappers = parent.querySelectorAll('.select-wrapper, .dropdown-content, .caret');
+            wrappers.forEach(wrapper => {
+                wrapper.style.display = 'none';
+                wrapper.style.visibility = 'hidden';
+            });
+        }
+        
+        // Force redraw by toggling display
+        riskLevelSelect.style.display = 'none';
+        riskLevelSelect.style.display = 'block';
+        
+        const isVisible = riskLevelSelect.offsetHeight > 0 && riskLevelSelect.offsetWidth > 0;
+        console.log(`Risk Level dropdown manual fix result: ${isVisible}`);
+        
+        if (isVisible) {
+            showSuccess('Risk Level dropdown has been fixed and is now visible!');
+        } else {
+            showError('Unable to fix Risk Level dropdown visibility. Please refresh the page.');
+        }
+        
+        return isVisible;
+    }
+
+    // Make the fix function globally accessible for manual testing
+    window.fixRiskLevelDropdown = fixRiskLevelDropdown;
 
     // Alert functions for public form
     function showSuccess(message) {
@@ -2972,13 +4413,26 @@
         }, 5000);
     }
 
-    function showError(message) {
+    function showError(message, isCritical = false) {
         document.getElementById('errorMessage').textContent = message;
         const alertElement = document.getElementById('alertError');
         alertElement.style.display = 'block';
         alertElement.classList.add('show');
         
-        // Hide after 8 seconds
+        // Make critical errors more prominent
+        if (isCritical) {
+            alertElement.style.position = 'sticky';
+            alertElement.style.top = '10px';
+            alertElement.style.zIndex = '1050';
+            alertElement.style.border = '2px solid #dc3545';
+            alertElement.style.boxShadow = '0 4px 8px rgba(220, 53, 69, 0.3)';
+            
+            // Don't auto-hide critical errors
+            console.log('Critical error displayed:', message);
+            return;
+        }
+        
+        // Hide normal errors after 8 seconds
         setTimeout(() => {
             alertElement.classList.remove('show');
             setTimeout(() => {
@@ -3055,17 +4509,50 @@
 
     // Help system functionality
     function toggleHelp(helpId) {
+        console.log('toggleHelp called with ID:', helpId);
         const helpElement = document.getElementById(helpId);
+        
         if (helpElement) {
+            console.log('Help element found:', helpElement);
+            
             // Hide all other help examples first
             document.querySelectorAll('.help-example.show').forEach(el => {
                 if (el.id !== helpId) {
+                    console.log('Hiding other help element:', el.id);
                     el.classList.remove('show');
+                    // Force hide with inline styles
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
                 }
             });
             
             // Toggle the clicked help example
+            const isCurrentlyShown = helpElement.classList.contains('show');
             helpElement.classList.toggle('show');
+            
+            // Force visibility with inline styles to override any CSS conflicts
+            if (!isCurrentlyShown) {
+                // Show the element
+                helpElement.style.display = 'block';
+                helpElement.style.visibility = 'visible';
+                helpElement.style.opacity = '1';
+                helpElement.style.height = 'auto';
+                helpElement.style.overflow = 'visible';
+                helpElement.style.position = 'relative';
+                helpElement.style.zIndex = '1000';
+                console.log('Help element shown with inline styles');
+            } else {
+                // Hide the element
+                helpElement.style.display = 'none';
+                helpElement.style.visibility = 'hidden';
+                console.log('Help element hidden');
+            }
+            
+            console.log('Help element toggled. Now showing:', !isCurrentlyShown);
+            console.log('Element classes:', helpElement.className);
+            console.log('Element display style:', window.getComputedStyle(helpElement).display);
+            console.log('Element visibility:', window.getComputedStyle(helpElement).visibility);
+            console.log('Element height:', helpElement.offsetHeight);
             
             // Smooth scroll to help if it's being shown
             if (helpElement.classList.contains('show')) {
@@ -3076,8 +4563,47 @@
                     });
                 }, 100);
             }
+        } else {
+            console.error('Help element not found with ID:', helpId);
         }
     }
+    
+    // Make toggleHelp globally available
+    window.toggleHelp = toggleHelp;
+    
+    // Debug function to test all help buttons
+    function testAllHelpButtons() {
+        console.log('=== Testing All Help Buttons ===');
+        const helpIds = [
+            'help-applicantname', 'help-supervisor', 'help-company', 'help-workarea', 
+            'help-worktype', 'help-risklevel', 'help-description', 'help-contact', 
+            'help-nric', 'help-contact-supervisor', 'help-identification', 'help-duration', 'help-level'
+        ];
+        
+        helpIds.forEach((helpId, index) => {
+            setTimeout(() => {
+                console.log(`Testing help ID: ${helpId}`);
+                const element = document.getElementById(helpId);
+                if (element) {
+                    console.log(`✓ Element exists for ${helpId}`);
+                    console.log(`Current display: ${window.getComputedStyle(element).display}`);
+                    console.log(`Current visibility: ${window.getComputedStyle(element).visibility}`);
+                    console.log(`Current classes: ${element.className}`);
+                } else {
+                    console.error(`✗ Element NOT found for ${helpId}`);
+                }
+            }, index * 100);
+        });
+        
+        // Test the toggleHelp function directly
+        setTimeout(() => {
+            console.log('Testing toggleHelp function directly...');
+            toggleHelp('help-worktype');
+        }, helpIds.length * 100 + 500);
+    }
+    
+    // Make test function globally available
+    window.testAllHelpButtons = testAllHelpButtons;
 
     // Close help examples when clicking outside
     document.addEventListener('click', function(event) {
@@ -3087,6 +4613,194 @@
             });
         }
     });
+
+    // Supporting Documents File Upload Functionality
+    let uploadedDocuments = [];
+    let documentCounter = 0;
+
+    // Initialize file upload functionality
+    function initializeFileUpload() {
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadArea = document.querySelector('.file-upload-area');
+        
+        if (!fileInput || !fileUploadArea) return;
+
+        // File input change handler
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop handlers
+        fileUploadArea.addEventListener('dragover', handleDragOver);
+        fileUploadArea.addEventListener('dragleave', handleDragLeave);
+        fileUploadArea.addEventListener('drop', handleFileDrop);
+        
+        console.log('File upload functionality initialized');
+    }
+
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        handleFiles(files);
+        // Reset the input so the same file can be selected again if needed
+        event.target.value = '';
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+        event.currentTarget.classList.add('dragover');
+    }
+
+    function handleDragLeave(event) {
+        event.preventDefault();
+        event.currentTarget.classList.remove('dragover');
+    }
+
+    function handleFileDrop(event) {
+        event.preventDefault();
+        event.currentTarget.classList.remove('dragover');
+        const files = event.dataTransfer.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        const allowedTypes = ['application/pdf', 'application/msword', 
+                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                             'image/jpeg', 'image/jpg', 'image/png'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+
+        Array.from(files).forEach(file => {
+            // Validate file type
+            if (!allowedTypes.includes(file.type)) {
+                showError(`File "${file.name}" is not a supported format. Please use PDF, DOC, DOCX, JPG, or PNG files.`);
+                return;
+            }
+
+            // Validate file size
+            if (file.size > maxSize) {
+                showError(`File "${file.name}" is too large. Maximum size is 10MB.`);
+                return;
+            }
+
+            // Check if file already uploaded
+            if (uploadedDocuments.some(doc => doc.name === file.name && doc.size === file.size)) {
+                showError(`File "${file.name}" has already been uploaded.`);
+                return;
+            }
+
+            // Add file to uploaded documents
+            addDocumentToTable(file);
+        });
+    }
+
+    function addDocumentToTable(file) {
+        documentCounter++;
+        const document = {
+            id: documentCounter,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            file: file,
+            uploadDate: new Date()
+        };
+
+        uploadedDocuments.push(document);
+        renderDocumentsTable();
+        
+        console.log('Document added:', document.name);
+        showSuccess(`Document "${file.name}" uploaded successfully.`);
+    }
+
+    function renderDocumentsTable() {
+        const tbody = document.getElementById('documentsTableBody');
+        const noDocumentsRow = document.getElementById('noDocumentsRow');
+        
+        if (!tbody) return;
+
+        // Clear existing rows except the "no documents" row
+        tbody.innerHTML = '';
+
+        if (uploadedDocuments.length === 0) {
+            tbody.appendChild(noDocumentsRow);
+            return;
+        }
+
+        uploadedDocuments.forEach((doc, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>
+                    <div class="file-name" title="${doc.name}">${doc.name}</div>
+                    <small class="text-muted">${formatFileSize(doc.size)}</small>
+                </td>
+                <td>
+                    <div class="document-actions">
+                        <button type="button" class="btn btn-sm btn-info" onclick="viewDocument(${doc.id})" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteDocument(${doc.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function viewDocument(documentId) {
+        const document = uploadedDocuments.find(doc => doc.id === documentId);
+        if (!document) return;
+
+        // Create a temporary URL for the file
+        const url = URL.createObjectURL(document.file);
+        
+        // Open in new window/tab
+        const newWindow = window.open(url, '_blank');
+        if (newWindow) {
+            newWindow.onload = function() {
+                URL.revokeObjectURL(url);
+            };
+        } else {
+            showError('Unable to open document. Please check your popup blocker settings.');
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    function deleteDocument(documentId) {
+        const docIndex = uploadedDocuments.findIndex(doc => doc.id === documentId);
+        if (docIndex === -1) return;
+
+        const document = uploadedDocuments[docIndex];
+        
+        if (confirm(`Are you sure you want to delete "${document.name}"?`)) {
+            uploadedDocuments.splice(docIndex, 1);
+            renderDocumentsTable();
+            showSuccess(`Document "${document.name}" deleted successfully.`);
+            console.log('Document deleted:', document.name);
+        }
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Initialize file upload when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Small delay to ensure all elements are rendered
+        setTimeout(() => {
+            initializeFileUpload();
+            initializeValidation();
+            
+            // Initialize work type conditional sections
+            initializeWorkTypeConditionalSections();
+        }, 100);
+    });
+
+    // Make functions globally accessible
+    window.viewDocument = viewDocument;
+    window.deleteDocument = deleteDocument;
 
     // Scripts now loaded in head section to ensure availability before instantiation
     // All dependencies removed for public form - no authentication required
