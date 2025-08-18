@@ -679,6 +679,9 @@
                             <button class="btn-danger" onclick="exportResults()">
                                 📥 Export CSV
                             </button>
+                            <button class="btn-success" onclick="exportResultsAsJSON()">
+                                📋 Export JSON
+                            </button>
                         </div>
                         
                         <div class="query-history">
@@ -1575,6 +1578,41 @@
             window.URL.revokeObjectURL(url);
             
             showStatus('Results exported to CSV', 'success');
+        }
+        
+        function exportResultsAsJSON() {
+            if (currentResults.length === 0) {
+                showStatus('No results to export', 'error');
+                return;
+            }
+            
+            // Create a comprehensive JSON structure
+            const exportData = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    query: currentQuery,
+                    totalRows: currentResults.length,
+                    exportFormat: 'JSON',
+                    database: 'GEMS2'
+                },
+                results: currentResults
+            };
+            
+            // Convert to pretty-printed JSON
+            const jsonString = JSON.stringify(exportData, null, 2);
+            
+            // Download the JSON file
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `query_results_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showStatus('Results exported to JSON', 'success');
         }
     </script>
 </body>
