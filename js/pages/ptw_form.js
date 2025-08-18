@@ -600,12 +600,30 @@ class PtwForm {
         if (data.ptw_checklist_hot_work) {
             try {
                 const hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
-                if (Array.isArray(hotWorkData)) {
+                console.log('Loading hot work checklist data:', hotWorkData);
+                
+                if (typeof hotWorkData === 'object' && hotWorkData !== null) {
+                    // Handle object format: {hotGasMonitoring: "Gas monitoring", ...}
+                    Object.keys(hotWorkData).forEach(checkboxId => {
+                        const checkbox = document.getElementById(checkboxId);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            console.log(`Restored hot work item: ${checkboxId}`);
+                        } else {
+                            console.warn(`Hot work checkbox not found: ${checkboxId}`);
+                        }
+                    });
+                } else if (Array.isArray(hotWorkData)) {
+                    // Handle array format for backward compatibility
                     hotWorkData.forEach(itemId => {
-                        $(`#chkHotWork_${itemId}`).prop('checked', true);
+                        const checkbox = document.getElementById(itemId);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            console.log(`Restored hot work item: ${itemId}`);
+                        }
                     });
                 }
-                console.log('Loaded hot work checklist:', hotWorkData);
+                console.log('Loaded hot work checklist successfully');
             } catch (e) {
                 console.error('Error parsing hot work checklist:', e);
             }
@@ -615,12 +633,53 @@ class PtwForm {
         if (data.ptw_checklist_cold_work) {
             try {
                 const coldWorkData = JSON.parse(data.ptw_checklist_cold_work);
-                if (Array.isArray(coldWorkData)) {
+                console.log('Loading cold work checklist data:', coldWorkData);
+                
+                if (typeof coldWorkData === 'object' && coldWorkData !== null) {
+                    // Handle object format: {coldElectricalWork: "Electrical Work", ...}
+                    Object.keys(coldWorkData).forEach(itemKey => {
+                        const itemValue = coldWorkData[itemKey];
+                        
+                        if (itemKey === 'coldSpecialPrecautions') {
+                            // Handle special precautions text area
+                            const textArea = document.getElementById('coldSpecialPrecautions');
+                            if (textArea && itemValue) {
+                                textArea.value = itemValue;
+                                console.log(`Restored cold work special precautions: ${itemValue}`);
+                            }
+                        } else {
+                            // Handle checkbox items
+                            const checkbox = document.getElementById(itemKey);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                                console.log(`Restored cold work item: ${itemKey}`);
+                                
+                                // Handle "Others" text field
+                                if (itemKey === 'coldOthers') {
+                                    const textField = document.getElementById('coldOthersText');
+                                    if (textField) {
+                                        // Use the value from the checkbox data (which should be the text)
+                                        textField.value = itemValue || '';
+                                        textField.disabled = false;
+                                        console.log(`Restored cold work others text: ${itemValue}`);
+                                    }
+                                }
+                            } else {
+                                console.warn(`Cold work checkbox not found: ${itemKey}`);
+                            }
+                        }
+                    });
+                } else if (Array.isArray(coldWorkData)) {
+                    // Handle array format for backward compatibility
                     coldWorkData.forEach(itemId => {
-                        $(`#chkColdWork_${itemId}`).prop('checked', true);
+                        const checkbox = document.getElementById(itemId);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            console.log(`Restored cold work item: ${itemId}`);
+                        }
                     });
                 }
-                console.log('Loaded cold work checklist:', coldWorkData);
+                console.log('Loaded cold work checklist successfully');
             } catch (e) {
                 console.error('Error parsing cold work checklist:', e);
             }
@@ -630,16 +689,37 @@ class PtwForm {
         if (data.ptw_checklist_confined_space) {
             try {
                 const confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
-                if (Array.isArray(confinedSpaceData)) {
+                console.log('Loading confined space checklist data:', confinedSpaceData);
+                
+                if (typeof confinedSpaceData === 'object' && confinedSpaceData !== null) {
+                    // Handle object format: {csRespiratoryAtmosphere: "Respiratory Atmosphere", ...}
+                    Object.keys(confinedSpaceData).forEach(checkboxId => {
+                        const checkbox = document.getElementById(checkboxId);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            console.log(`Restored confined space item: ${checkboxId}`);
+                        } else {
+                            console.warn(`Confined space checkbox not found: ${checkboxId}`);
+                        }
+                    });
+                } else if (Array.isArray(confinedSpaceData)) {
+                    // Handle array format for backward compatibility
                     confinedSpaceData.forEach(itemId => {
-                        $(`#chkConfinedSpace_${itemId}`).prop('checked', true);
+                        const checkbox = document.getElementById(itemId);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            console.log(`Restored confined space item: ${itemId}`);
+                        }
                     });
                 }
-                console.log('Loaded confined space checklist:', confinedSpaceData);
+                console.log('Loaded confined space checklist successfully');
             } catch (e) {
                 console.error('Error parsing confined space checklist:', e);
             }
         }
+
+        // After loading work type specific checklists, ensure main checkboxes are checked and sections are visible
+        this.syncWorkTypeSectionsAfterLoad(data);
 
         // Load declaration checklist
         if (data.ptw_declaration_checklist) {
@@ -934,6 +1014,93 @@ class PtwForm {
         }
     }
 
+    syncWorkTypeSectionsAfterLoad(data) {
+        console.log('Syncing work type sections after data load...');
+        
+        // Check if any hot work items were loaded and ensure main checkbox is checked and section is visible
+        if (data.ptw_checklist_hot_work) {
+            try {
+                const hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
+                if ((typeof hotWorkData === 'object' && Object.keys(hotWorkData).length > 0) || 
+                    (Array.isArray(hotWorkData) && hotWorkData.length > 0)) {
+                    
+                    // Check the main hot work checkbox
+                    const hotWorkMainCheckbox = document.getElementById('chkHotWork');
+                    if (hotWorkMainCheckbox) {
+                        hotWorkMainCheckbox.checked = true;
+                        console.log('Checked main hot work checkbox');
+                    }
+                    
+                    // Show the hot work section
+                    const hotWorkSection = document.getElementById('hotWorkSection');
+                    if (hotWorkSection) {
+                        hotWorkSection.style.display = 'block';
+                        hotWorkSection.classList.remove('d-none');
+                        console.log('Showed hot work section');
+                    }
+                }
+            } catch (e) {
+                console.error('Error syncing hot work section:', e);
+            }
+        }
+        
+        // Check if any cold work items were loaded and ensure main checkbox is checked and section is visible
+        if (data.ptw_checklist_cold_work) {
+            try {
+                const coldWorkData = JSON.parse(data.ptw_checklist_cold_work);
+                if ((typeof coldWorkData === 'object' && Object.keys(coldWorkData).length > 0) || 
+                    (Array.isArray(coldWorkData) && coldWorkData.length > 0)) {
+                    
+                    // Check the main cold work checkbox
+                    const coldWorkMainCheckbox = document.getElementById('chkColdWork');
+                    if (coldWorkMainCheckbox) {
+                        coldWorkMainCheckbox.checked = true;
+                        console.log('Checked main cold work checkbox');
+                    }
+                    
+                    // Show the cold work section
+                    const coldWorkSection = document.getElementById('coldWorkSection');
+                    if (coldWorkSection) {
+                        coldWorkSection.style.display = 'block';
+                        coldWorkSection.classList.remove('d-none');
+                        console.log('Showed cold work section');
+                    }
+                }
+            } catch (e) {
+                console.error('Error syncing cold work section:', e);
+            }
+        }
+        
+        // Check if any confined space items were loaded and ensure main checkbox is checked and section is visible
+        if (data.ptw_checklist_confined_space) {
+            try {
+                const confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
+                if ((typeof confinedSpaceData === 'object' && Object.keys(confinedSpaceData).length > 0) || 
+                    (Array.isArray(confinedSpaceData) && confinedSpaceData.length > 0)) {
+                    
+                    // Check the main confined space checkbox
+                    const confinedSpaceMainCheckbox = document.getElementById('chkConfinedSpace');
+                    if (confinedSpaceMainCheckbox) {
+                        confinedSpaceMainCheckbox.checked = true;
+                        console.log('Checked main confined space checkbox');
+                    }
+                    
+                    // Show the confined space section
+                    const confinedSpaceSection = document.getElementById('confinedSpaceSection');
+                    if (confinedSpaceSection) {
+                        confinedSpaceSection.style.display = 'block';
+                        confinedSpaceSection.classList.remove('d-none');
+                        console.log('Showed confined space section');
+                    }
+                }
+            } catch (e) {
+                console.error('Error syncing confined space section:', e);
+            }
+        }
+        
+        console.log('Work type sections sync completed');
+    }
+
     loadChecklistData(checklistData) {
         // Load general checklist
         Object.keys(checklistData).forEach(key => {
@@ -1164,31 +1331,55 @@ class PtwForm {
 
     getChecklistData() {
         const checklist = {};
+        
+        console.log('Starting to collect checklist data...');
 
         // General checklist
+        let generalCount = 0;
         $('.form-check-input').each(function() {
             if ($(this).attr('id') && $(this).attr('id').startsWith('chk') && !$(this).hasClass('specific-checklist') && !$(this).hasClass('worker-certified')) {
                 checklist[$(this).attr('id')] = $(this).is(':checked');
+                if ($(this).is(':checked')) {
+                    generalCount++;
+                    console.log(`Found checked general item: ${$(this).attr('id')}`);
+                }
             }
         });
 
         // PPE checklist
+        let ppeCount = 0;
         $('.form-check-input').each(function() {
             if ($(this).attr('id') && $(this).attr('id').startsWith('ppe')) {
                 checklist[$(this).attr('id')] = $(this).is(':checked');
+                if ($(this).is(':checked')) {
+                    ppeCount++;
+                    console.log(`Found checked PPE item: ${$(this).attr('id')}`);
+                }
             }
         });
 
-        // Specific checklist
+        // Specific checklist (work type specific items)
         const specific = {};
+        let specificCount = 0;
         $('.specific-checklist').each(function() {
             const item = $(this).data('item');
-            specific[item] = $(this).is(':checked');
+            const isChecked = $(this).is(':checked');
+            specific[item] = isChecked;
+            if (isChecked) {
+                specificCount++;
+                console.log(`Found checked specific item: ${item} (ID: ${$(this).attr('id')})`);
+            }
         });
         
         if (Object.keys(specific).length > 0) {
             checklist.specific = specific;
         }
+        
+        console.log(`Checklist collection summary:`);
+        console.log(`- General checklist items checked: ${generalCount}`);
+        console.log(`- PPE checklist items checked: ${ppeCount}`);
+        console.log(`- Specific work type items checked: ${specificCount} out of ${Object.keys(specific).length} total`);
+        console.log('All checklist data:', checklist);
 
         return checklist;
     }
@@ -1323,6 +1514,8 @@ class PtwForm {
     getHazardousActivitiesData() {
         const hazards = {};
         
+        console.log('Starting to collect hazardous activities data...');
+        
         // Collect all hazardous activity checkboxes
         const hazardIds = [
             'hazSlipperyFloor', 'hazSharpObjects', 'hazHotSurface', 'hazMovingVehicle',
@@ -1334,10 +1527,18 @@ class PtwForm {
             'hazPressurizedEquipment', 'hazEngulfmentEquipment', 'hazMolds'
         ];
         
+        let checkedCount = 0;
         hazardIds.forEach(hazardId => {
             const checkbox = $(`#${hazardId}`);
             if (checkbox.length) {
-                hazards[hazardId] = checkbox.is(':checked');
+                const isChecked = checkbox.is(':checked');
+                hazards[hazardId] = isChecked;
+                if (isChecked) {
+                    checkedCount++;
+                    console.log(`Found checked hazard: ${hazardId}`);
+                }
+            } else {
+                console.warn(`Hazard checkbox not found: ${hazardId}`);
             }
         });
         
@@ -1345,13 +1546,101 @@ class PtwForm {
         const othersCheckbox = $('#hazOthers');
         const othersText = $('#hazOthersText');
         
-        hazards['hazOthers'] = {
-            checked: othersCheckbox.is(':checked'),
-            value: othersCheckbox.is(':checked') ? othersText.val() : ''
+        if (othersCheckbox.length) {
+            const isOthersChecked = othersCheckbox.is(':checked');
+            hazards['hazOthers'] = {
+                checked: isOthersChecked,
+                value: isOthersChecked ? othersText.val() : ''
+            };
+            if (isOthersChecked) {
+                checkedCount++;
+                console.log(`Found checked hazard: hazOthers with value: ${othersText.val()}`);
+            }
+        } else {
+            console.warn('Others hazard checkbox not found: hazOthers');
+        }
+        
+        console.log(`Collected hazardous activities: ${checkedCount} items checked out of ${hazardIds.length + 1} total`);
+        console.log('All hazardous activities data:', hazards);
+        return hazards;
+    }
+
+    getWorkTypeSpecificChecklists() {
+        const workTypeChecklists = {
+            hot_work: null,
+            cold_work: null,
+            confined_space: null
         };
         
-        console.log('Collected hazardous activities:', hazards);
-        return hazards;
+        console.log('Starting to collect work type specific checklists...');
+        
+        // Collect hot work checklist items
+        const hotWorkItems = {};
+        const hotWorkCheckboxes = document.querySelectorAll('#hotWorkSection input[type="checkbox"]');
+        console.log(`Found ${hotWorkCheckboxes.length} hot work checkboxes`);
+        hotWorkCheckboxes.forEach(checkbox => {
+            console.log(`Hot work checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
+            if (checkbox.checked) {
+                const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
+                hotWorkItems[checkbox.id] = label;
+                console.log(`Added hot work item: ${checkbox.id} = ${label}`);
+            }
+        });
+        if (Object.keys(hotWorkItems).length > 0) {
+            workTypeChecklists.hot_work = hotWorkItems;
+        }
+        
+        // Collect cold work checklist items
+        const coldWorkItems = {};
+        const coldWorkCheckboxes = document.querySelectorAll('#coldWorkSection input[type="checkbox"]');
+        console.log(`Found ${coldWorkCheckboxes.length} cold work checkboxes`);
+        coldWorkCheckboxes.forEach(checkbox => {
+            console.log(`Cold work checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
+            if (checkbox.checked) {
+                const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
+                coldWorkItems[checkbox.id] = label;
+                console.log(`Added cold work item: ${checkbox.id} = ${label}`);
+                
+                // Handle "Others" text field for cold work
+                if (checkbox.id === 'coldOthers') {
+                    const othersText = document.getElementById('coldOthersText');
+                    if (othersText && othersText.value.trim()) {
+                        coldWorkItems[checkbox.id] = othersText.value.trim();
+                        console.log(`Added cold work others text: ${othersText.value.trim()}`);
+                    }
+                }
+            }
+        });
+        
+        // Also collect special precautions text area for cold work
+        const coldSpecialPrecautions = document.getElementById('coldSpecialPrecautions');
+        if (coldSpecialPrecautions && coldSpecialPrecautions.value.trim()) {
+            coldWorkItems['coldSpecialPrecautions'] = coldSpecialPrecautions.value.trim();
+            console.log(`Added cold work special precautions: ${coldSpecialPrecautions.value.trim()}`);
+        }
+        
+        if (Object.keys(coldWorkItems).length > 0) {
+            workTypeChecklists.cold_work = coldWorkItems;
+        }
+        
+        // Collect confined space checklist items
+        const confinedSpaceItems = {};
+        const confinedSpaceCheckboxes = document.querySelectorAll('#confinedSpaceSection input[type="checkbox"]');
+        console.log(`Found ${confinedSpaceCheckboxes.length} confined space checkboxes`);
+        confinedSpaceCheckboxes.forEach(checkbox => {
+            console.log(`Confined space checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
+            if (checkbox.checked) {
+                const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
+                confinedSpaceItems[checkbox.id] = label;
+                console.log(`Added confined space item: ${checkbox.id} = ${label}`);
+            }
+        });
+        if (Object.keys(confinedSpaceItems).length > 0) {
+            workTypeChecklists.confined_space = confinedSpaceItems;
+        }
+        
+        console.log('Work type specific checklists collected:', workTypeChecklists);
+        return workTypeChecklists;
     }
 
     resetForm() {
@@ -1415,16 +1704,21 @@ class PtwForm {
 
         // Final check: if work_type is empty but checkboxes are selected, fix it
         let workType = $('#optPtwWorkType').val();
+        console.log('Initial work type from dropdown:', workType);
+        console.log('Cold work checkbox checked:', $('#chkColdWork').is(':checked'));
+        console.log('Hot work checkbox checked:', $('#chkHotWork').is(':checked'));
+        console.log('Confined space checkbox checked:', $('#chkConfinedSpace').is(':checked'));
+        
         if (!workType) {
             if ($('#chkHotWork').is(':checked')) {
-                workType = 'hot_work';
-                $('#optPtwWorkType').val('hot_work');
+                workType = 'HOT_WORK';
+                $('#optPtwWorkType').val('HOT_WORK');
             } else if ($('#chkConfinedSpace').is(':checked')) {
-                workType = 'confined_space';
-                $('#optPtwWorkType').val('confined_space');
+                workType = 'CONFINED_SPACE';
+                $('#optPtwWorkType').val('CONFINED_SPACE');
             } else if ($('#chkColdWork').is(':checked')) {
-                workType = 'cold_work';
-                $('#optPtwWorkType').val('cold_work');
+                workType = 'COLD_WORK';
+                $('#optPtwWorkType').val('COLD_WORK');
             }
             console.log('Work type fixed from checkboxes:', workType);
         }
@@ -1454,9 +1748,26 @@ class PtwForm {
             public_user: 'Public User' // Assign to public user
         };
 
+        // Add work type specific checklists as separate fields
+        const workTypeChecklists = this.getWorkTypeSpecificChecklists();
+        if (workTypeChecklists.hot_work) {
+            formData.checklist_hot_work = JSON.stringify(workTypeChecklists.hot_work);
+        }
+        if (workTypeChecklists.cold_work) {
+            formData.checklist_cold_work = JSON.stringify(workTypeChecklists.cold_work);
+        }
+        if (workTypeChecklists.confined_space) {
+            formData.checklist_confined_space = JSON.stringify(workTypeChecklists.confined_space);
+        }
+
         console.log('Form data prepared for public submission:', formData);
         console.log('Work type value being sent:', formData.work_type);
         console.log('Workers data being sent:', formData.workers);
+        console.log('Checklist data being sent:', formData.checklist_data);
+        console.log('Hot work checklist being sent:', formData.checklist_hot_work);
+        console.log('Cold work checklist being sent:', formData.checklist_cold_work);
+        console.log('Confined space checklist being sent:', formData.checklist_confined_space);
+        console.log('Hazardous activities being sent:', formData.hazardous_activities);
         console.log('API URL:', this.apiUrl);
         console.log('Starting public PTW submission process...');
 

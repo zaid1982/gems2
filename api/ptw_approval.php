@@ -325,15 +325,42 @@ function transformDatabaseToFrontend($dbData) {
         $transformed['workers'] = array();
     }
     
-    // Handle work type specific data based on type - use database columns directly
+    // Handle work type specific data based on type - support multiple work types
     $workType = $transformed['work_type'];
-    if (strpos($workType, 'hot') !== false) {
-        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? '') ?: 'welding';
-        $transformed['hot_precautions'] = 'Standard hot work precautions';
-    } elseif (strpos($workType, 'confined') !== false) {
-        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
-        $transformed['cs_precautions'] = 'Standard confined space precautions';
+    $workTypes = $transformed['ptw_work_types'] ?? '';
+    
+    // Parse multiple work types if available
+    $selectedWorkTypes = [];
+    if (!empty($workTypes)) {
+        // Handle comma-separated work types from database
+        $selectedWorkTypes = array_map('trim', explode(',', $workTypes));
     } else {
+        // Fallback to single work type
+        $selectedWorkTypes = [$workType];
+    }
+    
+    // Process each work type and add corresponding data
+    foreach ($selectedWorkTypes as $type) {
+        $normalizedType = strtolower(trim($type));
+        
+        if (strpos($normalizedType, 'hot') !== false || $normalizedType === 'hot_work') {
+            $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? '') ?: 'welding';
+            $transformed['hot_precautions'] = 'Standard hot work precautions';
+        }
+        
+        if (strpos($normalizedType, 'confined') !== false || $normalizedType === 'confined_space') {
+            $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
+            $transformed['cs_precautions'] = 'Standard confined space precautions';
+        }
+        
+        if (strpos($normalizedType, 'cold') !== false || $normalizedType === 'cold_work') {
+            $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
+            $transformed['cold_precautions'] = 'Standard safety precautions';
+        }
+    }
+    
+    // If no specific work types were processed, default to cold work
+    if (empty($selectedWorkTypes) || (count($selectedWorkTypes) === 1 && empty($selectedWorkTypes[0]))) {
         $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
         $transformed['cold_precautions'] = 'Standard safety precautions';
     }
@@ -378,6 +405,7 @@ function mapWorkType($dbWorkType) {
 
 /**
  * Parse checklist data (could be JSON, comma-separated, or array)
+ * Enhanced to handle new object format: {coldElectricalWork: "Electrical Work", ...}
  */
 function parseChecklistData($checklistData) {
     if (empty($checklistData)) {
@@ -389,36 +417,50 @@ function parseChecklistData($checklistData) {
         return implode(',', array_keys(array_filter($checklistData)));
     }
     
-    // Try to decode as JSON first
+    // Try to decode as JSON
     $decoded = json_decode($checklistData, true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-        // Handle different JSON structures
-        if (isset($decoded[0]) && is_array($decoded[0])) {
-            // Array of objects
-            return implode(',', array_column($decoded, 'value'));
-        } else {
-            // Key-value pairs, return keys of truthy values
-            $selected = array_keys(array_filter($decoded, function($value) {
-                return $value === true || $value === 'true' || $value === 'yes' || $value === 1 || $value === '1';
-            }));
-            return implode(',', $selected);
-        }
-    }
-    
-    // If it's a JSON string nested inside a string (like the database data), try to decode again
-    if (is_string($checklistData) && (strpos($checklistData, '{') === 0 || strpos($checklistData, '[') === 0)) {
-        // Try double decoding for nested JSON strings
-        $double_decoded = json_decode($checklistData, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($double_decoded)) {
-            $selected = array_keys(array_filter($double_decoded, function($value) {
-                return $value === true || $value === 'true' || $value === 'yes' || $value === 1 || $value === '1';
-            }));
-            return implode(',', $selected);
-        }
+        return extractSelectedKeys($decoded);
     }
     
     // Return as is if not JSON (could be comma-separated string)
     return $checklistData;
+}
+
+/**
+ * Helper function to extract selected keys from decoded checklist data
+ */
+function extractSelectedKeys($decoded) {
+    // Handle array of objects
+    if (isset($decoded[0]) && is_array($decoded[0])) {
+        return implode(',', array_column($decoded, 'value'));
+    }
+    
+    // Handle key-value pairs
+    $selected = [];
+    foreach ($decoded as $key => $value) {
+        if (isValueSelected($value)) {
+            $selected[] = $key;
+        }
+    }
+    return implode(',', $selected);
+}
+
+/**
+ * Check if a value should be considered as selected
+ */
+function isValueSelected($value) {
+    // Boolean true values
+    if ($value === true || $value === 'true' || $value === 'yes' || $value === 1 || $value === '1') {
+        return true;
+    }
+    
+    // String values (like checkbox labels) - not empty and not false-like
+    if (is_string($value) && !empty(trim($value)) && $value !== 'false' && $value !== '0') {
+        return true;
+    }
+    
+    return false;
 }
 
 /**
