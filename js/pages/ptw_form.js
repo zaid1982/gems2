@@ -675,13 +675,63 @@ class PtwForm {
             }
         }
 
-        // Load certificate numbers
+        // Load hazardous activities
+        if (data.ptw_hazardous_activities) {
+            try {
+                const hazardsData = JSON.parse(data.ptw_hazardous_activities);
+                
+                Object.keys(hazardsData).forEach(hazardId => {
+                    const hazardData = hazardsData[hazardId];
+                    
+                    if (hazardId === 'hazOthers' && typeof hazardData === 'object') {
+                        // Handle "Others" field with text input
+                        $(`#${hazardId}`).prop('checked', hazardData.checked || false);
+                        const textField = $('#hazOthersText');
+                        if (hazardData.checked) {
+                            textField.val(hazardData.value || '').prop('disabled', false);
+                        } else {
+                            textField.val('').prop('disabled', true);
+                        }
+                    } else {
+                        // Handle regular checkbox fields
+                        $(`#${hazardId}`).prop('checked', hazardData === true);
+                    }
+                });
+                
+                console.log('Loaded hazardous activities:', hazardsData);
+            } catch (e) {
+                console.error('Error parsing hazardous activities:', e);
+            }
+        }
+
+        // Load certificate numbers with checkbox states
         if (data.ptw_certificate_numbers) {
             try {
                 const certificateData = JSON.parse(data.ptw_certificate_numbers);
+                
+                // Handle both old format (direct values) and new format (checkbox + value objects)
                 Object.keys(certificateData).forEach(key => {
-                    $(`#txt${key.charAt(0).toUpperCase() + key.slice(1)}`).val(certificateData[key]);
+                    const certData = certificateData[key];
+                    
+                    if (typeof certData === 'object' && certData !== null) {
+                        // New format: {checked: boolean, value: string}
+                        const checkboxId = this.getCertificateCheckboxId(key);
+                        const inputId = this.getCertificateInputId(key);
+                        
+                        if (checkboxId) {
+                            $(`#${checkboxId}`).prop('checked', certData.checked || false);
+                            
+                            // Only set input value if input field exists (not for sub-items)
+                            if (inputId) {
+                                $(`#${inputId}`).val(certData.value || '').prop('disabled', !certData.checked);
+                            }
+                        }
+                    } else {
+                        // Old format: direct value (for backward compatibility)
+                        $(`#txt${key.charAt(0).toUpperCase() + key.slice(1)}`).val(certData);
+                    }
                 });
+                
                 console.log('Loaded certificate numbers:', certificateData);
             } catch (e) {
                 console.error('Error parsing certificate numbers:', e);
@@ -1173,6 +1223,137 @@ class PtwForm {
         return declarations;
     }
 
+    getCertificateData() {
+        const certificates = {};
+        
+        // Main certificates with text fields
+        const mainCertificateFields = [
+            { checkbox: 'chkExcavationCert', input: 'certExcavation', name: 'excavationCert' },
+            { checkbox: 'chkLiftingCert', input: 'certLifting', name: 'liftingCert' },
+            { checkbox: 'chkPhysicalIsolation', input: 'certPhysicalIsolation', name: 'physicalIsolation' },
+            { checkbox: 'chkElectricalIsolation', input: 'certElectricalIsolation', name: 'electricalIsolation' },
+            { checkbox: 'chkConfinedSpace', input: 'certConfinedSpace', name: 'confinedSpaceCert' },
+            { checkbox: 'chkOthers', input: 'certOthers', name: 'othersCert' }
+        ];
+        
+        // Sub-items (checkbox only, no text input)
+        const subItems = [
+            { checkbox: 'chkExcavationPlan', name: 'excavationPlan' },
+            { checkbox: 'chkLiftingPlan', name: 'liftingPlan' },
+            { checkbox: 'chkLiftingChecklist', name: 'liftingChecklist' }
+        ];
+        
+        // Collect main certificates with text fields
+        mainCertificateFields.forEach(field => {
+            const checkbox = $(`#${field.checkbox}`);
+            const input = $(`#${field.input}`);
+            
+            certificates[field.name] = {
+                checked: checkbox.is(':checked'),
+                value: checkbox.is(':checked') ? input.val() : ''
+            };
+        });
+        
+        // Collect sub-items (checkbox only)
+        subItems.forEach(item => {
+            const checkbox = $(`#${item.checkbox}`);
+            
+            certificates[item.name] = {
+                checked: checkbox.is(':checked'),
+                value: '' // No text input for sub-items
+            };
+        });
+        
+        console.log('Collected certificate data:', certificates);
+        return certificates;
+    }
+
+    getCertificateCheckboxId(certKey) {
+        const mapping = {
+            'excavationCert': 'chkExcavationCert',
+            'excavationPlan': 'chkExcavationPlan',
+            'liftingCert': 'chkLiftingCert',
+            'liftingPlan': 'chkLiftingPlan',
+            'liftingChecklist': 'chkLiftingChecklist',
+            'physicalIsolation': 'chkPhysicalIsolation',
+            'electricalIsolation': 'chkElectricalIsolation',
+            'confinedSpaceCert': 'chkConfinedSpace',
+            'othersCert': 'chkOthers'
+        };
+        return mapping[certKey] || null;
+    }
+
+    getCertificateInputId(certKey) {
+        const mapping = {
+            'excavationCert': 'certExcavation',
+            'excavationPlan': null, // No input field for sub-item
+            'liftingCert': 'certLifting',
+            'liftingPlan': null, // No input field for sub-item
+            'liftingChecklist': null, // No input field for sub-item
+            'physicalIsolation': 'certPhysicalIsolation',
+            'electricalIsolation': 'certElectricalIsolation',
+            'confinedSpaceCert': 'certConfinedSpace',
+            'othersCert': 'certOthers'
+        };
+        return mapping[certKey] || null;
+    }
+
+    getSupportingDocumentsData() {
+        const supportingDocs = [];
+        
+        // Collect all checked supporting document checkboxes
+        const supportingDocIds = [
+            'calibrationCert', 'loadChart', 'toolboxTalk', 'safetyDataSheet',
+            'jobMethodStatement', 'jobHazardAnalysis', 'certificateFitness', 'cidbGreenCard',
+            'aespCard', 'competencyPersonCert', 'contractorChecklist', 'medicalCheckUp',
+            'hirarc', 'trafficManagementPlan'
+        ];
+        
+        supportingDocIds.forEach(docId => {
+            const checkbox = $(`#chkSupportingDoc_${docId}`);
+            if (checkbox.is(':checked')) {
+                supportingDocs.push(docId);
+            }
+        });
+        
+        console.log('Collected supporting documents:', supportingDocs);
+        return supportingDocs;
+    }
+
+    getHazardousActivitiesData() {
+        const hazards = {};
+        
+        // Collect all hazardous activity checkboxes
+        const hazardIds = [
+            'hazSlipperyFloor', 'hazSharpObjects', 'hazHotSurface', 'hazMovingVehicle',
+            'hazVolatileLiquid', 'hazIlluminationDeficiency', 'hazRotatingParts', 'hazDroppedObjects',
+            'hazFallFromHeight', 'hazElectrical', 'hazGasFumes', 'hazSimultaneousOperation',
+            'hazChemical', 'hazIonizingRadiation', 'hazUnevenGround', 'hazExtremeWeather',
+            'hazFlyingDebris', 'hazWildAnimals', 'hazOxygenDeficiency', 'hazPoisonousSubstance',
+            'hazInfectiousSubstance', 'hazPinchPoint', 'hazExcessiveNoise', 'hazErgonomicFatigue',
+            'hazPressurizedEquipment', 'hazEngulfmentEquipment', 'hazMolds'
+        ];
+        
+        hazardIds.forEach(hazardId => {
+            const checkbox = $(`#${hazardId}`);
+            if (checkbox.length) {
+                hazards[hazardId] = checkbox.is(':checked');
+            }
+        });
+        
+        // Handle "Others" field with text input
+        const othersCheckbox = $('#hazOthers');
+        const othersText = $('#hazOthersText');
+        
+        hazards['hazOthers'] = {
+            checked: othersCheckbox.is(':checked'),
+            value: othersCheckbox.is(':checked') ? othersText.val() : ''
+        };
+        
+        console.log('Collected hazardous activities:', hazards);
+        return hazards;
+    }
+
     resetForm() {
         console.log('Resetting form for next submission...');
         
@@ -1198,6 +1379,13 @@ class PtwForm {
         
         // Clear PPE others field
         $('#ppeOthersSpecify').val('');
+        
+        // Clear certificate input fields and disable them (only main certificates have input fields)
+        $('#certExcavation, #certLifting, #certPhysicalIsolation, #certElectricalIsolation').val('').prop('disabled', true);
+        $('#certConfinedSpace, #certOthers').val('').prop('disabled', true);
+        
+        // Clear hazardous activities others field
+        $('#hazOthersText').val('').prop('disabled', true);
         
         // Clear any validation errors
         $('.is-invalid').removeClass('is-invalid');
@@ -1260,6 +1448,9 @@ class PtwForm {
             workers: this.getWorkersData(),
             checklist_data: JSON.stringify(this.getChecklistData()),
             declaration_checklist: JSON.stringify(this.getContractorDeclarations()),
+            certificate_numbers: JSON.stringify(this.getCertificateData()),
+            supporting_docs_checklist: JSON.stringify(this.getSupportingDocumentsData()),
+            hazardous_activities: JSON.stringify(this.getHazardousActivitiesData()),
             public_user: 'Public User' // Assign to public user
         };
 

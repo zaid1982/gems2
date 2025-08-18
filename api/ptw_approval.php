@@ -178,84 +178,133 @@ function handleGetPtw() {
  * Transform database fields to frontend expected format
  */
 function transformDatabaseToFrontend($dbData) {
-    // Parse additional data from remarks field (stored as JSON with [ADDITIONAL_DATA] prefix)
-    $additional_data = array();
-    $remarks = $dbData['ptw_remarks'] ?? '';
-    if (strpos($remarks, '[ADDITIONAL_DATA]') !== false) {
-        $json_start = strpos($remarks, '[ADDITIONAL_DATA]') + strlen('[ADDITIONAL_DATA]');
-        $json_data = substr($remarks, $json_start);
-        $additional_data = json_decode($json_data, true) ?: array();
-        // Remove the additional data from remarks for display
-        $remarks = trim(substr($remarks, 0, strpos($remarks, '[ADDITIONAL_DATA]')));
-    }
-    
-    // Handle multiple work types
-    $selected_work_types = isset($additional_data['selected_work_types']) ? $additional_data['selected_work_types'] : '';
-    $work_types_array = !empty($selected_work_types) ? explode(',', $selected_work_types) : array();
-    
-    // Map database work type back to frontend format
-    $primary_work_type = mapWorkType($dbData['ptw_work_type'] ?? 'COLD_WORK');
-    
-    // If no work types in additional data, at least include the primary work type
-    if (empty($work_types_array) && !empty($primary_work_type)) {
-        $work_types_array = array($primary_work_type);
-    }
-    
     // Map database fields to frontend field names based on actual database schema
     $transformed = array(
+        // Basic PTW information - use correct database column names
         'id' => $dbData['ptw_permit_number'] ?? $dbData['ptw_permit_id'],
-        'applicant_name' => $dbData['ptw_applicant_name'] ?? '',
-        'contractor_supervisor' => $additional_data['contractor_supervisor'] ?? '',
-        'contractor_company' => $dbData['ptw_contractor_company'] ?? '',
-        'work_area' => $dbData['ptw_work_area'] ?? '',
-        'work_type' => $primary_work_type, // Primary work type for backward compatibility
-        'work_types_selected' => $work_types_array, // Array of all selected work types
-        'risk_level' => strtolower($dbData['ptw_risk_level'] ?? 'medium'),
+        'ptw_permit_id' => $dbData['ptw_permit_id'] ?? '',
+        'ptw_permit_number' => $dbData['ptw_permit_number'] ?? '',
+        'description' => $dbData['ptw_permit_description'] ?? '',
         'work_description' => $dbData['ptw_permit_description'] ?? '',
-        'applicant_contact' => $dbData['ptw_applicant_contact'] ?? '',
-        'staff_nric' => $additional_data['staff_nric'] ?? '',
-        'supervisor_contact' => $additional_data['supervisor_contact'] ?? '',
-        'identification_no' => $additional_data['identification_no'] ?? '',
+        'work_area' => $dbData['ptw_work_area'] ?? '',
+        'work_type' => mapWorkType($dbData['ptw_work_type'] ?? 'Cold Work'),
+        'ptw_work_type' => $dbData['ptw_work_type'] ?? '',
+        'ptw_work_types' => $dbData['ptw_work_types'] ?? '',
+        'work_types_selected' => $dbData['ptw_work_types'] ?? '',
+        'risk_level' => strtolower($dbData['ptw_risk_level'] ?? 'medium'),
+        'ptw_risk_level' => $dbData['ptw_risk_level'] ?? '',
+        
+        // Date fields
         'valid_from' => formatDate($dbData['ptw_valid_from']),
         'valid_to' => formatDate($dbData['ptw_valid_to']),
-        'level' => $additional_data['level'] ?? 'Ground Level',
-        'remarks' => $remarks,
-        'work_duration' => $dbData['ptw_work_duration'] ?? $additional_data['work_duration'] ?? '',
+        'ptw_valid_from' => $dbData['ptw_valid_from'] ?? '',
+        'ptw_valid_to' => $dbData['ptw_valid_to'] ?? '',
+        
+        // Applicant information - use correct database column names
+        'applicant_name' => $dbData['ptw_applicant_name'] ?? '',
+        'ptw_applicant_name' => $dbData['ptw_applicant_name'] ?? '',
+        'applicant_contact' => $dbData['ptw_applicant_contact'] ?? '',
+        'ptw_applicant_contact' => $dbData['ptw_applicant_contact'] ?? '',
+        'applicant_department' => $dbData['ptw_applicant_company_dept'] ?? '',
+        'ptw_applicant_company_dept' => $dbData['ptw_applicant_company_dept'] ?? '',
+        
+        // Contractor information - use correct database column names
+        'contractor_company' => $dbData['ptw_contractor_company'] ?? '',
+        'ptw_contractor_company' => $dbData['ptw_contractor_company'] ?? '',
+        'contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? '',
+        'ptw_contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? '',
+        
+        // Enhanced fields - use correct database column names
+        'staff_nric' => $dbData['ptw_staff_nric'] ?? '',
+        'ptw_staff_nric' => $dbData['ptw_staff_nric'] ?? '',
+        'supervisor_contact' => $dbData['ptw_supervisor_contact'] ?? '',
+        'ptw_supervisor_contact' => $dbData['ptw_supervisor_contact'] ?? '',
+        'identification_no' => $dbData['ptw_identification_no'] ?? '',
+        'ptw_identification_no' => $dbData['ptw_identification_no'] ?? '',
+        'level' => $dbData['ptw_level'] ?? '',
+        'ptw_level' => $dbData['ptw_level'] ?? '',
+        'work_duration' => $dbData['ptw_work_duration'] ?? '',
+        'ptw_work_duration' => $dbData['ptw_work_duration'] ?? '',
+        
+        // Safety information - use correct database column names
         'hazards' => $dbData['ptw_hazards'] ?? '',
+        'ptw_hazards' => $dbData['ptw_hazards'] ?? '',
         'control_measures' => $dbData['ptw_control_measures'] ?? '',
-        'applicant_company_dept' => $dbData['ptw_applicant_company_dept'] ?? '',
+        'ptw_control_measures' => $dbData['ptw_control_measures'] ?? '',
         
-        // Additional fields from database
+        // Remarks and additional info
+        'remarks' => $dbData['ptw_remarks'] ?? '',
+        'ptw_remarks' => $dbData['ptw_remarks'] ?? '',
+        
+        // Status and workflow fields
         'status' => $dbData['ptw_status'] ?? 'DRAFT',
-        'created_date' => formatDate($dbData['created_date']),
-        'updated_date' => formatDate($dbData['updated_date']),
+        'ptw_status' => $dbData['ptw_status'] ?? 'DRAFT',
         
-        // Approval status fields
+        // Approval status fields - use correct database column names
         'supervisor_approval' => $dbData['ptw_supervisor_approval'] ?? 'PENDING',
+        'ptw_supervisor_approval' => $dbData['ptw_supervisor_approval'] ?? 'PENDING',
         'supervisor_comments' => $dbData['ptw_supervisor_comments'] ?? '',
+        'ptw_supervisor_comments' => $dbData['ptw_supervisor_comments'] ?? '',
         'supervisor_approval_date' => formatDate($dbData['ptw_supervisor_approval_date']),
+        'ptw_supervisor_approval_date' => $dbData['ptw_supervisor_approval_date'] ?? '',
+        
         'she_approval' => $dbData['ptw_she_approval'] ?? 'PENDING',
+        'ptw_she_approval' => $dbData['ptw_she_approval'] ?? 'PENDING',
         'she_remarks' => $dbData['ptw_she_remarks'] ?? '',
+        'ptw_she_remarks' => $dbData['ptw_she_remarks'] ?? '',
         'she_approval_date' => formatDate($dbData['approved_she_date']),
+        'approved_she_date' => $dbData['approved_she_date'] ?? '',
+        
         'fm_approval' => $dbData['ptw_fm_approval'] ?? 'PENDING',
+        'ptw_fm_approval' => $dbData['ptw_fm_approval'] ?? 'PENDING',
         'fm_remarks' => $dbData['ptw_fm_remarks'] ?? '',
+        'ptw_fm_remarks' => $dbData['ptw_fm_remarks'] ?? '',
         'fm_approval_date' => formatDate($dbData['approved_fm_date']),
+        'approved_fm_date' => $dbData['approved_fm_date'] ?? '',
         
-        // Checklist data from additional data (priority) then database columns
-        'checklist_cold_work' => parseChecklistData($additional_data['checklist_cold_work'] ?? $dbData['ptw_checklist_cold_work'] ?? ''),
-        'checklist_hot_work' => parseChecklistData($additional_data['checklist_hot_work'] ?? $dbData['ptw_checklist_hot_work'] ?? ''),
-        'checklist_confined_space' => parseChecklistData($additional_data['checklist_confined_space'] ?? $dbData['ptw_checklist_confined_space'] ?? ''),
-        'hazard_checklist' => parseChecklistData($additional_data['hazard_checklist'] ?? $dbData['ptw_hazard_checklist'] ?? ''),
-        'declaration_checklist' => parseChecklistData($additional_data['declaration_checklist'] ?? $dbData['ptw_declaration_checklist'] ?? ''),
-        'supporting_docs_checklist' => parseChecklistData($additional_data['supporting_docs_checklist'] ?? $dbData['ptw_supporting_docs_checklist'] ?? ''),
+        // Checklist data - use correct database column names
+        'checklist_cold_work' => $dbData['ptw_checklist_cold_work'] ?? '',
+        'ptw_checklist_cold_work' => $dbData['ptw_checklist_cold_work'] ?? '',
+        'checklist_hot_work' => $dbData['ptw_checklist_hot_work'] ?? '',
+        'ptw_checklist_hot_work' => $dbData['ptw_checklist_hot_work'] ?? '',
+        'checklist_confined_space' => $dbData['ptw_checklist_confined_space'] ?? '',
+        'ptw_checklist_confined_space' => $dbData['ptw_checklist_confined_space'] ?? '',
+        'hazard_checklist' => $dbData['ptw_hazard_checklist'] ?? '',
+        'ptw_hazard_checklist' => $dbData['ptw_hazard_checklist'] ?? '',
+        'declaration_checklist' => $dbData['ptw_declaration_checklist'] ?? '',
+        'ptw_declaration_checklist' => $dbData['ptw_declaration_checklist'] ?? '',
+        'supporting_docs_checklist' => $dbData['ptw_supporting_docs_checklist'] ?? '',
+        'ptw_supporting_docs_checklist' => $dbData['ptw_supporting_docs_checklist'] ?? '',
+        'certificate_numbers' => $dbData['ptw_certificate_numbers'] ?? '',
+        'ptw_certificate_numbers' => $dbData['ptw_certificate_numbers'] ?? '',
+        'complete_form_data' => $dbData['ptw_complete_form_data'] ?? '',
+        'ptw_complete_form_data' => $dbData['ptw_complete_form_data'] ?? '',
         
-        // Certificate numbers from additional data (priority) then database columns
-        'certificate_numbers' => parseChecklistData($additional_data['certificate_numbers'] ?? $dbData['ptw_certificate_numbers'] ?? ''),
-        
-        // Site and user info
+        // System fields
         'site_id' => $dbData['site_id'] ?? '',
         'created_by' => $dbData['created_by'] ?? '',
-        'updated_by' => $dbData['updated_by'] ?? ''
+        'created_date' => formatDate($dbData['created_date']),
+        'updated_by' => $dbData['updated_by'] ?? '',
+        'updated_date' => formatDate($dbData['updated_date']),
+        
+        // Additional supervisor fields
+        'approved_supervisor_by' => $dbData['approved_supervisor_by'] ?? '',
+        'approved_supervisor_date' => formatDate($dbData['approved_supervisor_date']),
+        'ptw_supervisor_id' => $dbData['ptw_supervisor_id'] ?? '',
+        'ptw_supervisor_rejection_date' => formatDate($dbData['ptw_supervisor_rejection_date']),
+        
+        // Additional approval fields
+        'approved_she_by' => $dbData['approved_she_by'] ?? '',
+        'approved_fm_by' => $dbData['approved_fm_by'] ?? '',
+        
+        // Lifecycle fields
+        'activated_by' => $dbData['activated_by'] ?? '',
+        'activated_date' => formatDate($dbData['activated_date']),
+        'completed_by' => $dbData['completed_by'] ?? '',
+        'completed_date' => formatDate($dbData['completed_date']),
+        'cancelled_by' => $dbData['cancelled_by'] ?? '',
+        'cancelled_date' => formatDate($dbData['cancelled_date']),
+        'cancel_reason' => $dbData['cancel_reason'] ?? ''
     );
     
     // Handle workers data
@@ -276,21 +325,21 @@ function transformDatabaseToFrontend($dbData) {
         $transformed['workers'] = array();
     }
     
-    // Handle work type specific data based on type
+    // Handle work type specific data based on type - use database columns directly
     $workType = $transformed['work_type'];
     if (strpos($workType, 'hot') !== false) {
-        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? $additional_data['checklist_hot_work'] ?? '') ?: 'welding';
+        $transformed['hot_activities'] = parseChecklistData($dbData['ptw_checklist_hot_work'] ?? '') ?: 'welding';
         $transformed['hot_precautions'] = 'Standard hot work precautions';
     } elseif (strpos($workType, 'confined') !== false) {
-        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? $additional_data['checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
+        $transformed['cs_activities'] = parseChecklistData($dbData['ptw_checklist_confined_space'] ?? '') ?: 'respiratoryAtmosphere,gasMonitoring';
         $transformed['cs_precautions'] = 'Standard confined space precautions';
     } else {
-        $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? $additional_data['checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
+        $transformed['cold_activities'] = parseChecklistData($dbData['ptw_checklist_cold_work'] ?? '') ?: 'visualInspection,lockOutTagOut';
         $transformed['cold_precautions'] = 'Standard safety precautions';
     }
     
-    // Supporting documents - extract from database first, then additional data
-    $supporting_docs_data = parseChecklistData($dbData['ptw_supporting_docs_checklist'] ?? $additional_data['supporting_docs_checklist'] ?? '');
+    // Supporting documents - use database column directly
+    $supporting_docs_data = parseChecklistData($dbData['ptw_supporting_docs_checklist'] ?? '');
     $transformed['supporting_docs'] = $supporting_docs_data ?: 'riskAssessment,methodStatement';
     
     return $transformed;
