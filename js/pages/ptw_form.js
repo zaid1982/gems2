@@ -1702,32 +1702,53 @@ class PtwForm {
         console.log('Starting PTW save process...');
         ShowLoader();
 
+        // Collect all selected work types for multiple selection support
+        const selectedWorkTypes = [];
+        if ($('#chkColdWork').is(':checked')) {
+            selectedWorkTypes.push('COLD_WORK');
+        }
+        if ($('#chkHotWork').is(':checked')) {
+            selectedWorkTypes.push('HOT_WORK');
+        }
+        if ($('#chkConfinedSpace').is(':checked')) {
+            selectedWorkTypes.push('CONFINED_SPACE');
+        }
+        
         // Final check: if work_type is empty but checkboxes are selected, fix it
         let workType = $('#optPtwWorkType').val();
         console.log('Initial work type from dropdown:', workType);
         console.log('Cold work checkbox checked:', $('#chkColdWork').is(':checked'));
         console.log('Hot work checkbox checked:', $('#chkHotWork').is(':checked'));
         console.log('Confined space checkbox checked:', $('#chkConfinedSpace').is(':checked'));
+        console.log('All selected work types:', selectedWorkTypes);
         
         if (!workType) {
+            // Priority order: Hot Work > Confined Space > Cold Work
+            // If multiple are selected, we choose the highest priority one for the primary work type
             if ($('#chkHotWork').is(':checked')) {
                 workType = 'HOT_WORK';
                 $('#optPtwWorkType').val('HOT_WORK');
+                console.log('Work type set to HOT_WORK (hot work checkbox checked)');
             } else if ($('#chkConfinedSpace').is(':checked')) {
                 workType = 'CONFINED_SPACE';
                 $('#optPtwWorkType').val('CONFINED_SPACE');
+                console.log('Work type set to CONFINED_SPACE (confined space checkbox checked)');
             } else if ($('#chkColdWork').is(':checked')) {
                 workType = 'COLD_WORK';
                 $('#optPtwWorkType').val('COLD_WORK');
+                console.log('Work type set to COLD_WORK (cold work checkbox checked)');
             }
             console.log('Work type fixed from checkboxes:', workType);
+        } else {
+            console.log('Work type already set from dropdown:', workType);
         }
 
         const formData = {
             action: 'create_permit', // Always create for public forms
-            description: $('#txtPtwDescription').val(),
+            work_description: $('#txtPtwDescription').val(),
             work_area: $('#txtPtwWorkArea').val(),
             work_type: workType,
+            work_types_selected: JSON.stringify(selectedWorkTypes),
             valid_from: $('#dtPtwValidFrom').val(),
             valid_to: $('#dtPtwValidTo').val(),
             risk_level: $('#optPtwRiskLevel').val(),
@@ -1737,6 +1758,11 @@ class PtwForm {
             applicant_contact: $('#txtPtwApplicantContact').val(),
             applicant_department: $('#txtPtwApplicantDept').val(),
             contractor_company: $('#txtPtwContractorCompany').val(),
+            contractor_supervisor: $('#txtContractorSupervisor').val(),
+            staff_nric: $('#txtStaffNoNRIC').val(),
+            supervisor_contact: $('#txtContactNoSupervisor').val(),
+            identification_no: $('#txtIdentificationNo').val(),
+            level: $('#txtLevel').val(),
             remarks: $('#txtPtwRemarks').val(),
             status: status,
             workers: this.getWorkersData(),
@@ -1761,7 +1787,14 @@ class PtwForm {
         }
 
         console.log('Form data prepared for public submission:', formData);
-        console.log('Work type value being sent:', formData.work_type);
+        console.log('Primary work type being sent:', formData.work_type);
+        console.log('All selected work types being sent:', formData.work_types_selected);
+        console.log('Selected work types array:', selectedWorkTypes);
+        console.log('Contractor supervisor being sent:', formData.contractor_supervisor);
+        console.log('Staff NRIC being sent:', formData.staff_nric);
+        console.log('Supervisor contact being sent:', formData.supervisor_contact);
+        console.log('Identification number being sent:', formData.identification_no);
+        console.log('Level being sent:', formData.level);
         console.log('Workers data being sent:', formData.workers);
         console.log('Checklist data being sent:', formData.checklist_data);
         console.log('Hot work checklist being sent:', formData.checklist_hot_work);

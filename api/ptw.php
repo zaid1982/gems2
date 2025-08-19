@@ -358,7 +358,7 @@ function create_ptw_permit($user_id, $user_site_id) {
     try {
         // Validate required fields
         $required_fields = array(
-            'description', 'work_area', 'work_type', 
+            'work_description', 'work_area', 'work_type', 
             'valid_from', 'applicant_name'
         );
         

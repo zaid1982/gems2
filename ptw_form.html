@@ -1269,9 +1269,9 @@
                                             <!-- Hidden dropdown for JavaScript compatibility -->
                                             <select id="optPtwWorkType" class="form-control" style="display: none;">
                                                 <option value="">Select Work Type</option>
-                                                <option value="cold_work">Cold Work</option>
-                                                <option value="hot_work">Hot Work</option>
-                                                <option value="confined_space">Confined Space</option>
+                                                <option value="COLD_WORK">Cold Work</option>
+                                                <option value="HOT_WORK">Hot Work</option>
+                                                <option value="CONFINED_SPACE">Confined Space</option>
                                             </select>
                                             
                                             <!-- Visible checkbox interface -->
@@ -2832,37 +2832,98 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         });
         
         // Populate work types - handle multiple selections
-        console.log('Populating work types. Primary:', data.work_type, 'Selected:', data.work_types_selected);
+        console.log('Populating work types. Primary:', data.work_type, 'Multiple:', data.work_types);
         
         // Clear all work type checkboxes first
         document.getElementById('chkColdWork').checked = false;
         document.getElementById('chkHotWork').checked = false;
         document.getElementById('chkConfinedSpace').checked = false;
         
-        // Handle multiple work types if available
-        if (data.work_types_selected && Array.isArray(data.work_types_selected)) {
-            console.log('Setting multiple work types:', data.work_types_selected);
+        // Prioritize work_types_selected as the authoritative source
+        if (data.work_types_selected) {
+            let workTypesArray;
             
-            data.work_types_selected.forEach(workType => {
-                const workTypeMapping = {
-                    'cold_work': 'chkColdWork',
-                    'hot_work': 'chkHotWork', 
-                    'confined_space': 'chkConfinedSpace'
-                };
-                
-                if (workTypeMapping[workType]) {
-                    const checkbox = document.getElementById(workTypeMapping[workType]);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        console.log('Set checkbox:', workTypeMapping[workType], 'to checked');
-                    }
+            try {
+                // Handle both array and JSON string formats
+                if (Array.isArray(data.work_types_selected)) {
+                    workTypesArray = data.work_types_selected;
+                } else if (typeof data.work_types_selected === 'string') {
+                    workTypesArray = JSON.parse(data.work_types_selected);
                 }
-            });
+                
+                console.log('Setting multiple work types from work_types_selected (priority):', workTypesArray);
+                
+                if (Array.isArray(workTypesArray)) {
+                    workTypesArray.forEach(workType => {
+                        const workTypeMapping = {
+                            'COLD_WORK': 'chkColdWork',
+                            'HOT_WORK': 'chkHotWork', 
+                            'CONFINED_SPACE': 'chkConfinedSpace',
+                            'cold_work': 'chkColdWork',
+                            'hot_work': 'chkHotWork', 
+                            'confined_space': 'chkConfinedSpace'
+                        };
+                        
+                        if (workTypeMapping[workType]) {
+                            const checkbox = document.getElementById(workTypeMapping[workType]);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                                console.log('Set checkbox:', workTypeMapping[workType], 'to checked for work type:', workType);
+                            }
+                        } else {
+                            console.warn('Unknown work type:', workType);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing work_types_selected:', error, 'Raw value:', data.work_types_selected);
+            }
+        }
+        // Fallback: Handle multiple work types from ptw_work_types (JSON string)
+        else if (data.work_types) {
+            try {
+                let workTypesArray;
+                if (typeof data.work_types === 'string') {
+                    workTypesArray = JSON.parse(data.work_types);
+                } else if (Array.isArray(data.work_types)) {
+                    workTypesArray = data.work_types;
+                }
+                
+                console.log('Setting multiple work types from ptw_work_types:', workTypesArray);
+                
+                if (Array.isArray(workTypesArray)) {
+                    workTypesArray.forEach(workType => {
+                        const workTypeMapping = {
+                            'COLD_WORK': 'chkColdWork',
+                            'HOT_WORK': 'chkHotWork', 
+                            'CONFINED_SPACE': 'chkConfinedSpace',
+                            'cold_work': 'chkColdWork',     // Backward compatibility
+                            'hot_work': 'chkHotWork',       // Backward compatibility
+                            'confined_space': 'chkConfinedSpace'  // Backward compatibility
+                        };
+                        
+                        if (workTypeMapping[workType]) {
+                            const checkbox = document.getElementById(workTypeMapping[workType]);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                                console.log('Set checkbox:', workTypeMapping[workType], 'to checked for work type:', workType);
+                            }
+                        } else {
+                            console.warn('Unknown work type:', workType);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing work_types JSON:', error, 'Raw value:', data.work_types);
+            }
         } else if (data.work_type) {
             // Fallback to single work type for backward compatibility
             console.log('Setting single work type:', data.work_type);
             
             const workTypeMapping = {
+                'COLD_WORK': 'chkColdWork',
+                'HOT_WORK': 'chkHotWork', 
+                'CONFINED_SPACE': 'chkConfinedSpace',
                 'cold_work': 'chkColdWork',
                 'hot_work': 'chkHotWork', 
                 'confined_space': 'chkConfinedSpace'
@@ -2877,10 +2938,28 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             }
         }
         
-        // Set the hidden select for compatibility (use primary work type)
+        // Set the hidden select for compatibility - determine primary work type from checkboxes if not set
         const selectElement = document.getElementById('optPtwWorkType');
-        if (selectElement && data.work_type) {
-            selectElement.value = data.work_type;
+        let primaryWorkType = data.work_type;
+        
+        // If primary work type is empty but checkboxes are set, determine primary based on priority
+        if (!primaryWorkType || primaryWorkType === '') {
+            // Priority order: Hot Work > Confined Space > Cold Work
+            if (document.getElementById('chkHotWork').checked) {
+                primaryWorkType = 'HOT_WORK';
+                console.log('Set primary work type to HOT_WORK based on checkbox priority');
+            } else if (document.getElementById('chkConfinedSpace').checked) {
+                primaryWorkType = 'CONFINED_SPACE';
+                console.log('Set primary work type to CONFINED_SPACE based on checkbox priority');
+            } else if (document.getElementById('chkColdWork').checked) {
+                primaryWorkType = 'COLD_WORK';
+                console.log('Set primary work type to COLD_WORK based on checkbox priority');
+            }
+        }
+        
+        if (selectElement && primaryWorkType) {
+            selectElement.value = primaryWorkType;
+            console.log('Set hidden dropdown to primary work type:', primaryWorkType);
         }
         
         // Populate workers
@@ -2938,6 +3017,213 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                     checkbox.checked = true;
                 }
             });
+        }
+        
+        // Populate cold work checklist from ptw_checklist_cold_work
+        if (data.ptw_checklist_cold_work) {
+            try {
+                let coldWorkData;
+                if (typeof data.ptw_checklist_cold_work === 'string') {
+                    coldWorkData = JSON.parse(data.ptw_checklist_cold_work);
+                } else if (typeof data.ptw_checklist_cold_work === 'object') {
+                    coldWorkData = data.ptw_checklist_cold_work;
+                }
+                
+                console.log('Populating cold work checklist:', coldWorkData);
+                
+                if (coldWorkData && typeof coldWorkData === 'object') {
+                    // Handle checkboxes
+                    Object.keys(coldWorkData).forEach(key => {
+                        if (key !== 'coldSpecialPrecautions') {  // Skip the textarea field
+                            const checkbox = document.getElementById(key);
+                            if (checkbox && checkbox.type === 'checkbox') {
+                                checkbox.checked = true;
+                                console.log('Set cold work checkbox:', key, 'to checked');
+                            }
+                        }
+                    });
+                    
+                    // Handle special precautions textarea
+                    if (coldWorkData.coldSpecialPrecautions) {
+                        const precautionsField = document.getElementById('coldSpecialPrecautions');
+                        if (precautionsField) {
+                            precautionsField.value = coldWorkData.coldSpecialPrecautions;
+                            console.log('Set cold work special precautions:', coldWorkData.coldSpecialPrecautions);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_checklist_cold_work:', error, 'Raw value:', data.ptw_checklist_cold_work);
+            }
+        }
+        
+        // Populate hot work checklist from ptw_checklist_hot_work
+        if (data.ptw_checklist_hot_work) {
+            try {
+                let hotWorkData;
+                if (typeof data.ptw_checklist_hot_work === 'string') {
+                    hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
+                } else if (typeof data.ptw_checklist_hot_work === 'object') {
+                    hotWorkData = data.ptw_checklist_hot_work;
+                }
+                
+                console.log('Populating hot work checklist:', hotWorkData);
+                
+                if (hotWorkData && typeof hotWorkData === 'object') {
+                    // Handle checkboxes
+                    Object.keys(hotWorkData).forEach(key => {
+                        if (key !== 'hotSpecialPrecautions' && key !== 'hotOthersText') {  // Skip textarea and text fields
+                            const checkbox = document.getElementById(key);
+                            if (checkbox && checkbox.type === 'checkbox') {
+                                checkbox.checked = true;
+                                console.log('Set hot work checkbox:', key, 'to checked');
+                            }
+                        }
+                    });
+                    
+                    // Handle special precautions textarea
+                    if (hotWorkData.hotSpecialPrecautions) {
+                        const precautionsField = document.getElementById('hotSpecialPrecautions');
+                        if (precautionsField) {
+                            precautionsField.value = hotWorkData.hotSpecialPrecautions;
+                            console.log('Set hot work special precautions:', hotWorkData.hotSpecialPrecautions);
+                        }
+                    }
+                    
+                    // Handle others text field
+                    if (hotWorkData.hotOthersText) {
+                        const othersField = document.getElementById('hotOthersText');
+                        if (othersField) {
+                            othersField.value = hotWorkData.hotOthersText;
+                            console.log('Set hot work others text:', hotWorkData.hotOthersText);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_checklist_hot_work:', error, 'Raw value:', data.ptw_checklist_hot_work);
+            }
+        }
+        
+        // Populate confined space checklist from ptw_checklist_confined_space
+        if (data.ptw_checklist_confined_space) {
+            try {
+                let confinedSpaceData;
+                if (typeof data.ptw_checklist_confined_space === 'string') {
+                    confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
+                } else if (typeof data.ptw_checklist_confined_space === 'object') {
+                    confinedSpaceData = data.ptw_checklist_confined_space;
+                }
+                
+                console.log('Populating confined space checklist:', confinedSpaceData);
+                
+                if (confinedSpaceData && typeof confinedSpaceData === 'object') {
+                    // Handle checkboxes
+                    Object.keys(confinedSpaceData).forEach(key => {
+                        if (key !== 'csSpecialPrecautions') {  // Skip textarea field
+                            const checkbox = document.getElementById(key);
+                            if (checkbox && checkbox.type === 'checkbox') {
+                                checkbox.checked = true;
+                                console.log('Set confined space checkbox:', key, 'to checked');
+                            }
+                        }
+                    });
+                    
+                    // Handle special precautions textarea
+                    if (confinedSpaceData.csSpecialPrecautions) {
+                        const precautionsField = document.getElementById('csSpecialPrecautions');
+                        if (precautionsField) {
+                            precautionsField.value = confinedSpaceData.csSpecialPrecautions;
+                            console.log('Set confined space special precautions:', confinedSpaceData.csSpecialPrecautions);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_checklist_confined_space:', error, 'Raw value:', data.ptw_checklist_confined_space);
+            }
+        }
+        
+        // Populate supporting documents checklist from ptw_supporting_docs_checklist
+        if (data.ptw_supporting_docs_checklist) {
+            try {
+                let supportingDocsData;
+                if (typeof data.ptw_supporting_docs_checklist === 'string') {
+                    supportingDocsData = JSON.parse(data.ptw_supporting_docs_checklist);
+                } else if (typeof data.ptw_supporting_docs_checklist === 'object') {
+                    supportingDocsData = data.ptw_supporting_docs_checklist;
+                }
+                
+                console.log('Populating supporting documents checklist:', supportingDocsData);
+                
+                if (supportingDocsData && typeof supportingDocsData === 'object') {
+                    // Handle document checkboxes
+                    Object.keys(supportingDocsData).forEach(key => {
+                        const checkbox = document.getElementById(key);
+                        if (checkbox && checkbox.type === 'checkbox') {
+                            checkbox.checked = true;
+                            console.log('Set supporting document checkbox:', key, 'to checked');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_supporting_docs_checklist:', error, 'Raw value:', data.ptw_supporting_docs_checklist);
+            }
+        }
+        
+        // Populate certificate numbers from ptw_certificate_numbers
+        if (data.ptw_certificate_numbers) {
+            try {
+                let certificateData;
+                if (typeof data.ptw_certificate_numbers === 'string') {
+                    certificateData = JSON.parse(data.ptw_certificate_numbers);
+                } else if (typeof data.ptw_certificate_numbers === 'object') {
+                    certificateData = data.ptw_certificate_numbers;
+                }
+                
+                console.log('Populating certificate numbers:', certificateData);
+                
+                if (certificateData && typeof certificateData === 'object') {
+                    // Map certificate data keys to form element IDs
+                    const certificateMapping = {
+                        'excavationCert': { checkbox: 'chkExcavationCert', textField: 'certExcavation' },
+                        'liftingCert': { checkbox: 'chkLiftingCert', textField: 'certLifting' },
+                        'physicalIsolation': { checkbox: 'chkPhysicalIsolation', textField: 'certPhysicalIsolation' },
+                        'electricalIsolation': { checkbox: 'chkElectricalIsolation', textField: 'certElectricalIsolation' },
+                        'confinedSpaceCert': { checkbox: 'chkConfinedSpace', textField: 'certConfinedSpace' },
+                        'othersCert': { checkbox: 'chkOthers', textField: 'certOthers' },
+                        'excavationPlan': { checkbox: 'chkExcavationPlan' },
+                        'liftingPlan': { checkbox: 'chkLiftingPlan' },
+                        'liftingChecklist': { checkbox: 'chkLiftingChecklist' }
+                    };
+                    
+                    Object.keys(certificateData).forEach(key => {
+                        const certData = certificateData[key];
+                        const mapping = certificateMapping[key];
+                        
+                        if (mapping && certData && typeof certData === 'object') {
+                            // Handle checkbox
+                            if (certData.checked && mapping.checkbox) {
+                                const checkbox = document.getElementById(mapping.checkbox);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                    console.log('Set certificate checkbox:', mapping.checkbox, 'to checked');
+                                }
+                            }
+                            
+                            // Handle text field if it exists and has a value
+                            if (certData.value && mapping.textField) {
+                                const textField = document.getElementById(mapping.textField);
+                                if (textField) {
+                                    textField.disabled = false; // Enable the field first
+                                    textField.value = certData.value;
+                                    console.log('Set certificate text field:', mapping.textField, 'to:', certData.value);
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_certificate_numbers:', error, 'Raw value:', data.ptw_certificate_numbers);
+            }
         }
         
         console.log('Form populated with PTW data:', data);
@@ -3065,6 +3351,279 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         }
         
         console.log('Form has been disabled due to data loading error');
+    }
+
+    // Collect Complete Form Data for Debugging and Submission
+    function collectCompleteFormData() {
+        console.log('🔧 Starting complete form data collection...');
+        
+        // Field mapping from HTML form IDs to backend parameter names
+        const fieldMapping = {
+            'txtPtwApplicantName': 'applicant_name',
+            'txtContractorSupervisor': 'contractor_supervisor', 
+            'txtPtwContractorCompany': 'contractor_company',
+            'txtPtwWorkArea': 'work_area',
+            'optPtwRiskLevel': 'risk_level',
+            'txtPtwDescription': 'work_description',
+            'txtPtwApplicantContact': 'applicant_contact',
+            'txtPtwApplicantDept': 'applicant_department',
+            'txtStaffNoNRIC': 'staff_nric',
+            'txtContactNoSupervisor': 'supervisor_contact',
+            'txtIdentificationNo': 'identification_no',
+            'dtPtwValidFrom': 'valid_from',
+            'dtPtwValidTo': 'valid_to',
+            'txtLevel': 'level',
+            'txtPtwRemarks': 'remarks',
+            'txtPtwHazards': 'hazards',
+            'txtPtwControlMeasures': 'control_measures'
+        };
+        
+        const formData = {};
+        
+        // Collect all mapped fields
+        Object.keys(fieldMapping).forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            const paramName = fieldMapping[fieldId];
+            if (element) {
+                formData[paramName] = element.value || '';
+                console.log(`📋 ${fieldId} (${paramName}): "${element.value}"`);
+            } else {
+                console.warn(`⚠️ Field not found: ${fieldId}`);
+            }
+        });
+        
+        // Collect work type and multiple work types
+        const selectedWorkTypes = [];
+        if (document.getElementById('chkColdWork')?.checked) {
+            selectedWorkTypes.push('COLD_WORK');
+        }
+        if (document.getElementById('chkHotWork')?.checked) {
+            selectedWorkTypes.push('HOT_WORK');
+        }
+        if (document.getElementById('chkConfinedSpace')?.checked) {
+            selectedWorkTypes.push('CONFINED_SPACE');
+        }
+        
+        let workType = document.getElementById('optPtwWorkType')?.value || '';
+        console.log(`📋 Initial work type from dropdown: "${workType}"`);
+        console.log(`📋 Cold work checkbox: ${document.getElementById('chkColdWork')?.checked}`);
+        console.log(`📋 Hot work checkbox: ${document.getElementById('chkHotWork')?.checked}`);
+        console.log(`📋 Confined space checkbox: ${document.getElementById('chkConfinedSpace')?.checked}`);
+        console.log(`📋 All selected work types:`, selectedWorkTypes);
+        
+        if (!workType) {
+            // Priority order: Hot Work > Confined Space > Cold Work
+            if (document.getElementById('chkHotWork')?.checked) {
+                workType = 'HOT_WORK';
+                console.log('📋 Work type set to HOT_WORK from checkbox');
+            } else if (document.getElementById('chkConfinedSpace')?.checked) {
+                workType = 'CONFINED_SPACE';
+                console.log('📋 Work type set to CONFINED_SPACE from checkbox');
+            } else if (document.getElementById('chkColdWork')?.checked) {
+                workType = 'COLD_WORK';
+                console.log('📋 Work type set to COLD_WORK from checkbox');
+            }
+        }
+        formData.work_type = workType;
+        formData.work_types_selected = JSON.stringify(selectedWorkTypes);
+        console.log(`📋 Primary work_type: "${workType}"`);
+        console.log(`📋 All work_types_selected: "${formData.work_types_selected}"`);
+        
+        // Collect Cold Work Checklist Data
+        const coldWorkData = {};
+        const coldWorkElements = [
+            'coldElectricalWork', 'coldVisualInspection', 'coldLockOutTagOut', 
+            'coldFireExtinguisher', 'coldMainSupplyCutOff', 'coldWorkingAtHeight',
+            'coldExcavationWork', 'coldLiftingWork', 'coldOthers'
+        ];
+        
+        coldWorkElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element && element.checked) {
+                coldWorkData[elementId] = element.nextElementSibling?.textContent?.trim() || elementId;
+            }
+        });
+        
+        // Add cold work special text fields
+        const coldOthersText = document.getElementById('coldOthersText');
+        if (coldOthersText && coldOthersText.value.trim()) {
+            coldWorkData.coldOthersText = coldOthersText.value.trim();
+        }
+        
+        const coldSpecialPrecautions = document.getElementById('coldSpecialPrecautions');
+        if (coldSpecialPrecautions && coldSpecialPrecautions.value.trim()) {
+            coldWorkData.coldSpecialPrecautions = coldSpecialPrecautions.value.trim();
+        }
+        
+        formData.checklist_cold_work = Object.keys(coldWorkData).length > 0 ? JSON.stringify(coldWorkData) : null;
+        console.log(`📋 Cold Work Checklist Data:`, coldWorkData);
+        
+        // Collect Hot Work Checklist Data
+        const hotWorkData = {};
+        const hotWorkElements = [
+            'hotGasMonitoring', 'hotFirewatch', 'hotRemoveFlammables', 'hotFireExtinguisher',
+            'hotVentilation', 'hotBarricades', 'hotWelding', 'hotCutting', 
+            'hotGrinding', 'hotSoldering', 'hotOthers'
+        ];
+        
+        hotWorkElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element && element.checked) {
+                hotWorkData[elementId] = element.nextElementSibling?.textContent?.trim() || elementId;
+            }
+        });
+        
+        // Add hot work special text fields
+        const hotOthersText = document.getElementById('hotOthersText');
+        if (hotOthersText && hotOthersText.value.trim()) {
+            hotWorkData.hotOthersText = hotOthersText.value.trim();
+        }
+        
+        const hotSpecialPrecautions = document.getElementById('hotSpecialPrecautions');
+        if (hotSpecialPrecautions && hotSpecialPrecautions.value.trim()) {
+            hotWorkData.hotSpecialPrecautions = hotSpecialPrecautions.value.trim();
+        }
+        
+        formData.checklist_hot_work = Object.keys(hotWorkData).length > 0 ? JSON.stringify(hotWorkData) : null;
+        console.log(`📋 Hot Work Checklist Data:`, hotWorkData);
+        
+        // Collect Confined Space Checklist Data
+        const confinedSpaceData = {};
+        const confinedSpaceElements = [
+            'csRespiratoryAtmosphere', 'csNonRespiratoryAtmosphere', 'csGasMonitoring',
+            'csVentilation', 'csEntryAttendant', 'csRescueEquipment', 'csRadio',
+            'csVisualSignals', 'csRopeTugging'
+        ];
+        
+        confinedSpaceElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element && element.checked) {
+                confinedSpaceData[elementId] = element.nextElementSibling?.textContent?.trim() || elementId;
+            }
+        });
+        
+        // Add confined space special precautions
+        const csSpecialPrecautions = document.getElementById('csSpecialPrecautions');
+        if (csSpecialPrecautions && csSpecialPrecautions.value.trim()) {
+            confinedSpaceData.csSpecialPrecautions = csSpecialPrecautions.value.trim();
+        }
+        
+        // Use parameter names that match the form submission
+        formData.checklist_confined_space = Object.keys(confinedSpaceData).length > 0 ? JSON.stringify(confinedSpaceData) : null;
+        console.log(`📋 Confined Space Checklist Data:`, confinedSpaceData);
+        
+        // Collect Supporting Documents Checklist Data
+        const supportingDocsData = [];
+        const supportingDocsElements = document.querySelectorAll('input[name="supportingDocs"]:checked');
+        
+        supportingDocsElements.forEach(element => {
+            supportingDocsData.push(element.value);
+        });
+        
+        formData.supporting_docs_checklist = JSON.stringify(supportingDocsData);
+        console.log(`📋 Supporting Documents Checklist Data:`, supportingDocsData);
+        
+        // Collect Certificate Numbers Data
+        const certificateData = {
+            excavationCert: {
+                checked: document.getElementById('chkExcavationCert')?.checked || false,
+                value: document.getElementById('certExcavation')?.value || ''
+            },
+            liftingCert: {
+                checked: document.getElementById('chkLiftingCert')?.checked || false,
+                value: document.getElementById('certLifting')?.value || ''
+            },
+            physicalIsolation: {
+                checked: document.getElementById('chkPhysicalIsolation')?.checked || false,
+                value: document.getElementById('certPhysicalIsolation')?.value || ''
+            },
+            electricalIsolation: {
+                checked: document.getElementById('chkElectricalIsolation')?.checked || false,
+                value: document.getElementById('certElectricalIsolation')?.value || ''
+            },
+            confinedSpaceCert: {
+                checked: document.getElementById('chkConfinedSpace')?.checked || false,
+                value: document.getElementById('certConfinedSpace')?.value || ''
+            },
+            othersCert: {
+                checked: document.getElementById('chkOthers')?.checked || false,
+                value: document.getElementById('certOthers')?.value || ''
+            },
+            excavationPlan: {
+                checked: document.getElementById('chkExcavationPlan')?.checked || false,
+                value: ''
+            },
+            liftingPlan: {
+                checked: document.getElementById('chkLiftingPlan')?.checked || false,
+                value: ''
+            },
+            liftingChecklist: {
+                checked: document.getElementById('chkLiftingChecklist')?.checked || false,
+                value: ''
+            }
+        };
+        
+        formData.certificate_numbers = JSON.stringify(certificateData);
+        console.log(`📋 Certificate Numbers Data:`, certificateData);
+        
+        // Collect Contractor Declaration Data
+        const declarationData = {};
+        
+        // Collect radio button declarations
+        for (let i = 1; i <= 6; i++) {
+            const yesOption = document.querySelector(`input[name="declaration${i}"][value="yes"]:checked`);
+            const noOption = document.querySelector(`input[name="declaration${i}"][value="no"]:checked`);
+            
+            if (yesOption) {
+                declarationData[`declaration${i}`] = 'yes';
+            } else if (noOption) {
+                declarationData[`declaration${i}`] = 'no';
+            }
+        }
+        
+        // Collect contractor confirmation checkbox
+        const contractorConfirmation = document.getElementById('contractorConfirmation');
+        if (contractorConfirmation) {
+            declarationData.contractorConfirmation = contractorConfirmation.checked;
+        }
+        
+        // Collect PPE checkboxes
+        const ppeElements = [
+            'ppe_safety_helmet', 'ppe_safety_shoes', 'ppe_high_vis_vest', 'ppe_dust_mask',
+            'ppe_respirator', 'ppe_scba', 'ppe_safety_glasses', 'ppe_face_shield',
+            'ppe_coveralls', 'ppe_chemical_suit', 'ppe_work_gloves', 'ppe_chemical_gloves',
+            'ppe_cut_resistant', 'ppe_ear_plugs', 'ppe_ear_muffs'
+        ];
+        
+        ppeElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                declarationData[elementId] = element.checked;
+            }
+        });
+        
+        formData.declaration_checklist = JSON.stringify(declarationData);
+        console.log(`📋 Contractor Declaration Data:`, declarationData);
+        
+        // Collect other complex data if available (for future use)
+        if (window.ptwFormClass_) {
+            try {
+                formData.workers = window.ptwFormClass_.getWorkersData();
+                formData.hazardous_activities = JSON.stringify(window.ptwFormClass_.getHazardousActivitiesData());
+            } catch (error) {
+                console.warn('⚠️ Could not collect additional form data:', error.message);
+            }
+        }
+        
+        // Add metadata
+        formData.action = 'create_permit';
+        formData.status = 'PENDING_SUPERVISOR';
+        formData.public_user = 'Public User';
+        
+        console.log('✅ Complete form data collection completed');
+        console.log('📊 Final collected data:', formData);
+        
+        return formData;
     }
 
     // Initialize Approval Actions
