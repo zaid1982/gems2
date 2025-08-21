@@ -173,12 +173,7 @@ class PtwForm {
             }
         });
 
-        // Test Insert button for auto-filling sample data
-        $('#btnTestInsert').on('click', (e) => {
-            e.preventDefault();
-            console.log('Test Insert button clicked');
-            this.fillSampleData();
-        });
+
 
         // Risk level change
         $('#optPtwRiskLevel').on('change', (e) => {
@@ -744,12 +739,49 @@ class PtwForm {
         if (data.ptw_supporting_docs_checklist) {
             try {
                 const supportingDocsData = JSON.parse(data.ptw_supporting_docs_checklist);
+                console.log('Loading supporting documents data:', supportingDocsData);
+                
                 if (Array.isArray(supportingDocsData)) {
-                    supportingDocsData.forEach(docId => {
-                        $(`#chkSupportingDoc_${docId}`).prop('checked', true);
-                    });
+                    // Create reverse mapping from value to ID
+                    const valueToIdMapping = {
+                        'calibration_certificate': 'docCalibrationCert',
+                        'load_chart': 'docLoadChart',
+                        'toolbox_talk_record': 'docToolboxTalk',
+                        'safety_data_sheet': 'docSafetyDataSheet',
+                        'job_method_statement': 'docJobMethodStatement',
+                        'job_hazard_analysis': 'docJobHazardAnalysis',
+                        'certificate_of_fitness': 'docCertificateOfFitness',
+                        'cidb_green_card': 'docCidbGreenCard',
+                        'aesp_card': 'docAespCard',
+                        'competency_person_certificate': 'docCompetencyPersonCert',
+                        'contractor_checklist': 'docContractorChecklist',
+                        'medical_check_up': 'docMedicalCheckUp',
+                        'hirarc_eaia': 'docHirarcEaia',
+                        'traffic_management_plan': 'docTrafficManagementPlan'
+                    };
+                    
+                    // Use setTimeout to ensure DOM is ready
+                    setTimeout(() => {
+                        let checkedCount = 0;
+                        supportingDocsData.forEach(docValue => {
+                            const checkboxId = valueToIdMapping[docValue];
+                            if (checkboxId) {
+                                const checkbox = document.getElementById(checkboxId);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                    checkedCount++;
+                                    console.log(`✓ Restored supporting document: ${docValue} -> ${checkboxId}`);
+                                } else {
+                                    console.error(`✗ Checkbox not found: ${checkboxId} for ${docValue}`);
+                                }
+                            } else {
+                                console.warn(`✗ Unknown supporting document value: ${docValue}`);
+                            }
+                        });
+                        console.log(`Supporting docs loading complete: ${checkedCount}/${supportingDocsData.length} checkboxes checked`);
+                    }, 100);
                 }
-                console.log('Loaded supporting docs checklist:', supportingDocsData);
+                console.log('Loaded supporting docs checklist successfully');
             } catch (e) {
                 console.error('Error parsing supporting docs checklist:', e);
             }
@@ -1492,18 +1524,31 @@ class PtwForm {
     getSupportingDocumentsData() {
         const supportingDocs = [];
         
-        // Collect all checked supporting document checkboxes
-        const supportingDocIds = [
-            'calibrationCert', 'loadChart', 'toolboxTalk', 'safetyDataSheet',
-            'jobMethodStatement', 'jobHazardAnalysis', 'certificateFitness', 'cidbGreenCard',
-            'aespCard', 'competencyPersonCert', 'contractorChecklist', 'medicalCheckUp',
-            'hirarc', 'trafficManagementPlan'
+        console.log('Starting to collect supporting documents data...');
+        
+        // Collect all checked supporting document checkboxes using actual HTML IDs
+        const supportingDocMapping = [
+            { id: 'docCalibrationCert', value: 'calibration_certificate' },
+            { id: 'docLoadChart', value: 'load_chart' },
+            { id: 'docToolboxTalk', value: 'toolbox_talk_record' },
+            { id: 'docSafetyDataSheet', value: 'safety_data_sheet' },
+            { id: 'docJobMethodStatement', value: 'job_method_statement' },
+            { id: 'docJobHazardAnalysis', value: 'job_hazard_analysis' },
+            { id: 'docCertificateOfFitness', value: 'certificate_of_fitness' },
+            { id: 'docCidbGreenCard', value: 'cidb_green_card' },
+            { id: 'docAespCard', value: 'aesp_card' },
+            { id: 'docCompetencyPersonCert', value: 'competency_person_certificate' },
+            { id: 'docContractorChecklist', value: 'contractor_checklist' },
+            { id: 'docMedicalCheckUp', value: 'medical_check_up' },
+            { id: 'docHirarcEaia', value: 'hirarc_eaia' },
+            { id: 'docTrafficManagementPlan', value: 'traffic_management_plan' }
         ];
         
-        supportingDocIds.forEach(docId => {
-            const checkbox = $(`#chkSupportingDoc_${docId}`);
-            if (checkbox.is(':checked')) {
-                supportingDocs.push(docId);
+        supportingDocMapping.forEach(doc => {
+            const checkbox = document.getElementById(doc.id);
+            if (checkbox && checkbox.checked) {
+                supportingDocs.push(doc.value);
+                console.log(`Found checked supporting document: ${doc.id} -> ${doc.value}`);
             }
         });
         
@@ -1880,155 +1925,6 @@ class PtwForm {
                 $('#txtPtwApplicantNameErr').text('Applicant Name is required');
             }
         });
-    }
-
-    fillSampleData() {
-        console.log('Filling form with sample data for testing...');
-        
-        // Basic Information (Section 1)
-        $('#txtPtwDescription').val('Hot work welding operations on main pipeline connections for maintenance upgrade');
-        $('#txtPtwWorkArea').val('Production Area - Block B, Level 2');
-        $('#optPtwWorkType').val('hot_work');
-        
-        // Sync with checkboxes - check the Hot Work checkbox
-        $('#chkHotWork').prop('checked', true);
-        $('#chkColdWork').prop('checked', false);
-        $('#chkConfinedSpace').prop('checked', false);
-        
-        // Trigger the checkbox change event to sync the hidden dropdown
-        $('#chkHotWork').trigger('change');
-        
-        // Also manually call the sync function as backup
-        setTimeout(() => {
-            if (typeof window.updateWorkTypeDropdown === 'function') {
-                window.updateWorkTypeDropdown();
-                console.log('Work type synchronized via Test Insert:', $('#optPtwWorkType').val());
-            } else {
-                console.warn('updateWorkTypeDropdown function not available');
-            }
-        }, 100);
-        
-        // Set valid dates
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        $('#dtPtwValidFrom').val(today.toISOString().split('T')[0]);
-        $('#dtPtwValidTo').val(tomorrow.toISOString().split('T')[0]);
-        
-        // Risk Assessment
-        $('#optPtwRiskLevel').val('high');
-        $('#txtPtwHazards').val('Hot sparks, fire hazard, toxic fumes, burns, electrical shock, confined space risks');
-        $('#txtPtwControlMeasures').val('Fire watch assigned, fire extinguishers ready, proper ventilation, safety barriers installed, emergency response team on standby');
-        
-        // Applicant Information
-        $('#txtPtwApplicantName').val('John Smith');
-        $('#txtPtwApplicantContact').val('+60123456789');
-        $('#txtPtwApplicantDept').val('Maintenance Department');
-        $('#txtPtwContractorCompany').val('ABC Engineering Services Sdn Bhd');
-        $('#txtPtwRemarks').val('Emergency maintenance required due to pipeline leak detected during routine inspection');
-        
-        // Clear existing workers table and add sample workers
-        const tbody = document.querySelector('#workersTable tbody');
-        if (tbody) {
-            tbody.innerHTML = ''; // Clear existing workers
-            
-            // Add sample workers to table
-            const workers = [
-                { name: 'Ahmad bin Abdullah', designation: 'Certified Welder', id: '123456-12-3456' },
-                { name: 'Raj Kumar', designation: 'Fire Watch', id: '234567-23-4567' },
-                { name: 'Wong Wei Ming', designation: 'Safety Supervisor', id: '345678-34-5678' }
-            ];
-            
-            workers.forEach((worker, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><input type="text" class="form-control worker-name" value="${worker.name}" required></td>
-                    <td><input type="text" class="form-control worker-designation" value="${worker.designation}"></td>
-                    <td><input type="text" class="form-control worker-id" value="${worker.id}"></td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="removeWorkerRow(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-        
-        // Reset worker counter for JS class consistency  
-        this.workerCounter = 0;
-        
-        // Fill hazardous activities checklist
-        setTimeout(() => {
-            $('#chkHazActivity1').prop('checked', true); // Welding
-            $('#chkHazActivity2').prop('checked', true); // Cutting
-            $('#chkHazActivity3').prop('checked', false); // Grinding
-            $('#chkHazActivity4').prop('checked', true); // Hot tapping
-            $('#chkHazActivity5').prop('checked', false); // Brazing
-            $('#chkHazActivity6').prop('checked', true); // Working at height
-            $('#chkHazActivity7').prop('checked', false); // Confined space
-            $('#chkHazActivity8').prop('checked', true); // Electrical work
-            $('#chkHazActivity9').prop('checked', false); // Chemical handling
-            $('#chkHazActivity10').prop('checked', true); // Heavy lifting
-        }, 100);
-        
-        // Fill PPE checklist
-        setTimeout(() => {
-            $('#ppeHardHat').prop('checked', true);
-            $('#ppeSafetyGlasses').prop('checked', true);
-            $('#ppeHearingProtection').prop('checked', true);
-            $('#ppeRespirator').prop('checked', true);
-            $('#ppeSafetyShoes').prop('checked', true);
-            $('#ppeReflectiveVest').prop('checked', true);
-            $('#ppeFallProtection').prop('checked', true);
-            $('#ppeChemicalGloves').prop('checked', false);
-            $('#ppeFaceShield').prop('checked', true);
-            $('#ppeFireRetardant').prop('checked', true);
-            $('#ppeOthers').prop('checked', true);
-            $('#ppeOthersSpecify').val('Heat-resistant apron, welding helmet with auto-darkening filter');
-        }, 200);
-        
-        // Fill contractor declarations
-        setTimeout(() => {
-            // Declaration 1: Work area isolated
-            $('input[name="declaration1"][value="Yes"]').prop('checked', true);
-            // Declaration 2: Equipment inspected
-            $('input[name="declaration2"][value="Yes"]').prop('checked', true);
-            // Declaration 3: Emergency procedures
-            $('input[name="declaration3"][value="Yes"]').prop('checked', true);
-            // Declaration 4: Workers trained
-            $('input[name="declaration4"][value="Yes"]').prop('checked', true);
-            // Declaration 5: Safety equipment available
-            $('input[name="declaration5"][value="Yes"]').prop('checked', true);
-            // Declaration 6: Environmental considerations
-            $('input[name="declaration6"][value="Yes"]').prop('checked', true);
-            
-            // Contractor confirmation
-            $('#contractorConfirmation').prop('checked', true);
-        }, 300);
-        
-        // Load work-type specific checklist
-        setTimeout(() => {
-            this.loadSpecificChecklistOptimized('hot_work');
-            
-            // After checklist loads, check some items
-            setTimeout(() => {
-                $('.specific-checklist').each(function(index) {
-                    // Check first 4 items as an example
-                    if (index < 4) {
-                        $(this).prop('checked', true);
-                    }
-                });
-            }, 100);
-        }, 400);
-        
-        // Trigger change events to update any dependent fields
-        $('#optPtwWorkType').trigger('change');
-        $('#optPtwRiskLevel').trigger('change');
-        
-        console.log('Sample data filled successfully!');
-        showSuccess('Sample data has been filled in all form fields for testing purposes.');
     }
 }
 

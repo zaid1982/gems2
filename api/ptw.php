@@ -492,6 +492,9 @@ function create_ptw_permit($user_id, $user_site_id) {
         if (isset($_POST['certificate_numbers']) && !empty($_POST['certificate_numbers'])) {
             $permit_data['ptw_certificate_numbers'] = $_POST['certificate_numbers'];
         }
+        if (isset($_POST['hazardous_activities']) && !empty($_POST['hazardous_activities'])) {
+            $permit_data['ptw_hazardous_activities'] = $_POST['hazardous_activities'];
+        }
 
         // Store complete form data for comprehensive processing
         if (isset($_POST['complete_form_data']) && !empty($_POST['complete_form_data'])) {

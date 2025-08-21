@@ -3148,21 +3148,48 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 let supportingDocsData;
                 if (typeof data.ptw_supporting_docs_checklist === 'string') {
                     supportingDocsData = JSON.parse(data.ptw_supporting_docs_checklist);
-                } else if (typeof data.ptw_supporting_docs_checklist === 'object') {
+                } else if (Array.isArray(data.ptw_supporting_docs_checklist)) {
                     supportingDocsData = data.ptw_supporting_docs_checklist;
                 }
                 
                 console.log('Populating supporting documents checklist:', supportingDocsData);
                 
-                if (supportingDocsData && typeof supportingDocsData === 'object') {
-                    // Handle document checkboxes
-                    Object.keys(supportingDocsData).forEach(key => {
-                        const checkbox = document.getElementById(key);
-                        if (checkbox && checkbox.type === 'checkbox') {
-                            checkbox.checked = true;
-                            console.log('Set supporting document checkbox:', key, 'to checked');
+                if (Array.isArray(supportingDocsData)) {
+                    // Create reverse mapping from value to ID (same as in ptw_form.js)
+                    const valueToIdMapping = {
+                        'calibration_certificate': 'docCalibrationCert',
+                        'load_chart': 'docLoadChart',
+                        'toolbox_talk_record': 'docToolboxTalk',
+                        'safety_data_sheet': 'docSafetyDataSheet',
+                        'job_method_statement': 'docJobMethodStatement',
+                        'job_hazard_analysis': 'docJobHazardAnalysis',
+                        'certificate_of_fitness': 'docCertificateOfFitness',
+                        'cidb_green_card': 'docCidbGreenCard',
+                        'aesp_card': 'docAespCard',
+                        'competency_person_certificate': 'docCompetencyPersonCert',
+                        'contractor_checklist': 'docContractorChecklist',
+                        'medical_check_up': 'docMedicalCheckUp',
+                        'hirarc_eaia': 'docHirarcEaia',
+                        'traffic_management_plan': 'docTrafficManagementPlan'
+                    };
+                    
+                    let checkedCount = 0;
+                    supportingDocsData.forEach(docValue => {
+                        const checkboxId = valueToIdMapping[docValue];
+                        if (checkboxId) {
+                            const checkbox = document.getElementById(checkboxId);
+                            if (checkbox && checkbox.type === 'checkbox') {
+                                checkbox.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set supporting document checkbox:', checkboxId, 'for value:', docValue);
+                            } else {
+                                console.error('✗ Checkbox not found:', checkboxId, 'for value:', docValue);
+                            }
+                        } else {
+                            console.warn('✗ Unknown supporting document value:', docValue);
                         }
                     });
+                    console.log(`Supporting docs loading complete: ${checkedCount}/${supportingDocsData.length} checkboxes checked`);
                 }
             } catch (error) {
                 console.error('Error parsing ptw_supporting_docs_checklist:', error, 'Raw value:', data.ptw_supporting_docs_checklist);
@@ -3223,6 +3250,59 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 }
             } catch (error) {
                 console.error('Error parsing ptw_certificate_numbers:', error, 'Raw value:', data.ptw_certificate_numbers);
+            }
+        }
+        
+        // Populate hazardous activities from ptw_hazardous_activities
+        if (data.ptw_hazardous_activities) {
+            try {
+                let hazardousActivitiesData;
+                if (typeof data.ptw_hazardous_activities === 'string') {
+                    hazardousActivitiesData = JSON.parse(data.ptw_hazardous_activities);
+                } else if (typeof data.ptw_hazardous_activities === 'object') {
+                    hazardousActivitiesData = data.ptw_hazardous_activities;
+                }
+                
+                console.log('Populating hazardous activities:', hazardousActivitiesData);
+                
+                if (hazardousActivitiesData && typeof hazardousActivitiesData === 'object') {
+                    let checkedCount = 0;
+                    
+                    // Handle each hazardous activity
+                    Object.keys(hazardousActivitiesData).forEach(hazardId => {
+                        const hazardData = hazardousActivitiesData[hazardId];
+                        
+                        if (hazardId === 'hazOthers' && typeof hazardData === 'object') {
+                            // Handle "Others" field with text input
+                            const checkbox = document.getElementById(hazardId);
+                            if (checkbox && hazardData.checked) {
+                                checkbox.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set hazardous activity checkbox:', hazardId, 'to checked');
+                                
+                                // Set the others text field
+                                const textField = document.getElementById('hazOthersText');
+                                if (textField && hazardData.value) {
+                                    textField.disabled = false;
+                                    textField.value = hazardData.value;
+                                    console.log('✓ Set hazardous activity others text:', hazardData.value);
+                                }
+                            }
+                        } else {
+                            // Handle regular checkbox fields
+                            const checkbox = document.getElementById(hazardId);
+                            if (checkbox && hazardData === true) {
+                                checkbox.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set hazardous activity checkbox:', hazardId, 'to checked');
+                            }
+                        }
+                    });
+                    
+                    console.log(`Hazardous activities loading complete: ${checkedCount} checkboxes checked`);
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_hazardous_activities:', error, 'Raw value:', data.ptw_hazardous_activities);
             }
         }
         
