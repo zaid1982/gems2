@@ -1389,6 +1389,13 @@ class PtwForm {
                 }
             }
         });
+        
+        // Add PPE others textarea
+        const ppeOthersField = document.getElementById('ppe_others');
+        if (ppeOthersField && ppeOthersField.value.trim() !== '') {
+            checklist['ppe_others'] = ppeOthersField.value.trim();
+            console.log(`Found PPE others text: ${ppeOthersField.value.trim()}`);
+        }
 
         // Specific checklist (work type specific items)
         const specific = {};
@@ -1804,6 +1811,9 @@ class PtwForm {
             applicant_department: $('#txtPtwApplicantDept').val(),
             contractor_company: $('#txtPtwContractorCompany').val(),
             contractor_supervisor: $('#txtContractorSupervisor').val(),
+            contractor_name: $('#contractor_name').val(),
+            contractor_designation: $('#contractor_designation').val(),
+            contractor_date: $('#contractor_date').val(),
             staff_nric: $('#txtStaffNoNRIC').val(),
             supervisor_contact: $('#txtContactNoSupervisor').val(),
             identification_no: $('#txtIdentificationNo').val(),

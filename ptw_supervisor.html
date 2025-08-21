@@ -457,6 +457,7 @@ function safeToast(type, message, title) {
 $(document).ready(function() {
     console.log('PTW Supervisor Dashboard initializing...');
     
+    
     // Wait for common.js to load
     let commonJsCheckCount = 0;
     const maxCommonJsChecks = 50;
@@ -616,19 +617,7 @@ function loadDashboardData(isAutoRefresh = false) {
     console.log('Loading supervisor dashboard data...', isAutoRefresh ? '(auto-refresh)' : '(manual)');
     
     // Only show loading modal for manual refresh
-    if (!isAutoRefresh) {
-        $('#loadingModal').modal('show');
-    }
     
-    // Set a timeout to hide loading modal if it takes too long (fallback safety)
-    // const loadingTimeout = setTimeout(function() {
-    //     console.warn('Loading timeout reached - hiding modal and showing error');
-    //     if (!isAutoRefresh) {
-    //         $('#loadingModal').modal('hide');
-    //     }
-    //     safeToast('error', 'Loading timeout. Please check your connection and try again.', 'Timeout Error');
-    //     loadPlaceholderData();
-    // }, 10000); // 10 second timeout
     
     try {
         // Load PTW requests pending supervisor approval
@@ -636,12 +625,6 @@ function loadDashboardData(isAutoRefresh = false) {
         const pendingRequests = mzAjaxRequest('ptw.php?action=get_supervisor_pending_requests', 'GET', {});
         
         console.log('API Response:', pendingRequests);
-        
-        // Hide loading modal immediately after getting response
-       
-        if (!isAutoRefresh) {
-            $('#loadingModal').modal('hide');
-        }
         
         if (pendingRequests && pendingRequests.success && pendingRequests.result) {
             console.log('Pending requests loaded successfully:', pendingRequests.result.permits);
@@ -675,18 +658,11 @@ function loadDashboardData(isAutoRefresh = false) {
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
-       
-        if (!isAutoRefresh) {
-            $('#loadingModal').modal('hide');
-        }
         safeToast('error', 'Failed to load PTW requests. Error: ' + error.message, 'Loading Error');
         loadPlaceholderData();
     } finally {
-        // Ensure modal is hidden and timeout is cleared
-       
-        if (!isAutoRefresh) {
-            $('#loadingModal').modal('hide');
-        }
+        // Ensure modal is hidden only for manual refresh
+
         
         // Update next refresh time if auto-refresh is enabled
         if (autoRefreshEnabled) {
@@ -813,6 +789,11 @@ function getActionButtons(request) {
                     onclick="quickApprove('${request.ptw_permit_id}')" 
                     data-toggle="tooltip" title="Quick Approve">
                 <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-danger btn-sm action-btn" 
+                    onclick="generatePTWPDF('${request.ptw_permit_id}')" 
+                    data-toggle="tooltip" title="Extract to PDF">
+                <i class="fas fa-file-pdf"></i> PDF
             </button>
         </div>
     `;
@@ -1868,6 +1849,7 @@ function generateSupportingDocumentsSection(permit) {
 
 // Load auto-refresh preference on page load
 $(document).ready(function() {
+
     const savedPreference = localStorage.getItem('ptw_supervisor_auto_refresh');
     if (savedPreference !== null) {
         autoRefreshEnabled = savedPreference === 'true';
@@ -1923,6 +1905,51 @@ $('#ptwModal').on('hidden.bs.modal', function () {
     // Clear iframe source to stop any ongoing processes
     document.getElementById('ptwIframe').src = 'about:blank';
 });
+
+// PDF generation function
+function generatePTWPDF(ptwId) {
+    console.log('PDF generation requested for PTW:', ptwId);
+    
+    if (!ptwId) {
+        console.error('No PTW ID provided for PDF generation');
+        safeToast('error', 'No PTW ID provided', 'Error');
+        return;
+    }
+    
+    // Show loading toast
+    safeToast('info', 'Generating PDF...', 'Processing');
+    
+    try {
+        // Use mzAjaxRequest like other API calls in this file
+    const result = mzAjaxRequest(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
+        
+        console.log('PDF generation result:', result);
+        
+        if (result && result.status === 'success') {
+            if (result.pdf_url) {
+                // Success - download the PDF
+                const link = document.createElement('a');
+                link.href = result.pdf_url;
+                link.download = result.filename || `PTW_${ptwId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                safeToast('success', 'PDF generated successfully', 'Success');
+            } else {
+                console.error('No PDF URL in successful response:', result);
+                safeToast('error', 'PDF URL not found in response', 'Error');
+            }
+        } else {
+            console.error('PDF generation failed:', result);
+            const errorMessage = result ? (result.message || result.error || 'Unknown error') : 'No response from server';
+            safeToast('error', 'Failed to generate PDF: ' + errorMessage, 'Error');
+        }
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        safeToast('error', 'Failed to generate PDF: ' + error.message, 'Error');
+    }
+}
 </script>
 
 </main>

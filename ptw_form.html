@@ -2814,7 +2814,10 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             'dtPtwValidFrom': 'valid_from',
             'dtPtwValidTo': 'valid_to',
             'txtLevel': 'level',
-            'txtPtwRemarks': 'remarks'
+            'txtPtwRemarks': 'remarks',
+            'contractor_name': 'contractor_name',
+            'contractor_designation': 'contractor_designation',
+            'contractor_date': 'contractor_date'
         };
         
         Object.keys(fieldMapping).forEach(fieldId => {
@@ -3303,6 +3306,106 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 }
             } catch (error) {
                 console.error('Error parsing ptw_hazardous_activities:', error, 'Raw value:', data.ptw_hazardous_activities);
+            }
+        }
+        
+        // Populate declaration checklist from ptw_declaration_checklist
+        if (data.ptw_declaration_checklist) {
+            try {
+                let declarationData;
+                if (typeof data.ptw_declaration_checklist === 'string') {
+                    declarationData = JSON.parse(data.ptw_declaration_checklist);
+                } else if (typeof data.ptw_declaration_checklist === 'object') {
+                    declarationData = data.ptw_declaration_checklist;
+                }
+                
+                console.log('Populating declaration checklist:', declarationData);
+                
+                if (declarationData && typeof declarationData === 'object') {
+                    let checkedCount = 0;
+                    
+                    Object.keys(declarationData).forEach(key => {
+                        const value = declarationData[key];
+                        
+                        if (key === 'contractorConfirmation') {
+                            // Handle contractor confirmation checkbox
+                            const checkbox = document.getElementById('contractorConfirmation');
+                            if (checkbox) {
+                                checkbox.checked = value === true || value === 'true';
+                                if (checkbox.checked) checkedCount++;
+                                console.log('✓ Set contractor confirmation checkbox to:', checkbox.checked);
+                            }
+                        } else {
+                            // Handle yes/no declaration radio buttons (declaration1 through declaration6)
+                            const radioButton = document.querySelector(`input[name="${key}"][value="${value}"]`);
+                            if (radioButton) {
+                                radioButton.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set declaration radio button:', key, 'to value:', value);
+                            } else {
+                                console.warn('✗ Declaration radio button not found for:', key, 'with value:', value);
+                            }
+                        }
+                    });
+                    
+                    console.log(`Declaration checklist loading complete: ${checkedCount} items set`);
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_declaration_checklist:', error, 'Raw value:', data.ptw_declaration_checklist);
+            }
+        }
+        
+        // Populate hazard/PPE checklist from ptw_hazard_checklist
+        if (data.ptw_hazard_checklist) {
+            try {
+                let hazardChecklistData;
+                if (typeof data.ptw_hazard_checklist === 'string') {
+                    hazardChecklistData = JSON.parse(data.ptw_hazard_checklist);
+                } else if (typeof data.ptw_hazard_checklist === 'object') {
+                    hazardChecklistData = data.ptw_hazard_checklist;
+                }
+                
+                console.log('Populating hazard/PPE checklist:', hazardChecklistData);
+                
+                if (hazardChecklistData && typeof hazardChecklistData === 'object') {
+                    let checkedCount = 0;
+                    
+                    Object.keys(hazardChecklistData).forEach(key => {
+                        const value = hazardChecklistData[key];
+                        
+                        // Handle PPE checkboxes (id starts with 'ppe_')
+                        if (key.startsWith('ppe_')) {
+                            const checkbox = document.getElementById(key);
+                            if (checkbox && value === true) {
+                                checkbox.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set PPE checkbox:', key, 'to checked');
+                            }
+                        }
+                        // Handle other hazard checkboxes (id starts with 'chk' or 'haz')
+                        else if (key.startsWith('chk') || key.startsWith('haz')) {
+                            const checkbox = document.getElementById(key);
+                            if (checkbox && value === true) {
+                                checkbox.checked = true;
+                                checkedCount++;
+                                console.log('✓ Set hazard checkbox:', key, 'to checked');
+                            }
+                        }
+                    });
+                    
+                    // Handle PPE others textarea
+                    if (hazardChecklistData.ppe_others) {
+                        const ppeOthersField = document.getElementById('ppe_others');
+                        if (ppeOthersField) {
+                            ppeOthersField.value = hazardChecklistData.ppe_others;
+                            console.log('✓ Set PPE others text:', hazardChecklistData.ppe_others);
+                        }
+                    }
+                    
+                    console.log(`Hazard/PPE checklist loading complete: ${checkedCount} checkboxes checked`);
+                }
+            } catch (error) {
+                console.error('Error parsing ptw_hazard_checklist:', error, 'Raw value:', data.ptw_hazard_checklist);
             }
         }
         

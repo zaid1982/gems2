@@ -213,6 +213,12 @@ function transformDatabaseToFrontend($dbData) {
         'ptw_contractor_company' => $dbData['ptw_contractor_company'] ?? '',
         'contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? '',
         'ptw_contractor_supervisor' => $dbData['ptw_contractor_supervisor'] ?? '',
+        'contractor_name' => $dbData['ptw_contractor_name'] ?? '',
+        'ptw_contractor_name' => $dbData['ptw_contractor_name'] ?? '',
+        'contractor_designation' => $dbData['ptw_contractor_designation'] ?? '',
+        'ptw_contractor_designation' => $dbData['ptw_contractor_designation'] ?? '',
+        'contractor_date' => $dbData['ptw_contractor_date'] ?? '',
+        'ptw_contractor_date' => $dbData['ptw_contractor_date'] ?? '',
         
         // Enhanced fields - use correct database column names
         'staff_nric' => $dbData['ptw_staff_nric'] ?? '',
@@ -279,7 +285,8 @@ function transformDatabaseToFrontend($dbData) {
         'ptw_certificate_numbers' => $dbData['ptw_certificate_numbers'] ?? '',
         'complete_form_data' => $dbData['ptw_complete_form_data'] ?? '',
         'ptw_complete_form_data' => $dbData['ptw_complete_form_data'] ?? '',
-        
+        'ptw_hazardous_activities' => $dbData['ptw_hazardous_activities'] ?? '',
+
         // System fields
         'site_id' => $dbData['site_id'] ?? '',
         'created_by' => $dbData['created_by'] ?? '',

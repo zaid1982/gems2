@@ -449,6 +449,15 @@ function create_ptw_permit($user_id, $user_site_id) {
         if (isset($_POST['contractor_supervisor']) && !empty(trim($_POST['contractor_supervisor']))) {
             $permit_data['ptw_contractor_supervisor'] = trim($_POST['contractor_supervisor']);
         }
+        if (isset($_POST['contractor_name']) && !empty(trim($_POST['contractor_name']))) {
+            $permit_data['ptw_contractor_name'] = trim($_POST['contractor_name']);
+        }
+        if (isset($_POST['contractor_designation']) && !empty(trim($_POST['contractor_designation']))) {
+            $permit_data['ptw_contractor_designation'] = trim($_POST['contractor_designation']);
+        }
+        if (isset($_POST['contractor_date']) && !empty(trim($_POST['contractor_date']))) {
+            $permit_data['ptw_contractor_date'] = trim($_POST['contractor_date']);
+        }
         if (isset($_POST['staff_nric']) && !empty(trim($_POST['staff_nric']))) {
             $permit_data['ptw_staff_nric'] = trim($_POST['staff_nric']);
         }
