@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles -->
     <link href="css/style.css" rel="stylesheet">
     
@@ -180,127 +181,128 @@
             margin: 2px;
         }
     </style>
+    
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="grey lighten-3">
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main Navigation-->
 
+<!--Main layout-->
 <main>
-    <div class="container-fluid fm-dashboard">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2 class="mb-1">
-                        <i class="fas fa-user-cog mr-3"></i>
-                        Facility Manager Dashboard
-                    </h2>
-                    <p class="mb-0 opacity-75">Final review and approval of Permit to Work applications</p>
-                </div>
-                <div class="col-md-4 text-right">
-                    <button class="btn btn-light" onclick="window.location.href='ptw_management.html'">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to PTW Management
-                    </button>
-                </div>
+    <div class="container-fluid">
+        <!-- Page Title -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h2 class="h2-responsive font-weight-bold">
+                    <i class="fas fa-user-cog mr-3"></i>PTW Facility Manager Dashboard
+                </h2>
+                <p class="text-muted">Final review and approval of Permit to Work applications</p>
             </div>
         </div>
 
         <!-- Dashboard Statistics -->
-        <div class="dashboard-stats">
-            <h5 class="mb-3"><i class="fas fa-chart-bar mr-2"></i>FM Approval Statistics</h5>
-            <div class="row">
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card pending">
-                        <i class="fas fa-clock fa-2x mb-2"></i>
-                        <h3 class="mb-1" id="pendingCount">0</h3>
-                        <p class="mb-0">Pending FM Approval</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card approved-today">
-                        <i class="fas fa-check-circle fa-2x mb-2"></i>
-                        <h3 class="mb-1" id="approvedCount">0</h3>
-                        <p class="mb-0">Final Approved</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card overdue">
-                        <i class="fas fa-times-circle fa-2x mb-2"></i>
-                        <h3 class="mb-1" id="rejectedCount">0</h3>
-                        <p class="mb-0">Rejected by FM</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <i class="fas fa-clipboard-list fa-2x mb-2"></i>
-                        <h3 class="mb-1" id="totalCount">0</h3>
-                        <p class="mb-0">Total Reviewed</p>
+        <div class="row mt-4">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card stat-card pending">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1" id="statPendingCount">0</h3>
+                        <p class="card-text">Pending Final Approval</p>
+                        <i class="fas fa-clock fa-2x opacity-50"></i>
                     </div>
                 </div>
             </div>
-            
-            <!-- Auto-refresh toggle -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshAllData()">
-                            <i class="fas fa-sync-alt mr-1"></i>Refresh Now
-                        </button>
-                        <div class="auto-refresh-toggle">
-                            <label class="custom-control custom-switch mb-0">
-                                <input type="checkbox" class="custom-control-input" id="autoRefreshToggle" checked>
-                                <span class="custom-control-label">Auto-refresh (30s)</span>
-                            </label>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card stat-card approved-today">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1" id="statApprovedToday">0</h3>
+                        <p class="card-text">Approved Today</p>
+                        <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card stat-card overdue">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1" id="statOverdueCount">0</h3>
+                        <p class="card-text">Overdue</p>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="card-title">Auto-Refresh</h6>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="autoRefreshToggle" checked>
+                            <label class="custom-control-label" for="autoRefreshToggle"></label>
                         </div>
-                        <div id="autoRefreshStatus" class="text-muted mt-1 ml-3">
-                            <small><i class="fas fa-clock mr-1"></i>Next refresh: <span id="nextRefreshTime">--</span></small>
-                        </div>
+                        <small class="text-muted d-block mt-2">Next: <span id="nextRefreshTime">30s</span></small>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4><i class="fas fa-clipboard-check mr-2"></i>PTW Permits Awaiting Final Approval</h4>
-                    </div>
-                    <div class="col-md-4 text-right">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterByPriority('all')" id="btnFilterAll">
-                                All
-                            </button>
-                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterByPriority('high')" id="btnFilterHigh">
-                                High Risk
-                            </button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="filterByPriority('critical')" id="btnFilterCritical">
-                                Critical
-                            </button>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list-alt mr-2"></i>
+                                    PTW Requests for Final Approval
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="btn-group float-right" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm active" id="btnFilterAll" onclick="filterByPriority('all')">
+                                        All
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm" id="btnFilterHigh" onclick="filterByPriority('high')">
+                                        High Risk
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnFilterCritical" onclick="filterByPriority('critical')">
+                                        Critical
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover" id="dtPendingFM">
-                        <thead>
-                            <tr>
-                                <th>Permit No.</th>
-                                <th>Description</th>
-                                <th>Applicant</th>
-                                <th>Work Area</th>
-                                <th>Work Type</th>
-                                <th>Risk Level</th>
-                                <th>SHE Approved</th>
-                                <th>Days Pending</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be loaded here via DataTables -->
-                        </tbody>
-                    </table>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="dtPendingFM">
+                                <thead>
+                                    <tr>
+                                        <th>Permit Number</th>
+                                        <th>Work Description</th>
+                                        <th>Applicant</th>
+                                        <th>Risk Level</th>
+                                        <th>Work Type</th>
+                                        <th>SHE Approved</th>
+                                        <th>Days Pending</th>
+                                        <th>Priority</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be populated via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -309,11 +311,11 @@
         <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-center py-4">
                         <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p class="mt-2 mb-0">Loading PTW permits...</p>
+                        <p class="mt-2 mb-0">Loading PTW requests...</p>
                     </div>
                 </div>
             </div>
@@ -323,42 +325,38 @@
         <div class="modal fade" id="ptwReviewModal" tabindex="-1" role="dialog" aria-labelledby="ptwReviewModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="ptwReviewModalLabel">
-                            <i class="fas fa-user-cog mr-2"></i>
-                            <strong>PERMIT TO WORK</strong> - FACILITY MANAGER FINAL REVIEW
-                            <br><small>FINAL AUTHORITY FOR PERMIT ACTIVATION</small>
+                            <i class="fas fa-clipboard-check mr-2"></i>
+                            PTW Final Review
                         </h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body p-0" id="ptwReviewContent">
-                        <div class="text-center p-4">
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading permit details...</span>
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                        <div id="ptwReviewContent">
+                            <div class="text-center py-4">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading permit details...</span>
+                                </div>
+                                <p class="mt-2">Loading permit details...</p>
                             </div>
-                            <p class="mt-2">Loading permit details...</p>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
+                    <div class="modal-footer">
                         <div class="row w-100">
                             <div class="col-md-8">
-                                <div class="form-group mb-0">
-                                    <label for="fmComments" class="font-weight-bold">Facility Manager Remarks:</label>
-                                    <textarea class="form-control" id="fmComments" rows="2" placeholder="Add your final review comments here..."></textarea>
-                                </div>
+                                <textarea class="form-control" id="fmComments" rows="2" placeholder="Enter your final approval comments here..."></textarea>
                             </div>
                             <div class="col-md-4 text-right">
-                                <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">
-                                    <i class="fas fa-times mr-1"></i>Cancel
+                                <button type="button" class="btn btn-success mr-2" onclick="approvePermit()">
+                                    <i class="fas fa-check mr-1"></i> Final Approve
                                 </button>
-                                <button type="button" class="btn btn-danger mr-1" onclick="rejectPermit()">
-                                    <i class="fas fa-times-circle mr-1"></i>Final Reject
+                                <button type="button" class="btn btn-danger mr-2" onclick="rejectPermit()">
+                                    <i class="fas fa-times mr-1"></i> Reject
                                 </button>
-                                <button type="button" class="btn btn-success" onclick="finalApprovePermit()">
-                                    <i class="fas fa-check-circle mr-1"></i>Final Approve
-                                </button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -370,30 +368,31 @@
         <div class="modal fade ptw-modal" id="ptwModal" tabindex="-1" role="dialog" aria-labelledby="ptwModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title" id="ptwModalLabel">
-                            <i class="fas fa-user-cog mr-2"></i>PTW Facility Manager Review
-                        </h5>
-                        <button type="button" class="close text-white modal-close-btn" data-dismiss="modal" aria-label="Close">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ptwModalLabel">PTW Review</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <iframe id="ptwIframe" src="" frameborder="0"></iframe>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary modal-close-btn" data-dismiss="modal">
-                            <i class="fas fa-times mr-1"></i>Close
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
 </main>
+<!--Main layout-->
 
-<!-- jQuery (must load first) -->
-<script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
 <!-- Bootstrap tooltips -->
 <script type="text/javascript" src="js/popper.min.js"></script>
 <!-- Bootstrap core JavaScript -->
@@ -405,20 +404,49 @@
 <!-- DataTables.net -->
 <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <!-- Moment JavaScript -->
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
-<!-- Toastr -->
-<script type="text/javascript" src="js/modules/toastr.js"></script>
 
-<!-- Custom scripts -->
+<!--Custom scripts-->
 
 <script>
+
+document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+let versionLocal_;
+let changePasswordClass_;
 let fmPermitsTable;
 let currentPermitId = null;
 let currentPermitNumber = null;
 let refreshInterval;
 
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
+    ShowLoader();
+    setTimeout(function () {
+        try {
+            initiatePages();
+            versionLocal_ = mzGetDataVersion();
+            changePasswordClass_ = new ModalChangePassword();
+            
+            changePasswordClass_.init();
+            
+            // Initialize PTW FM Dashboard
+            initializeFMDashboard();
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+        }
+        HideLoader();
+    }, 200);
+});
+
+function initializeFMDashboard() {
     // Initialize DataTable
     fmPermitsTable = $('#dtPendingFM').DataTable({
         responsive: true,
@@ -444,11 +472,10 @@ $(document).ready(function() {
     
     // Set up auto-refresh
     setupAutoRefresh();
-});
+}
 
 function setupAutoRefresh() {
     const toggleElement = $('#autoRefreshToggle');
-    const statusElement = $('#nextRefreshTime');
     
     if (toggleElement.is(':checked')) {
         startAutoRefresh();
@@ -1406,6 +1433,15 @@ function regeneratePTWPDF(ptwId) {
         console.error('PDF regeneration error:', error);
         alert('Error regenerating PDF: ' + error.message);
     });
+}
+</script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>
 }
 </script>
 
