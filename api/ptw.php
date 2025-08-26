@@ -103,8 +103,14 @@ try {
             $public_users = Class_db::getInstance()->db_select('sys_user', array('user_first_name' => 'Public User'));
             if (count($public_users) > 0) {
                 $jwt_data = (object) array('userId' => $public_users[0]['user_id']);
-                $user_site_id = $public_users[0]['site_id'];
-                $fn_general->log_debug('API', $api_name, __LINE__, 'Using public user ID: ' . $jwt_data->userId . ', site_id: ' . $user_site_id);
+                // For public forms, require explicit site_id input; do not assume user's site
+                $provided_site_id = isset($_POST['site_id']) ? trim($_POST['site_id']) : '';
+                if ($provided_site_id === '' || !preg_match('/^\d+$/', $provided_site_id)) {
+                    $fn_general->log_error('API', $api_name, __LINE__, 'Public submission missing or invalid site_id');
+                    throw new Exception('Public PTW submission requires a valid site_id');
+                }
+                $user_site_id = $provided_site_id;
+                $fn_general->log_debug('API', $api_name, __LINE__, 'Using public user ID: ' . $jwt_data->userId . ', site_id (from request): ' . $user_site_id);
             } else {
                 throw new Exception('Public user not found in system');
             }
@@ -152,6 +158,11 @@ try {
             $fn_general->log_error('API', $api_name, __LINE__, 'Error getting user site: ' . $e->getMessage());
             $user_site_id = null; // Show all sites if lookup fails
         }
+    }
+    // Optional site override for local testing: ?site=XX
+    if (isset($_GET['site']) && preg_match('/^\d+$/', $_GET['site'])) {
+        $user_site_id = $_GET['site'];
+        $fn_general->log_debug('API', $api_name, __LINE__, 'Overriding site_id from query param: ' . $user_site_id);
     }
     
     switch($request_method) {
@@ -279,6 +290,10 @@ function get_ptw_data($user_id, $user_site_id) {
             case 'get_permits_for_fm_approval':
                 return $fn_ptw->get_permits_for_fm_approval($user_id, $user_site_id);
                 
+            case 'get_fm_extension_requests':
+                // ACTIVE permits that have extension request markers
+                return $fn_ptw->get_extension_requests($user_site_id);
+
             case 'get_fm_recent_actions':
                 return $fn_ptw->get_fm_recent_actions($user_id, $user_site_id);
                 

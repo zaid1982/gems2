@@ -40,29 +40,22 @@ try {
         throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
     
-    // Special handling for test token used in FM dashboard
+    // Special handling for test token used in FM dashboard (use userId 1 and derive site from sys_user)
     if ($headers['Authorization'] === 'Bearer valid_test_token_for_fm_dashboard') {
-        // Create mock JWT data for testing
         $jwt_data = (object) array(
-            'userId' => 'fm_test_user',
-            'role' => 'FM',
-            'site_id' => '1'
+            'userId' => 1,
+            'role' => 'FM'
         );
     } else {
         $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     }
     
     // Get user information
-    if ($jwt_data->userId === 'fm_test_user') {
-        // Mock user data for testing - using site_id 19 to match existing permit data
-        $user_site_id = '19';
-    } else {
-        $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
-        if (count($user) == 0) {
-            throw new Exception('[' . __LINE__ . '] - User not found');
-        }
-        $user_site_id = $user[0]['site_id'];
+    $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
+    if (count($user) == 0) {
+        throw new Exception('[' . __LINE__ . '] - User not found');
     }
+    $user_site_id = $user[0]['site_id'];
     
     // Derive role from JWT when available (test token sets FM); default to ADMIN for broad access in dev
     // In production, enforce strict role checks
@@ -107,6 +100,21 @@ try {
         
         case 'approve_close':
             $result = process_approve_close($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
+            break;
+
+        case 'request_extend':
+            // Supervisor requests permit extension with new_valid_to
+            $new_valid_to = isset($_POST['new_valid_to']) ? $_POST['new_valid_to'] : null;
+            if (!$new_valid_to) {
+                throw new Exception('[' . __LINE__ . '] - new_valid_to is required');
+            }
+            $result = process_request_extend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $new_valid_to);
+            break;
+
+        case 'approve_extend':
+            // FM approves and updates ptw_valid_to
+            $new_valid_to = isset($_POST['new_valid_to']) ? $_POST['new_valid_to'] : null;
+            $result = process_approve_extend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $new_valid_to);
             break;
             
         default:
@@ -426,6 +434,146 @@ function process_approve_close($permit_id, $user_id, $user_site_id, $user_role, 
         'message' => 'PTW permit closed successfully',
         'permit_id' => $permit_id,
         'new_status' => 'COMPLETED'
+    );
+}
+
+function process_request_extend($permit_id, $user_id, $user_site_id, $user_role, $remarks, $new_valid_to) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    // Allow SUPERVISOR or ADMIN; tighten in production
+    if (!in_array($user_role, array('SUPERVISOR', 'ADMIN'))) {
+        // For test we keep permissive
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for requesting extension');
+    }
+
+    // Load permit scoped to site
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) {
+        throw new Exception('[' . __LINE__ . '] - PTW permit not found');
+    }
+
+    $current_permit = $permit[0];
+    $current_status = $current_permit['ptw_status'];
+
+    // Only ACTIVE permits are extendable
+    if ($current_status !== 'ACTIVE') {
+        throw new Exception('[' . __LINE__ . '] - Extension can only be requested when permit is ACTIVE');
+    }
+
+    // Normalize datetime format
+    $requested_to = $new_valid_to;
+    if (strlen($requested_to) === 10) { // if only date provided
+        $requested_to .= ' 17:00:00';
+    }
+
+    // Save request fields on the permit for FM visibility
+    $update_data = array(
+        'ptw_extension_requested_to' => $requested_to,
+        'ptw_extension_requested_by' => $user_id,
+        'ptw_extension_requested_remarks' => $remarks,
+        'ptw_extension_requested_at' => date('Y-m-d H:i:s'),
+        'updated_by' => $user_id
+    );
+
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    if (!$update_result) {
+        throw new Exception('[' . __LINE__ . '] - Failed to save extension request');
+    }
+
+    // Log history
+    $history_data = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'EXTENSION_REQUESTED',
+        'previous_status' => $current_status,
+        'new_status' => $current_status, // remains ACTIVE
+        'remarks' => 'Requested new valid_to: ' . $requested_to . ($remarks ? (' | ' . $remarks) : ''),
+        'action_by' => $user_id
+    );
+    $history_result = Class_db::getInstance()->db_insert('ptw_status_history', $history_data);
+    if (!$history_result) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log extension request');
+    }
+
+    // Audit and notifications
+    $fn_general->save_audit('PTW_EXTENSION_REQUESTED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' extension requested to ' . $requested_to, $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'EXTENSION_REQUESTED');
+
+    return array(
+        'message' => 'Extension requested successfully',
+        'permit_id' => $permit_id,
+        'new_status' => $current_status,
+        'requested_to' => $requested_to
+    );
+}
+
+function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role, $remarks, $new_valid_to_optional) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    // Allow FM or ADMIN; tighten in production
+    if (!in_array($user_role, array('FM', 'ADMIN'))) {
+        // For test we keep permissive
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for approving extension');
+    }
+
+    // Load permit scoped to site
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) {
+        throw new Exception('[' . __LINE__ . '] - PTW permit not found');
+    }
+
+    $current_permit = $permit[0];
+    $current_status = $current_permit['ptw_status'];
+
+    // Only ACTIVE permits can be extended
+    if ($current_status !== 'ACTIVE') {
+        throw new Exception('[' . __LINE__ . '] - Permit must be ACTIVE to approve extension');
+    }
+
+    // Determine new valid_to: use provided or the requested one saved on permit
+    $new_valid_to = $new_valid_to_optional ? $new_valid_to_optional : (isset($current_permit['ptw_extension_requested_to']) ? $current_permit['ptw_extension_requested_to'] : null);
+    if (!$new_valid_to) {
+        throw new Exception('[' . __LINE__ . '] - new_valid_to is required');
+    }
+    if (strlen($new_valid_to) === 10) { $new_valid_to .= ' 17:00:00'; }
+
+    // Update the permit
+    $update_data = array(
+        'ptw_valid_to' => $new_valid_to,
+        // Clear request markers
+        'ptw_extension_requested_to' => null,
+        'ptw_extension_requested_by' => null,
+        'ptw_extension_requested_remarks' => null,
+        'ptw_extension_requested_at' => null,
+        'updated_by' => $user_id
+    );
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    if (!$update_result) {
+        throw new Exception('[' . __LINE__ . '] - Failed to update permit valid_to');
+    }
+
+    // Log history
+    $history_data = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'EXTENDED',
+        'previous_status' => $current_status,
+        'new_status' => $current_status, // remains ACTIVE
+        'remarks' => 'Valid to changed to: ' . $new_valid_to . ($remarks ? (' | ' . $remarks) : ''),
+        'action_by' => $user_id
+    );
+    $history_result = Class_db::getInstance()->db_insert('ptw_status_history', $history_data);
+    if (!$history_result) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log extension approval');
+    }
+
+    // Audit and notifications
+    $fn_general->save_audit('PTW_EXTENDED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' valid_to set to ' . $new_valid_to, $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'EXTENDED');
+
+    return array(
+        'message' => 'Permit extended successfully',
+        'permit_id' => $permit_id,
+        'new_status' => $current_status,
+        'valid_to' => $new_valid_to
     );
 }
 

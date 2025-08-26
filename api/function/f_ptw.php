@@ -639,6 +639,44 @@ class Class_ptw {
     }
 
     /**
+     * Get ACTIVE permits that have extension requests flagged
+     * Criteria: ptw_status = 'ACTIVE' and any of the extension request fields populated
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_extension_requests($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting extension requests for site: {$site_id}");
+
+            // Fetch ACTIVE permits for the site first
+            $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'ptw_status' => 'ACTIVE'
+            ), 'ptw_permit_id DESC');
+
+            // Filter to only those with extension markers present
+            $result = array();
+            if ($permits) {
+                foreach ($permits as $p) {
+                    $has_request = (
+                        (isset($p['ptw_extension_requested_to']) && !empty($p['ptw_extension_requested_to'])) ||
+                        (isset($p['ptw_extension_requested_by']) && !empty($p['ptw_extension_requested_by'])) ||
+                        (isset($p['ptw_extension_requested_remarks']) && !empty($p['ptw_extension_requested_remarks'])) ||
+                        (isset($p['ptw_extension_requested_at']) && !empty($p['ptw_extension_requested_at']))
+                    );
+                    if ($has_request) { $result[] = $p; }
+                }
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0017', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * Get FM summary statistics
      * @param int $user_id
      * @param int $site_id

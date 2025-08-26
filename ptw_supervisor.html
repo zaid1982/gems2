@@ -36,6 +36,16 @@
             --border-radius-lg: 16px;
         }
 
+        /* Avoid dropdown clipping inside table wrappers */
+        .card .card-body,
+        .table-responsive,
+        .dataTables_wrapper {
+            overflow: visible !important;
+        }
+
+        /* Ensure dropdown overlays above tables */
+        .dropdown-menu { z-index: 2000; }
+
         /* Ensure proper spacing with navigation */
         main {
             margin-top: 0;
@@ -1332,7 +1342,7 @@ function getActionButtons(request) {
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
                 <i class="fas fa-file-alt"></i> Review
             </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
@@ -1366,10 +1376,13 @@ function getActiveActionButtons(request){
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
                 <i class="fas fa-file-alt"></i> Review
             </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestExtend('${permitId}')`}">
+                    <i class="fas fa-clock text-info"></i> Request to Extend
+                </a>
                 <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestClose('${permitId}')`}">
                     <i class="fas fa-handshake text-warning"></i> Request to Close
                 </a>
@@ -1396,6 +1409,34 @@ function requestClose(permitId){
     }catch(e){
         console.error('Closure request failed:', e);
         safeToast('error', e.message || 'Failed to request closure','Error');
+    }
+}
+
+function requestExtend(permitId){
+    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
+    const dt = prompt('Enter new Valid To (YYYY-MM-DD HH:mm or YYYY-MM-DD):');
+    if (dt === null) return; // cancelled
+    const trimmed = (dt||'').trim();
+    if (!trimmed){ safeToast('error','New Valid To is required','Validation'); return; }
+    // Basic validation using moment if available
+    try {
+        if (typeof moment === 'function'){
+            const m = moment(trimmed, ['YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
+            if (!m.isValid()) { safeToast('error','Invalid date/time format','Validation'); return; }
+        }
+    } catch(e) { /* ignore */ }
+    const remarks = prompt('Optional: add extension remarks');
+    try{
+        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_extend', permit_id: permitId, new_valid_to: trimmed, remarks: remarks||'' });
+        if (res && (res.success || res.result || res.message)){
+            safeToast('success', (res.message||'Extension requested successfully'), 'Success');
+            loadActivePTWForClosure();
+        } else {
+            safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request extension','Error');
+        }
+    }catch(e){
+        console.error('Extension request failed:', e);
+        safeToast('error', e.message || 'Failed to request extension','Error');
     }
 }
 
@@ -1495,7 +1536,7 @@ function getClosedActionButtons(request){
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
                 <i class="fas fa-file-alt"></i> Review
             </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">

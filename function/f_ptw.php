@@ -202,6 +202,26 @@ class Class_ptw {
     }
 
     /**
+     * Get ACTIVE permits with extension requested details populated
+     */
+    public function get_extension_requests($user_site_id) {
+        // Fetch ACTIVE permits for site
+        $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+            'site_id' => $user_site_id,
+            'ptw_status' => 'ACTIVE'
+        ), 'created_date DESC');
+
+        $result = array();
+        foreach ($permits as $p) {
+            // Include those with extension request markers
+            if (!empty($p['ptw_extension_requested_to']) || !empty($p['ptw_extension_requested_by'])) {
+                $result[] = $p;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Get permit details
      */
     public function get_permit_details($permit_id, $user_site_id) {

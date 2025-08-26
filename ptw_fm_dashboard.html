@@ -277,7 +277,7 @@
                 <div class="subheader-card d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center" style="gap:12px;">
                         <span class="badge badge-light border px-3 py-2"><i class="fas fa-user mr-2"></i>Facility Manager</span>
-                        <span class="badge badge-light border px-3 py-2"><i class="fas fa-building mr-2"></i>Site</span>
+                        <span class="badge badge-light border px-3 py-2"><i class="fas fa-building mr-2"></i><span id="currentSiteLabel">Site</span></span>
                     </div>
                     <small class="text-muted">Last updated: <span id="lastUpdatedTime">--</span></small>
                 </div>
@@ -404,6 +404,34 @@
             </div>
         </div>
 
+        <!-- Extension Requests Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-clock mr-2"></i>Permits with Extension Requests</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="dtExtensionRequests">
+                                <thead>
+                                    <tr>
+                                        <th>Permit Number</th>
+                                        <th>Applicant</th>
+                                        <th>Risk</th>
+                                        <th>Current Valid To</th>
+                                        <th>Requested Valid To</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading Modal -->
         <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -483,6 +511,37 @@ let currentPermitId = null;
 let currentPermitNumber = null;
 let refreshInterval;
 let pendingClosureTable;
+let extensionRequestsTable;
+
+// Build Authorization header using real token if present; fallback to test token for dev
+function getAuthHeader() {
+    try {
+        const stored = sessionStorage.getItem('token') || localStorage.getItem('token');
+        const token = (stored && stored.trim()) ? stored.trim() : 'valid_test_token_for_fm_dashboard';
+        return { 'Authorization': 'Bearer ' + token };
+    } catch (e) {
+        console.warn('getAuthHeader: falling back to test token', e);
+        return { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' };
+    }
+}
+
+// Optional site override from page URL (?site=ID)
+function getSiteOverride() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const s = params.get('site');
+        return (s && /^\d+$/.test(s)) ? s : null;
+    } catch (e) {
+        console.warn('getSiteOverride: ignoring invalid site override', e);
+        return null;
+    }
+}
+
+function attachSite(data) {
+    const s = getSiteOverride();
+    if (s) data.site = s;
+    return data;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     ShowLoader();
@@ -496,6 +555,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize PTW FM Dashboard
             initializeFMDashboard();
+            const s = getSiteOverride();
+            if (s) {
+                const el = document.getElementById('currentSiteLabel');
+                if (el) el.textContent = `Site ${s}`;
+            }
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -535,10 +599,22 @@ function initializeFMDashboard() {
         language: { emptyTable: 'No permits pending closure' }
     });
 
+    // Extension requests table
+    extensionRequestsTable = $('#dtExtensionRequests').DataTable({
+        responsive: true,
+        lengthChange: false,
+        pageLength: 10,
+        autoWidth: false,
+        order: [[3, 'asc']],
+        columnDefs: [ { targets: [5], orderable: false, searchable: false } ],
+        language: { emptyTable: 'No permits with extension requests' }
+    });
+
     // Load initial data
     loadFmPermits();
     loadSummaryStats();
     loadPendingClosure();
+    loadExtensionRequests();
     
     // Set up auto-refresh
     setupAutoRefresh();
@@ -599,12 +675,8 @@ function loadFmPermits() {
     $.ajax({
         url: 'api/ptw.php',
         type: 'GET',
-        data: {
-            action: 'get_permits_for_fm_approval'
-        },
-        headers: {
-            'Authorization': 'Bearer valid_test_token_for_fm_dashboard'
-        },
+    data: attachSite({ action: 'get_permits_for_fm_approval' }),
+    headers: getAuthHeader(),
         success: function(response) {
             let permits = [];
             if (response && response.success && response.result) {
@@ -636,8 +708,8 @@ function loadPendingClosure() {
     $.ajax({
         url: 'api/ptw.php',
         type: 'GET',
-        data: { action: 'dashboard_data' },
-        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+    data: attachSite({ action: 'dashboard_data' }),
+    headers: getAuthHeader(),
         success: function(resp){
             let permits = [];
             if (resp && resp.activePtw) { permits = resp.permits || []; }
@@ -695,8 +767,8 @@ function acknowledgeAndClose(permitId, permitNumber){
     $.ajax({
         url: 'api/ptw_approve.php',
         type: 'POST',
-        data: { action: 'approve_close', permit_id: permitId, remarks: remarks || '' },
-        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+    data: attachSite({ action: 'approve_close', permit_id: permitId, remarks: remarks || '' }),
+    headers: getAuthHeader(),
         success: function(r){
             if (wasOk(r)){
                 const msg = getResponseMessage(r, 'Permit closed successfully');
@@ -709,6 +781,61 @@ function acknowledgeAndClose(permitId, permitNumber){
         },
         error: function(){ safeToast('error', 'Failed to close', 'Error'); }
     });
+}
+
+function loadExtensionRequests(){
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+    data: attachSite({ action: 'get_fm_extension_requests' }),
+    headers: getAuthHeader(),
+        success: function(resp){
+            let list = [];
+            if (Array.isArray(resp)) { list = resp; }
+            else if (resp && Array.isArray(resp.result)) { list = resp.result; }
+            else if (resp && resp.permits) { list = resp.permits; }
+            populateExtensionRequests(list||[]);
+        },
+        error: function(){ showError('Failed to load extension requests'); }
+    });
+}
+
+function populateExtensionRequests(permits){
+    extensionRequestsTable.clear();
+    (permits||[]).forEach(function(p){
+        const row = [
+            p.ptw_permit_number,
+            p.ptw_applicant_name,
+            getRiskLevelBadge(p.ptw_risk_level),
+            formatDateTime(p.ptw_valid_to),
+            formatDateTime(p.ptw_extension_requested_to),
+            generateExtensionActions(p.ptw_permit_id, p.ptw_permit_number)
+        ];
+        extensionRequestsTable.row.add(row);
+    });
+    extensionRequestsTable.draw();
+}
+
+function generateExtensionActions(permitId, permitNumber){
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}', '${permitNumber}')">
+                    <i class="fas fa-clock text-info"></i> Approve Extension
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
 }
 
 function populateFmPermitsTable(permits) {
@@ -750,6 +877,10 @@ function generateActionButtons(permitId, permitNumber) {
                     <i class="fas fa-times text-danger"></i> Quick Reject
                 </a>
                 <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}', '${permitNumber}')">
+                    <i class="fas fa-clock text-info"></i> Approve Extension
+                </a>
+                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
@@ -765,9 +896,7 @@ function loadSummaryStats() {
         data: {
             action: 'get_fm_summary_statistics'
         },
-        headers: {
-            'Authorization': 'Bearer valid_test_token_for_fm_dashboard'
-        },
+    headers: getAuthHeader(),
         success: function(response) {
             let stats = {};
             
@@ -804,6 +933,39 @@ function updateLastUpdatedTime() {
     const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const el = document.getElementById('lastUpdatedTime');
     if (el) el.textContent = t;
+}
+
+// FM Approve Extension
+function fmApproveExtension(permitId, permitNumber){
+    // Try to fetch permit details to prefill requested_to
+    let requestedTo = '';
+    try {
+        const resp = mzAjaxRequest('ptw.php','GET',{ action:'get_permit', permit_id: permitId });
+        const p = (resp && resp.result) || resp || {};
+        requestedTo = p.ptw_extension_requested_to || '';
+    } catch (e) {
+        console.warn('fmApproveExtension: unable to prefill requested_to', e);
+    }
+    const input = prompt(`New Valid To for ${permitNumber} (YYYY-MM-DD HH:mm)`, requestedTo);
+    if (input === null) return;
+    const trimmed = (input||'').trim();
+    if (!trimmed){ safeToast('error','New Valid To is required','Validation'); return; }
+    const remarks = prompt('Optional: add remarks');
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+    data: attachSite({ action: 'approve_extend', permit_id: permitId, new_valid_to: trimmed, remarks: remarks || '' }),
+    headers: getAuthHeader(),
+        success: function(r){
+            if (wasOk(r)){
+                safeToast('success', getResponseMessage(r, 'Permit extended'), 'Success');
+                setTimeout(() => { loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (r && (r.error||r.message)) || 'Failed to extend', 'Error');
+            }
+        },
+        error: function(){ safeToast('error','Failed to extend','Error'); }
+    });
 }
 
 // Filter functions
@@ -1077,8 +1239,8 @@ function quickFmApprove(permitId, permitNumber) {
     $.ajax({
         url: 'api/ptw_approve.php',
         type: 'POST',
-        data: { action: 'fm_approve', permit_id: permitId, remarks: 'Quick approve' },
-        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+    data: attachSite({ action: 'fm_approve', permit_id: permitId, remarks: 'Quick approve' }),
+    headers: getAuthHeader(),
         success: function(res){
             if (wasOk(res)) {
                 safeToast('success', getResponseMessage(res, 'Permit finally approved'), 'Success');
@@ -1099,8 +1261,8 @@ function quickFmReject(permitId, permitNumber) {
     $.ajax({
         url: 'api/ptw_approve.php',
         type: 'POST',
-        data: { action: 'fm_reject', permit_id: permitId, remarks: reason.trim() },
-        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+    data: attachSite({ action: 'fm_reject', permit_id: permitId, remarks: reason.trim() }),
+    headers: getAuthHeader(),
         success: function(res){
             if (wasOk(res)) {
                 safeToast('success', getResponseMessage(res, 'Permit finally rejected'), 'Success');

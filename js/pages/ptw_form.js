@@ -6,6 +6,7 @@ class PtwForm {
     constructor() {
         this.apiUrl = 'api/ptw.php';
         this.userSite = null;
+    this.siteId = null; // site binding for public submissions
         this.refSite = [];
         this.refUser = [];
         this.ptwId = null;
@@ -131,6 +132,14 @@ class PtwForm {
         
         // For public mode, skip user authentication and site loading
         if (this.isPublicMode) {
+            // Enforce site_id presence for public form
+            this.siteId = this.getSiteIdFromUrl();
+            if (!this.siteId) {
+                console.warn('Public PTW form is missing required site_id in URL. Disabling form.');
+                this.setupEventHandlers();
+                this.showMissingSiteOverlay();
+                return; // stop further init
+            }
             this.setupEventHandlers();
             this.initializeFormForPublic();
             this.setupValidation();
@@ -184,6 +193,83 @@ class PtwForm {
         $('#txtPtwDescription, #txtPtwWorkArea, #txtPtwApplicantName').on('blur', function() {
             $(this).removeClass('is-invalid');
         });
+    }
+
+    // Read site_id from URL query string (supports site_id or site)
+    getSiteIdFromUrl() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const sid = params.get('site_id') || params.get('site') || '';
+            const normalized = (sid || '').trim();
+            if (!normalized) return '';
+            // Allow numeric strings only (minimal validation)
+            if (!/^\d+$/.test(normalized)) {
+                console.warn('Invalid site_id format in URL:', normalized);
+                return '';
+            }
+            return normalized;
+        } catch (e) {
+            console.error('Failed to parse site_id from URL:', e);
+            return '';
+        }
+    }
+
+    // Disable public form with a full-page overlay when site_id is missing
+    showMissingSiteOverlay() {
+        try {
+            // Disable all interactive controls
+            const inputs = document.querySelectorAll('input, textarea, select, button');
+            inputs.forEach(el => {
+                // Keep nav/tab buttons visible but disabled
+                el.disabled = true;
+                el.style.cursor = 'not-allowed';
+            });
+
+            // Target the main form container so we can hide it
+            const container = document.querySelector('#divPtwPageWidth');
+            if (container) {
+                container.style.display = 'none';
+            }
+
+            // Prevent page scrolling behind the overlay
+            try { document.body.style.overflow = 'hidden'; } catch (_) {}
+
+            // Add full-page overlay with explanation
+            const overlay = document.createElement('div');
+            overlay.id = 'missingSiteOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(248,249,250,0.92);
+                z-index: 99999;
+                display: flex; align-items: center; justify-content: center;
+                padding: 24px;
+            `;
+            const box = document.createElement('div');
+            box.style.cssText = `
+                background: #fff; border-left: 4px solid #dc3545; border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+                max-width: 640px; width: 100%; padding: 20px;
+            `;
+            box.innerHTML = `
+                <div style="display:flex;gap:12px;align-items:flex-start;">
+                    <i class="fas fa-map-marker-alt text-danger" style="font-size:28px;line-height:1.2;"></i>
+                    <div>
+                        <h5 class="mb-2">This PTW form is not linked to a site</h5>
+                        <p class="mb-2 text-muted">Please access this public PTW form using a site-specific link that GFM has provided.</p>
+                        <small class="text-muted">If you believe this is an error, contact your site administrator for the correct link.</small>
+                    </div>
+                </div>`;
+            // Attach overlay to body so it fully covers the viewport
+            document.body.appendChild(overlay);
+            overlay.appendChild(box);
+
+            // Optionally adjust header subtitle
+            const subtitle = document.getElementById('formSubtitle');
+            if (subtitle) subtitle.textContent = 'Public PTW submission is disabled until a site is specified.';
+        } catch (e) {
+            console.error('Failed to render missing site overlay:', e);
+        }
     }
 
     initializeForm() {
@@ -1739,6 +1825,17 @@ class PtwForm {
 
     savePtw(status = 'PENDING_APPROVAL') {
         console.log('savePtw called with status:', status);
+        // Guard: site_id required for public submissions
+        if (this.isPublicMode) {
+            if (!this.siteId) {
+                console.error('Attempted to submit without site_id. Blocking.');
+                if (typeof showError === 'function') {
+                    showError('This public PTW form is not linked to a site. Please use a site-specific link.');
+                }
+                this.showMissingSiteOverlay();
+                return;
+            }
+        }
         
         // Ensure work type synchronization before validation
         if (typeof window.updateWorkTypeDropdown === 'function') {
@@ -1826,7 +1923,8 @@ class PtwForm {
             certificate_numbers: JSON.stringify(this.getCertificateData()),
             supporting_docs_checklist: JSON.stringify(this.getSupportingDocumentsData()),
             hazardous_activities: JSON.stringify(this.getHazardousActivitiesData()),
-            public_user: 'Public User' // Assign to public user
+            public_user: 'Public User', // Assign to public user
+            site_id: this.siteId // Bind to site
         };
 
         // Add work type specific checklists as separate fields
