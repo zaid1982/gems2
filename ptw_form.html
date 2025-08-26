@@ -2657,8 +2657,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                     targetSection.style.display = 'block';
                 }
                 
-                // Initialize approval actions
-                initializeApprovalActions(role, ptwId);
+                // Read-only view: Do not bind approval actions here. Dashboards handle approvals.
             } else {
                 // Generic view mode without specific role
                 const formTitleText = document.getElementById('formTitleText');
@@ -2798,6 +2797,9 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     // Populate Form with PTW Data
     function populateFormWithData(data) {
         console.log('Populating form with data:', data);
+    // expose current PTW status and number if needed globally (view-only)
+    window.ptwStatus = data.ptw_status || data.status || '';
+    window.ptwNumber = data.ptw_permit_number || data.permit_number || '';
         
         // Populate basic fields - map API data to form fields
         const fieldMapping = {
@@ -3832,6 +3834,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             });
         }
     }
+
+    // No approval actions are attached in view-only form. Dashboards will handle all approvals.
 
     // Handle Approval/Rejection
     function handleApproval(role, ptwId, decision, comments) {

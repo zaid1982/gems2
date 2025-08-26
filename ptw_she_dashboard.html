@@ -227,7 +227,8 @@
             border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
             border: 1px solid #e2e8f0;
-            overflow: hidden;
+            /* Allow dropdown menus to escape the card bounds */
+            overflow: visible;
         }
 
         .main-content-card .card-header {
@@ -274,6 +275,18 @@
             border-radius: var(--border-radius);
             overflow: hidden;
             border: 1px solid #e2e8f0;
+        }
+
+        /* Prevent clipping of dropdowns inside responsive/table wrappers */
+        .main-content-card .card-body,
+        .table-responsive,
+        .dataTables_wrapper {
+            overflow: visible !important;
+        }
+
+        /* Ensure dropdown overlays above DataTables/headers */
+        .dropdown-menu {
+            z-index: 2000;
         }
 
         .table-modern thead th {
@@ -333,27 +346,22 @@
         }
 
         /* Action Buttons */
-        .action-btn-group {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .action-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-btn { border-radius: 6px; font-size: 0.75rem; font-weight: 500; padding: 6px 10px; border: none; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; }
+        .action-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 
-        .action-btn {
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 6px 10px;
-            border: none;
-            transition: all 0.2s ease;
+        /* Split action group to match supervisor styling */
+        .action-split {
             display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            width: 100%;
+            max-width: 220px; /* keep compact */
         }
-
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        .action-split > .btn:first-child {
+            flex: 1 1 auto;
+            text-align: left;
+        }
+        .action-split > .dropdown-toggle-split {
+            width: 38px;
         }
 
         /* Days Pending */
@@ -589,13 +597,13 @@
                         <thead>
                             <tr>
                                 <th>Permit No.</th>
-                                <th>Description</th>
+                                <!-- <th>Description</th> -->
                                 <th>Applicant</th>
                                 <th>Work Area</th>
                                 <th>Work Type</th>
                                 <th>Risk Level</th>
                                 <th>Supervisor Approved</th>
-                                <th>Days Pending</th>
+                                <!-- <th>Days Pending</th> -->
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -727,6 +735,19 @@
 <script>
 
 document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+// Fallback: define safeToast if common.js hasn't defined it yet
+window.safeToast = window.safeToast || function(type, message, title) {
+    try {
+        if (window.toastr && toastr[type]) {
+            toastr[type](message, title || (type === 'success' ? 'Success' : type === 'error' ? 'Error' : ''));
+        } else {
+            console[(type === 'error' ? 'error' : 'log')](title ? `${title}: ${message}` : message);
+            if (type === 'error') { alert(message); }
+        }
+    } catch (e) {
+        console.error('safeToast fallback error:', e);
+    }
+};
 
 let shePermitsTable;
 let currentPermitId = null;
@@ -759,11 +780,12 @@ function initializeSHEDashboard() {
     shePermitsTable = $('#dtPendingSHE').DataTable({
         responsive: true,
         lengthChange: false,
+    pageLength: 10,
         autoWidth: false,
         order: [[6, 'asc']], // Order by supervisor approved date ascending (oldest first)
         columnDefs: [
             {
-                targets: [8], // Actions column
+                targets: [6], // Actions column
                 orderable: false,
                 searchable: false
             }
@@ -841,8 +863,10 @@ function loadShePermits() {
         url: 'api/ptw.php',
         type: 'GET',
         data: {
-            action: 'get_permits_for_she_approval'
+            action: 'get_permits_for_she_approval',
+            _ts: Date.now()
         },
+        cache: false,
         headers: {
             'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
         },
@@ -850,13 +874,13 @@ function loadShePermits() {
             if (response.success) {
                 populateShePermitsTable(response.result);
             } else {
-                showError(response.error || 'Failed to load permits');
+                safeToast('error', response.error || 'Failed to load permits', 'Error');
             }
             //hideLoadingModal();
         },
         error: function(xhr, status, error) {
             console.error('Load SHE Permits Error:', error);
-            showError('Failed to load permits');
+            safeToast('error', 'Failed to load permits', 'Error');
             //hideLoadingModal();
         }
     });
@@ -869,29 +893,37 @@ function populateShePermitsTable(permits) {
         const riskBadge = getRiskLevelBadge(permit.ptw_risk_level);
         const workTypeBadge = getWorkTypeBadge(permit.ptw_work_type);
         
-        // Calculate days pending
-        const approvedDate = new Date(permit.approved_supervisor_date);
-        const today = new Date();
-        const daysPending = Math.floor((today - approvedDate) / (1000 * 60 * 60 * 24));
-        const daysPendingHtml = getDaysPendingHtml(daysPending);
+        // Calculate days pending from supervisor approval date (field names can vary)
+        const supDateStr = permit.ptw_supervisor_approval_date || permit.approved_supervisor_date;
+        let daysPendingHtml = '-';
+        if (supDateStr) {
+            const approvedDate = new Date(supDateStr);
+            const today = new Date();
+            const daysPending = Math.floor((today - approvedDate) / (1000 * 60 * 60 * 24));
+            daysPendingHtml = getDaysPendingHtml(daysPending);
+        }
         
-        // Get supervisor name more comprehensively
+        // Get supervisor name - prefer resolved name, then approved_supervisor_by, then ptw_supervisor_id
         let supervisorName = 'N/A';
-        if (permit.supervisor_name) {
+        if (permit.approved_supervisor_name) {
+            supervisorName = permit.approved_supervisor_name;
+        } else if (permit.supervisor_name) {
             supervisorName = permit.supervisor_name;
+        } else if (permit.approved_supervisor_by) {
+            supervisorName = `User ID: ${permit.approved_supervisor_by}`;
         } else if (permit.ptw_supervisor_id) {
-            supervisorName = `Supervisor ID: ${permit.ptw_supervisor_id}`;
+            supervisorName = `User ID: ${permit.ptw_supervisor_id}`;
         }
         
         const row = [
             permit.ptw_permit_number,
-            permit.ptw_permit_description,
+            // permit.ptw_permit_description,
             permit.ptw_applicant_name,
             permit.ptw_work_area,
             workTypeBadge,
             riskBadge,
-            formatDateTime(permit.approved_supervisor_date),
-            daysPendingHtml,
+            formatDateTime(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date),
+            // daysPendingHtml,
             generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number)
         ];
         
@@ -902,25 +934,93 @@ function populateShePermitsTable(permits) {
 }
 
 function generateActionButtons(permitId, permitNumber) {
+    // Compact split-button: Review + dropdown (Quick Approve, Quick Reject, PDF)
     return `
-        <div class="action-btn-group">
-            <button type="button" class="btn btn-warning action-btn" 
-                    onclick="openPtwModal('${permitId}', 'she')" 
-                    title="Review PTW (Full View)">
-                <i class="fas fa-file-alt"></i> Review PTW
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'she')" title="Review PTW">
+                <i class="fas fa-file-alt"></i> Review
             </button>
-            <button type="button" class="btn btn-info action-btn" 
-                    onclick="reviewPermit(${permitId}, '${permitNumber}')" 
-                    title="Quick Review">
-                <i class="fas fa-eye"></i> Quick
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <button type="button" class="btn btn-success action-btn" 
-                    onclick="generatePTWPDF(${permitId})" 
-                    title="Generate PDF">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickSheApprove('${permitId}')">
+                    <i class="fas fa-check text-success"></i> Quick Approve
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickSheReject('${permitId}')">
+                    <i class="fas fa-times text-danger"></i> Quick Reject
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
         </div>
     `;
+}
+
+// Quick action handlers (SHE)
+// Helper: normalize varied backend success payloads
+function wasOk(res) {
+    if (!res) return false;
+    const explicit = (res.success === true) || (res.status === 'success') || (res.result === true);
+    const implicit = (typeof res.permit_id !== 'undefined') || (typeof res.new_status !== 'undefined');
+    const msgOk = typeof res.message === 'string' && /success|approved|rejected/i.test(res.message);
+    return explicit || implicit || msgOk;
+}
+
+function getResponseMessage(res, fallback) {
+    if (res && typeof res.message === 'string' && res.message.trim()) return res.message;
+    return fallback;
+}
+
+function quickSheApprove(permitId) {
+    if (!permitId) { showError('Permit ID not found'); return; }
+    if (!confirm('Approve this PTW as SHE?')) return;
+    // Optional comments
+    const comments = prompt('Optional: add SHE approval comments');
+    try {
+        const res = mzAjaxRequest('ptw_approve.php', 'POST', {
+            action: 'she_approve',
+            permit_id: permitId,
+            remarks: (comments && comments.trim()) ? comments.trim() : 'Quick approval by SHE'
+        });
+        if (wasOk(res)) {
+            safeToast('success', getResponseMessage(res, 'PTW approved by SHE'), 'Success');
+            loadShePermits();
+            loadSummaryStats();
+        } else {
+            safeToast('error', (res && (res.message || res.error)) || 'Failed to approve', 'Error');
+        }
+    } catch (e) {
+        console.error('quickSheApprove error:', e);
+        safeToast('error', e.message || 'Failed to approve', 'Error');
+    }
+}
+
+function quickSheReject(permitId) {
+    if (!permitId) { showError('Permit ID not found'); return; }
+    const reason = prompt('Enter rejection reason (required):');
+    if (reason === null) return; // cancelled
+    if (!reason || !reason.trim()) { showError('Rejection reason is required.'); return; }
+    if (!confirm('Reject this PTW as SHE?')) return;
+    try {
+        const res = mzAjaxRequest('ptw_approve.php', 'POST', {
+            action: 'she_reject',
+            permit_id: permitId,
+            remarks: reason.trim()
+        });
+        if (wasOk(res)) {
+            safeToast('success', getResponseMessage(res, 'PTW rejected by SHE'), 'Success');
+            loadShePermits();
+            loadSummaryStats();
+        } else {
+            safeToast('error', (res && (res.message || res.error)) || 'Failed to reject', 'Error');
+        }
+    } catch (e) {
+        console.error('quickSheReject error:', e);
+        safeToast('error', e.message || 'Failed to reject', 'Error');
+    }
 }
 
 function reviewPermit(permitId, permitNumber) {
@@ -970,10 +1070,16 @@ function populateReviewModal(permit) {
     const modalContent = $('#ptwReviewContent');
     
     // Get supervisor details from the permit data
-    const supervisorApprovalDate = permit.approved_supervisor_date ? 
-        formatDateTime(permit.approved_supervisor_date) : 'Not Available';
-    const supervisorName = permit.ptw_supervisor_id ? 
-        `User ID: ${permit.ptw_supervisor_id}` : 'Not Assigned';
+    const supervisorApprovalDate = (permit.ptw_supervisor_approval_date || permit.approved_supervisor_date) ? 
+        formatDateTime(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date) : 'Not Available';
+    const supervisorName = permit.approved_supervisor_name ?
+        permit.approved_supervisor_name : (
+            permit.supervisor_name ? permit.supervisor_name : (
+                permit.approved_supervisor_by ? `User ID: ${permit.approved_supervisor_by}` : (
+                    permit.ptw_supervisor_id ? `User ID: ${permit.ptw_supervisor_id}` : 'Not Assigned'
+                )
+            )
+        );
     const supervisorStatus = permit.ptw_supervisor_approval || 'PENDING';
     const supervisorComments = permit.ptw_supervisor_comments || 'No comments';
     
@@ -1305,22 +1411,22 @@ function processSheApproval(permitId, action, remarks) {
             'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || 'test_token_123')
         },
         success: function(response) {
-            if (response.success) {
-                const message = action === 'approve' ? 
-                    'PTW permit approved successfully by SHE' : 
-                    'PTW permit rejected by SHE';
-                showSuccess(message);
-                
-                // Close modal and refresh data
-                $('#ptwReviewModal').modal('hide');
-                setTimeout(() => {
-                    loadShePermits();
-                    loadSummaryStats();
-                }, 500);
+            const ok = wasOk(response);
+            if (ok) {
+                const message = getResponseMessage(
+                    response,
+                    action === 'approve' ? 'PTW permit approved successfully by SHE' : 'PTW permit rejected by SHE'
+                );
+                safeToast('success', message, 'Success');
             } else {
-                showError(response.error || `Failed to ${action} permit`);
+                safeToast('error', (response && (response.error || response.message)) || `Failed to ${action} permit`, 'Error');
             }
-            //hideLoadingModal();
+            // Always close modal and refresh to avoid stale rows
+            $('#ptwReviewModal').modal('hide');
+            setTimeout(() => {
+                loadSummaryStats();
+                loadShePermits();
+            }, 400);
         },
         error: function(xhr, status, error) {
             console.error(`SHE ${action} Error:`, error);
@@ -1340,7 +1446,7 @@ function processSheApproval(permitId, action, remarks) {
                 console.log('Could not parse error response');
             }
             
-            showError(errorMessage);
+            safeToast('error', errorMessage, 'Error');
             //hideLoadingModal();
         }
     });
@@ -1490,8 +1596,7 @@ if (!document.querySelector('script[src*="sweetalert2"]')) {
     document.head.appendChild(script);
 }
 
-// Include common functions
-document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+// Include common functions (already loaded above)
 
 // PTW Modal Integration Functions
 function openPtwModal(ptwId, role = 'she') {
@@ -1548,88 +1653,24 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 // ===============================
 
 function generatePTWPDF(ptwId) {
-    if (!ptwId) {
-        alert('PTW ID not found');
-        return;
-    }
-    
-    // Find the button that was clicked
-    const button = event.target.closest('button');
-    const originalContent = button.innerHTML;
-    
-    // Show loading state
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-    
-    // Use GET request like WO PDF does
-    fetch(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
-            'deviceid': 'web-dashboard'
-        }
-    })
-    .then(response => {
-        // First check if response is ok
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        // Get the response text first to debug
-        return response.text();
-    })
-    .then(responseText => {
-        console.log('Raw response:', responseText);
-        
-        // Try to parse as JSON
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            console.error('Response text:', responseText);
-            throw new Error('Invalid JSON response: ' + responseText.substring(0, 200));
-        }
-        
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        
-        if (data.success) {
-            // The result contains the PDF data ready for download
-            if (data.result && data.result.pdf_data) {
-                // Create blob and download
-                const byteCharacters = atob(data.result.pdf_data);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], {type: 'application/pdf'});
-                
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `PTW_${ptwId}_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                alert('PDF generated and downloaded successfully!');
-            } else {
-                alert('PDF generated but download data not found');
-            }
+    if (!ptwId) { showError('PTW ID not found'); return; }
+    try {
+        const result = mzAjaxRequest(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
+        if (result && result.status === 'success' && result.pdf_url) {
+            const link = document.createElement('a');
+            link.href = result.pdf_url;
+            link.download = result.filename || `PTW_${ptwId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showSuccess('PDF generated successfully');
         } else {
-            alert('Failed to generate PDF: ' + (data.message || data.error || 'Unknown error'));
+            showError((result && (result.message || result.error)) || 'Failed to generate PDF');
         }
-    })
-    .catch(error => {
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        console.error('PDF generation error:', error);
-        alert('Error generating PDF: ' + error.message);
-    });
+    } catch (e) {
+        console.error('PDF generation error:', e);
+        showError(e.message || 'Failed to generate PDF');
+    }
 }
 
 function createPTWPDF(ptwId, button, originalContent) {

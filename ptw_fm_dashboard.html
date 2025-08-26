@@ -43,30 +43,36 @@
         
         .stat-card {
             text-align: center;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 12px;
             margin-bottom: 15px;
             transition: transform 0.2s;
+            background: #fff;
+            border: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-2px);
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: transparent;
         }
-        
-        .stat-card.pending {
-            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
-            color: white;
-        }
-        
-        .stat-card.approved-today {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-        
-        .stat-card.overdue {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card .card-title { font-size: 2rem; font-weight: 800; margin-bottom: 4px; color: #212529; }
+        .stat-card .card-text { color: #6c757d; margin-bottom: 0; }
+        .stat-card i { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; margin-top: 8px; }
+        /* Colored accents per type */
+        .stat-card.pending::before { background: #ffb300; }
+        .stat-card.approved-today::before { background: #20c997; }
+        .stat-card.overdue::before { background: #e74c3c; }
+        .stat-card.pending i { background: #fff4cc; color: #ff9800; }
+        .stat-card.approved-today i { background: #d7f5ea; color: #20c997; }
+        .stat-card.overdue i { background: #ffe2e0; color: #e74c3c; }
         
         .priority-badge {
             font-size: 0.8rem;
@@ -180,6 +186,57 @@
         .action-btn {
             margin: 2px;
         }
+
+        /* Avoid dropdown clipping inside table wrappers */
+        .card .card-body,
+        .table-responsive,
+        .dataTables_wrapper {
+            overflow: visible !important;
+        }
+
+        .dropdown-menu { z-index: 2000; }
+
+    /* Split action group (match SHE styling) */
+        .action-split {
+            display: inline-flex;
+            width: 100%;
+            max-width: 220px;
+        }
+        .action-split > .btn:first-child { flex: 1 1 auto; text-align: left; }
+        .action-split > .dropdown-toggle-split { width: 38px; }
+
+    /* Neutral active style for filter buttons */
+    .action-filter .btn.active { background-color: #e9ecef; }
+
+        /* Hero header (match SHE/Supervisor style) */
+        .hero-header {
+            background: linear-gradient(135deg, #5b5bde 0%, #4a3fd8 100%);
+            color: #fff;
+            border-radius: 20px;
+            padding: 28px 32px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(76, 63, 216, 0.25);
+        }
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            right: -80px;
+            top: -80px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 50%;
+        }
+        .hero-title { font-size: 1.9rem; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .hero-title i { font-size: 1.4em; }
+        .hero-subtitle { opacity: 0.95; margin-top: 6px; font-size: 0.95rem; }
+        .subheader-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 12px 16px;
+        }
     </style>
     
     <!-- JQuery -->
@@ -201,13 +258,29 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <!-- Page Title -->
+        <!-- Hero Header -->
         <div class="row mt-4">
             <div class="col-12">
-                <h2 class="h2-responsive font-weight-bold">
-                    <i class="fas fa-user-cog mr-3"></i>PTW Facility Manager Dashboard
-                </h2>
-                <p class="text-muted">Final review and approval of Permit to Work applications</p>
+                <div class="hero-header">
+                    <div class="hero-title">
+                        <i class="fas fa-user-cog"></i>
+                        <span>PTW Facility Manager Dashboard</span>
+                    </div>
+                    <div class="hero-subtitle">Final review, approval, and closure of Permit to Work requests</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subheader Card -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="subheader-card d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center" style="gap:12px;">
+                        <span class="badge badge-light border px-3 py-2"><i class="fas fa-user mr-2"></i>Facility Manager</span>
+                        <span class="badge badge-light border px-3 py-2"><i class="fas fa-building mr-2"></i>Site</span>
+                    </div>
+                    <small class="text-muted">Last updated: <span id="lastUpdatedTime">--</span></small>
+                </div>
             </div>
         </div>
 
@@ -245,8 +318,8 @@
                     <div class="card-body text-center">
                         <h6 class="card-title">Auto-Refresh</h6>
                         <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="autoRefreshToggle" checked>
-                            <label class="custom-control-label" for="autoRefreshToggle"></label>
+                            <input type="checkbox" class="custom-control-input" id="autoRefreshToggle" aria-label="Enable auto refresh" checked>
+                            <label class="custom-control-label" for="autoRefreshToggle"><span class="sr-only">Enable auto refresh</span></label>
                         </div>
                         <small class="text-muted d-block mt-2">Next: <span id="nextRefreshTime">30s</span></small>
                     </div>
@@ -267,14 +340,14 @@
                                 </h5>
                             </div>
                             <div class="col-md-6">
-                                <div class="btn-group float-right" role="group">
-                                    <button type="button" class="btn btn-outline-primary btn-sm active" id="btnFilterAll" onclick="filterByPriority('all')">
+                                <div class="btn-group float-right action-filter">
+                                    <button type="button" class="btn btn-light border btn-sm active" id="btnFilterAll" onclick="filterByPriority('all')">
                                         All
                                     </button>
-                                    <button type="button" class="btn btn-outline-warning btn-sm" id="btnFilterHigh" onclick="filterByPriority('high')">
+                                    <button type="button" class="btn btn-light border btn-sm" id="btnFilterHigh" onclick="filterByPriority('high')">
                                         High Risk
                                     </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnFilterCritical" onclick="filterByPriority('critical')">
+                                    <button type="button" class="btn btn-light border btn-sm" id="btnFilterCritical" onclick="filterByPriority('critical')">
                                         Critical
                                     </button>
                                 </div>
@@ -287,13 +360,9 @@
                                 <thead>
                                     <tr>
                                         <th>Permit Number</th>
-                                        <th>Work Description</th>
                                         <th>Applicant</th>
                                         <th>Risk Level</th>
-                                        <th>Work Type</th>
                                         <th>SHE Approved</th>
-                                        <th>Days Pending</th>
-                                        <th>Priority</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -307,12 +376,40 @@
             </div>
         </div>
 
+        <!-- Pending Closure Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-flag-checkered mr-2"></i>Permits Pending Closure (Supervisor Requested)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="dtPendingClosure">
+                                <thead>
+                                    <tr>
+                                        <th>Permit Number</th>
+                                        <th>Applicant</th>
+                                        <th>Risk</th>
+                                        <th>Valid To</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading Modal -->
-        <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-body text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
+                        <div class="spinner-border text-primary">
                             <span class="sr-only">Loading...</span>
                         </div>
                         <p class="mt-2 mb-0">Loading PTW requests...</p>
@@ -321,52 +418,11 @@
             </div>
         </div>
 
-        <!-- PTW Review Modal -->
-        <div class="modal fade" id="ptwReviewModal" tabindex="-1" role="dialog" aria-labelledby="ptwReviewModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ptwReviewModalLabel">
-                            <i class="fas fa-clipboard-check mr-2"></i>
-                            PTW Final Review
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                        <div id="ptwReviewContent">
-                            <div class="text-center py-4">
-                                <div class="spinner-border" role="status">
-                                    <span class="sr-only">Loading permit details...</span>
-                                </div>
-                                <p class="mt-2">Loading permit details...</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="row w-100">
-                            <div class="col-md-8">
-                                <textarea class="form-control" id="fmComments" rows="2" placeholder="Enter your final approval comments here..."></textarea>
-                            </div>
-                            <div class="col-md-4 text-right">
-                                <button type="button" class="btn btn-success mr-2" onclick="approvePermit()">
-                                    <i class="fas fa-check mr-1"></i> Final Approve
-                                </button>
-                                <button type="button" class="btn btn-danger mr-2" onclick="rejectPermit()">
-                                    <i class="fas fa-times mr-1"></i> Reject
-                                </button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- PTW View Modal -->
-        <div class="modal fade ptw-modal" id="ptwModal" tabindex="-1" role="dialog" aria-labelledby="ptwModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
+        <div class="modal fade ptw-modal" id="ptwModal" tabindex="-1" aria-labelledby="ptwModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="ptwModalLabel">PTW Review</h5>
@@ -375,7 +431,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <iframe id="ptwIframe" src="" frameborder="0"></iframe>
+                        <iframe id="ptwIframe" src="" title="PTW Review" style="border:0;"></iframe>
                     </div>
                 </div>
             </div>
@@ -426,6 +482,7 @@ let fmPermitsTable;
 let currentPermitId = null;
 let currentPermitNumber = null;
 let refreshInterval;
+let pendingClosureTable;
 
 document.addEventListener('DOMContentLoaded', function() {
     ShowLoader();
@@ -451,11 +508,12 @@ function initializeFMDashboard() {
     fmPermitsTable = $('#dtPendingFM').DataTable({
         responsive: true,
         lengthChange: false,
+    pageLength: 10,
         autoWidth: false,
-        order: [[6, 'asc']], // Order by SHE approved date ascending (oldest first)
+        order: [[3, 'asc']], // Order by SHE approved date ascending (oldest first)
         columnDefs: [
             {
-                targets: [8], // Actions column
+                targets: [4], // Actions column
                 orderable: false,
                 searchable: false
             }
@@ -466,9 +524,21 @@ function initializeFMDashboard() {
         }
     });
 
+    // Pending closure table
+    pendingClosureTable = $('#dtPendingClosure').DataTable({
+        responsive: true,
+        lengthChange: false,
+    pageLength: 10,
+        autoWidth: false,
+        order: [[3, 'asc']],
+        columnDefs: [ { targets: [5], orderable: false, searchable: false } ],
+        language: { emptyTable: 'No permits pending closure' }
+    });
+
     // Load initial data
     loadFmPermits();
     loadSummaryStats();
+    loadPendingClosure();
     
     // Set up auto-refresh
     setupAutoRefresh();
@@ -520,6 +590,7 @@ function refreshAllData() {
     showInfo('Refreshing dashboard data...');
     loadFmPermits();
     loadSummaryStats();
+    loadPendingClosure();
 }
 
 function loadFmPermits() {
@@ -535,18 +606,108 @@ function loadFmPermits() {
             'Authorization': 'Bearer valid_test_token_for_fm_dashboard'
         },
         success: function(response) {
-            if (response.success) {
-                populateFmPermitsTable(response.result);
-            } else {
-                showError(response.error || 'Failed to load permits');
+            let permits = [];
+            if (response && response.success && response.result) {
+                permits = response.result;
+            } else if (response && Array.isArray(response)) {
+                permits = response;
+            } else if (response && response.permits) {
+                permits = response.permits;
+            } else if (response && response.result && Array.isArray(response.result)) {
+                permits = response.result;
+            } else if (response && response.data && Array.isArray(response.data)) {
+                permits = response.data;
+            } else if (!response || response.error) {
+                safeToast('error', (response && response.error) || 'Failed to load permits', 'Error');
             }
+            populateFmPermitsTable(permits || []);
             hideLoadingModal();
         },
         error: function(xhr, status, error) {
             console.error('Load FM Permits Error:', error);
-            showError('Failed to load permits');
+            safeToast('error', 'Failed to load permits', 'Error');
             hideLoadingModal();
         }
+    });
+}
+
+function loadPendingClosure() {
+    // Use dashboard_data to fetch permits and filter PENDING_CLOSURE
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: { action: 'dashboard_data' },
+        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+        success: function(resp){
+            let permits = [];
+            if (resp && resp.activePtw) { permits = resp.permits || []; }
+            if (resp && resp.permits) { permits = resp.permits; }
+            if (resp && resp.result && resp.result.permits) { permits = resp.result.permits; }
+            const pending = (permits || []).filter(p => p.ptw_status === 'PENDING_CLOSURE');
+            populatePendingClosure(pending);
+        },
+        error: function(){ showError('Failed to load pending closure permits'); }
+    });
+}
+
+function populatePendingClosure(permits){
+    pendingClosureTable.clear();
+    (permits||[]).forEach(function(p){
+        const row = [
+            p.ptw_permit_number,
+            // p.ptw_permit_description,
+            p.ptw_applicant_name,
+            getRiskLevelBadge(p.ptw_risk_level),
+            formatDateTime(p.ptw_valid_to),
+            getStatusBadge(p.ptw_status),
+            generatePendingClosureActions(p.ptw_permit_id, p.ptw_permit_number)
+        ];
+        pendingClosureTable.row.add(row);
+    });
+    pendingClosureTable.draw();
+}
+
+function generatePendingClosureActions(permitId, permitNumber){
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="acknowledgeAndClose(${permitId}, '${permitNumber}')">
+                    <i class="fas fa-flag-checkered text-success"></i> Acknowledge & Close
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function acknowledgeAndClose(permitId, permitNumber){
+    if (!confirm(`Close permit ${permitNumber}? This will mark it COMPLETED.`)) return;
+    const remarks = prompt('Optional: add closing remarks');
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: { action: 'approve_close', permit_id: permitId, remarks: remarks || '' },
+        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+        success: function(r){
+            if (wasOk(r)){
+                const msg = getResponseMessage(r, 'Permit closed successfully');
+                safeToast('success', msg, 'Success');
+                // Refresh both tables and stats
+                setTimeout(() => { loadPendingClosure(); loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (r && (r.error||r.message)) || 'Failed to close', 'Error');
+            }
+        },
+        error: function(){ safeToast('error', 'Failed to close', 'Error'); }
     });
 }
 
@@ -555,23 +716,14 @@ function populateFmPermitsTable(permits) {
     
     permits.forEach(function(permit) {
         const riskBadge = getRiskLevelBadge(permit.ptw_risk_level);
-        const workTypeBadge = getWorkTypeBadge(permit.ptw_work_type);
-        
-        // Calculate days pending since SHE approval
-        const sheApprovedDate = new Date(permit.approved_she_date);
-        const today = new Date();
-        const daysPending = Math.floor((today - sheApprovedDate) / (1000 * 60 * 60 * 24));
-        const daysPendingHtml = getDaysPendingHtml(daysPending);
+        // Robust SHE approved date fallback
+        const sheApprovedRaw = permit.approved_she_date || permit.ptw_she_approval_date || permit.she_approved_date || permit.she_approval_date;
         
         const row = [
             permit.ptw_permit_number,
-            permit.ptw_permit_description,
             permit.ptw_applicant_name,
-            permit.ptw_work_area,
-            workTypeBadge,
             riskBadge,
-            formatDateTime(permit.approved_she_date),
-            daysPendingHtml,
+            formatDateTime(sheApprovedRaw),
             generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number)
         ];
         
@@ -583,487 +735,27 @@ function populateFmPermitsTable(permits) {
 
 function generateActionButtons(permitId, permitNumber) {
     return `
-        <div class="table-actions action-btn-group">
-            <button type="button" class="btn btn-success btn-sm action-btn" 
-                    onclick="openPtwModal('${permitId}', 'facility_manager')" 
-                    title="Review PTW (Full View)">
-                <i class="fas fa-file-alt"></i> Review PTW
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')" title="Review PTW">
+                <i class="fas fa-file-alt"></i> Review
             </button>
-            <button type="button" class="btn btn-info btn-sm action-btn review-btn" 
-                    onclick="reviewPermit(${permitId}, '${permitNumber}')" 
-                    title="Quick Review">
-                <i class="fas fa-eye"></i> Quick
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <button type="button" class="btn btn-primary btn-sm action-btn" 
-                    onclick="generatePTWPDF(${permitId})" 
-                    title="Generate PDF">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickFmApprove('${permitId}','${permitNumber}')">
+                    <i class="fas fa-check text-success"></i> Quick Final Approve
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickFmReject('${permitId}','${permitNumber}')">
+                    <i class="fas fa-times text-danger"></i> Quick Reject
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
         </div>
     `;
-}
-
-function reviewPermit(permitId, permitNumber) {
-    currentPermitId = permitId;
-    currentPermitNumber = permitNumber;
-    
-    // Load permit details and show review modal
-    loadPermitForReview(permitId);
-}
-
-function loadPermitForReview(permitId) {
-    $.ajax({
-        url: 'api/ptw.php',
-        type: 'GET',
-        data: {
-            action: 'get_permit',
-            permit_id: permitId
-        },
-        headers: {
-            'Authorization': 'Bearer valid_test_token_for_fm_dashboard'
-        },
-        success: function(response) {
-            let permit;
-            
-            // Handle both nested and direct response formats
-            if (response.success && response.result) {
-                permit = response.result;
-            } else if (response.ptw_permit_id) {
-                permit = response;
-            } else {
-                showError('Invalid response format');
-                return;
-            }
-            
-            populateReviewModal(permit);
-            $('#ptwReviewModal').modal('show');
-        },
-        error: function(xhr, status, error) {
-            console.error('Load Permit Details Error:', error);
-            showError('Failed to load permit details');
-        }
-    });
-}
-
-function populateReviewModal(permit) {
-    const modalContent = $('#ptwReviewContent');
-    
-    // Get approval details from the permit data
-    const supervisorApprovalDate = permit.ptw_supervisor_approval_date ? 
-        formatDateTime(permit.ptw_supervisor_approval_date) : 'Not Available';
-    const supervisorName = permit.ptw_supervisor_id ? 
-        `User ID: ${permit.ptw_supervisor_id}` : 'Not Assigned';
-    const supervisorStatus = permit.ptw_supervisor_approval || 'PENDING';
-    const supervisorComments = permit.ptw_supervisor_comments || 'No comments';
-    
-    const sheStatus = permit.ptw_she_approval || 'PENDING';
-    const sheApprovedBy = permit.approved_she_by || 'Not Assigned';
-    const sheApprovedDate = permit.approved_she_date ? 
-        formatDateTime(permit.approved_she_date) : 'Not Available';
-    const sheRemarks = permit.ptw_she_remarks || 'No remarks';
-    
-    const fmStatus = permit.ptw_fm_approval || 'PENDING';
-    const fmApprovedBy = permit.approved_fm_by || 'Not Assigned';
-    const fmApprovedDate = permit.approved_fm_date ? 
-        formatDateTime(permit.approved_fm_date) : 'Not Available';
-    const fmRemarks = permit.ptw_fm_remarks || 'No remarks';
-    
-    modalContent.html(`
-        <div class="container-fluid p-3">
-            <!-- Basic Information -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle mr-2"></i>Basic Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Permit Number:</strong></label>
-                                <p class="mb-2">${permit.ptw_permit_number || 'N/A'}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Description:</strong></label>
-                                <p class="mb-2">${permit.ptw_permit_description || 'N/A'}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Work Area:</strong></label>
-                                <p class="mb-2">${permit.ptw_work_area || 'N/A'}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Work Type:</strong></label>
-                                <p class="mb-2">${getWorkTypeBadge(permit.ptw_work_type)}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Risk Level:</strong></label>
-                                <p class="mb-2">${getRiskLevelBadge(permit.ptw_risk_level)}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Applicant:</strong></label>
-                                <p class="mb-2">${permit.ptw_applicant_name || 'N/A'}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Company/Department:</strong></label>
-                                <p class="mb-2">${permit.ptw_applicant_company_dept || 'N/A'}</p>
-                            </div>
-                            <div class="form-group">
-                                <label><strong>Contact:</strong></label>
-                                <p class="mb-2">${permit.ptw_applicant_contact || 'N/A'}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Valid From:</strong></label>
-                                <p class="mb-2">${formatDateTime(permit.ptw_valid_from)}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Valid To:</strong></label>
-                                <p class="mb-2">${formatDateTime(permit.ptw_valid_to)}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><strong>Contractor Company:</strong></label>
-                        <p class="mb-2">${permit.ptw_contractor_company || 'N/A'}</p>
-                    </div>
-                    <div class="form-group">
-                        <label><strong>Remarks:</strong></label>
-                        <p class="mb-2">${permit.ptw_remarks || 'No remarks'}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Approval Chain -->
-            <div class="card mb-3">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-check mr-2"></i>Complete Approval Chain
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Supervisor Approval Block -->
-                        <div class="col-md-4">
-                            <div class="card border-info">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0"><i class="fas fa-user-tie mr-2"></i>Supervisor</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Approved By:</label>
-                                        <p class="mb-2">${supervisorName}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date:</label>
-                                        <p class="mb-2">${supervisorApprovalDate}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Status:</label>
-                                        <p class="mb-2">${getStatusBadge(supervisorStatus)}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Remarks:</label>
-                                        <p class="mb-2">${supervisorComments}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SHE Approval Block -->
-                        <div class="col-md-4">
-                            <div class="card border-warning">
-                                <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0"><i class="fas fa-hard-hat mr-2"></i>SHE Officer</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Approved By:</label>
-                                        <p class="mb-2">${sheApprovedBy}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date:</label>
-                                        <p class="mb-2">${sheApprovedDate}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Status:</label>
-                                        <p class="mb-2">${getStatusBadge(sheStatus)}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Remarks:</label>
-                                        <p class="mb-2">${sheRemarks}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- FM Approval Block -->
-                        <div class="col-md-4">
-                            <div class="card border-success">
-                                <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0"><i class="fas fa-user-cog mr-2"></i>Facility Manager</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Approved By:</label>
-                                        <p class="mb-2">${fmApprovedBy}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date:</label>
-                                        <p class="mb-2">${fmApprovedDate}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Status:</label>
-                                        <p class="mb-2">${getStatusBadge(fmStatus)}</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Remarks:</label>
-                                        <p class="mb-2">${fmRemarks}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hazard Assessment -->
-            ${generateHazardAssessmentSection(permit)}
-
-            <!-- Final Authorization Notice -->
-            <div class="card mb-3 border-success">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-exclamation-circle mr-2"></i>Final Authorization Notice
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-warning mb-3">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        <strong>Important:</strong> As the Facility Manager, your approval will grant final authorization for this permit. 
-                        Once approved, the permit will become ACTIVE and work can commence. Please ensure all safety requirements 
-                        have been thoroughly reviewed and satisfied.
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-check-circle mr-2 text-success"></i>Approval Checklist Completed:</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success mr-2"></i>Supervisor Review & Approval</li>
-                                <li><i class="fas fa-check text-success mr-2"></i>SHE Safety Assessment & Approval</li>
-                                <li><i class="fas fa-clock text-warning mr-2"></i>Final FM Authorization (Pending)</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-clipboard-list mr-2 text-info"></i>Your Final Review Authority:</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-arrow-right text-primary mr-2"></i>Final safety compliance verification</li>
-                                <li><i class="fas fa-arrow-right text-primary mr-2"></i>Resource allocation approval</li>
-                                <li><i class="fas fa-arrow-right text-primary mr-2"></i>Permit activation authority</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `);
-}
-
-function generateHazardAssessmentSection(permit) {
-    let hazardContent = '';
-    
-    if (permit.ptw_hazard_checklist && permit.ptw_hazard_checklist !== '[]') {
-        try {
-            const hazards = JSON.parse(permit.ptw_hazard_checklist);
-            
-            hazardContent = `
-                <div class="card mb-3">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>Hazard Assessment Review
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6><i class="fas fa-shield-alt mr-2"></i>General Safety Checks</h6>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Safety Briefing
-                                        ${hazards.chkSafetyBriefing ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        PPE Available
-                                        ${hazards.chkPPEAvailable ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Emergency Procedure
-                                        ${hazards.chkEmergencyProcedure ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Work Area Isolated
-                                        ${hazards.chkWorkAreaIsolated ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        First Aid Available
-                                        ${hazards.chkFirstAidAvailable ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Communication Established
-                                        ${hazards.chkCommunicationEstablished ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">`;
-                            
-            if (hazards.specific && Object.keys(hazards.specific).length > 0) {
-                hazardContent += `
-                                <h6><i class="fas fa-fire mr-2"></i>Specific Work Hazards</h6>
-                                <ul class="list-group list-group-flush">`;
-                
-                for (const [hazard, checked] of Object.entries(hazards.specific)) {
-                    hazardContent += `
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        ${hazard}
-                                        ${checked ? '<span class="badge badge-success">✓</span>' : '<span class="badge badge-danger">✗</span>'}
-                                    </li>`;
-                }
-                
-                hazardContent += `
-                                </ul>`;
-            } else {
-                hazardContent += `
-                                <h6><i class="fas fa-info-circle mr-2"></i>Specific Work Hazards</h6>
-                                <p class="text-muted">No specific hazards identified</p>`;
-            }
-            
-            hazardContent += `
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-        } catch (e) {
-            console.error('Error parsing hazard checklist:', e);
-            hazardContent = `
-                <div class="card mb-3">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>Hazard Assessment Review
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted">Hazard assessment data not available or invalid format</p>
-                    </div>
-                </div>`;
-        }
-    }
-    
-    return hazardContent;
-}
-
-function finalApprovePermit() {
-    const comments = $('#fmComments').val();
-    
-    if (!currentPermitId || !currentPermitNumber) {
-        showError('No permit selected for final approval');
-        return;
-    }
-    
-    if (!comments.trim()) {
-        showWarning('Please add your final review comments before approving');
-        return;
-    }
-    
-    // Show confirmation dialog for final approval
-    if (confirm(`Are you sure you want to FINALLY APPROVE permit ${currentPermitNumber}?\n\nThis will activate the permit and allow work to commence.`)) {
-        processFmApproval(currentPermitId, 'approve', comments);
-    }
-}
-
-function rejectPermit() {
-    const comments = $('#fmComments').val();
-    
-    if (!currentPermitId || !currentPermitNumber) {
-        showError('No permit selected for rejection');
-        return;
-    }
-    
-    if (!comments.trim()) {
-        showError('Please provide detailed rejection reasons in the comments field');
-        return;
-    }
-    
-    if (comments.trim().length < 10) {
-        showError('Please provide more detailed rejection reasons (minimum 10 characters)');
-        return;
-    }
-    
-    // Show confirmation dialog for final rejection
-    if (confirm(`Are you sure you want to FINALLY REJECT permit ${currentPermitNumber}?\n\nThis will cancel the permit permanently.`)) {
-        processFmApproval(currentPermitId, 'reject', comments);
-    }
-}
-
-function processFmApproval(permitId, action, remarks) {
-    showLoadingModal();
-    
-    $.ajax({
-        url: 'api/ptw_approve.php',
-        type: 'POST',
-        data: {
-            action: action === 'approve' ? 'fm_approve' : 'fm_reject',
-            permit_id: permitId,
-            remarks: remarks
-        },
-        headers: {
-            'Authorization': 'Bearer valid_test_token_for_fm_dashboard'
-        },
-        success: function(response) {
-            if (response.success) {
-                const message = action === 'approve' ? 
-                    'PTW permit FINALLY APPROVED and is now ACTIVE' : 
-                    'PTW permit finally rejected and cancelled';
-                showSuccess(message);
-                
-                // Close modal and refresh data
-                $('#ptwReviewModal').modal('hide');
-                setTimeout(() => {
-                    loadFmPermits();
-                    loadSummaryStats();
-                }, 500);
-            } else {
-                showError(response.error || `Failed to ${action} permit`);
-            }
-            hideLoadingModal();
-        },
-        error: function(xhr, status, error) {
-            console.error(`FM ${action} Error:`, error);
-            let errorMessage = `Failed to ${action} permit`;
-            
-            // Try to parse error response
-            try {
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                } else if (xhr.responseText) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.error) {
-                        errorMessage = response.error;
-                    }
-                }
-            } catch (e) {
-                console.log('Could not parse error response');
-            }
-            
-            showError(errorMessage);
-            hideLoadingModal();
-        }
-    });
 }
 
 function loadSummaryStats() {
@@ -1091,26 +783,33 @@ function loadSummaryStats() {
             }
             
             // Update UI with stats
-            $('#pendingCount').text(stats.pending || 0);
-            $('#approvedCount').text(stats.approved || 0);
-            $('#rejectedCount').text(stats.rejected || 0);
-            $('#totalCount').text(stats.total || 0);
+            $('#statPendingCount').text(stats.pending || 0);
+            $('#statApprovedToday').text(stats.approved || 0);
+            $('#statOverdueCount').text(stats.rejected || 0);
+            updateLastUpdatedTime();
         },
         error: function(xhr, status, error) {
             console.error('Load Summary Stats Error:', error);
             // Set default values on error
-            $('#pendingCount').text('0');
-            $('#approvedCount').text('0');
-            $('#rejectedCount').text('0');
-            $('#totalCount').text('0');
+            $('#statPendingCount').text('0');
+            $('#statApprovedToday').text('0');
+            $('#statOverdueCount').text('0');
+            updateLastUpdatedTime();
         }
     });
+}
+
+function updateLastUpdatedTime() {
+    const now = new Date();
+    const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const el = document.getElementById('lastUpdatedTime');
+    if (el) el.textContent = t;
 }
 
 // Filter functions
 function filterByPriority(priority) {
     // Update active button
-    $('.btn-group .btn').removeClass('active');
+    $('#btnFilterAll, #btnFilterHigh, #btnFilterCritical').removeClass('active');
     $('#btnFilter' + priority.charAt(0).toUpperCase() + priority.slice(1)).addClass('active');
     
     if (priority === 'all') {
@@ -1121,6 +820,8 @@ function filterByPriority(priority) {
         fmPermitsTable.search('CRITICAL').draw();
     }
 }
+
+// Removed modal-based approval functions (finalApprovePermit/rejectPermit/processFmApproval) with the legacy review modal
 
 // Utility functions
 function getRiskLevelBadge(riskLevel) {
@@ -1157,10 +858,22 @@ function getStatusBadge(status) {
         'DRAFT': '<span class="badge badge-info">Draft</span>',
         'PENDING_SHE': '<span class="badge badge-warning">Pending SHE</span>',
         'PENDING_FM': '<span class="badge badge-info">Pending FM</span>',
+    'PENDING_CLOSURE': '<span class="badge badge-warning">Pending Closure</span>',
         'ACTIVE': '<span class="badge badge-primary">Active</span>',
         'COMPLETED': '<span class="badge badge-success">Completed</span>'
     };
     return badges[status] || `<span class="badge badge-secondary">${status || 'Unknown'}</span>`;
+}
+
+function getPriorityBadge(riskLevel) {
+    const text = (riskLevel || '').toString().toUpperCase();
+    let cls = 'badge-secondary';
+    let label = 'Normal';
+    if (text === 'CRITICAL') { cls = 'badge-danger'; label = 'Critical'; }
+    else if (text === 'HIGH') { cls = 'badge-warning'; label = 'High'; }
+    else if (text === 'MEDIUM') { cls = 'badge-info'; label = 'Medium'; }
+    else if (text === 'LOW') { cls = 'badge-success'; label = 'Low'; }
+    return `<span class="badge ${cls} priority-badge">${label}</span>`;
 }
 
 function getDaysPendingHtml(days) {
@@ -1179,13 +892,9 @@ function formatDateTime(dateString) {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
-function showLoadingModal() {
-    // $('#loadingModal').modal('show');
-}
+function showLoadingModal() { /* no-op */ }
 
-function hideLoadingModal() {
-    // $('#loadingModal').modal('hide');
-}
+function hideLoadingModal() { /* no-op */ }
 
 function showSuccess(message) {
     toastr['success'](message, 'Success');
@@ -1210,8 +919,49 @@ if (!document.querySelector('script[src*="sweetalert2"]')) {
     document.head.appendChild(script);
 }
 
-// Include common functions
-document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+// Include common functions (single include)
+if (!document.querySelector('script[src^="js/common.js"]')) {
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+}
+
+// Toast fallback if not present yet
+window.safeToast = window.safeToast || function(type, message, title) {
+    try {
+        if (window.toastr && toastr[type]) {
+            const defaults = { success: 'Success', error: 'Error' };
+            toastr[type](message, title || defaults[type] || '');
+        } else {
+            const method = (type === 'error' ? 'error' : 'log');
+            console[method](title ? `${title}: ${message}` : message);
+            if (type === 'error') { alert(message); }
+        }
+    } catch (e) { console.error('safeToast fallback error:', e); }
+};
+
+function parseJsonSafe(text){
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch(e){
+        // handled: log and return null
+        if (window && window.console && console.debug) console.debug('parseJsonSafe: invalid JSON', e);
+        return null;
+    }
+}
+
+// Helpers to normalize varied backend responses
+function wasOk(res) {
+    if (!res) return false;
+    const explicit = (res.success === true) || (res.status === 'success') || (res.result === true);
+    const implicit = (typeof res.permit_id !== 'undefined') || (typeof res.new_status !== 'undefined');
+    const msgOk = typeof res.message === 'string' && /success|approved|rejected/i.test(res.message);
+    return explicit || implicit || msgOk;
+}
+
+function getResponseMessage(res, fallback) {
+    if (res && typeof res.message === 'string' && res.message.trim()) return res.message;
+    return fallback;
+}
 
 // PTW Modal Integration Functions
 function openPtwModal(ptwId, role = 'facility_manager') {
@@ -1247,7 +997,7 @@ window.addEventListener('message', function(event) {
         $('#ptwModal').modal('hide');
         
         // Show success message
-        showSuccess('PTW action completed successfully');
+    safeToast('success', 'PTW action completed successfully', 'Success');
         
         // Refresh dashboard data
         setTimeout(() => {
@@ -1268,44 +1018,34 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 // ===============================
 
 function generatePTWPDF(ptwId) {
-    if (!ptwId) {
-        alert('PTW ID not found');
-        return;
-    }
-    
-    // Find the button that was clicked
-    const button = event.target.closest('button');
-    const originalContent = button.innerHTML;
-    
-    // Show loading state
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-    
-    // Use GET request like WO PDF does
-    fetch(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
-            'deviceid': 'web-dashboard'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        
-        if (data.success) {
-            // The result contains the PDF data ready for download
-            if (data.result && data.result.pdf_data) {
-                // Create blob and download
+    if (!ptwId) { safeToast('error', 'PTW ID not found', 'Error'); return; }
+    const clickedBtn = (typeof event !== 'undefined' && event.target) ? event.target.closest('button') : null;
+    const restore = () => { if (clickedBtn) { clickedBtn.disabled = false; clickedBtn.innerHTML = originalHtml; } };
+    const originalHtml = clickedBtn ? clickedBtn.innerHTML : '';
+    if (clickedBtn) { clickedBtn.disabled = true; clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; }
+
+    fetch(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`)
+        .then(r => r.json())
+        .then(data => {
+            restore();
+            // Newer endpoint variant
+            if ((data && data.status === 'success' && data.pdf_url) || data.pdf_url) {
+                const link = document.createElement('a');
+                link.href = data.pdf_url;
+                link.download = data.filename || `PTW_${ptwId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                safeToast('success', 'PDF generated successfully', 'Success');
+                return;
+            }
+            // Legacy inline pdf_data variant
+            if (data && data.success && data.result && data.result.pdf_data) {
                 const byteCharacters = atob(data.result.pdf_data);
                 const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
+                for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
                 const byteArray = new Uint8Array(byteNumbers);
                 const blob = new Blob([byteArray], {type: 'application/pdf'});
-                
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
@@ -1315,20 +1055,61 @@ function generatePTWPDF(ptwId) {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                
-                alert('PDF generated and downloaded successfully!');
-            } else {
-                alert('PDF generated but download data not found');
+                safeToast('success', 'PDF generated successfully', 'Success');
+                return;
             }
-        } else {
-            alert('Failed to generate PDF: ' + (data.message || data.error || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        console.error('PDF generation error:', error);
-        alert('Error generating PDF: ' + error.message);
+            safeToast('error', (data && (data.message || data.error)) || 'Failed to generate PDF', 'Error');
+        })
+        .catch(err => {
+            restore();
+            console.error('PDF generation error:', err);
+            safeToast('error', err.message || 'Error generating PDF', 'Error');
+        });
+}
+
+// ===============================
+// QUICK ACTIONS
+// ===============================
+
+function quickFmApprove(permitId, permitNumber) {
+    if (!permitId) return;
+    if (!confirm(`Final approve permit ${permitNumber}?`)) return;
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: { action: 'fm_approve', permit_id: permitId, remarks: 'Quick approve' },
+        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+        success: function(res){
+            if (wasOk(res)) {
+                safeToast('success', getResponseMessage(res, 'Permit finally approved'), 'Success');
+                setTimeout(() => { loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (res && (res.error || res.message)) || 'Failed to approve', 'Error');
+            }
+        },
+        error: function(){ safeToast('error', 'Failed to approve', 'Error'); }
+    });
+}
+
+function quickFmReject(permitId, permitNumber) {
+    if (!permitId) return;
+    const reason = prompt(`Reject permit ${permitNumber}. Enter reason (min 5 chars):`);
+    if (reason === null) return; // cancelled
+    if (!reason || reason.trim().length < 5) { safeToast('warning', 'Please provide a longer reason', 'Warning'); return; }
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: { action: 'fm_reject', permit_id: permitId, remarks: reason.trim() },
+        headers: { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' },
+        success: function(res){
+            if (wasOk(res)) {
+                safeToast('success', getResponseMessage(res, 'Permit finally rejected'), 'Success');
+                setTimeout(() => { loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (res && (res.error || res.message)) || 'Failed to reject', 'Error');
+            }
+        },
+        error: function(){ safeToast('error', 'Failed to reject', 'Error'); }
     });
 }
 
@@ -1438,11 +1219,6 @@ function regeneratePTWPDF(ptwId) {
 
 <script type="text/javascript">
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-</script>
-
-</body>
-</html>
-}
 </script>
 
 </body>

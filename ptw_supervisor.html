@@ -424,6 +424,21 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
+        /* Full-width (within cell) split action with a tasteful max width */
+        .action-split {
+            display: inline-flex;
+            width: 100%;
+            max-width: 220px; /* adjust to taste */
+            vertical-align: middle;
+        }
+        .action-split > .btn:first-child {
+            flex: 1 1 auto;
+            text-align: left;
+        }
+        .action-split > .dropdown-toggle-split {
+            flex: 0 0 36px;
+        }
+
         /* Days Pending */
         .days-pending {
             font-weight: 600;
@@ -662,7 +677,11 @@
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h4><i class="fas fa-clipboard-list mr-2"></i>PTW Requests Pending Supervisor Approval</h4>
+                    <h4 class="d-flex align-items-center">
+                        <i class="fas fa-clipboard-list mr-2"></i>
+                        PTW Requests Pending Supervisor Approval
+                        <span class="badge badge-info ml-2" id="countPendingList">0</span>
+                    </h4>
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="filter-btn-group" role="group">
@@ -685,19 +704,90 @@
                     <thead>
                         <tr>
                             <th>Permit No.</th>
-                            <th>Description</th>
+                            <!-- <th>Description</th> -->
                             <th>Applicant</th>
                             <th>Work Area</th>
                             <th>Risk Level</th>
                             <th>Submitted Date</th>
-                            <th>Days Pending</th>
-                            <th>Priority</th>
+                            <!-- <th>Days Pending</th> -->
+                            <!-- <th>Priority</th> -->
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Data will be loaded here via DataTables -->
                     </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active PTW - Request Closure Section -->
+    <div class="main-content-card mt-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="d-flex align-items-center">
+                        <i class="fas fa-handshake mr-2"></i>
+                        Active PTW - Request Closure
+                        <span class="badge badge-info ml-2" id="countActiveClosureList">0</span>
+                    </h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <small class="text-muted">Use this to request FM to close completed work</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-modern" id="dtActivePTWForClosure">
+                    <thead>
+                        <tr>
+                            <th>Permit No.</th>
+                            <!-- <th>Description</th> -->
+                            <th>Work Area</th>
+                            <th>Risk</th>
+                            <th>Valid To</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Closed PTW Section -->
+    <div class="main-content-card mt-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="d-flex align-items-center">
+                        <i class="fas fa-check-double mr-2"></i>
+                        Closed PTW
+                        <span class="badge badge-info ml-2" id="countClosedList">0</span>
+                    </h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <small class="text-muted">Recently completed permits</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-modern" id="dtClosedPTW">
+                    <thead>
+                        <tr>
+                            <th>Permit No.</th>
+                            <th>Work Area</th>
+                            <th>Risk</th>
+                            <th>Closed On</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -736,7 +826,7 @@
                 </div>
                 <div class="modal-body" style="height: 80vh; padding: 0 !important">
 
-                    <iframe id="ptwIframe" src="" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+                    <iframe id="ptwIframe" src="" title="PTW Review" style="width: 100%; height: 100%; border:0;"></iframe>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary modal-close-btn" data-dismiss="modal">
@@ -785,6 +875,8 @@ document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" typ
 // Global variables
 let refSite, refUser, userSite, currentFilter = 'all';
 let pendingPTWTable;
+let activePTWTable;
+let closedPTWTable;
 let autoRefreshInterval;
 let autoRefreshEnabled = true;
 
@@ -841,9 +933,7 @@ function initializeSupervisorDashboard() {
             console.log('✓ Common.js loaded successfully');
             
             // Use window references if direct references aren't available
-            if (typeof mzAjaxRequest !== 'function' && typeof window.mzAjaxRequest === 'function') {
-                window.mzAjaxRequest = window.mzAjaxRequest;
-            }
+            // mzAjaxRequest available globally via common.js
             
             try {
                 // Initialize user data
@@ -913,7 +1003,8 @@ function initializeDataTable() {
     pendingPTWTable = $('#dtPendingPTW').DataTable({
         responsive: true,
         autoWidth: false,
-        pageLength: 25,
+        pageLength: 10,
+        lengthChange: false,
         order: [[5, 'asc']], // Sort by submitted date (oldest first)
         language: {
             emptyTable: "No PTW requests pending supervisor approval"
@@ -923,16 +1014,16 @@ function initializeDataTable() {
                 data: 'ptw_permit_number',
                 width: '12%'
             },
-            { 
-                data: 'ptw_permit_description',
-                width: '20%',
-                render: function(data, type, row) {
-                    if (type === 'display' && data.length > 50) {
-                        return data.substring(0, 50) + '...';
-                    }
-                    return data;
-                }
-            },
+            // { 
+            //     data: 'ptw_permit_description',
+            //     width: '20%',
+            //     render: function(data, type, row) {
+            //         if (type === 'display' && data.length > 50) {
+            //             return data.substring(0, 50) + '...';
+            //         }
+            //         return data;
+            //     }
+            // },
             { 
                 data: 'ptw_applicant_name',
                 width: '12%'
@@ -955,23 +1046,24 @@ function initializeDataTable() {
                     return moment(data).format('DD/MM/YYYY HH:mm');
                 }
             },
+            // { 
+            //     data: null,
+            //     width: '8%',
+            //     render: function(data, type, row) {
+            //         return getDaysPending(row.created_date);
+            //     }
+            // },
+            // { 
+            //     data: null,
+            //     width: '8%',
+            //     render: function(data, type, row) {
+            //         return getPriorityBadge(row);
+            //     }
+            // },
             { 
                 data: null,
-                width: '8%',
-                render: function(data, type, row) {
-                    return getDaysPending(row.created_date);
-                }
-            },
-            { 
-                data: null,
-                width: '8%',
-                render: function(data, type, row) {
-                    return getPriorityBadge(row);
-                }
-            },
-            { 
-                data: null,
-                width: '10%',
+                width: '12%',
+                className: 'text-nowrap',
                 render: function(data, type, row) {
                     return getActionButtons(row);
                 }
@@ -981,6 +1073,49 @@ function initializeDataTable() {
             // Initialize tooltips
             $('[data-toggle="tooltip"]').tooltip();
         }
+    });
+
+    // Active PTW for closure
+    activePTWTable = $('#dtActivePTWForClosure').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthChange: false,
+        order: [[4, 'asc']], // Sort by valid to
+        language: {
+            emptyTable: "No ACTIVE permits available for closure request"
+        },
+        columns: [
+            { data: 'ptw_permit_number', width: '14%' },
+            // { data: 'ptw_permit_description', width: '28%', render: function(d,t){ if(t==='display' && d){ return d.length>60? d.substring(0,60)+'...':d;} return d||'';} },
+            { data: 'ptw_work_area', width: '14%' },
+            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
+            { data: 'ptw_valid_to', width: '14%', render: function(d){ return d? moment(d).format('DD/MM/YYYY HH:mm') : '-'; } },
+            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '12%', className: 'text-nowrap', render: function(_d,_t,row){ return getActiveActionButtons(row); } }
+        ],
+        drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
+    });
+
+    // Closed PTW list
+    closedPTWTable = $('#dtClosedPTW').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthChange: false,
+        order: [[3, 'desc']], // Sort by closed date desc
+        language: {
+            emptyTable: "No closed permits to display"
+        },
+        columns: [
+            { data: 'ptw_permit_number', width: '14%' },
+            { data: 'ptw_work_area', width: '16%' },
+            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
+            { data: null, width: '16%', render: function(row){ return formatClosedDate(row); } },
+            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '14%', className: 'text-nowrap', render: function(_d,_t,row){ return getClosedActionButtons(row); } }
+        ],
+        drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
 }
 
@@ -1000,15 +1135,20 @@ function loadDashboardData(isAutoRefresh = false) {
         
         console.log('API Response:', pendingRequests);
         
-        if (pendingRequests && pendingRequests.success && pendingRequests.result) {
+    if (pendingRequests && pendingRequests.success && pendingRequests.result) {
             console.log('Pending requests loaded successfully:', pendingRequests.result.permits);
             updateDashboardStats(pendingRequests.result.permits || []);
             populateDataTable(pendingRequests.result.permits || []);
+            // Load active and closed PTWs via dashboard_data
+            loadActivePTWForClosure();
+            loadClosedPTW();
         } else if (pendingRequests && pendingRequests.permits) {
             // Handle case where success flag might not be set
             console.log('Pending requests loaded (no success flag):', pendingRequests.permits);
             updateDashboardStats(pendingRequests.permits);
             populateDataTable(pendingRequests.permits);
+            loadActivePTWForClosure();
+            loadClosedPTW();
         } else {
             console.log('No pending requests or API failed, trying fallback...');
             // Fallback: get all permits and filter for pending supervisor
@@ -1023,6 +1163,15 @@ function loadDashboardData(isAutoRefresh = false) {
                 console.log('Filtered pending supervisor requests:', pendingOnly);
                 updateDashboardStats(pendingOnly);
                 populateDataTable(pendingOnly);
+                // Also populate active permits from same payload if available
+                try {
+                    const activeOnly = (allPermits.activePtw || []).length ? allPermits.activePtw : (allPermits.permits || []).filter(p=>p.ptw_status==='ACTIVE');
+                    populateActiveClosureTable(activeOnly);
+                } catch(e){ console.warn('Could not populate active permits from fallback', e); }
+                try {
+                    const closedOnly = (allPermits.permits || []).filter(p=>p.ptw_status==='COMPLETED');
+                    populateClosedPTW(closedOnly);
+                } catch(e){ console.warn('Could not populate closed permits from fallback', e); }
             } else {
                 console.log('Fallback also failed, loading placeholder data');
                 loadPlaceholderData();
@@ -1042,6 +1191,28 @@ function loadDashboardData(isAutoRefresh = false) {
         if (autoRefreshEnabled) {
             updateNextRefreshTime();
         }
+    }
+}
+
+function loadActivePTWForClosure() {
+    try {
+        console.log('Loading active PTWs for closure via dashboard_data...');
+        const dash = mzAjaxRequest('ptw.php', 'GET', { action: 'dashboard_data' });
+        let active = [];
+        if (dash) {
+            if (Array.isArray(dash.activePtw)) {
+                active = dash.activePtw;
+            } else if (dash.result && Array.isArray(dash.result.activePtw)) {
+                active = dash.result.activePtw;
+            } else if (Array.isArray(dash.permits)) {
+                active = dash.permits.filter(p => p.ptw_status === 'ACTIVE');
+            }
+        }
+        console.log('Active PTWs count:', active.length);
+        populateActiveClosureTable(active);
+    } catch (e) {
+        console.error('Failed to load active PTWs for closure:', e);
+        // Keep table as is; not critical for pending list
     }
 }
 
@@ -1088,6 +1259,12 @@ function populateDataTable(data) {
     
     // Redraw table
     pendingPTWTable.draw();
+    // Update count badge
+    try {
+        document.getElementById('countPendingList').textContent = pendingPTWTable.rows().count();
+    } catch(e) {
+        console.warn('Could not update pending list count', e);
+    }
     
     // Apply current filter
     applyFilter(currentFilter);
@@ -1150,29 +1327,29 @@ function getPriorityBadge(request) {
 function getActionButtons(request) {
     // Get the permit ID from various possible field names
     const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
-    
     return `
-        <div class="action-btn-group">
-            <button class="btn btn-primary action-btn" 
-                    onclick="openPtwModal('${permitId}', 'supervisor')" 
-                    data-toggle="tooltip" title="Review PTW (Full View)">
-                <i class="fas fa-file-alt"></i> Review PTW
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
+                <i class="fas fa-file-alt"></i> Review
             </button>
-
-            <button class="btn btn-success action-btn" 
-                    onclick="quickApprove('${permitId}')" 
-                    data-toggle="tooltip" title="Quick Approve">
-                <i class="fas fa-check"></i>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <button class="btn btn-danger action-btn" 
-                    onclick="generatePTWPDF('${permitId}')" 
-                    data-toggle="tooltip" title="Extract to PDF">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickApprove('${permitId}')">
+                    <i class="fas fa-check text-success"></i> Quick Approve
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="quickReject('${permitId}')">
+                    <i class="fas fa-times text-danger"></i> Quick Reject
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
         </div>
     `;
 }
-
 // Action functions
 
 
@@ -1181,6 +1358,46 @@ function getActionButtons(request) {
 
 
 
+function getActiveActionButtons(request){
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const disabled = (request.ptw_status && request.ptw_status !== 'ACTIVE') ? 'disabled' : '';
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestClose('${permitId}')`}">
+                    <i class="fas fa-handshake text-warning"></i> Request to Close
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function requestClose(permitId){
+    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
+    const confirmMsg = 'Confirm to request closure for this ACTIVE permit? FM will acknowledge and close.';
+    if (!confirm(confirmMsg)) return;
+    let remarks = prompt('Optional: add closure remarks (e.g., work completed, site handed back)');
+    try{
+    mzAjaxRequest('ptw_approve.php','POST',{ action:'request_close', permit_id: permitId, remarks: remarks||'' });
+        // mzAjaxRequest returns result object; API typically returns success in envelope, but common.js unwraps to result
+        safeToast('success','Closure requested successfully','Success');
+        // refresh active and maybe dashboard stats
+        loadActivePTWForClosure();
+    }catch(e){
+        console.error('Closure request failed:', e);
+        safeToast('error', e.message || 'Failed to request closure','Error');
+    }
+}
 
 
 function quickApprove(permitId) {
@@ -1192,20 +1409,107 @@ function quickApprove(permitId) {
                 permit_id: permitId,
                 comments: 'Quick approval by supervisor'
             });
-            
-            console.log('Quick approval result:', result);
-            
             if (result && result.success) {
                 safeToast('success', 'PTW approved successfully!', 'Quick Approval Success');
-                loadDashboardData(); // Refresh the table
+                loadDashboardData();
             } else {
-                safeToast('error', result.message || result.error || 'Failed to approve PTW', 'Quick Approval Failed');
+                safeToast('error', (result && (result.message || result.error)) || 'Failed to approve PTW', 'Quick Approval Failed');
             }
         } catch (error) {
             console.error('Error in quick approve:', error);
             safeToast('error', 'Failed to approve PTW. Please try again. Error: ' + error.message, 'Quick Approval Error');
         }
     }
+}
+
+function quickReject(permitId) {
+    try {
+        if (!permitId || permitId === 'unknown') {
+            safeToast('error', 'Permit ID not found', 'Error');
+            return;
+        }
+        const reason = prompt('Enter rejection reason (required):');
+        if (reason === null) { // user cancelled
+            return;
+        }
+        if (!reason || !reason.trim()) {
+            safeToast('error', 'Rejection reason is required.', 'Validation');
+            return;
+        }
+        const confirmMsg = 'Confirm to reject this PTW? This will notify the applicant.';
+        if (!confirm(confirmMsg)) return;
+        const result = mzAjaxRequest('ptw.php', 'POST', {
+            action: 'supervisor_reject',
+            permit_id: permitId,
+            comments: reason.trim()
+        });
+        if (result && result.success) {
+            safeToast('success', 'PTW rejected successfully.', 'Quick Reject');
+            loadDashboardData();
+        } else {
+            safeToast('error', (result && (result.message || result.error)) || 'Failed to reject PTW', 'Quick Reject Failed');
+        }
+    } catch (error) {
+        console.error('Error in quick reject:', error);
+        safeToast('error', 'Failed to reject PTW. Please try again. Error: ' + error.message, 'Quick Reject Error');
+    }
+}
+
+function loadClosedPTW(){
+    try{
+        console.log('Loading closed PTWs via dashboard_data...');
+        const dash = mzAjaxRequest('ptw.php','GET',{ action:'dashboard_data' });
+        let closed = [];
+        if (dash) {
+            if (Array.isArray(dash.permits)) {
+                closed = dash.permits.filter(p => p.ptw_status === 'COMPLETED');
+            } else if (dash.result && Array.isArray(dash.result.permits)) {
+                closed = dash.result.permits.filter(p => p.ptw_status === 'COMPLETED');
+            }
+        }
+        console.log('Closed PTWs count:', closed.length);
+        populateClosedPTW(closed);
+    }catch(e){
+        console.error('Failed to load closed PTWs:', e);
+    }
+}
+
+function populateClosedPTW(list){
+    try{
+        const rows = Array.isArray(list) ? list : [];
+        closedPTWTable.clear();
+        if (rows.length){ closedPTWTable.rows.add(rows); }
+        closedPTWTable.draw();
+        try {
+            document.getElementById('countClosedList').textContent = closedPTWTable.rows().count();
+        } catch(e) {
+            console.warn('Could not update closed list count', e);
+        }
+    }catch(e){ console.error('Error populating Closed PTW table:', e); }
+}
+
+function getClosedActionButtons(request){
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    return `
+    <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function formatClosedDate(row){
+    const d = row.completed_date || row.closed_date || row.ptw_completed_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
+    return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
 }
 
 // Filter functions
@@ -1247,9 +1551,7 @@ function generateReport() {
             action: 'supervisor_report',
             format: 'excel'
         });
-        
         console.log('Report result:', result);
-        
         if (result && result.success && result.filePath) {
             window.open(result.filePath, '_blank');
             safeToast('success', 'Report generated successfully', 'Report');
@@ -1322,6 +1624,30 @@ function updateNextRefreshTime() {
     } else {
         $('#nextRefreshTime').text('Disabled');
     }
+}
+
+function populateActiveClosureTable(activeList){
+    try{
+        const rows = Array.isArray(activeList) ? activeList : [];
+        activePTWTable.clear();
+        if (rows.length){ activePTWTable.rows.add(rows); }
+        activePTWTable.draw();
+    // Update count badge
+        try {
+            document.getElementById('countActiveClosureList').textContent = activePTWTable.rows().count();
+        } catch(e) {
+            console.warn('Could not update active closure list count', e);
+        }
+    }catch(e){ console.error('Error populating Active PTW table:', e); }
+}
+
+function getStatusBadge(status){
+    const map = {
+        'ACTIVE': '<span class="badge badge-modern badge-info">Active</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Pending Closure</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-success">Completed</span>'
+    };
+    return map[status] || `<span class="badge badge-modern badge-dark">${status||'-'}</span>`;
 }
 
 function generateWorkersSection(permit) {
