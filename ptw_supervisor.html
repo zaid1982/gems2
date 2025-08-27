@@ -347,6 +347,18 @@
             color: white;
         }
 
+    /* Compact status select to avoid truncation */
+    .status-filter { min-width: 140px; }
+
+        /* Header controls container (prevents truncation) */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         /* Table Styling */
         .table-modern {
             border-radius: var(--border-radius);
@@ -409,6 +421,17 @@
             background: rgba(31, 41, 55, 0.1);
             color: #1f2937;
         }
+
+        /* Dark green for Closed status */
+        .badge-closed {
+            background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
+            color: #065f46;
+        }
+
+    /* Helpers to avoid inline styles */
+    .d-none { display: none !important; }
+    .modal-body-iframe { height: 80vh; padding: 0 !important; }
+    .iframe-ptw { width: 100%; height: 100%; border: 0; }
 
         /* Action Buttons */
         .action-btn-group {
@@ -527,9 +550,9 @@
                 gap: 16px;
             }
 
-            .filter-btn-group {
-                flex-direction: column;
-            }
+            .header-controls { gap: 6px; }
+            .filter-btn-group { flex-wrap: wrap; gap: 6px; }
+            .filter-btn { padding: 6px 10px; }
 
             .action-btn-group {
                 flex-direction: column;
@@ -815,21 +838,53 @@
                 <div class="col-md-8">
                     <h4 class="d-flex align-items-center">
                         <i class="fas fa-clipboard-list mr-2"></i>
-                        PTW Requests Pending Supervisor Approval
+                        Permit To Work (Supervisor)
                         <span class="badge badge-info ml-2" id="countPendingList">0</span>
                     </h4>
                 </div>
-                <div class="col-md-4 text-right">
-                    <div class="filter-btn-group" role="group">
-                        <button type="button" class="filter-btn active" onclick="filterByPriority('all')" id="btnFilterAll">
-                            All
+                <div class="col-md-4 text-right header-controls">
+                    <!-- <div class="filter-btn-group d-none d-lg-inline-flex mr-2" id="statusChips">
+                        <button type="button" class="filter-btn active" data-status="ALL" onclick="setStatusFilter('ALL')">All</button>
+                        <button type="button" class="filter-btn" data-status="PENDING_SUPERVISOR" onclick="setStatusFilter('PENDING_SUPERVISOR')">Pending</button>
+                        <button type="button" class="filter-btn" data-status="ACTIVE" onclick="setStatusFilter('ACTIVE')">Active</button>
+                        <button type="button" class="filter-btn" data-status="SUSPENDED" onclick="setStatusFilter('SUSPENDED')">Suspended</button>
+                        <button type="button" class="filter-btn" data-status="CLOSED" onclick="setStatusFilter('CLOSED')">Closed</button>
+                        <button type="button" class="filter-btn" data-status="CANCELLED" onclick="setStatusFilter('CANCELLED')">Cancelled</button>
+                    </div> -->
+                    <div class="d-inline-block mr-2 align-middle">
+                        <label for="statusFilterSelect" class="mr-2 mb-0 small text-muted d-sm-inline">Status:</label>
+                        <select id="statusFilterSelect" class="form-control form-control-sm status-filter" onchange="setStatusFilter(this.value)" aria-label="Status filter" title="Status filter">
+                            <option value="ALL">All</option>
+                            <option value="PENDING_SUPERVISOR">Pending</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="SUSPENDED">Suspended</option>
+                            <option value="CLOSED">Closed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-light btn-modern dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Filter
                         </button>
-                        <button type="button" class="filter-btn" onclick="filterByPriority('urgent')" id="btnFilterUrgent">
-                            Urgent
-                        </button>
-                        <button type="button" class="filter-btn" onclick="filterByPriority('overdue')" id="btnFilterOverdue">
-                            Overdue
-                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('ALL')">All</button>
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('PENDING_SUPERVISOR')">Pending</button>
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('ACTIVE')">Active</button>
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('SUSPENDED')">Suspended</button>
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('CLOSED')">Closed</button>
+                            <button class="dropdown-item" type="button" onclick="setStatusFilter('CANCELLED')">Cancelled</button>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="toggleShowCancelledSm" onchange="toggleShowCancelledFromSm()">
+                                    <label class="custom-control-label" for="toggleShowCancelledSm"><small>Show Cancelled</small></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-control custom-switch d-inline-block mr-2">
+                        <input type="checkbox" class="custom-control-input" id="toggleShowCancelled" onchange="toggleShowCancelled()">
+                        <label class="custom-control-label" for="toggleShowCancelled"><small>Show Cancelled</small></label>
                     </div>
                 </div>
             </div>
@@ -844,7 +899,8 @@
                             <th>Applicant</th>
                             <th>Work Area</th>
                             <th>Risk Level</th>
-                            <th>Submitted Date</th>
+                            <th>Date</th>
+                            <th>Status</th>
                             <!-- <th>Days Pending</th> -->
                             <!-- <th>Priority</th> -->
                             <th>Actions</th>
@@ -859,7 +915,7 @@
     </div>
     
     <!-- Active PTW - Request Closure Section -->
-    <div class="main-content-card mt-4">
+    <div class="main-content-card mt-4 d-none">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
@@ -895,7 +951,7 @@
     </div>
     
     <!-- Closed PTW Section -->
-    <div class="main-content-card mt-4">
+    <div class="main-content-card mt-4 d-none">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
@@ -930,7 +986,7 @@
     </div>
 
     <!-- Suspended Permits Section -->
-    <div class="main-content-card mt-4">
+    <div class="main-content-card mt-4 d-none">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
@@ -996,9 +1052,9 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" style="height: 80vh; padding: 0 !important">
+                <div class="modal-body modal-body-iframe">
 
-                    <iframe id="ptwIframe" src="" title="PTW Review" style="width: 100%; height: 100%; border:0;"></iframe>
+                    <iframe id="ptwIframe" src="" title="PTW Review" class="iframe-ptw"></iframe>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary modal-close-btn" data-dismiss="modal">
@@ -1052,6 +1108,8 @@ let closedPTWTable;
 let suspendedPTWTable;
 let autoRefreshInterval;
 let autoRefreshEnabled = true;
+let showCancelled = false;
+let statusFilter = 'ALL';
 
 let versionLocal_;
 let changePasswordClass_;
@@ -1111,6 +1169,27 @@ function initializeSupervisorDashboard() {
             try {
                 // Initialize user data
                 initializeUserData();
+
+                // Initialize Show Cancelled toggle
+                try {
+                    const savedShowCancelled = localStorage.getItem('ptw_supervisor_show_cancelled');
+                    showCancelled = savedShowCancelled === 'true';
+                    $('#toggleShowCancelled').prop('checked', showCancelled);
+                } catch(_e) {}
+
+                // Initialize status filter chips
+                try {
+                    const savedStatus = localStorage.getItem('ptw_supervisor_status_filter');
+                    statusFilter = savedStatus || 'ALL';
+                    // If user had CANCELLED selected, ensure toggle is on
+                    if (statusFilter === 'CANCELLED' && !showCancelled) {
+                        showCancelled = true;
+                        $('#toggleShowCancelled').prop('checked', true);
+                        localStorage.setItem('ptw_supervisor_show_cancelled', 'true');
+                    }
+                    updateStatusChipsUI();
+                    try { $('#statusFilterSelect').val(statusFilter); } catch(_e) {}
+                } catch(_e) {}
                 
                 // Initialize DataTable
                 initializeDataTable();
@@ -1178,9 +1257,9 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[5, 'asc']], // Sort by submitted date (oldest first)
+        order: [[4, 'asc']], // Sort by date (oldest first)
         language: {
-            emptyTable: "No PTW requests pending supervisor approval"
+            emptyTable: "No PTW records to display"
         },
         columns: [
             { 
@@ -1213,12 +1292,11 @@ function initializeDataTable() {
                 }
             },
             { 
-                data: 'created_date',
-                width: '10%',
-                render: function(data) {
-                    return moment(data).format('DD/MM/YYYY HH:mm');
-                }
+                data: null,
+                width: '14%',
+                render: function(_d,_t,row) { return formatUnifiedDate(row); }
             },
+            { data: 'ptw_status', width: '12%', render: function(s){ return getStatusBadge(s); } },
             // { 
             //     data: null,
             //     width: '8%',
@@ -1238,7 +1316,7 @@ function initializeDataTable() {
                 width: '12%',
                 className: 'text-nowrap',
                 render: function(data, type, row) {
-                    return getActionButtons(row);
+                    return getUnifiedActionButtons(row);
                 }
             }
         ],
@@ -1322,61 +1400,20 @@ function loadDashboardData(isAutoRefresh = false) {
     
     
     try {
-        // Load PTW requests pending supervisor approval
-        console.log('Making API call to get_supervisor_pending_requests...');
-        const pendingRequests = mzAjaxRequest('ptw.php?action=get_supervisor_pending_requests', 'GET', {});
-        
-        console.log('API Response:', pendingRequests);
-        
-    if (pendingRequests && pendingRequests.success && pendingRequests.result) {
-            console.log('Pending requests loaded successfully:', pendingRequests.result.permits);
-            updateDashboardStats(pendingRequests.result.permits || []);
-            populateDataTable(pendingRequests.result.permits || []);
-            // Load active and closed PTWs via dashboard_data
-            loadActivePTWForClosure();
-            loadClosedPTW();
-            loadSuspendedPTW();
-        } else if (pendingRequests && pendingRequests.permits) {
-            // Handle case where success flag might not be set
-            console.log('Pending requests loaded (no success flag):', pendingRequests.permits);
-            updateDashboardStats(pendingRequests.permits);
-            populateDataTable(pendingRequests.permits);
-            loadActivePTWForClosure();
-            loadClosedPTW();
-            loadSuspendedPTW();
-        } else {
-            console.log('No pending requests or API failed, trying fallback...');
-            // Fallback: get all permits and filter for pending supervisor
-            const allPermits = mzAjaxRequest('ptw.php', 'GET', {
-                action: 'dashboard_data'
-            });
-            
-            console.log('Fallback API Response:', allPermits);
-            
-            if (allPermits && allPermits.permits) {
-                const pendingOnly = filterPendingSupervisor(allPermits.permits);
-                console.log('Filtered pending supervisor requests:', pendingOnly);
-                updateDashboardStats(pendingOnly);
-                populateDataTable(pendingOnly);
-                // Also populate active permits from same payload if available
-                try {
-                    const activeOnly = (allPermits.activePtw || []).length ? allPermits.activePtw : (allPermits.permits || []).filter(p=>p.ptw_status==='ACTIVE');
-                    populateActiveClosureTable(activeOnly);
-                } catch(e){ console.warn('Could not populate active permits from fallback', e); }
-                try {
-                    const closedOnly = (allPermits.permits || []).filter(p=>p.ptw_status==='COMPLETED');
-                    populateClosedPTW(closedOnly);
-                } catch(e){ console.warn('Could not populate closed permits from fallback', e); }
-                try {
-                    const suspendedOnly = (allPermits.permits || []).filter(p=>p.ptw_status==='SUSPENDED');
-                    populateSuspendedPTW(suspendedOnly);
-                } catch(e){ console.warn('Could not populate suspended permits from fallback', e); }
-            } else {
-                console.log('Fallback also failed, loading placeholder data');
-                loadPlaceholderData();
-                safeToast('warning', 'No PTW data available. Please check your permissions.', 'No Data');
-            }
+        // Load unified dashboard data once and build a merged list
+        const dash = mzAjaxRequest('ptw.php', 'GET', { action: 'dashboard_data' });
+        console.log('Dashboard data:', dash);
+        let permits = [];
+        let active = [];
+        if (dash) {
+            const root = dash.result || dash;
+            if (Array.isArray(root.permits)) { permits = root.permits; }
+            if (Array.isArray(root.activePtw)) { active = root.activePtw; }
         }
+        const pendingOnly = filterPendingSupervisor(permits);
+        updateDashboardStats(pendingOnly);
+    const unified = buildUnifiedList(permits, active);
+        populateDataTable(unified);
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -1529,8 +1566,8 @@ function populateDataTable(data) {
         console.warn('Could not update pending list count', e);
     }
     
-    // Apply current filter
-    applyFilter(currentFilter);
+    // Apply current status filter on unified view
+    applyStatusFilter();
 }
 
 function loadPlaceholderData() {
@@ -1903,26 +1940,9 @@ function formatClosedDate(row){
     return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
 }
 
-// Filter functions
-function filterByPriority(priority) {
-    currentFilter = priority;
-    
-    // Update button states
-    $('.filter-btn-group button').removeClass('active');
-    $(`#btnFilter${priority.charAt(0).toUpperCase() + priority.slice(1)}`).addClass('active');
-    
-    applyFilter(priority);
-}
-
-function applyFilter(priority) {
-    if (priority === 'all') {
-        pendingPTWTable.column(7).search('').draw(); // Clear priority filter
-    } else if (priority === 'urgent') {
-        pendingPTWTable.column(7).search('Urgent').draw();
-    } else if (priority === 'overdue') {
-        pendingPTWTable.column(6).search('days').draw(); // Search for "days" in days pending column
-    }
-}
+// Filter functions (not used in unified view)
+function filterByPriority(priority) { console.debug('filterByPriority noop', { priority }); }
+function applyFilter(priority) { console.debug('applyFilter noop', { priority }); }
 
 // Dashboard actions
 function refreshDashboard() {
@@ -2034,15 +2054,156 @@ function populateActiveClosureTable(activeList){
 
 function getStatusBadge(status){
     const map = {
-        'ACTIVE': '<span class="badge badge-modern badge-info">Active</span>',
-        'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Pending Closure</span>',
-    'PENDING_CANCELLATION': '<span class="badge badge-modern badge-warning">Pending Cancellation</span>',
-    'PENDING_SUSPENSION': '<span class="badge badge-modern badge-warning">Pending Suspension</span>',
-    'SUSPENDED': '<span class="badge badge-modern badge-secondary">Suspended</span>',
-    'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-    'COMPLETED': '<span class="badge badge-modern badge-success">Completed</span>'
+        'ACTIVE': '<span class="badge badge-modern badge-success">Active</span>',
+        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-info">Pending Supervisor</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-info">Pending Closure</span>',
+        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-info">Pending Cancellation</span>',
+        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-info">Pending Suspension</span>',
+        'SUSPENDED': '<span class="badge badge-modern badge-warning">Suspended</span>',
+        'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
     };
-    return map[status] || `<span class="badge badge-modern badge-dark">${status||'-'}</span>`;
+    return map[status] || `<span class="badge badge-modern badge-info">${status||'-'}</span>`;
+}
+
+function formatUnifiedDate(row){
+    const s = row.ptw_status || '';
+    let d = null;
+    if (s === 'PENDING_SUPERVISOR') {
+        d = row.created_date;
+    } else if (s === 'ACTIVE') {
+        d = row.ptw_valid_to || row.ptw_valid_from;
+    } else if (s === 'COMPLETED' || s === 'CLOSED') {
+        d = row.completed_date || row.closed_date || row.ptw_completed_date;
+    } else if (s === 'SUSPENDED') {
+        d = row.suspended_date || row.updated_date;
+    } else {
+        d = row.updated_date || row.created_date;
+    }
+    return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+}
+
+function getPermitId(row){
+    return row.ptw_permit_id || row.permit_id || row.id || row.ptw_permit_number || null;
+}
+
+function getUnifiedActionButtons(row){
+    const s = row.ptw_status;
+    if (s === 'PENDING_SUPERVISOR') return getActionButtons(row);
+    if (s === 'ACTIVE' || s === 'PENDING_CLOSURE' || s === 'PENDING_CANCELLATION' || s === 'PENDING_SUSPENSION') return getActiveActionButtons(row);
+    if (s === 'COMPLETED' || s === 'CLOSED') return getClosedActionButtons(row);
+    if (s === 'SUSPENDED') return getSuspendedActionButtons(row);
+    // Fallback minimal actions
+    const permitId = getPermitId(row) || 'unknown';
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="View PTW">
+                <i class="fas fa-file-alt"></i> View
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function buildUnifiedList(permits, active){
+    const includeStatuses = new Set(['PENDING_SUPERVISOR','ACTIVE','COMPLETED','CLOSED','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION']);
+    if (showCancelled) includeStatuses.add('CANCELLED');
+    const map = new Map();
+    function addRow(r){
+        const id = getPermitId(r);
+        if (!id) return;
+        // Only include desired statuses; if a row lacks status but is in active list assume ACTIVE
+        let s = r.ptw_status;
+        if (!s && r === true) s = 'ACTIVE';
+        if (!s || !includeStatuses.has(s)) return;
+        if (!map.has(id)) map.set(id, r);
+    }
+    if (Array.isArray(permits)) {
+        permits.forEach(addRow);
+    }
+    if (Array.isArray(active)) {
+        active.forEach(function(r){
+            // ensure status at least ACTIVE for active list
+            if (!r.ptw_status) r.ptw_status = 'ACTIVE';
+            addRow(r);
+        });
+    }
+    return Array.from(map.values());
+}
+
+function toggleShowCancelled(){
+    try {
+        showCancelled = $('#toggleShowCancelled').is(':checked');
+        localStorage.setItem('ptw_supervisor_show_cancelled', String(showCancelled));
+        // keep small-screen toggle in sync
+        try { $('#toggleShowCancelledSm').prop('checked', showCancelled); } catch(_e) {}
+        // Reload unified data to apply filter
+        loadDashboardData();
+    } catch(e) {
+        console.warn('toggleShowCancelled failed', e);
+    }
+}
+
+function toggleShowCancelledFromSm(){
+    try {
+        const v = $('#toggleShowCancelledSm').is(':checked');
+        $('#toggleShowCancelled').prop('checked', v);
+        toggleShowCancelled();
+    } catch(e) { console.warn('toggleShowCancelledFromSm failed', e); }
+}
+
+function statusCodeToLabel(code){
+    const map = {
+        'PENDING_SUPERVISOR': 'Pending Supervisor',
+        'ACTIVE': 'Active',
+        'SUSPENDED': 'Suspended',
+        'CLOSED': 'Closed',
+        'COMPLETED': 'Closed',
+        'CANCELLED': 'Cancelled'
+    };
+    return map[code] || code;
+}
+
+function updateStatusChipsUI(){
+    try {
+        const $chips = $('#statusChips .filter-btn');
+        $chips.removeClass('active');
+        $chips.filter(`[data-status="${statusFilter}"]`).addClass('active');
+    } catch(e) { console.warn('updateStatusChipsUI failed', e); }
+}
+
+function setStatusFilter(code){
+    statusFilter = code || 'ALL';
+    localStorage.setItem('ptw_supervisor_status_filter', statusFilter);
+    // If selecting CANCELLED, ensure toggle is enabled
+    if (statusFilter === 'CANCELLED' && !showCancelled) {
+        showCancelled = true;
+        try { $('#toggleShowCancelled').prop('checked', true); } catch(e) {}
+        localStorage.setItem('ptw_supervisor_show_cancelled', 'true');
+    }
+    updateStatusChipsUI();
+    try { $('#statusFilterSelect').val(statusFilter); } catch(_e) {}
+    applyStatusFilter();
+}
+
+function applyStatusFilter(){
+    if (!pendingPTWTable) return;
+    const colIndex = 5; // Status column
+    if (statusFilter === 'ALL') {
+        pendingPTWTable.column(colIndex).search('').draw();
+        return;
+    }
+    const label = statusCodeToLabel(statusFilter).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // exact match regex on cell text
+    pendingPTWTable.column(colIndex).search('^' + label + '$', true, false).draw();
 }
 
 function generateWorkersSection(permit) {

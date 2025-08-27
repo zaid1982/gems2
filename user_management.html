@@ -202,11 +202,8 @@
                 modalUserClass_ = new ModalUser();
                 modalEditPasswordClass_ = new ModalEditPassword();
 
-                console.log('Loading reference data...');
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                console.log('refStatus_ loaded:', refStatus_);
                 const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                console.log('refRole_ loaded:', refRole_);
                 const refGroup_ = mzGetLocalArray('gems_group', versionLocal_, 'groupId');
                 const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId', [], 'designation');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
@@ -223,7 +220,6 @@
                 modalEditPasswordClass_.setClassFrom(userManagementClass_);
                 modalEditPasswordClass_.init();
 
-                console.log('Setting up user management class...');
                 userManagementClass_.setRefStatus(refStatus_);
                 userManagementClass_.setRefRole(refRole_);
                 userManagementClass_.setRefDesignation(refDesignation_);
@@ -231,7 +227,6 @@
                 userManagementClass_.setRefSite(refSite_);
                 userManagementClass_.setModalUserClass(modalUserClass_);
                 userManagementClass_.setModalEditPasswordClass(modalEditPasswordClass_);
-                console.log('Initializing user management class...');
                 userManagementClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
