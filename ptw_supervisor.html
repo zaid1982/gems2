@@ -49,7 +49,7 @@
         /* Ensure proper spacing with navigation */
         main {
             margin-top: 0;
-            background: var(--light-bg);
+            /* background: var(--light-bg); */
             min-height: 100vh;
         }
         
@@ -682,6 +682,114 @@
         </div>
     </div>
 
+    <!-- Extend / Resume Modal -->
+    <div class="modal fade" id="extendModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-clock mr-2"></i><span id="extendModalTitle">Request to Extend</span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="extendPermitId" />
+                    <div class="form-group">
+                        <label for="extendNewValidTo">New Valid To</label>
+                        <input type="datetime-local" class="form-control" id="extendNewValidTo" required />
+                        <small class="form-text text-muted">Pick date and time; 5PM default if only date is set.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="extendRemarks">Remarks (optional)</label>
+                        <textarea class="form-control" id="extendRemarks" rows="3" placeholder="Reason / context"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitExtendRequest()"><i class="fas fa-paper-plane mr-1"></i> Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-ban mr-2"></i>Request to Cancel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="cancelPermitId" />
+                    <div class="form-group">
+                        <label for="cancelReason">Reason</label>
+                        <textarea class="form-control" id="cancelReason" rows="3" placeholder="Provide reason (min 5 characters)" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="submitCancelRequest()"><i class="fas fa-paper-plane mr-1"></i> Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suspend Modal -->
+    <div class="modal fade" id="suspendModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-pause-circle mr-2"></i>Request to Suspend</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="suspendPermitId" />
+                    <div class="form-group">
+                        <label for="suspendNcrNo">NCR/CAR Number</label>
+                        <input type="text" class="form-control" id="suspendNcrNo" placeholder="Enter NCR/CAR number" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="suspendReason">Reason</label>
+                        <textarea class="form-control" id="suspendReason" rows="3" placeholder="Provide reason (min 5 characters)" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" onclick="submitSuspendRequest()"><i class="fas fa-paper-plane mr-1"></i> Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Close Modal -->
+    <div class="modal fade" id="closeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-handshake mr-2"></i>Request to Close</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="closePermitId" />
+                    <div class="form-group">
+                        <label for="closeRemarks">Remarks (optional)</label>
+                        <textarea class="form-control" id="closeRemarks" rows="3" placeholder="e.g., work completed, site handed back"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitCloseRequest()"><i class="fas fa-paper-plane mr-1"></i> Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Main Content -->
     <div class="main-content-card">
         <div class="card-header">
@@ -802,6 +910,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Suspended Permits Section -->
+    <div class="main-content-card mt-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="d-flex align-items-center">
+                        <i class="fas fa-stop-circle mr-2"></i>
+                        Suspended Permits
+                        <span class="badge badge-info ml-2" id="countSuspendedList">0</span>
+                    </h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <small class="text-muted">Permits currently suspended (read-only)</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-modern" id="dtSuspendedPermits">
+                    <thead>
+                        <tr>
+                            <th>Permit No.</th>
+                            <th>Applicant</th>
+                            <th>Risk</th>
+                            <th>Suspended On</th>
+                            <th>Requested To</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
 </main>
 <!--Main layout-->
@@ -887,6 +1031,7 @@ let refSite, refUser, userSite, currentFilter = 'all';
 let pendingPTWTable;
 let activePTWTable;
 let closedPTWTable;
+let suspendedPTWTable;
 let autoRefreshInterval;
 let autoRefreshEnabled = true;
 
@@ -1127,6 +1272,26 @@ function initializeDataTable() {
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
+
+    // Suspended PTW list
+    suspendedPTWTable = $('#dtSuspendedPermits').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthChange: false,
+        order: [[3, 'desc']],
+        language: { emptyTable: "No suspended permits to display" },
+        columns: [
+            { data: 'ptw_permit_number', width: '14%' },
+            { data: 'ptw_applicant_name', width: '16%' },
+            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
+            { data: null, width: '16%', render: function(row){ return formatSuspendedDate(row); } },
+            { data: 'ptw_extension_requested_to', width: '16%', render: function(v){ return v ? moment(v).format('DD/MM/YYYY HH:mm') : '-'; } },
+            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '14%', className: 'text-nowrap', render: function(_d,_t,row){ return getSuspendedActionButtons(row); } }
+        ],
+        drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
+    });
 }
 
 function loadDashboardData(isAutoRefresh = false) {
@@ -1152,6 +1317,7 @@ function loadDashboardData(isAutoRefresh = false) {
             // Load active and closed PTWs via dashboard_data
             loadActivePTWForClosure();
             loadClosedPTW();
+            loadSuspendedPTW();
         } else if (pendingRequests && pendingRequests.permits) {
             // Handle case where success flag might not be set
             console.log('Pending requests loaded (no success flag):', pendingRequests.permits);
@@ -1159,6 +1325,7 @@ function loadDashboardData(isAutoRefresh = false) {
             populateDataTable(pendingRequests.permits);
             loadActivePTWForClosure();
             loadClosedPTW();
+            loadSuspendedPTW();
         } else {
             console.log('No pending requests or API failed, trying fallback...');
             // Fallback: get all permits and filter for pending supervisor
@@ -1182,6 +1349,10 @@ function loadDashboardData(isAutoRefresh = false) {
                     const closedOnly = (allPermits.permits || []).filter(p=>p.ptw_status==='COMPLETED');
                     populateClosedPTW(closedOnly);
                 } catch(e){ console.warn('Could not populate closed permits from fallback', e); }
+                try {
+                    const suspendedOnly = (allPermits.permits || []).filter(p=>p.ptw_status==='SUSPENDED');
+                    populateSuspendedPTW(suspendedOnly);
+                } catch(e){ console.warn('Could not populate suspended permits from fallback', e); }
             } else {
                 console.log('Fallback also failed, loading placeholder data');
                 loadPlaceholderData();
@@ -1202,6 +1373,70 @@ function loadDashboardData(isAutoRefresh = false) {
             updateNextRefreshTime();
         }
     }
+}
+
+function loadSuspendedPTW(){
+    try{
+        console.log('Loading suspended PTWs via dashboard_data...');
+        const dash = mzAjaxRequest('ptw.php','GET',{ action:'dashboard_data' });
+        let suspended = [];
+        if (dash) {
+            if (Array.isArray(dash.permits)) {
+                suspended = dash.permits.filter(p => p.ptw_status === 'SUSPENDED');
+            } else if (dash.result && Array.isArray(dash.result.permits)) {
+                suspended = dash.result.permits.filter(p => p.ptw_status === 'SUSPENDED');
+            }
+        }
+        console.log('Suspended PTWs count:', suspended.length);
+        populateSuspendedPTW(suspended);
+    }catch(e){
+        console.error('Failed to load suspended PTWs:', e);
+    }
+}
+
+function populateSuspendedPTW(list){
+    try{
+        const rows = Array.isArray(list) ? list : [];
+        suspendedPTWTable.clear();
+        if (rows.length){ suspendedPTWTable.rows.add(rows); }
+        suspendedPTWTable.draw();
+        try {
+            document.getElementById('countSuspendedList').textContent = suspendedPTWTable.rows().count();
+        } catch(e) {
+            console.warn('Could not update suspended list count', e);
+        }
+    }catch(e){ console.error('Error populating Suspended PTW table:', e); }
+}
+
+function getSuspendedActionButtons(request){
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const hasExtReq = !!(request.ptw_extension_requested_to || request.ptw_extension_requested_at);
+    return `
+    <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="View PTW">
+                <i class="fas fa-file-alt"></i> View
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                ${hasExtReq
+                    ? '<span class="dropdown-item disabled" tabindex="-1" aria-disabled="true"><i class="fas fa-check text-success"></i> Extension Requested</span>'
+                    : `<a class="dropdown-item" href="javascript:void(0)" onclick="requestExtend('${permitId}', true)">
+                        <i class="fas fa-play text-success"></i> Request to Resume (Extend)
+                       </a>`}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function formatSuspendedDate(row){
+    const d = row.suspended_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
+    return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
 }
 
 function loadActivePTWForClosure() {
@@ -1383,6 +1618,12 @@ function getActiveActionButtons(request){
                 <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestExtend('${permitId}')`}">
                     <i class="fas fa-clock text-info"></i> Request to Extend
                 </a>
+                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestCancel('${permitId}')`}">
+                    <i class="fas fa-ban text-danger"></i> Request to Cancel
+                </a>
+                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestSuspend('${permitId}')`}">
+                    <i class="fas fa-pause-circle text-warning"></i> Request to Suspend
+                </a>
                 <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestClose('${permitId}')`}">
                     <i class="fas fa-handshake text-warning"></i> Request to Close
                 </a>
@@ -1397,46 +1638,137 @@ function getActiveActionButtons(request){
 
 function requestClose(permitId){
     if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
-    const confirmMsg = 'Confirm to request closure for this ACTIVE permit? FM will acknowledge and close.';
-    if (!confirm(confirmMsg)) return;
-    let remarks = prompt('Optional: add closure remarks (e.g., work completed, site handed back)');
     try{
-    mzAjaxRequest('ptw_approve.php','POST',{ action:'request_close', permit_id: permitId, remarks: remarks||'' });
-        // mzAjaxRequest returns result object; API typically returns success in envelope, but common.js unwraps to result
-        safeToast('success','Closure requested successfully','Success');
-        // refresh active and maybe dashboard stats
-        loadActivePTWForClosure();
+        document.getElementById('closePermitId').value = permitId;
+        document.getElementById('closeRemarks').value = '';
+        $('#closeModal').modal('show');
+    }catch(e){
+        console.error('Open close modal failed:', e);
+    }
+}
+
+function requestExtend(permitId, isResume){
+    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
+    try{
+        document.getElementById('extendPermitId').value = permitId;
+        document.getElementById('extendNewValidTo').value = '';
+        document.getElementById('extendRemarks').value = '';
+        const titleEl = document.getElementById('extendModalTitle');
+        if (titleEl) titleEl.textContent = isResume ? 'Request to Resume (Extend)' : 'Request to Extend';
+        $('#extendModal').modal('show');
+    }catch(e){
+        console.error('Open extend modal failed:', e);
+    }
+}
+
+function requestCancel(permitId){
+    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
+    try{
+        document.getElementById('cancelPermitId').value = permitId;
+        document.getElementById('cancelReason').value = '';
+        $('#cancelModal').modal('show');
+    }catch(e){
+        console.error('Open cancel modal failed:', e);
+    }
+}
+
+function requestSuspend(permitId){
+    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
+    try{
+        document.getElementById('suspendPermitId').value = permitId;
+        document.getElementById('suspendNcrNo').value = '';
+        document.getElementById('suspendReason').value = '';
+        $('#suspendModal').modal('show');
+    }catch(e){
+        console.error('Open suspend modal failed:', e);
+    }
+}
+
+function submitCloseRequest(){
+    const permitId = document.getElementById('closePermitId').value;
+    const remarks = (document.getElementById('closeRemarks').value || '').trim();
+    try{
+        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_close', permit_id: permitId, remarks: remarks });
+        if (res && (res.success || res.result || res.message)){
+            $('#closeModal').modal('hide');
+            safeToast('success', (res.message||'Closure requested successfully'), 'Success');
+            loadActivePTWForClosure();
+        } else {
+            safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request closure','Error');
+        }
     }catch(e){
         console.error('Closure request failed:', e);
         safeToast('error', e.message || 'Failed to request closure','Error');
     }
 }
 
-function requestExtend(permitId){
-    if (!permitId || permitId==='unknown') { safeToast('error','Permit ID not found','Error'); return; }
-    const dt = prompt('Enter new Valid To (YYYY-MM-DD HH:mm or YYYY-MM-DD):');
-    if (dt === null) return; // cancelled
-    const trimmed = (dt||'').trim();
-    if (!trimmed){ safeToast('error','New Valid To is required','Validation'); return; }
-    // Basic validation using moment if available
-    try {
-        if (typeof moment === 'function'){
-            const m = moment(trimmed, ['YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
-            if (!m.isValid()) { safeToast('error','Invalid date/time format','Validation'); return; }
-        }
-    } catch(e) { /* ignore */ }
-    const remarks = prompt('Optional: add extension remarks');
+function submitExtendRequest(){
+    const permitId = document.getElementById('extendPermitId').value;
+    let dt = (document.getElementById('extendNewValidTo').value || '').trim();
+    const remarks = (document.getElementById('extendRemarks').value || '').trim();
+    if (!dt){ safeToast('error','New Valid To is required','Validation'); return; }
+    // Normalize datetime-local to "YYYY-MM-DD HH:mm"
+    if (dt.includes('T')) dt = dt.replace('T',' ');
     try{
-        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_extend', permit_id: permitId, new_valid_to: trimmed, remarks: remarks||'' });
+        if (typeof moment === 'function'){
+            const m = moment(dt, ['YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
+            if (!m.isValid()) { safeToast('error','Invalid date/time format','Validation'); return; }
+            if (dt.length === 10) { dt = m.format('YYYY-MM-DD') + ' 17:00'; }
+        }
+    }catch(e){ /* ignore moment errors */ }
+    try{
+        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_extend', permit_id: permitId, new_valid_to: dt, remarks: remarks });
         if (res && (res.success || res.result || res.message)){
+            $('#extendModal').modal('hide');
             safeToast('success', (res.message||'Extension requested successfully'), 'Success');
-            loadActivePTWForClosure();
+            try { loadActivePTWForClosure(); } catch(e) {}
+            try { loadSuspendedPTW(); } catch(e) {}
         } else {
             safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request extension','Error');
         }
     }catch(e){
         console.error('Extension request failed:', e);
         safeToast('error', e.message || 'Failed to request extension','Error');
+    }
+}
+
+function submitCancelRequest(){
+    const permitId = document.getElementById('cancelPermitId').value;
+    const reason = (document.getElementById('cancelReason').value || '').trim();
+    if (reason.length < 5) { safeToast('error','Reason too short (min 5 chars)','Validation'); return; }
+    try{
+        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_cancel', permit_id: permitId, remarks: reason });
+        if (res && (res.success || res.result || res.message)){
+            $('#cancelModal').modal('hide');
+            safeToast('success', (res.message||'Cancellation requested successfully'), 'Success');
+            loadActivePTWForClosure();
+        } else {
+            safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request cancellation','Error');
+        }
+    }catch(e){
+        console.error('Cancellation request failed:', e);
+        safeToast('error', e.message || 'Failed to request cancellation','Error');
+    }
+}
+
+function submitSuspendRequest(){
+    const permitId = document.getElementById('suspendPermitId').value;
+    const ncrNo = (document.getElementById('suspendNcrNo').value || '').trim();
+    const reason = (document.getElementById('suspendReason').value || '').trim();
+    if (!ncrNo) { safeToast('error','NCR/CAR number is required','Validation'); return; }
+    if (reason.length < 5) { safeToast('error','Reason too short (min 5 chars)','Validation'); return; }
+    try{
+        const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_suspend', permit_id: permitId, ncr_no: ncrNo, remarks: reason });
+        if (res && (res.success || res.result || res.message)){
+            $('#suspendModal').modal('hide');
+            safeToast('success', (res.message||'Suspension requested successfully'), 'Success');
+            loadActivePTWForClosure();
+        } else {
+            safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request suspension','Error');
+        }
+    }catch(e){
+        console.error('Suspension request failed:', e);
+        safeToast('error', e.message || 'Failed to request suspension','Error');
     }
 }
 
@@ -1686,7 +2018,11 @@ function getStatusBadge(status){
     const map = {
         'ACTIVE': '<span class="badge badge-modern badge-info">Active</span>',
         'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Pending Closure</span>',
-        'COMPLETED': '<span class="badge badge-modern badge-success">Completed</span>'
+    'PENDING_CANCELLATION': '<span class="badge badge-modern badge-warning">Pending Cancellation</span>',
+    'PENDING_SUSPENSION': '<span class="badge badge-modern badge-warning">Pending Suspension</span>',
+    'SUSPENDED': '<span class="badge badge-modern badge-secondary">Suspended</span>',
+    'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
+    'COMPLETED': '<span class="badge badge-modern badge-success">Completed</span>'
     };
     return map[status] || `<span class="badge badge-modern badge-dark">${status||'-'}</span>`;
 }

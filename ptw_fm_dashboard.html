@@ -432,6 +432,63 @@
             </div>
         </div>
 
+        <!-- Pending Cancellation Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-ban mr-2"></i>Permits Pending Cancellation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="dtPendingCancel">
+                                <thead>
+                                    <tr>
+                                        <th>Permit Number</th>
+                                        <th>Applicant</th>
+                                        <th>Reason</th>
+                                        <th>Requested At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Suspension Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-pause-circle mr-2"></i>Permits Pending Suspension</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="dtPendingSuspend">
+                                <thead>
+                                    <tr>
+                                        <th>Permit Number</th>
+                                        <th>Applicant</th>
+                                        <th>NCR No.</th>
+                                        <th>Reason</th>
+                                        <th>Requested At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
         <!-- Loading Modal -->
         <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -441,6 +498,40 @@
                             <span class="sr-only">Loading...</span>
                         </div>
                         <p class="mt-2 mb-0">Loading PTW requests...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FM Approve Extension Modal -->
+        <div class="modal fade" id="fmExtensionModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-clock mr-2"></i><span id="fmExtTitle">Approve Extension</span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="fmExtPermitId" />
+                        <div class="form-group">
+                            <label for="fmExtPermitNumber" class="mb-1">Permit</label>
+                            <input type="text" id="fmExtPermitNumber" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label for="fmExtNewValidTo">New Valid To</label>
+                            <input type="datetime-local" class="form-control" id="fmExtNewValidTo" required />
+                            <small class="form-text text-muted">Pick date/time; defaults to 5PM if only date is supplied.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="fmExtRemarks">Remarks (optional)</label>
+                            <textarea id="fmExtRemarks" class="form-control" rows="3" placeholder="Notes"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="submitFmApproveExtension()"><i class="fas fa-check mr-1"></i> Approve</button>
                     </div>
                 </div>
             </div>
@@ -512,6 +603,8 @@ let currentPermitNumber = null;
 let refreshInterval;
 let pendingClosureTable;
 let extensionRequestsTable;
+let pendingCancelTable;
+let pendingSuspendTable;
 
 // Build Authorization header using real token if present; fallback to test token for dev
 function getAuthHeader() {
@@ -615,6 +708,8 @@ function initializeFMDashboard() {
     loadSummaryStats();
     loadPendingClosure();
     loadExtensionRequests();
+    loadPendingCancel();
+    loadPendingSuspend();
     
     // Set up auto-refresh
     setupAutoRefresh();
@@ -667,6 +762,9 @@ function refreshAllData() {
     loadFmPermits();
     loadSummaryStats();
     loadPendingClosure();
+    loadExtensionRequests();
+    loadPendingCancel();
+    loadPendingSuspend();
 }
 
 function loadFmPermits() {
@@ -800,23 +898,47 @@ function loadExtensionRequests(){
     });
 }
 
-function populateExtensionRequests(permits){
-    extensionRequestsTable.clear();
-    (permits||[]).forEach(function(p){
+function loadPendingCancel(){
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: attachSite({ action: 'get_fm_cancellation_requests' }),
+        headers: getAuthHeader(),
+        success: function(resp){
+            const list = (resp && (resp.result || resp.permits || resp.data)) || [];
+            populatePendingCancel(list);
+        },
+        error: function(){ showError('Failed to load cancellation requests'); }
+    });
+}
+
+function populatePendingCancel(list){
+    if (!pendingCancelTable){
+        pendingCancelTable = $('#dtPendingCancel').DataTable({
+            responsive: true,
+            lengthChange: false,
+            pageLength: 10,
+            autoWidth: false,
+            order: [[3, 'desc']],
+            columnDefs: [ { targets: [4], orderable: false, searchable: false } ],
+            language: { emptyTable: 'No permits pending cancellation' }
+        });
+    }
+    pendingCancelTable.clear();
+    (list||[]).forEach(function(p){
         const row = [
             p.ptw_permit_number,
             p.ptw_applicant_name,
-            getRiskLevelBadge(p.ptw_risk_level),
-            formatDateTime(p.ptw_valid_to),
-            formatDateTime(p.ptw_extension_requested_to),
-            generateExtensionActions(p.ptw_permit_id, p.ptw_permit_number)
+            p.cancel_reason || '-',
+            formatDateTime(p.cancel_requested_at),
+            generatePendingCancelActions(p.ptw_permit_id, p.ptw_permit_number)
         ];
-        extensionRequestsTable.row.add(row);
+        pendingCancelTable.row.add(row);
     });
-    extensionRequestsTable.draw();
+    pendingCancelTable.draw();
 }
 
-function generateExtensionActions(permitId, permitNumber){
+function generatePendingCancelActions(permitId, permitNumber){
     return `
         <div class="btn-group action-split">
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
@@ -826,8 +948,150 @@ function generateExtensionActions(permitId, permitNumber){
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}', '${permitNumber}')">
-                    <i class="fas fa-clock text-info"></i> Approve Extension
+                <a class="dropdown-item" href="javascript:void(0)" onclick="approveCancel('${permitId}', '${permitNumber}')">
+                    <i class="fas fa-check text-success"></i> Accept Request
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function approveCancel(permitId, permitNumber){
+    if (!confirm(`Accept cancellation for ${permitNumber}?`)) return;
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: attachSite({ action: 'approve_cancel', permit_id: permitId, remarks: '' }),
+        headers: getAuthHeader(),
+        success: function(r){
+            if (wasOk(r)){
+                safeToast('success', getResponseMessage(r, 'Permit cancelled'), 'Success');
+                setTimeout(() => { loadPendingCancel(); loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (r && (r.error||r.message)) || 'Failed to cancel', 'Error');
+            }
+        },
+        error: function(){ safeToast('error','Failed to cancel','Error'); }
+    });
+}
+
+function loadPendingSuspend(){
+    $.ajax({
+        url: 'api/ptw.php',
+        type: 'GET',
+        data: attachSite({ action: 'get_fm_suspension_requests' }),
+        headers: getAuthHeader(),
+        success: function(resp){
+            const list = (resp && (resp.result || resp.permits || resp.data)) || [];
+            populatePendingSuspend(list);
+        },
+        error: function(){ showError('Failed to load suspension requests'); }
+    });
+}
+
+ 
+
+function populatePendingSuspend(list){
+    if (!pendingSuspendTable){
+        pendingSuspendTable = $('#dtPendingSuspend').DataTable({
+            responsive: true,
+            lengthChange: false,
+            pageLength: 10,
+            autoWidth: false,
+            order: [[4, 'desc']],
+            columnDefs: [ { targets: [5], orderable: false, searchable: false } ],
+            language: { emptyTable: 'No permits pending suspension' }
+        });
+    }
+    pendingSuspendTable.clear();
+    (list||[]).forEach(function(p){
+        const row = [
+            p.ptw_permit_number,
+            p.ptw_applicant_name,
+            p.suspend_ncr_no || '-',
+            p.suspend_reason || '-',
+            formatDateTime(p.suspend_requested_at),
+            generatePendingSuspendActions(p.ptw_permit_id, p.ptw_permit_number)
+        ];
+        pendingSuspendTable.row.add(row);
+    });
+    pendingSuspendTable.draw();
+}
+
+function generatePendingSuspendActions(permitId, permitNumber){
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="approveSuspend('${permitId}', '${permitNumber}')">
+                    <i class="fas fa-check text-success"></i> Accept Request
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function approveSuspend(permitId, permitNumber){
+    if (!confirm(`Accept suspension for ${permitNumber}?`)) return;
+    $.ajax({
+        url: 'api/ptw_approve.php',
+        type: 'POST',
+        data: attachSite({ action: 'approve_suspend', permit_id: permitId, remarks: '' }),
+        headers: getAuthHeader(),
+        success: function(r){
+            if (wasOk(r)){
+                safeToast('success', getResponseMessage(r, 'Permit suspended'), 'Success');
+                setTimeout(() => { loadPendingSuspend(); loadFmPermits(); loadSummaryStats(); }, 300);
+            } else {
+                safeToast('error', (r && (r.error||r.message)) || 'Failed to suspend', 'Error');
+            }
+        },
+        error: function(){ safeToast('error','Failed to suspend','Error'); }
+    });
+}
+
+function populateExtensionRequests(permits){
+    extensionRequestsTable.clear();
+    (permits||[]).forEach(function(p){
+        const row = [
+            p.ptw_permit_number,
+            p.ptw_applicant_name,
+            getRiskLevelBadge(p.ptw_risk_level),
+            formatDateTime(p.ptw_valid_to),
+            formatDateTime(p.ptw_extension_requested_to),
+            generateExtensionActions(p.ptw_permit_id, p.ptw_permit_number, p.ptw_status, p.ptw_extension_requested_to)
+        ];
+        extensionRequestsTable.row.add(row);
+    });
+    extensionRequestsTable.draw();
+}
+
+function generateExtensionActions(permitId, permitNumber, status, requestedTo){
+    const label = (status === 'SUSPENDED') ? 'Approve Resume (Set Valid To)' : 'Approve Extension';
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
+                <i class="fas fa-file-alt"></i> Review
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}', '${permitNumber}', '${requestedTo || ''}')">
+                    <i class="fas fa-clock text-info"></i> ${label}
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
@@ -936,30 +1200,43 @@ function updateLastUpdatedTime() {
 }
 
 // FM Approve Extension
-function fmApproveExtension(permitId, permitNumber){
-    // Try to fetch permit details to prefill requested_to
-    let requestedTo = '';
-    try {
-        const resp = mzAjaxRequest('ptw.php','GET',{ action:'get_permit', permit_id: permitId });
-        const p = (resp && resp.result) || resp || {};
-        requestedTo = p.ptw_extension_requested_to || '';
-    } catch (e) {
-        console.warn('fmApproveExtension: unable to prefill requested_to', e);
-    }
-    const input = prompt(`New Valid To for ${permitNumber} (YYYY-MM-DD HH:mm)`, requestedTo);
-    if (input === null) return;
-    const trimmed = (input||'').trim();
-    if (!trimmed){ safeToast('error','New Valid To is required','Validation'); return; }
-    const remarks = prompt('Optional: add remarks');
+function fmApproveExtension(permitId, permitNumber, requestedTo){
+    try{
+        document.getElementById('fmExtPermitId').value = permitId;
+        document.getElementById('fmExtPermitNumber').value = permitNumber || '';
+        const input = document.getElementById('fmExtNewValidTo');
+        input.value = '';
+        if (requestedTo) {
+            try{
+                const dt = requestedTo.replace(' ', 'T').substring(0,16);
+                input.value = dt;
+            }catch(e){ console.warn('Prefill requestedTo failed:', e); }
+        }
+        $('#fmExtensionModal').modal('show');
+    }catch(e){ console.error('Open FM extension modal failed:', e); }
+}
+
+function submitFmApproveExtension(){
+    const permitId = document.getElementById('fmExtPermitId').value;
+    let dt = (document.getElementById('fmExtNewValidTo').value || '').trim();
+    const remarks = (document.getElementById('fmExtRemarks').value || '').trim();
+    if (!dt){ safeToast('error','New Valid To is required','Validation'); return; }
+    if (dt.includes('T')) dt = dt.replace('T',' ');
+    try{ if (typeof moment==='function'){
+        const m = moment(dt, ['YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
+        if (!m.isValid()) { safeToast('error','Invalid date/time format','Validation'); return; }
+        if (dt.length === 10) { dt = m.format('YYYY-MM-DD') + ' 17:00'; }
+    } }catch(e){ console.warn('moment validation failed:', e); }
     $.ajax({
         url: 'api/ptw_approve.php',
         type: 'POST',
-    data: attachSite({ action: 'approve_extend', permit_id: permitId, new_valid_to: trimmed, remarks: remarks || '' }),
-    headers: getAuthHeader(),
+        data: attachSite({ action: 'approve_extend', permit_id: permitId, new_valid_to: dt, remarks: remarks }),
+        headers: getAuthHeader(),
         success: function(r){
             if (wasOk(r)){
+                $('#fmExtensionModal').modal('hide');
                 safeToast('success', getResponseMessage(r, 'Permit extended'), 'Success');
-                setTimeout(() => { loadFmPermits(); loadSummaryStats(); }, 300);
+                setTimeout(() => { loadExtensionRequests(); loadFmPermits(); loadSummaryStats(); }, 300);
             } else {
                 safeToast('error', (r && (r.error||r.message)) || 'Failed to extend', 'Error');
             }
@@ -1022,7 +1299,10 @@ function getStatusBadge(status) {
         'PENDING_FM': '<span class="badge badge-info">Pending FM</span>',
     'PENDING_CLOSURE': '<span class="badge badge-warning">Pending Closure</span>',
         'ACTIVE': '<span class="badge badge-primary">Active</span>',
-        'COMPLETED': '<span class="badge badge-success">Completed</span>'
+    'COMPLETED': '<span class="badge badge-success">Completed</span>',
+    'PENDING_CANCELLATION': '<span class="badge badge-warning">Pending Cancellation</span>',
+    'PENDING_SUSPENSION': '<span class="badge badge-warning">Pending Suspension</span>',
+    'SUSPENDED': '<span class="badge badge-dark">Suspended</span>'
     };
     return badges[status] || `<span class="badge badge-secondary">${status || 'Unknown'}</span>`;
 }

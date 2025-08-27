@@ -116,6 +116,23 @@ try {
             $new_valid_to = isset($_POST['new_valid_to']) ? $_POST['new_valid_to'] : null;
             $result = process_approve_extend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $new_valid_to);
             break;
+
+        case 'request_cancel':
+            $result = process_request_cancel($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
+            break;
+
+        case 'approve_cancel':
+            $result = process_approve_cancel($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
+            break;
+
+        case 'request_suspend':
+            $ncr_no = isset($_POST['ncr_no']) ? $_POST['ncr_no'] : '';
+            $result = process_request_suspend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $ncr_no);
+            break;
+
+        case 'approve_suspend':
+            $result = process_approve_suspend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
+            break;
             
         default:
             throw new Exception('[' . __LINE__ . '] - Invalid action: ' . $action);
@@ -455,9 +472,9 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
     $current_permit = $permit[0];
     $current_status = $current_permit['ptw_status'];
 
-    // Only ACTIVE permits are extendable
-    if ($current_status !== 'ACTIVE') {
-        throw new Exception('[' . __LINE__ . '] - Extension can only be requested when permit is ACTIVE');
+    // Allow extension request when permit is ACTIVE or SUSPENDED (resume flow)
+    if (!in_array($current_status, array('ACTIVE', 'SUSPENDED'))) {
+        throw new Exception('[' . __LINE__ . '] - Extension can only be requested when permit is ACTIVE or SUSPENDED');
     }
 
     // Normalize datetime format
@@ -524,9 +541,9 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     $current_permit = $permit[0];
     $current_status = $current_permit['ptw_status'];
 
-    // Only ACTIVE permits can be extended
-    if ($current_status !== 'ACTIVE') {
-        throw new Exception('[' . __LINE__ . '] - Permit must be ACTIVE to approve extension');
+    // Allow approving extension for ACTIVE or SUSPENDED (resume to ACTIVE)
+    if (!in_array($current_status, array('ACTIVE', 'SUSPENDED'))) {
+        throw new Exception('[' . __LINE__ . '] - Permit must be ACTIVE or SUSPENDED to approve extension');
     }
 
     // Determine new valid_to: use provided or the requested one saved on permit
@@ -536,10 +553,11 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     }
     if (strlen($new_valid_to) === 10) { $new_valid_to .= ' 17:00:00'; }
 
-    // Update the permit
+    // Update the permit (if previously SUSPENDED, resume to ACTIVE)
     $update_data = array(
         'ptw_valid_to' => $new_valid_to,
-        // Clear request markers
+        'ptw_status' => ($current_status === 'SUSPENDED' ? 'ACTIVE' : $current_status),
+        // Clear extension request markers
         'ptw_extension_requested_to' => null,
         'ptw_extension_requested_by' => null,
         'ptw_extension_requested_remarks' => null,
@@ -551,12 +569,12 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
         throw new Exception('[' . __LINE__ . '] - Failed to update permit valid_to');
     }
 
-    // Log history
+    // Log history (if resuming from SUSPENDED, new_status becomes ACTIVE)
     $history_data = array(
         'ptw_permit_id' => $permit_id,
         'action_type' => 'EXTENDED',
         'previous_status' => $current_status,
-        'new_status' => $current_status, // remains ACTIVE
+        'new_status' => ($current_status === 'SUSPENDED' ? 'ACTIVE' : $current_status),
         'remarks' => 'Valid to changed to: ' . $new_valid_to . ($remarks ? (' | ' . $remarks) : ''),
         'action_by' => $user_id
     );
@@ -575,6 +593,193 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
         'new_status' => $current_status,
         'valid_to' => $new_valid_to
     );
+}
+
+function process_request_cancel($permit_id, $user_id, $user_site_id, $user_role, $reason) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    // Allow SUPERVISOR or ADMIN; tighten later
+    if (!in_array($user_role, array('SUPERVISOR', 'ADMIN'))) {
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for requesting cancellation');
+    }
+
+    if (!isset($reason) || strlen(trim($reason)) < 5) {
+        throw new Exception('[' . __LINE__ . '] - Cancellation reason required (min 5 chars)');
+    }
+
+    // Load permit scoped to site
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) {
+        throw new Exception('[' . __LINE__ . '] - PTW permit not found');
+    }
+
+    $current = $permit[0];
+    if (!in_array($current['ptw_status'], array('APPROVED','ACTIVE'))) {
+        throw new Exception('[' . __LINE__ . '] - Cancellation can be requested only when permit is APPROVED or ACTIVE');
+    }
+
+    $update = array(
+        'ptw_status' => 'PENDING_CANCELLATION',
+        'cancel_reason' => $reason,
+        'cancel_requested_by' => $user_id,
+        'cancel_requested_at' => date('Y-m-d H:i:s'),
+        'updated_by' => $user_id
+    );
+    $ok = Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id));
+    if (!$ok) { throw new Exception('[' . __LINE__ . '] - Failed to save cancellation request'); }
+
+    $history = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'CANCELLATION_REQUESTED',
+        'previous_status' => $current['ptw_status'],
+        'new_status' => 'PENDING_CANCELLATION',
+        'remarks' => $reason,
+        'action_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_insert('ptw_status_history', $history)) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log cancellation request');
+    }
+
+    $fn_general->save_audit('PTW_CANCELLATION_REQUESTED', 'PTW Permit ' . $current['ptw_permit_number'] . ' cancellation requested', $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'CANCELLATION_REQUESTED');
+
+    return array('message' => 'Cancellation requested successfully', 'permit_id' => $permit_id, 'new_status' => 'PENDING_CANCELLATION');
+}
+
+function process_approve_cancel($permit_id, $user_id, $user_site_id, $user_role, $remarks) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    if (!in_array($user_role, array('FM', 'ADMIN'))) {
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for approving cancellation');
+    }
+
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) {
+        throw new Exception('[' . __LINE__ . '] - PTW permit not found');
+    }
+    $current = $permit[0];
+    if ($current['ptw_status'] !== 'PENDING_CANCELLATION') {
+        throw new Exception('[' . __LINE__ . '] - Permit must be PENDING_CANCELLATION');
+    }
+
+    $update = array(
+        'ptw_status' => 'CANCELLED',
+        'cancelled_by' => $user_id,
+        'cancelled_date' => date('Y-m-d H:i:s'),
+        'updated_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+        throw new Exception('[' . __LINE__ . '] - Failed to cancel permit');
+    }
+
+    $history = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'CANCELLED',
+        'previous_status' => 'PENDING_CANCELLATION',
+        'new_status' => 'CANCELLED',
+        'remarks' => $remarks,
+        'action_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_insert('ptw_status_history', $history)) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log cancellation approval');
+    }
+
+    $fn_general->save_audit('PTW_CANCELLED', 'PTW Permit ' . $current['ptw_permit_number'] . ' cancelled by FM', $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'CANCELLED');
+
+    return array('message' => 'Permit cancelled successfully', 'permit_id' => $permit_id, 'new_status' => 'CANCELLED');
+}
+
+function process_request_suspend($permit_id, $user_id, $user_site_id, $user_role, $reason, $ncr_no) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    if (!in_array($user_role, array('SUPERVISOR', 'ADMIN'))) {
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for requesting suspension');
+    }
+    if (!isset($reason) || strlen(trim($reason)) < 5) {
+        throw new Exception('[' . __LINE__ . '] - Suspension reason required (min 5 chars)');
+    }
+    if (!isset($ncr_no) || trim($ncr_no) === '') {
+        throw new Exception('[' . __LINE__ . '] - NCR/CAR number required');
+    }
+
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) { throw new Exception('[' . __LINE__ . '] - PTW permit not found'); }
+    $current = $permit[0];
+    if (!in_array($current['ptw_status'], array('APPROVED','ACTIVE'))) {
+        throw new Exception('[' . __LINE__ . '] - Suspension can be requested only when permit is APPROVED or ACTIVE');
+    }
+
+    $update = array(
+        'ptw_status' => 'PENDING_SUSPENSION',
+        'suspend_reason' => $reason,
+        'suspend_ncr_no' => $ncr_no,
+        'suspend_requested_by' => $user_id,
+        'suspend_requested_at' => date('Y-m-d H:i:s'),
+        'updated_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+        throw new Exception('[' . __LINE__ . '] - Failed to save suspension request');
+    }
+
+    $history = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'SUSPENSION_REQUESTED',
+        'previous_status' => $current['ptw_status'],
+        'new_status' => 'PENDING_SUSPENSION',
+        'remarks' => 'NCR ' . $ncr_no . ': ' . $reason,
+        'action_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_insert('ptw_status_history', $history)) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log suspension request');
+    }
+
+    $fn_general->save_audit('PTW_SUSPENSION_REQUESTED', 'PTW Permit ' . $current['ptw_permit_number'] . ' suspension requested', $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'SUSPENSION_REQUESTED');
+
+    return array('message' => 'Suspension requested successfully', 'permit_id' => $permit_id, 'new_status' => 'PENDING_SUSPENSION');
+}
+
+function process_approve_suspend($permit_id, $user_id, $user_site_id, $user_role, $remarks) {
+    global $fn_general, $fn_ptw, $fn_email;
+
+    if (!in_array($user_role, array('FM', 'ADMIN'))) {
+        // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for approving suspension');
+    }
+
+    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    if (count($permit) == 0) { throw new Exception('[' . __LINE__ . '] - PTW permit not found'); }
+    $current = $permit[0];
+    if ($current['ptw_status'] !== 'PENDING_SUSPENSION') {
+        throw new Exception('[' . __LINE__ . '] - Permit must be PENDING_SUSPENSION');
+    }
+
+    $update = array(
+        'ptw_status' => 'SUSPENDED',
+        'suspended_by' => $user_id,
+        'suspended_date' => date('Y-m-d H:i:s'),
+        'updated_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+        throw new Exception('[' . __LINE__ . '] - Failed to suspend permit');
+    }
+
+    $history = array(
+        'ptw_permit_id' => $permit_id,
+        'action_type' => 'SUSPENDED',
+        'previous_status' => 'PENDING_SUSPENSION',
+        'new_status' => 'SUSPENDED',
+        'remarks' => $remarks,
+        'action_by' => $user_id
+    );
+    if (!Class_db::getInstance()->db_insert('ptw_status_history', $history)) {
+        throw new Exception('[' . __LINE__ . '] - Failed to log suspension approval');
+    }
+
+    $fn_general->save_audit('PTW_SUSPENDED', 'PTW Permit ' . $current['ptw_permit_number'] . ' suspended by FM', $user_id);
+    $fn_ptw->send_ptw_notification($permit_id, 'SUSPENDED');
+
+    return array('message' => 'Permit suspended successfully', 'permit_id' => $permit_id, 'new_status' => 'SUSPENDED');
 }
 
 ?>

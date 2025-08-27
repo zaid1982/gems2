@@ -649,11 +649,21 @@ class Class_ptw {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting extension requests for site: {$site_id}");
 
-            // Fetch ACTIVE permits for the site first
-            $permits = Class_db::getInstance()->db_select('ptw_permit', array(
+            // Fetch ACTIVE permits with possible extension markers
+            $active = Class_db::getInstance()->db_select('ptw_permit', array(
                 'site_id' => strval($site_id),
                 'ptw_status' => 'ACTIVE'
             ), 'ptw_permit_id DESC');
+
+            // Fetch SUSPENDED permits too (resume via extension)
+            $suspended = Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'ptw_status' => 'SUSPENDED'
+            ), 'ptw_permit_id DESC');
+
+            $permits = array();
+            if ($active && is_array($active)) { $permits = array_merge($permits, $active); }
+            if ($suspended && is_array($suspended)) { $permits = array_merge($permits, $suspended); }
 
             // Filter to only those with extension markers present
             $result = array();
@@ -749,6 +759,63 @@ class Class_ptw {
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0018', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * List permits pending cancellation for FM
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_cancellation_requests($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting cancellation requests for site: {$site_id}");
+            return Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'ptw_status' => 'PENDING_CANCELLATION'
+            ), 'ptw_permit_id DESC') ?: array();
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0019', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * List permits pending suspension for FM
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_suspension_requests($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting suspension requests for site: {$site_id}");
+            return Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'ptw_status' => 'PENDING_SUSPENSION'
+            ), 'ptw_permit_id DESC') ?: array();
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0020', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * List suspended permits for FM view
+     * @param int $site_id
+     * @return array
+     * @throws Exception
+     */
+    public function get_suspended_permits($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting suspended permits for site: {$site_id}");
+            return Class_db::getInstance()->db_select('ptw_permit', array(
+                'site_id' => strval($site_id),
+                'ptw_status' => 'SUSPENDED'
+            ), 'ptw_permit_id DESC') ?: array();
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0021', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
     }
 }

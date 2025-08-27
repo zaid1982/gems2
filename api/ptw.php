@@ -296,6 +296,15 @@ function get_ptw_data($user_id, $user_site_id) {
 
             case 'get_fm_recent_actions':
                 return $fn_ptw->get_fm_recent_actions($user_id, $user_site_id);
+
+            case 'get_fm_cancellation_requests':
+                return $fn_ptw->get_cancellation_requests($user_site_id);
+
+            case 'get_fm_suspension_requests':
+                return $fn_ptw->get_suspension_requests($user_site_id);
+
+            case 'get_fm_suspended_permits':
+                return $fn_ptw->get_suspended_permits($user_site_id);
                 
             case 'get_fm_summary_stats':
             case 'get_fm_summary_statistics':
