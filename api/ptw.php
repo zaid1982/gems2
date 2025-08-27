@@ -20,6 +20,13 @@ $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_email = new Class_email();
 $fn_ptw = new Class_ptw();
+$current_user_roles = array();
+
+// Centralized PTW role mappings (aliased from constants for easy use in this file)
+$PTW_ROLE_ADMIN = Class_constant::ROLE_ADMIN;
+$PTW_ROLE_SUPERVISOR = Class_constant::PTW_ROLE_SUPERVISOR;
+$PTW_ROLE_SHE = Class_constant::PTW_ROLE_SHE;
+$PTW_ROLE_FM = Class_constant::PTW_ROLE_FM;
 
 try {
     $fn_general->__set('constant', $constant);
@@ -159,6 +166,15 @@ try {
             $user_site_id = null; // Show all sites if lookup fails
         }
     }
+    // Fetch user roles for RBAC
+    try {
+        // vw_roles supports filter with params in last arg; ensure limit arg present as int
+        $current_user_roles = Class_db::getInstance()->db_select('vw_roles', array(), null, null, 0, array('user_id' => strval($jwt_data->userId)));
+    } catch (Exception $e) {
+        $fn_general->log_error('API', $api_name, __LINE__, 'Failed to load roles: ' . $e->getMessage());
+        $current_user_roles = array();
+    }
+
     // Optional site override for local testing: ?site=XX
     if (isset($_GET['site']) && preg_match('/^\d+$/', $_GET['site'])) {
         $user_site_id = $_GET['site'];
@@ -232,8 +248,42 @@ try {
 header('Content-Type: application/json');
 echo json_encode($form_data);
 
+// ---- RBAC helpers ----
+function ptw_roles_contains($roles, $expected) {
+    if (!is_array($roles)) { return false; }
+    $expected_lc = strtolower($expected);
+    foreach ($roles as $r) {
+        foreach ($r as $k => $v) {
+            if (is_string($v) && strpos(strtolower($v), $expected_lc) !== false) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function ptw_has_any($roles, $names = array()) {
+    foreach ($names as $n) {
+        if (ptw_roles_contains($roles, $n)) { return true; }
+    }
+    return false;
+}
+
+function ptw_enforce($roles, $allowed_groups = array()) {
+    // Admin bypass
+    global $PTW_ROLE_ADMIN;
+    if (ptw_has_any($roles, $PTW_ROLE_ADMIN)) { return; }
+    if (empty($allowed_groups)) { return; }
+    if (!ptw_has_any($roles, $allowed_groups)) {
+        header('HTTP/1.1 403 Forbidden');
+        throw new Exception('Insufficient permissions for this operation');
+    }
+}
+
 function get_ptw_data($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
+    global $current_user_roles;
+    global $PTW_ROLE_SHE, $PTW_ROLE_FM, $PTW_ROLE_SUPERVISOR;
     
     // Debug logging at function start
     $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'get_ptw_data called with user_id: ' . $user_id . ', site_id: ' . $user_site_id);
@@ -244,7 +294,7 @@ function get_ptw_data($user_id, $user_site_id) {
         $action = $_GET['action'];
         $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Action parameter found: ' . $action);
         
-        switch ($action) {
+    switch ($action) {
             case 'list':
                 $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: list');
                 // Get PTW permit list for main management page
@@ -268,6 +318,18 @@ function get_ptw_data($user_id, $user_site_id) {
                 $fn_general->log_debug('API', 'GET_PTW_DATA', __LINE__, 'Processing action: dashboard_data - calling get_ptw_dashboard_data');
                 // Get comprehensive dashboard data including permits, statistics, and activity
                 return get_ptw_dashboard_data($user_id, $user_site_id);
+            
+            case 'get_my_roles':
+                // Expose current user's PTW role flags for UI guards
+                global $PTW_ROLE_SHE, $PTW_ROLE_FM, $PTW_ROLE_SUPERVISOR, $PTW_ROLE_ADMIN;
+                $resp = array(
+                    'isAdmin' => ptw_has_any($current_user_roles, $PTW_ROLE_ADMIN),
+                    'hasSupervisor' => ptw_has_any($current_user_roles, $PTW_ROLE_SUPERVISOR) || ptw_has_any($current_user_roles, $PTW_ROLE_ADMIN),
+                    'hasSHE' => ptw_has_any($current_user_roles, $PTW_ROLE_SHE) || ptw_has_any($current_user_roles, $PTW_ROLE_ADMIN),
+                    'hasFM' => ptw_has_any($current_user_roles, $PTW_ROLE_FM) || ptw_has_any($current_user_roles, $PTW_ROLE_ADMIN),
+                    'raw' => $current_user_roles
+                );
+                return $resp;
                 
             case 'details':
                 if (!isset($_GET['permit_id'])) {
@@ -277,37 +339,48 @@ function get_ptw_data($user_id, $user_site_id) {
                 
             case 'get_she_pending_permits':
             case 'get_permits_for_she_approval':
+                ptw_enforce($current_user_roles, $PTW_ROLE_SHE);
                 return $fn_ptw->get_permits_for_she_approval($user_site_id);
                 
             case 'get_she_recent_actions':
+                ptw_enforce($current_user_roles, $PTW_ROLE_SHE);
                 return $fn_ptw->get_she_recent_actions($user_id, $user_site_id);
                 
             case 'get_she_summary_stats':
             case 'get_she_summary_statistics':
+                ptw_enforce($current_user_roles, $PTW_ROLE_SHE);
                 return $fn_ptw->get_she_summary_statistics($user_id, $user_site_id);
                 
             case 'get_fm_pending_permits':
             case 'get_permits_for_fm_approval':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_permits_for_fm_approval($user_id, $user_site_id);
                 
             case 'get_fm_extension_requests':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 // ACTIVE permits that have extension request markers
                 return $fn_ptw->get_extension_requests($user_site_id);
 
             case 'get_fm_recent_actions':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_fm_recent_actions($user_id, $user_site_id);
 
             case 'get_fm_cancellation_requests':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_cancellation_requests($user_site_id);
 
             case 'get_fm_suspension_requests':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_suspension_requests($user_site_id);
 
             case 'get_fm_suspended_permits':
+                // Keep for completeness though UI shouldn't expose this; still restrict to FM
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_suspended_permits($user_site_id);
                 
             case 'get_fm_summary_stats':
             case 'get_fm_summary_statistics':
+                ptw_enforce($current_user_roles, $PTW_ROLE_FM);
                 return $fn_ptw->get_fm_summary_statistics($user_id, $user_site_id);
                 
             case 'get_permit':
@@ -318,6 +391,7 @@ function get_ptw_data($user_id, $user_site_id) {
                 
             case 'get_supervisor_pending_requests':
                 // Get PTW requests pending supervisor approval
+                ptw_enforce($current_user_roles, $PTW_ROLE_SUPERVISOR);
                 return get_supervisor_pending_requests($user_site_id);
                 
             case 'supervisor_approve':
@@ -661,6 +735,22 @@ function create_ptw_permit($user_id, $user_site_id) {
 
 function update_ptw_permit($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
+    // Parse PUT body into $_PUT for compatibility
+    global $_PUT;
+    if (!isset($_PUT) || !is_array($_PUT)) {
+        $raw = file_get_contents('php://input');
+        $parsed = [];
+        // Try to parse as query string first
+        if (!empty($raw)) {
+            parse_str($raw, $parsed);
+            if (empty($parsed)) {
+                // Fallback: try JSON
+                $json = json_decode($raw, true);
+                if (is_array($json)) { $parsed = $json; }
+            }
+        }
+        $_PUT = is_array($parsed) ? $parsed : [];
+    }
     
     if (!isset($_PUT['ptw_permit_id']) || empty($_PUT['ptw_permit_id'])) {
         throw new Exception('[' . __LINE__ . '] - PTW Permit ID required');
@@ -711,6 +801,20 @@ function update_ptw_permit($user_id, $user_site_id) {
 
 function delete_ptw_permit($user_id, $user_site_id) {
     global $fn_general, $fn_ptw;
+    // Parse DELETE body into $_DELETE for compatibility
+    global $_DELETE;
+    if (!isset($_DELETE) || !is_array($_DELETE)) {
+        $raw = file_get_contents('php://input');
+        $parsed = [];
+        if (!empty($raw)) {
+            parse_str($raw, $parsed);
+            if (empty($parsed)) {
+                $json = json_decode($raw, true);
+                if (is_array($json)) { $parsed = $json; }
+            }
+        }
+        $_DELETE = is_array($_DELETE) ? $_DELETE : (is_array($parsed) ? $parsed : []);
+    }
     
     if (!isset($_DELETE['ptw_permit_id']) || empty($_DELETE['ptw_permit_id'])) {
         throw new Exception('[' . __LINE__ . '] - PTW Permit ID required');

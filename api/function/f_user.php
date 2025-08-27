@@ -280,6 +280,14 @@ class Class_user {
 
             if ($userType === '1' || $userType === '2') {
                 $roles = explode(',', $rolesStr);
+                // Clean roles: remove empties and non-existent role IDs
+                $cleanRoles = array();
+                foreach ($roles as $r) {
+                    if (!empty($r) && Class_db::getInstance()->db_count('ref_role', array('role_id'=>$r)) > 0) {
+                        $cleanRoles[] = $r;
+                    }
+                }
+                $roles = $cleanRoles;
                 $dbRoles = Class_db::getInstance()->db_select('sys_user_role', array('user_id'=>$userId));
                 foreach ($dbRoles as $dbRole) {
                     $curRole = $dbRole['role_id'];
@@ -508,6 +516,10 @@ class Class_user {
             Class_db::getInstance()->db_insert('sys_user_group', array('user_id'=>$userId, 'group_id'=>$groupId));
             $roles = explode(',', $rolesStr);
             foreach ($roles as $role) {
+                // Skip empty or invalid role IDs to avoid FK violations
+                if (empty($role)) { continue; }
+                if (Class_db::getInstance()->db_count('ref_role', array('role_id' => $role)) == 0) { continue; }
+
                 Class_db::getInstance()->db_insert('sys_user_role', array('user_id'=>$userId, 'role_id'=>$role, 'group_id'=>$groupId));
                 $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$role));
                 foreach ($checkpoints as $checkpoint) {

@@ -86,7 +86,13 @@ function MainUserManagement() {
                                 label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
                                 const dataSplit = rowData.split(',');
                                 for (let j=0; j<dataSplit.length; j++) {
-                                    label += '<li>' + refRole[dataSplit[j]]['roleDesc'] + '</li>';
+                                    // Add null checks to prevent errors when refRole is not loaded yet
+                                    if (refRole && refRole[dataSplit[j]] && refRole[dataSplit[j]]['roleDesc']) {
+                                        label += '<li>' + refRole[dataSplit[j]]['roleDesc'] + '</li>';
+                                    } else {
+                                        // Fallback to roleId if roleDesc is not available
+                                        label += '<li>Role ' + dataSplit[j] + '</li>';
+                                    }
                                 }
                                 label += '</ul>';
                             }
@@ -216,6 +222,14 @@ function MainUserManagement() {
     };
 
     this.genTableUser = function () {
+        console.log('genTableUser called, refRole:', refRole);
+        // Ensure refRole is loaded before proceeding
+        if (!refRole || Object.keys(refRole).length === 0) {
+            console.warn('Role data not loaded yet, retrying in 500ms...');
+            setTimeout(() => this.genTableUser(), 500);
+            return;
+        }
+        
         mzAjaxRequest('profile.php', 'GET', {Reportid: '1', 'Cache-Control': 'no-cache, no-transform'}, 'userManagementClass_.displayChart()');
         const dataUser = mzAjaxRequest('profile.php', 'GET');
         oTableUser.clear().rows.add(dataUser).draw();
@@ -223,6 +237,15 @@ function MainUserManagement() {
 
     this.displayChart = function (result) {
         result = JSON.parse(result);
+
+        // Ensure refRole is loaded before proceeding
+        if (!refRole || Object.keys(refRole).length === 0) {
+            console.warn('Role data not loaded yet, chart will be updated when data is available');
+            console.log('refRole:', refRole);
+            return;
+        }
+        
+        console.log('Processing chart data with refRole:', refRole);
 
         let chartData = [];
         /*let total0 = 0;
@@ -239,7 +262,13 @@ function MainUserManagement() {
         let total11 = 0;*/
 
         $.each(result, function (n, u) {
-            chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
+            // Add null checks to prevent errors when refRole is not loaded yet
+            if (refRole && refRole[u['roleId']] && refRole[u['roleId']]['roleDesc']) {
+                chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
+            } else {
+                // Fallback to roleId if roleDesc is not available
+                chartData.push({name:'Role ' + u['roleId'], y:parseInt(u['total'])});
+            }
             /*if (u['roleId'] === '1') {
                 total1 = parseInt(u['total']);
             } else if (u['roleId'] === '2') {
@@ -327,6 +356,7 @@ function MainUserManagement() {
     };
 
     this.setRefRole = function (_refRole) {
+        console.log('setRefRole called with:', _refRole);
         refRole = _refRole;
     };
 

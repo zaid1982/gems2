@@ -8,7 +8,41 @@ function ModalUser() {
     let refDesignation;
     let refClient;
     let refSite;
+    // New: hold reference role map
+    let refRole;
     let formValidate;
+
+    // Helper: map role description to roleId from refRole
+    function getRoleIdByDesc(desc) {
+        if (!refRole) return '';
+        // refRole is expected as array or object keyed by roleId
+        if (Array.isArray(refRole)) {
+            for (const r of refRole) {
+                if (!r) continue; // skip holes/undefined
+                const d = (r.roleDesc || '').toLowerCase();
+                if (d === desc.toLowerCase()) return String(r.roleId);
+            }
+        } else if (typeof refRole === 'object') {
+            for (const k in refRole) {
+                if (!Object.prototype.hasOwnProperty.call(refRole, k)) continue;
+                const r = refRole[k];
+                if (!r) continue;
+                const d = (r.roleDesc || '').toLowerCase();
+                if (d === desc.toLowerCase()) return String(r.roleId);
+            }
+        }
+        return '';
+    }
+
+    // Helper: set PTW checkbox values from refRole
+    function applyPtwRoleIds() {
+        const rSup = getRoleIdByDesc('PTW Supervisor');
+        const rShe = getRoleIdByDesc('PTW SHE');
+        const rFm  = getRoleIdByDesc('PTW Facility Manager');
+        if (rSup) $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup); else $('#divMusRolePTWSUP').hide();
+        if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
+        if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
+    }
 
     this.init = function () {
         const vDataMus = [
@@ -112,6 +146,9 @@ function ModalUser() {
 
         self.defaultPageSetup();
 
+        // map PTW role IDs once modal HTML is ready
+        applyPtwRoleIds();
+
         $('#modal_user').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMusSubmit').attr('disabled', true);
@@ -123,11 +160,11 @@ function ModalUser() {
             formValidate.validateForm();
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21').show();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
                 $('#divMusRole6').hide();
             } else if ($(this).val() === '2') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole20, #divMusRole21').hide();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
                 $('#divMusRole6, #divMusRole4').show();
                 $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
             }
@@ -151,7 +188,10 @@ function ModalUser() {
                         let isWoAssigner = false;
                         let isWoHelpdesk = false;
                         $("input[name='chkMusRole[]']:checked").map(function(){
-                            rolesStr += ','+$(this).val();
+                            const val = ($(this).val() || '').trim();
+                            if (val !== '') {
+                                rolesStr += ','+val;
+                            }
                             if ($(this).val() === '6') {
                                 isClient = true;
                             } else if ($(this).val() === '9') {
@@ -162,7 +202,7 @@ function ModalUser() {
                                 isWoHelpdesk = true;
                             }
                         });
-                        rolesStr = rolesStr.substr(1);
+                        rolesStr = rolesStr.length > 0 ? rolesStr.slice(1) : rolesStr;
                         const userType = $("input[name='chkMusUserType']:checked").val();
 
                         if (userType === '1' && isInternalComplainer === false) {
@@ -214,6 +254,10 @@ function ModalUser() {
     this.defaultPageSetup = function () {
         $('.divMusAddOnly, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
         $('#chkMusUserType1, #chkMusUserType2').prop('disabled', false);
+        // Ensure PTW roles are hidden until user type selection
+        $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
+        // Clear PTW checkbox values until refRole is set
+        $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
     };
 
     this.add = function () {
@@ -229,6 +273,9 @@ function ModalUser() {
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
+
+                // Re-apply PTW role ids (in case refRole loaded later)
+                applyPtwRoleIds();
 
                 $('.divMusAddOnly').show();
                 $('#lblMusTitle').html('<i class="fas fa-user-plus text-white"></i> &nbsp;Register New User');
@@ -254,9 +301,11 @@ function ModalUser() {
                 mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
                 mzOptionStopClear('optMusSiteId','Choose Site', 'required');
 
+                // Ensure PTW role ids are set before setting checked values
+                applyPtwRoleIds();
+
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
-                const groupId = dataUser['groupId'];
                 const userType = dataUser['userType'];
                 formValidate.disableField('txtMusUserName');
                 formValidate.disableField('txtMusUserPassword');
@@ -274,12 +323,12 @@ function ModalUser() {
 
                 if (userType === '1') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21').show();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
                     $('#divMusRole6').hide();
                 }
                 else if (userType === '2') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11, #divMusRole20, #divMusRole21').hide();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
                     $('#divMusRole6, #divMusRole4').show();
                 }
                 formValidate.validateForm();
@@ -346,5 +395,11 @@ function ModalUser() {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+    };
+
+    // New: accept refRole from page
+    this.setRefRole = function (_refRole) {
+        refRole = _refRole;
+        applyPtwRoleIds();
     };
 }

@@ -245,4 +245,25 @@ class Class_constant {
 
     const ERR_ATT_NO_POLYGON = 'Please make sure site/office Perimeter for attendance verification selected from the Map';
     const ERR_ATT_GROUP_NAME_EXIST = 'The Attendance Group name already exist. Please choose other group name';
+
+    // ===== PTW Role Enums (centralized) =====
+    // Use these for RBAC checks across PTW APIs and UI guards.
+    // Keep lists broad to be backward-compatible with legacy role names.
+    const PTW_ROLE_SUPERVISOR_NAME = 'PTW Supervisor';
+    const PTW_ROLE_SHE_NAME = 'PTW SHE';
+    const PTW_ROLE_FM_NAME = 'PTW Facility Manager';
+    const ROLE_ADMIN = [
+        'ADMIN', 'SUPER ADMIN', 'SUPERADMIN', 'SYSTEM ADMINISTRATOR', 'PTW ADMIN'
+    ];
+    const PTW_ROLE_SUPERVISOR = [
+        'PTW SUPERVISOR', 'PTW Supervisor',
+        'SUPERVISOR', 'SITE SUPERVISOR', 'PTW_SUPERVISOR'
+    ];
+    const PTW_ROLE_SHE = [
+        'PTW SHE', 'SHE', 'HSE', 'HSSE'
+    ];
+    const PTW_ROLE_FM = [
+        'PTW FACILITY MANAGER', 'PTW Facility Manager',
+        'FACILITY MANAGER', 'FACILITY_MANAGER', 'FM'
+    ];
 }

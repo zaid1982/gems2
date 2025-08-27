@@ -18,6 +18,14 @@ $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_email = new Class_email();
 $fn_ptw = new Class_ptw();
+// Holds current user's roles for RBAC
+$current_user_roles = array();
+
+// Centralized PTW role mappings (aliased from constants for easy use in this file)
+$PTW_ROLE_ADMIN = Class_constant::ROLE_ADMIN;
+$PTW_ROLE_SUPERVISOR = Class_constant::PTW_ROLE_SUPERVISOR;
+$PTW_ROLE_SHE = Class_constant::PTW_ROLE_SHE;
+$PTW_ROLE_FM = Class_constant::PTW_ROLE_FM;
 
 try {
     $fn_general->__set('constant', $constant);
@@ -57,9 +65,40 @@ try {
     }
     $user_site_id = $user[0]['site_id'];
     
-    // Derive role from JWT when available (test token sets FM); default to ADMIN for broad access in dev
-    // In production, enforce strict role checks
+    // Derive role from JWT when available (test token sets FM). Keep ADMIN default for dev bypass
     $user_role = isset($jwt_data->role) ? $jwt_data->role : 'ADMIN';
+
+    // Load roles for RBAC checks
+    try {
+        $current_user_roles = Class_db::getInstance()->db_select('vw_roles', array(), null, null, 0, array('user_id' => strval($jwt_data->userId)));
+    } catch (Exception $e) {
+        $current_user_roles = array();
+    }
+
+    // Helper RBAC functions (local scope)
+    $roles_contains = function($roles, $expected) {
+        if (!is_array($roles)) { return false; }
+        $needle = strtolower($expected);
+        foreach ($roles as $r) {
+            foreach ($r as $v) {
+                if (is_string($v) && strpos(strtolower($v), $needle) !== false) { return true; }
+            }
+        }
+        return false;
+    };
+    $has_any = function($roles, $names=array()) use ($roles_contains) {
+        foreach ($names as $n) { if ($roles_contains($roles, $n)) { return true; } }
+        return false;
+    };
+    $enforce = function($roles, $allowed=array()) use ($has_any, $user_role, $PTW_ROLE_ADMIN) {
+        // Admin bypass (either via roles or dev default user_role)
+        if ($has_any($roles, $PTW_ROLE_ADMIN) || strtoupper($user_role) === 'ADMIN') { return; }
+        if (empty($allowed)) { return; }
+        if (!$has_any($roles, $allowed)) {
+            header('HTTP/1.1 403 Forbidden');
+            throw new Exception('Forbidden');
+        }
+    };
     
     // Validate required parameters
     if (!isset($_POST['action']) || empty($_POST['action'])) {
@@ -79,30 +118,37 @@ try {
     
     switch ($action) {
         case 'she_approve':
+            $enforce($current_user_roles, $PTW_ROLE_SHE);
             $result = process_she_approval($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, 'APPROVED');
             break;
             
         case 'she_reject':
+            $enforce($current_user_roles, $PTW_ROLE_SHE);
             $result = process_she_approval($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, 'REJECTED');
             break;
             
         case 'fm_approve':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             $result = process_fm_approval($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, 'APPROVED');
             break;
             
         case 'fm_reject':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             $result = process_fm_approval($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, 'REJECTED');
             break;
         
         case 'request_close':
+            $enforce($current_user_roles, $PTW_ROLE_SUPERVISOR);
             $result = process_request_close($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
             break;
         
         case 'approve_close':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             $result = process_approve_close($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
             break;
 
         case 'request_extend':
+            $enforce($current_user_roles, $PTW_ROLE_SUPERVISOR);
             // Supervisor requests permit extension with new_valid_to
             $new_valid_to = isset($_POST['new_valid_to']) ? $_POST['new_valid_to'] : null;
             if (!$new_valid_to) {
@@ -112,25 +158,30 @@ try {
             break;
 
         case 'approve_extend':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             // FM approves and updates ptw_valid_to
             $new_valid_to = isset($_POST['new_valid_to']) ? $_POST['new_valid_to'] : null;
             $result = process_approve_extend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $new_valid_to);
             break;
 
         case 'request_cancel':
+            $enforce($current_user_roles, $PTW_ROLE_SUPERVISOR);
             $result = process_request_cancel($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
             break;
 
         case 'approve_cancel':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             $result = process_approve_cancel($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
             break;
 
         case 'request_suspend':
+            $enforce($current_user_roles, $PTW_ROLE_SUPERVISOR);
             $ncr_no = isset($_POST['ncr_no']) ? $_POST['ncr_no'] : '';
             $result = process_request_suspend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks, $ncr_no);
             break;
 
         case 'approve_suspend':
+            $enforce($current_user_roles, $PTW_ROLE_FM);
             $result = process_approve_suspend($permit_id, $jwt_data->userId, $user_site_id, $user_role, $remarks);
             break;
             

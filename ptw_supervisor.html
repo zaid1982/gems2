@@ -566,6 +566,24 @@
             box-shadow: var(--card-shadow-lg);
         }
     </style>
+
+    <script>
+        // Minimal UI guard: verify user has Supervisor role before rendering
+        (function(){
+            function getAuthHeader() {
+                const t = sessionStorage.getItem('token') || localStorage.getItem('token');
+                return t ? { 'Authorization': 'Bearer ' + t } : {};
+            }
+            fetch('api/ptw.php?action=get_my_roles', { headers: getAuthHeader() })
+                .then(r => r.json())
+                .then(j => {
+                    if (!j || !j.success || !j.result || (!j.result.hasSupervisor && !j.result.isAdmin)) {
+                        window.location.href = 'home.html';
+                    }
+                })
+                .catch(() => { window.location.href = 'home.html'; });
+        })();
+    </script>
     
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
