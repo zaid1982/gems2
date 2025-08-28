@@ -668,7 +668,7 @@ function initializeDataTables() {
     myPtwTable = $('#dtMyPtw').DataTable({
         ...commonConfig,
         columns: [
-            { data: 'ptw_permit_number' },
+            { data: null, render: function(_d,_t,row){ return row.ptw_permit_number || row.ptw_request_number || ''; } },
             { data: 'ptw_permit_description' },
             { data: 'ptw_work_area' },
             { 
@@ -698,7 +698,7 @@ function initializeDataTables() {
     pendingApprovalTable = $('#dtPendingApproval').DataTable({
         ...commonConfig,
         columns: [
-            { data: 'ptw_permit_number' },
+            { data: null, render: function(_d,_t,row){ return row.ptw_permit_number || row.ptw_request_number || ''; } },
             { data: 'ptw_applicant_name' },
             { data: 'ptw_permit_description' },
             { data: 'ptw_work_area' },
@@ -728,7 +728,7 @@ function initializeDataTables() {
     activePtwTable = $('#dtActivePtw').DataTable({
         ...commonConfig,
         columns: [
-            { data: 'ptw_permit_number' },
+            { data: null, render: function(_d,_t,row){ return row.ptw_permit_number || row.ptw_request_number || ''; } },
             { data: 'ptw_permit_description' },
             { data: 'ptw_work_area' },
             { data: 'ptw_applicant_name' },

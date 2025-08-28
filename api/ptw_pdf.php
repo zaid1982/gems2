@@ -196,9 +196,10 @@ switch ($_POST['action']) {
                 throw new Exception('PDF file not found on server');
             }
 
-            // Send file for download
+            // Send file for download; use permit number else request number in filename
+            $displayNo = !empty($ptwData['ptw_permit_number']) ? $ptwData['ptw_permit_number'] : ($ptwData['ptw_request_number'] ?? ('ID'.$ptwId));
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="PTW_' . $ptwData['ptw_permit_number'] . '.pdf"');
+            header('Content-Disposition: attachment; filename="PTW_' . $displayNo . '.pdf"');
             header('Content-Length: ' . filesize($filePath));
             header('Cache-Control: no-cache, must-revalidate');
             header('Pragma: no-cache');

@@ -549,19 +549,45 @@ class Class_ptw {
             return false;
         }
         
+        $refNo = !empty($permit['ptw_permit_number']) ? $permit['ptw_permit_number'] : ($permit['ptw_request_number'] ?? '');
         $message = '';
         switch ($notification_type) {
             case 'SHE_APPROVAL_NEEDED':
-                $message = "PTW Permit {$permit['ptw_permit_number']} requires SHE approval";
+                $message = "PTW $refNo requires SHE approval";
                 break;
             case 'FM_APPROVAL_NEEDED':
-                $message = "PTW Permit {$permit['ptw_permit_number']} requires FM approval";
+                $message = "PTW $refNo requires FM approval";
                 break;
+            case 'ACTIVE':
             case 'APPROVED':
-                $message = "PTW Permit {$permit['ptw_permit_number']} has been approved";
+                $message = "PTW $refNo has been approved";
                 break;
             case 'REJECTED':
-                $message = "PTW Permit {$permit['ptw_permit_number']} has been rejected";
+                $message = "PTW $refNo has been rejected";
+                break;
+            case 'CLOSURE_REQUESTED':
+                $message = "PTW $refNo closure requested";
+                break;
+            case 'CLOSED':
+                $message = "PTW $refNo has been closed";
+                break;
+            case 'EXTENSION_REQUESTED':
+                $message = "PTW $refNo extension requested";
+                break;
+            case 'EXTENDED':
+                $message = "PTW $refNo has been extended";
+                break;
+            case 'CANCELLATION_REQUESTED':
+                $message = "PTW $refNo cancellation requested";
+                break;
+            case 'CANCELLED':
+                $message = "PTW $refNo has been cancelled";
+                break;
+            case 'SUSPENSION_REQUESTED':
+                $message = "PTW $refNo suspension requested";
+                break;
+            case 'SUSPENDED':
+                $message = "PTW $refNo has been suspended";
                 break;
         }
         

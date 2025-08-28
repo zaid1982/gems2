@@ -4,7 +4,8 @@
 -- PTW Permit main table
 CREATE TABLE IF NOT EXISTS `ptw_permit` (
   `ptw_permit_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ptw_permit_number` varchar(50) NOT NULL,
+  `ptw_permit_number` varchar(50) DEFAULT NULL,
+  `ptw_request_number` varchar(50) DEFAULT NULL,
   `ptw_permit_description` text NOT NULL,
   `ptw_work_area` varchar(255) NOT NULL,
   `ptw_work_type` enum('HOT_WORK','COLD_WORK','ELECTRICAL','CONFINED_SPACE','HEIGHT_WORK','EXCAVATION','CHEMICAL','LIFTING','MECHANICAL') NOT NULL,
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `ptw_permit` (
   `cancel_reason` text DEFAULT NULL,
   PRIMARY KEY (`ptw_permit_id`),
   UNIQUE KEY `ptw_permit_number` (`ptw_permit_number`),
+  UNIQUE KEY `uk_ptw_request_number` (`ptw_request_number`),
   KEY `idx_ptw_site_id` (`site_id`),
   KEY `idx_ptw_status` (`ptw_status`),
   KEY `idx_ptw_created_by` (`created_by`),
@@ -124,8 +126,13 @@ ALTER TABLE `sys_user`
 ADD COLUMN `user_designation` varchar(100) DEFAULT NULL AFTER `user_phone_number`;
 
 -- Insert PTW sequence for permit numbering (following GEMS2 sequence patterns)
-INSERT INTO `sys_sequence` (`sequence_name`, `sequence_prefix`, `sequence_length`, `sequence_value`) 
-VALUES ('PTW', 'PTW', 8, 1)
-ON DUPLICATE KEY UPDATE 
-`sequence_prefix` = VALUES(`sequence_prefix`),
-`sequence_length` = VALUES(`sequence_length`);
+-- New per-site-per-day sequence table for request/permit numbers
+CREATE TABLE IF NOT EXISTS `ptw_number_sequence` (
+  `site_id` int(11) NOT NULL,
+  `seq_date` date NOT NULL,
+  `seq_type` enum('REQUEST','PERMIT') NOT NULL,
+  `next_value` int(11) NOT NULL DEFAULT 1,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`site_id`, `seq_date`, `seq_type`),
+  KEY `idx_seq_updated` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

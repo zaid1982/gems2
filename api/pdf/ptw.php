@@ -224,9 +224,11 @@ class Class_pdf_ptw {
         $pdf->SetFont('helvetica', '', 9);
         $pdf->SetFillColor(255, 255, 255);
 
-        // Row 1: Permit Number and Work Area
-        $pdf->Cell(45, 6, 'Permit Number:', 1, 0, 'L');
-        $pdf->Cell(45, 6, $this->fn_general->clear_null($ptwData['ptw_permit_number']), 1, 0, 'L');
+    // Row 1: Permit/Request Number and Work Area
+    $displayNo = !empty($ptwData['ptw_permit_number']) ? $ptwData['ptw_permit_number'] : ($ptwData['ptw_request_number'] ?? '');
+    $label = !empty($ptwData['ptw_permit_number']) ? 'Permit Number:' : 'Request Number:';
+    $pdf->Cell(45, 6, $label, 1, 0, 'L');
+    $pdf->Cell(45, 6, $this->fn_general->clear_null($displayNo), 1, 0, 'L');
         $pdf->Cell(45, 6, 'Work Area:', 1, 0, 'L');
         $pdf->Cell(45, 6, $this->fn_general->clear_null($ptwData['ptw_work_area']), 1, 0, 'L');
         $pdf->Ln();

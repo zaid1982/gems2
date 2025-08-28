@@ -934,7 +934,7 @@ function populateShePermitsTable(permits) {
         }
         
         const row = [
-            permit.ptw_permit_number,
+            permit.ptw_permit_number || permit.ptw_request_number,
             // permit.ptw_permit_description,
             permit.ptw_applicant_name,
             permit.ptw_work_area,
@@ -1127,7 +1127,7 @@ function populateReviewModal(permit) {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><strong>Permit Number:</strong></label>
-                                <p class="mb-2">${permit.ptw_permit_number || 'N/A'}</p>
+                                <p class="mb-2">${(permit.ptw_permit_number || permit.ptw_request_number) || 'N/A'}</p>
                             </div>
                             <div class="form-group">
                                 <label><strong>Description:</strong></label>

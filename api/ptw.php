@@ -40,56 +40,6 @@ try {
     // Test debug logging to verify it's working
     $fn_general->log_debug('API', 'PTW_INIT', __LINE__, 'PTW API initialized - Testing debug logging functionality');
 
-    /**
-     * Generate unique PTW permit number using timestamp format
-     * Format: PTWYYYYMMDDhhmmss
-     * @return string Unique permit number
-     */
-    function generateUniquePtwNumber() {
-        $max_attempts = 10;
-        $attempt = 0;
-        
-        do {
-            $attempt++;
-            
-            // Generate base timestamp
-            $timestamp = date('YmdHis'); // YYYYMMDDhhmmss format
-            
-            // Add microseconds for additional uniqueness
-            $microseconds = substr(microtime(), 2, 3); // Get 3 digits of microseconds
-            
-            // Add random component to ensure uniqueness
-            $random = rand(100, 999);
-            
-            $permit_number = 'PTW' . $timestamp . $microseconds . $random;
-            
-            // Check for uniqueness in database
-            try {
-                $db = Class_db::getInstance();
-                $existing = $db->db_select('ptw_permit', array('ptw_permit_number' => $permit_number));
-                
-                if (empty($existing)) {
-                    // Unique number found
-                    return $permit_number;
-                }
-                
-                // If duplicate found, wait a tiny bit and try again
-                usleep(1000); // 1ms delay
-                
-            } catch (Exception $e) {
-                // If database check fails, log error and return the generated number
-                error_log("PTW API: Could not verify permit number uniqueness (attempt $attempt): " . $e->getMessage());
-                return $permit_number;
-            }
-            
-        } while ($attempt < $max_attempts);
-        
-        // If we couldn't generate a unique number after max attempts, add timestamp suffix
-        $fallback_number = 'PTW' . date('YmdHis') . microtime(true) . rand(1000, 9999);
-        error_log("PTW API: Used fallback permit number generation: $fallback_number");
-        
-        return $fallback_number;
-    }
     $fn_ptw->__set('fn_task', $fn_task);
     $fn_ptw->__set('fn_email', $fn_email);
 
@@ -469,10 +419,9 @@ function create_ptw_permit($user_id, $user_site_id) {
         // Use the passed site_id parameter
         $site_id = $user_site_id;
         
-        // Generate unique permit number using timestamp format: PTWYYYYMMDDhhmmss
-        $permit_number = generateUniquePtwNumber();
-        
-        error_log("PTW API: Generated permit number: " . $permit_number);
+    // Do not assign final PTW number at creation; it will be assigned at FM approval.
+    $permit_number = null;
+    $request_number = null;
         
         // Handle multiple work types - store all selected types in additional data
         $selected_work_types = isset($_POST['work_types_selected']) ? $_POST['work_types_selected'] : '';
@@ -524,7 +473,7 @@ function create_ptw_permit($user_id, $user_site_id) {
 
         // Prepare comprehensive permit data with all enhanced fields
         $permit_data = array(
-            'ptw_permit_number' => $permit_number,
+            // 'ptw_permit_number' will be assigned on FM approval; request number on submit
             'ptw_permit_description' => trim($_POST['description']),
             'ptw_work_area' => trim($_POST['work_area']),
             'ptw_work_type' => $work_type,
@@ -628,27 +577,8 @@ function create_ptw_permit($user_id, $user_site_id) {
             error_log('PTW API: Permit created successfully with ID: ' . $permit_id);
             
         } catch (Exception $e) {
-            // Check if it's a duplicate permit number error
-            if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'uk_ptw_permit_number') !== false) {
-                error_log('PTW API: Duplicate permit number detected, generating new number...');
-                
-                // Generate a new permit number and try again
-                $new_permit_number = generateUniquePtwNumber();
-                $permit_data['ptw_permit_number'] = $new_permit_number;
-                
-                error_log('PTW API: Retrying with new permit number: ' . $new_permit_number);
-                
-                try {
-                    $permit_id = $fn_ptw->create_permit($permit_data);
-                    error_log('PTW API: Permit created successfully on retry with ID: ' . $permit_id);
-                } catch (Exception $retry_error) {
-                    error_log('PTW API: Failed to create permit even on retry: ' . $retry_error->getMessage());
-                    throw $retry_error;
-                }
-            } else {
-                error_log('PTW API: Error creating permit: ' . $e->getMessage());
-                throw $e;
-            }
+            error_log('PTW API: Error creating permit: ' . $e->getMessage());
+            throw $e;
         }
         
         // Update status if provided (handle PENDING_APPROVAL vs DRAFT)
@@ -709,8 +639,15 @@ function create_ptw_permit($user_id, $user_site_id) {
         }
         
         // Submit permit for approval if requested
-        if (isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true') {
+    if (isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true') {
             $fn_ptw->submit_for_approval($permit_id, $user_id);
+            try {
+                // Assign request number on submit
+        $req = $fn_ptw->assign_request_number($permit_id, $user_site_id, $user_id);
+        $request_number = $req;
+            } catch (Exception $e) {
+                error_log('PTW API: assign_request_number failed: ' . $e->getMessage());
+            }
         }
         
         Class_db::getInstance()->db_commit();
@@ -721,7 +658,8 @@ function create_ptw_permit($user_id, $user_site_id) {
         return array(
             'ptw_permit_id' => $permit_id,
             'ptw_permit_number' => $permit_number,
-            'status' => 'created'
+            'ptw_request_number' => $request_number,
+            'status' => isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true' ? 'submitted' : 'created'
         );
         
     } catch (Exception $e) {
@@ -1042,8 +980,11 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
                 $activity_type = 'completed';
             }
             
+            $display_no = isset($permit['ptw_permit_number']) && $permit['ptw_permit_number'] !== ''
+                ? $permit['ptw_permit_number']
+                : (isset($permit['ptw_request_number']) ? $permit['ptw_request_number'] : '');
             $recent_activity[] = array(
-                'title' => 'PTW ' . $permit['ptw_permit_number'],
+                'title' => 'PTW ' . $display_no,
                 'description' => substr($permit['ptw_permit_description'], 0, 50) . '...',
                 'timestamp' => $permit['created_date'],
                 'type' => $activity_type

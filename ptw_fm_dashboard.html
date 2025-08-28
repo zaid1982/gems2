@@ -817,7 +817,13 @@ function initializeFMDashboard() {
         order: [[4, 'asc']],
         language: { emptyTable: 'No PTW records to display', zeroRecords: 'No matching permits found' },
         columns: [
-            { data: 'ptw_permit_number', width: '12%' },
+        { data: null, width: '12%', render: function(_d,_t,row){
+                const no = row.ptw_permit_number || row.ptw_request_number || '';
+                if (!row.ptw_permit_number && row.ptw_request_number) {
+            return `<span class="text-muted" title="Request Number">${row.ptw_request_number}</span>`;
+                }
+                return no;
+            } },
             { data: 'ptw_applicant_name', width: '14%' },
             { data: 'ptw_work_area', width: '14%' },
             { data: 'ptw_risk_level', width: '8%', render: function(v){ return getRiskLevelBadge(v); } },
@@ -923,7 +929,7 @@ function populatePendingClosure(permits){
     pendingClosureTable.clear();
     (permits||[]).forEach(function(p){
         const row = [
-            p.ptw_permit_number,
+            p.ptw_permit_number || p.ptw_request_number,
             // p.ptw_permit_description,
             p.ptw_applicant_name,
             getRiskLevelBadge(p.ptw_risk_level),
@@ -1026,7 +1032,7 @@ function populatePendingCancel(list){
     pendingCancelTable.clear();
     (list||[]).forEach(function(p){
         const row = [
-            p.ptw_permit_number,
+            p.ptw_permit_number || p.ptw_request_number,
             p.ptw_applicant_name,
             p.cancel_reason || '-',
             formatDateTime(p.cancel_requested_at),
@@ -1109,7 +1115,7 @@ function populatePendingSuspend(list){
     pendingSuspendTable.clear();
     (list||[]).forEach(function(p){
         const row = [
-            p.ptw_permit_number,
+            p.ptw_permit_number || p.ptw_request_number,
             p.ptw_applicant_name,
             p.suspend_ncr_no || '-',
             p.suspend_reason || '-',
@@ -1179,7 +1185,7 @@ function populateExtensionRequests(permits){
     extensionRequestsTable.clear();
     (permits||[]).forEach(function(p){
         const row = [
-            p.ptw_permit_number,
+            p.ptw_permit_number || p.ptw_request_number,
             p.ptw_applicant_name,
             getRiskLevelBadge(p.ptw_risk_level),
             formatDateTime(p.ptw_valid_to),

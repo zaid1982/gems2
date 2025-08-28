@@ -1892,7 +1892,7 @@ class PtwForm {
             console.log('Work type already set from dropdown:', workType);
         }
 
-        const formData = {
+    const formData = {
             action: 'create_permit', // Always create for public forms
             work_description: $('#txtPtwDescription').val(),
             work_area: $('#txtPtwWorkArea').val(),
@@ -1917,6 +1917,8 @@ class PtwForm {
             level: $('#txtLevel').val(),
             remarks: $('#txtPtwRemarks').val(),
             status: status,
+            // Signal backend to submit and assign Request Number when not a draft
+            submit_for_approval: (status && status !== 'DRAFT') ? 'true' : 'false',
             workers: this.getWorkersData(),
             checklist_data: JSON.stringify(this.getChecklistData()),
             declaration_checklist: JSON.stringify(this.getContractorDeclarations()),
@@ -1971,7 +1973,12 @@ class PtwForm {
             success: (response) => {
                 console.log('AJAX Success Response:', response);
                 if (response.success === true) {
-                    showSuccess('PTW submitted successfully! Thank you for your submission.');
+                    const res = response.result || response;
+                    const refNo = (res.ptw_permit_number && res.ptw_permit_number !== '')
+                        ? res.ptw_permit_number
+                        : (res.ptw_request_number || '');
+                    const suffix = refNo ? ` Reference: ${refNo}` : '';
+                    showSuccess(`PTW submitted successfully!${suffix}`);
                     
                     console.log('Public PTW submission successful! Clearing form...');
                     

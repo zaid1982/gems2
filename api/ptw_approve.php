@@ -279,7 +279,9 @@ function process_she_approval($permit_id, $user_id, $user_site_id, $user_role, $
     }
     
     // Log audit trail
-    $fn_general->save_audit('PTW_SHE_' . strtoupper($approval_status), 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' ' . strtolower($approval_status) . ' by SHE', $user_id);
+    $ref = $current_permit['ptw_permit_number'];
+    if (!$ref || $ref === '') { $ref = isset($current_permit['ptw_request_number']) ? $current_permit['ptw_request_number'] : ''; }
+    $fn_general->save_audit('PTW_SHE_' . strtoupper($approval_status), 'PTW ' . $ref . ' ' . strtolower($approval_status) . ' by SHE', $user_id);
     
     // Send notifications
     if ($approval_status === 'APPROVED') {
@@ -326,6 +328,11 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
     
     $current_status = $current_permit['ptw_status'];
     
+    // If approving, assign final Permit Number (idempotent)
+    if ($approval_status === 'APPROVED') {
+        try { $fn_ptw->assign_permit_number($permit_id, $user_site_id, $user_id); } catch (Exception $e) { /* log but continue */ $fn_general->log_error('API', __FUNCTION__, __LINE__, 'assign_permit_number failed: '.$e->getMessage()); }
+    }
+
     // Update permit with FM approval
     $update_data = array(
         'ptw_fm_approval' => $approval_status,
@@ -366,8 +373,10 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
         throw new Exception('[' . __LINE__ . '] - Failed to log status history');
     }
     
-    // Log audit trail
-    $fn_general->save_audit('PTW_FM_' . strtoupper($approval_status), 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' ' . strtolower($approval_status) . ' by FM', $user_id);
+    // Log audit trail (prefer permit number, fallback to request number)
+    $ref = $current_permit['ptw_permit_number'];
+    if (!$ref || $ref === '') { $ref = isset($current_permit['ptw_request_number']) ? $current_permit['ptw_request_number'] : ''; }
+    $fn_general->save_audit('PTW_FM_' . strtoupper($approval_status), 'PTW ' . $ref . ' ' . strtolower($approval_status) . ' by FM', $user_id);
     
     // Send notifications
     if ($approval_status === 'APPROVED') {
@@ -434,7 +443,8 @@ function process_request_close($permit_id, $user_id, $user_site_id, $user_role, 
     }
 
     // Audit and notifications
-    $fn_general->save_audit('PTW_CLOSURE_REQUESTED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' closure requested by Supervisor', $user_id);
+    $ref = $current_permit['ptw_permit_number'] ?: ($current_permit['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_CLOSURE_REQUESTED', 'PTW ' . $ref . ' closure requested by Supervisor', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'CLOSURE_REQUESTED');
 
     return array(
@@ -495,7 +505,8 @@ function process_approve_close($permit_id, $user_id, $user_site_id, $user_role, 
     }
 
     // Audit and notifications
-    $fn_general->save_audit('PTW_CLOSED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' closed by FM', $user_id);
+    $ref = $current_permit['ptw_permit_number'] ?: ($current_permit['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_CLOSED', 'PTW ' . $ref . ' closed by FM', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'CLOSED');
 
     return array(
@@ -563,7 +574,8 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
     }
 
     // Audit and notifications
-    $fn_general->save_audit('PTW_EXTENSION_REQUESTED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' extension requested to ' . $requested_to, $user_id);
+    $ref = $current_permit['ptw_permit_number'] ?: ($current_permit['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_EXTENSION_REQUESTED', 'PTW ' . $ref . ' extension requested to ' . $requested_to, $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'EXTENSION_REQUESTED');
 
     return array(
@@ -635,7 +647,8 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     }
 
     // Audit and notifications
-    $fn_general->save_audit('PTW_EXTENDED', 'PTW Permit ' . $current_permit['ptw_permit_number'] . ' valid_to set to ' . $new_valid_to, $user_id);
+    $ref = $current_permit['ptw_permit_number'] ?: ($current_permit['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_EXTENDED', 'PTW ' . $ref . ' valid_to set to ' . $new_valid_to, $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'EXTENDED');
 
     return array(
@@ -691,7 +704,8 @@ function process_request_cancel($permit_id, $user_id, $user_site_id, $user_role,
         throw new Exception('[' . __LINE__ . '] - Failed to log cancellation request');
     }
 
-    $fn_general->save_audit('PTW_CANCELLATION_REQUESTED', 'PTW Permit ' . $current['ptw_permit_number'] . ' cancellation requested', $user_id);
+    $ref = $current['ptw_permit_number'] ?: ($current['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_CANCELLATION_REQUESTED', 'PTW ' . $ref . ' cancellation requested', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'CANCELLATION_REQUESTED');
 
     return array('message' => 'Cancellation requested successfully', 'permit_id' => $permit_id, 'new_status' => 'PENDING_CANCELLATION');
@@ -735,7 +749,8 @@ function process_approve_cancel($permit_id, $user_id, $user_site_id, $user_role,
         throw new Exception('[' . __LINE__ . '] - Failed to log cancellation approval');
     }
 
-    $fn_general->save_audit('PTW_CANCELLED', 'PTW Permit ' . $current['ptw_permit_number'] . ' cancelled by FM', $user_id);
+    $ref = $current['ptw_permit_number'] ?: ($current['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_CANCELLED', 'PTW ' . $ref . ' cancelled by FM', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'CANCELLED');
 
     return array('message' => 'Permit cancelled successfully', 'permit_id' => $permit_id, 'new_status' => 'CANCELLED');
@@ -785,7 +800,8 @@ function process_request_suspend($permit_id, $user_id, $user_site_id, $user_role
         throw new Exception('[' . __LINE__ . '] - Failed to log suspension request');
     }
 
-    $fn_general->save_audit('PTW_SUSPENSION_REQUESTED', 'PTW Permit ' . $current['ptw_permit_number'] . ' suspension requested', $user_id);
+    $ref = $current['ptw_permit_number'] ?: ($current['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_SUSPENSION_REQUESTED', 'PTW ' . $ref . ' suspension requested', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'SUSPENSION_REQUESTED');
 
     return array('message' => 'Suspension requested successfully', 'permit_id' => $permit_id, 'new_status' => 'PENDING_SUSPENSION');
@@ -827,7 +843,8 @@ function process_approve_suspend($permit_id, $user_id, $user_site_id, $user_role
         throw new Exception('[' . __LINE__ . '] - Failed to log suspension approval');
     }
 
-    $fn_general->save_audit('PTW_SUSPENDED', 'PTW Permit ' . $current['ptw_permit_number'] . ' suspended by FM', $user_id);
+    $ref = $current['ptw_permit_number'] ?: ($current['ptw_request_number'] ?? '');
+    $fn_general->save_audit('PTW_SUSPENDED', 'PTW ' . $ref . ' suspended by FM', $user_id);
     $fn_ptw->send_ptw_notification($permit_id, 'SUSPENDED');
 
     return array('message' => 'Permit suspended successfully', 'permit_id' => $permit_id, 'new_status' => 'SUSPENDED');

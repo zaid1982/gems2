@@ -97,6 +97,130 @@ class Class_ptw {
     }
 
     /**
+     * Get next running sequence for a given site and type (REQUEST | PERMIT) for current date (per-site-per-day)
+     * Creates the row if missing.
+     * @param int $site_id
+     * @param string $seq_type 'REQUEST' or 'PERMIT'
+     * @return int next sequence value
+     */
+    private function get_next_sequence($site_id, $seq_type) {
+        try {
+            $site_id = intval($site_id);
+            $seq_type = strtoupper($seq_type) === 'PERMIT' ? 'PERMIT' : 'REQUEST';
+
+            // Ensure the row exists for today
+            $sqlInsert = "INSERT INTO ptw_number_sequence (site_id, seq_date, seq_type, next_value, updated_at)
+                           VALUES (?, CURDATE(), ?, 1, NOW())
+                           ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)";
+            $this->execute_raw_query($sqlInsert, array($site_id, $seq_type));
+
+            // Atomically increment and get new value
+            $sqlUpdate = "UPDATE ptw_number_sequence
+                          SET next_value = next_value + 1, updated_at = NOW()
+                          WHERE site_id = ? AND seq_date = CURDATE() AND seq_type = ?";
+            $this->execute_raw_query($sqlUpdate, array($site_id, $seq_type));
+
+            // Read back
+            $row = $this->execute_raw_query(
+                "SELECT next_value FROM ptw_number_sequence WHERE site_id = ? AND seq_date = CURDATE() AND seq_type = ?",
+                array($site_id, $seq_type)
+            );
+            if (!empty($row)) {
+                // next_value has already been incremented; use it as the current assigned number
+                return intval($row[0]['next_value']);
+            }
+            // Fallback to 1
+            return 1;
+        } catch (Exception $ex) {
+            // As a safe fallback, derive from time to avoid blocking
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Sequence failed, using time-based fallback: ' . $ex->getMessage());
+            return intval(date('His')); // not ideal, but guarantees a changing number
+        }
+    }
+
+    private function pad_site($site_id) {
+        $n = intval($site_id);
+        return str_pad((string)$n, 2, '0', STR_PAD_LEFT);
+    }
+
+    private function format_request_number($site_id, $seq_val) {
+        $site = $this->pad_site($site_id);
+        $seq = str_pad((string)intval($seq_val), 3, '0', STR_PAD_LEFT);
+        return 'RQPTW' . $site . date('ymd') . $seq;
+    }
+
+    private function format_permit_number($site_id, $seq_val) {
+        $site = $this->pad_site($site_id);
+        $seq = str_pad((string)intval($seq_val), 3, '0', STR_PAD_LEFT);
+        return 'PTW' . $site . date('ymd') . $seq;
+    }
+
+    /**
+     * Assign Request Number at first submission (idempotent).
+     */
+    public function assign_request_number($permit_id, $site_id, $user_id) {
+        try {
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            if (!$permit) { throw new Exception('Permit not found'); }
+            if (!empty($permit['ptw_request_number'])) { return $permit['ptw_request_number']; }
+
+            $seq = $this->get_next_sequence($site_id, 'REQUEST');
+            $req_no = $this->format_request_number($site_id, $seq);
+
+            Class_db::getInstance()->db_update('ptw_permit', array(
+                'ptw_request_number' => $req_no,
+                'updated_by' => $user_id,
+                'updated_date' => date('Y-m-d H:i:s')
+            ), array('ptw_permit_id' => $permit_id));
+
+            // Optional: log in status history as SUBMITTED (do not alter enum)
+            try {
+                Class_db::getInstance()->db_insert('ptw_status_history', array(
+                    'ptw_permit_id'   => $permit_id,
+                    'action_type'     => 'SUBMITTED',
+                    'previous_status' => $permit['ptw_status'],
+                    'new_status'      => 'PENDING_SUPERVISOR',
+                    'remarks'         => 'Request No: ' . $req_no,
+                    'action_by'       => $user_id
+                ));
+            } catch (Exception $ignore) {}
+
+            return $req_no;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw $ex;
+        }
+    }
+
+    /**
+     * Assign Permit Number on FM approval (idempotent).
+     */
+    public function assign_permit_number($permit_id, $site_id, $user_id) {
+        try {
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            if (!$permit) { throw new Exception('Permit not found'); }
+            if (!empty($permit['ptw_permit_number'])) { return $permit['ptw_permit_number']; }
+
+            $seq = $this->get_next_sequence($site_id, 'PERMIT');
+            $ptw_no = $this->format_permit_number($site_id, $seq);
+
+            Class_db::getInstance()->db_update('ptw_permit', array(
+                'ptw_permit_number' => $ptw_no,
+                'updated_by' => $user_id,
+                'updated_date' => date('Y-m-d H:i:s')
+            ), array('ptw_permit_id' => $permit_id));
+
+            // Optional: log in status history with FM_APPROVED (enum exists)
+            // history will be logged by approval flow; keep minimal here
+
+            return $ptw_no;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw $ex;
+        }
+    }
+
+    /**
      * Get PTW permit list with filters
      * @param array $filters
      * @return array
@@ -323,6 +447,17 @@ class Class_ptw {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($permit_id, $user_id));
             
+            // Ensure request number is assigned at first submission
+            try {
+                $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+                if ($permit) {
+                    $this->assign_request_number($permit_id, $permit['site_id'], $user_id);
+                }
+            } catch (Exception $e) {
+                // Do not block submission on numbering failure; log and continue
+                $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'assign_request_number failed: ' . $e->getMessage());
+            }
+
             // Update permit status
             $update_data = array(
                 'ptw_status' => 'PENDING_SUPERVISOR',
@@ -597,9 +732,13 @@ class Class_ptw {
                 throw new Exception('PTW permit not found');
             }
             
+            // Choose best available reference number
+            $refNo = isset($permit['ptw_permit_number']) && $permit['ptw_permit_number'] !== ''
+                ? $permit['ptw_permit_number']
+                : (isset($permit['ptw_request_number']) ? $permit['ptw_request_number'] : '');
             // Log notification (simple logging for now)
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
-                "Notification sent: {$notification_type} for PTW {$permit['ptw_permit_number']}");
+                "Notification sent: {$notification_type} for PTW {$refNo}");
             
             // In a complete implementation, this would send actual emails/SMS
             // For now, we just log the notification

@@ -120,16 +120,22 @@ function handleGetPtw() {
                 $permit_data['workers'] = $workers;
             }
         } else {
-            // Search by permit number - use ptw_permit_number which is the correct column name
+            // Search by permit number first
             $permits = $db->db_select('ptw_permit', array(
                 'ptw_permit_number' => $ptwId
             ));
-            
+
+            if (empty($permits)) {
+                // Fallback: search by request number
+                $permits = $db->db_select('ptw_permit', array(
+                    'ptw_request_number' => $ptwId
+                ));
+            }
+
             if (!empty($permits)) {
                 $permit_data = $permits[0];
-                // Get the actual permit ID for worker lookup  
                 $permit_id = $permit_data['ptw_permit_id'] ?? $ptwId;
-                
+
                 // Get workers separately
                 $workers = $db->db_select('ptw_worker', array(
                     'ptw_permit_id' => $permit_id
@@ -181,9 +187,10 @@ function transformDatabaseToFrontend($dbData) {
     // Map database fields to frontend field names based on actual database schema
     $transformed = array(
         // Basic PTW information - use correct database column names
-        'id' => $dbData['ptw_permit_number'] ?? $dbData['ptw_permit_id'],
+        'id' => (!empty($dbData['ptw_permit_number']) ? $dbData['ptw_permit_number'] : (!empty($dbData['ptw_request_number']) ? $dbData['ptw_request_number'] : ($dbData['ptw_permit_id'] ?? ''))),
         'ptw_permit_id' => $dbData['ptw_permit_id'] ?? '',
         'ptw_permit_number' => $dbData['ptw_permit_number'] ?? '',
+        'ptw_request_number' => $dbData['ptw_request_number'] ?? '',
         'description' => $dbData['ptw_permit_description'] ?? '',
         'work_description' => $dbData['ptw_permit_description'] ?? '',
         'work_area' => $dbData['ptw_work_area'] ?? '',

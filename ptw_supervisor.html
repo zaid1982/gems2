@@ -1337,7 +1337,14 @@ function initializeDataTable() {
             emptyTable: "No ACTIVE permits available for closure request"
         },
         columns: [
-            { data: 'ptw_permit_number', width: '14%' },
+            { data: null, width: '14%', render: function(_d,_t,row){
+                const hasP = !!row.ptw_permit_number;
+                const val = row.ptw_permit_number || row.ptw_request_number || '';
+                if (!hasP && row.ptw_request_number) {
+                    return `<span class="badge badge-light" title="Request Number">${val}</span>`;
+                }
+                return val;
+            } },
             // { data: 'ptw_permit_description', width: '28%', render: function(d,t){ if(t==='display' && d){ return d.length>60? d.substring(0,60)+'...':d;} return d||'';} },
             { data: 'ptw_work_area', width: '14%' },
             { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
@@ -1359,7 +1366,14 @@ function initializeDataTable() {
             emptyTable: "No closed permits to display"
         },
         columns: [
-            { data: 'ptw_permit_number', width: '14%' },
+            { data: null, width: '14%', render: function(_d,_t,row){
+                const hasP = !!row.ptw_permit_number;
+                const val = row.ptw_permit_number || row.ptw_request_number || '';
+                if (!hasP && row.ptw_request_number) {
+                    return `<span class="badge badge-light" title="Request Number">${val}</span>`;
+                }
+                return val;
+            } },
             { data: 'ptw_work_area', width: '16%' },
             { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
             { data: null, width: '16%', render: function(row){ return formatClosedDate(row); } },
@@ -1378,7 +1392,14 @@ function initializeDataTable() {
         order: [[3, 'desc']],
         language: { emptyTable: "No suspended permits to display" },
         columns: [
-            { data: 'ptw_permit_number', width: '14%' },
+            { data: null, width: '14%', render: function(_d,_t,row){
+                const hasP = !!row.ptw_permit_number;
+                const val = row.ptw_permit_number || row.ptw_request_number || '';
+                if (!hasP && row.ptw_request_number) {
+                    return `<span class="badge badge-light" title="Request Number">${val}</span>`;
+                }
+                return val;
+            } },
             { data: 'ptw_applicant_name', width: '16%' },
             { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
             { data: null, width: '16%', render: function(row){ return formatSuspendedDate(row); } },
@@ -1464,7 +1485,7 @@ function populateSuspendedPTW(list){
 }
 
 function getSuspendedActionButtons(request){
-    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
     const hasExtReq = !!(request.ptw_extension_requested_to || request.ptw_extension_requested_at);
     return `
     <div class="btn-group action-split">
@@ -1626,7 +1647,7 @@ function getPriorityBadge(request) {
 
 function getActionButtons(request) {
     // Get the permit ID from various possible field names
-    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
     return `
         <div class="btn-group action-split">
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
@@ -1659,7 +1680,7 @@ function getActionButtons(request) {
 
 
 function getActiveActionButtons(request){
-    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
     const disabled = (request.ptw_status && request.ptw_status !== 'ACTIVE') ? 'disabled' : '';
     return `
         <div class="btn-group action-split">
@@ -1917,7 +1938,7 @@ function populateClosedPTW(list){
 }
 
 function getClosedActionButtons(request){
-    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || 'unknown';
+    const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
     return `
     <div class="btn-group action-split">
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
@@ -2085,7 +2106,7 @@ function formatUnifiedDate(row){
 }
 
 function getPermitId(row){
-    return row.ptw_permit_id || row.permit_id || row.id || row.ptw_permit_number || null;
+    return row.ptw_permit_id || row.permit_id || row.id || row.ptw_permit_number || row.ptw_request_number || null;
 }
 
 function getUnifiedActionButtons(row){
