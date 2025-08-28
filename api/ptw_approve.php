@@ -4,7 +4,7 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once 'function/f_ptw.php';
+require_once __DIR__ . '/function/f_ptw.php';
 require_once 'function/f_email.php';
 
 $api_name = 'api_ptw_approve';

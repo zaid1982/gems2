@@ -5,7 +5,7 @@ require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_task.php';
-require_once 'function/f_ptw.php';
+require_once __DIR__ . '/function/f_ptw.php';
 require_once 'function/f_email.php';
 
 $api_name = 'api_ptw';
@@ -487,6 +487,7 @@ function create_ptw_permit($user_id, $user_site_id) {
             'ptw_applicant_company_dept' => isset($_POST['applicant_department']) ? trim($_POST['applicant_department']) : '',
             'ptw_hazards' => isset($_POST['hazards']) ? trim($_POST['hazards']) : '',
             'ptw_control_measures' => isset($_POST['control_measures']) ? trim($_POST['control_measures']) : '',
+            'ptw_status' => 'DRAFT',
             'site_id' => $user_site_id,
             'created_by' => $user_id,
             'created_date' => date('Y-m-d H:i:s')
@@ -582,7 +583,7 @@ function create_ptw_permit($user_id, $user_site_id) {
         }
         
         // Update status if provided (handle PENDING_APPROVAL vs DRAFT)
-        if (isset($_POST['status']) && $_POST['status'] !== 'DRAFT') {
+    if (isset($_POST['status']) && $_POST['status'] !== 'DRAFT') {
             $status_mapping = [
                 'PENDING_APPROVAL' => 'PENDING_SUPERVISOR',
                 'PENDING_SUPERVISOR' => 'PENDING_SUPERVISOR',
@@ -595,10 +596,12 @@ function create_ptw_permit($user_id, $user_site_id) {
                 : $_POST['status'];
                 
             error_log('PTW API: Updating status to: ' . $target_status);
-            Class_db::getInstance()->db_update('ptw_permit', 
-                array('ptw_status' => $target_status),
-                array('ptw_permit_id' => $permit_id)
-            );
+            if (!empty($target_status)) {
+                Class_db::getInstance()->db_update('ptw_permit', 
+                    array('ptw_status' => $target_status),
+                    array('ptw_permit_id' => $permit_id)
+                );
+            }
         }
         
         // Note: No longer need to update site running number since we use timestamp-based permit numbers
