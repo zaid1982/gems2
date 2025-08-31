@@ -1966,6 +1966,11 @@ class PtwForm {
                     const suffix = refNo ? ` Reference: ${refNo}` : '';
                     const permitId = res.ptw_permit_id || res.permit_id;
 
+                    // Build public view URL for QR
+                    const origin = window.location.origin || '';
+                    const basePath = window.location.pathname.replace(/[^\/]*$/, '');
+                    const viewUrl = `${origin}${basePath}ptw_form.html?mode=view&id=${encodeURIComponent(refNo || permitId || '')}`;
+
                     // If there are uploaded documents (from ptw_form.html), upload them now
                     const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
                     if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
@@ -1997,6 +2002,8 @@ class PtwForm {
                                 showError('PTW submitted, but document upload failed: ' + err.message);
                             })
                             .finally(() => {
+                                // Show QR code modal for tracking
+                                try { this.showQrModal(refNo, viewUrl); } catch (e) { console.warn('QR modal error:', e); }
                                 console.log('Public PTW submission successful! Clearing form...');
                                 setTimeout(() => {
                                     this.resetForm();
@@ -2005,6 +2012,8 @@ class PtwForm {
                             });
                     } else {
                         showSuccess(`PTW submitted successfully!${suffix}`);
+                        // Show QR code modal for tracking
+                        try { this.showQrModal(refNo, viewUrl); } catch (e) { console.warn('QR modal error:', e); }
                         console.log('Public PTW submission successful! Clearing form...');
                         setTimeout(() => {
                             this.resetForm();
@@ -2246,3 +2255,118 @@ function processFmApprovalAction(action, remarks) {
         }
     });
 }
+
+// Add helper to show QR modal
+PtwForm.prototype.showQrModal = function(refNo, viewUrl) {
+    const idOrRef = refNo || 'Your PTW';
+    const containerId = 'ptwQrContainer_' + Date.now();
+    const copyBtnId = 'ptwQrCopyBtn_' + Date.now();
+    const downloadBtnId = 'ptwQrDownloadBtn_' + Date.now();
+    const html = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div id="${containerId}" style="padding:8px;border:1px dashed #ccc;border-radius:8px;background:#fff;"></div>
+            <div style="font-size:14px;word-break:break-all;text-align:center;max-width:100%;">
+                <a href="${viewUrl}" target="_blank" rel="noopener">${viewUrl}</a>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;">
+                <button type="button" id="${copyBtnId}" class="swal2-styled" style="background:#17a2b8;border:0;">Copy link</button>
+                <button type="button" id="${downloadBtnId}" class="swal2-styled" style="background:#6c757d;border:0;">Download QR</button>
+            </div>
+        </div>`;
+
+    Swal.fire({
+        title: `Track your PTW` + (refNo ? ` (${idOrRef})` : ''),
+        html,
+        width: 420,
+        showCloseButton: true,
+        confirmButtonText: 'Done',
+        showDenyButton: true,
+        denyButtonText: 'Open link',
+        didOpen: () => {
+            try {
+                const el = document.getElementById(containerId);
+                if (el && typeof QRCode !== 'undefined') {
+                    // Instantiate and then call makeCode (pattern used across the app)
+                    const qr = new QRCode(el, {
+                        width: 220,
+                        height: 220,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    if (qr && typeof qr.makeCode === 'function') {
+                        qr.makeCode(viewUrl);
+                    }
+                } else {
+                    el && (el.textContent = 'QR library unavailable');
+                }
+
+                // Wire actions
+                const copyBtn = document.getElementById(copyBtnId);
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', async () => {
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                await navigator.clipboard.writeText(viewUrl);
+                            } else {
+                                const inp = document.createElement('input');
+                                inp.value = viewUrl;
+                                document.body.appendChild(inp);
+                                inp.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(inp);
+                            }
+                            Swal.showValidationMessage(''); // clear
+                            Swal.update({});
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                timer: 1500,
+                                showConfirmButton: false,
+                                icon: 'success',
+                                title: 'Link copied'
+                            });
+                        } catch (err) {
+                            Swal.fire('Copy failed', 'Please copy the link manually.', 'info');
+                        }
+                    });
+                }
+
+                const downloadBtn = document.getElementById(downloadBtnId);
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', () => {
+                        try {
+                            const container = document.getElementById(containerId);
+                            if (!container) return;
+                            const img = container.querySelector('img');
+                            const canvas = container.querySelector('canvas');
+                            let dataUrl = '';
+                            if (img && img.src) {
+                                dataUrl = img.src;
+                            } else if (canvas && canvas.toDataURL) {
+                                dataUrl = canvas.toDataURL('image/png');
+                            }
+                            if (dataUrl) {
+                                const a = document.createElement('a');
+                                const safeRef = (refNo || 'ptw').toString().replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
+                                a.download = `ptw-qr-${safeRef}.png`;
+                                a.href = dataUrl;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            }
+                        } catch (e) {
+                            Swal.fire('Download failed', 'Unable to download the QR image.', 'error');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('QR render error', e);
+            }
+        }
+    }).then((result) => {
+        if (result.isDenied) {
+            try { window.open(viewUrl, '_blank', 'noopener'); } catch (e) {}
+        }
+    });
+};
