@@ -641,23 +641,30 @@ function create_ptw_permit($user_id, $user_site_id) {
             }
         }
         
-        // Submit permit for approval if requested
-    if (isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true') {
-            $fn_ptw->submit_for_approval($permit_id, $user_id);
-            try {
-                // Assign request number on submit
-        $req = $fn_ptw->assign_request_number($permit_id, $user_site_id, $user_id);
-        $request_number = $req;
-            } catch (Exception $e) {
-                error_log('PTW API: assign_request_number failed: ' . $e->getMessage());
-            }
-        }
-        
+        // Commit initial creation (permit + workers) before cross-connection operations
         Class_db::getInstance()->db_commit();
         $is_transaction = false;
-        
-        error_log('PTW API: Transaction committed successfully');
-        
+        error_log('PTW API: Transaction committed successfully (creation phase)');
+
+        // Submit permit for approval if requested (post-commit to avoid FK issues)
+        if (isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true') {
+            try {
+                $fn_ptw->submit_for_approval($permit_id, $user_id);
+                // Read back request number assigned during submission
+                try {
+                    $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+                    if (!empty($row) && isset($row['ptw_request_no'])) {
+                        $request_number = $row['ptw_request_no'];
+                    }
+                } catch (Exception $e) {
+                    error_log('PTW API: failed to read back request number: ' . $e->getMessage());
+                }
+            } catch (Exception $e) {
+                // Surface the error back to client
+                throw $e;
+            }
+        }
+
         return array(
             'ptw_permit_id' => $permit_id,
             'ptw_permit_number' => $permit_number,

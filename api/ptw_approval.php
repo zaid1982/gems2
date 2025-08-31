@@ -118,6 +118,12 @@ function handleGetPtw() {
                     'ptw_permit_id' => $permit_id
                 ), 'ptw_worker_id');
                 $permit_data['workers'] = $workers;
+
+                // Get documents for this permit
+                $documents = $db->db_select('ptw_document', array(
+                    'ptw_permit_id' => $permit_id
+                ), 'ptw_document_id');
+                $permit_data['documents'] = $documents;
             }
         } else {
             // Search by permit number first
@@ -141,6 +147,12 @@ function handleGetPtw() {
                     'ptw_permit_id' => $permit_id
                 ), 'ptw_worker_id');
                 $permit_data['workers'] = $workers;
+
+                // Get documents for this permit
+                $documents = $db->db_select('ptw_document', array(
+                    'ptw_permit_id' => $permit_id
+                ), 'ptw_document_id');
+                $permit_data['documents'] = $documents;
             }
         }
         
@@ -383,6 +395,24 @@ function transformDatabaseToFrontend($dbData) {
     $supporting_docs_data = parseChecklistData($dbData['ptw_supporting_docs_checklist'] ?? '');
     $transformed['supporting_docs'] = $supporting_docs_data ?: 'riskAssessment,methodStatement';
     
+    // Handle documents if available
+    if (isset($dbData['documents']) && is_array($dbData['documents'])) {
+        $transformed['documents'] = array();
+        foreach ($dbData['documents'] as $doc) {
+            $transformed['documents'][] = array(
+                'ptw_document_id' => $doc['ptw_document_id'] ?? null,
+                'document_name' => $doc['document_name'] ?? ($doc['name'] ?? ''),
+                'document_path' => $doc['document_path'] ?? ($doc['path'] ?? ''),
+                'document_type' => $doc['document_type'] ?? '',
+                'uploaded_by' => $doc['uploaded_by'] ?? null,
+                'site_id' => $doc['site_id'] ?? null,
+                'created_date' => $doc['created_date'] ?? null
+            );
+        }
+    } else {
+        $transformed['documents'] = array();
+    }
+
     return $transformed;
 }
 

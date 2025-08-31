@@ -189,26 +189,8 @@
             margin-bottom: 1rem;
             background-color: #ffffff;
         }
-        .risk-matrix {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            margin: 1rem 0;
-        }
-        .risk-cell {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }
-        .risk-low { background-color: #d4edda; }
-        .risk-medium { background-color: #fff3cd; }
-        .risk-high { background-color: #f8d7da; }
-        .risk-critical { background-color: #dc3545; color: white; }
-        
-        /* Force native dropdown behavior - Override MDB select styling */
-        .native-dropdown select,
-        #optPtwRiskLevel {
+    /* Force native dropdown behavior - Override MDB select styling */
+    .native-dropdown select {
             /* Force back to native select appearance */
             -webkit-appearance: menulist !important;
             -moz-appearance: menulist !important;
@@ -249,8 +231,7 @@
             visibility: hidden !important;
         }
         
-        .native-dropdown select:focus,
-        #optPtwRiskLevel:focus {
+    .native-dropdown select:focus {
             border-color: #4285f4 !important;
             box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25) !important;
             outline: none !important;
@@ -1297,26 +1278,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group">
-                                            <label for="optPtwRiskLevel">
-                                                <span class="label-text">Risk Level</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-risklevel')">?</span>
-                                            </label>
-                                            <select id="optPtwRiskLevel" class="form-control">
-                                                <option value="">Select Risk Level</option>
-                                                <option value="low">Low Risk</option>
-                                                <option value="medium">Medium Risk</option>
-                                                <option value="high">High Risk</option>
-                                                <option value="critical">Critical Risk</option>
-                                            </select>
-                                            <div class="help-example" id="help-risklevel">
-                                                <strong>Risk assessment guidelines:</strong>
-                                                • <strong>Low:</strong> Routine maintenance, minimal hazards<br>
-                                                • <strong>Medium:</strong> Standard procedures with moderate risk<br>
-                                                • <strong>High:</strong> Complex work requiring special precautions<br>
-                                                • <strong>Critical:</strong> Extreme hazards, extensive safety measures
-                                            </div>
-                                        </div>
+                                        
 
                                         <div class="form-group">
                                             <label for="txtPtwDescription">
@@ -2640,24 +2602,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                     viewModeIndicator.style.display = 'inline-block';
                 }
                 
-                // Show appropriate approval section
+                // Approval UI is now handled entirely in dashboards; keep all approval sections hidden in view mode
                 const approvalSections = document.getElementById('approvalSections');
                 if (approvalSections) {
-                    approvalSections.style.display = 'block';
+                    approvalSections.style.display = 'none';
                 }
-                
-                const sectionMap = {
-                    'supervisor': 'supervisorApprovalSection',
-                    'she': 'sheApprovalSection',
-                    'facility_manager': 'facilityManagerApprovalSection'
-                };
-                
-                const targetSection = document.getElementById(sectionMap[role]);
-                if (targetSection) {
-                    targetSection.style.display = 'block';
-                }
-                
-                // Read-only view: Do not bind approval actions here. Dashboards handle approvals.
             } else {
                 // Generic view mode without specific role
                 const formTitleText = document.getElementById('formTitleText');
@@ -2802,12 +2751,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     window.ptwNumber = data.ptw_permit_number || data.permit_number || '';
         
         // Populate basic fields - map API data to form fields
-        const fieldMapping = {
+    const fieldMapping = {
             'txtPtwApplicantName': 'applicant_name',
             'txtContractorSupervisor': 'contractor_supervisor', 
             'txtPtwContractorCompany': 'contractor_company',
             'txtPtwWorkArea': 'work_area',
-            'optPtwRiskLevel': 'risk_level',
             'txtPtwDescription': 'work_description',
             'txtPtwApplicantContact': 'applicant_contact',
             'txtStaffNoNRIC': 'staff_nric',
@@ -3022,6 +2970,42 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                     checkbox.checked = true;
                 }
             });
+        }
+
+        // Populate uploaded documents list (view mode)
+        try {
+            const tbody = document.getElementById('documentsTableBody');
+            if (tbody) {
+                // Only render if API provided documents
+                const docs = Array.isArray(data.documents) ? data.documents : [];
+                if (docs.length > 0) {
+                    let rowsHtml = '';
+                    docs.forEach((doc, idx) => {
+                        const name = (doc.document_name || '').toString();
+                        const path = (doc.document_path || '').toString();
+                        const safeName = name
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#039;');
+                        const href = path && !/^https?:\/\//i.test(path) ? `${path}` : path;
+                        rowsHtml += `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${safeName || 'Document'}</a>` : (safeName || 'Document')}</td>
+                                <td>
+                                    ${href ? `<a class="btn btn-sm btn-primary" href="${href}" target="_blank" rel="noopener">View</a>` : '<span class="text-muted">No file</span>'}
+                                </td>
+                            </tr>`;
+                    });
+                    tbody.innerHTML = rowsHtml;
+                } else {
+                    // Keep default placeholder row
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to render existing documents:', e);
         }
         
         // Populate cold work checklist from ptw_checklist_cold_work
@@ -3543,12 +3527,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         console.log('🔧 Starting complete form data collection...');
         
         // Field mapping from HTML form IDs to backend parameter names
-        const fieldMapping = {
+    const fieldMapping = {
             'txtPtwApplicantName': 'applicant_name',
             'txtContractorSupervisor': 'contractor_supervisor', 
             'txtPtwContractorCompany': 'contractor_company',
             'txtPtwWorkArea': 'work_area',
-            'optPtwRiskLevel': 'risk_level',
             'txtPtwDescription': 'work_description',
             'txtPtwApplicantContact': 'applicant_contact',
             'txtPtwApplicantDept': 'applicant_department',
@@ -3807,6 +3790,15 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         
         console.log('✅ Complete form data collection completed');
         console.log('📊 Final collected data:', formData);
+        // Surface selected documents (names only) for debugging
+        try {
+            if (typeof window.getUploadedDocuments === 'function') {
+                formData.selected_document_names = window.getUploadedDocuments().map(d => d.name);
+                console.log('📎 Selected document names:', formData.selected_document_names);
+            }
+        } catch (e) {
+            console.warn('Could not attach selected_document_names:', e);
+        }
         
         return formData;
     }
@@ -4965,63 +4957,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
 
     // Function to prevent MDB from transforming specific dropdowns
     function preventMDBDropdownTransformation() {
-        const protectedSelects = ['optPtwRiskLevel']; // Removed optPtwWorkType - should stay hidden per URS
-        
-        protectedSelects.forEach(selectId => {
-            const selectElement = document.getElementById(selectId);
-            if (selectElement) {
-                console.log(`Protecting dropdown: ${selectId}`);
-                
-                // Remove any MDB classes that might have been added
-                selectElement.classList.remove('mdb-select', 'md-form', 'browser-default', 'select-dropdown');
-                
-                // Ensure it has the standard Bootstrap class
-                selectElement.classList.add('form-control');
-                
-                // Remove any MDB-generated wrapper elements
-                const wrapper = selectElement.parentNode.querySelector('.select-wrapper');
-                if (wrapper) {
-                    console.log(`Hiding MDB wrapper for ${selectId}`);
-                    wrapper.style.display = 'none';
-                    wrapper.style.visibility = 'hidden';
-                }
-                
-                // Remove any dropdown content elements
-                const dropdownContent = selectElement.parentNode.querySelector('.dropdown-content');
-                if (dropdownContent) {
-                    console.log(`Removing dropdown content for ${selectId}`);
-                    dropdownContent.remove();
-                }
-                
-                // Prevent MDB from re-initializing this select
-                selectElement.setAttribute('data-mdb-select-init', 'false');
-                selectElement.setAttribute('data-select-init', 'false');
-                selectElement.setAttribute('data-mdb-select', 'false');
-                
-                // Force native appearance and visibility
-                selectElement.style.webkitAppearance = 'menulist';
-                selectElement.style.mozAppearance = 'menulist';
-                selectElement.style.appearance = 'menulist';
-                selectElement.style.display = 'block';
-                selectElement.style.visibility = 'visible';
-                selectElement.style.opacity = '1';
-                selectElement.style.width = '100%';
-                selectElement.style.height = 'auto';
-                selectElement.style.minHeight = '38px';
-                selectElement.style.pointerEvents = 'auto';
-                selectElement.style.cursor = 'pointer';
-                selectElement.style.position = 'relative';
-                selectElement.style.zIndex = '1';
-                selectElement.style.transform = 'none';
-                selectElement.style.overflow = 'visible';
-                
-                console.log(`Successfully protected ${selectId} - visible: ${selectElement.offsetHeight > 0}`);
-            } else {
-                console.warn(`Dropdown element not found: ${selectId}`);
-            }
-        });
-        
-        // Ensure work type dropdown stays hidden (URS compliance)
+        // Keep work type dropdown hidden (URS compliance), but no risk level handling needed anymore
         const workTypeDropdown = document.getElementById('optPtwWorkType');
         if (workTypeDropdown) {
             workTypeDropdown.style.display = 'none';
@@ -5051,40 +4987,6 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         setTimeout(() => {
             console.log('Running delayed dropdown protection (1000ms)...');
             preventMDBDropdownTransformation();
-            
-            // Final check for Risk Level visibility
-            const riskLevelSelect = document.getElementById('optPtwRiskLevel');
-            if (riskLevelSelect) {
-                const isVisible = riskLevelSelect.offsetHeight > 0 && riskLevelSelect.offsetWidth > 0;
-                console.log(`Risk Level dropdown final visibility check: ${isVisible}`);
-                
-                if (!isVisible) {
-                    console.warn('Risk Level dropdown still not visible, applying emergency fix...');
-                    // Emergency visibility fix
-                    riskLevelSelect.style.cssText = `
-                        display: block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                        width: 100% !important;
-                        height: auto !important;
-                        min-height: 38px !important;
-                        background-color: #fff !important;
-                        border: 1px solid #ced4da !important;
-                        border-radius: 0.25rem !important;
-                        padding: 0.375rem 0.75rem !important;
-                        font-size: 1rem !important;
-                        line-height: 1.5 !important;
-                        color: #495057 !important;
-                        pointer-events: auto !important;
-                        cursor: pointer !important;
-                        position: relative !important;
-                        z-index: 1 !important;
-                        -webkit-appearance: menulist !important;
-                        -moz-appearance: menulist !important;
-                        appearance: menulist !important;
-                    `;
-                }
-            }
         }, 1000);
         
         // Add a final check after 2 seconds
@@ -5095,75 +4997,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     }
 
     // Manual fix function for Risk Level dropdown visibility
-    function fixRiskLevelDropdown() {
-        const riskLevelSelect = document.getElementById('optPtwRiskLevel');
-        if (!riskLevelSelect) {
-            console.error('Risk Level dropdown not found!');
-            return false;
-        }
-        
-        console.log('Manually fixing Risk Level dropdown...');
-        
-        // Remove any problematic classes
-        riskLevelSelect.className = 'form-control';
-        
-        // Apply comprehensive visibility fix
-        riskLevelSelect.style.cssText = `
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            width: 100% !important;
-            height: auto !important;
-            min-height: 38px !important;
-            max-height: none !important;
-            background-color: #fff !important;
-            background-image: none !important;
-            border: 1px solid #ced4da !important;
-            border-radius: 0.25rem !important;
-            padding: 0.375rem 0.75rem !important;
-            margin: 0 !important;
-            font-size: 1rem !important;
-            line-height: 1.5 !important;
-            color: #495057 !important;
-            pointer-events: auto !important;
-            cursor: pointer !important;
-            position: relative !important;
-            z-index: 1 !important;
-            transform: none !important;
-            overflow: visible !important;
-            -webkit-appearance: menulist !important;
-            -moz-appearance: menulist !important;
-            appearance: menulist !important;
-        `;
-        
-        // Remove any wrapper interference
-        const parent = riskLevelSelect.parentNode;
-        if (parent) {
-            const wrappers = parent.querySelectorAll('.select-wrapper, .dropdown-content, .caret');
-            wrappers.forEach(wrapper => {
-                wrapper.style.display = 'none';
-                wrapper.style.visibility = 'hidden';
-            });
-        }
-        
-        // Force redraw by toggling display
-        riskLevelSelect.style.display = 'none';
-        riskLevelSelect.style.display = 'block';
-        
-        const isVisible = riskLevelSelect.offsetHeight > 0 && riskLevelSelect.offsetWidth > 0;
-        console.log(`Risk Level dropdown manual fix result: ${isVisible}`);
-        
-        if (isVisible) {
-            showSuccess('Risk Level dropdown has been fixed and is now visible!');
-        } else {
-            showError('Unable to fix Risk Level dropdown visibility. Please refresh the page.');
-        }
-        
-        return isVisible;
-    }
-
-    // Make the fix function globally accessible for manual testing
-    window.fixRiskLevelDropdown = fixRiskLevelDropdown;
+    // Risk Level dropdown removed per business directive; no manual fix needed
 
     // Alert functions for public form
     function showSuccess(message) {
@@ -5344,7 +5178,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         console.log('=== Testing All Help Buttons ===');
         const helpIds = [
             'help-applicantname', 'help-supervisor', 'help-company', 'help-workarea', 
-            'help-worktype', 'help-risklevel', 'help-description', 'help-contact', 
+            'help-worktype', 'help-description', 'help-contact', 
             'help-nric', 'help-contact-supervisor', 'help-identification', 'help-duration', 'help-level'
         ];
         
@@ -5385,6 +5219,15 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     // Supporting Documents File Upload Functionality
     let uploadedDocuments = [];
     let documentCounter = 0;
+    // Expose helpers so external scripts (e.g., js/pages/ptw_form.js) can access files
+    window.getUploadedDocuments = function() {
+        // Return a shallow copy to avoid external mutation side-effects
+        return Array.isArray(uploadedDocuments) ? uploadedDocuments.slice() : [];
+    };
+    window.clearUploadedDocuments = function() {
+        uploadedDocuments = [];
+        renderDocumentsTable();
+    };
 
     // Initialize file upload functionality
     function initializeFileUpload() {
@@ -5478,39 +5321,44 @@ I/We confirm that we have read and fully understood the terms and conditions abo
 
     function renderDocumentsTable() {
         const tbody = document.getElementById('documentsTableBody');
-        const noDocumentsRow = document.getElementById('noDocumentsRow');
-        
         if (!tbody) return;
 
-        // Clear existing rows except the "no documents" row
-        tbody.innerHTML = '';
+        const escapeHtml = (str) => String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
 
-        if (uploadedDocuments.length === 0) {
-            tbody.appendChild(noDocumentsRow);
+        if (!Array.isArray(uploadedDocuments) || uploadedDocuments.length === 0) {
+            tbody.innerHTML = '<tr id="noDocumentsRow"><td colspan="3" class="text-muted">No documents uploaded yet</td></tr>';
             return;
         }
 
-        uploadedDocuments.forEach((doc, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>
-                    <div class="file-name" title="${doc.name}">${doc.name}</div>
-                    <small class="text-muted">${formatFileSize(doc.size)}</small>
-                </td>
-                <td>
-                    <div class="document-actions">
-                        <button type="button" class="btn btn-sm btn-info" onclick="viewDocument(${doc.id})" title="View">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteDocument(${doc.id})" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+        const rowsHtml = uploadedDocuments.map((doc, index) => {
+            const safeName = escapeHtml(doc.name || '');
+            const sizeText = formatFileSize(doc.size || 0);
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        <div class="file-name" title="${safeName}">${safeName}</div>
+                        <small class="text-muted">${sizeText}</small>
+                    </td>
+                    <td>
+                        <div class="document-actions">
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewDocument(${doc.id})" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteDocument(${doc.id})" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        }).join('');
+
+        tbody.innerHTML = rowsHtml;
     }
 
     function viewDocument(documentId) {

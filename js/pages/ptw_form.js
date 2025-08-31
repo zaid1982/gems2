@@ -184,10 +184,7 @@ class PtwForm {
 
 
 
-        // Risk level change
-        $('#optPtwRiskLevel').on('change', (e) => {
-            this.updateRiskDisplay();
-        });
+    // Risk level removed
 
         // Form validation handlers
         $('#txtPtwDescription, #txtPtwWorkArea, #txtPtwApplicantName').on('blur', function() {
@@ -285,8 +282,7 @@ class PtwForm {
         this.addWorkerRow();
         
         // Test dropdown accessibility
-        console.log('Work Type dropdown found:', $('#optPtwWorkType').length > 0);
-        console.log('Risk Level dropdown found:', $('#optPtwRiskLevel').length > 0);
+    console.log('Work Type dropdown found:', $('#optPtwWorkType').length > 0);
         
         // Force refresh dropdown styling
         this.refreshDropdowns();
@@ -296,10 +292,9 @@ class PtwForm {
         // Ensure dropdowns are properly styled and functional
         console.log('Refreshing dropdown functionality...');
         
-        const workTypeSelect = document.getElementById('optPtwWorkType');
-        const riskLevelSelect = document.getElementById('optPtwRiskLevel');
+    const workTypeSelect = document.getElementById('optPtwWorkType');
         
-        [workTypeSelect, riskLevelSelect].forEach(select => {
+    [workTypeSelect].forEach(select => {
             if (select) {
                 // Remove any MDB interference
                 select.classList.remove('mdb-select', 'md-form', 'browser-default');
@@ -565,8 +560,7 @@ class PtwForm {
             $('#dtPtwValidTo').val(toDate.toISOString().split('T')[0]);
         }
 
-        // Risk assessment
-        $('#optPtwRiskLevel').val(data.ptw_risk_level || data.risk_level || '');
+    // Risk assessment (risk level removed)
         $('#txtPtwHazards').val(data.ptw_hazards || data.hazards || '');
         $('#txtPtwControlMeasures').val(data.ptw_control_measures || data.control_measures || '');
 
@@ -1264,11 +1258,7 @@ class PtwForm {
         return true;
     }
 
-    updateRiskDisplay() {
-        const riskLevel = $('#optPtwRiskLevel').val();
-        // Add visual feedback for risk level if needed
-        console.log('Risk level changed to:', riskLevel);
-    }
+    // updateRiskDisplay removed (risk level no longer used)
 
     validateForm() {
         console.log('validateForm called');
@@ -1278,7 +1268,7 @@ class PtwForm {
         // Check if elements exist first
         const requiredElements = [
             'txtPtwDescription', 'txtPtwWorkArea', 'txtPtwApplicantName', 
-            'dtPtwValidFrom', 'dtPtwValidTo', 'optPtwWorkType', 'optPtwRiskLevel'
+            'dtPtwValidFrom', 'dtPtwValidTo', 'optPtwWorkType'
         ];
         
         const missingElements = [];
@@ -1350,10 +1340,7 @@ class PtwForm {
             isValid = false;
         }
 
-        if (!$('#optPtwRiskLevel').val()) {
-            errors.push('Risk Level is required');
-            isValid = false;
-        }
+    // Risk level validation removed
 
         // Validate workers
         const workers = this.getWorkersData();
@@ -1789,8 +1776,8 @@ class PtwForm {
         $('#txtPtwApplicantName, #txtPtwApplicantContact, #txtPtwApplicantDept').val('');
         $('#txtPtwContractorCompany, #txtPtwRemarks').val('');
         
-        // Reset select fields
-        $('#optPtwWorkType, #optPtwRiskLevel').prop('selectedIndex', 0);
+    // Reset select fields
+    $('#optPtwWorkType').prop('selectedIndex', 0);
         
         // Reset date fields
         $('#dtPtwValidFrom, #dtPtwValidTo').val('');
@@ -1900,7 +1887,6 @@ class PtwForm {
             work_types_selected: JSON.stringify(selectedWorkTypes),
             valid_from: $('#dtPtwValidFrom').val(),
             valid_to: $('#dtPtwValidTo').val(),
-            risk_level: $('#optPtwRiskLevel').val(),
             hazards: $('#txtPtwHazards').val(),
             control_measures: $('#txtPtwControlMeasures').val(),
             applicant_name: $('#txtPtwApplicantName').val(),
@@ -1978,15 +1964,53 @@ class PtwForm {
                         ? res.ptw_permit_number
                         : (res.ptw_request_number || '');
                     const suffix = refNo ? ` Reference: ${refNo}` : '';
-                    showSuccess(`PTW submitted successfully!${suffix}`);
-                    
-                    console.log('Public PTW submission successful! Clearing form...');
-                    
-                    // Clear form for next submission instead of redirecting
-                    setTimeout(() => {
-                        this.resetForm();
-                        showSuccess('Form cleared for next submission.');
-                    }, 2000);
+                    const permitId = res.ptw_permit_id || res.permit_id;
+
+                    // If there are uploaded documents (from ptw_form.html), upload them now
+                    const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
+                    if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
+                        console.log(`Uploading ${pendingDocs.length} document(s) for permit ${permitId}...`);
+                        const fd = new FormData();
+                        fd.append('permit_id', String(permitId));
+                        if (this.siteId) fd.append('site_id', String(this.siteId));
+                        pendingDocs.forEach((doc) => {
+                            if (doc && doc.file) {
+                                fd.append('files[]', doc.file, doc.name || 'document');
+                            }
+                        });
+
+                        fetch('api/ptw_document_upload.php', { method: 'POST', body: fd })
+                            .then(r => r.json())
+                            .then(up => {
+                                if (up && up.success) {
+                                    showSuccess(`PTW submitted successfully!${suffix} Documents uploaded: ${pendingDocs.length}`);
+                                    if (typeof window.clearUploadedDocuments === 'function') {
+                                        window.clearUploadedDocuments();
+                                    }
+                                } else {
+                                    console.warn('Document upload failed:', up);
+                                    showError('PTW submitted, but document upload failed: ' + (up && up.message ? up.message : 'Unknown'));
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Upload error:', err);
+                                showError('PTW submitted, but document upload failed: ' + err.message);
+                            })
+                            .finally(() => {
+                                console.log('Public PTW submission successful! Clearing form...');
+                                setTimeout(() => {
+                                    this.resetForm();
+                                    showSuccess('Form cleared for next submission.');
+                                }, 1500);
+                            });
+                    } else {
+                        showSuccess(`PTW submitted successfully!${suffix}`);
+                        console.log('Public PTW submission successful! Clearing form...');
+                        setTimeout(() => {
+                            this.resetForm();
+                            showSuccess('Form cleared for next submission.');
+                        }, 1500);
+                    }
                 } else {
                     console.log('API returned error:', response.message);
                     showError(response.message || 'Failed to save PTW');
