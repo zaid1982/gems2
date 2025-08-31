@@ -11,3 +11,6 @@ globalfm.p12
 api/.DS_Store
 api/pdf/.DS_Store
 .DS_Store
+
+# Ignore all uploaded files stored outside api/
+upload/
