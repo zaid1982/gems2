@@ -350,12 +350,74 @@ class Class_ptw {
             $permit_id = Class_db::getInstance()->db_insert('ptw_permit', $permit_data);
             
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit created with ID: ' . $permit_id);
-            
+            // Issue public token immediately for view access (best-effort; skip if columns not present)
+            try {
+                $valid_to = isset($permit_data['ptw_valid_to']) ? $permit_data['ptw_valid_to'] : null;
+                $this->issue_public_token($permit_id, $valid_to);
+            } catch (Exception $e) {
+                $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Failed to issue public token (non-fatal): ' . $e->getMessage());
+            }
+
             return $permit_id;
             
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0008', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Generate and store a public token for viewing a permit.
+     * Sets optional expiry and enables the public link. Safe to call multiple times; will rotate token.
+     * Swallows errors if columns don't exist (for backward compatibility).
+     * @param int $permit_id
+     * @param string|null $valid_to MySQL DATETIME; if provided, expiry defaults to valid_to + 30 days
+     * @param int $ttl_days Additional TTL days if valid_to not provided (default 365)
+     * @return string|null The token or null if failed
+     */
+    public function issue_public_token($permit_id, $valid_to = null, $ttl_days = 365) {
+        try {
+            $token = bin2hex(random_bytes(32)); // 64-char hex
+            $expires_at = null;
+            if (!empty($valid_to)) {
+                $ts = strtotime($valid_to . ' +30 days');
+                if ($ts !== false) { $expires_at = date('Y-m-d H:i:s', $ts); }
+            }
+            if ($expires_at === null) {
+                $expires_at = date('Y-m-d H:i:s', strtotime("+{$ttl_days} days"));
+            }
+
+            Class_db::getInstance()->db_update('ptw_permit', array(
+                'public_token' => $token,
+                'public_token_expires_at' => $expires_at,
+                'public_link_enabled' => '1',
+                'public_token_revoked_at' => null,
+                'updated_date' => date('Y-m-d H:i:s')
+            ), array('ptw_permit_id' => $permit_id));
+
+            return $token;
+        } catch (Exception $ex) {
+            // Likely columns missing; log and continue without blocking
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'issue_public_token error: ' . $ex->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get an existing public token; if missing, issue a new one with default expiry.
+     * @param int $permit_id
+     * @return string|null
+     */
+    public function get_or_create_public_token($permit_id) {
+        try {
+            $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            if (!$row) { return null; }
+            if (!empty($row['public_token'])) { return $row['public_token']; }
+            $valid_to = isset($row['ptw_valid_to']) ? $row['ptw_valid_to'] : null;
+            return $this->issue_public_token($permit_id, $valid_to);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'get_or_create_public_token error: ' . $ex->getMessage());
+            return null;
         }
     }
 

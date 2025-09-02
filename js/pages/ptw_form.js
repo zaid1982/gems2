@@ -1897,6 +1897,8 @@ class PtwForm {
             contractor_name: $('#contractor_name').val(),
             contractor_designation: $('#contractor_designation').val(),
             contractor_date: $('#contractor_date').val(),
+            // PNG data URL from the signature pad's hidden input (e.g., data:image/png;base64,...)
+            contractor_signature: ($('#contractor_signature').val() || ''),
             staff_nric: $('#txtStaffNoNRIC').val(),
             supervisor_contact: $('#txtContactNoSupervisor').val(),
             identification_no: $('#txtIdentificationNo').val(),
@@ -1969,7 +1971,8 @@ class PtwForm {
                     // Build public view URL for QR
                     const origin = window.location.origin || '';
                     const basePath = window.location.pathname.replace(/[^\/]*$/, '');
-                    const viewUrl = `${origin}${basePath}ptw_form.html?mode=view&id=${encodeURIComponent(refNo || permitId || '')}`;
+                    const tokenParam = res.public_token ? `&t=${encodeURIComponent(res.public_token)}` : '';
+                    const viewUrl = `${origin}${basePath}ptw_form.html?mode=view&id=${encodeURIComponent(refNo || permitId || '')}${tokenParam}`;
 
                     // If there are uploaded documents (from ptw_form.html), upload them now
                     const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];

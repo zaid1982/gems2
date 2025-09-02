@@ -23,23 +23,17 @@
     <style>
         /* Form container centering and width control */
         #divPtwPageWidth {
-            max-width: 80%; /* 80% width with 10% margin on each side */
+            max-width: 96%; /* widen usable width */
             margin: 0 auto; /* Center the container */
-            padding: 0 15px; /* Add some internal padding */
+            padding: 0 10px; /* slimmer side padding */
         }
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #divPtwPageWidth {
-                max-width: 95%; /* More width on smaller screens */
+                max-width: 98%; /* near full width on smaller screens */
                 margin: 0 auto;
-                padding: 0 10px;
-            }
-        }
-        
-        @media (min-width: 1200px) {
-            #divPtwPageWidth {
-                max-width: 75%; /* Slightly narrower on large screens */
+                padding: 0 8px;
             }
         }
         
@@ -60,11 +54,17 @@
         }
         
         .view-mode-indicator {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
             font-size: 0.85em;
-            display: inline-block;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: #fff;
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+            box-shadow: 0 4px 12px rgba(13,71,161,0.25), inset 0 0 0 1px rgba(255,255,255,0.06);
             margin-left: 10px;
         }
         
@@ -123,6 +123,60 @@
             border: 1px solid #dee2e6;
             border-radius: 6px;
         }
+        /* Inline signature pad styles */
+        .signature-pad {
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            background: #ffffff;
+            height: 160px;
+            position: relative;
+            touch-action: none; /* allow drawing on touch devices */
+        }
+        .signature-pad canvas {
+            width: 100%;
+            height: 160px;
+            display: block;
+            cursor: crosshair;
+        }
+        .signature-hint {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+        .signature-actions {
+            margin-top: 8px;
+            text-align: right;
+        }
+        .signature-actions .btn {
+            padding: 4px 10px;
+            font-size: 0.85rem;
+        }
+        .signature-pad.invalid, .signature-pad.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        }
+        /* Rendered signature image styles */
+        .signature-image {
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            background: #ffffff;
+            height: 160px; /* match pad height */
+            display: none;
+            padding: 6px;
+        }
+        .signature-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .signature-section.has-signature .signature-pad,
+        .signature-section.has-signature .signature-actions,
+        .signature-section.has-signature .signature-hint { display: none !important; }
+        .signature-section.has-signature .signature-image { display: block; }
+        /* Disable drawing UI in view mode */
+    .view-mode .signature-pad { pointer-events: none; display: none !important; }
+        .view-mode .signature-actions { display: none !important; }
         
         .modal-view-mode .modal-dialog {
             max-width: 95%;
@@ -189,8 +243,8 @@
             margin-bottom: 1rem;
             background-color: #ffffff;
         }
-    /* Force native dropdown behavior - Override MDB select styling */
-    .native-dropdown select {
+        /* Force native dropdown behavior - Override MDB select styling */
+        .native-dropdown select {
             /* Force back to native select appearance */
             -webkit-appearance: menulist !important;
             -moz-appearance: menulist !important;
@@ -231,7 +285,7 @@
             visibility: hidden !important;
         }
         
-    .native-dropdown select:focus {
+        .native-dropdown select:focus {
             border-color: #4285f4 !important;
             box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25) !important;
             outline: none !important;
@@ -279,6 +333,26 @@
         
         .loading-spinner {
             border: 4px solid #f3f3f3;
+        /* Rendered signature image styles */
+        .signature-image {
+            border: 1px solid #dee2e6;
+            border-radius: .25rem;
+            background: #fff;
+            padding: 8px;
+            min-height: 120px;
+            display: none;
+        }
+        .signature-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        /* When we have a saved signature, show it and hide pad/controls */
+        .signature-section.has-signature .signature-pad,
+        .signature-section.has-signature .signature-actions,
+        .signature-section.has-signature .signature-hint { display: none !important; }
+        .signature-section.has-signature .signature-image { display: block; }
             border-top: 4px solid #4285f4;
             border-radius: 50%;
             width: 40px;
@@ -518,15 +592,12 @@
             flex: 1;
         }
         
-        /* Company logo styling - Global Header */
+        /* Company logo styling - Global Header (scrolls with page) */
         .global-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            position: static; /* was fixed */
             background: transparent;
-            z-index: 1000;
             padding: 15px 20px;
+            width: 100%;
         }
         
         .company-logo {
@@ -541,10 +612,8 @@
             object-fit: contain;
         }
         
-        /* Adjust main content to account for fixed header */
-        main {
-            margin-top: 40px !important;
-        }
+    /* Main content - no artificial offset needed now that header is not fixed */
+    main { margin-top: 0 !important; }
         
         /* Tabbed interface styling */
         .nav-tabs {
@@ -557,7 +626,7 @@
             background: transparent;
             color: #495057;
             font-weight: 600;
-            padding: 15px 20px;
+            padding: 10px 14px; /* tighter tabs */
             transition: all 0.3s ease;
         }
         
@@ -572,6 +641,7 @@
             background: #4285f4;
             color: white;
             border-radius: 0;
+            height: 100%;
         }
         
         .tab-content {
@@ -588,7 +658,7 @@
         .tab-content .tab-pane.active.show { display: block; }
         
         .tab-pane .card-body {
-            padding: 1.5rem;
+            padding: 1rem; /* reduce inner padding */
         }
         
         /* Reduce form group spacing for more compact layout */
@@ -599,7 +669,7 @@
         .card-footer {
             background: #f8f9fa;
             border-top: 1px solid #dee2e6;
-            padding: 20px;
+            padding: 12px; /* slimmer footer */
         }
         
         /* Table styling for workers */
@@ -709,15 +779,15 @@
             background: #ffffff;
             border: 1px solid #dee2e6;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 14px; /* reduce padding */
+            margin-bottom: 14px; /* reduce spacing */
         }
         
         .documents-checklist {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 15px;
+            padding: 12px;
         }
         
         .cert-number-input {
@@ -1000,7 +1070,7 @@
             padding: 8px 0;
         }
         
-        @media (min-width: 576px) {
+        @media (max-width: 768px) {
             .checkbox-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
@@ -1010,7 +1080,9 @@
         @media (min-width: 768px) {
             .checkbox-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
+            }
+            main {
+                margin-top: 0 !important;
             }
         }
         
@@ -1057,7 +1129,7 @@
             color: #4285f4;
         }
         
-        @media (min-width: 768px) {
+        @media (max-width: 576px) {
             .documents-section .checkbox-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 16px;
@@ -1065,11 +1137,17 @@
         }
         
         @media (min-width: 1200px) {
-            .documents-section .checkbox-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
+            main {
+                    margin-top: 0 !important;
+                }
         }
+
+        /* Tighter vertical rhythm in this page only */
+        #divPtwPageWidth .mt-4 { margin-top: 1rem !important; }
+        #divPtwPageWidth .mt-3 { margin-top: 0.75rem !important; }
+        #divPtwPageWidth .mb-4 { margin-bottom: 1rem !important; }
+        #divPtwPageWidth .mb-3 { margin-bottom: 0.75rem !important; }
+        #divPtwPageWidth .alert { margin-bottom: 0.75rem; }
     </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -1091,16 +1169,16 @@
     </div>
 </header>
 
-<main style="padding: 0px; padding-top: 5.5rem;">
+<main style="padding: 0px; padding-top: 3rem;">
     <div class="container-fluid" id="divPtwPageWidth">
         <div id="mdb-lightbox-ui"></div>
 
         <!-- Page Title -->
         <div class="row mt-3">
             <div class="col-12">
-                <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle">
+                <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle" style="display: flex; align-items: center;">
                     <i class="fas fa-shield-alt mr-3"></i><span id="formTitleText">Public PTW Permit Application</span>
-                    <span id="viewModeIndicator" class="view-mode-indicator" style="display: none;"></span>
+                    <span id="viewModeIndicator" class="view-mode-indicator" style="display: none; font-size: 0.8rem"></span>
                 </h2>
                 <p class="text-muted" id="formSubtitle">Submit your Permit to Work application - No login required</p>
                 <div class="alert alert-info mb-4">
@@ -2218,7 +2296,26 @@
                                                 <div class="form-group">
                                                     <label for="contractor_signature"><strong>Signature:</strong></label>
                                                     <div class="signature-section">
-                                                        <p class="text-muted mb-0">Digital signature will be applied upon form submission</p>
+                                                        <div class="signature-pad" id="contractorSignaturePad">
+                                                            <canvas id="contractorSignatureCanvas"></canvas>
+                                                        </div>
+                                                        <div class="signature-image" id="contractorSignatureImage" aria-live="polite">
+                                                            <div class="text-muted small mb-1"><i class="fas fa-check text-success mr-1"></i>Saved signature</div>
+                                                            <img id="contractorSignatureImgTag" alt="Contractor signature" />
+                                                            <div id="contractorSignatureActions" class="mt-2">
+                                                                <a id="contractorSignatureViewLink" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">View full</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="signature-actions">
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearContractorSignature">
+                                                                <i class="fas fa-eraser mr-1"></i>Clear
+                                                            </button>
+                                                        </div>
+                                                        <div class="signature-hint">
+                                                            Sign inside the box using your mouse or finger. Your signature will be saved with this form.
+                                                        </div>
+                                                        <!-- Hidden field to store signature as data URL -->
+                                                        <input type="hidden" id="contractor_signature" name="contractor_signature" value="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -2414,8 +2511,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     // Initialize radio buttons for contractor declarations
     function initializeRadioButtons() {
         // Get all radio buttons in the contractor declaration table
-        const radioButtons = document.querySelectorAll('input[type="radio"][name^="declaration"]');
-        
+        const radioButtons = document.querySelectorAll('input[type="radio"]');
         radioButtons.forEach(function(radio) {
             // Remove any existing event listeners
             radio.onclick = null;
@@ -2455,7 +2551,120 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         console.log('Initialized', radioButtons.length, 'radio buttons');
     }
 
+    // Validate that contractor signature is provided
+    function validateContractorSignature() {
+        const hidden = document.getElementById('contractor_signature');
+        const padEl = document.getElementById('contractorSignaturePad');
+        if (!hidden || !padEl) return true; // no signature UI present
+        const ok = !!hidden.value && hidden.value.startsWith('data:image/png');
+        if (!ok) {
+            padEl.classList.add('invalid');
+            try { padEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+        } else {
+            padEl.classList.remove('invalid');
+        }
+        return ok;
+    }
+
+    // Standalone initializer for signature pad
+    function initSignaturePad() {
+        const canvas = document.getElementById('contractorSignatureCanvas');
+        const pad = document.getElementById('contractorSignaturePad');
+        const clearBtn = document.getElementById('btnClearContractorSignature');
+        const hidden = document.getElementById('contractor_signature');
+        if (!(canvas && pad && clearBtn && hidden)) return;
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let lastX = 0, lastY = 0;
+
+        const setCanvasSize = () => {
+            const rect = pad.getBoundingClientRect();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = Math.floor(rect.width * ratio);
+            canvas.height = Math.floor(160 * ratio);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = '160px';
+            // Reset transform before scaling to avoid compounding
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(ratio, ratio);
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#111';
+        };
+        setCanvasSize();
+        // Expose a safe resizer for when the pad becomes visible (e.g., when switching tabs)
+        window.resizeSignaturePad = function() {
+            try { setCanvasSize(); } catch (e) {}
+        };
+        window.addEventListener('resize', setCanvasSize);
+
+        const getPos = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches.length) {
+                const t = e.touches[0];
+                return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        };
+
+        const start = (e) => {
+            drawing = true;
+            const { x, y } = getPos(e);
+            lastX = x; lastY = y;
+            e.preventDefault();
+        };
+        const move = (e) => {
+            if (!drawing) return;
+            const { x, y } = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            lastX = x; lastY = y;
+            e.preventDefault();
+        };
+        const end = () => {
+            drawing = false;
+            try {
+                hidden.value = canvas.toDataURL('image/png');
+                pad.classList.remove('invalid');
+                const dateInput = document.getElementById('contractor_date');
+                if (dateInput && !dateInput.value) {
+                    const d = new Date();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    dateInput.value = `${d.getFullYear()}-${mm}-${dd}`;
+                }
+            } catch (e) {}
+        };
+
+        // Mouse events
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', end);
+        // Touch events
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', end);
+
+        clearBtn.addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hidden.value = '';
+            pad.classList.remove('invalid');
+        });
+    }
     document.addEventListener('DOMContentLoaded', function () {
+        // Initialize signature pad UI if present
+        initSignaturePad();
+        // Recompute canvas size when the Section 4 tab becomes visible
+        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            const href = $(e.target).attr('href');
+            if (href === '#section4' && typeof window.resizeSignaturePad === 'function') {
+                // Slight delay to allow layout to settle
+                setTimeout(() => window.resizeSignaturePad(), 50);
+            }
+        });
         // Check if this is view mode first
         const urlParams = new URLSearchParams(window.location.search);
         
@@ -2596,14 +2805,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 if (formTitleText) {
                     formTitleText.innerHTML = `<i class="${roleIcons[role]} mr-2"></i>${roleNames[role]}`;
                 }
-                
-                if (formSubtitle) {
-                    formSubtitle.textContent = `PTW Application Review - ID: ${ptwId}`;
-                }
-                
+                // Hide subtitle with raw ID; we'll set a friendly title after data loads
+                if (formSubtitle) { formSubtitle.style.display = 'none'; }
                 if (viewModeIndicator) {
                     viewModeIndicator.textContent = 'READ ONLY';
-                    viewModeIndicator.style.display = 'inline-block';
+                    viewModeIndicator.style.display = 'inline-flex';
                 }
                 
                 // Approval UI is now handled entirely in dashboards; keep all approval sections hidden in view mode
@@ -2618,16 +2824,12 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 const viewModeIndicator = document.getElementById('viewModeIndicator');
                 
                 if (formTitleText) {
-                    formTitleText.innerHTML = `<i class="fas fa-eye mr-2"></i>PTW View Mode`;
+                    formTitleText.innerHTML = `<i class="fas fa-eye mr-2"></i>Permit To Work`;
                 }
-                
-                if (formSubtitle) {
-                    formSubtitle.textContent = `PTW Application - ID: ${ptwId}`;
-                }
-                
+                if (formSubtitle) { formSubtitle.style.display = 'none'; }
                 if (viewModeIndicator) {
                     viewModeIndicator.textContent = 'READ ONLY';
-                    viewModeIndicator.style.display = 'inline-block';
+                    viewModeIndicator.style.display = 'inline-flex';
                 }
             }
             
@@ -2658,18 +2860,59 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         // Show loading indicator
         showLoadingIndicator();
         console.log('📡 Making API request to load PTW data...');
+
+    // Helper: replace main content with a single access-denied message box
+    function showAccessDeniedBox(message) {
+        const container = document.querySelector('main .container-fluid');
+        if (!container) {
+            alert(message || 'Access denied');
+            return;
+        }
+        const esc = (s) => String(s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        container.innerHTML = `
+            <div style="max-width:680px;margin:60px auto;padding:18px 20px;border:1px solid #f5c6cb;background:#f8d7da;color:#721c24;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                    <span style="display:inline-block;width:28px;height:28px;border-radius:50%;background:#f5c6cb;color:#721c24;line-height:28px;text-align:center;font-weight:700;">!</span>
+                    <h4 style="margin:0;font-size:18px;">Access denied</h4>
+                </div>
+                <div style="font-size:14px;line-height:1.5;">${esc(message || 'You don\'t have permission to view this PTW.')}</div>
+            </div>`;
+    }
         
-        const apiUrl = `api/ptw_approval.php?action=get&id=${encodeURIComponent(ptwId)}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('t');
+    // Build API URL without nested template strings for broader compatibility
+    let apiUrl = 'api/ptw_approval.php?action=get&id=' + encodeURIComponent(ptwId);
+    if (token) {
+        apiUrl += '&t=' + encodeURIComponent(token);
+    }
         console.log('🌐 API URL:', apiUrl);
         
         // Make API call to load PTW data using the correct endpoint
-        fetch(apiUrl)
+        (function(){
+            const headers = {};
+            // If no token in URL, try to include Authorization for internal dashboards
+            if (!token) {
+                try {
+                    const authTok = (window.sessionStorage && sessionStorage.getItem('token')) ||
+                                    (window.localStorage && localStorage.getItem('token')) ||
+                                    'valid_test_token_for_fm_dashboard';
+                    if (authTok) { headers['Authorization'] = 'Bearer ' + authTok; }
+                } catch (e) {}
+            }
+            return fetch(apiUrl, { headers });
+        })()
             .then(response => {
                 console.log('📥 Received API response:', response.status, response.statusText);
                 console.log('📥 Response headers:', response.headers);
                 
                 // Check if response is ok (status 200-299)
                 if (!response.ok) {
+                    if (response.status === 403 || response.status === 404) {
+                        showAccessDeniedBox('Access denied to this PTW record.');
+                    }
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.text(); // Get as text first to debug
@@ -2689,6 +2932,23 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         if (!data.data || Object.keys(data.data).length === 0) {
                             throw new Error('No PTW data found for the provided ID');
                         }
+                        // Show public expiry banner when available
+                        try {
+                            const ptw = data.data;
+                            const expiresAt = ptw.public_token_expires_at;
+                            const enabled = typeof ptw.public_link_enabled === 'number' ? ptw.public_link_enabled === 1 : true;
+                            if (enabled && expiresAt && String(expiresAt) !== '0000-00-00 00:00:00') {
+                                const top = document.querySelector('main .container-fluid');
+                                if (top) {
+                                    const banner = document.createElement('div');
+                                    banner.style.cssText = 'margin-bottom:8px;padding:8px 12px;border-left:4px solid #17a2b8;background:#e8f7fb;color:#0c5460;font-size:13px;border-radius:4px;';
+                                    const dt = new Date(String(expiresAt).replace(' ', 'T'));
+                                    const when = isNaN(dt.getTime()) ? expiresAt : dt.toLocaleString();
+                                    banner.textContent = `Public link expires at ${when}`;
+                                    top.prepend(banner);
+                                }
+                            }
+                        } catch (e) { console.warn('Expiry banner error', e); }
                         
                         populateFormWithData(data.data);
                         makeFormReadOnly();
@@ -2700,6 +2960,12 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                             errorMessage += data.message;
                         } else {
                             errorMessage += 'Unknown error occurred.';
+                        }
+                        // If forbidden, replace page with a single message box
+                        const em = String(errorMessage).toLowerCase();
+                        if (em.includes('forbidden') || em.includes('not found') || em.includes('no record') || em.includes('invalid id')) {
+                            showAccessDeniedBox(errorMessage);
+                            return;
                         }
                         
                         // Show available permits if provided for debugging
@@ -2719,7 +2985,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                     disableFormForError();
                 }
             })
-            .catch(error => {
+        .catch(error => {
                 console.error('❌ Error loading PTW data:', error);
                 
                 // Provide more specific error messages based on error type
@@ -2727,9 +2993,13 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 if (error.name === 'TypeError' && error.message.includes('fetch')) {
                     errorMessage += 'Network connection failed. Please check your internet connection.';
                 } else if (error.message.includes('HTTP 404')) {
-                    errorMessage += 'PTW record not found.';
-                } else if (error.message.includes('HTTP 403')) {
                     errorMessage += 'Access denied to PTW record.';
+                    showAccessDeniedBox(errorMessage);
+                    return;
+                } else if (error.message.includes('HTTP 403')) {
+            errorMessage += 'Access denied to PTW record.';
+            showAccessDeniedBox(errorMessage);
+            return;
                 } else if (error.message.includes('HTTP 500')) {
                     errorMessage += 'Server error occurred. Please try again later.';
                 } else {
@@ -2750,6 +3020,19 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     // Populate Form with PTW Data
     function populateFormWithData(data) {
         console.log('Populating form with data:', data);
+    // Update header title to a friendly reference: request/permit number
+    try {
+        const formTitleText = document.getElementById('formTitleText');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const reqNo = data.ptw_request_number || data.request_number || '';
+        const permitNo = data.ptw_permit_number || data.permit_number || '';
+        const ref = permitNo || reqNo || '';
+        if (formTitleText) {
+            const iconHtml = '<i class="fas fa-eye mr-2"></i>';
+            formTitleText.innerHTML = ref ? `${iconHtml}Permit To Work - ${ref}` : `${iconHtml}Permit To Work`;
+        }
+        if (formSubtitle) { formSubtitle.style.display = 'none'; }
+    } catch (e) { console.warn('Header title update failed', e); }
     // expose current PTW status and number if needed globally (view-only)
     window.ptwStatus = data.ptw_status || data.status || '';
     window.ptwNumber = data.ptw_permit_number || data.permit_number || '';
@@ -2982,7 +3265,49 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             if (tbody) {
                 // Only render if API provided documents
                 const docs = Array.isArray(data.documents) ? data.documents : [];
+                // Try to locate contractor signature document
+                let contractorSig = null;
+                if (docs && docs.length) {
+                    const sigs = docs.filter(d => {
+                        const t = (d.document_type || '').toString().toUpperCase();
+                        return t === 'CONTRACTOR_SIGNATURE' || t === 'SIGNATURE_CONTRACTOR';
+                    });
+                    if (sigs.length) {
+                        contractorSig = sigs.reduce((acc, cur) => {
+                            const a = parseInt(acc.ptw_document_id || acc.id || 0, 10) || 0;
+                            const b = parseInt(cur.ptw_document_id || cur.id || 0, 10) || 0;
+                            return b > a ? cur : acc;
+                        }, sigs[0]);
+                    }
+                }
+                if (contractorSig) {
+                    try {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const tokenParam = urlParams.get('t');
+                        const docId = contractorSig.ptw_document_id || contractorSig.id;
+                        const rawPath = (contractorSig.document_path || '').toString();
+                        let sigHref = '';
+                        if (tokenParam && docId) {
+                            sigHref = 'api/ptw_document_download.php?id=' + encodeURIComponent(docId) + '&t=' + encodeURIComponent(tokenParam);
+                        } else if (rawPath) {
+                            sigHref = rawPath;
+                        }
+                        const imgWrap = document.getElementById('contractorSignatureImage');
+                        const sigSection = imgWrap ? imgWrap.closest('.signature-section') : null;
+                        const imgTag = document.getElementById('contractorSignatureImgTag');
+                        const viewLink = document.getElementById('contractorSignatureViewLink');
+                        if (sigSection && imgWrap && imgTag) {
+                            if (sigHref) {
+                                imgTag.src = sigHref;
+                                if (viewLink) viewLink.href = sigHref;
+                            }
+                            sigSection.classList.add('has-signature');
+                        }
+                    } catch (e) { console.warn('Render contractor signature failed', e); }
+                }
                 if (docs.length > 0) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const tokenParam = urlParams.get('t');
                     let rowsHtml = '';
                     docs.forEach((doc, idx) => {
                         const name = (doc.document_name || '').toString();
@@ -2993,15 +3318,26 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                             .replace(/>/g, '&gt;')
                             .replace(/"/g, '&quot;')
                             .replace(/'/g, '&#039;');
-                        const href = path && !/^https?:\/\//i.test(path) ? `${path}` : path;
-                        rowsHtml += `
-                            <tr>
-                                <td>${idx + 1}</td>
-                                <td>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${safeName || 'Document'}</a>` : (safeName || 'Document')}</td>
-                                <td>
-                                    ${href ? `<a class="btn btn-sm btn-primary" href="${href}" target="_blank" rel="noopener">View</a>` : '<span class="text-muted">No file</span>'}
-                                </td>
-                            </tr>`;
+                        // Always route via secure download endpoint with token
+                        const docId = doc.ptw_document_id || doc.id;
+                        let href = '';
+                        if (tokenParam && docId) {
+                            href = 'api/ptw_document_download.php?id=' + encodeURIComponent(docId) + '&t=' + encodeURIComponent(tokenParam);
+                        } else {
+                            // Fallback to raw path for internal views without token
+                            href = path && !/^https?:\/\//i.test(path) ? String(path) : path;
+                        }
+                        var linkHtml = safeName || 'Document';
+                        var actionHtml = '<span class="text-muted">No file</span>';
+                        if (href) {
+                            linkHtml = '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + (safeName || 'Document') + '</a>';
+                            actionHtml = '<a class="btn btn-sm btn-primary" href="' + href + '" target="_blank" rel="noopener">View</a>';
+                        }
+                        rowsHtml += '<tr>' +
+                                    '<td>' + (idx + 1) + '</td>' +
+                                    '<td>' + linkHtml + '</td>' +
+                                    '<td>' + actionHtml + '</td>' +
+                                    '</tr>';
                     });
                     tbody.innerHTML = rowsHtml;
                 } else {
@@ -3994,8 +4330,9 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 // Run comprehensive form validation
                 const isFormValid = validatePTWForm();
                 const isDeclarationValid = validateContractorDeclaration();
+                const isSignatureValid = validateContractorSignature();
                 
-                if (isFormValid && isDeclarationValid) {
+                if (isFormValid && isDeclarationValid && isSignatureValid) {
                     console.log('✅ All validations passed - proceeding with submission');
                     
                     // Collect complete form data for debugging and submission
@@ -4023,6 +4360,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         showError('Please correct all highlighted errors in the form fields before submitting.');
                     } else if (!isDeclarationValid) {
                         showError('Please complete all required contractor declarations before submitting.');
+                    } else if (!isSignatureValid) {
+                        showError('Please provide your signature in the signature box.');
                     }
                     
                     // Scroll to first error

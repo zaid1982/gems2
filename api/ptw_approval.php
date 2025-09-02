@@ -26,17 +26,21 @@ try {
     require_once 'library/constant.php';
     require_once 'function/db.php';
     require_once 'function/f_general.php';
+    require_once 'function/f_login.php';
     require_once __DIR__ . '/function/f_ptw.php';
 
     // Initialize classes
     $constant = new Class_constant();
     $fn_general = new Class_general();
     $fn_ptw = new Class_ptw();
+    $fn_login = new Class_login();
 
     // Set up dependencies
     $fn_general->__set('constant', $constant);
     $fn_ptw->__set('constant', $constant);
     $fn_ptw->__set('fn_general', $fn_general);
+    $fn_login->__set('constant', $constant);
+    $fn_login->__set('fn_general', $fn_general);
     
     // Ensure database connection is established
     Class_db::getInstance()->db_connect();
@@ -57,6 +61,26 @@ try {
     // Get request data
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? $_GET['action'] ?? '';
+    
+    // Build auth context
+    $headersAll = function_exists('apache_request_headers') ? apache_request_headers() : [];
+    $authHeaderIn = $headersAll['Authorization'] ?? $headersAll['authorization'] ?? '';
+    $authContext = [ 'isAuthenticated' => false, 'user_id' => null, 'site_id' => null ];
+    if (!empty($authHeaderIn)) {
+        try {
+            $jwt = $fn_login->check_jwt($authHeaderIn);
+            $authContext['isAuthenticated'] = true;
+            $authContext['user_id'] = $jwt->userId ?? null;
+            if (!empty($authContext['user_id'])) {
+                try {
+                    $u = Class_db::getInstance()->db_select('sys_user', array('user_id'=> strval($authContext['user_id'])));
+                    if (!empty($u)) { $authContext['site_id'] = $u[0]['site_id']; }
+                } catch (Exception $e2) {}
+            }
+        } catch (Exception $e) {
+            // leave unauthenticated
+        }
+    }
     
     switch ($action) {
         case 'get':
@@ -87,9 +111,10 @@ try {
  * Get PTW data for view mode
  */
 function handleGetPtw() {
-    global $fn_ptw, $fn_general;
+    global $fn_ptw, $fn_general, $authContext;
     
     $ptwId = $_GET['id'] ?? '';
+    $token = $_GET['t'] ?? '';
     
     if (empty($ptwId)) {
         throw new Exception('PTW ID is required');
@@ -99,10 +124,38 @@ function handleGetPtw() {
         // Ensure database connection is active
         $db = Class_db::getInstance();
         
-        // Try to get permit by ID (numeric) or permit number (string)
-        $permit_data = null;
+        // Basic access control: if no Authorization header, require valid token
+    $headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
+    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    $isAuthenticated = !empty($authHeader) && isset($authContext['isAuthenticated']) && $authContext['isAuthenticated'] === true;
         
-        if (is_numeric($ptwId)) {
+        // Try to get permit by ID (numeric) or permit number (string)
+            $permit_data = null;
+
+        // Enhancement: when unauthenticated and a token is provided, try to resolve the permit directly by token.
+            // This avoids false "invalid token" when the id in URL is wrong or omitted.
+        $resolvedByToken = false;
+            if (!$isAuthenticated && !empty($token)) {
+                try {
+                    $byToken = $db->db_select('ptw_permit', array('public_token' => $token), 'ptw_permit_id DESC');
+                    if (!empty($byToken)) {
+                        $permit_data = $byToken[0];
+                $resolvedByToken = true;
+                        // Normalize ptwId to the resolved permit id for subsequent lookups
+                        $ptwId = $permit_data['ptw_permit_id'] ?? $ptwId;
+                        // Attach workers and documents as in the ID-based flow
+                        $permit_id = $permit_data['ptw_permit_id'];
+                        $workers = $db->db_select('ptw_worker', array('ptw_permit_id' => $permit_id), 'ptw_worker_id');
+                        $permit_data['workers'] = $workers;
+                        $documents = $db->db_select('ptw_document', array('ptw_permit_id' => $permit_id), 'ptw_document_id');
+                        $permit_data['documents'] = $documents;
+                    }
+                } catch (Exception $e) {
+                    // Fall back to ID/number lookup below
+                }
+            }
+        
+        if (!$permit_data && is_numeric($ptwId)) {
             // Get by permit ID - use ptw_permit_id which is the correct column name
             $permits = $db->db_select('ptw_permit', array(
                 'ptw_permit_id' => $ptwId
@@ -125,7 +178,7 @@ function handleGetPtw() {
                 ), 'ptw_document_id');
                 $permit_data['documents'] = $documents;
             }
-        } else {
+    } else if (!$permit_data) {
             // Search by permit number first
             $permits = $db->db_select('ptw_permit', array(
                 'ptw_permit_number' => $ptwId
@@ -156,7 +209,7 @@ function handleGetPtw() {
             }
         }
         
-        if (!$permit_data) {
+    if (!$permit_data) {
             // Check if any permits exist to debug database connectivity
             $allPermits = $db->db_select('ptw_permit', array(), 'ptw_permit_id DESC LIMIT 3');
             
@@ -172,6 +225,55 @@ function handleGetPtw() {
                 }, $allPermits)
             ]);
         } else {
+            // If not authenticated, validate token for this permit
+            if (!$isAuthenticated) {
+                try {
+                    $row = $permit_data;
+                    $hasSchema = array_key_exists('public_token', $row) && array_key_exists('public_link_enabled', $row);
+                    if (!$hasSchema) {
+                        // Backward compatibility: if schema missing, allow public view as before
+                        $enabled = true; $stored = '';
+                    } else {
+                        $enabled = isset($row['public_link_enabled']) ? intval($row['public_link_enabled']) === 1 : false;
+                        $stored = $row['public_token'] ?? '';
+                    }
+                    // Normalize zero-dates to null
+                    $revoked_at_raw = $row['public_token_revoked_at'] ?? null;
+                    $expires_at_raw = $row['public_token_expires_at'] ?? null;
+                    $revoked_at = (empty($revoked_at_raw) || $revoked_at_raw === '0000-00-00 00:00:00') ? null : $revoked_at_raw;
+                    $expires_at = (empty($expires_at_raw) || $expires_at_raw === '0000-00-00 00:00:00') ? null : $expires_at_raw;
+                    $now = time();
+                    $expired = false;
+                    if (!empty($expires_at)) {
+                        $ts = strtotime($expires_at);
+                        $expired = ($ts !== false && $ts < $now);
+                    }
+                    // If schema exists but no token configured yet, treat as disabled and require auth (or allow if enabled without token)
+                    $enforce = $hasSchema; // only enforce when schema present
+                    // If we resolved the permit by token, consider it proof of possession and do not require 'enabled' flag.
+                    $enabledOk = $resolvedByToken ? true : $enabled;
+                    $tokenOk = !empty($token) && !empty($stored) && hash_equals($stored, $token);
+                    if ($enforce && (!$enabledOk || $expired || !empty($revoked_at) || !$tokenOk)) {
+                        http_response_code(403);
+                        echo json_encode(['success' => false, 'message' => 'Forbidden: invalid or missing token']);
+                        return;
+                    }
+                } catch (Exception $ignore) {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'message' => 'Forbidden']);
+                    return;
+                }
+            }
+            // Enforce same-site restriction for authenticated, tokenless access
+            if ($isAuthenticated && empty($token)) {
+                $userSite = $authContext['site_id'] ?? null;
+                $permitSite = $permit_data['site_id'] ?? null;
+                if (!empty($permitSite) && !empty($userSite) && strval($permitSite) !== strval($userSite)) {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'message' => 'Forbidden: cross-site access denied']);
+                    return;
+                }
+            }
             // Transform database data to frontend format
             $transformed_data = transformDatabaseToFrontend($permit_data);
             echo json_encode([
@@ -298,6 +400,10 @@ function transformDatabaseToFrontend($dbData) {
         'ptw_hazard_checklist' => $dbData['ptw_hazard_checklist'] ?? '',
         'declaration_checklist' => $dbData['ptw_declaration_checklist'] ?? '',
         'ptw_declaration_checklist' => $dbData['ptw_declaration_checklist'] ?? '',
+
+    // Public link metadata
+    'public_token_expires_at' => $dbData['public_token_expires_at'] ?? '',
+    'public_link_enabled' => isset($dbData['public_link_enabled']) ? (int)$dbData['public_link_enabled'] : null,
         'supporting_docs_checklist' => $dbData['ptw_supporting_docs_checklist'] ?? '',
         'ptw_supporting_docs_checklist' => $dbData['ptw_supporting_docs_checklist'] ?? '',
         'certificate_numbers' => $dbData['ptw_certificate_numbers'] ?? '',

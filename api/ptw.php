@@ -646,6 +646,64 @@ function create_ptw_permit($user_id, $user_site_id) {
         $is_transaction = false;
         error_log('PTW API: Transaction committed successfully (creation phase)');
 
+        // If contractor signature is included (data URL), persist it as a PNG under the PTW permit folder
+        try {
+            if (isset($_POST['contractor_signature']) && is_string($_POST['contractor_signature']) && $_POST['contractor_signature'] !== '') {
+                $dataUrl = $_POST['contractor_signature'];
+                // Expected format: data:image/png;base64,<base64>
+                if (strpos($dataUrl, 'data:image') === 0 && strpos($dataUrl, 'base64,') !== false) {
+                    $parts = explode('base64,', $dataUrl, 2);
+                    $meta = $parts[0];
+                    $b64 = $parts[1];
+                    $mime = 'image/png';
+                    $ext = 'png';
+                    if (preg_match('/data:(.*?);base64/', $meta, $m)) {
+                        $mime = $m[1];
+                        // Derive extension from mime when possible
+                        if ($mime === 'image/jpeg' || $mime === 'image/jpg') { $ext = 'jpg'; }
+                        elseif ($mime === 'image/png') { $ext = 'png'; }
+                        elseif ($mime === 'image/svg+xml') { $ext = 'svg'; }
+                    }
+
+                    // Ensure destination folder exists: upload/ptw/<site>/<permit>
+                    $baseDir = __DIR__ . '/../upload/ptw';
+                    if (!is_dir($baseDir)) { @mkdir($baseDir, 0775, true); }
+                    $siteDir = $baseDir . '/' . $user_site_id;
+                    if (!is_dir($siteDir)) { @mkdir($siteDir, 0775, true); }
+                    $permitDir = $siteDir . '/' . $permit_id;
+                    if (!is_dir($permitDir)) { @mkdir($permitDir, 0775, true); }
+                    @chmod($permitDir, 0777); // best-effort on dev
+
+                    $filename = 'contractor_signature_' . date('Ymd_His') . '.' . $ext;
+                    $fullPath = $permitDir . '/' . $filename;
+                    $bytes = base64_decode($b64);
+                    if ($bytes !== false && strlen($bytes) > 0) {
+                        $ok = @file_put_contents($fullPath, $bytes);
+                        if ($ok !== false) {
+                            // Record in ptw_document for traceability
+                            $relPath = 'upload/ptw/' . $user_site_id . '/' . $permit_id . '/' . $filename;
+                            $docRow = array(
+                                'ptw_permit_id' => $permit_id,
+                                'document_type' => 'CONTRACTOR_SIGNATURE',
+                                'document_name' => 'Contractor Signature',
+                                'document_path' => $relPath,
+                                'document_size' => strlen($bytes),
+                                'document_mime_type' => $mime,
+                                'uploaded_by' => $user_id
+                            );
+                            Class_db::getInstance()->db_insert('ptw_document', $docRow);
+                        } else {
+                            error_log('PTW API: Failed to write contractor signature to ' . $fullPath);
+                        }
+                    } else {
+                        error_log('PTW API: Invalid base64 for contractor signature');
+                    }
+                }
+            }
+        } catch (Exception $sigEx) {
+            error_log('PTW API: Contractor signature persist exception: ' . $sigEx->getMessage());
+        }
+
         // Submit permit for approval if requested (post-commit to avoid FK issues)
         if (isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true') {
             try {
@@ -665,10 +723,15 @@ function create_ptw_permit($user_id, $user_site_id) {
             }
         }
 
+        // Fetch or create a public token for view link
+        $public_token = null;
+        try { $public_token = $fn_ptw->get_or_create_public_token($permit_id); } catch (Exception $e) { /* non-fatal */ }
+
         return array(
             'ptw_permit_id' => $permit_id,
             'ptw_permit_number' => $permit_number,
             'ptw_request_number' => $request_number,
+            'public_token' => $public_token,
             'status' => isset($_POST['submit_for_approval']) && $_POST['submit_for_approval'] == 'true' ? 'submitted' : 'created'
         );
         
