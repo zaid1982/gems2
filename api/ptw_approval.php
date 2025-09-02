@@ -145,9 +145,9 @@ function handleGetPtw() {
                         $ptwId = $permit_data['ptw_permit_id'] ?? $ptwId;
                         // Attach workers and documents as in the ID-based flow
                         $permit_id = $permit_data['ptw_permit_id'];
-                        $workers = $db->db_select('ptw_worker', array('ptw_permit_id' => $permit_id), 'ptw_worker_id');
+                        $workers = $db->db_select('ptw_worker', array('ptw_permit_id' => strval($permit_id)), 'ptw_worker_id');
                         $permit_data['workers'] = $workers;
-                        $documents = $db->db_select('ptw_document', array('ptw_permit_id' => $permit_id), 'ptw_document_id');
+                        $documents = $db->db_select('ptw_document', array('ptw_permit_id' => strval($permit_id)), 'ptw_document_id');
                         $permit_data['documents'] = $documents;
                     }
                 } catch (Exception $e) {
@@ -158,7 +158,7 @@ function handleGetPtw() {
         if (!$permit_data && is_numeric($ptwId)) {
             // Get by permit ID - use ptw_permit_id which is the correct column name
             $permits = $db->db_select('ptw_permit', array(
-                'ptw_permit_id' => $ptwId
+                'ptw_permit_id' => strval($ptwId)
             ));
             
             if (!empty($permits)) {
@@ -168,7 +168,7 @@ function handleGetPtw() {
                 
                 // Get workers separately
                 $workers = $db->db_select('ptw_worker', array(
-                    'ptw_permit_id' => $permit_id
+                    'ptw_permit_id' => strval($permit_id)
                 ), 'ptw_worker_id');
                 $permit_data['workers'] = $workers;
 

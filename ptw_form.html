@@ -78,12 +78,24 @@
             cursor: default;
         }
         
-        .view-mode .btn:not(.approval-btn):not(.modal-close-btn) {
+    .view-mode .btn:not(.approval-btn):not(.modal-close-btn):not(.btn-ptw-edit) {
             display: none !important;
         }
         
         .view-mode .help-icon {
             display: none;
+        }
+
+        /* Edit actions aligned to the right of the title */
+        .ptw-edit-actions {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 576px) {
+            .ptw-edit-actions { width: 100%; margin-left: 0; margin-top: 8px; justify-content: flex-start; }
         }
         
         .approval-section {
@@ -2952,6 +2964,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         
                         populateFormWithData(data.data);
                         makeFormReadOnly();
+                        // Offer edit option if allowed
+                        try { setupEditCapability(data.data); } catch (e) { console.warn('Edit capability setup failed', e); }
                     } else {
                         console.error('❌ API returned error:', data);
                         let errorMessage = 'Failed to load PTW data. ';
@@ -3736,6 +3750,14 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         }
         
         console.log('Form populated with PTW data:', data);
+
+        // Store site and permit context for later use (uploads/edits)
+        try {
+            window.currentPtwId = data.ptw_permit_id || data.permit_id || data.id || null;
+            window.currentPtwSiteId = data.site_id || data.ptw_site_id || null;
+            window.currentPtwStatus = data.ptw_status || data.status || '';
+            window.currentPtwFmApproval = data.ptw_fm_approval || data.fm_approval || '';
+        } catch (e) {}
     }
 
     // Make Form Read-Only for View Mode
@@ -3781,6 +3803,297 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         }
         
         console.log('Form has been made read-only for view mode');
+    }
+
+    // Enable editing for allowed users (contractor via token OR internal roles; server revalidates)
+    function setupEditCapability(ptwData) {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('t');
+            const status = (ptwData.ptw_status || '').toString().toUpperCase();
+            const fmApproval = (ptwData.ptw_fm_approval || '').toString().toUpperCase();
+            const isFinalized = (status === 'ACTIVE' || status === 'APPROVED' || fmApproval === 'APPROVED');
+            if (isFinalized) { return; }
+
+            // Create a compact edit toolbar aligned to the right of the title
+            const titleBar = document.getElementById('h5PtwFormTitle') || document.getElementById('formTitleText');
+            if (!titleBar) return;
+
+            // Avoid duplicates
+            if (document.getElementById('ptwEditToolbar')) return;
+
+            const bar = document.createElement('div');
+            bar.id = 'ptwEditToolbar';
+            bar.className = 'ptw-edit-actions';
+            const btnEdit = document.createElement('button');
+            btnEdit.type = 'button';
+            btnEdit.className = 'btn btn-sm btn-warning btn-ptw-edit';
+            btnEdit.innerHTML = '<i class="fas fa-edit mr-1"></i>Edit';
+            btnEdit.addEventListener('click', enterEditMode);
+
+            const btnSave = document.createElement('button');
+            btnSave.type = 'button';
+            btnSave.className = 'btn btn-sm btn-primary';
+            btnSave.id = 'ptwBtnSaveEdits';
+            btnSave.style.display = 'none';
+            btnSave.innerHTML = '<i class="fas fa-save mr-1"></i>Save changes';
+            btnSave.addEventListener('click', savePtwEdits);
+
+            const btnCancel = document.createElement('button');
+            btnCancel.type = 'button';
+            btnCancel.className = 'btn btn-sm btn-secondary';
+            btnCancel.id = 'ptwBtnCancelEdits';
+            btnCancel.style.display = 'none';
+            btnCancel.innerHTML = '<i class="fas fa-times mr-1"></i>Cancel';
+            btnCancel.addEventListener('click', exitEditMode);
+
+            bar.appendChild(btnEdit);
+            bar.appendChild(btnSave);
+            bar.appendChild(btnCancel);
+            // Place actions inside the title bar, aligned to the right
+            titleBar.appendChild(bar);
+
+            // Allow signature replacement when in edit mode (wire the button dynamically later)
+        } catch (e) { console.warn('setupEditCapability failed', e); }
+    }
+
+    function enterEditMode() {
+        try {
+            document.body.classList.remove('view-mode');
+            // Re-enable all fields
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.readOnly = false;
+                input.disabled = false;
+                input.style.backgroundColor = '';
+                input.style.cursor = '';
+            });
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = '';
+            });
+            // Keep approval sections hidden in edit mode (handled elsewhere)
+            const approvalSections = document.getElementById('approvalSections');
+            if (approvalSections) { approvalSections.style.display = 'none'; }
+
+            // Toggle toolbar buttons
+            const saveBtn = document.getElementById('ptwBtnSaveEdits');
+            const cancelBtn = document.getElementById('ptwBtnCancelEdits');
+            const editBtn = (document.getElementById('ptwEditToolbar')||{}).querySelector('button.btn-warning');
+            if (saveBtn) saveBtn.style.display = 'inline-block';
+            if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            if (editBtn) editBtn.style.display = 'none';
+
+            // Show stepper navigation
+            const stepperNav = document.querySelector('.stepper-navigation');
+            if (stepperNav) { stepperNav.style.display = 'flex'; }
+
+            // If a saved contractor signature exists, add a Replace button to allow re-sign
+            try {
+                const actions = document.getElementById('contractorSignatureActions');
+                if (actions && !document.getElementById('btnReplaceContractorSignature')) {
+                    const replaceBtn = document.createElement('a');
+                    replaceBtn.id = 'btnReplaceContractorSignature';
+                    replaceBtn.className = 'btn btn-sm btn-outline-danger ml-2';
+                    replaceBtn.innerHTML = '<i class="fas fa-pen mr-1"></i>Replace';
+                    replaceBtn.href = 'javascript:void(0)';
+                    replaceBtn.addEventListener('click', function() {
+                        const section = document.getElementById('contractorSignatureImage')?.closest('.signature-section');
+                        if (section) {
+                            section.classList.remove('has-signature');
+                        }
+                        const hidden = document.getElementById('contractor_signature');
+                        if (hidden) hidden.value = '';
+                        // ensure pad is resized for drawing
+                        if (typeof window.resizeSignaturePad === 'function') {
+                            setTimeout(() => window.resizeSignaturePad(), 50);
+                        }
+                    });
+                    actions.appendChild(replaceBtn);
+                }
+            } catch (e) {}
+        } catch (e) { console.warn('enterEditMode failed', e); }
+    }
+
+    function exitEditMode() {
+        try {
+            // Reload data to discard local changes and return to read-only view
+            const urlParams = new URLSearchParams(window.location.search);
+            const ptwId = urlParams.get('id');
+            // If id is a number? It can be permit number; loadPtwData handles via approval API with id
+            makeFormReadOnly();
+            // Toggle toolbar
+            const saveBtn = document.getElementById('ptwBtnSaveEdits');
+            const cancelBtn = document.getElementById('ptwBtnCancelEdits');
+            const editBtn = (document.getElementById('ptwEditToolbar')||{}).querySelector('button.btn-warning');
+            if (saveBtn) saveBtn.style.display = 'none';
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            if (editBtn) editBtn.style.display = 'inline-block';
+            document.body.classList.add('view-mode');
+            if (ptwId) { loadPtwData(ptwId); }
+        } catch (e) { console.warn('exitEditMode failed', e); }
+    }
+
+    function collectEditFormData() {
+        // Reuse the same mapping as create, but target update action and include permit_id
+        const selectedWorkTypes = [];
+        if (document.getElementById('chkColdWork')?.checked) selectedWorkTypes.push('COLD_WORK');
+        if (document.getElementById('chkHotWork')?.checked) selectedWorkTypes.push('HOT_WORK');
+        if (document.getElementById('chkConfinedSpace')?.checked) selectedWorkTypes.push('CONFINED_SPACE');
+
+    let workType = document.getElementById('optPtwWorkType')?.value || '';
+        if (!workType) {
+            if (document.getElementById('chkHotWork')?.checked) workType = 'HOT_WORK';
+            else if (document.getElementById('chkConfinedSpace')?.checked) workType = 'CONFINED_SPACE';
+            else if (document.getElementById('chkColdWork')?.checked) workType = 'COLD_WORK';
+        }
+    // Normalize lowercase variants from hidden dropdown
+    if (workType === 'hot_work') workType = 'HOT_WORK';
+    if (workType === 'cold_work') workType = 'COLD_WORK';
+    if (workType === 'confined_space') workType = 'CONFINED_SPACE';
+
+        const data = {
+            action: 'update_permit',
+            permit_id: window.currentPtwId,
+            description: document.getElementById('txtPtwDescription')?.value || '',
+            work_area: document.getElementById('txtPtwWorkArea')?.value || '',
+            work_type: workType,
+            work_types_selected: JSON.stringify(selectedWorkTypes),
+            valid_from: document.getElementById('dtPtwValidFrom')?.value || '',
+            valid_to: document.getElementById('dtPtwValidTo')?.value || '',
+            applicant_name: document.getElementById('txtPtwApplicantName')?.value || '',
+            applicant_contact: document.getElementById('txtPtwApplicantContact')?.value || '',
+            applicant_department: document.getElementById('txtPtwApplicantDept')?.value || '',
+            contractor_company: document.getElementById('txtPtwContractorCompany')?.value || '',
+            contractor_supervisor: document.getElementById('txtContractorSupervisor')?.value || '',
+            contractor_name: document.getElementById('contractor_name')?.value || '',
+            contractor_designation: document.getElementById('contractor_designation')?.value || '',
+            contractor_date: document.getElementById('contractor_date')?.value || '',
+            contractor_signature: document.getElementById('contractor_signature')?.value || '',
+            staff_nric: document.getElementById('txtStaffNoNRIC')?.value || '',
+            supervisor_contact: document.getElementById('txtContactNoSupervisor')?.value || '',
+            identification_no: document.getElementById('txtIdentificationNo')?.value || '',
+            level: document.getElementById('txtLevel')?.value || '',
+            remarks: document.getElementById('txtPtwRemarks')?.value || ''
+        };
+
+        // Attach complex payloads, guarding against missing helpers
+        try { data.workers = (window.ptwFormClass_ && typeof window.ptwFormClass_.getWorkersData === 'function') ? window.ptwFormClass_.getWorkersData() : []; } catch (e) {}
+        try {
+            const hazard = (typeof window.ptwFormClass_?.getChecklistData === 'function') ? window.ptwFormClass_.getChecklistData() : {};
+            data.checklist_data = JSON.stringify(hazard);
+        } catch (e) {}
+        try {
+            const decl = (typeof window.ptwFormClass_?.getContractorDeclarations === 'function') ? window.ptwFormClass_.getContractorDeclarations() : {};
+            data.declaration_checklist = JSON.stringify(decl);
+        } catch (e) {}
+        try {
+            const certs = (typeof window.ptwFormClass_?.getCertificateData === 'function') ? window.ptwFormClass_.getCertificateData() : {};
+            data.certificate_numbers = JSON.stringify(certs);
+        } catch (e) {}
+        try {
+            const supp = (typeof window.ptwFormClass_?.getSupportingDocumentsData === 'function') ? window.ptwFormClass_.getSupportingDocumentsData() : [];
+            data.supporting_docs_checklist = JSON.stringify(supp);
+        } catch (e) {}
+        try {
+            const haz = (typeof window.ptwFormClass_?.getHazardousActivitiesData === 'function') ? window.ptwFormClass_.getHazardousActivitiesData() : {};
+            data.hazardous_activities = JSON.stringify(haz);
+        } catch (e) {}
+        try {
+            const wtc = (typeof window.ptwFormClass_?.getWorkTypeSpecificChecklists === 'function') ? window.ptwFormClass_.getWorkTypeSpecificChecklists() : {};
+            if (wtc.hot_work) data.checklist_hot_work = JSON.stringify(wtc.hot_work);
+            if (wtc.cold_work) data.checklist_cold_work = JSON.stringify(wtc.cold_work);
+            if (wtc.confined_space) data.checklist_confined_space = JSON.stringify(wtc.confined_space);
+        } catch (e) {}
+
+        // Include public token when editing via QR
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('t');
+            if (token) data.t = token;
+        } catch (e) {}
+
+        return data;
+    }
+
+    function savePtwEdits() {
+        // Skip heavy validation for edit: backend enforces business rules; keep UX light
+
+        const payload = collectEditFormData();
+        if (!payload || !payload.permit_id) { showError('Permit context missing.'); return; }
+
+        showLoadingIndicator();
+        const headers = {};
+        // Use Authorization for internal edits if available
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.get('t')) {
+                const authTok = (window.sessionStorage && sessionStorage.getItem('token')) ||
+                                (window.localStorage && localStorage.getItem('token')) ||
+                                'valid_test_token_for_fm_dashboard';
+                if (authTok) headers['Authorization'] = 'Bearer ' + authTok;
+            }
+        } catch (e) {}
+
+        fetch('api/ptw.php', {
+            method: 'POST',
+            headers: Object.assign({'Accept': 'application/json'}, headers),
+            body: (function(){
+                const form = new FormData();
+                Object.keys(payload).forEach(k => form.append(k, payload[k]));
+                return form;
+            })()
+        })
+        .then(r => r.text())
+        .then(txt => {
+            let res = null;
+            try { res = JSON.parse(txt); } catch (e) { throw new Error('Invalid response: ' + txt); }
+            if (res && res.success === true) {
+                const result = res.result || {};
+                const permitId = window.currentPtwId;
+                const siteId = window.currentPtwSiteId;
+                // Upload any pending documents collected in the UI
+                try {
+                    const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
+                    if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
+                        const fd = new FormData();
+                        fd.append('permit_id', String(permitId));
+                        if (siteId) fd.append('site_id', String(siteId));
+                        pendingDocs.forEach((doc) => { if (doc && doc.file) fd.append('files[]', doc.file, doc.name || 'document'); });
+                        return fetch('api/ptw_document_upload.php', { method: 'POST', body: fd })
+                            .then(up => up.json())
+                            .then(upRes => {
+                                if (!(upRes && upRes.success)) {
+                                    console.warn('Document upload failed:', upRes);
+                                    showError('Saved changes, but document upload failed.');
+                                }
+                                if (typeof window.clearUploadedDocuments === 'function') window.clearUploadedDocuments();
+                                showSuccess('Changes saved successfully.');
+                            })
+                            .catch(err => {
+                                console.error('Upload error:', err);
+                                showError('Saved changes, but document upload failed.');
+                            });
+                    }
+                } catch (e) { console.warn('Upload step skipped', e); }
+                showSuccess('Changes saved successfully.');
+                // Return to view mode and reload fresh data
+                exitEditMode();
+            } else {
+                const msg = (res && (res.message || res.error || res.errmsg)) || 'Failed to save changes';
+                if (/forbidden|403/i.test(msg)) { showError('You are not allowed to edit this permit.'); }
+                else { showError(msg); }
+            }
+        })
+        .catch(err => {
+            console.error('Edit save failed:', err);
+            showError('Failed to save changes: ' + (err.message || err));
+        })
+        .finally(() => {
+            hideLoadingIndicator();
+        });
     }
 
     // Disable Form Completely When Data Loading Fails

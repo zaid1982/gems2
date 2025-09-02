@@ -258,7 +258,7 @@ function process_she_approval($permit_id, $user_id, $user_site_id, $user_role, $
     }
     
     // Update the permit
-    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
     if (!$update_result) {
         throw new Exception('[' . __LINE__ . '] - Failed to update PTW permit');
     }
@@ -353,7 +353,7 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
     }
     
     // Update the permit
-    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
     if (!$update_result) {
         throw new Exception('[' . __LINE__ . '] - Failed to update PTW permit');
     }
@@ -423,7 +423,7 @@ function process_request_close($permit_id, $user_id, $user_site_id, $user_role, 
         'updated_by' => $user_id
     );
 
-    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
     if (!$update_result) {
         throw new Exception('[' . __LINE__ . '] - Failed to update PTW permit to PENDING_CLOSURE');
     }
@@ -485,7 +485,7 @@ function process_approve_close($permit_id, $user_id, $user_site_id, $user_role, 
         'updated_by' => $user_id
     );
 
-    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
     if (!$update_result) {
         throw new Exception('[' . __LINE__ . '] - Failed to update PTW permit to COMPLETED');
     }
@@ -554,7 +554,7 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
         'updated_by' => $user_id
     );
 
-    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+    $update_result = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
     if (!$update_result) {
         throw new Exception('[' . __LINE__ . '] - Failed to save extension request');
     }
@@ -689,7 +689,7 @@ function process_request_cancel($permit_id, $user_id, $user_site_id, $user_role,
         'cancel_requested_at' => date('Y-m-d H:i:s'),
         'updated_by' => $user_id
     );
-    $ok = Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id));
+    $ok = Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => strval($permit_id)));
     if (!$ok) { throw new Exception('[' . __LINE__ . '] - Failed to save cancellation request'); }
 
     $history = array(
@@ -733,7 +733,7 @@ function process_approve_cancel($permit_id, $user_id, $user_site_id, $user_role,
         'cancelled_date' => date('Y-m-d H:i:s'),
         'updated_by' => $user_id
     );
-    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => strval($permit_id)))) {
         throw new Exception('[' . __LINE__ . '] - Failed to cancel permit');
     }
 
@@ -784,7 +784,7 @@ function process_request_suspend($permit_id, $user_id, $user_site_id, $user_role
         'suspend_requested_at' => date('Y-m-d H:i:s'),
         'updated_by' => $user_id
     );
-    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => strval($permit_id)))) {
         throw new Exception('[' . __LINE__ . '] - Failed to save suspension request');
     }
 
@@ -827,7 +827,7 @@ function process_approve_suspend($permit_id, $user_id, $user_site_id, $user_role
         'suspended_date' => date('Y-m-d H:i:s'),
         'updated_by' => $user_id
     );
-    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => $permit_id))) {
+    if (!Class_db::getInstance()->db_update('ptw_permit', $update, array('ptw_permit_id' => strval($permit_id)))) {
         throw new Exception('[' . __LINE__ . '] - Failed to suspend permit');
     }
 

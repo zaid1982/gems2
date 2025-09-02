@@ -160,7 +160,7 @@ class Class_ptw {
      */
     public function assign_request_number($permit_id, $site_id, $user_id) {
         try {
-            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             if (!$permit) { throw new Exception('Permit not found'); }
             if (!empty($permit['ptw_request_number'])) { return $permit['ptw_request_number']; }
 
@@ -171,7 +171,7 @@ class Class_ptw {
                 'ptw_request_number' => $req_no,
                 'updated_by' => $user_id,
                 'updated_date' => date('Y-m-d H:i:s')
-            ), array('ptw_permit_id' => $permit_id));
+            ), array('ptw_permit_id' => strval($permit_id)));
 
             // Optional: log in status history as SUBMITTED (do not alter enum)
             try {
@@ -197,7 +197,7 @@ class Class_ptw {
      */
     public function assign_permit_number($permit_id, $site_id, $user_id) {
         try {
-            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             if (!$permit) { throw new Exception('Permit not found'); }
             if (!empty($permit['ptw_permit_number'])) { return $permit['ptw_permit_number']; }
 
@@ -208,7 +208,7 @@ class Class_ptw {
                 'ptw_permit_number' => $ptw_no,
                 'updated_by' => $user_id,
                 'updated_date' => date('Y-m-d H:i:s')
-            ), array('ptw_permit_id' => $permit_id));
+            ), array('ptw_permit_id' => strval($permit_id)));
 
             // Optional: log in status history with FM_APPROVED (enum exists)
             // history will be logged by approval flow; keep minimal here
@@ -263,6 +263,9 @@ class Class_ptw {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($permit_id, $site_id));
+            // Normalize to strings for DB where builders that expect string values
+            $permitIdStr = strval($permit_id);
+            $siteIdStr = strval($site_id);
             
             // Get permit basic details
             $sql = "SELECT p.*, 
@@ -277,9 +280,9 @@ class Class_ptw {
                     LEFT JOIN sys_user su ON p.approved_supervisor_by = su.user_id
                     LEFT JOIN sys_user she ON p.approved_she_by = she.user_id
                     LEFT JOIN sys_user fm ON p.approved_fm_by = fm.user_id
-                    WHERE p.ptw_permit_id = ? AND p.site_id = ?";
-            
-            $permit = $this->execute_raw_query($sql, array($permit_id, $site_id));
+            WHERE p.ptw_permit_id = ? AND p.site_id = ?";
+
+        $permit = $this->execute_raw_query($sql, array($permitIdStr, $siteIdStr));
             
             if (empty($permit)) {
                 return null;
@@ -288,16 +291,16 @@ class Class_ptw {
             $permit_data = $permit[0];
             
             // Get workers
-            $workers = Class_db::getInstance()->db_select('ptw_worker', array('ptw_permit_id' => $permit_id));
+            $workers = Class_db::getInstance()->db_select('ptw_worker', array('ptw_permit_id' => $permitIdStr));
             $permit_data['workers'] = $workers;
             
             // Get documents
-            $documents = Class_db::getInstance()->db_select('ptw_document', array('ptw_permit_id' => $permit_id));
+            $documents = Class_db::getInstance()->db_select('ptw_document', array('ptw_permit_id' => $permitIdStr));
             $permit_data['documents'] = $documents;
             
             // Get approval log
             $approval_log = Class_db::getInstance()->db_select('ptw_approval_log', 
-                array('ptw_permit_id' => $permit_id), 'approved_date DESC');
+                array('ptw_permit_id' => $permitIdStr), 'approved_date DESC');
             $permit_data['approval_log'] = $approval_log;
             
             return $permit_data;
@@ -326,7 +329,7 @@ class Class_ptw {
                     FROM ptw_permit 
                     WHERE site_id = ?";
             
-            $result = $this->execute_raw_query($sql, array($site_id));
+            $result = $this->execute_raw_query($sql, array(strval($site_id)));
             
             return $result[0];
             
@@ -393,7 +396,7 @@ class Class_ptw {
                 'public_link_enabled' => '1',
                 'public_token_revoked_at' => null,
                 'updated_date' => date('Y-m-d H:i:s')
-            ), array('ptw_permit_id' => $permit_id));
+            ), array('ptw_permit_id' => strval($permit_id)));
 
             return $token;
         } catch (Exception $ex) {
@@ -410,7 +413,7 @@ class Class_ptw {
      */
     public function get_or_create_public_token($permit_id) {
         try {
-            $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             if (!$row) { return null; }
             if (!empty($row['public_token'])) { return $row['public_token']; }
             $valid_to = isset($row['ptw_valid_to']) ? $row['ptw_valid_to'] : null;
@@ -433,7 +436,7 @@ class Class_ptw {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($permit_id, $update_data));
             
-            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
             
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit updated: ' . $permit_id);
             
@@ -457,12 +460,12 @@ class Class_ptw {
             $this->fn_general->checkEmptyParams(array($permit_id));
             
             // Delete related records first (cascade should handle this, but being explicit)
-            Class_db::getInstance()->db_delete('ptw_worker', array('ptw_permit_id' => $permit_id));
-            Class_db::getInstance()->db_delete('ptw_document', array('ptw_permit_id' => $permit_id));
-            Class_db::getInstance()->db_delete('ptw_approval_log', array('ptw_permit_id' => $permit_id));
+            Class_db::getInstance()->db_delete('ptw_worker', array('ptw_permit_id' => strval($permit_id)));
+            Class_db::getInstance()->db_delete('ptw_document', array('ptw_permit_id' => strval($permit_id)));
+            Class_db::getInstance()->db_delete('ptw_approval_log', array('ptw_permit_id' => strval($permit_id)));
             
             // Delete permit
-            Class_db::getInstance()->db_delete('ptw_permit', array('ptw_permit_id' => $permit_id));
+            Class_db::getInstance()->db_delete('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit deleted: ' . $permit_id);
             
@@ -511,7 +514,7 @@ class Class_ptw {
             
             // Ensure request number is assigned at first submission
             try {
-                $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+                $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
                 if ($permit) {
                     $this->assign_request_number($permit_id, $permit['site_id'], $user_id);
                 }
@@ -527,7 +530,7 @@ class Class_ptw {
                 'updated_date' => date('Y-m-d H:i:s')
             );
             
-            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
             
             // Log approval request
             $log_data = array(
@@ -567,7 +570,7 @@ class Class_ptw {
             $this->fn_general->checkEmptyParams(array($permit_id, $approval_type, $user_id));
             
             // Get current permit status
-            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             if (!$permit) {
                 throw new Exception('PTW permit not found');
             }
@@ -619,7 +622,7 @@ class Class_ptw {
                 'updated_date' => date('Y-m-d H:i:s')
             );
             
-            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => $permit_id));
+            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
             
             // Log approval
             $log_data = array(
@@ -789,7 +792,7 @@ class Class_ptw {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sending PTW notification: ' . $notification_type . ' for permit: ' . $permit_id);
             
             // Get permit details
-            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+            $permit = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
             if (!$permit) {
                 throw new Exception('PTW permit not found');
             }

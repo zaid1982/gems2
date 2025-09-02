@@ -146,6 +146,10 @@ try {
             if (isset($_POST['action'])) {
                 $action = $_POST['action'];
                 switch ($action) {
+                    case 'update_permit':
+                        // Flexible update: allow JWT (roles SUPERVISOR/SHE/FM/ADMIN) or public token t
+                        $result = update_ptw_permit_flexible($jwt_data->userId, $user_site_id, $headers['Authorization'] ?? '');
+                        break;
                     case 'supervisor_approve':
                         if (!isset($_POST['permit_id'])) {
                             throw new Exception('[' . __LINE__ . '] - Permit ID required for approval');
@@ -599,7 +603,7 @@ function create_ptw_permit($user_id, $user_site_id) {
             if (!empty($target_status)) {
                 Class_db::getInstance()->db_update('ptw_permit', 
                     array('ptw_status' => $target_status),
-                    array('ptw_permit_id' => $permit_id)
+                    array('ptw_permit_id' => strval($permit_id))
                 );
             }
         }
@@ -710,7 +714,7 @@ function create_ptw_permit($user_id, $user_site_id) {
                 $fn_ptw->submit_for_approval($permit_id, $user_id);
                 // Read back request number assigned during submission
                 try {
-                    $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $permit_id));
+                    $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
                     if (!empty($row) && isset($row['ptw_request_no'])) {
                         $request_number = $row['ptw_request_no'];
                     }
@@ -808,6 +812,194 @@ function update_ptw_permit($user_id, $user_site_id) {
         'ptw_permit_id' => $ptw_permit_id,
         'status' => 'updated'
     );
+}
+
+/**
+ * Flexible update that allows edits before FM final approval by roles (Supervisor/SHE/FM/Admin)
+ * or by possession of a valid public token t (for contractor edits via QR link),
+ * without altering current workflow stage. Replaces workers if provided and persists signature.
+ */
+function update_ptw_permit_flexible($user_id, $user_site_id, $authHeader = '') {
+    global $fn_ptw, $fn_general, $current_user_roles;
+    global $PTW_ROLE_ADMIN, $PTW_ROLE_SUPERVISOR, $PTW_ROLE_SHE, $PTW_ROLE_FM;
+
+    // Expect POST with either permit_id or id; optional token t
+    $permit_id = isset($_POST['permit_id']) ? intval($_POST['permit_id']) : 0;
+    if ($permit_id <= 0 && isset($_POST['id']) && is_numeric($_POST['id'])) {
+        $permit_id = intval($_POST['id']);
+    }
+    if ($permit_id <= 0) {
+        throw new Exception('[' . __LINE__ . '] - PTW Permit ID required');
+    }
+
+    // Load current permit from DB using site guard
+    $permit = $fn_ptw->get_permit_details($permit_id, $user_site_id);
+    if (!$permit) {
+        throw new Exception('[' . __LINE__ . '] - PTW Permit not found or access denied');
+    }
+
+    // Determine if edit is allowed by status (business rule): allowed until FM final approval
+    $status = $permit['ptw_status'] ?? 'DRAFT';
+    $fmApproval = $permit['ptw_fm_approval'] ?? 'PENDING';
+    $isFinalized = (strtoupper($status) === 'ACTIVE' || strtoupper($status) === 'APPROVED' || strtoupper($fmApproval) === 'APPROVED');
+    if ($isFinalized) {
+        throw new Exception('[' . __LINE__ . '] - Edits are not allowed after FM final approval');
+    }
+
+    // AuthZ: allow if user has any PTW role (Supervisor/SHE/FM/Admin) OR valid public token possession
+    $isRoleAllowed = ptw_has_any($current_user_roles, array_merge($PTW_ROLE_ADMIN, $PTW_ROLE_SUPERVISOR, $PTW_ROLE_SHE, $PTW_ROLE_FM));
+
+    $token = isset($_POST['t']) ? trim($_POST['t']) : (isset($_GET['t']) ? trim($_GET['t']) : '');
+    $tokenOk = false;
+    if (!$isRoleAllowed) {
+        // Validate token against permit record
+        try {
+            $row = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => strval($permit_id)));
+            if ($row && !empty($row['public_token']) && !empty($token) && hash_equals($row['public_token'], $token)) {
+                // Check enabled/expiry/revocation with legacy tolerance
+                $enabledRaw = $row['public_link_enabled'] ?? '1';
+                $enabledOk = in_array(strtolower(strval($enabledRaw)), ['1','true','y','yes'], true);
+                $revokedAt = $row['public_token_revoked_at'] ?? null;
+                if ($revokedAt === '0000-00-00 00:00:00') { $revokedAt = null; }
+                $expiresAt = $row['public_token_expires_at'] ?? null;
+                if ($expiresAt === '0000-00-00 00:00:00') { $expiresAt = null; }
+                $expired = false; if (!empty($expiresAt)) { $ts = strtotime($expiresAt); $expired = ($ts !== false && $ts < time()); }
+                $tokenOk = $enabledOk && empty($revokedAt) && !$expired;
+            }
+        } catch (Exception $e) { $tokenOk = false; }
+    }
+    if (!$isRoleAllowed && !$tokenOk) {
+        header('HTTP/1.1 403 Forbidden');
+        throw new Exception('Forbidden');
+    }
+
+    // Build update map from incoming POST fields (support same names as create)
+    $map = [
+        'ptw_permit_description' => 'description',
+        'ptw_work_area' => 'work_area',
+        'ptw_work_type' => 'work_type',
+        'ptw_risk_level' => 'risk_level',
+        'ptw_valid_from' => 'valid_from',
+        'ptw_valid_to' => 'valid_to',
+        'ptw_contractor_company' => 'contractor_company',
+        'ptw_remarks' => 'remarks',
+        'ptw_applicant_name' => 'applicant_name',
+        'ptw_applicant_contact' => 'applicant_contact',
+        'ptw_applicant_company_dept' => 'applicant_department',
+        'ptw_contractor_supervisor' => 'contractor_supervisor',
+        'ptw_contractor_name' => 'contractor_name',
+        'ptw_contractor_designation' => 'contractor_designation',
+        'ptw_contractor_date' => 'contractor_date',
+        'ptw_staff_nric' => 'staff_nric',
+        'ptw_supervisor_contact' => 'supervisor_contact',
+        'ptw_identification_no' => 'identification_no',
+        'ptw_level' => 'level',
+        'ptw_work_duration' => 'work_duration',
+        'ptw_work_types' => 'work_types_selected',
+        'ptw_hazard_checklist' => 'checklist_data',
+        'ptw_checklist_hot_work' => 'checklist_hot_work',
+        'ptw_checklist_cold_work' => 'checklist_cold_work',
+        'ptw_checklist_confined_space' => 'checklist_confined_space',
+        'ptw_declaration_checklist' => 'declaration_checklist',
+        'ptw_supporting_docs_checklist' => 'supporting_docs_checklist',
+        'ptw_certificate_numbers' => 'certificate_numbers',
+        'ptw_hazardous_activities' => 'hazardous_activities'
+    ];
+
+    $update = [];
+    foreach ($map as $dbField => $postKey) {
+        if (isset($_POST[$postKey])) {
+            $val = $_POST[$postKey];
+            // Normalize date fields
+            if (in_array($dbField, ['ptw_valid_from','ptw_valid_to'])) {
+                if (strlen($val) === 10) { $val .= ($dbField === 'ptw_valid_from') ? ' 08:00:00' : ' 17:00:00'; }
+            }
+            $update[$dbField] = $val;
+        }
+    }
+
+    // Never change ptw_status here; keep current workflow stage
+    if (!empty($update)) {
+        $update['updated_by'] = $user_id;
+        $update['updated_date'] = date('Y-m-d H:i:s');
+        $fn_ptw->update_permit($permit_id, $update);
+    }
+
+    // Replace workers if provided
+    if (isset($_POST['workers'])) {
+        $workers_data = is_string($_POST['workers']) ? json_decode($_POST['workers'], true) : $_POST['workers'];
+        if (is_array($workers_data)) {
+            // Clear existing
+            try { Class_db::getInstance()->db_delete('ptw_worker', array('ptw_permit_id' => strval($permit_id))); } catch (Exception $e) {}
+            foreach ($workers_data as $worker) {
+                $name = $worker['workerName'] ?? $worker['name'] ?? '';
+                if (!empty(trim($name))) {
+                    $row = array(
+                        'ptw_permit_id' => $permit_id,
+                        'worker_name' => trim($name),
+                        'worker_ic_number' => $worker['workerIcNumber'] ?? ($worker['ic'] ?? ''),
+                        'worker_phone_number' => $worker['workerPhoneNumber'] ?? ($worker['phone'] ?? ($worker['contact_number'] ?? '')),
+                        'worker_company' => $worker['workerCompany'] ?? ($worker['company'] ?? ''),
+                        'worker_designation' => $worker['workerDesignation'] ?? ($worker['designation'] ?? ''),
+                        'worker_role' => $worker['role'] ?? '',
+                        'worker_identification' => $worker['identification'] ?? '',
+                        'is_certified' => isset($worker['is_certified']) ? (bool)$worker['is_certified'] : false,
+                        'worker_ptw_number' => $worker['workerPtwNumber'] ?? '',
+                        'created_by' => $user_id,
+                        'created_date' => date('Y-m-d H:i:s')
+                    );
+                    try { Class_db::getInstance()->db_insert('ptw_worker', $row); } catch (Exception $e) { /* continue */ }
+                }
+            }
+        }
+    }
+
+    // Optional: contractor signature update (data URL)
+    try {
+        if (isset($_POST['contractor_signature']) && is_string($_POST['contractor_signature']) && $_POST['contractor_signature'] !== '') {
+            $dataUrl = $_POST['contractor_signature'];
+            if (strpos($dataUrl, 'data:image') === 0 && strpos($dataUrl, 'base64,') !== false) {
+                $parts = explode('base64,', $dataUrl, 2);
+                $meta = $parts[0];
+                $b64 = $parts[1];
+                $mime = 'image/png';
+                $ext = 'png';
+                if (preg_match('/data:(.*?);base64/', $meta, $m)) {
+                    $mime = $m[1];
+                    if ($mime === 'image/jpeg' || $mime === 'image/jpg') { $ext = 'jpg'; }
+                    elseif ($mime === 'image/png') { $ext = 'png'; }
+                }
+                $baseDir = __DIR__ . '/../upload/ptw';
+                if (!is_dir($baseDir)) { @mkdir($baseDir, 0775, true); }
+                $siteDir = $baseDir . '/' . $user_site_id;
+                if (!is_dir($siteDir)) { @mkdir($siteDir, 0775, true); }
+                $permitDir = $siteDir . '/' . $permit_id;
+                if (!is_dir($permitDir)) { @mkdir($permitDir, 0775, true); }
+                @chmod($permitDir, 0777);
+                $filename = 'contractor_signature_' . date('Ymd_His') . '.' . $ext;
+                $fullPath = $permitDir . '/' . $filename;
+                $bytes = base64_decode($b64);
+                if ($bytes !== false && strlen($bytes) > 0) {
+                    $ok = @file_put_contents($fullPath, $bytes);
+                    if ($ok !== false) {
+                        $relPath = 'upload/ptw/' . $user_site_id . '/' . $permit_id . '/' . $filename;
+                        $docRow = array(
+                            'ptw_permit_id' => $permit_id,
+                            'document_type' => 'CONTRACTOR_SIGNATURE',
+                            'document_name' => 'Contractor Signature',
+                            'document_path' => $relPath,
+                            'document_size' => strlen($bytes),
+                            'document_mime_type' => $mime,
+                            'uploaded_by' => $user_id
+                        );
+                        Class_db::getInstance()->db_insert('ptw_document', $docRow);
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) { /* non-fatal */ }
+
+    return array('ptw_permit_id' => $permit_id, 'status' => 'updated');
 }
 
 function delete_ptw_permit($user_id, $user_site_id) {
