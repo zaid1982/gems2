@@ -594,19 +594,7 @@
                     <div class="col-md-8">
                         <h4><i class="fas fa-exclamation-triangle mr-2"></i>PTW Permits Awaiting SHE Approval</h4>
                     </div>
-                    <div class="col-md-4 text-right">
-                        <div class="filter-btn-group" role="group">
-                            <button type="button" class="filter-btn active" onclick="filterByPriority('all')" id="btnFilterAll">
-                                All
-                            </button>
-                            <button type="button" class="filter-btn" onclick="filterByPriority('high')" id="btnFilterHigh">
-                                High Risk
-                            </button>
-                            <button type="button" class="filter-btn" onclick="filterByPriority('critical')" id="btnFilterCritical">
-                                Critical
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Right-side header controls intentionally removed (no risk filters) -->
                 </div>
             </div>
             <div class="card-body">
@@ -619,7 +607,6 @@
                                 <th>Applicant</th>
                                 <th>Work Area</th>
                                 <th>Work Type</th>
-                                <th>Risk Level</th>
                                 <th>Supervisor Approved</th>
                                 <!-- <th>Days Pending</th> -->
                                 <th>Actions</th>
@@ -798,12 +785,12 @@ function initializeSHEDashboard() {
     shePermitsTable = $('#dtPendingSHE').DataTable({
         responsive: true,
         lengthChange: false,
-    pageLength: 10,
+        pageLength: 10,
         autoWidth: false,
-        order: [[6, 'asc']], // Order by supervisor approved date ascending (oldest first)
+        order: [[4, 'asc']], // Order by Supervisor Approved date ascending (oldest first)
         columnDefs: [
             {
-                targets: [6], // Actions column
+                targets: [5], // Actions column (after removing Risk Level)
                 orderable: false,
                 searchable: false
             }
@@ -908,7 +895,6 @@ function populateShePermitsTable(permits) {
     shePermitsTable.clear();
     
     permits.forEach(function(permit) {
-        const riskBadge = getRiskLevelBadge(permit.ptw_risk_level);
         const workTypeBadge = getWorkTypeBadge(permit.ptw_work_type);
         
         // Calculate days pending from supervisor approval date (field names can vary)
@@ -939,8 +925,7 @@ function populateShePermitsTable(permits) {
             permit.ptw_applicant_name,
             permit.ptw_work_area,
             workTypeBadge,
-            riskBadge,
-            formatDateTime(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date),
+            renderDateCell(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date),
             // daysPendingHtml,
             generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number)
         ];
@@ -1511,20 +1496,7 @@ function loadSummaryStats() {
     });
 }
 
-// Filter functions
-function filterByPriority(priority) {
-    // Update active button
-    $('.filter-btn-group button').removeClass('active');
-    $('#btnFilter' + priority.charAt(0).toUpperCase() + priority.slice(1)).addClass('active');
-    
-    if (priority === 'all') {
-        shePermitsTable.search('').draw();
-    } else if (priority === 'high') {
-        shePermitsTable.search('HIGH').draw();
-    } else if (priority === 'critical') {
-        shePermitsTable.search('CRITICAL').draw();
-    }
-}
+// No risk filters for SHE dashboard
 
 // Utility functions
 function getRiskLevelBadge(riskLevel) {
@@ -1581,6 +1553,22 @@ function formatDateTime(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+// Render date cell with numeric-aware sorting using data-order attribute
+function renderDateCell(dateString) {
+    if (!dateString) return '<span data-order="0">-</span>';
+    try {
+        const ts = moment(dateString).valueOf();
+        const pretty = moment(dateString).format('DD/MM/YYYY HH:mm');
+        return `<span data-order="${ts}">${pretty}</span>`;
+    } catch (e) {
+        // Fallback
+        const d = new Date(dateString);
+        const ts = isNaN(d.getTime()) ? 0 : d.getTime();
+        const pretty = isNaN(d.getTime()) ? '-' : (d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+        return `<span data-order="${ts}">${pretty}</span>`;
+    }
 }
 
 function showLoadingModal() {

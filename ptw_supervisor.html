@@ -833,12 +833,12 @@
     </div>
     <!-- Main Content -->
     <div class="main-content-card">
-        <div class="card-header">
+    <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h4 class="d-flex align-items-center">
                         <i class="fas fa-clipboard-list mr-2"></i>
-                        Permit To Work (Supervisor)
+            In-Progress PTW
                         <span class="badge badge-info ml-2" id="countPendingList">0</span>
                     </h4>
                 </div>
@@ -894,11 +894,11 @@
                 <table class="table table-modern" id="dtPendingPTW">
                     <thead>
                         <tr>
-                            <th>Permit No.</th>
+                            <th>Ref No.</th>
                             <!-- <th>Description</th> -->
                             <th>Applicant</th>
                             <th>Work Area</th>
-                            <th>Risk Level</th>
+                            
                             <th>Date</th>
                             <th>Status</th>
                             <!-- <th>Days Pending</th> -->
@@ -909,6 +909,42 @@
                     <tbody>
                         <!-- Data will be loaded here via DataTables -->
                     </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- History PTW Section -->
+    <div class="main-content-card mt-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="d-flex align-items-center">
+                        <i class="fas fa-history mr-2"></i>
+                        Permit History
+                        <span class="badge badge-info ml-2" id="countHistoryList">0</span>
+                    </h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <small class="text-muted">Closed, Cancelled, Rejected</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-modern" id="dtHistoryPTW">
+                    <thead>
+                        <tr>
+                            <th>Ref No.</th>
+                            <th>Applicant</th>
+                            <th>Work Area</th>
+                            
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -938,7 +974,7 @@
                             <th>Permit No.</th>
                             <!-- <th>Description</th> -->
                             <th>Work Area</th>
-                            <th>Risk</th>
+                            
                             <th>Valid To</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -973,7 +1009,7 @@
                         <tr>
                             <th>Permit No.</th>
                             <th>Work Area</th>
-                            <th>Risk</th>
+                            
                             <th>Closed On</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -1008,7 +1044,7 @@
                         <tr>
                             <th>Permit No.</th>
                             <th>Applicant</th>
-                            <th>Risk</th>
+                            
                             <th>Suspended On</th>
                             <th>Requested To</th>
                             <th>Status</th>
@@ -1106,6 +1142,7 @@ let pendingPTWTable;
 let activePTWTable;
 let closedPTWTable;
 let suspendedPTWTable;
+let historyPTWTable;
 let autoRefreshInterval;
 let autoRefreshEnabled = true;
 let showCancelled = false;
@@ -1257,15 +1294,12 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[4, 'asc']], // Sort by date (oldest first)
+        order: [[3, 'asc']], // Sort by date (oldest first)
         language: {
             emptyTable: "No PTW records to display"
         },
-        columns: [
-            { 
-                data: 'ptw_permit_number',
-                width: '12%'
-            },
+    columns: [
+            { data: null, width: '14%', render: function(_d,_t,row){ return renderRefNo(row); } },
             // { 
             //     data: 'ptw_permit_description',
             //     width: '20%',
@@ -1282,21 +1316,14 @@ function initializeDataTable() {
             },
             { 
                 data: 'ptw_work_area',
-                width: '12%'
-            },
-            { 
-                data: 'ptw_risk_level',
-                width: '8%',
-                render: function(data) {
-                    return getRiskBadge(data);
-                }
+                width: '16%'
             },
             { 
                 data: null,
-                width: '14%',
-                render: function(_d,_t,row) { return formatUnifiedDate(row); }
+                width: '16%',
+                render: function(_d,type,row) { return renderUnifiedDate(_d, type, row); }
             },
-            { data: 'ptw_status', width: '12%', render: function(s){ return getStatusBadge(s); } },
+            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
             // { 
             //     data: null,
             //     width: '8%',
@@ -1313,7 +1340,7 @@ function initializeDataTable() {
             // },
             { 
                 data: null,
-                width: '12%',
+                width: '14%',
                 className: 'text-nowrap',
                 render: function(data, type, row) {
                     return getUnifiedActionButtons(row);
@@ -1326,13 +1353,32 @@ function initializeDataTable() {
         }
     });
 
+    // History PTW
+    historyPTWTable = $('#dtHistoryPTW').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthChange: false,
+        order: [[3, 'desc']],
+        language: { emptyTable: "No historical records" },
+        columns: [
+            { data: null, width: '14%', render: function(_d,_t,row){ return renderRefNo(row); } },
+            { data: 'ptw_applicant_name', width: '16%' },
+            { data: 'ptw_work_area', width: '16%' },
+            { data: null, width: '18%', render: function(_d,type,row){ return renderHistoryDate(_d, type, row); } },
+            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '18%', className: 'text-nowrap', render: function(_d,_t,row){ return getHistoryActionButtons(row); } }
+        ],
+        drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
+    });
+
     // Active PTW for closure
     activePTWTable = $('#dtActivePTWForClosure').DataTable({
         responsive: true,
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[4, 'asc']], // Sort by valid to
+        order: [[2, 'asc']], // Sort by valid to
         language: {
             emptyTable: "No ACTIVE permits available for closure request"
         },
@@ -1347,10 +1393,14 @@ function initializeDataTable() {
             } },
             // { data: 'ptw_permit_description', width: '28%', render: function(d,t){ if(t==='display' && d){ return d.length>60? d.substring(0,60)+'...':d;} return d||'';} },
             { data: 'ptw_work_area', width: '14%' },
-            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
-            { data: 'ptw_valid_to', width: '14%', render: function(d){ return d? moment(d).format('DD/MM/YYYY HH:mm') : '-'; } },
-            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
-            { data: null, width: '12%', className: 'text-nowrap', render: function(_d,_t,row){ return getActiveActionButtons(row); } }
+            { data: 'ptw_valid_to', width: '20%', render: function(d, type){
+                if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+                if (!d) return 0;
+                const m = moment(d);
+                return m.isValid() ? m.valueOf() : 0;
+            } },
+            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '16%', className: 'text-nowrap', render: function(_d,_t,row){ return getActiveActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
@@ -1361,7 +1411,7 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[3, 'desc']], // Sort by closed date desc
+        order: [[2, 'desc']], // Sort by closed date desc
         language: {
             emptyTable: "No closed permits to display"
         },
@@ -1375,10 +1425,9 @@ function initializeDataTable() {
                 return val;
             } },
             { data: 'ptw_work_area', width: '16%' },
-            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
-            { data: null, width: '16%', render: function(row){ return formatClosedDate(row); } },
-            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
-            { data: null, width: '14%', className: 'text-nowrap', render: function(_d,_t,row){ return getClosedActionButtons(row); } }
+            { data: null, width: '24%', render: function(_d,type,row){ return renderClosedDate(_d, type, row); } },
+            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '18%', className: 'text-nowrap', render: function(_d,_t,row){ return getClosedActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
@@ -1389,7 +1438,7 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[3, 'desc']],
+        order: [[2, 'desc']],
         language: { emptyTable: "No suspended permits to display" },
         columns: [
             { data: null, width: '14%', render: function(_d,_t,row){
@@ -1401,11 +1450,15 @@ function initializeDataTable() {
                 return val;
             } },
             { data: 'ptw_applicant_name', width: '16%' },
-            { data: 'ptw_risk_level', width: '8%', render: function(val){ return getRiskBadge(val); } },
-            { data: null, width: '16%', render: function(row){ return formatSuspendedDate(row); } },
-            { data: 'ptw_extension_requested_to', width: '16%', render: function(v){ return v ? moment(v).format('DD/MM/YYYY HH:mm') : '-'; } },
-            { data: 'ptw_status', width: '10%', render: function(s){ return getStatusBadge(s); } },
-            { data: null, width: '14%', className: 'text-nowrap', render: function(_d,_t,row){ return getSuspendedActionButtons(row); } }
+            { data: null, width: '20%', render: function(_d,type,row){ return renderSuspendedDate(_d, type, row); } },
+            { data: 'ptw_extension_requested_to', width: '20%', render: function(v, type){
+                if (type === 'display') return v ? moment(v).format('DD/MM/YYYY HH:mm') : '-';
+                if (!v) return 0;
+                const m = moment(v);
+                return m.isValid() ? m.valueOf() : 0;
+            } },
+            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: null, width: '16%', className: 'text-nowrap', render: function(_d,_t,row){ return getSuspendedActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
@@ -1431,10 +1484,12 @@ function loadDashboardData(isAutoRefresh = false) {
             if (Array.isArray(root.permits)) { permits = root.permits; }
             if (Array.isArray(root.activePtw)) { active = root.activePtw; }
         }
-        const pendingOnly = filterPendingSupervisor(permits);
-        updateDashboardStats(pendingOnly);
-    const unified = buildUnifiedList(permits, active);
-        populateDataTable(unified);
+    const pendingOnly = filterPendingSupervisor(permits);
+    updateDashboardStats(pendingOnly);
+    const inProgress = buildInProgressList(permits, active);
+    populateDataTable(inProgress);
+    const history = buildHistoryList(permits);
+    populateHistoryTable(history);
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -1513,6 +1568,13 @@ function getSuspendedActionButtons(request){
 function formatSuspendedDate(row){
     const d = row.suspended_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
     return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+}
+
+// Smart renderer for Suspended date: numeric for sort/search, pretty for display
+function renderSuspendedDate(_data, type, row){
+    const d = row.suspended_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
 }
 
 function loadActivePTWForClosure() {
@@ -1601,16 +1663,6 @@ function loadPlaceholderData() {
 }
 
 // Utility functions
-function getRiskBadge(risk) {
-    const badges = {
-        'LOW': '<span class="badge badge-modern badge-success">Low</span>',
-        'MEDIUM': '<span class="badge badge-modern badge-warning">Medium</span>',
-        'HIGH': '<span class="badge badge-modern badge-danger">High</span>',
-        'CRITICAL': '<span class="badge badge-modern badge-danger"><i class="fas fa-exclamation-triangle"></i> Critical</span>'
-    };
-    return badges[risk] || '<span class="badge badge-modern badge-info">' + risk + '</span>';
-}
-
 function getDaysPending(createdDate) {
     const daysPending = moment().diff(moment(createdDate), 'days');
     const hoursPending = moment().diff(moment(createdDate), 'hours');
@@ -1634,11 +1686,9 @@ function getDaysPending(createdDate) {
 
 function getPriorityBadge(request) {
     const hoursPending = moment().diff(moment(request.created_date), 'hours');
-    const isHighRisk = request.ptw_risk_level === 'HIGH' || request.ptw_risk_level === 'CRITICAL';
-    
-    if (hoursPending > 48 || (isHighRisk && hoursPending > 24)) {
+    if (hoursPending > 48) {
         return '<span class="badge badge-modern badge-danger">Urgent</span>';
-    } else if (hoursPending > 24 || isHighRisk) {
+    } else if (hoursPending > 24) {
         return '<span class="badge badge-modern badge-warning">High</span>';
     } else {
         return '<span class="badge badge-modern badge-info">Normal</span>';
@@ -1961,6 +2011,13 @@ function formatClosedDate(row){
     return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
 }
 
+// Smart renderer for Closed date
+function renderClosedDate(_data, type, row){
+    const d = row.completed_date || row.closed_date || row.ptw_completed_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
+}
+
 // Filter functions (not used in unified view)
 function filterByPriority(priority) { console.debug('filterByPriority noop', { priority }); }
 function applyFilter(priority) { console.debug('applyFilter noop', { priority }); }
@@ -2082,8 +2139,9 @@ function getStatusBadge(status){
         'PENDING_SUSPENSION': '<span class="badge badge-modern badge-info">Pending Suspension</span>',
         'SUSPENDED': '<span class="badge badge-modern badge-warning">Suspended</span>',
         'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-        'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
-        'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
+    'REJECTED': '<span class="badge badge-modern badge-danger">Rejected</span>',
+    'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
+    'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
     };
     return map[status] || `<span class="badge badge-modern badge-info">${status||'-'}</span>`;
 }
@@ -2105,8 +2163,33 @@ function formatUnifiedDate(row){
     return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
 }
 
+// Smart renderer for Unified date
+function renderUnifiedDate(_data, type, row){
+    const s = row.ptw_status || '';
+    let d = null;
+    if (s === 'PENDING_SUPERVISOR') d = row.created_date;
+    else if (s === 'ACTIVE') d = row.ptw_valid_to || row.ptw_valid_from;
+    else if (s === 'COMPLETED' || s === 'CLOSED') d = row.completed_date || row.closed_date || row.ptw_completed_date;
+    else if (s === 'SUSPENDED') d = row.suspended_date || row.updated_date;
+    else d = row.updated_date || row.created_date;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
+}
+
 function getPermitId(row){
     return row.ptw_permit_id || row.permit_id || row.id || row.ptw_permit_number || row.ptw_request_number || null;
+}
+
+function renderRefNo(row){
+    const hasPermit = !!row.ptw_permit_number;
+    const status = row.ptw_status || '';
+    const isPending = typeof status === 'string' && status.indexOf('PENDING') === 0;
+    const ref = isPending ? (row.ptw_request_number || row.ptw_permit_number || '')
+                          : (row.ptw_permit_number || row.ptw_request_number || '');
+    if (!hasPermit && row.ptw_request_number && isPending) {
+        return `<span class="badge badge-light" title="Request Number">${ref}</span>`;
+    }
+    return ref || '';
 }
 
 function getUnifiedActionButtons(row){
@@ -2155,6 +2238,45 @@ function buildUnifiedList(permits, active){
             // ensure status at least ACTIVE for active list
             if (!r.ptw_status) r.ptw_status = 'ACTIVE';
             addRow(r);
+        });
+    }
+    return Array.from(map.values());
+}
+
+// New builders: in-progress and history
+function buildInProgressList(permits, active){
+    const includeStatuses = new Set(['ACTIVE','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION','PENDING_SUPERVISOR']);
+    const map = new Map();
+    function addRow(r){
+        const id = getPermitId(r);
+        if (!id) return;
+        let s = r.ptw_status || '';
+        if (!s && active && Array.isArray(active) && active.indexOf(r) >= 0) s = 'ACTIVE';
+        if (!s) return;
+        if (s === 'CANCELLED' || s === 'CLOSED' || s === 'COMPLETED' || s === 'REJECTED') return; // exclude history
+        // include any PENDING* as in-progress
+        if (s.startsWith('PENDING') || includeStatuses.has(s)) {
+            if (!map.has(id)) map.set(id, r);
+        }
+    }
+    if (Array.isArray(permits)) permits.forEach(addRow);
+    if (Array.isArray(active)) {
+        active.forEach(function(r){ if (!r.ptw_status) r.ptw_status = 'ACTIVE'; addRow(r); });
+    }
+    return Array.from(map.values());
+}
+
+function buildHistoryList(permits){
+    const historyStatuses = new Set(['CANCELLED','CLOSED','COMPLETED','REJECTED']);
+    const map = new Map();
+    if (Array.isArray(permits)) {
+        permits.forEach(function(r){
+            const id = getPermitId(r);
+            if (!id) return;
+            const s = r.ptw_status || '';
+            if (historyStatuses.has(s)) {
+                if (!map.has(id)) map.set(id, r);
+            }
         });
     }
     return Array.from(map.values());
@@ -2217,7 +2339,7 @@ function setStatusFilter(code){
 
 function applyStatusFilter(){
     if (!pendingPTWTable) return;
-    const colIndex = 5; // Status column
+    const colIndex = 4; // Status column after removing Risk
     if (statusFilter === 'ALL') {
         pendingPTWTable.column(colIndex).search('').draw();
         return;
@@ -2225,6 +2347,47 @@ function applyStatusFilter(){
     const label = statusCodeToLabel(statusFilter).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // exact match regex on cell text
     pendingPTWTable.column(colIndex).search('^' + label + '$', true, false).draw();
+}
+
+function populateHistoryTable(list){
+    try{
+        const rows = Array.isArray(list) ? list : [];
+        historyPTWTable.clear();
+        if (rows.length){ historyPTWTable.rows.add(rows); }
+        historyPTWTable.draw();
+        try {
+            document.getElementById('countHistoryList').textContent = historyPTWTable.rows().count();
+        } catch(e) {
+            console.warn('Could not update history list count', e);
+        }
+    }catch(e){ console.error('Error populating History PTW table:', e); }
+}
+
+function getHistoryActionButtons(request){
+    // Same as closed actions: view/download
+    return getClosedActionButtons(request);
+}
+
+function formatHistoryDate(row){
+    const s = row.ptw_status || '';
+    if (s === 'CANCELLED') {
+        return row.updated_date ? moment(row.updated_date).format('DD/MM/YYYY HH:mm') : '-';
+    }
+    if (s === 'REJECTED') {
+        const d = row.rejected_date || row.updated_date || row.created_date;
+        return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    }
+    return formatClosedDate(row);
+}
+
+function renderHistoryDate(_data, type, row){
+    const s = row.ptw_status || '';
+    let d = null;
+    if (s === 'CANCELLED') d = row.updated_date;
+    else if (s === 'REJECTED') d = row.rejected_date || row.updated_date || row.created_date;
+    else d = row.completed_date || row.closed_date || row.ptw_completed_date || row.updated_date || row.ptw_valid_to || row.ptw_valid_from;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
 }
 
 function generateWorkersSection(permit) {

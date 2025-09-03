@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `ptw_permit` (
   `ptw_valid_to` datetime NOT NULL,
   `ptw_contractor_company` varchar(255) DEFAULT NULL,
   `ptw_remarks` text DEFAULT NULL,
-  `ptw_status` enum('DRAFT','PENDING_SUPERVISOR','PENDING_SHE','PENDING_FM','APPROVED','ACTIVE','COMPLETED','EXPIRED','CANCELLED') NOT NULL DEFAULT 'DRAFT',
+  `ptw_status` enum('DRAFT','PENDING_SUPERVISOR','PENDING_SHE','PENDING_FM','APPROVED','ACTIVE','COMPLETED','EXPIRED','CANCELLED','REJECTED') NOT NULL DEFAULT 'DRAFT',
   `ptw_applicant_name` varchar(255) NOT NULL,
   `ptw_applicant_contact` varchar(50) DEFAULT NULL,
   `ptw_applicant_company_dept` varchar(255) DEFAULT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `ptw_worker` (
 CREATE TABLE IF NOT EXISTS `ptw_status_history` (
   `ptw_status_history_id` int(11) NOT NULL AUTO_INCREMENT,
   `ptw_permit_id` int(11) NOT NULL,
-  `action_type` enum('CREATED','SUBMITTED','SUPERVISOR_APPROVED','SUPERVISOR_REJECTED','SHE_APPROVED','SHE_REJECTED','FM_APPROVED','FM_REJECTED','ACTIVATED','COMPLETED','CANCELLED') NOT NULL,
+  `action_type` enum('CREATED','SUBMITTED','SUPERVISOR_APPROVED','SUPERVISOR_REJECTED','SHE_APPROVED','SHE_REJECTED','FM_APPROVED','FM_REJECTED','ACTIVATED','COMPLETED','CANCELLED','REJECTED') NOT NULL,
   `previous_status` varchar(50) DEFAULT NULL,
   `new_status` varchar(50) NOT NULL,
   `remarks` text DEFAULT NULL,

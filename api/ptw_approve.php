@@ -252,8 +252,8 @@ function process_she_approval($permit_id, $user_id, $user_site_id, $user_role, $
         $new_status = 'PENDING_FM';
         $action_type = 'SHE_APPROVED';
     } else {
-        $update_data['ptw_status'] = 'CANCELLED';
-        $new_status = 'CANCELLED';
+        $update_data['ptw_status'] = 'REJECTED';
+        $new_status = 'REJECTED';
         $action_type = 'SHE_REJECTED';
     }
     
@@ -347,8 +347,8 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
         $new_status = 'ACTIVE';
         $action_type = 'FM_APPROVED';
     } else {
-        $update_data['ptw_status'] = 'CANCELLED';
-        $new_status = 'CANCELLED';
+        $update_data['ptw_status'] = 'REJECTED';
+        $new_status = 'REJECTED';
         $action_type = 'FM_REJECTED';
     }
     

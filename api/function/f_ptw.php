@@ -696,7 +696,7 @@ class Class_ptw {
                     
                     if ($action_date >= $thirty_days_ago) {
                         $action['action_date'] = $action['approved_she_date'];
-                        $action['action_type'] = ($action['ptw_status'] == 'CANCELLED') ? 'SHE_REJECTED' : 'SHE_APPROVED';
+                        $action['action_type'] = (in_array($action['ptw_status'], array('CANCELLED','REJECTED'))) ? 'SHE_REJECTED' : 'SHE_APPROVED';
                         $action['remarks'] = '';
                         $recent_actions[] = $action;
                     }

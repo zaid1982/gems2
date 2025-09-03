@@ -1167,7 +1167,8 @@ function get_ptw_dashboard_data($user_id, $user_site_id) {
                 'APPROVED' => 0,
                 'ACTIVE' => 0,
                 'COMPLETED' => 0,
-                'CANCELLED' => 0
+                'CANCELLED' => 0,
+                'REJECTED' => 0
             )
         );
         
@@ -1342,14 +1343,9 @@ function handle_supervisor_approval($permit_id, $user_id, $user_site_id, $post_d
             throw new Exception('[' . __LINE__ . '] - Invalid permit status for supervisor approval. Current status: ' . $permit['ptw_status']);
         }
         
-        // Determine next status in approval workflow
-        // After supervisor approval, typically goes to SHE approval
-        $next_status = 'PENDING_SHE';
-        
-        // For low risk permits, might skip directly to approved
-        if (isset($permit['ptw_risk_level']) && $permit['ptw_risk_level'] === 'LOW') {
-            $next_status = 'APPROVED';
-        }
+    // Determine next status in approval workflow
+    // After supervisor approval, always go to SHE approval next
+    $next_status = 'PENDING_SHE';
         
         error_log('PTW API: Setting next status to: ' . $next_status);
         
@@ -1445,7 +1441,7 @@ function handle_supervisor_rejection($permit_id, $user_id, $user_site_id, $post_
         
         // Update permit status to rejected
         $update_data = array(
-            'ptw_status' => 'CANCELLED',
+            'ptw_status' => 'REJECTED',
             'ptw_supervisor_approval' => 'REJECTED',
             'updated_by' => $user_id,
             'updated_date' => date('Y-m-d H:i:s'),
