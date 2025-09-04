@@ -147,8 +147,14 @@ class Class_pdf_ptw {
             $arrSiteName = $this->fn_general->getSiteName();
             $arrUserFullName = $this->fn_general->getUserFullName();
 
-            // Get PTW data from database
-            $ptwData = Class_db::getInstance()->db_select_single('ptw_permits', array('ptw_id'=>$this->ptwId), null, 1);
+            // Get PTW data from database (new table name ptw_permit; fallback to legacy ptw_permits)
+            $ptwData = null;
+            try {
+                $ptwData = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id'=>$this->ptwId), null, 1);
+            } catch (Exception $e) { /* ignore */ }
+            if (empty($ptwData)) {
+                $ptwData = Class_db::getInstance()->db_select_single('ptw_permits', array('ptw_id'=>$this->ptwId), null, 1);
+            }
             
             if (empty($ptwData)) {
                 throw new Exception('[' . __LINE__ . '] - PTW data not found for ID: ' . $this->ptwId);
@@ -672,13 +678,14 @@ class Class_pdf_ptw {
     }
 
     private function savePdfFile($pdf, $ptwData) {
-        // Create folder structure
+        // Create folder structure under api/pdf/ptw/<folder_code>
         $folder_code = floor(intval($this->ptwId)/1000);
-        $folder = 'pdf/ptw/'.$folder_code;
+        $folder = 'ptw/'.$folder_code; // relative to api/pdf
 
         $result = $this->fn_general->folderExist($folder);
-        if (!$result) {
-            mkdir($folder, 0777, true);
+        $absFolder = dirname(__FILE__).'/'.$folder;
+        if (!$result && !is_dir($absFolder)) {
+            @mkdir($absFolder, 0777, true);
         }
 
         $filename = 'ptw_'.substr((10000000+intval($this->ptwId)), 1).'.pdf';
@@ -716,10 +723,19 @@ class Class_pdf_ptw {
             ), array('pdf_id'=>$pdfId));
         }
 
-        Class_db::getInstance()->db_update('ptw_permits', array(
-            'pdf_id'=>$pdfId, 
-            'ptw_is_pdf'=>'1'
-        ), array('ptw_id'=>$this->ptwId));
+        // Update new table first; fallback to legacy
+        try {
+            Class_db::getInstance()->db_update('ptw_permit', array(
+                'pdf_id'=>$pdfId, 
+                'ptw_is_pdf'=>'1'
+            ), array('ptw_permit_id'=>$this->ptwId));
+        } catch (Exception $e) {
+            // Legacy table update
+            Class_db::getInstance()->db_update('ptw_permits', array(
+                'pdf_id'=>$pdfId, 
+                'ptw_is_pdf'=>'1'
+            ), array('ptw_id'=>$this->ptwId));
+        }
 
         return array(
             'pdfId'=>$pdfId,

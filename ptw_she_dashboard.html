@@ -927,7 +927,7 @@ function populateShePermitsTable(permits) {
             workTypeBadge,
             renderDateCell(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date),
             // daysPendingHtml,
-            generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number)
+            generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number, (permit.ptw_status || permit.status || ''))
         ];
         
         shePermitsTable.row.add(row);
@@ -936,7 +936,7 @@ function populateShePermitsTable(permits) {
     shePermitsTable.draw();
 }
 
-function generateActionButtons(permitId, permitNumber) {
+function generateActionButtons(permitId, permitNumber, status) {
     // Compact split-button: Review + dropdown (Quick Approve, Quick Reject, PDF)
     return `
         <div class="btn-group action-split">
@@ -954,7 +954,7 @@ function generateActionButtons(permitId, permitNumber) {
                     <i class="fas fa-times text-danger"></i> Quick Reject
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDFWithStatus('${permitId}', '${(status||'').toString().replace(/'/g, "&#39;")}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -1677,6 +1677,16 @@ function generatePTWPDF(ptwId) {
         console.error('PDF generation error:', e);
         showError(e.message || 'Failed to generate PDF');
     }
+}
+
+// Optional helper to guard before calling API when status is known
+function generatePTWPDFWithStatus(ptwId, status) {
+    const finalStatuses = ['ACTIVE','COMPLETED','CLOSED','APPROVED'];
+    if (status && finalStatuses.indexOf(String(status).toUpperCase()) === -1) {
+        showInfo('PDF is available after all approvals are completed.');
+        return;
+    }
+    generatePTWPDF(ptwId);
 }
 
 function createPTWPDF(ptwId, button, originalContent) {

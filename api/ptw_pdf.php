@@ -4,7 +4,7 @@ require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
-require_once '../function/f_ptw.php';
+require_once 'function/f_ptw.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ptw.php';
 
@@ -42,13 +42,125 @@ try {
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
         $ptwPermitId = filter_input(INPUT_GET, 'ptwPermitId');
-        
+        $action = filter_input(INPUT_GET, 'action');
+        $ptwIdForGet = filter_input(INPUT_GET, 'ptw_id', FILTER_VALIDATE_INT);
+
+        // Direct file download via GET?action=get_file
+        if ($action === 'get_file') {
+            try {
+                if (empty($ptwIdForGet)) {
+                    throw new Exception('PTW ID is required');
+                }
+
+                // Prefer new schema; fallback to legacy
+                $ptwData = null;
+                try {
+                    $ptwData = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $ptwIdForGet), null, 1);
+                } catch (Exception $e) { /* ignore */ }
+                if (empty($ptwData)) {
+                    $ptwData = Class_db::getInstance()->db_select_single('ptw_permits', array('ptw_id' => $ptwIdForGet), null, 1);
+                }
+
+                if (empty($ptwData)) {
+                    throw new Exception('PTW not found');
+                }
+
+                // Build file path
+                $config = parse_ini_file('library/config.ini');
+                $environment = $config['environment'];
+                $filePath = null;
+
+                // New schema: compute deterministic filename and path without relying on pdf_id
+                if (isset($ptwData['ptw_permit_id'])) {
+                    $folder_code = floor(intval($ptwData['ptw_permit_id'])/1000);
+                    $filename = 'ptw_' . substr((10000000+intval($ptwData['ptw_permit_id'])), 1) . '.pdf';
+                    if ($environment == 'windows') {
+                        $filePath = dirname(__FILE__) . '\\ptw\\' . $folder_code . '\\' . $filename;
+                    } else {
+                        $filePath = dirname(__FILE__) . '/ptw/' . $folder_code . '/' . $filename;
+                    }
+                }
+
+                // If not new schema or file missing, fallback to sys_pdf lookup via legacy linkage
+                if (empty($filePath) || !file_exists($filePath)) {
+                    $pdfData = null;
+                    if (!empty($ptwData['pdf_id'])) {
+                        $pdfData = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id' => $ptwData['pdf_id']), null, 1);
+                    }
+                    if (!empty($pdfData)) {
+                        if ($environment == 'windows') {
+                            $filePath = dirname(__FILE__) . '\\ptw\\' . basename($pdfData['pdf_folder']) . '\\' . $pdfData['pdf_filename'];
+                        } else {
+                            $filePath = dirname(__FILE__) . '/ptw/' . basename($pdfData['pdf_folder']) . '/' . $pdfData['pdf_filename'];
+                        }
+                    }
+                }
+
+                if (empty($filePath) || !file_exists($filePath)) {
+                    throw new Exception('PDF file not found on server');
+                }
+
+                // Send file for download; use permit number else request number in filename
+                $displayNo = !empty($ptwData['ptw_permit_number']) ? $ptwData['ptw_permit_number'] : ($ptwData['ptw_request_number'] ?? ('ID'.$ptwIdForGet));
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="PTW_' . $displayNo . '.pdf"');
+                header('Content-Length: ' . filesize($filePath));
+                header('Cache-Control: no-cache, must-revalidate');
+                header('Pragma: no-cache');
+
+                readfile($filePath);
+                exit();
+
+            } catch (Exception $ex) {
+                $fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+                header('HTTP/1.1 500 Internal Server Error');
+                echo 'Error: ' . $ex->getMessage();
+                exit();
+            }
+        }
+
         if ($type === 'preview_pdf') {
-            $fn_pdf_ptw->__set('ptwPermitId', $ptwPermitId);
+            // Only allow generating PDF once all approvals are completed (FM approved / Active or Closed)
+            if (empty($ptwPermitId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ptwPermitId empty');
+            }
+
+            // Try to read status from current schema (ptw_permit) or legacy (ptw_permits)
+            $ptwRow = null;
+            try {
+                $ptwRow = Class_db::getInstance()->db_select_single('ptw_permit', array('ptw_permit_id' => $ptwPermitId), null, 1);
+            } catch (Exception $e) { /* ignore */ }
+            if (empty($ptwRow)) {
+                try {
+                    $ptwRow = Class_db::getInstance()->db_select_single('ptw_permits', array('ptw_id' => $ptwPermitId), null, 1);
+                } catch (Exception $e) { /* ignore */ }
+            }
+
+            if (empty($ptwRow)) {
+                throw new Exception('[' . __LINE__ . '] - PTW not found');
+            }
+
+            $status = isset($ptwRow['ptw_status']) ? strtoupper($ptwRow['ptw_status']) : '';
+            $allowed = array('ACTIVE', 'COMPLETED', 'CLOSED', 'APPROVED');
+            if (!in_array($status, $allowed, true)) {
+                throw new Exception('[' . __LINE__ . '] - PDF is only available after final approval (current status: ' . ($status ?: 'UNKNOWN') . ')');
+            }
+
+            $fn_pdf_ptw->__set('ptwId', $ptwPermitId);
             $returnVal = $fn_pdf_ptw->create_pdf();
             $result = $fn_general->getPdf($returnVal['pdfId']);
             $fn_general->save_audit('118', $jwt_data->userId, 'PTW Permit no. = '.$returnVal['ptwPermitNumber']);
-        } else {
+
+            // Normalize response shape for frontends expecting top-level fields
+            $form_data['status'] = 'success';
+            // Provide a stable download URL via get_file
+            $form_data['pdf_url'] = 'api/ptw_pdf.php?action=get_file&ptw_id=' . urlencode($ptwPermitId);
+            if (is_array($result)) {
+                // Bubble up useful fields if present
+                if (isset($result['filename'])) { $form_data['filename'] = $result['filename']; }
+                if (isset($result['pdf_filename'])) { $form_data['filename'] = $result['pdf_filename']; }
+            }
+    } else {
             throw new Exception('[' . __LINE__ . '] - Parameter type invalid');
         }
 
@@ -70,6 +182,8 @@ try {
 }
 
 echo json_encode($form_data);
+// Ensure GET requests don't fall through to POST action handler below
+if ($_SERVER['REQUEST_METHOD'] === 'GET') { exit; }
 
 switch ($_POST['action']) {
 

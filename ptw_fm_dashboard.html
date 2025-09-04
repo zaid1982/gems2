@@ -956,7 +956,7 @@ function generatePendingClosureActions(permitId, permitNumber){
                     <i class="fas fa-flag-checkered text-success"></i> Acknowledge & Close
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDFWithStatus('${permitId}', 'PENDING_CLOSURE')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -1793,6 +1793,15 @@ function generatePTWPDF(ptwId) {
             console.error('PDF generation error:', err);
             safeToast('error', err.message || 'Error generating PDF', 'Error');
         });
+}
+
+function generatePTWPDFWithStatus(ptwId, status){
+    const finalStatuses = ['ACTIVE','COMPLETED','CLOSED','APPROVED'];
+    if (status && finalStatuses.indexOf(String(status).toUpperCase()) === -1) {
+        safeToast('info','PDF is available after all approvals are completed','Info');
+        return;
+    }
+    generatePTWPDF(ptwId);
 }
 
 // ===============================

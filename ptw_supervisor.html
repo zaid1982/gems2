@@ -2623,7 +2623,7 @@ function generatePTWPDF(ptwId) {
     
     try {
         // Use mzAjaxRequest like other API calls in this file
-        const result = mzAjaxRequest(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
+        const result = mzAjaxRequest(`ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
         
         console.log('PDF generation result:', result);
         
