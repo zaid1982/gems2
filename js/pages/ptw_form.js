@@ -1535,7 +1535,7 @@ class PtwForm {
             { checkbox: 'chkLiftingCert', input: 'certLifting', name: 'liftingCert' },
             { checkbox: 'chkPhysicalIsolation', input: 'certPhysicalIsolation', name: 'physicalIsolation' },
             { checkbox: 'chkElectricalIsolation', input: 'certElectricalIsolation', name: 'electricalIsolation' },
-            { checkbox: 'chkConfinedSpace', input: 'certConfinedSpace', name: 'confinedSpaceCert' },
+            { checkbox: 'chkConfinedSpaceCert', input: 'certConfinedSpace', name: 'confinedSpaceCert' },
             { checkbox: 'chkOthers', input: 'certOthers', name: 'othersCert' }
         ];
         
@@ -1580,7 +1580,7 @@ class PtwForm {
             'liftingChecklist': 'chkLiftingChecklist',
             'physicalIsolation': 'chkPhysicalIsolation',
             'electricalIsolation': 'chkElectricalIsolation',
-            'confinedSpaceCert': 'chkConfinedSpace',
+            'confinedSpaceCert': 'chkConfinedSpaceCert',
             'othersCert': 'chkOthers'
         };
         return mapping[certKey] || null;

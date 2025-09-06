@@ -728,11 +728,11 @@
             display: block;
         }
         
-        /* Default: show all hazardous activity sections */
+        /* Default: hide hazardous activity sections until a Work Type is selected */
         #coldWorkSection,
         #hotWorkSection,
         #confinedSpaceSection {
-            display: block;
+            display: none;
         }
         
         /* Always show sections regardless of work type selection */
@@ -1884,8 +1884,8 @@
                                             
                                             <div class="form-group mb-3">
                                                 <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkConfinedSpace" onchange="toggleCertField('chkConfinedSpace', 'certConfinedSpace')">
-                                                    <label class="form-check-label" for="chkConfinedSpace">Confined Space Cert No.:</label>
+                                                    <input type="checkbox" class="form-check-input" id="chkConfinedSpaceCert" onchange="toggleCertField('chkConfinedSpaceCert', 'certConfinedSpace')">
+                                                    <label class="form-check-label" for="chkConfinedSpaceCert">Confined Space Cert No.:</label>
                                                 </div>
                                                 <input type="text" class="form-control" id="certConfinedSpace" placeholder="Enter certificate number" disabled>
                                             </div>
@@ -2702,6 +2702,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             // Still initialize basic functionality for view mode
             initializeTabNavigation();
             initializeWorkTypeHandlers();
+            // Apply conditional visibility based on Work Type selections
+            try { initializeWorkTypeConditionalSections(); } catch (e) { console.warn('init WT conditional (view) failed', e); }
         } else {
             // Normal form initialization
             // Initialize tab navigation
@@ -2709,6 +2711,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             
             // Initialize work type handlers
             initializeWorkTypeHandlers();
+            // Apply conditional visibility based on Work Type selections
+            try { initializeWorkTypeConditionalSections(); } catch (e) { console.warn('init WT conditional failed', e); }
             
             // Initialize radio buttons for contractor declarations
             initializeRadioButtons();
@@ -2966,6 +2970,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         makeFormReadOnly();
                         // Offer edit option if allowed
                         try { setupEditCapability(data.data); } catch (e) { console.warn('Edit capability setup failed', e); }
+                        // Re-apply conditional sections after data binds (checklist/checkboxes may change)
+                        try { initializeWorkTypeConditionalSections(); } catch (e) { console.warn('re-init WT conditional after data load failed', e); }
                     } else {
                         console.error('❌ API returned error:', data);
                         let errorMessage = 'Failed to load PTW data. ';
@@ -3805,6 +3811,47 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         console.log('Form has been made read-only for view mode');
     }
 
+    // Determine which sections are editable by current stage/status
+    function getEditableSectionsByStatus(status) {
+        const s = (status || '').toString().toUpperCase();
+        // Defaults: allow all in DRAFT; restrict progressively by stage
+        if (s === 'PENDING_SUPERVISOR') return ['section1', 'section2'];
+        if (s === 'PENDING_SHE') return ['section2'];
+        if (s === 'PENDING_FM' || s === 'ACTIVE' || s === 'APPROVED' || s === 'COMPLETED' || s === 'EXPIRED' || s === 'CANCELLED') return [];
+        // Fallbacks: DRAFT or unknown -> allow all sections
+        return ['section1', 'section2', 'section3', 'section4'];
+    }
+
+    function setSectionsEditable(allowedSectionIds) {
+        const all = ['section1', 'section2', 'section3', 'section4'];
+        const allowed = new Set(allowedSectionIds || []);
+        all.forEach(secId => {
+            const root = document.getElementById(secId);
+            if (!root) return;
+            const enable = allowed.has(secId);
+            const controls = root.querySelectorAll('input, select, textarea, button');
+            controls.forEach(el => {
+                // Never enable approval buttons here; they live outside these sections anyway
+                if (enable) {
+                    // Respect explicit readonly fields if any
+                    el.disabled = false;
+                    el.readOnly = false;
+                    el.style.cursor = '';
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                        el.style.backgroundColor = '';
+                    }
+                } else {
+                    el.disabled = true;
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                        el.readOnly = true;
+                        el.style.backgroundColor = '#f8f9fa';
+                    }
+                    el.style.cursor = 'not-allowed';
+                }
+            });
+        });
+    }
+
     // Enable editing for allowed users (contractor via token OR internal roles; server revalidates)
     function setupEditCapability(ptwData) {
         try {
@@ -3813,6 +3860,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             const status = (ptwData.ptw_status || '').toString().toUpperCase();
             const fmApproval = (ptwData.ptw_fm_approval || '').toString().toUpperCase();
             const isFinalized = (status === 'ACTIVE' || status === 'APPROVED' || fmApproval === 'APPROVED');
+            // Compute stage-based editable sections
+            const stageAllowed = getEditableSectionsByStatus(status);
+            window.allowedEditableSections = stageAllowed;
+            // If nothing is allowed, don't show edit toolbar
+            if (!stageAllowed || stageAllowed.length === 0) { return; }
             if (isFinalized) { return; }
 
             // Create a compact edit toolbar aligned to the right of the title
@@ -3829,6 +3881,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             btnEdit.type = 'button';
             btnEdit.className = 'btn btn-sm btn-warning btn-ptw-edit';
             btnEdit.innerHTML = '<i class="fas fa-edit mr-1"></i>Edit';
+            btnEdit.title = 'Editable: ' + (stageAllowed.join(', ').replace(/section/g, 'Section ') || '');
             btnEdit.addEventListener('click', enterEditMode);
 
             const btnSave = document.createElement('button');
@@ -3860,20 +3913,20 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     function enterEditMode() {
         try {
             document.body.classList.remove('view-mode');
-            // Re-enable all fields
-            const inputs = document.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                input.readOnly = false;
-                input.disabled = false;
-                input.style.backgroundColor = '';
-                input.style.cursor = '';
+            // Start from fully disabled, then enable only allowed sections
+            const allControls = document.querySelectorAll('input, textarea, select, button');
+            allControls.forEach(el => {
+                // Keep modal close/approval buttons behavior as-is
+                el.disabled = true;
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                    el.readOnly = true;
+                    el.style.backgroundColor = '#f8f9fa';
+                }
+                el.style.cursor = 'not-allowed';
+                el.style.opacity = el.tagName === 'BUTTON' ? '0.6' : '';
             });
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.style.opacity = '';
-                btn.style.cursor = '';
-            });
+            // Enable only allowed sections per stage
+            setSectionsEditable(window.allowedEditableSections || ['section1','section2','section3','section4']);
             // Keep approval sections hidden in edit mode (handled elsewhere)
             const approvalSections = document.getElementById('approvalSections');
             if (approvalSections) { approvalSections.style.display = 'none'; }
@@ -3885,6 +3938,9 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             if (saveBtn) saveBtn.style.display = 'inline-block';
             if (cancelBtn) cancelBtn.style.display = 'inline-block';
             if (editBtn) editBtn.style.display = 'none';
+            // Ensure toolbar actions are enabled even if outside allowed sections
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = ''; saveBtn.style.cursor = ''; }
+            if (cancelBtn) { cancelBtn.disabled = false; cancelBtn.style.opacity = ''; cancelBtn.style.cursor = ''; }
 
             // Show stepper navigation
             const stepperNav = document.querySelector('.stepper-navigation');
@@ -4363,7 +4419,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 value: document.getElementById('certElectricalIsolation')?.value || ''
             },
             confinedSpaceCert: {
-                checked: document.getElementById('chkConfinedSpace')?.checked || false,
+                checked: document.getElementById('chkConfinedSpaceCert')?.checked || false,
                 value: document.getElementById('certConfinedSpace')?.value || ''
             },
             othersCert: {
@@ -5281,6 +5337,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             });
         }
         
+        // Apply initial visibility based on current selections (hidden by default via CSS)
+        toggleConditionalSection('coldWork', !!(coldWorkCheckbox && coldWorkCheckbox.checked));
+        toggleConditionalSection('hotWork', !!(hotWorkCheckbox && hotWorkCheckbox.checked));
+        toggleConditionalSection('confinedSpace', !!(confinedSpaceCheckbox && confinedSpaceCheckbox.checked));
+        
         // Initialize sub-checkbox dependencies for each section
         initializeSubCheckboxDependencies();
         
@@ -5305,16 +5366,19 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         }
         
         const section = document.querySelector(sectionSelector);
+        const inViewMode = document.body.classList.contains('view-mode');
         if (section) {
             if (isEnabled) {
                 section.style.display = 'block';
                 section.classList.remove('d-none');
                 
                 // Enable all form controls in the section
-                const formControls = section.querySelectorAll('input, select, textarea');
-                formControls.forEach(control => {
-                    control.disabled = false;
-                });
+                if (!inViewMode) {
+                    const formControls = section.querySelectorAll('input, select, textarea');
+                    formControls.forEach(control => {
+                        control.disabled = false;
+                    });
+                }
                 
                 console.log(`${sectionType} section enabled`);
             } else {
@@ -5322,15 +5386,17 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 section.classList.add('d-none');
                 
                 // Disable and clear all form controls in the section
-                const formControls = section.querySelectorAll('input, select, textarea');
-                formControls.forEach(control => {
-                    control.disabled = true;
-                    if (control.type === 'checkbox' || control.type === 'radio') {
-                        control.checked = false;
-                    } else {
-                        control.value = '';
-                    }
-                });
+                if (!inViewMode) {
+                    const formControls = section.querySelectorAll('input, select, textarea');
+                    formControls.forEach(control => {
+                        control.disabled = true;
+                        if (control.type === 'checkbox' || control.type === 'radio') {
+                            control.checked = false;
+                        } else {
+                            control.value = '';
+                        }
+                    });
+                }
                 
                 console.log(`${sectionType} section disabled and cleared`);
             }

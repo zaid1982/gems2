@@ -193,7 +193,8 @@ class Class_ptw {
     }
 
     /**
-     * Assign Permit Number on FM approval (idempotent).
+     * Assign Permit Number at first qualifying approval (now Supervisor approval stage).
+     * Idempotent: if already assigned, returns existing number.
      */
     public function assign_permit_number($permit_id, $site_id, $user_id) {
         try {
@@ -218,6 +219,70 @@ class Class_ptw {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw $ex;
         }
+    }
+
+    /**
+     * Map internal backend status (plus context) to URS display status.
+     * Optionally detects "Extended" by inspecting provided history array; if not provided and detection needed,
+     * will lazily query (single COUNT) only when current status would otherwise map to Approved (ACTIVE).
+     * @param array $permit Row from ptw_permit (or merged API structure)
+     * @param array|null $history Optional array of history rows (each needs action_type)
+     * @return string User-facing display status
+     */
+    public function map_display_status($permit, $history = null) {
+        $status = isset($permit['ptw_status']) ? strtoupper($permit['ptw_status']) : '';
+        $sup = strtoupper($permit['ptw_supervisor_approval'] ?? '');
+        $she = strtoupper($permit['ptw_she_approval'] ?? '');
+        $fm  = strtoupper($permit['ptw_fm_approval'] ?? '');
+
+        // Base direct mappings
+        switch ($status) {
+            case 'DRAFT': return 'Draft';
+            case 'SUBMITTED': return 'New Request'; // transitional pre PENDING_SUPERVISOR
+            case 'PENDING_SUPERVISOR': return 'New Request';
+            case 'PENDING_SHE': return 'SHE Approval';
+            case 'PENDING_FM': return 'FM Approval';
+            case 'PENDING_EXTENSION': return 'Extension Requested';
+            case 'ACTIVE': return 'Approved'; // legacy/alternate to ACTIVE
+            case 'APPROVED': return 'Approved'; // legacy/alternate to ACTIVE
+            case 'EXTENDED': return 'Extended'; // new explicit enum after approval
+            case 'PENDING_CLOSURE': return 'Closure Requested';
+            case 'PENDING_CANCELLATION': return 'Cancellation Requested';
+            case 'PENDING_SUSPENSION': return 'Suspension Requested';
+            case 'COMPLETED': return 'Closed';
+            case 'CANCELLED': return 'Cancelled';
+            case 'SUSPENDED': return 'Suspended';
+            case 'REJECTED': return 'Rejected';
+        }
+
+    // ACTIVE -> could be Approved or Extended (legacy before EXTENDED enum existed)
+    if ($status === 'ACTIVE') {
+            // Detect extended: criteria -> history contains action_type 'EXTENDED'
+            $isExtended = false;
+            if (is_array($history)) {
+                foreach ($history as $h) {
+                    if (isset($h['action_type']) && strtoupper($h['action_type']) === 'EXTENDED') { $isExtended = true; break; }
+                }
+            } else {
+                // Lazy single COUNT only if needed
+                try {
+                    $pid = $permit['ptw_permit_id'] ?? $permit['permit_id'] ?? null;
+                    if ($pid) {
+                        $row = Class_db::getInstance()->db_select("SELECT COUNT(1) c FROM ptw_status_history WHERE ptw_permit_id = :pid AND action_type = 'EXTENDED'", [], null, null, 0, [':pid' => strval($pid)]);
+                        if (is_array($row) && count($row) > 0) { $isExtended = intval($row[0]['c']) > 0; }
+                    }
+                } catch (Exception $e) { /* ignore */ }
+            }
+            return $isExtended ? 'Extended' : 'Approved';
+        }
+
+        // Fallback - if approvals chain defines a meaningful stage not captured in ptw_status
+        if ($sup !== 'APPROVED') { return 'New Request'; }
+        if ($sup === 'APPROVED' && $she !== 'APPROVED') { return 'SHE Approval'; }
+        if ($she === 'APPROVED' && $fm !== 'APPROVED') { return 'FM Approval'; }
+        if ($fm === 'APPROVED') { return 'Approved'; }
+
+        return 'Unknown';
     }
 
     /**
@@ -843,8 +908,8 @@ class Class_ptw {
     }
 
     /**
-     * Get ACTIVE permits that have extension requests flagged
-     * Criteria: ptw_status = 'ACTIVE' and any of the extension request fields populated
+     * Get permits that have extension requests flagged
+     * Criteria: ptw_status in ('ACTIVE','SUSPENDED','PENDING_EXTENSION') and any extension request fields populated
      * @param int $site_id
      * @return array
      * @throws Exception
@@ -853,21 +918,16 @@ class Class_ptw {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Getting extension requests for site: {$site_id}");
 
-            // Fetch ACTIVE permits with possible extension markers
-            $active = Class_db::getInstance()->db_select('ptw_permit', array(
-                'site_id' => strval($site_id),
-                'ptw_status' => 'ACTIVE'
-            ), 'ptw_permit_id DESC');
-
-            // Fetch SUSPENDED permits too (resume via extension)
-            $suspended = Class_db::getInstance()->db_select('ptw_permit', array(
-                'site_id' => strval($site_id),
-                'ptw_status' => 'SUSPENDED'
-            ), 'ptw_permit_id DESC');
-
+            // Fetch eligible permits with possible extension markers
+            $statuses = array('ACTIVE','SUSPENDED','PENDING_EXTENSION');
             $permits = array();
-            if ($active && is_array($active)) { $permits = array_merge($permits, $active); }
-            if ($suspended && is_array($suspended)) { $permits = array_merge($permits, $suspended); }
+            foreach ($statuses as $st) {
+                $list = Class_db::getInstance()->db_select('ptw_permit', array(
+                    'site_id' => strval($site_id),
+                    'ptw_status' => $st
+                ), 'ptw_permit_id DESC');
+                if ($list && is_array($list)) { $permits = array_merge($permits, $list); }
+            }
 
             // Filter to only those with extension markers present
             $result = array();

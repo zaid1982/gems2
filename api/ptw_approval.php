@@ -299,12 +299,20 @@ function handleGetPtw() {
  */
 function transformDatabaseToFrontend($dbData) {
     // Map database fields to frontend field names based on actual database schema
+    // Try to map display status (requires Class_ptw)
+    $displayStatus = '';
+    try {
+        $mapper = new Class_ptw();
+        $displayStatus = $mapper->map_display_status($dbData);
+    } catch (Exception $e) { $displayStatus = ''; }
+
     $transformed = array(
         // Basic PTW information - use correct database column names
         'id' => (!empty($dbData['ptw_permit_number']) ? $dbData['ptw_permit_number'] : (!empty($dbData['ptw_request_number']) ? $dbData['ptw_request_number'] : ($dbData['ptw_permit_id'] ?? ''))),
         'ptw_permit_id' => $dbData['ptw_permit_id'] ?? '',
         'ptw_permit_number' => $dbData['ptw_permit_number'] ?? '',
         'ptw_request_number' => $dbData['ptw_request_number'] ?? '',
+        'ptw_display_status' => $displayStatus,
         'description' => $dbData['ptw_permit_description'] ?? '',
         'work_description' => $dbData['ptw_permit_description'] ?? '',
         'work_area' => $dbData['ptw_work_area'] ?? '',

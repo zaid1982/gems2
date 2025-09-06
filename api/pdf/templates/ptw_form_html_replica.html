@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Permit To Work (PTW) – Modern Layout</title>
+  <style>
+    :root{
+      --bg:#ffffff;--fg:#111318;--muted:#5b6371;--line:#d8dde5;--soft:#f3f5f8;--accent:#0f172a;--pill:#eef2ff;
+      --a4w:210mm;--a4h:297mm;--pad:14mm;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:12px/1.45 "Inter","Segoe UI",Arial,Helvetica,sans-serif}
+    .page{width:var(--a4w);min-height:var(--a4h);margin:0 auto;padding:var(--pad);position:relative;}
+    .page+.page{page-break-before:always}
+    @media print{
+      body{background:#fff}
+      .page{box-shadow:none;margin:0}
+      .no-print{display:none!important}
+      a{color:currentColor;text-decoration:none}
+    }
+    /* ===== Header ===== */
+    .hdr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding-bottom:8px;border-bottom:2px solid var(--accent)}
+    .brand{display:flex;align-items:center;gap:8px}
+    .logo{width:40px;height:40px;border-radius:8px;background:var(--soft);border:1px solid var(--line)}
+    .title{font-weight:800;font-size:20px;letter-spacing:.2px}
+    .subtitle{font-size:10px;color:var(--muted)}
+    .doc-meta{font-size:10px;text-align:right}
+    .doc-meta div{margin:2px 0}
+
+    /* ===== Cards / Sections ===== */
+    .section{margin:12px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+    .sec-h{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--soft);border-bottom:1px solid var(--line)}
+    .badge{min-width:22px;height:22px;border-radius:999px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+    .sec-t{font-weight:700}
+    .sec-s{margin-left:auto;color:var(--muted);font-size:11px}
+    .sec-b{padding:10px}
+
+    /* ===== Grid & Utilities ===== */
+    .row{display:grid;gap:8px}
+    .two{grid-template-columns:1fr 1fr}
+    .three{grid-template-columns:1fr 1fr 1fr}
+    .four{grid-template-columns:repeat(4,1fr)}
+    .mt-6{margin-top:6px}.mt-8{margin-top:8px}.mb-4{margin-bottom:4px}
+
+    /* ===== Fields ===== */
+    .field{display:grid;grid-template-columns:170px 1fr;align-items:center;gap:6px}
+    .field.stacked{grid-template-columns:1fr}
+    .lbl{font-weight:600;color:#0b1220}
+    .ctl{display:flex;gap:6px;align-items:center}
+    input[type=text],input[type=date],input[type=time],textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;background:#fff}
+    textarea{min-height:62px;resize:vertical}
+    .hint{color:var(--muted);font-size:10px}
+
+    /* ===== Tables ===== */
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top}
+    th{background:#fafbff;text-align:left}
+
+    /* ===== Choice lists ===== */
+    .checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .check{border:1px dashed var(--line);border-radius:8px;padding:6px 8px;min-height:34px}
+    .pills{display:flex;flex-wrap:wrap;gap:6px}
+    .pill{border:1px solid var(--line);background:var(--pill);border-radius:999px;padding:4px 10px;display:inline-flex;align-items:center;gap:6px}
+
+    /* ===== Signature ===== */
+    .sign{display:grid;grid-template-columns:1fr;gap:6px}
+    .sign-line{height:34px;border-top:1px solid var(--line)}
+
+    /* ===== Footer ===== */
+    .ftr{position:absolute;left:var(--pad);right:var(--pad);bottom:12mm;display:flex;justify-content:space-between;font-size:10px;color:#000}
+
+    /* Page breaks where it helps */
+    .break{page-break-inside:avoid}
+  </style>
+</head>
+<body>
+  <!-- ===== PAGE 1 ===== -->
+  <div class="page">
+    <header class="hdr">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div class="title">PERMIT TO WORK</div>
+          <div class="subtitle">Work Fast • Think Smart • Stay Safe</div>
+        </div>
+      </div>
+      <div></div>
+      <div class="doc-meta">
+        <div><strong>Form Code:</strong> BPM 9.1/F/013/25:1</div>
+        <div><strong>PTW No:</strong> <span style="display:inline-block;min-width:120px;border-bottom:1px solid var(--line)"></span></div>
+      </div>
+    </header>
+
+    <!-- Meta Block (compact) -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">0</span><span class="sec-t">Permit Metadata</span><span class="sec-s">For admin tracking</span></div>
+      <div class="sec-b row three">
+        <div class="field"><div class="lbl">Building / Site</div><div class="ctl"><input type="text" placeholder="e.g. Tower A"/></div></div>
+        <div class="field"><div class="lbl">Level</div><div class="ctl"><input type="text" placeholder="e.g. L17"/></div></div>
+        <div class="field"><div class="lbl">Work Area</div><div class="ctl"><input type="text" placeholder="Area / Room"/></div></div>
+        <div class="field"><div class="lbl">Valid From</div><div class="ctl"><input type="date"/><input type="time"/></div></div>
+        <div class="field"><div class="lbl">Valid To</div><div class="ctl"><input type="date"/><input type="time"/></div></div>
+        <div class="field"><div class="lbl">Company / Dept.</div><div class="ctl"><input type="text"/></div></div>
+      </div>
+    </section>
+
+    <!-- SECTION 1 - REQUISITION -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">1</span><span class="sec-t">Requisition</span><span class="sec-s">To be filled by applicant</span></div>
+      <div class="sec-b row two">
+        <div class="row">
+          <div class="field"><div class="lbl">Applicant Name</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Contact No</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Staff / NRIC No</div><div class="ctl"><input type="text"/></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><div class="lbl">Contractor Supervisor</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Contact No</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Identification No</div><div class="ctl"><input type="text"/></div></div>
+        </div>
+      </div>
+      <div class="sec-b">
+        <div class="lbl mb-4">List of Workers</div>
+        <table>
+          <thead><tr><th style="width:48px">#</th><th>Identification No. (IC / CIDB / Passport)</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td></td></tr><tr><td>2</td><td></td></tr><tr><td>3</td><td></td></tr><tr><td>4</td><td></td></tr><tr><td>5</td><td></td></tr>
+            <tr><td>6</td><td></td></tr><tr><td>7</td><td></td></tr><tr><td>8</td><td></td></tr><tr><td>9</td><td></td></tr><tr><td>10</td><td></td></tr>
+          </tbody>
+        </table>
+        <div class="hint mt-6">Provide additional list if space is insufficient.</div>
+        <div class="field stacked mt-8"><div class="lbl">Description of Work</div><div class="ctl"><textarea placeholder="Describe scope, method, tools, and any dependencies..."></textarea></div></div>
+      </div>
+    </section>
+
+    <!-- COLD / OTHER WORKS (merged + tidied) -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">2</span><span class="sec-t">Cold Work / Other Works</span><span class="sec-s">Conditions to be implemented by Supervisor</span></div>
+      <div class="sec-b checkgrid">
+        <label class="check"><input type="checkbox"/> Electrical work</label>
+        <label class="check"><input type="checkbox"/> Working at height</label>
+        <label class="check"><input type="checkbox"/> Excavation work</label>
+        <label class="check"><input type="checkbox"/> Working under load</label>
+        <label class="check"><input type="checkbox"/> Lifting work</label>
+        <label class="check"><input type="checkbox"/> Chemical handling</label>
+        <label class="check"><input type="checkbox"/> Circuit isolation</label>
+        <label class="check"><input type="checkbox"/> Lock-out / Tag-out</label>
+        <label class="check"><input type="checkbox"/> Fire extinguisher</label>
+        <label class="check"><input type="checkbox"/> Main supply cut-off</label>
+        <label class="check"><input type="checkbox"/> Abseiling work</label>
+        <label class="check"><input type="checkbox"/> Scaffolding</label>
+        <label class="check"><input type="checkbox"/> Gondola</label>
+        <label class="check"><input type="checkbox"/> Rooftop access</label>
+        <label class="check"><input type="checkbox"/> Use of ladder</label>
+        <label class="check"><input type="checkbox"/> Excavation depth &lt; 1.2 m</label>
+        <label class="check"><input type="checkbox"/> Excavation depth &gt; 1.2 m (confined space)</label>
+        <label class="check"><input type="checkbox"/> Safe access &amp; egress</label>
+        <label class="check"><input type="checkbox"/> Protection from falling material</label>
+        <label class="check"><input type="checkbox"/> Protection from engulfment</label>
+        <div class="check"><span>Others:</span> <input type="text"/></div>
+      </div>
+      <div class="sec-b hint">Approval is valid provided all listed conditions/precautions are complied with.</div>
+    </section>
+
+    <!-- HOT WORK (clear two-column with pills) -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">3</span><span class="sec-t">Hot Work</span><span class="sec-s">Conditions to be implemented by Supervisor</span></div>
+      <div class="sec-b row two">
+        <div>
+          <div class="lbl mb-4">Type of Hot Work</div>
+          <div class="pills">
+            <label class="pill"><input type="checkbox"/> Welding</label>
+            <label class="pill"><input type="checkbox"/> Flame cutting</label>
+            <label class="pill"><input type="checkbox"/> Open flame</label>
+            <label class="pill"><input type="checkbox"/> Grinding</label>
+            <label class="pill"><input type="checkbox"/> Blasting</label>
+            <label class="pill"><input type="checkbox"/> Power brushing</label>
+            <label class="pill"><input type="checkbox"/> Gouging</label>
+            <label class="pill"><input type="checkbox"/> PWHT</label>
+            <label class="pill"><input type="checkbox"/> Pyrophoric material</label>
+            <label class="pill"><input type="checkbox"/> Others</label>
+          </div>
+        </div>
+        <div>
+          <div class="lbl mb-4">Controls Required</div>
+          <div class="field"><div class="lbl">Gas monitoring</div><div class="ctl"><label><input type="checkbox"/> Continuous</label><label><input type="checkbox"/> Every</label><input type="text" style="max-width:60px"/><span>hour(s)</span></div></div>
+          <div class="field"><div class="lbl">Firewatch name</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Fire extinguisher</div><div class="ctl"><input type="text" placeholder="Type / Qty"/></div></div>
+          <div class="ctl"><label><input type="checkbox"/> Fire retardant screen</label></div>
+          <div class="ctl"><label><input type="checkbox"/> Cover flammable sewer/drain/sump</label></div>
+          <div class="ctl"><label><input type="checkbox"/> Relocate spark-producing equipment</label></div>
+          <div class="ctl"><label><input type="checkbox"/> Remove flammable/combustible materials</label></div>
+          <div class="ctl"><label><input type="checkbox"/> Fire blanket</label></div>
+          <div class="field stacked"><div class="lbl">Others</div><div class="ctl"><input type="text"/></div></div>
+        </div>
+      </div>
+      <div class="sec-b hint">Approval is valid provided all listed conditions/precautions are complied with.</div>
+    </section>
+
+    <!-- CONFINED SPACE ENTRY -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">4</span><span class="sec-t">Confined Space Entry</span><span class="sec-s">Conditions to be implemented by Entry Supervisor</span></div>
+      <div class="sec-b row two">
+        <div>
+          <div class="lbl mb-4">Entry Condition</div>
+          <div class="checkgrid">
+            <label class="check"><input type="checkbox"/> Respirable atmosphere</label>
+            <label class="check"><input type="checkbox"/> Irrespirable atmosphere</label>
+            <label class="check"><input type="checkbox"/> First entry using SCBA/air line</label>
+            <label class="check"><input type="checkbox"/> Entrants are CSE certified</label>
+            <label class="check"><input type="checkbox"/> Entrants briefed by supervisor</label>
+            <label class="check"><input type="checkbox"/> Entry status board/log</label>
+            <div class="check"><label><input type="checkbox"/> Max persons allowed:</label> <input type="text" style="max-width:80px"/> person(s)</div>
+            <label class="check"><input type="checkbox"/> Continuous ventilation</label>
+            <div class="check"><label><input type="checkbox"/> Check every</label> <input type="text" style="max-width:80px"/> hour(s)</div>
+            <label class="check"><input type="checkbox"/> CSE checklist attached</label>
+          </div>
+        </div>
+        <div>
+          <div class="lbl mb-4">Controls Required</div>
+          <div class="field stacked"><div class="lbl">Communication used</div><div class="ctl"><input type="text" placeholder="e.g. radio, rope signal"/></div></div>
+          <div class="checkgrid">
+            <label class="check"><input type="checkbox"/> Standby person</label>
+            <label class="check"><input type="checkbox"/> Rope signals</label>
+            <div class="check"><span>Name:</span> <input type="text"/></div>
+            <label class="check"><input type="checkbox"/> ELV lighting (≤50V)</label>
+            <label class="check"><input type="checkbox"/> Rescue equipment</label>
+            <label class="check"><input type="checkbox"/> Complete CSE checklist</label>
+            <label class="check"><input type="checkbox"/> Walkie talkie</label>
+            <label class="check"><input type="checkbox"/> Whistle / horn</label>
+            <label class="check"><input type="checkbox"/> Keep mobile equipment away from manhole</label>
+            <div class="check"><span>Others:</span> <input type="text"/></div>
+          </div>
+          <div class="hint mt-6">I have personally checked all control measures are in place to prevent release of hazard and meet certificate requirements.</div>
+          <div class="row two mt-6">
+            <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Designation</div><div class="ctl"><input type="text"/></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="ftr">
+      <div>BPM 9.1 — Effective Date: 01/08/2025</div>
+      <div>Page 1 of 2</div>
+    </footer>
+  </div>
+
+  <!-- ===== PAGE 2 ===== -->
+  <div class="page">
+    <header class="hdr">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div class="title">PERMIT TO WORK</div>
+          <div class="subtitle">Work Fast • Think Smart • Stay Safe</div>
+        </div>
+      </div>
+      <div></div>
+      <div class="doc-meta"><div><strong>Form:</strong> BPM 9.1</div></div>
+    </header>
+
+    <!-- SUPPORTING DOCS -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">5</span><span class="sec-t">Supporting Documents</span></div>
+      <div class="sec-b">
+        <table>
+          <thead><tr><th style="width:55%">Descriptions</th><th style="width:20%">Status</th><th>Remarks / No.</th></tr></thead>
+          <tbody>
+            <tr><td>CIDB Green Card</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>AESP Card</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Competency Person Certificate</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Contractor Checklist</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Safety Data Sheet</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Lifting Plan</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Job Method Statement</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Job Hazard Analysis</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>HIRARC / EAIA</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Medical Check Up</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Calibration Certificate</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Load Chart</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Toolbox Talk Record</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Excavation Plan</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td>Excavation Cert No.:</td></tr>
+            <tr><td>Confined Space Cert</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td>Cert No.:</td></tr>
+            <tr><td>Lifting Checklist</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td>Lifting Cert No.:</td></tr>
+            <tr><td>Physical Isolation Certificate</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td>No.:</td></tr>
+            <tr><td>Electrical Isolation Certificate</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td>No.:</td></tr>
+            <tr><td>Traffic Management Plan</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Certificate of Fitness (PMA/PMT/PMD)</td><td><input type="checkbox"/> Yes <input type="checkbox"/> No</td><td></td></tr>
+            <tr><td>Others (please specify)</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- HAZARDOUS ACTIVITIES -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">6</span><span class="sec-t">Hazardous Activities</span></div>
+      <div class="sec-b checkgrid">
+        <label class="check"><input type="checkbox"/> Slippery floor</label>
+        <label class="check"><input type="checkbox"/> Sharp objects/edges</label>
+        <label class="check"><input type="checkbox"/> Rotating parts</label>
+        <label class="check"><input type="checkbox"/> Dropped objects</label>
+        <label class="check"><input type="checkbox"/> Uneven ground/soil</label>
+        <label class="check"><input type="checkbox"/> Extreme weather</label>
+        <label class="check"><input type="checkbox"/> Pinch point</label>
+        <label class="check"><input type="checkbox"/> Hot surface</label>
+        <label class="check"><input type="checkbox"/> Fall from height</label>
+        <label class="check"><input type="checkbox"/> Flying debris</label>
+        <label class="check"><input type="checkbox"/> Moving vehicle/machinery</label>
+        <label class="check"><input type="checkbox"/> Electrical</label>
+        <label class="check"><input type="checkbox"/> Wild animals/insects</label>
+        <label class="check"><input type="checkbox"/> Volatile liquid</label>
+        <label class="check"><input type="checkbox"/> Illumination deficiency</label>
+        <label class="check"><input type="checkbox"/> Gas/fumes</label>
+        <label class="check"><input type="checkbox"/> Simultaneous operation</label>
+        <label class="check"><input type="checkbox"/> Chemical</label>
+        <label class="check"><input type="checkbox"/> Oxygen deficiency</label>
+        <label class="check"><input type="checkbox"/> Poisonous substance</label>
+        <label class="check"><input type="checkbox"/> Infectious substance</label>
+        <label class="check"><input type="checkbox"/> Excessive noise</label>
+        <label class="check"><input type="checkbox"/> Ionizing radiation</label>
+        <label class="check"><input type="checkbox"/> Ergonomic/fatigue</label>
+        <label class="check"><input type="checkbox"/> Pressurised equipment</label>
+        <label class="check"><input type="checkbox"/> Engulfment</label>
+        <label class="check"><input type="checkbox"/> Molds</label>
+        <label class="check"><input type="checkbox"/> Others</label>
+      </div>
+    </section>
+
+    <!-- CONTRACTOR DECLARATION & PPE -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">7</span><span class="sec-t">Contractor Declaration & PPE</span></div>
+      <div class="sec-b">
+        <ol style="margin:0 0 8px 18px;padding:0">
+          <li>All assigned workers are briefed on relevant SHE procedures; only activities stated in JHA are permitted.</li>
+          <li>All documentation provided are valid during PTW validity.</li>
+          <li>Ensure all appointed workers are briefed on job steps and safety before start work.</li>
+          <li>GFM is not liable for incidents on site if PTW terms are violated.</li>
+          <li>PTW must be displayed at the work site at all times.</li>
+          <li>All safety equipment has been checked and deemed safe.</li>
+        </ol>
+        <div class="row three mt-6">
+          <div>
+            <div class="lbl mb-4">Mandatory</div>
+            <label class="pill"><input type="checkbox"/> Safety helmet</label>
+            <label class="pill"><input type="checkbox"/> Safety shoes</label>
+            <label class="pill"><input type="checkbox"/> Life jacket/vest</label>
+          </div>
+          <div>
+            <div class="lbl mb-4">Respiratory Protection</div>
+            <label class="pill"><input type="checkbox"/> Half mask</label>
+            <label class="pill"><input type="checkbox"/> Full face (SCBA)</label>
+            <label class="pill"><input type="checkbox"/> Air line set</label>
+          </div>
+          <div>
+            <div class="lbl mb-4">Eye, Face & Body</div>
+            <label class="pill"><input type="checkbox"/> Goggles</label>
+            <label class="pill"><input type="checkbox"/> Face shield</label>
+            <label class="pill"><input type="checkbox"/> Welding mask</label>
+            <label class="pill"><input type="checkbox"/> Hood</label>
+            <label class="pill"><input type="checkbox"/> Disposable suit</label>
+            <label class="pill"><input type="checkbox"/> Chemical suit</label>
+          </div>
+        </div>
+        <div class="row three mt-6">
+          <div>
+            <div class="lbl mb-4">Hand Protection</div>
+            <label class="pill"><input type="checkbox"/> Leather gloves</label>
+            <label class="pill"><input type="checkbox"/> Rubber gloves</label>
+            <label class="pill"><input type="checkbox"/> Chemical gloves</label>
+            <label class="pill"><input type="checkbox"/> Cotton gloves</label>
+          </div>
+          <div>
+            <div class="lbl mb-4">Hearing</div>
+            <label class="pill"><input type="checkbox"/> Ear muff</label>
+            <label class="pill"><input type="checkbox"/> Ear plug</label>
+          </div>
+          <div>
+            <div class="lbl mb-4">Footwear</div>
+            <label class="pill"><input type="checkbox"/> Rubber boots</label>
+          </div>
+        </div>
+        <div class="row three mt-8">
+          <div class="sign">
+            <div class="lbl">Name</div><input type="text"/>
+            <div class="lbl">Designation</div><input type="text"/>
+          </div>
+          <div></div>
+          <div class="sign">
+            <div class="lbl">Signature</div><div class="sign-line"></div>
+          </div>
+        </div>
+        <div class="hint mt-6">Acknowledgement by Supervisor/Contractor Supervisor: We have read and understood the terms and agree to comply with all requirements set by the building owners and GFM.</div>
+      </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">8</span><span class="sec-t">GFM Verification & Approval</span></div>
+      <div class="sec-b">
+        <ol style="margin:0 0 6px 18px;padding:0">
+          <li>PTW application must be submitted and approved by authorised personnel before work begins.</li>
+          <li>PTW is required for all types of works defined in SHE Induction Briefing.</li>
+          <li>PTW validity: up to 7 days for Other Works; up to 8 hours/day for Confined Space Entry from issuance date.</li>
+        </ol>
+        <div class="row three mt-8">
+          <div>
+            <div class="lbl mb-4">Supervised By</div>
+            <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Designation</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"/></div></div>
+            <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+          </div>
+          <div>
+            <div class="lbl mb-4">SHE Authorizing Person</div>
+            <div class="pills mb-4"><label class="pill"><input type="checkbox"/> Approved</label><label class="pill"><input type="checkbox"/> Not Approved</label></div>
+            <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Designation</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"/></div></div>
+            <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+          </div>
+          <div>
+            <div class="lbl mb-4">Facility Engineer / Manager / Client</div>
+            <div class="pills mb-4"><label class="pill"><input type="checkbox"/> Approved</label><label class="pill"><input type="checkbox"/> Not Approved</label></div>
+            <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Designation</div><div class="ctl"><input type="text"/></div></div>
+            <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"/></div></div>
+            <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HAND BACK / STATUS -->
+    <section class="section break">
+      <div class="sec-h"><span class="badge">9</span><span class="sec-t">Hand Back / Status</span></div>
+      <div class="sec-b row two">
+        <div>
+          <div class="lbl mb-4">Completion</div>
+          <div class="hint">All work completed; site cleaned and ready for normal operations.</div>
+          <div class="row two mt-6">
+            <div class="field"><div class="lbl">From Date/Time</div><div class="ctl"><input type="date"/><input type="time"/></div></div>
+            <div class="field"><div class="lbl">To Date/Time</div><div class="ctl"><input type="date"/><input type="time"/></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="lbl mb-4">Site Ready</div>
+          <div class="hint">All precautions removed; worksite ready to resume.</div>
+        </div>
+      </div>
+      <div class="sec-b row two">
+        <div>
+          <div class="lbl mb-4">Suspended</div>
+          <div class="hint">Permit suspended (attach NCR/CAR if required).</div>
+          <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"></div></div></div>
+          <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+        </div>
+        <div>
+          <div class="lbl mb-4">Cancelled</div>
+          <div class="hint">Permit cancelled; work will not be carried out.</div>
+          <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"></div></div></div>
+          <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+        </div>
+      </div>
+      <div class="sec-b row two">
+        <div>
+          <div class="lbl mb-4">Extension</div>
+          <div class="hint">I hereby confirm the extension of this permit.</div>
+          <div class="field"><div class="lbl">Name</div><div class="ctl"><input type="text"/></div></div>
+          <div class="field"><div class="lbl">Signature</div><div class="ctl"><div class="sign-line"></div></div></div>
+          <div class="field"><div class="lbl">Date</div><div class="ctl"><input type="date"/></div></div>
+        </div>
+        <div>
+          <div class="lbl mb-4">PTW Status</div>
+          <div class="pills"><label class="pill"><input type="checkbox"/> Extended</label><label class="pill"><input type="checkbox"/> Closed</label><label class="pill"><input type="checkbox"/> Cancelled</label><label class="pill"><input type="checkbox"/> Suspended</label></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="ftr">
+      <div>BPM 9.1 — Effective Date: 01/08/2025</div>
+      <div>Page 2 of 2</div>
+    </footer>
+  </div>
+</body>
+</html>

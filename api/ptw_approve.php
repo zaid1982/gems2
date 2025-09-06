@@ -328,9 +328,14 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
     
     $current_status = $current_permit['ptw_status'];
     
-    // If approving, assign final Permit Number (idempotent)
-    if ($approval_status === 'APPROVED') {
-        try { $fn_ptw->assign_permit_number($permit_id, $user_site_id, $user_id); } catch (Exception $e) { /* log but continue */ $fn_general->log_error('API', __FUNCTION__, __LINE__, 'assign_permit_number failed: '.$e->getMessage()); }
+    // Fallback: if approving and permit number not yet assigned (should have been at Supervisor stage)
+    if ($approval_status === 'APPROVED' && (empty($current_permit['ptw_permit_number']))) {
+        try { 
+            $fn_ptw->assign_permit_number($permit_id, $user_site_id, $user_id); 
+        } catch (Exception $e) { 
+            // log but continue; do not block FM approval
+            $fn_general->log_error('API', __FUNCTION__, __LINE__, 'assign_permit_number (fallback) failed: '.$e->getMessage()); 
+        }
     }
 
     // Update permit with FM approval
@@ -412,9 +417,9 @@ function process_request_close($permit_id, $user_id, $user_site_id, $user_role, 
     $current_permit = $permit[0];
     $current_status = $current_permit['ptw_status'];
 
-    // Only ACTIVE permits can be requested for closure
-    if ($current_status !== 'ACTIVE') {
-        throw new Exception('[' . __LINE__ . '] - Closure can only be requested when permit is ACTIVE');
+    // Only ACTIVE or EXTENDED permits can be requested for closure (single extension policy)
+    if (!in_array($current_status, array('ACTIVE','EXTENDED'))) {
+        throw new Exception('[' . __LINE__ . '] - Closure can only be requested when permit is ACTIVE or EXTENDED');
     }
 
     // Transition to PENDING_CLOSURE
@@ -534,9 +539,25 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
     $current_permit = $permit[0];
     $current_status = $current_permit['ptw_status'];
 
-    // Allow extension request when permit is ACTIVE or SUSPENDED (resume flow)
-    if (!in_array($current_status, array('ACTIVE', 'SUSPENDED'))) {
-        throw new Exception('[' . __LINE__ . '] - Extension can only be requested when permit is ACTIVE or SUSPENDED');
+    // Prevent duplicate: if already pending extension
+    if ($current_status === 'PENDING_EXTENSION') {
+        throw new Exception('[' . __LINE__ . '] - An extension request is already pending approval');
+    }
+
+    // Allow extension request when permit is ACTIVE or SUSPENDED (resume flow) or previously APPROVED synonym
+    if (!in_array($current_status, array('ACTIVE', 'SUSPENDED', 'APPROVED'))) {
+        throw new Exception('[' . __LINE__ . '] - Extension can only be requested when permit is ACTIVE, APPROVED or SUSPENDED');
+    }
+
+    // Disallow new request if already extended once (history contains EXTENDED)
+    try {
+        $hist = Class_db::getInstance()->db_select('ptw_status_history', array('ptw_permit_id' => $permit_id, 'action_type' => 'EXTENDED'));
+        if ($hist && count($hist) > 0) {
+            throw new Exception('[' . __LINE__ . '] - This permit has already been extended once');
+        }
+    } catch (Exception $eCheck) {
+        if (strpos($eCheck->getMessage(), 'already been extended') !== false) { throw $eCheck; }
+        // otherwise ignore select errors quietly
     }
 
     // Normalize datetime format
@@ -545,8 +566,11 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
         $requested_to .= ' 17:00:00';
     }
 
+    // Transition status to PENDING_EXTENSION so FM view can clearly show request
+    $new_status = 'PENDING_EXTENSION';
     // Save request fields on the permit for FM visibility
     $update_data = array(
+        'ptw_status' => $new_status,
         'ptw_extension_requested_to' => $requested_to,
         'ptw_extension_requested_by' => $user_id,
         'ptw_extension_requested_remarks' => $remarks,
@@ -564,7 +588,7 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
         'ptw_permit_id' => $permit_id,
         'action_type' => 'EXTENSION_REQUESTED',
         'previous_status' => $current_status,
-        'new_status' => $current_status, // remains ACTIVE
+        'new_status' => $new_status,
         'remarks' => 'Requested new valid_to: ' . $requested_to . ($remarks ? (' | ' . $remarks) : ''),
         'action_by' => $user_id
     );
@@ -581,7 +605,7 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
     return array(
         'message' => 'Extension requested successfully',
         'permit_id' => $permit_id,
-        'new_status' => $current_status,
+        'new_status' => $new_status,
         'requested_to' => $requested_to
     );
 }
@@ -604,9 +628,9 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     $current_permit = $permit[0];
     $current_status = $current_permit['ptw_status'];
 
-    // Allow approving extension for ACTIVE or SUSPENDED (resume to ACTIVE)
-    if (!in_array($current_status, array('ACTIVE', 'SUSPENDED'))) {
-        throw new Exception('[' . __LINE__ . '] - Permit must be ACTIVE or SUSPENDED to approve extension');
+    // Allow approving extension for PENDING_EXTENSION (preferred) or ACTIVE/SUSPENDED fallback
+    if (!in_array($current_status, array('PENDING_EXTENSION','ACTIVE', 'SUSPENDED'))) {
+        throw new Exception('[' . __LINE__ . '] - Permit must be PENDING_EXTENSION / ACTIVE / SUSPENDED to approve extension');
     }
 
     // Determine new valid_to: use provided or the requested one saved on permit
@@ -616,10 +640,10 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     }
     if (strlen($new_valid_to) === 10) { $new_valid_to .= ' 17:00:00'; }
 
-    // Update the permit (if previously SUSPENDED, resume to ACTIVE)
+    // Update the permit status to EXTENDED (single extension allowed)
     $update_data = array(
         'ptw_valid_to' => $new_valid_to,
-        'ptw_status' => ($current_status === 'SUSPENDED' ? 'ACTIVE' : $current_status),
+        'ptw_status' => 'EXTENDED',
         // Clear extension request markers
         'ptw_extension_requested_to' => null,
         'ptw_extension_requested_by' => null,
@@ -632,12 +656,12 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
         throw new Exception('[' . __LINE__ . '] - Failed to update permit valid_to');
     }
 
-    // Log history (if resuming from SUSPENDED, new_status becomes ACTIVE)
+    // Log history with new_status EXTENDED
     $history_data = array(
         'ptw_permit_id' => $permit_id,
         'action_type' => 'EXTENDED',
         'previous_status' => $current_status,
-        'new_status' => ($current_status === 'SUSPENDED' ? 'ACTIVE' : $current_status),
+        'new_status' => 'EXTENDED',
         'remarks' => 'Valid to changed to: ' . $new_valid_to . ($remarks ? (' | ' . $remarks) : ''),
         'action_by' => $user_id
     );
@@ -654,7 +678,7 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     return array(
         'message' => 'Permit extended successfully',
         'permit_id' => $permit_id,
-        'new_status' => $current_status,
+        'new_status' => 'EXTENDED',
         'valid_to' => $new_valid_to
     );
 }

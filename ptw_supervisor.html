@@ -43,6 +43,15 @@
             overflow: visible !important;
         }
 
+    /* Ensure ancestor containers do not hide overflowed dropdowns */
+    .main-content-card { overflow: visible; }
+    /* If any parent uses hidden, override specifically for dropdown context */
+    .main-content-card .dropdown, .dataTables_wrapper .dropdown { position: relative; }
+    /* Wider dropdown for action items */
+    .action-split .dropdown-menu { min-width: 240px; }
+    /* Prevent clipping under other elements */
+    .action-split .dropdown-menu { z-index: 3000; }
+
         /* Ensure dropdown overlays above tables */
         .dropdown-menu { z-index: 2000; }
 
@@ -634,7 +643,7 @@
         </div>
 
         <!-- User Info Display -->
-        <div class="user-info-card">
+        <!-- <div class="user-info-card">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <i class="fas fa-user"></i> <span id="lblCurrentSupervisor">Loading...</span>
@@ -644,10 +653,10 @@
                     <small class="text-muted">Last updated: <span id="lastUpdateTime">--</span></small>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Dashboard Statistics -->
-        <div class="stats-grid">
+        <!-- <div class="stats-grid">
             <div class="stat-card pending">
                 <div class="stat-icon">
                     <i class="fas fa-clock"></i>
@@ -669,17 +678,17 @@
                 <div class="stat-number" id="statOverdueCount">0</div>
                 <div class="stat-label">Overdue Review</div>
             </div>
-            <!-- <div class="stat-card purple">
+            <div class="stat-card purple">
                 <div class="stat-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
                 <div class="stat-number" id="statAvgProcessingTime">0</div>
                 <div class="stat-label">Avg. Hours to Approve</div>
-            </div> -->
-        </div>
+            </div>
+        </div> -->
 
     <!-- Quick Actions -->
-    <div class="quick-actions">
+    <!-- <div class="quick-actions">
         <div class="row">
             <div class="col-md-8">
                 <div class="approval-summary">
@@ -721,7 +730,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Extend / Resume Modal -->
     <div class="modal fade" id="extendModal" tabindex="-1" aria-hidden="true">
@@ -894,16 +903,13 @@
                 <table class="table table-modern" id="dtPendingPTW">
                     <thead>
                         <tr>
-                            <th>Ref No.</th>
-                            <!-- <th>Description</th> -->
-                            <th>Applicant</th>
-                            <th>Work Area</th>
-                            
+                            <th>No</th>
+                            <th>Request No</th>
+                            <th>Permit No</th>
+                            <th>Company Name</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <!-- <th>Days Pending</th> -->
-                            <!-- <th>Priority</th> -->
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -935,13 +941,13 @@
                 <table class="table table-modern" id="dtHistoryPTW">
                     <thead>
                         <tr>
-                            <th>Ref No.</th>
-                            <th>Applicant</th>
-                            <th>Work Area</th>
-                            
+                            <th>No</th>
+                            <th>Request No</th>
+                            <th>Permit No</th>
+                            <th>Company Name</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -1294,58 +1300,16 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[3, 'asc']], // Sort by date (oldest first)
-        language: {
-            emptyTable: "No PTW records to display"
-        },
-    columns: [
-            { data: null, width: '14%', render: function(_d,_t,row){ return renderRefNo(row); } },
-            // { 
-            //     data: 'ptw_permit_description',
-            //     width: '20%',
-            //     render: function(data, type, row) {
-            //         if (type === 'display' && data.length > 50) {
-            //             return data.substring(0, 50) + '...';
-            //         }
-            //         return data;
-            //     }
-            // },
-            { 
-                data: 'ptw_applicant_name',
-                width: '12%'
-            },
-            { 
-                data: 'ptw_work_area',
-                width: '16%'
-            },
-            { 
-                data: null,
-                width: '16%',
-                render: function(_d,type,row) { return renderUnifiedDate(_d, type, row); }
-            },
-            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
-            // { 
-            //     data: null,
-            //     width: '8%',
-            //     render: function(data, type, row) {
-            //         return getDaysPending(row.created_date);
-            //     }
-            // },
-            // { 
-            //     data: null,
-            //     width: '8%',
-            //     render: function(data, type, row) {
-            //         return getPriorityBadge(row);
-            //     }
-            // },
-            { 
-                data: null,
-                width: '14%',
-                className: 'text-nowrap',
-                render: function(data, type, row) {
-                    return getUnifiedActionButtons(row);
-                }
-            }
+        order: [[4, 'asc']], // Date ascending
+        language: { emptyTable: "No PTW records to display" },
+        columns: [
+            { data: null, title: 'No', width: '4%', className: 'text-center', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
+            { data: 'ptw_request_number', title: 'Request No', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_permit_number', title: 'Permit No', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_contractor_company', title: 'Company Name', width: '20%', render: function(d){ return d || '-'; } },
+            { data: null, title: 'Date', width: '16%', render: function(_d,type,row){ return renderUnifiedDate(_d,type,row); } },
+            { data: 'ptw_status', title: 'Status', width: '12%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatus(row)); } },
+            { data: null, title: 'Action', width: '20%', className: 'text-nowrap', render: function(_d,_t,row){ return getUnifiedActionButtons(row); } }
         ],
         drawCallback: function() {
             // Initialize tooltips
@@ -1359,15 +1323,16 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[3, 'desc']],
+        order: [[4, 'desc']], // Date descending
         language: { emptyTable: "No historical records" },
         columns: [
-            { data: null, width: '14%', render: function(_d,_t,row){ return renderRefNo(row); } },
-            { data: 'ptw_applicant_name', width: '16%' },
-            { data: 'ptw_work_area', width: '16%' },
-            { data: null, width: '18%', render: function(_d,type,row){ return renderHistoryDate(_d, type, row); } },
-            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
-            { data: null, width: '18%', className: 'text-nowrap', render: function(_d,_t,row){ return getHistoryActionButtons(row); } }
+            { data: null, title: 'No', width: '4%', className: 'text-center', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
+            { data: 'ptw_request_number', title: 'Request No', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_permit_number', title: 'Permit No', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_contractor_company', title: 'Company Name', width: '20%', render: function(d){ return d || '-'; } },
+            { data: null, title: 'Date', width: '16%', render: function(_d,type,row){ return renderHistoryDate(_d,type,row); } },
+            { data: 'ptw_status', title: 'Status', width: '12%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatus(row)); } },
+            { data: null, title: 'Action', width: '20%', className: 'text-nowrap', render: function(_d,_t,row){ return getHistoryActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
     });
@@ -1399,7 +1364,7 @@ function initializeDataTable() {
                 const m = moment(d);
                 return m.isValid() ? m.valueOf() : 0;
             } },
-            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: 'ptw_status', width: '14%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatus(row)); } },
             { data: null, width: '16%', className: 'text-nowrap', render: function(_d,_t,row){ return getActiveActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
@@ -1426,7 +1391,7 @@ function initializeDataTable() {
             } },
             { data: 'ptw_work_area', width: '16%' },
             { data: null, width: '24%', render: function(_d,type,row){ return renderClosedDate(_d, type, row); } },
-            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: 'ptw_status', width: '14%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatus(row)); } },
             { data: null, width: '18%', className: 'text-nowrap', render: function(_d,_t,row){ return getClosedActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
@@ -1457,7 +1422,7 @@ function initializeDataTable() {
                 const m = moment(v);
                 return m.isValid() ? m.valueOf() : 0;
             } },
-            { data: 'ptw_status', width: '14%', render: function(s){ return getStatusBadge(s); } },
+            { data: 'ptw_status', width: '14%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatus(row)); } },
             { data: null, width: '16%', className: 'text-nowrap', render: function(_d,_t,row){ return getSuspendedActionButtons(row); } }
         ],
         drawCallback: function(){ $('[data-toggle="tooltip"]').tooltip(); }
@@ -1541,7 +1506,11 @@ function populateSuspendedPTW(list){
 
 function getSuspendedActionButtons(request){
     const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
-    const hasExtReq = !!(request.ptw_extension_requested_to || request.ptw_extension_requested_at);
+    // Treat as pending extension only if status explicitly PENDING_EXTENSION (new enum)
+    // or legacy suspended + extension markers BOTH present (to avoid stale single field)
+    const markerFields = [request.ptw_extension_requested_to, request.ptw_extension_requested_by, request.ptw_extension_requested_at];
+    const markersPresent = markerFields.filter(v => !!v).length >= 2; // require at least 2 markers to reduce false positives
+    const hasExtReq = (request.ptw_status === 'PENDING_EXTENSION') || (request.ptw_status === 'SUSPENDED' && markersPresent);
     return `
     <div class="btn-group action-split">
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="View PTW">
@@ -1731,7 +1700,45 @@ function getActionButtons(request) {
 
 function getActiveActionButtons(request){
     const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
-    const disabled = (request.ptw_status && request.ptw_status !== 'ACTIVE') ? 'disabled' : '';
+    const status = (request.ptw_status || '').toUpperCase();
+    // ACTIVE and EXTENDED share the same full action group (other PENDING_* handled as read-only elsewhere)
+    const allowActions = ['ACTIVE','EXTENDED'].includes(status);
+    const globalDisabled = allowActions ? '' : 'disabled';
+    const extendDisabled = (status !== 'ACTIVE'); // after extended, disable further extension per single-extension policy
+    // Custom restriction: Once EXTENDED, only closing is allowed (plus view/download). No suspend/cancel.
+    const isExtended = status === 'EXTENDED';
+    let dropdownItems = '';
+    if (isExtended) {
+        dropdownItems = `
+                <span class="dropdown-item disabled" tabindex="-1" aria-disabled="true">
+                    <i class="fas fa-clock text-info"></i> Already Extended
+                </span>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="requestClose('${permitId}')">
+                    <i class="fas fa-handshake text-warning"></i> Request to Close
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>`;
+    } else {
+        dropdownItems = `
+                <a class="dropdown-item ${extendDisabled ? 'disabled' : ''}" ${extendDisabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''} href="javascript:void(0)" onclick="${extendDisabled ? '' : `requestExtend('${permitId}')`}">
+                    <i class="fas fa-clock text-info"></i> ${extendDisabled ? 'Already Extended' : 'Request to Extend'}
+                </a>
+                <a class="dropdown-item ${globalDisabled}" ${globalDisabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''} href="javascript:void(0)" onclick="${globalDisabled ? '' : `requestCancel('${permitId}')`}">
+                    <i class="fas fa-ban text-danger"></i> Request to Cancel
+                </a>
+                <a class="dropdown-item ${globalDisabled}" ${globalDisabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''} href="javascript:void(0)" onclick="${globalDisabled ? '' : `requestSuspend('${permitId}')`}">
+                    <i class="fas fa-pause-circle text-warning"></i> Request to Suspend
+                </a>
+                <a class="dropdown-item ${globalDisabled}" ${globalDisabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''} href="javascript:void(0)" onclick="${globalDisabled ? '' : `requestClose('${permitId}')`}">
+                    <i class="fas fa-handshake text-warning"></i> Request to Close
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
+                </a>`;
+    }
     return `
         <div class="btn-group action-split">
             <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="Review PTW">
@@ -1741,25 +1748,40 @@ function getActiveActionButtons(request){
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestExtend('${permitId}')`}">
-                    <i class="fas fa-clock text-info"></i> Request to Extend
-                </a>
-                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestCancel('${permitId}')`}">
-                    <i class="fas fa-ban text-danger"></i> Request to Cancel
-                </a>
-                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestSuspend('${permitId}')`}">
-                    <i class="fas fa-pause-circle text-warning"></i> Request to Suspend
-                </a>
-                <a class="dropdown-item ${disabled}" ${disabled ? 'tabindex="-1" aria-disabled="true"' : ''} href="javascript:void(0)" onclick="${disabled ? '' : `requestClose('${permitId}')`}">
-                    <i class="fas fa-handshake text-warning"></i> Request to Close
-                </a>
+                ${dropdownItems}
+            </div>
+        </div>
+    `;
+}
+
+// Read-only action buttons: Only View + PDF, plus a disabled marker line describing pending request
+function getReadOnlyActionButtons(row){
+    const permitId = getPermitId(row) || 'unknown';
+    const status = (row.ptw_status||'').toUpperCase();
+    let marker = '';
+    switch(status){
+        case 'PENDING_CLOSURE': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Closure Requested</span>'; break;
+        case 'PENDING_CANCELLATION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Cancellation Requested</span>'; break;
+        case 'PENDING_SUSPENSION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Suspension Requested</span>'; break;
+        case 'PENDING_EXTENSION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-info"></i> Extension Requested</span>'; break;
+        default: marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-ban text-secondary"></i> Actions Locked</span>'; break;
+    }
+    return `
+        <div class="btn-group action-split">
+            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'supervisor')" title="View PTW">
+                <i class="fas fa-file-alt"></i> View
+            </button>
+            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                ${marker}
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
-        </div>
-    `;
+        </div>`;
 }
 
 function requestClose(permitId){
@@ -2131,19 +2153,67 @@ function populateActiveClosureTable(activeList){
 }
 
 function getStatusBadge(status){
+    // Accept either raw enum or already mapped display label
+    if (!status) return '<span class="badge badge-modern badge-info">-</span>';
+    const s = status.toString();
     const map = {
+        // Display labels
+        'Draft': '<span class="badge badge-modern badge-secondary">Draft</span>',
+        'New Request': '<span class="badge badge-modern badge-info">New Request</span>',
+        'SHE Approval': '<span class="badge badge-modern badge-purple">SHE Approval</span>',
+        'FM Approval': '<span class="badge badge-modern badge-purple">FM Approval</span>',
+        'Approved': '<span class="badge badge-modern badge-success">Approved</span>',
+        'Extended': '<span class="badge badge-modern badge-success" title="Permit Extended">Extended</span>',
+        'Closure Requested': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
+        'Cancellation Requested': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
+        'Suspension Requested': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
+    'Extension Requested': '<span class="badge badge-modern badge-info">Extension Requested</span>',
+        'Closed': '<span class="badge badge-modern badge-closed">Closed</span>',
+        'Cancelled': '<span class="badge badge-modern badge-dark">Cancelled</span>',
+        'Suspended': '<span class="badge badge-modern badge-warning">Suspended</span>',
+        'Rejected': '<span class="badge badge-modern badge-danger">Rejected</span>',
+        // Raw enums fallback (legacy)
         'ACTIVE': '<span class="badge badge-modern badge-success">Active</span>',
         'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-info">Pending Supervisor</span>',
-        'PENDING_CLOSURE': '<span class="badge badge-modern badge-info">Pending Closure</span>',
-        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-info">Pending Cancellation</span>',
-        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-info">Pending Suspension</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
+        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
+        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
+    'PENDING_EXTENSION': '<span class="badge badge-modern badge-info">Extension Requested</span>',
         'SUSPENDED': '<span class="badge badge-modern badge-warning">Suspended</span>',
         'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-    'REJECTED': '<span class="badge badge-modern badge-danger">Rejected</span>',
-    'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
-    'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
+        'REJECTED': '<span class="badge badge-modern badge-danger">Rejected</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
     };
-    return map[status] || `<span class="badge badge-modern badge-info">${status||'-'}</span>`;
+    return map[s] || `<span class="badge badge-modern badge-info">${s}</span>`;
+}
+
+// Derive display status using backend-provided ptw_display_status if available,
+// else apply lightweight front-end mapper (mirrors server logic subset)
+function getDisplayStatus(row){
+    if (!row) return '';
+    if (row.ptw_display_status) return row.ptw_display_status; // preferred from API
+    const st = (row.ptw_status||'').toUpperCase();
+    switch(st){
+        case 'DRAFT': return 'Draft';
+        case 'SUBMITTED':
+        case 'PENDING_SUPERVISOR': return 'New Request';
+        case 'PENDING_SHE': return 'SHE Approval';
+        case 'PENDING_FM': return 'FM Approval';
+        case 'PENDING_CLOSURE': return 'Closure Requested';
+        case 'PENDING_CANCELLATION': return 'Cancellation Requested';
+        case 'PENDING_SUSPENSION': return 'Suspension Requested';
+    case 'PENDING_EXTENSION': return 'Extension Requested';
+        case 'COMPLETED':
+        case 'CLOSED': return 'Closed';
+        case 'CANCELLED': return 'Cancelled';
+        case 'SUSPENDED': return 'Suspended';
+        case 'REJECTED': return 'Rejected';
+        case 'APPROVED':
+        case 'ACTIVE': return 'Approved';
+    case 'EXTENDED': return 'Extended';
+        default: return st || '';
+    }
 }
 
 function formatUnifiedDate(row){
@@ -2151,7 +2221,7 @@ function formatUnifiedDate(row){
     let d = null;
     if (s === 'PENDING_SUPERVISOR') {
         d = row.created_date;
-    } else if (s === 'ACTIVE') {
+    } else if (s === 'ACTIVE' || s === 'EXTENDED') {
         d = row.ptw_valid_to || row.ptw_valid_from;
     } else if (s === 'COMPLETED' || s === 'CLOSED') {
         d = row.completed_date || row.closed_date || row.ptw_completed_date;
@@ -2168,7 +2238,7 @@ function renderUnifiedDate(_data, type, row){
     const s = row.ptw_status || '';
     let d = null;
     if (s === 'PENDING_SUPERVISOR') d = row.created_date;
-    else if (s === 'ACTIVE') d = row.ptw_valid_to || row.ptw_valid_from;
+    else if (s === 'ACTIVE' || s === 'EXTENDED') d = row.ptw_valid_to || row.ptw_valid_from;
     else if (s === 'COMPLETED' || s === 'CLOSED') d = row.completed_date || row.closed_date || row.ptw_completed_date;
     else if (s === 'SUSPENDED') d = row.suspended_date || row.updated_date;
     else d = row.updated_date || row.created_date;
@@ -2195,7 +2265,9 @@ function renderRefNo(row){
 function getUnifiedActionButtons(row){
     const s = row.ptw_status;
     if (s === 'PENDING_SUPERVISOR') return getActionButtons(row);
-    if (s === 'ACTIVE' || s === 'PENDING_CLOSURE' || s === 'PENDING_CANCELLATION' || s === 'PENDING_SUSPENSION') return getActiveActionButtons(row);
+    // Read-only pending secondary actions (cannot submit further requests while awaiting FM decision)
+    if (['PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION','PENDING_EXTENSION'].includes(s)) return getReadOnlyActionButtons(row);
+    if (s === 'ACTIVE' || s === 'EXTENDED') return getActiveActionButtons(row);
     if (s === 'COMPLETED' || s === 'CLOSED') return getClosedActionButtons(row);
     if (s === 'SUSPENDED') return getSuspendedActionButtons(row);
     // Fallback minimal actions
@@ -2218,7 +2290,7 @@ function getUnifiedActionButtons(row){
 }
 
 function buildUnifiedList(permits, active){
-    const includeStatuses = new Set(['PENDING_SUPERVISOR','ACTIVE','COMPLETED','CLOSED','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION']);
+    const includeStatuses = new Set(['PENDING_SUPERVISOR','ACTIVE','EXTENDED','PENDING_EXTENSION','COMPLETED','CLOSED','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION']);
     if (showCancelled) includeStatuses.add('CANCELLED');
     const map = new Map();
     function addRow(r){
@@ -2245,7 +2317,7 @@ function buildUnifiedList(permits, active){
 
 // New builders: in-progress and history
 function buildInProgressList(permits, active){
-    const includeStatuses = new Set(['ACTIVE','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION','PENDING_SUPERVISOR']);
+    const includeStatuses = new Set(['ACTIVE','EXTENDED','PENDING_EXTENSION','SUSPENDED','PENDING_CLOSURE','PENDING_CANCELLATION','PENDING_SUSPENSION','PENDING_SUPERVISOR']);
     const map = new Map();
     function addRow(r){
         const id = getPermitId(r);
@@ -2623,7 +2695,7 @@ function generatePTWPDF(ptwId) {
     
     try {
         // Use mzAjaxRequest like other API calls in this file
-        const result = mzAjaxRequest(`ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
+    const result = mzAjaxRequest(`ptw_pdf.php?type=html_template&ptwPermitId=${ptwId}`, 'GET', {});
         
         console.log('PDF generation result:', result);
         

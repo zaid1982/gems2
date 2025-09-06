@@ -74,11 +74,8 @@ try {
                 if (isset($ptwData['ptw_permit_id'])) {
                     $folder_code = floor(intval($ptwData['ptw_permit_id'])/1000);
                     $filename = 'ptw_' . substr((10000000+intval($ptwData['ptw_permit_id'])), 1) . '.pdf';
-                    if ($environment == 'windows') {
-                        $filePath = dirname(__FILE__) . '\\ptw\\' . $folder_code . '\\' . $filename;
-                    } else {
-                        $filePath = dirname(__FILE__) . '/ptw/' . $folder_code . '/' . $filename;
-                    }
+                    // PDFs now live under /gems2/upload/ptw/pdf/<folder>/<file>
+                    $filePath = dirname(__FILE__) . '/../upload/ptw/pdf/' . $folder_code . '/' . $filename;
                 }
 
                 // If not new schema or file missing, fallback to sys_pdf lookup via legacy linkage
@@ -88,11 +85,8 @@ try {
                         $pdfData = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id' => $ptwData['pdf_id']), null, 1);
                     }
                     if (!empty($pdfData)) {
-                        if ($environment == 'windows') {
-                            $filePath = dirname(__FILE__) . '\\ptw\\' . basename($pdfData['pdf_folder']) . '\\' . $pdfData['pdf_filename'];
-                        } else {
-                            $filePath = dirname(__FILE__) . '/ptw/' . basename($pdfData['pdf_folder']) . '/' . $pdfData['pdf_filename'];
-                        }
+                        // If sys_pdf is present, respect its recorded folder (expected 'upload/ptw/pdf/<code>')
+                        $filePath = dirname(__FILE__) . '/../' . trim($pdfData['pdf_folder'], '/\\') . '/' . $pdfData['pdf_filename'];
                     }
                 }
 
@@ -119,7 +113,25 @@ try {
             }
         }
 
-        if ($type === 'preview_pdf') {
+        if ($type === 'html_template') {
+            if (empty($ptwPermitId)) { throw new Exception('[' . __LINE__ . '] - Parameter ptwPermitId empty'); }
+            $fn_pdf_ptw->__set('ptwId', $ptwPermitId);
+            // Use the incorporated two-page design from the user's attachment
+            $gen = $fn_pdf_ptw->create_pdf_from_attachment_design();
+            $form_data['status'] = 'success';
+            $form_data['pdf_url'] = 'api/ptw_pdf.php?action=get_file&ptw_id=' . urlencode($ptwPermitId);
+            $result = $gen;
+        } else if ($type === 'basic_pdf') {
+            if (empty($ptwPermitId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter ptwPermitId empty');
+            }
+            // No gating; this is for smoke testing only
+            $fn_pdf_ptw->__set('ptwId', $ptwPermitId);
+            $basic = $fn_pdf_ptw->create_basic_pdf();
+            $form_data['status'] = 'success';
+            $form_data['pdf_url'] = 'api/ptw_pdf.php?action=get_file&ptw_id=' . urlencode($ptwPermitId);
+            $result = $basic;
+        } else if ($type === 'preview_pdf') {
             // Only allow generating PDF once all approvals are completed (FM approved / Active or Closed)
             if (empty($ptwPermitId)) {
                 throw new Exception('[' . __LINE__ . '] - Parameter ptwPermitId empty');

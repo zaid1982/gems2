@@ -477,7 +477,7 @@ function create_ptw_permit($user_id, $user_site_id) {
 
         // Prepare comprehensive permit data with all enhanced fields
         $permit_data = array(
-            // 'ptw_permit_number' will be assigned on FM approval; request number on submit
+            // 'ptw_permit_number' is now assigned at Supervisor approval stage; request number on initial submit
             'ptw_permit_description' => trim($_POST['description']),
             'ptw_work_area' => trim($_POST['work_area']),
             'ptw_work_type' => $work_type,
@@ -1349,7 +1349,21 @@ function handle_supervisor_approval($permit_id, $user_id, $user_site_id, $post_d
         
         error_log('PTW API: Setting next status to: ' . $next_status);
         
-        // Prepare update data with correct field names
+        // Assign permit number at supervisor approval stage if not already assigned (idempotent)
+        $new_permit_number = '';
+        try {
+            if (empty($permit['ptw_permit_number'])) {
+                $new_permit_number = $fn_ptw->assign_permit_number($permit_id, $user_site_id, $user_id);
+                error_log('PTW API: Permit number assigned at supervisor approval: ' . $new_permit_number);
+            } else {
+                $new_permit_number = $permit['ptw_permit_number'];
+            }
+        } catch (Exception $numEx) {
+            // Do not block approval; log error
+            error_log('PTW API: Failed to assign permit number at supervisor stage: ' . $numEx->getMessage());
+        }
+
+        // Prepare update data with correct field names (do not overwrite permit number)
         $update_data = array(
             'ptw_status' => $next_status,
             'ptw_supervisor_approval' => 'APPROVED',
@@ -1396,11 +1410,19 @@ function handle_supervisor_approval($permit_id, $user_id, $user_site_id, $post_d
                 }
             }
             
+            // Compute display status using new mapper
+            $display_status = 'New Request';
+            try {
+                $mapper = new Class_ptw();
+                $display_status = $mapper->map_display_status(array_merge($permit, ['ptw_status' => $next_status, 'ptw_permit_number' => $new_permit_number]));
+            } catch (Exception $e) {}
             return array(
                 'success' => true,
                 'message' => 'Permit approved by supervisor successfully',
                 'next_status' => $next_status,
-                'permit_id' => $permit_id
+                'permit_id' => $permit_id,
+                'ptw_permit_number' => $new_permit_number,
+                'ptw_display_status' => $display_status
             );
         } else {
             throw new Exception('[' . __LINE__ . '] - Failed to update permit in database');
