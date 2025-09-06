@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>My Digital Signature - GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- Your custom styles -->
+    <link href="css/style.css?4" rel="stylesheet">
+    <style>
+        .sig-pad-wrapper {border:1px dashed #888; border-radius:6px; background:#fff; position:relative;}
+        .sig-pad-wrapper canvas {width:100%; height:160px; touch-action:none; cursor:crosshair;}
+        .signature-preview {max-height:160px; max-width:100%; border:1px solid #ccc; background:#fff; padding:4px;}
+        .font-mono {font-family:monospace; font-size:12px;}
+        .toolbar-btn {min-width:110px;}
+    </style>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+<main>
+    <div class="container-fluid">
+        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1">
+            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
+                <i class="fas fa-signature mr-2"></i>My Digital Signature
+            </h5>
+        </nav>
+        <section class="mt-4 mb-3">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <p class="text-muted mb-1">Saved signature will auto-attach to PTW approvals & pdf export (Supervisor / SHE / FM).</p>
+                    <p class="text-muted small">Recommended: clear background, dark stroke, horizontal layout.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100 z-depth-3">
+                        <div class="card-header py-2 d-flex justify-content-between align-items-center blue-grey lighten-4">
+                            <span class="font-weight-bold">Current Saved Signature</span>
+                            <button id="btnDeleteSignature" class="btn btn-outline-danger btn-sm toolbar-btn" disabled><i class="fas fa-trash mr-1"></i>Delete</button>
+                        </div>
+                        <div class="card-body py-3">
+                            <div id="divCurrentSignature" class="text-center">
+                                <p class="text-muted mb-0" id="pNoSignature">No signature saved yet.</p>
+                                <img id="imgSignature" class="signature-preview d-none" alt="Signature" />
+                            </div>
+                            <div class="mt-3 font-mono small" id="divMeta" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100 z-depth-3">
+                        <div class="card-header py-2 font-weight-bold blue-grey lighten-4">Create / Replace Signature</div>
+                        <div class="card-body py-3">
+                            <ul class="nav nav-tabs md-tabs" id="sigTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#tabDraw" role="tab">Draw</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tabUpload" role="tab">Upload</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-3">
+                                <div class="tab-pane fade show active" id="tabDraw" role="tabpanel">
+                                    <div class="sig-pad-wrapper mb-2">
+                                        <canvas id="sigCanvas"></canvas>
+                                        <div class="position-absolute" style="top:6px;right:6px;">
+                                            <button id="btnClearCanvas" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eraser"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="custom-control custom-switch mb-2">
+                                        <input type="checkbox" class="custom-control-input" id="chkTrim" checked>
+                                        <label class="custom-control-label" for="chkTrim">Auto-trim whitespace</label>
+                                    </div>
+                                    <button id="btnSaveCanvas" class="btn btn-info btn-sm toolbar-btn" disabled><i class="fas fa-save mr-1"></i>Save</button>
+                                </div>
+                                <div class="tab-pane fade" id="tabUpload" role="tabpanel">
+                                    <div class="md-form mt-0">
+                                        <input type="file" id="fileSignature" accept="image/png,image/jpeg" class="form-control" />
+                                        <small class="form-text text-muted">PNG preferred. Max 400px width auto-scaled.</small>
+                                    </div>
+                                    <button id="btnSaveFile" class="btn btn-info btn-sm toolbar-btn" disabled><i class="fas fa-save mr-1"></i>Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-eye mr-2 text-primary"></i>Current Signature</h5>
+                            <button id="delete-signature" class="btn btn-sm btn-outline-danger" style="display: none;">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </button>
+                        </div>
+                        <div class="card-body text-center">
+                            <div id="signature-display">
+                                <p class="text-muted">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info py-2 mb-5 small">
+                        <i class="fas fa-info-circle mr-1"></i> Your signature is stored securely and a copy is snapshotted for each approval. Updating it won't change past approvals.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.includeHtml').each(function () {
+            const divId = $(this).attr('id');
+            $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+        });
+    });
+</script>
+
+<!-- SCRIPTS -->
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- Toastr for notifications -->
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<!-- Safe Toastr wrapper -->
+<script type="text/javascript" src="js/toastr-safe.js"></script>
+<!-- Common functions -->
+<script type="text/javascript" src="js/common.js"></script>
+
+<script type="text/javascript">
+// Safe toastr wrapper
+function safeToast(type, message, title) {
+    try {
+        if (typeof toastr !== 'undefined' && toastr && toastr[type]) {
+            toastr[type](message, title);
+        } else {
+            console.error('Toastr not available:', type, message, title);
+            alert(title + ': ' + message);
+        }
+    } catch (e) {
+        console.error('Error showing toast:', e);
+        alert(title + ': ' + message);
+    }
+}
+</script>
+
+<!-- Page specific script -->
+<script type="text/javascript" src="js/pages/main_signature.js"></script>
+</body>
+</html>

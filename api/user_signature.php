@@ -79,6 +79,8 @@ try {
         // ********** audit trail ********** \\
         $user = $fn_user->getUserDao($userId);
         $fn_general->save_audit('173', $userId, 'Save signature for userId = '.$userId.', User Name = '.$user['userName'].', Full Name = '.$user['userFirstName']);
+        
+        $form_data['success'] = true;
         $form_data['errmsg'] = 'Your Signature successfully saved';
     } else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
@@ -89,6 +91,7 @@ try {
         Class_db::getInstance()->db_rollback();
     }
     Class_db::getInstance()->db_close();
+    $form_data['success'] = false;
     $form_data['error'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
     if ($ex->getCode() === 31) {
         $form_data['errmsg'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);

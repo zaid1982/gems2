@@ -83,17 +83,17 @@ class Class_user_signature {
             $constant = $this->constant;
 
             $result = array();
-            $userSignatureId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'user_signature');
-            if (!empty($userSignatureId)) {
-                $upload = Class_db::getInstance()->db_select_single2('sys_upload', array('upload_id'=>$userSignatureId));
-                if (!empty($upload)) {
-                    $result['file'] = $constant::URL.$upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'];
-                    $result['title'] = $upload['uploadName'];
-                    $result['type'] = $upload['uploadBlobType'];
-                    $result['size'] = $upload['uploadFilesize'];
-                    $result['width'] = $upload['uploadFileWidth'];
-                    $result['height'] = $upload['uploadFileHeight'];
-                }
+            $userSignature = Class_db::getInstance()->db_select('sys_user_signature', array('user_id'=>$userId));
+            
+            if (!empty($userSignature)) {
+                $signature = $userSignature[0];
+                $result['file_path'] = $constant::URL . $signature['signature_path'];
+                $result['title'] = 'signature';
+                $result['type'] = $signature['mime_type'];
+                $result['size'] = ''; // Size not stored in this schema
+                $result['width'] = $signature['width'];
+                $result['height'] = $signature['height'];
+                $result['sha256'] = $signature['signature_sha256'];
             }
             return $result;
         }
@@ -113,10 +113,52 @@ class Class_user_signature {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->fn_general->checkEmptyParams(array($userId, $userSignature));
 
-            $currentSignature = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'user_signature');
-            Class_db::getInstance()->db_update('sys_user', array('user_signature'=>$userSignature), array('user_id'=>$userId));
-            if (!empty($currentSignature)) {
-                $this->fn_general->deleteDocument($currentSignature);
+            // Get upload details to store the path and metadata
+            $upload = Class_db::getInstance()->db_select_single2('sys_upload', array('upload_id'=>$userSignature));
+            if (empty($upload)) {
+                throw new Exception('Upload record not found');
+            }
+            
+            $filePath = $upload['uploadFolder'].'/'.$upload['uploadFilename'].'.'.$upload['uploadExtension'];
+            $fileContent = file_get_contents(__DIR__ . '/../../' . $filePath);
+            $sha256 = hash('sha256', $fileContent);
+
+            // Check if user signature already exists
+            $existingSignature = Class_db::getInstance()->db_select('sys_user_signature', array('user_id'=>$userId));
+            
+            if (!empty($existingSignature)) {
+                // Update existing signature record
+                $oldPath = $existingSignature[0]['signature_path'];
+                Class_db::getInstance()->db_update('sys_user_signature', 
+                    array(
+                        'signature_path' => $filePath,
+                        'signature_sha256' => $sha256,
+                        'mime_type' => $upload['uploadBlobType'],
+                        'width' => $upload['uploadFileWidth'],
+                        'height' => $upload['uploadFileHeight'],
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ), 
+                    array('user_id'=>$userId));
+                    
+                // Delete old file if different path
+                if (!empty($oldPath) && $oldPath !== $filePath) {
+                    $oldFullPath = __DIR__ . '/../../' . $oldPath;
+                    if (file_exists($oldFullPath)) {
+                        unlink($oldFullPath);
+                    }
+                }
+            } else {
+                // Create new signature record
+                Class_db::getInstance()->db_insert('sys_user_signature', array(
+                    'user_id' => $userId,
+                    'signature_path' => $filePath,
+                    'signature_sha256' => $sha256,
+                    'mime_type' => $upload['uploadBlobType'],
+                    'width' => $upload['uploadFileWidth'],
+                    'height' => $upload['uploadFileHeight'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ));
             }
         }
         catch(Exception $ex) {
