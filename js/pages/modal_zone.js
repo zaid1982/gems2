@@ -8,12 +8,14 @@ function ModalZone () {
     let zoneId;
     let modalConfirmDeleteClass;
     let qrCodeImg;
+    let qrCodePtwImg;
 
     this.init = function () {
-        qrCodeImg = new QRCode(document.getElementById("divMznQrCodeImg"), {
-            //width : 100,
-            //height : 100
-        });
+        qrCodeImg = new QRCode(document.getElementById("divMznQrCodeImg"), { });
+        const ptwQrEl = document.getElementById('divMznPtwQrCodeImg');
+        if (ptwQrEl) {
+            qrCodePtwImg = new QRCode(ptwQrEl, { });
+        }
         
         mzOptionV2('optMznSite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
 
@@ -151,15 +153,42 @@ function ModalZone () {
                 zoneId = _zoneId;
                 formValidate.clearValidation();
                 const data = mzAjaxRequest2('zone/'+zoneId, 'GET');
-                const qrLink = classFrom.getUrlLinkBase() + zoneId;
+                const qrLink = classFrom.getUrlLinkBase() + zoneId; // already full
+                const basePath = (typeof classFrom.getBaseAppPath === 'function') ? classFrom.getBaseAppPath() : '';
+                const ptwLink = basePath + '/ptw_form.html?site_id=' + encodeURIComponent(data['siteId'] || '');
                 mzSetFieldValue('MznSite', data['siteId'], 'select');
                 mzSetFieldValue('MznType', data['zoneType'], 'text');
                 mzSetFieldValue('MznName', data['zoneName'], 'text');
                 mzSetFieldValue('MznCode', data['zoneCode'], 'text');
                 mzSetFieldValue('MznLink', qrLink, 'text');
+                if (document.getElementById('txtMznPtwLink')) {
+                    mzSetFieldValue('MznPtwLink', ptwLink, 'text');
+                }
                 mzSetFieldValue('MznStatus', data['zoneStatus'], 'radio');
                 mzDisableSelect('optMznSite', true);
-                qrCodeImg.makeCode(qrLink);
+                // Generate / regenerate Complaint QR
+                if (!qrCodeImg) {
+                    const complaintQrContainer = document.getElementById('divMznQrCodeImg');
+                    if (complaintQrContainer) {
+                        qrCodeImg = new QRCode(complaintQrContainer, {});
+                    }
+                } else if (typeof qrCodeImg.clear === 'function') {
+                    qrCodeImg.clear();
+                }
+                if (qrCodeImg) {
+                    qrCodeImg.makeCode(qrLink);
+                }
+
+                // Generate / regenerate PTW Form QR
+                const ptwQrContainer = document.getElementById('divMznPtwQrCodeImg');
+                if (ptwQrContainer) {
+                    if (!qrCodePtwImg) {
+                        qrCodePtwImg = new QRCode(ptwQrContainer, {});
+                    } else if (typeof qrCodePtwImg.clear === 'function') {
+                        qrCodePtwImg.clear();
+                    }
+                    qrCodePtwImg.makeCode(ptwLink);
+                }
                 $('#btnMznSubmit').hide();
                 $('#btnMznDelete, #btnMznSave, .divMznQr').show();
                 $('#h4MznTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit FCA Zone');

@@ -7,10 +7,12 @@ function MainZone () {
     let refSite;
     let modalZoneClass;
     let urlLinkBase;
+    let baseAppPath;
 
     this.init = function () {
-        const urlParams = window.location.href.split('/p_');
-        urlLinkBase = urlParams[0]+'/p_complaint?z=';
+    const urlParams = window.location.href.split('/p_');
+    baseAppPath = urlParams[0]; // base including protocol, host and application path before /p_ segment
+    urlLinkBase = baseAppPath + '/p_complaint?z=';
         
         oTableZne = $('#dtZneData').DataTable({
             bLengthChange: false,
@@ -54,9 +56,14 @@ function MainZone () {
                 {mData: 'zoneType'},
                 {mData: 'zoneCode'},
                 {mData: 'zoneName'},
-                {mData: 'zoneId', mRender: function(data) {
-                        return urlLinkBase+data;
-                    }},
+        {mData: null, mRender: function(row) {
+            const zoneId = row.zoneId;
+            const siteId = row.siteId;
+            const complaintLink = urlLinkBase + zoneId; // already full path
+            const ptwLink = baseAppPath + '/ptw_form.html?site_id=' + encodeURIComponent(siteId || '');
+            return '<div class="small" style="font-family:monospace; line-height:1.2; word-break:break-all;">'
+                + complaintLink + '<br>' + ptwLink + '</div>';
+            }},
                 {mData: 'zoneStatus', mRender: function(data) {
                         return refStatus[data]['statusDesc'];
                     }}
@@ -104,5 +111,9 @@ function MainZone () {
     
     this.getUrlLinkBase = function () {
         return urlLinkBase;
+    };
+
+    this.getBaseAppPath = function () {
+        return baseAppPath;
     };
 }
