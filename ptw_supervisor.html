@@ -1683,6 +1683,9 @@ function getActionButtons(request) {
                     <i class="fas fa-times text-danger"></i> Quick Reject
                 </a>
                 <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
+                    <i class="fas fa-qrcode text-primary"></i> Show QR Code
+                </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
@@ -1717,6 +1720,9 @@ function getActiveActionButtons(request){
                     <i class="fas fa-handshake text-warning"></i> Request to Close
                 </a>
                 <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
+                    <i class="fas fa-qrcode text-primary"></i> Show QR Code
+                </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>`;
@@ -1735,6 +1741,9 @@ function getActiveActionButtons(request){
                     <i class="fas fa-handshake text-warning"></i> Request to Close
                 </a>
                 <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
+                    <i class="fas fa-qrcode text-primary"></i> Show QR Code
+                </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>`;
@@ -1777,6 +1786,9 @@ function getReadOnlyActionButtons(row){
             <div class="dropdown-menu dropdown-menu-right">
                 ${marker}
                 <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
+                    <i class="fas fa-qrcode text-primary"></i> Show QR Code
+                </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
@@ -2722,6 +2734,147 @@ function generatePTWPDF(ptwId) {
     } catch (error) {
         console.error('PDF generation error:', error);
         safeToast('error', 'Failed to generate PDF: ' + error.message, 'Error');
+    }
+}
+</script>
+
+<!-- QR Code Modal (Enhanced) -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content qr-modal">
+            <div class="modal-header qr-header">
+                <h5 class="modal-title mb-0"><i class="fas fa-qrcode mr-2"></i>Permit QR Code</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="qr-body-wrapper">
+                    <div class="qr-left">
+                        <div id="qrContainer" class="qr-box shadow-sm"></div>
+                        <div class="qr-id text-muted small mt-2" id="qrMeta"></div>
+                    </div>
+                    <div class="qr-right">
+                        <label class="small font-weight-bold text-uppercase mb-1">Public Link</label>
+                        <div class="input-group input-group-sm mb-3" style="align-items: center;">
+                            <input type="text" id="qrPublicLink" class="form-control small" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" onclick="copyPublicLink()" title="Copy link"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-danger btn-sm mr-2" onclick="regeneratePermitQR()"><i class="fas fa-sync-alt mr-1"></i>Regenerate</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Close</button>
+                        </div>
+                        <div class="qr-hint mt-3 text-muted small">
+                            <i class="fas fa-info-circle mr-1"></i>Scan this code to open the public view form. Regenerating invalidates the old link.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .qr-modal { border:0; overflow:hidden; }
+    .qr-header { background:#4f46e5; color:#fff; border-bottom:0; padding:0.85rem 1rem; }
+    .qr-header .close { opacity:0.8; }
+    .qr-header .close:hover { opacity:1; }
+    .qr-body-wrapper { display:flex; flex-direction:row; padding:1.25rem 1.25rem 1rem; min-width:520px; }
+    @media (max-width: 576px){ .qr-body-wrapper { flex-direction:column; min-width:0; } .qr-left { margin-right:0!important; margin-bottom:1rem; } }
+    .qr-left { flex:0 0 auto; margin-right:1.25rem; text-align:center; }
+    .qr-box { width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#fff; padding:8px; border:1px solid #e2e8f0; border-radius:8px; }
+    .qr-right { flex:1 1 auto; }
+    .qr-right .form-control { background:#ffffff; }
+    .qr-modal .btn-primary { background:#4f46e5; border-color:#4f46e5; }
+    .qr-modal .btn-primary:hover { background:#4338ca; border-color:#4338ca; }
+    .qr-modal .btn-danger { background:#dc2626; border-color:#dc2626; }
+    .qr-modal .btn-danger:hover { background:#b91c1c; border-color:#b91c1c; }
+    .qr-modal .btn-outline-light { color:#374151; border-color:#d1d5db; background:#f9fafb; }
+    .qr-modal .btn-outline-light:hover { background:#f3f4f6; }
+    .qr-hint { line-height:1.4; }
+    .qr-id { font-size:11px; }
+    .qr-body-wrapper label { letter-spacing:0.5px; }
+</style>
+
+<!-- Ensure QRCode library available -->
+<script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
+<script type="text/javascript">
+let currentQrPermitId = null;
+
+function showPermitQR(permitId){
+    if(!permitId || permitId==='unknown'){ safeToast('error','Permit ID missing','Error'); return; }
+    currentQrPermitId = permitId;
+    // Fetch (or create) existing token without rotation
+    try {
+    // Use relative path (no leading slash) to avoid base path issues
+    let res = mzAjaxRequest('ptw.php?action=details&permit_id='+encodeURIComponent(permitId), 'GET', {});
+    if (typeof res === 'string') { try { res = JSON.parse(res); } catch(e) { console.warn('Could not parse details response string', e); } }
+        // Expect res to contain permit details including public_token maybe
+        let token = null;
+        try { token = res && res.public_token ? res.public_token : (res.result && res.result.public_token); } catch(e) {}
+        if(!token){
+            // Fallback: issue if missing via lightweight POST create-or-get endpoint reuse (requires backend create path already returns token only on new though)
+            // We'll call a mini endpoint by attempting silent update via no-op? Simpler: notify user to regenerate.
+            document.getElementById('qrContainer').innerHTML = '<div class="text-center text-muted">No token yet. Click Regenerate to create one.</div>';
+            document.getElementById('qrPublicLink').value = '';
+        } else {
+            renderQr(token, permitId);
+        }
+        $('#qrModal').modal('show');
+    } catch(e){
+        console.error('Show QR failed', e);
+        safeToast('error', e.message || 'Failed to load permit details','Error');
+    }
+}
+
+function renderQr(token, permitId){
+    const link = window.location.origin + '/gems2/ptw_form.html?mode=view&t='+token+'&id='+permitId;
+    const container = document.getElementById('qrContainer');
+    container.innerHTML = '';
+    try {
+        new QRCode(container, { text: link, width: 160, height:160, correctLevel: QRCode.CorrectLevel.M });
+    } catch(e){ container.innerHTML = '<div class="alert alert-warning small mb-0">QR generation library missing.</div>'; }
+    document.getElementById('qrPublicLink').value = link;
+    document.getElementById('qrMeta').textContent = 'Permit ID: '+permitId;
+}
+
+function copyPublicLink(){
+    const el = document.getElementById('qrPublicLink');
+    if(!el.value){ safeToast('warning','No link to copy','Info'); return; }
+    el.select();
+    el.setSelectionRange(0, 99999);
+    try { document.execCommand('copy'); safeToast('success','Link copied','Copied'); } catch(e){ navigator.clipboard.writeText(el.value).then(()=>safeToast('success','Link copied','Copied')).catch(()=>safeToast('error','Copy failed','Error')); }
+    window.getSelection().removeAllRanges();
+}
+
+function regeneratePermitQR(){
+    if(!currentQrPermitId){ safeToast('error','Permit not selected','Error'); return; }
+    // Call a small custom endpoint to rotate token (reuse update_permit with special flag if available). If not, extend API later.
+    try {
+        // mzAjaxRequest returns resp.result (we set result.token server-side)
+        const ret = mzAjaxRequest('ptw_public_token.php','POST',{ action:'regenerate', permit_id: currentQrPermitId });
+        console.debug('Regenerate QR return value:', ret);
+        // ret expected to be object { token: '...' }
+        let token = null;
+        if (ret) {
+            if (typeof ret === 'string') {
+                // Might be just the token string
+                if (/^[0-9a-f]{32,}$/.test(ret)) token = ret; else { try { const parsed = JSON.parse(ret); token = parsed.token; } catch(_) {} }
+            } else if (typeof ret === 'object') {
+                token = ret.token || ret.public_token;
+            }
+        }
+        if (!token) {
+            safeToast('error','Failed to extract token from response','Error');
+            return;
+        }
+        renderQr(token, currentQrPermitId);
+        safeToast('success','QR regenerated','Success');
+    } catch(e){
+        console.error('Regenerate failed', e);
+        safeToast('error', e.message || 'Failed to regenerate','Error');
     }
 }
 </script>
