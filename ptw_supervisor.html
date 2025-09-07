@@ -639,6 +639,20 @@
                 <!-- Page Header -->
         <div class="page-header">
             <h2><i class="fas fa-user-tie mr-3"></i>PTW Supervisor Dashboard</h2>
+            <!-- Signature Required Panel (hidden by default) -->
+            <div id="signature-required-panel" class="alert alert-danger mt-4" style="display:none;">
+                <div class="d-flex align-items-start">
+                    <div class="mr-3" style="font-size:32px; line-height:1;">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-2">Signature Setup Required</h5>
+                        <p class="mb-3">You must create your personal approval signature before accessing the PTW dashboard features. This signature will automatically be applied to PTW approvals you perform.</p>
+                        <a href="signature.html" class="btn btn-sm btn-primary"><i class="fas fa-pen-nib mr-1"></i> Go to Signature Setup</a>
+                        <button type="button" id="btnRetrySignatureCheck" class="btn btn-sm btn-outline-secondary ml-2"><i class="fas fa-sync"></i> Retry</button>
+                    </div>
+                </div>
+            </div>
             <p>Review and approve Permit to Work requests awaiting your authorization</p>
         </div>
 
@@ -900,7 +914,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-modern" id="dtPendingPTW">
+                <table class="table table-modern ptw-dashboard-root" id="dtPendingPTW">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -938,7 +952,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-modern" id="dtHistoryPTW">
+                <table class="table table-modern ptw-dashboard-root" id="dtHistoryPTW">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -974,7 +988,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-modern" id="dtActivePTWForClosure">
+                <table class="table table-modern ptw-dashboard-root" id="dtActivePTWForClosure">
                     <thead>
                         <tr>
                             <th>Permit No.</th>
@@ -1010,7 +1024,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-modern" id="dtClosedPTW">
+                <table class="table table-modern ptw-dashboard-root" id="dtClosedPTW">
                     <thead>
                         <tr>
                             <th>Permit No.</th>
@@ -2635,6 +2649,10 @@ $(document).ready(function() {
         autoRefreshEnabled = savedPreference === 'true';
         $('#autoRefreshToggle').prop('checked', autoRefreshEnabled);
     }
+    // Run signature validation after preferences
+    if (typeof validateUserSignature === 'function') {
+        validateUserSignature();
+    }
 });
 </script>
 
@@ -2643,6 +2661,40 @@ $(document).ready(function() {
 </script>
 
 <script type="text/javascript">
+// --- Signature Validation ---
+function validateUserSignature() {
+    try {
+        if (typeof mzGetUserId !== 'function') { return showSignatureBlock('Session not ready'); }
+        const userId = mzGetUserId();
+        if (!userId) { return showSignatureBlock('User not authenticated'); }
+        const sig = mzAjaxRequest2('user_signature/'+userId, 'GET');
+        if (!sig || !sig.file_path) {
+            showSignatureBlock();
+        } else {
+            enableDashboard();
+        }
+    } catch(e) { showSignatureBlock('Signature check failed'); }
+}
+function showSignatureBlock(msg) {
+    $('.ptw-dashboard-root').closest('.card, .table-responsive').hide();
+    $('#signature-required-panel').show();
+    if (msg) {
+        // only add once
+        if (!$('#signature-required-panel').data('msg-added')) {
+            $('#signature-required-panel').data('msg-added', true);
+            $('#signature-required-panel p').prepend('<strong>'+msg+': </strong>');
+        }
+    }
+}
+function enableDashboard() {
+    $('#signature-required-panel').hide();
+    $('.ptw-dashboard-root').closest('.card, .table-responsive').show();
+}
+$(document).on('click','#btnRetrySignatureCheck', function(){
+    $('#signature-required-panel').hide();
+    validateUserSignature();
+});
+
 // PTW Modal Integration Functions
 function openPtwModal(ptwId, role = 'supervisor') {
     console.log('Opening PTW modal:', { ptwId, role });

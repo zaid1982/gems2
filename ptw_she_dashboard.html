@@ -518,6 +518,19 @@
         <div class="page-header">
             <h2><i class="fas fa-hard-hat mr-3"></i>PTW SHE Dashboard</h2>
             <p>Review and approve Permit to Work applications for safety compliance</p>
+            <div id="signature-required-panel" class="alert alert-danger mt-4" style="display:none;">
+                <div class="d-flex align-items-start">
+                    <div class="mr-3" style="font-size:32px; line-height:1;">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-2">Signature Setup Required</h5>
+                        <p class="mb-3">You must create your personal approval signature before accessing SHE PTW processing features.</p>
+                        <a href="signature.html" class="btn btn-sm btn-primary"><i class="fas fa-pen-nib mr-1"></i> Go to Signature Setup</a>
+                        <button type="button" id="btnRetrySignatureCheck" class="btn btn-sm btn-outline-secondary ml-2"><i class="fas fa-sync"></i> Retry</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- User Info Display -->
@@ -773,6 +786,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize SHE dashboard
             initializeSHEDashboard();
+            // Validate signature after init
+            validateUserSignature_SHE();
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -857,6 +872,34 @@ function refreshAllData() {
     loadShePermits();
     loadSummaryStats();
 }
+
+// --- Signature Validation (SHE) ---
+function validateUserSignature_SHE() {
+    try {
+        if (typeof mzGetUserId !== 'function') { return showSignatureBlock_SHE('Session not ready'); }
+        const userId = mzGetUserId();
+        if (!userId) { return showSignatureBlock_SHE('User not authenticated'); }
+        const sig = mzAjaxRequest2('user_signature/'+userId, 'GET');
+        if (!sig || !sig.file_path) { showSignatureBlock_SHE(); } else { enableDashboard_SHE(); }
+    } catch(e) { showSignatureBlock_SHE('Signature check failed'); }
+}
+function showSignatureBlock_SHE(msg) {
+    $('#signature-required-panel').show();
+    if (msg && !$('#signature-required-panel').data('msg-added')) {
+        $('#signature-required-panel').data('msg-added', true);
+        $('#signature-required-panel p').prepend('<strong>'+msg+': </strong>');
+    }
+    // Hide main data areas
+    $('#dtPendingSHE').closest('.card, .table-responsive').hide();
+}
+function enableDashboard_SHE() {
+    $('#signature-required-panel').hide();
+    $('#dtPendingSHE').closest('.card, .table-responsive').show();
+}
+$(document).on('click','#btnRetrySignatureCheck', function(){
+    $('#signature-required-panel').hide();
+    validateUserSignature_SHE();
+});
 
 function loadShePermits() {
     // Update last update time

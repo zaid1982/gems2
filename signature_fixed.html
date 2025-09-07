@@ -18,7 +18,7 @@
     <style>
         .sig-pad-wrapper {border:1px dashed #888; border-radius:6px; background:#fff; position:relative;}
         .sig-pad-wrapper canvas {width:100%; height:160px; touch-action:none; cursor:crosshair;}
-        .signature-preview {max-height:160px; max-width:100%; background:#fff; padding:4px;}
+        .signature-preview {max-height:160px; max-width:100%; border:1px solid #ccc; background:#fff; padding:4px;}
         .font-mono {font-family:monospace; font-size:12px;}
         .toolbar-btn {min-width:110px;}
     </style>
@@ -26,8 +26,6 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <!-- Crypto JS (needed before common.js decrypts userInfo) -->
-    <script type="text/javascript" src="js/addons/crypto.js"></script>
 </head>
 <body class="fixed-sn light-blue-skin">
 <!--Main Navigation-->
@@ -57,14 +55,14 @@
                     <div class="card h-100 z-depth-3">
                         <div class="card-header py-2 d-flex justify-content-between align-items-center blue-grey lighten-4">
                             <span class="font-weight-bold">Current Saved Signature</span>
-                            <!-- <button id="btnDeleteSignature" class="btn btn-outline-danger btn-sm toolbar-btn" disabled><i class="fas fa-trash mr-1"></i>Delete</button> -->
+                            <button id="btnDeleteSignature" class="btn btn-outline-danger btn-sm toolbar-btn" disabled><i class="fas fa-trash mr-1"></i>Delete</button>
                         </div>
-                        <div class="card-body py-3" style="display: flex;align-items: center;justify-content: center;flex-direction: column;">
+                        <div class="card-body py-3">
                             <div id="divCurrentSignature" class="text-center">
                                 <p class="text-muted mb-0" id="pNoSignature">No signature saved yet.</p>
                                 <img id="imgSignature" class="signature-preview d-none" alt="Signature" />
                             </div>
-                            <!-- <div class="mt-3 font-mono small" id="divMeta" style="display:none;"></div> -->
+                            <div class="mt-3 font-mono small" id="divMeta" style="display:none;"></div>
                         </div>
                     </div>
                 </div>
@@ -106,7 +104,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Removed duplicate 'Current Signature' card (functionally same as left column) -->
             <div class="row">
                 <div class="col-12">
                     <div class="alert alert-info py-2 mb-5 small">
@@ -119,32 +116,14 @@
     <div class="includeHtml" id="h-modal_change_password"></div>
 </main>
 
-<!-- Load nav fragments sequentially, then load common.js to build menus, then page script -->
+<!-- SCRIPTS -->
 <script type="text/javascript">
-    (function initSignaturePage(){
-        var ts = Date.now();
-        function loadTopNav(){
-            $('#h-nav_top').load('html/nav_top.html?'+ts, function(){
-                $('#h-modal_change_password').load('html/modal_change_password.html?'+ts, function(){
-                    $.getScript('js/common.js?'+ts).done(function(){
-                        if (typeof initiatePages === 'function') {
-                            try { initiatePages(); } catch(e){ console.error('initiatePages error', e); }
-                        } else {
-                            console.warn('initiatePages not available after common.js load');
-                        }
-                        // Fallback: if nav not populated, retry once after 150ms
-                        setTimeout(function(){
-                            if ($('#ulNavLeft').length && $('#ulNavLeft').children().length === 0 && typeof initiatePages === 'function') {
-                                try { initiatePages(); } catch(e){ console.error('initiatePages retry error', e); }
-                            }
-                        },150);
-                        $.getScript('js/pages/main_signature.js?'+ts);
-                    }).fail(function(){ console.error('Failed loading common.js'); });
-                });
-            });
-        }
-        $('#h-nav_left').load('html/nav_left.html?'+ts, loadTopNav);
-    })();
+    $(document).ready(function() {
+        $('.includeHtml').each(function () {
+            const divId = $(this).attr('id');
+            $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+        });
+    });
 </script>
 
 <!-- Bootstrap tooltips -->
@@ -153,19 +132,13 @@
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Moment JS (required by common.js utilities that use moment()) -->
-    <script type="text/javascript" src="js/addons/moment.min.js"></script>
+<!-- Crypto JS -->
+<script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- Toastr for notifications -->
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<!-- Safe Toastr wrapper -->
-<script type="text/javascript" src="js/toastr-safe.js"></script>
-
-<script type="text/javascript">
-// Safe toastr wrapper (common + page scripts loaded dynamically above)
-function safeToast(type, message, title) {
-    try { if (typeof toastr !== 'undefined' && toastr && toastr[type]) { toastr[type](message, title); } else { console.warn('Toastr not available'); if(message) alert((title?title+': ':'')+message); } }
-    catch(e){ console.error('Error showing toast:', e); if(message) alert((title?title+': ':'')+message); }
-}
-</script>
+<script type="text/javascript" src="js/toastr.min.js"></script>
+<!-- Common functions -->
+<script type="text/javascript" src="js/common.js"></script>
+<!-- Page specific script -->
+<script type="text/javascript" src="js/pages/main_signature.js"></script>
 </body>
 </html>

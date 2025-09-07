@@ -107,38 +107,24 @@ function MainSignature() {
     function loadExisting() {
         try {
             const userId = mzGetUserId();
-            if (!userId) {
-                toastr['error']('User not authenticated');
-                return;
-            }
-            
-            const displayElement = document.getElementById('signature-display');
-            const deleteButton = document.getElementById('delete-signature');
-            
-            if (!displayElement) {
-                console.warn('signature-display element not found');
-                return;
-            }
-            
+            if (!userId) { toastr['error']('User not authenticated'); return; }
             const data = mzAjaxRequest2('user_signature/'+userId,'GET');
+            const pNoSig = document.getElementById('pNoSignature');
+            const imgSig = document.getElementById('imgSignature');
+            const metaDiv = document.getElementById('divMeta');
+            const btnDelete = document.getElementById('btnDeleteSignature');
             if (data && data.file_path) {
-                displayElement.innerHTML = `<img src="${data.file_path}" class="img-fluid border" style="max-height: 200px;">`;
-                if (deleteButton) deleteButton.style.display = 'block';
+                if (pNoSig) pNoSig.classList.add('d-none');
+                if (imgSig) { imgSig.src = data.file_path; imgSig.classList.remove('d-none'); }
+                if (metaDiv) { metaDiv.style.display='block'; metaDiv.innerHTML = 'Type: '+(data.type||'')+' | '+(data.width||'?')+'x'+(data.height||'?'); }
+                if (btnDelete) btnDelete.removeAttribute('disabled');
             } else {
-                displayElement.innerHTML = '<p class="text-muted">No signature saved</p>';
-                if (deleteButton) deleteButton.style.display = 'none';
+                if (pNoSig) pNoSig.classList.remove('d-none');
+                if (imgSig) { imgSig.src=''; imgSig.classList.add('d-none'); }
+                if (metaDiv) { metaDiv.style.display='none'; metaDiv.innerHTML=''; }
+                if (btnDelete) btnDelete.setAttribute('disabled','disabled');
             }
-        } catch(e) { 
-            const displayElement = document.getElementById('signature-display');
-            const deleteButton = document.getElementById('delete-signature');
-            
-            if (displayElement) {
-                displayElement.innerHTML = '<p class="text-muted">No signature saved</p>';
-            }
-            if (deleteButton) {
-                deleteButton.style.display = 'none';
-            }
-        }
+        } catch(e) { console.warn('loadExisting signature error', e); }
     }
 
     function saveCanvas() {
@@ -243,7 +229,7 @@ function MainSignature() {
         $('#btnSaveCanvas').on('click', saveCanvas);
         $('#fileSignature').on('change', function(){ $('#btnSaveFile').prop('disabled', !this.files.length); });
         $('#btnSaveFile').on('click', saveFile);
-        $('#delete-signature').on('click', deleteSignature);
+    $('#btnDeleteSignature').on('click', deleteSignature);
     };
 }
 

@@ -139,6 +139,19 @@
         <div class="page-header">
             <h2><i class="fas fa-user-tie mr-3"></i>PTW Facility Manager Dashboard</h2>
             <p>Review and approve Permit to Work requests awaiting your authorization</p>
+            <div id="signature-required-panel" class="alert alert-danger mt-4" style="display:none;">
+                <div class="d-flex align-items-start">
+                    <div class="mr-3" style="font-size:32px; line-height:1;">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-2">Signature Setup Required</h5>
+                        <p class="mb-3">You must create your personal approval signature before accessing Facility Manager PTW processing features.</p>
+                        <a href="signature.html" class="btn btn-sm btn-primary"><i class="fas fa-pen-nib mr-1"></i> Go to Signature Setup</a>
+                        <button type="button" id="btnRetrySignatureCheck" class="btn btn-sm btn-outline-secondary ml-2"><i class="fas fa-sync"></i> Retry</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- Hero Header -->
     <div class="row mt-4 d-none">
@@ -569,6 +582,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize PTW FM Dashboard
             initializeFMDashboard();
+            // Validate signature
+            validateUserSignature_FM();
             // Restore saved preferences
             try {
                 showCancelled = localStorage.getItem('ptw_fm_show_cancelled') === 'true';
@@ -665,6 +680,34 @@ function refreshAllData() {
     loadUnifiedData();
     loadSummaryStats();
 }
+
+// --- Signature Validation (FM) ---
+function validateUserSignature_FM() {
+    try {
+        if (typeof mzGetUserId !== 'function') { return showSignatureBlock_FM('Session not ready'); }
+        const userId = mzGetUserId();
+        if (!userId) { return showSignatureBlock_FM('User not authenticated'); }
+        const sig = mzAjaxRequest2('user_signature/'+userId, 'GET');
+        if (!sig || !sig.file_path) { showSignatureBlock_FM(); } else { enableDashboard_FM(); }
+    } catch(e) { showSignatureBlock_FM('Signature check failed'); }
+}
+function showSignatureBlock_FM(msg) {
+    $('#signature-required-panel').show();
+    if (msg && !$('#signature-required-panel').data('msg-added')) {
+        $('#signature-required-panel').data('msg-added', true);
+        $('#signature-required-panel p').prepend('<strong>'+msg+': </strong>');
+    }
+    // Hide main data areas (primary table & related sections)
+    $('#dtPendingFM').closest('.card, .table-responsive').hide();
+}
+function enableDashboard_FM() {
+    $('#signature-required-panel').hide();
+    $('#dtPendingFM').closest('.card, .table-responsive').show();
+}
+$(document).on('click','#btnRetrySignatureCheck', function(){
+    $('#signature-required-panel').hide();
+    validateUserSignature_FM();
+});
 
 function loadUnifiedData(){
     try{
