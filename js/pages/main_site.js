@@ -57,6 +57,15 @@ function MainSite() {
                         modalConfirmDeleteClass.delete(currentRow['siteId'], modalSiteClass);
                     }
                 });
+                $('.lnkSteSitePtwPublic').off('click').on('click', function() {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0 && typeof window.modalSitePtwPublicGlobal !== 'undefined') {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTableSite.row(parseInt(rowId)).data();
+                        window.modalSitePtwPublicGlobal.openForSite(currentRow['siteId']);
+                    }
+                });
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -76,7 +85,9 @@ function MainSite() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSteSiteEdit" id="lnkSteSiteEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '';
+                            label += '<a><i class="fas fa-qrcode lnkSteSitePtwPublic" id="lnkSteSitePtwPublic_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PTW Public Link / QR"></i></a>&nbsp;&nbsp;';
+                            label += '<a><i class="fas fa-edit lnkSteSiteEdit" id="lnkSteSiteEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
                             if (row['siteStatus'] === '1') {
                                 label += '<a><i class="fas fa-toggle-off lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
                             } else {
