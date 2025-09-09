@@ -243,6 +243,9 @@ class Class_constant {
     const SUC_WO_MANUAL_REPORT_ADD = 'Manual Work Order Report successfully added';
     const SUC_WO_MANUAL_REPORT_EDIT = 'Manual Work Order Report successfully updated';
 
+    // Visitor Management (VM)
+    const SUC_VM_VISIT_SUBMITTED = 'Visitor registration successfully submitted';
+
     const ERR_ATT_NO_POLYGON = 'Please make sure site/office Perimeter for attendance verification selected from the Map';
     const ERR_ATT_GROUP_NAME_EXIST = 'The Attendance Group name already exist. Please choose other group name';
 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Visitor Registration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="css/mdb.min.css" />
+<style>
+body {padding:20px; background:#f6f8fa;}
+.card {max-width:760px;margin:0 auto;}
+.required:after{content:' *';color:#d00;}
+small.error{color:#d00;display:none;}
+</style>
+</head>
+<body>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="mb-3">Visitor Registration</h4>
+    <form id="visitForm" autocomplete="off" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label required">Name</label><input class="form-control" name="name" maxlength="100" required></div>
+        <div class="col-md-6"><label class="form-label required">Contact No</label><input class="form-control" name="contact_no" placeholder="e.g. +60 12-3456789" required></div>
+        <div class="col-md-6"><label class="form-label required">IC / ID</label><input class="form-control" name="ic_no" placeholder="e.g. 880101015555" required></div>
+        <div class="col-md-6"><label class="form-label">Company</label><input class="form-control" name="company" maxlength="100"></div>
+        <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" name="email" type="email" maxlength="150"></div>
+        <div class="col-md-3"><label class="form-label required">Party Size</label><input class="form-control" name="party_size" type="number" min="1" max="999" value="1" required></div>
+        <div class="col-md-6"><label class="form-label required">Host Name</label><input class="form-control" name="host_name" maxlength="100" required></div>
+        <div class="col-12"><label class="form-label required">Purpose</label><textarea class="form-control" name="purpose" rows="3" maxlength="2000" required></textarea></div>
+        <div class="col-md-6"><label class="form-label">Date / Time</label><input class="form-control" name="display_datetime" disabled></div>
+        <input type="hidden" name="site_id" id="site_id" />
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-secondary" type="reset" id="btnReset">Reset</button>
+        <button class="btn btn-primary" type="submit" id="btnSubmit">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Registration Successful</h5></div>
+      <div class="modal-body">
+        <p>Your visit has been recorded. Reference ID: <span id="refId"></span></p>
+        <p>Please proceed to the reception if required.</p>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" data-mdb-dismiss="modal">OK</button></div>
+    </div>
+  </div>
+</div>
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/mdb.min.js"></script>
+<script>
+(function(){
+  const form = document.getElementById('visitForm');
+  const dtInput = form.querySelector('[name=display_datetime]');
+  const siteField = document.getElementById('site_id');
+  // Parse site id from query (?site=123) or token in future
+  const params=new URLSearchParams(window.location.search); if(params.get('site')) siteField.value=params.get('site');
+  function refreshClock(){dtInput.value=new Date().toLocaleString();}
+  refreshClock(); setInterval(refreshClock,1000);
+
+  form.addEventListener('reset', ()=>{ setTimeout(()=>{refreshClock();},50); });
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.party_size = data.party_size || '1';
+    fetch('api/vm.php', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+      .then(r=>r.json())
+      .then(resp=>{
+        if(!resp.success){
+          const errs = resp.errors||{}; alert('Please correct form errors');
+          Object.keys(errs).forEach(k=>{ const el=form.querySelector('[name='+k+']'); if(el){el.classList.add('is-invalid'); el.title=errs[k];}});
+          return;
+        }
+        $('#refId').text(resp.result.visit_id);
+        const modal = new mdb.Modal(document.getElementById('successModal')); modal.show();
+        form.reset(); refreshClock();
+      })
+      .catch(err=>{alert('Submission failed'); console.error(err);});
+  });
+})();
+</script>
+</body>
+</html>
