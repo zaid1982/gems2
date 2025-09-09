@@ -26,8 +26,12 @@
             --primary-dark: #3730a3;
             --secondary-color: #64748b;
             --success-color: #10b981;
+            --success-dark: #047857;
+            --success-light: #6ee7b7;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
+            --danger-dark: #991b1b;
+            --danger-light: #fecaca;
             --info-color: #3b82f6;
             --light-bg: #f8fafc;
             --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -411,6 +415,16 @@
             color: var(--success-color);
         }
 
+        .badge-success-dark {
+            background: rgba(16, 185, 129, 1);
+            color: var(--success-dark);
+        }
+
+        .badge-success-light {
+            background: rgba(16, 185, 129, 0.3);
+            color: var(--success-light);
+        }
+
         .badge-warning {
             background: rgba(245, 158, 11, 0.1);
             color: var(--warning-color);
@@ -419,6 +433,16 @@
         .badge-danger {
             background: rgba(239, 68, 68, 0.1);
             color: var(--danger-color);
+        }
+
+        .badge-danger-dark {
+            background: rgb(184, 51, 51);
+            color: var(--danger-dark);
+        }
+
+        .badge-danger-light {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger-light);
         }
 
         .badge-info {
@@ -1867,6 +1891,8 @@ function submitCloseRequest(){
             $('#closeModal').modal('hide');
             safeToast('success', (res.message||'Closure requested successfully'), 'Success');
             loadActivePTWForClosure();
+            // Reload entire dashboard tables instead of mutating a single row (per user request)
+            try { loadDashboardData(); } catch(e) { console.warn('Dashboard reload after closure request failed', e); }
         } else {
             safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request closure','Error');
         }
@@ -2186,16 +2212,16 @@ function getStatusBadge(status){
         // Display labels
         'Draft': '<span class="badge badge-modern badge-secondary">Draft</span>',
         'New Request': '<span class="badge badge-modern badge-info">New Request</span>',
-        'SHE Approval': '<span class="badge badge-modern badge-purple">SHE Approval</span>',
-        'FM Approval': '<span class="badge badge-modern badge-purple">FM Approval</span>',
+        'SHE Approval': '<span class="badge badge-modern badge-primary">SHE Approval</span>',
+        'FM Approval': '<span class="badge badge-modern badge-primary">FM Approval</span>',
         'Approved': '<span class="badge badge-modern badge-success">Approved</span>',
         'Extended': '<span class="badge badge-modern badge-success" title="Permit Extended">Extended</span>',
         'Closure Requested': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
         'Cancellation Requested': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
         'Suspension Requested': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
     'Extension Requested': '<span class="badge badge-modern badge-info">Extension Requested</span>',
-        'Closed': '<span class="badge badge-modern badge-closed">Closed</span>',
-        'Cancelled': '<span class="badge badge-modern badge-dark">Cancelled</span>',
+        'Closed': '<span class="badge badge-modern badge-danger-light">Closed</span>',
+        'Cancelled': '<span class="badge badge-modern badge-danger-dark">Cancelled</span>',
         'Suspended': '<span class="badge badge-modern badge-warning">Suspended</span>',
         'Rejected': '<span class="badge badge-modern badge-danger">Rejected</span>',
         // Raw enums fallback (legacy)

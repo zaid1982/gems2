@@ -476,9 +476,13 @@ function create_ptw_permit($user_id, $user_site_id) {
         $combined_remarks = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
 
         // Prepare comprehensive permit data with all enhanced fields
+        // Work description: form submits as work_description (legacy code expected description)
+        $rawWorkDesc = '';
+        if (isset($_POST['work_description'])) { $rawWorkDesc = $_POST['work_description']; }
+        else if (isset($_POST['description'])) { $rawWorkDesc = $_POST['description']; }
         $permit_data = array(
             // 'ptw_permit_number' is now assigned at Supervisor approval stage; request number on initial submit
-            'ptw_permit_description' => trim($_POST['description']),
+            'ptw_permit_description' => trim($rawWorkDesc),
             'ptw_work_area' => trim($_POST['work_area']),
             'ptw_work_type' => $work_type,
             'ptw_risk_level' => isset($_POST['risk_level']) ? $_POST['risk_level'] : 'LOW',
@@ -874,6 +878,10 @@ function update_ptw_permit_flexible($user_id, $user_site_id, $authHeader = '') {
     }
 
     // Build update map from incoming POST fields (support same names as create)
+    // Normalise description key so downstream mapping works (support both work_description & description)
+    if (isset($_POST['work_description']) && !isset($_POST['description'])) {
+        $_POST['description'] = $_POST['work_description'];
+    }
     $map = [
         'ptw_permit_description' => 'description',
         'ptw_work_area' => 'work_area',

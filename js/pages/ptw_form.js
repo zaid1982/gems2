@@ -1709,8 +1709,23 @@ class PtwForm {
                 const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
                 hotWorkItems[checkbox.id] = label;
                 console.log(`Added hot work item: ${checkbox.id} = ${label}`);
+
+                // Handle "Others" text field for hot work
+                if (checkbox.id === 'hotOthers') {
+                    const hotOthersText = document.getElementById('hotOthersText');
+                    if (hotOthersText && hotOthersText.value.trim()) {
+                        hotWorkItems['hotOthersText'] = hotOthersText.value.trim();
+                        console.log(`Added hot work others text: ${hotOthersText.value.trim()}`);
+                    }
+                }
             }
         });
+        // Also collect special precautions text area for hot work
+        const hotSpecialPrecautions = document.getElementById('hotSpecialPrecautions');
+        if (hotSpecialPrecautions && hotSpecialPrecautions.value.trim()) {
+            hotWorkItems['hotSpecialPrecautions'] = hotSpecialPrecautions.value.trim();
+            console.log(`Added hot work special precautions: ${hotSpecialPrecautions.value.trim()}`);
+        }
         if (Object.keys(hotWorkItems).length > 0) {
             workTypeChecklists.hot_work = hotWorkItems;
         }
@@ -1760,6 +1775,12 @@ class PtwForm {
                 console.log(`Added confined space item: ${checkbox.id} = ${label}`);
             }
         });
+        // Collect confined space special precautions text
+        const csSpecialPrecautions = document.getElementById('csSpecialPrecautions');
+        if (csSpecialPrecautions && csSpecialPrecautions.value.trim()) {
+            confinedSpaceItems['csSpecialPrecautions'] = csSpecialPrecautions.value.trim();
+            console.log(`Added confined space special precautions: ${csSpecialPrecautions.value.trim()}`);
+        }
         if (Object.keys(confinedSpaceItems).length > 0) {
             workTypeChecklists.confined_space = confinedSpaceItems;
         }
@@ -1793,6 +1814,23 @@ class PtwForm {
         
         // Clear PPE others field
         $('#ppeOthersSpecify').val('');
+
+        // Clear signature related fields / canvases
+        if (typeof window.clearContractorSignature === 'function') {
+            try { window.clearContractorSignature(); } catch(e) { console.warn('clearContractorSignature error', e); }
+        }
+        $('#contractor_signature, #contractor_name, #contractor_designation, #contractor_date').val('');
+        const sigCanvas = document.getElementById('contractorSignaturePad');
+        if (sigCanvas && sigCanvas.getContext) {
+            try { const ctx = sigCanvas.getContext('2d'); ctx.clearRect(0,0,sigCanvas.width,sigCanvas.height); } catch(e) {}
+        }
+
+        // Clear any locally cached uploaded documents util if exists
+        if (typeof window.clearUploadedDocuments === 'function') {
+            try { window.clearUploadedDocuments(); } catch(e) { console.warn('clearUploadedDocuments error', e); }
+        }
+        // Also clear file input elements
+        $('input[type="file"]').val('');
         
         // Clear certificate input fields and disable them (only main certificates have input fields)
         $('#certExcavation, #certLifting, #certPhysicalIsolation, #certElectricalIsolation').val('').prop('disabled', true);
@@ -2006,7 +2044,9 @@ class PtwForm {
                             })
                             .finally(() => {
                                 // Show QR code modal for tracking
-                                try { this.showQrModal(refNo, viewUrl); } catch (e) { console.warn('QR modal error:', e); }
+                                try {
+                                    this.showQrModal(refNo, viewUrl);
+                                } catch (e) { console.warn('QR modal error:', e); }
                                 console.log('Public PTW submission successful! Clearing form...');
                                 setTimeout(() => {
                                     this.resetForm();
@@ -2016,7 +2056,9 @@ class PtwForm {
                     } else {
                         showSuccess(`PTW submitted successfully!${suffix}`);
                         // Show QR code modal for tracking
-                        try { this.showQrModal(refNo, viewUrl); } catch (e) { console.warn('QR modal error:', e); }
+                        try {
+                            this.showQrModal(refNo, viewUrl);
+                        } catch (e) { console.warn('QR modal error:', e); }
                         console.log('Public PTW submission successful! Clearing form...');
                         setTimeout(() => {
                             this.resetForm();
@@ -2371,5 +2413,7 @@ PtwForm.prototype.showQrModal = function(refNo, viewUrl) {
         if (result.isDenied) {
             try { window.open(viewUrl, '_blank', 'noopener'); } catch (e) {}
         }
+        // Always reload after user is done interacting with QR modal
+        window.location.reload();
     });
 };

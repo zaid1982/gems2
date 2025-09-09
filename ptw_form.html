@@ -3383,7 +3383,7 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 if (coldWorkData && typeof coldWorkData === 'object') {
                     // Handle checkboxes
                     Object.keys(coldWorkData).forEach(key => {
-                        if (key !== 'coldSpecialPrecautions') {  // Skip the textarea field
+                        if (key !== 'coldSpecialPrecautions' && key !== 'coldOthersText') {  // Skip textarea and free-text field
                             const checkbox = document.getElementById(key);
                             if (checkbox && checkbox.type === 'checkbox') {
                                 checkbox.checked = true;
@@ -3400,6 +3400,24 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                             console.log('Set cold work special precautions:', coldWorkData.coldSpecialPrecautions);
                         }
                     }
+
+                    // Handle Others text (if coldOthersText captured separately or value stored under coldOthers)
+                    try {
+                        const othersInput = document.getElementById('coldOthersText');
+                        const othersCheckbox = document.getElementById('coldOthers');
+                        if (othersInput && othersCheckbox) {
+                            if (coldWorkData.coldOthersText) {
+                                othersInput.value = coldWorkData.coldOthersText;
+                                othersCheckbox.checked = true;
+                                console.log('Restored cold others text (coldOthersText):', coldWorkData.coldOthersText);
+                            } else if (coldWorkData.coldOthers && typeof coldWorkData.coldOthers === 'string') {
+                                // Legacy storage where the checkbox key holds the free text
+                                othersInput.value = coldWorkData.coldOthers;
+                                othersCheckbox.checked = true;
+                                console.log('Restored cold others text (legacy coldOthers):', coldWorkData.coldOthers);
+                            }
+                        }
+                    } catch(e){ console.warn('Cold others text restore failed', e); }
                 }
             } catch (error) {
                 console.error('Error parsing ptw_checklist_cold_work:', error, 'Raw value:', data.ptw_checklist_cold_work);
