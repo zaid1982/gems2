@@ -1338,7 +1338,7 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[4, 'asc']], // Date ascending
+        order: [[4, 'desc']], // Date descending (latest first)
         language: { emptyTable: "No PTW records to display" },
         columns: [
             { data: null, title: 'No', width: '4%', className: 'text-center', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
@@ -2012,7 +2012,7 @@ function quickReject(permitId) {
         const result = mzAjaxRequest('ptw.php', 'POST', {
             action: 'supervisor_reject',
             permit_id: permitId,
-            comments: reason.trim()
+            rejection_reason: reason.trim()
         });
         if (result && result.success) {
             safeToast('success', 'PTW rejected successfully.', 'Quick Reject');
@@ -2461,7 +2461,7 @@ function setStatusFilter(code){
 
 function applyStatusFilter(){
     if (!pendingPTWTable) return;
-    const colIndex = 4; // Status column after removing Risk
+    const colIndex = 5; // Status column index
     if (statusFilter === 'ALL') {
         pendingPTWTable.column(colIndex).search('').draw();
         return;
