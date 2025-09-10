@@ -5,7 +5,9 @@ function ModalSitePtwPublic() {
 
     this.init = function() {
         // Determine base application path similar to main_zone.js logic
-        const urlParams = window.location.href.split('/p_');
+        const urlParams = window.location.href.split('/site');
+        console.log(urlParams);
+        console.log(window.location);
         baseAppPath = urlParams[0];
         // Attach handlers
     // Row-level action icons will call window.modalSitePtwPublicGlobal.openForSite(siteId)
@@ -34,6 +36,7 @@ function ModalSitePtwPublic() {
     }
 
     function generate(siteId) {
+        console.log(baseAppPath)
         const link = baseAppPath + '/ptw_form.html?site_id=' + encodeURIComponent(siteId);
         $('#txtSitePtwPublicLink').val(link);
         if (!qrObj) {

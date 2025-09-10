@@ -802,96 +802,11 @@
         // ===============================
         
 function generatePTWPDF(ptwId) {
-    if (!ptwId) {
-        alert('PTW ID not found');
-        return;
-    }
-    
-    // Find the button that was clicked
-    const button = event.target.closest('button');
-    const originalContent = button.innerHTML;
-    
-    // Show loading state
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-    
-    // Use GET request like WO PDF does
-    fetch(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
-            'deviceid': 'web-dashboard'
-        }
-    })
-    .then(response => {
-        // First check if response is ok
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        // Get the response text first to debug
-        return response.text();
-    })
-    .then(responseText => {
-        console.log('Raw response length:', responseText.length);
-        console.log('Raw response (first 500 chars):', responseText.substring(0, 500));
-        console.log('Raw response (last 100 chars):', responseText.substring(Math.max(0, responseText.length - 100)));
-        
-        // Check what's at position 122
-        if (responseText.length > 122) {
-            console.log('Character at position 122:', responseText.charAt(122));
-            console.log('Characters around position 122:', responseText.substring(115, 130));
-        }
-        
-        // Try to parse as JSON
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            console.error('Full response text:', responseText);
-            throw new Error('Invalid JSON response: ' + responseText.substring(0, 200));
-        }
-        
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        
-        if (data.success) {
-            // The result contains the PDF data ready for download
-            if (data.result && data.result.pdf_data) {
-                // Create blob and download
-                const byteCharacters = atob(data.result.pdf_data);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], {type: 'application/pdf'});
-                
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `PTW_${ptwId}_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                alert('PDF generated and downloaded successfully!');
-            } else {
-                alert('PDF generated but download data not found');
-            }
-        } else {
-            alert('Failed to generate PDF: ' + (data.message || data.error || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        button.disabled = false;
-        button.innerHTML = originalContent;
-        console.error('PDF generation error:', error);
-        alert('Error generating PDF: ' + error.message);
-    });
+    console.log('Print-to-PDF requested for PTW (Supervisor Dashboard):', ptwId);
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) { window.location.href = url; }
 }        function createPTWPDF(ptwId, button, originalContent) {
             fetch('api/ptw_pdf_simple.php', {
                 method: 'POST',

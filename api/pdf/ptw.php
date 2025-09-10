@@ -537,6 +537,41 @@ class Class_pdf_ptw {
             $html = str_replace('img/icon/gfm-logo-transparent.png', $absLogo, $html);
             // Best-effort replace for other relative images if any
             $html = preg_replace('#src\s*=\s*[\"\']img/#i', 'src="' . rtrim(str_replace('\\', '/', $base), '/') . '/img/', $html);
+            // Also handle absolute-from-webroot style /img/...
+            $html = preg_replace('#src\s*=\s*[\"\']/?img/#i', 'src="' . rtrim(str_replace('\\', '/', $base), '/') . '/img/', $html);
+
+            // Inline any local CSS <link rel="stylesheet" href="..."> so TCPDF can render styles
+            // Note: Remote (http/https) stylesheets are ignored intentionally.
+            $html = preg_replace_callback(
+                '/<link[^>]+rel\s*=\s*\"stylesheet\"[^>]*href\s*=\s*\"([^\"]+)\"[^>]*>/i',
+                function ($m) use ($base, $templatePath) {
+                    $href = $m[1];
+                    // Skip remote URLs
+                    if (preg_match('#^https?://#i', $href)) {
+                        return '';
+                    }
+                    // Resolve to filesystem path
+                    if (strpos($href, '/') === 0) {
+                        // Root-relative to project base
+                        $cssPath = rtrim($base, '/') . $href;
+                    } else {
+                        // Relative to template file directory
+                        $cssPath = dirname($templatePath) . '/' . $href;
+                    }
+                    $cssPath = str_replace('..', '', $cssPath); // very basic hardening
+                    if (file_exists($cssPath)) {
+                        $css = @file_get_contents($cssPath);
+                        if ($css !== false) {
+                            return "<style>\n" . $css . "\n</style>";
+                        }
+                    }
+                    return '';
+                },
+                $html
+            );
+
+            // Remove remaining <link ...> tags (unresolved or non-stylesheet)
+            $html = preg_replace('#<link[^>]*>#i', '', $html);
 
             // Strip script tags (not supported/needed in PDF)
             $html = preg_replace('#<script[\s\S]*?</script>#i', '', $html);
@@ -545,6 +580,14 @@ class Class_pdf_ptw {
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
             $pdf->SetMargins(8, 8, 8);
+            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+            // Use a Unicode-capable font and enable subsetting for more accurate width metrics
+            if (@file_exists(K_PATH_FONTS . 'dejavusans.php') || @file_exists(K_PATH_FONTS . 'dejavusans.z')) {
+                $pdf->SetFont('dejavusans', '', 9);
+            } else {
+                $pdf->SetFont('helvetica', '', 9);
+            }
+            $pdf->setFontSubsetting(true);
             $pdf->AddPage();
 
             $pdf->writeHTML($html, true, false, true, false, '');

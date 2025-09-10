@@ -1679,27 +1679,13 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 // ===============================
 
 function generatePTWPDF(ptwId) {
-    if (!ptwId) { showError('PTW ID not found'); return; }
-    try {
-        const result = mzAjaxRequest(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
-        if (result && result.status === 'success' && result.pdf_url) {
-            const link = document.createElement('a');
-            link.href = result.pdf_url;
-            link.download = result.filename || `PTW_${ptwId}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showSuccess('PDF generated successfully');
-        } else {
-            showError((result && (result.message || result.error)) || 'Failed to generate PDF');
-        }
-    } catch (e) {
-        console.error('PDF generation error:', e);
-        showError(e.message || 'Failed to generate PDF');
-    }
+    console.log('Print-to-PDF requested for PTW (SHE):', ptwId);
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) { window.location.href = url; }
 }
 
-// Optional helper to guard before calling API when status is known
 function generatePTWPDFWithStatus(ptwId, status) {
     const finalStatuses = ['ACTIVE','COMPLETED','CLOSED','APPROVED'];
     if (status && finalStatuses.indexOf(String(status).toUpperCase()) === -1) {

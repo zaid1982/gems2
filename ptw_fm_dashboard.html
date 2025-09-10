@@ -1646,53 +1646,11 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 // ===============================
 
 function generatePTWPDF(ptwId) {
-    if (!ptwId) { safeToast('error', 'PTW ID not found', 'Error'); return; }
-    const clickedBtn = (typeof event !== 'undefined' && event.target) ? event.target.closest('button') : null;
-    const restore = () => { if (clickedBtn) { clickedBtn.disabled = false; clickedBtn.innerHTML = originalHtml; } };
-    const originalHtml = clickedBtn ? clickedBtn.innerHTML : '';
-    if (clickedBtn) { clickedBtn.disabled = true; clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; }
-
-    fetch(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`)
-        .then(r => r.json())
-        .then(data => {
-            restore();
-            // Newer endpoint variant
-            if ((data && data.status === 'success' && data.pdf_url) || data.pdf_url) {
-                const link = document.createElement('a');
-                link.href = data.pdf_url;
-                link.download = data.filename || `PTW_${ptwId}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                safeToast('success', 'PDF generated successfully', 'Success');
-                return;
-            }
-            // Legacy inline pdf_data variant
-            if (data && data.success && data.result && data.result.pdf_data) {
-                const byteCharacters = atob(data.result.pdf_data);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], {type: 'application/pdf'});
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `PTW_${ptwId}_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                safeToast('success', 'PDF generated successfully', 'Success');
-                return;
-            }
-            safeToast('error', (data && (data.message || data.error)) || 'Failed to generate PDF', 'Error');
-        })
-        .catch(err => {
-            restore();
-            console.error('PDF generation error:', err);
-            safeToast('error', err.message || 'Error generating PDF', 'Error');
-        });
+    console.log('Print-to-PDF requested for PTW (FM):', ptwId);
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) { window.location.href = url; }
 }
 
 function generatePTWPDFWithStatus(ptwId, status){

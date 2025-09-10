@@ -1940,7 +1940,7 @@ class PtwForm {
             staff_nric: $('#txtStaffNoNRIC').val(),
             supervisor_contact: $('#txtContactNoSupervisor').val(),
             identification_no: $('#txtIdentificationNo').val(),
-            level: $('#txtLevel').val(),
+            level: $('#txtLevel').val() || '',
             remarks: $('#txtPtwRemarks').val(),
             status: status,
             // Signal backend to submit and assign Request Number when not a draft
