@@ -320,6 +320,16 @@
             letter-spacing: 0.05em;
         }
 
+        /* Compact variant for tight spaces (used for Status column) */
+        .badge-modern.badge-compact {
+            padding: 2px 8px;
+            border-radius: 14px;
+            font-size: 0.675rem;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
         .badge-success {
             background: rgba(16, 185, 129, 0.1);
             color: var(--success-color);
@@ -341,6 +351,12 @@
         }
 
         .badge-dark {
+            background: rgba(31, 41, 55, 0.1);
+            color: #1f2937;
+        }
+
+        /* Specific style for Closed/Completed status */
+        .badge-closed {
             background: rgba(31, 41, 55, 0.1);
             color: #1f2937;
         }
@@ -1548,15 +1564,15 @@ function getWorkTypeBadge(workType) {
 }
 
 function getStatusBadge(status) {
-    if(!status) return '<span class="badge badge-modern badge-dark">-</span>';
+    if(!status) return '<span class="badge badge-modern badge-compact badge-dark">-</span>';
     const s = status.toUpperCase();
-    if (s === 'COMPLETED' || s === 'CLOSED') return '<span class="badge-modern badge-closed">Closed</span>';
-    if (s.includes('PENDING')) return '<span class="badge-modern badge-warning">' + (s === 'PENDING_SHE' ? 'Pending SHE' : s === 'PENDING_FM' ? 'Pending FM' : 'Pending') + '</span>';
-    if (s === 'ACTIVE' || s === 'EXTENDED') return '<span class="badge-modern badge-info">' + (s === 'EXTENDED' ? 'Extended' : 'Active') + '</span>';
-    if (s.includes('REJECT')) return '<span class="badge-modern badge-danger">Rejected</span>';
-    if (s.includes('CANCEL')) return '<span class="badge-modern badge-danger">Cancelled</span>';
-    if (s.includes('SUSPEND')) return '<span class="badge-modern badge-dark">Suspended</span>';
-    return '<span class="badge-modern badge-info">' + status + '</span>';
+    if (s === 'COMPLETED' || s === 'CLOSED') return '<span class="badge-modern badge-compact badge-closed">Closed</span>';
+    if (s.includes('PENDING')) return '<span class="badge-modern badge-compact badge-warning">' + (s === 'PENDING_SHE' ? 'Pending SHE' : s === 'PENDING_FM' ? 'Pending FM' : 'Pending') + '</span>';
+    if (s === 'ACTIVE' || s === 'EXTENDED') return '<span class="badge-modern badge-compact badge-info">' + (s === 'EXTENDED' ? 'Extended' : 'Active') + '</span>';
+    if (s.includes('REJECT')) return '<span class="badge-modern badge-compact badge-danger">Rejected</span>';
+    if (s.includes('CANCEL')) return '<span class="badge-modern badge-compact badge-danger">Cancelled</span>';
+    if (s.includes('SUSPEND')) return '<span class="badge-modern badge-compact badge-dark">Suspended</span>';
+    return '<span class="badge-modern badge-compact badge-info">' + status + '</span>';
 }
 
 function getDaysPendingHtml(days) {

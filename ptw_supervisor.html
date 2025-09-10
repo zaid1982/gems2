@@ -2204,38 +2204,38 @@ function populateActiveClosureTable(activeList){
 
 function getStatusBadge(status){
     // Accept either raw enum or already mapped display label
-    if (!status) return '<span class="badge badge-modern badge-info">-</span>';
+    if (!status) return '<span class="badge badge-modern badge-compact badge-info">-</span>';
     const s = status.toString();
     const map = {
         // Display labels
-        'Draft': '<span class="badge badge-modern badge-secondary">Draft</span>',
-        'New Request': '<span class="badge badge-modern badge-info">New Request</span>',
-        'SHE Approval': '<span class="badge badge-modern badge-primary">SHE Approval</span>',
-        'FM Approval': '<span class="badge badge-modern badge-primary">FM Approval</span>',
-        'Approved': '<span class="badge badge-modern badge-success">Approved</span>',
-        'Extended': '<span class="badge badge-modern badge-success" title="Permit Extended">Extended</span>',
-        'Closure Requested': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
-        'Cancellation Requested': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
-        'Suspension Requested': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
-    'Extension Requested': '<span class="badge badge-modern badge-info">Extension Requested</span>',
-        'Closed': '<span class="badge badge-modern badge-danger-light">Closed</span>',
-        'Cancelled': '<span class="badge badge-modern badge-danger-dark">Cancelled</span>',
-        'Suspended': '<span class="badge badge-modern badge-warning">Suspended</span>',
-        'Rejected': '<span class="badge badge-modern badge-danger">Rejected</span>',
+        'Draft': '<span class="badge badge-modern badge-compact badge-secondary">Draft</span>',
+        'New Request': '<span class="badge badge-modern badge-compact badge-info">New Request</span>',
+        'SHE Approval': '<span class="badge badge-modern badge-compact badge-primary">SHE Approval</span>',
+        'FM Approval': '<span class="badge badge-modern badge-compact badge-primary">FM Approval</span>',
+        'Approved': '<span class="badge badge-modern badge-compact badge-success">Approved</span>',
+        'Extended': '<span class="badge badge-modern badge-compact badge-success" title="Permit Extended">Extended</span>',
+        'Closure Requested': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'Cancellation Requested': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'Suspension Requested': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'Extension Requested': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'Closed': '<span class="badge badge-modern badge-compact badge-danger-light">Closed</span>',
+        'Cancelled': '<span class="badge badge-modern badge-compact badge-danger-dark">Cancelled</span>',
+        'Suspended': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'Rejected': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
         // Raw enums fallback (legacy)
-        'ACTIVE': '<span class="badge badge-modern badge-success">Active</span>',
-        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-info">Pending Supervisor</span>',
-        'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
-        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
-        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
-    'PENDING_EXTENSION': '<span class="badge badge-modern badge-info">Extension Requested</span>',
-        'SUSPENDED': '<span class="badge badge-modern badge-warning">Suspended</span>',
-        'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-        'REJECTED': '<span class="badge badge-modern badge-danger">Rejected</span>',
-        'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
-        'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
+        'ACTIVE': '<span class="badge badge-modern badge-compact badge-success">Active</span>',
+        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-compact badge-info">Pending Supervisor</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'PENDING_EXTENSION': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'SUSPENDED': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'CANCELLED': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
+        'REJECTED': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>'
     };
-    return map[s] || `<span class="badge badge-modern badge-info">${s}</span>`;
+    return map[s] || `<span class="badge badge-modern badge-compact badge-info">${s}</span>`;
 }
 
 // Derive display status using backend-provided ptw_display_status if available,
