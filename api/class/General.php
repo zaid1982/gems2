@@ -482,7 +482,7 @@ class General {
     /**
      * @param array $fileArr
      * @param int $documentId
-     * @return void
+     * @return array
      * @throws Exception
      */
     public function uploadPrepare (array $fileArr, int $documentId): array {
