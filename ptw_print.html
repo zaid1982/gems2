@@ -1,244 +1,1041 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PTW Print Preview</title>
-  <style>
-    @page { size: A4; margin: 14mm; }
-    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #222; }
-    .container { width: 100%; }
-    .header { text-align: center; margin-bottom: 10px; }
-    .title { font-size: 18px; font-weight: 800; letter-spacing: .2px; }
-    .subtitle { font-size: 10px; color: #555; }
-    .meta { text-align: right; font-size: 10px; }
-    .sec-h { background:#f3f5f8; border:1px solid #d8dde5; padding:6px 8px; font-weight:700; font-size: 11px; }
-    .section { border:1px solid #d8dde5; margin-top: 8px; }
-    .p-8 { padding: 8px; }
-    .tb { width: 100%; border-collapse: collapse; }
-    .tb th, .tb td { border:1px solid #d8dde5; padding: 6px; vertical-align: top; font-size: 11px; }
-    .row { display: flex; gap: 8px; }
-    .col { flex: 1; }
-    .muted { color: #6b7280; font-size: 10px; }
-    .pill { border: 1px solid #d8dde5; border-radius: 999px; padding: 2px 8px; display:inline-block; margin: 2px 4px 0 0; font-size: 10px; }
-    .hline { border-bottom: 1px solid #d8dde5; min-width: 24mm; display:inline-block; height: 12px; }
-    .small { font-size: 10px; }
-    .mt-6 { margin-top: 6px; }
-    .mb-6 { margin-bottom: 6px; }
-    .mb-2 { margin-bottom: 2px; }
-    .lh-tight { line-height: 1.3; }
-    .nowrap { white-space: nowrap; }
-    .print-note { position: fixed; bottom: 6mm; right: 10mm; background: #fffbe6; border: 1px solid #facc15; padding: 6px 10px; font-size: 10px; color: #92400e; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permit To Work (Combined) - GFM</title>
+    <style>
+        /* --- Global Styles & Body --- */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            background-color: #e0e0e0; /* Light grey background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .document-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .page {
+            width: 850px;
+            background-color: #fff; /* White background for the form itself */
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-    /* Page breaks */
-    .page-break { page-break-before: always; }
+        /* --- Page 1: Header Section --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .header .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4a90e2; /* A blue color similar to the logo */
+        }
+        .header .title-block {
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .header .subtitle {
+            color: red;
+            font-weight: bold;
+        }
+        .header .ptw-no {
+            border: 1px solid #000;
+            padding: 5px 10px;
+        }
 
-    /* Hide print hint when actually printing */
-    @media print {
-      .print-note { display: none; }
-      a[href]::after { content: "" !important; }
-    }
-  </style>
+        /* --- General Form Section Styling --- */
+        .form-section {
+            border: 2px solid #000;
+            margin-top: 15px;
+        }
+        .section-header {
+            color: #fff;
+            font-weight: bold;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-body {
+            padding: 10px;
+        }
+
+        /* --- Page 1: Section Header Colors --- */
+        .requisition .section-header    { background-color: #0070c0; } /* Blue */
+        .cold-work .section-header      { background-color: #00b050; } /* Green */
+        .hot-work .section-header       { background-color: #ff0000; } /* Red */
+        .confined-space .section-header { background-color: #ffc000; color: #000; } /* Yellow */
+        
+        /* --- Page 2: Section Header Color --- */
+        /* Any section header NOT inside a colored parent like '.requisition' will be black */
+        .page-2 .section-header {
+            background-color: #000;
+        }
+
+        /* --- Utility & Layout Classes --- */
+        .grid-container, .grid-container-2-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+        }
+        .grid-col-3, .grid-container-3-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .grid-container-4-col {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px 15px;
+        }
+        .full-width { grid-column: 1 / -1; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label { margin-bottom: 2px; }
+        .form-group input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 2px 0;
+            width: 100%;
+        }
+
+        /* --- Table Styling --- */
+        .workers-table, .declaration-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .workers-table th, .workers-table td,
+        .declaration-table th, .declaration-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+        }
+        .workers-table th, .declaration-table th {
+            background-color: #f2f2f2;
+        }
+        .declaration-table { margin-bottom: 15px; }
+        .declaration-table .status-col { width: 100px; text-align: center; }
+
+        /* --- Checkbox Styling --- */
+        .checkbox-group div { margin-bottom: 3px; }
+        .checkbox-group label { margin-left: 5px; vertical-align: middle; }
+        .checkbox-group input { vertical-align: middle; }
+
+        /* --- Page 2: Specific Layouts --- */
+        .ppe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        .ppe-category { border-left: 1px solid #ccc; padding-left: 10px; }
+        .ppe-category:first-child { border-left: none; padding-left: 0; }
+        .approval-grid .approval-box { border: 1px solid #000; padding: 10px; }
+        .approval-box h4 { text-align: center; margin: 0 0 10px 0; font-size: 12px; }
+        .approval-options { text-align: center; margin-bottom: 10px; }
+        .handback-header { border: 1px solid black; padding: 10px; margin-bottom: -1px; }
+        .handback-body { display: grid; grid-template-columns: 100px 1fr; border: 1px solid black; }
+        .handback-status { display: flex; flex-direction: column; border-right: 1px solid black; }
+        .handback-status > div { padding: 10px; border-bottom: 1px solid black; display: flex; align-items: center; }
+        .handback-status > div:last-child { border-bottom: none; }
+        .handback-details > div { padding: 10px; border-bottom: 1px solid black; }
+        .handback-details > div:last-child { border-bottom: none; }
+        .signature-block { border-top: 1px solid #ccc; padding-top: 5px; margin-top: 10px; }
+        .signature-block h5 { text-align: center; font-weight: bold; margin: 0 0 10px 0; }
+
+        /* --- Print Styling --- */
+        @media print {
+            body { background-color: #fff; }
+            .document-container { padding: 0; gap: 0; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                border: none;
+                page-break-after: always;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="title">PERMIT TO WORK</div>
-      <div class="subtitle">Work Fast • Think Smart • Stay Safe</div>
+
+    <div class="document-container">
+        <div class="page page-1">
+            <header class="header">
+                <div class="logo">GFM</div>
+                <div class="title-block">
+                    <h1>PERMIT TO WORK</h1>
+                    <div class="subtitle">WORK FAST, THINK SMART, STAY SAFE</div>
+                    <div>BPM 9.1/F/013/25/1</div>
+                </div>
+                <div class="ptw-no"><strong>PTW NO:</strong> <span id="metaPtwNo">-</span></div>
+            </header>
+
+            <section class="form-section requisition">
+                <div class="section-header"><span>SECTION 1 - REQUISITION (To be filled-up by Applicant)</span></div>
+                <div class="section-body">
+                    <p style="text-align: center; font-weight: bold; margin: 0 0 10px 0;">DETAILS OF JOB APPLICATION</p>
+                    <div class="grid-container">
+                        <div class="form-group"><label>Applicant Name :</label><input id="s1_applicant_name" type="text"></div>
+                        <div class="form-group"><label>Contact No :</label><input id="s1_applicant_contact" type="text"></div>
+                        <div class="form-group"><label>Contractor Supervisor In Charge :</label><input id="s1_supervisor_name" type="text"></div>
+                        <div class="form-group"><label>Contact No :</label><input id="s1_supervisor_contact" type="text"></div>
+                        <div class="form-group"><label>Company / Department :</label><input id="s1_company_dept" type="text"></div>
+                        <div class="form-group"><label>Duration of Work - From: Date: <input id="s1_from_date" type="text" style="width:100px;"> Time: <input id="s1_from_time" type="text" style="width:60px;"> To: Date: <input id="s1_to_date" type="text" style="width:100px;"> Time: <input id="s1_to_time" type="text" style="width:60px;"></label></div>
+                        <div class="form-group"><label>Work Area :</label><input id="s1_work_area" type="text"></div>
+                        <div class="form-group"><label>Level :</label><input id="s1_level" type="text"></div>
+                        <div class="form-group full-width"><label>Description of Work :</label><input id="s1_desc" type="text"></div>
+                    </div>
+                    <p style="text-align: center; font-weight: bold; margin: 15px 0 5px 0;">List of Workers</p>
+                    <table class="workers-table">
+                        <thead><tr><th>No.</th><th>Name</th><th>Designation</th><th>Identification No. (IC/CIDB Card/Passport)</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td></td><td></td><td></td></tr>
+                            <tr><td>2</td><td></td><td></td><td></td></tr>
+                            <tr><td>3</td><td></td><td></td><td></td></tr>
+                            <tr><td>4</td><td></td><td></td><td></td></tr>
+                            <tr><td>5</td><td></td><td></td><td></td></tr>
+                            <tr><td>6</td><td></td><td></td><td></td></tr>
+                            <tr><td>7</td><td></td><td></td><td></td></tr>
+                            <tr><td>8</td><td></td><td></td><td></td></tr>
+                            <tr><td>9</td><td></td><td></td><td></td></tr>
+                            <tr><td>10</td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 10px;">(Please provide additional list if the space is insufficient)</p>
+                </div>
+            </section>
+
+            <section class="form-section cold-work">
+                <div class="section-header"><span>COLD WORK / OTHER WORKS</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
+                    <div class="grid-col-3 checkbox-group">
+                        <div><strong>ELECTRICAL WORK</strong>
+                            <div><input id="cw_elec_circuit_isolation" type="checkbox"><label for="cw_elec_circuit_isolation">Circuit Isolation</label></div>
+                            <div><input id="cw_elec_loto" type="checkbox"><label for="cw_elec_loto">Lock Out & Tagged Out</label></div>
+                            <div><input id="cw_elec_fire_extinguisher" type="checkbox"><label for="cw_elec_fire_extinguisher">Fire Extinguisher</label></div>
+                            <div><input id="cw_elec_main_supply_cutoff" type="checkbox"><label for="cw_elec_main_supply_cutoff">Main Supply Cut Off</label></div>
+                            <div><label>Others: ________</label></div>
+                        </div>
+                        <div><strong>WORKING AT HEIGHT</strong>
+                            <div><input id="cw_height_scaffolding" type="checkbox"><label for="cw_height_scaffolding">Scaffolding</label></div>
+                            <div><input id="cw_height_gondola" type="checkbox"><label for="cw_height_gondola">Gondola</label></div>
+                            <div><input id="cw_height_rooftop" type="checkbox"><label for="cw_height_rooftop">Working at rooftop</label></div>
+                            <div><label>Others: ________</label></div>
+                        </div>
+                        <div><strong>EXCAVATION WORK</strong>
+                            <div><input id="cw_exc_depth_confined" type="checkbox"><label for="cw_exc_depth_confined">Depth > 1.2 meter (confined space)</label></div>
+                            <div><input id="cw_exc_access_egress" type="checkbox"><label for="cw_exc_access_egress">Safe access & egress</label></div>
+                            <div><input id="cw_exc_protect_falling" type="checkbox"><label for="cw_exc_protect_falling">Protection from falling material</label></div>
+                            <div><input id="cw_exc_protect_engulfment" type="checkbox"><label for="cw_exc_protect_engulfment">Protection from engulfment</label></div>
+                            <div><label>Others: ________</label></div>
+                        </div>
+                        <div><input id="cw_under_load" type="checkbox"><label for="cw_under_load"><strong>WORKING UNDER LOAD</strong></label></div>
+                        <div><input id="cw_lifting_work" type="checkbox"><label for="cw_lifting_work"><strong>LIFTING WORK</strong></label></div>
+                        <div><input id="cw_chemical_handling" type="checkbox"><label for="cw_chemical_handling"><strong>CHEMICAL HANDLING</strong></label></div>
+                        <div class="form-group full-width"><label for="cw_special_precautions"><strong>Special precautions (if any):</strong></label><input id="cw_special_precautions" type="text"></div>
+                    </div>
+                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
+                </div>
+            </section>
+
+                <section class="form-section hot-work">
+                <div class="section-header"><span>HOT WORK</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
+                    <div class="grid-container checkbox-group">
+                                 <div>
+                                     <strong>TYPE OF HOT WORK</strong>
+                                     <div><input id="hw_type_welding" type="checkbox"><label for="hw_type_welding">Welding</label></div>
+                                     <div><input id="hw_type_flame_cutting" type="checkbox"><label for="hw_type_flame_cutting">Flame Cutting</label></div>
+                                     <div><input id="hw_type_open_flame" type="checkbox"><label for="hw_type_open_flame">Open Flame</label></div>
+                                     <div><input id="hw_type_grinding" type="checkbox"><label for="hw_type_grinding">Grinding</label></div>
+                                     <div><input id="hw_type_blasting" type="checkbox"><label for="hw_type_blasting">Blasting</label></div>
+                                     <div><input id="hw_type_power_brushing" type="checkbox"><label for="hw_type_power_brushing">Power Brushing</label></div>
+                                     <div><input id="hw_type_gouging" type="checkbox"><label for="hw_type_gouging">Gouging</label></div>
+                                     <div><input id="hw_type_pwht" type="checkbox"><label for="hw_type_pwht">Post Weld Heat Treatment</label></div>
+                                     <div><input id="hw_type_pyrophoric" type="checkbox"><label for="hw_type_pyrophoric">Use of pyrophoric material</label></div>
+                                     <div><label>Others: ________</label></div>
+                                 </div>
+                                 <div>
+                                     <strong>CONTROLS REQUIRED</strong>
+                                     <div><input id="hw_ctrl_gas_monitoring" type="checkbox"><label for="hw_ctrl_gas_monitoring">Gas monitoring</label></div>
+                                     <div><input id="hw_ctrl_firewatch" type="checkbox"><label for="hw_ctrl_firewatch">Firewatch name:______</label></div>
+                                     <div><input id="hw_ctrl_fire_ext" type="checkbox"><label for="hw_ctrl_fire_ext">Fire Extinguisher</label></div>
+                                     <div><input id="hw_ctrl_fire_blanket" type="checkbox"><label for="hw_ctrl_fire_blanket">Fire blanket</label></div>
+                                     <div><input id="hw_ctrl_retardant_screen" type="checkbox"><label for="hw_ctrl_retardant_screen">Fire retardant screen</label></div>
+                                     <div><input id="hw_ctrl_cover_sewer" type="checkbox"><label for="hw_ctrl_cover_sewer">Cover potentially flammable sewer/drain</label></div>
+                                     <div><input id="hw_ctrl_locate_spark_away" type="checkbox"><label for="hw_ctrl_locate_spark_away">Locate spark producing equipment away</label></div>
+                                     <div><input id="hw_ctrl_remove_flammable" type="checkbox"><label for="hw_ctrl_remove_flammable">Remove flammable materials</label></div>
+                                     <div><label>Others: ________</label></div>
+                                 </div>
+                    </div>
+                            <div class="form-group full-width"><label for="hw_special_precautions"><strong>Special precautions (if any):</strong></label><input id="hw_special_precautions" type="text"></div>
+                     <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
+                </div>
+            </section>
+
+            <section class="form-section confined-space">
+                <div class="section-header"><span>CONFINED SPACE ENTRY</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                     <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / ENTRY SUPERVISOR</p>
+                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">I have personally checked that all control measures are in place to prevent release of hazard and complied with requirements of the certificate.</p>
+                </div>
+            
+                    <div class="grid-container-4-col checkbox-group" style="margin-top:10px;">
+                        <div><input id="cs_assessed_identified" type="checkbox"><label for="cs_assessed_identified">Confined Space assessed and identified</label></div>
+                        <div><input id="cs_entry_permit_prepared" type="checkbox"><label for="cs_entry_permit_prepared">Entry Permit prepared</label></div>
+                        <div><input id="cs_isolation_verified" type="checkbox"><label for="cs_isolation_verified">Isolation verified</label></div>
+                        <div><input id="cs_gas_test_conducted" type="checkbox"><label for="cs_gas_test_conducted">Gas test conducted</label></div>
+                        <div><input id="cs_continuous_gas_monitoring" type="checkbox"><label for="cs_continuous_gas_monitoring">Continuous gas monitoring</label></div>
+                        <div><input id="cs_ventilation" type="checkbox"><label for="cs_ventilation">Ventilation in place</label></div>
+                        <div><input id="cs_standby_assigned" type="checkbox"><label for="cs_standby_assigned">Standby/Attendant assigned</label></div>
+                        <div><input id="cs_rescue_equipment" type="checkbox"><label for="cs_rescue_equipment">Rescue equipment ready</label></div>
+                        <div><input id="cs_communication" type="checkbox"><label for="cs_communication">Communication established</label></div>
+                        <div><input id="cs_emergency_briefed" type="checkbox"><label for="cs_emergency_briefed">Emergency response briefed</label></div>
+                        <div><input id="cs_permit_displayed" type="checkbox"><label for="cs_permit_displayed">Permit displayed at entry point</label></div>
+                        <div class="form-group"><label for="cs_others">Others (specify):</label><input id="cs_others" type="text"></div>
+                    </div>
+
+                    <div class="signature-block" style="border:1px solid #000; padding:10px; margin-top:12px;">
+                        <h5>ACKNOWLEDGEMENT (Confined Space)</h5>
+                        <div class="grid-container-2-col">
+                            <div>
+                                <div class="form-group"><label for="cs_ack_name"><strong>Name:</strong></label> <input id="cs_ack_name" type="text"></div>
+                                <div class="form-group"><label for="cs_ack_position"><strong>Position:</strong></label> <input id="cs_ack_position" type="text"></div>
+                                <div class="form-group"><label for="cs_ack_datetime"><strong>Date &amp; Time:</strong></label> <input id="cs_ack_datetime" type="text"></div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div><strong>Signature:</strong></div>
+                                <div style="height:50px; border:1px solid #000; margin-top:6px;"></div>
+                            </div>
+                        </div>
+                        <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for Confined Space acknowledgement.</p>
+                    </div>
+
+        </div>
+        </section>
+        <div class="page page-2">
+            <section class="form-section">
+                <div class="section-header">SECTION 2: SUPPORTING DOCUMENTS</div>
+                <div class="section-body grid-container-4-col checkbox-group">
+                    <div><input id="sd_cidb_green_card" type="checkbox"><label for="sd_cidb_green_card">CIDB Green Card</label></div>
+                    <div><input id="sd_toolbox_talk" type="checkbox"><label for="sd_toolbox_talk">Toolbox Talk Record</label></div>
+                    <div class="form-group"><label for="sd_excavation_cert_no">Excavation Cert No.:</label><input id="sd_excavation_cert_no" type="text"></div>
+                    <div class="form-group"><label for="sd_confined_space_cert_no">Confined Space Cert No.:</label><input id="sd_confined_space_cert_no" type="text"></div>
+                    <div><input id="sd_aesp_card" type="checkbox"><label for="sd_aesp_card">AESP Card</label></div>
+                    <div><input id="sd_sds" type="checkbox"><label for="sd_sds">Safety Data Sheet</label></div>
+                    <div><input id="sd_excavation_plan" type="checkbox"><label for="sd_excavation_plan">Excavation Plan</label></div>
+                    <div class="form-group"><label for="sd_others">Others (please specify):</label><input id="sd_others" type="text"></div>
+                    <div><input id="sd_competency_person" type="checkbox"><label for="sd_competency_person">Competency Person Certificate</label></div>
+                    <div><input id="sd_job_method_statement" type="checkbox"><label for="sd_job_method_statement">Job Method Statement</label></div>
+                    <div class="form-group"><label for="sd_lifting_cert_no">Lifting Cert No.:</label><input id="sd_lifting_cert_no" type="text"></div>
+                    <div></div>
+                    <div><input id="sd_contractor_checklist" type="checkbox"><label for="sd_contractor_checklist">Contractor Checklist</label></div>
+                    <div><input id="sd_job_hazard_analysis" type="checkbox"><label for="sd_job_hazard_analysis">Job Hazard Analysis</label></div>
+                    <div><input id="sd_lifting_plan" type="checkbox"><label for="sd_lifting_plan">Lifting Plan</label></div>
+                    <div></div>
+                    <div><input id="sd_medical_check_up" type="checkbox"><label for="sd_medical_check_up">Medical Check Up</label></div>
+                    <div><input id="sd_hirarc" type="checkbox"><label for="sd_hirarc">HIRARC / EAIA</label></div>
+                    <div><input id="sd_lifting_checklist" type="checkbox"><label for="sd_lifting_checklist">Lifting Checklist</label></div>
+                    <div></div>
+                    <div><input id="sd_calibration_certificate" type="checkbox"><label for="sd_calibration_certificate">Calibration Certificate</label></div>
+                    <div><input id="sd_tmp" type="checkbox"><label for="sd_tmp">Traffic Management Plan</label></div>
+                    <div class="form-group"><label for="sd_physical_isolation_cert_no">Physical Isolation Cert No.:</label><input id="sd_physical_isolation_cert_no" type="text"></div>
+                    <div></div>
+                    <div><input id="sd_load_chart" type="checkbox"><label for="sd_load_chart">Load Chart</label></div>
+                    <div><input id="sd_certificate_of_fitness" type="checkbox"><label for="sd_certificate_of_fitness">Certificate of Fitness (PMA/PMT/PMD)</label></div>
+                    <div class="form-group"><label for="sd_electrical_isolation_cert_no">Electrical Isolation Cert No.:</label><input id="sd_electrical_isolation_cert_no" type="text"></div>
+                </div>
+            </section>
+    
+            <section class="form-section">
+                <div class="section-header">SECTION 3: HAZARDOUS ACTIVITIES</div>
+                <div class="section-body grid-container-4-col checkbox-group">
+                    <div><input id="ha_slippery_floor" type="checkbox"><label for="ha_slippery_floor">Slippery floor</label></div>
+                    <div><input id="ha_dropped_objects" type="checkbox"><label for="ha_dropped_objects">Dropped objects</label></div>
+                    <div><input id="ha_uneven_ground" type="checkbox"><label for="ha_uneven_ground">Uneven ground/soil</label></div>
+                    <div><input id="ha_pinch_point" type="checkbox"><label for="ha_pinch_point">Pinch point</label></div>
+                    <div><input id="ha_sharp_edges" type="checkbox"><label for="ha_sharp_edges">Sharp object/edges</label></div>
+                    <div><input id="ha_fall_from_height" type="checkbox"><label for="ha_fall_from_height">Fall from height</label></div>
+                    <div><input id="ha_extreme_weather" type="checkbox"><label for="ha_extreme_weather">Extreme weather</label></div>
+                    <div><input id="ha_excessive_noise" type="checkbox"><label for="ha_excessive_noise">Excessive noise</label></div>
+                    <div><input id="ha_hot_surface" type="checkbox"><label for="ha_hot_surface">Hot surface</label></div>
+                    <div><input id="ha_electrical" type="checkbox"><label for="ha_electrical">Electrical</label></div>
+                    <div><input id="ha_flying_debris" type="checkbox"><label for="ha_flying_debris">Flying debris</label></div>
+                    <div><input id="ha_ergonomic_fatigue" type="checkbox"><label for="ha_ergonomic_fatigue">Ergonomic/fatigue</label></div>
+                    <div><input id="ha_moving_machinery" type="checkbox"><label for="ha_moving_machinery">Moving vehicle/machinery</label></div>
+                    <div><input id="ha_gas_fumes" type="checkbox"><label for="ha_gas_fumes">Gas/fumes</label></div>
+                    <div><input id="ha_wild_animals" type="checkbox"><label for="ha_wild_animals">Wild animals/insects</label></div>
+                    <div><input id="ha_pressurised_equipment" type="checkbox"><label for="ha_pressurised_equipment">Pressurised equipment</label></div>
+                    <div><input id="ha_volatile_liquid" type="checkbox"><label for="ha_volatile_liquid">Volatile liquid</label></div>
+                    <div><input id="ha_simultaneous_operation" type="checkbox"><label for="ha_simultaneous_operation">Simultaneous operation</label></div>
+                    <div><input id="ha_oxygen_deficiency" type="checkbox"><label for="ha_oxygen_deficiency">Oxygen deficiency</label></div>
+                    <div><input id="ha_engulfment" type="checkbox"><label for="ha_engulfment">Engulfment</label></div>
+                    <div><input id="ha_illumination_deficiency" type="checkbox"><label for="ha_illumination_deficiency">Illumination deficiency</label></div>
+                    <div><input id="ha_chemical" type="checkbox"><label for="ha_chemical">Chemical</label></div>
+                    <div><input id="ha_poisonous_substance" type="checkbox"><label for="ha_poisonous_substance">Poisonous substance</label></div>
+                    <div><input id="ha_molds" type="checkbox"><label for="ha_molds">Molds</label></div>
+                    <div><input id="ha_rotating_parts" type="checkbox"><label for="ha_rotating_parts">Rotating parts</label></div>
+                    <div><input id="ha_ionizing_radiation" type="checkbox"><label for="ha_ionizing_radiation">Ionizing Radiation</label></div>
+                    <div><input id="ha_infectious_substance" type="checkbox"><label for="ha_infectious_substance">Infectious substance</label></div>
+                    <div class="form-group"><label for="ha_others">Others:</label><input id="ha_others" type="text"></div>
+                </div>
+            </section>
+            
+            <section class="form-section">
+                <div class="section-header">SECTION 4: CONTRACTOR DECLARATION</div>
+                <div class="section-body">
+            <table class="declaration-table">
+                        <thead><tr><th>No</th><th>Description</th><th class="status-col">Status</th></tr></thead>
+                        <tbody>
+                <tr><td>i)</td><td>All assigned workers are briefed on relevant SHE Procedure...</td><td class="status-col"><input id="cd_i_yes" type="checkbox"> Yes <input id="cd_i_no" type="checkbox"> No</td></tr>
+                <tr><td>ii)</td><td>All documentation given are valid during Permit To Work validity</td><td class="status-col"><input id="cd_ii_yes" type="checkbox"> Yes <input id="cd_ii_no" type="checkbox"> No</td></tr>
+                <tr><td>iii)</td><td>Ensure all appointed staff/workers are briefed on relevant job step...</td><td class="status-col"><input id="cd_iii_yes" type="checkbox"> Yes <input id="cd_iii_no" type="checkbox"> No</td></tr>
+                <tr><td>iv)</td><td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td><td class="status-col"><input id="cd_iv_yes" type="checkbox"> Yes <input id="cd_iv_no" type="checkbox"> No</td></tr>
+                <tr><td>v)</td><td>Permit to work shall be displayed at the work site all the time</td><td class="status-col"><input id="cd_v_yes" type="checkbox"> Yes <input id="cd_v_no" type="checkbox"> No</td></tr>
+                <tr><td>vi)</td><td>All safety equipment has been checked and deem safe</td><td class="status-col"><input id="cd_vi_yes" type="checkbox"> Yes <input id="cd_vi_no" type="checkbox"> No</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>Appropriate PPE are provided/wear, please tick below:</p>
+                    <div class="ppe-grid checkbox-group">
+                        </div>
+    
+                    <div style="margin-top: 15px; border-top: 1px solid #000; padding-top: 10px;">
+                        <p style="margin: 0;">I/ We confirm that we have read and fully understood the terms and conditions...</p>
+                        <div class="grid-container-2-col" style="margin-top: 20px;">
+                            <div>
+                                <strong>ACKNOWLEDGEMENT BY SUPERVISOR / CONTRACTOR</strong><br>
+                                SUPERVISOR
+                                <div style="margin-top:8px;">
+                                    <strong>Name:</strong> <span id="contractor_ack_name">-</span>
+                                </div>
+                            </div>
+                            <div id="contractorSignatureBlock" style="text-align: right;">
+                                <strong>Signature:</strong>
+                                <div id="contractor_signature_line" style="display:inline-block; min-width:220px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                                <div id="contractor_signature_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px; float:right;">
+                                    <img id="contractor_signature_img" alt="Contractor signature" style="max-height:80px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="section-header">SECTION 5: PERMIT STATUS AUTHORIZATION</div>
+                <div class="section-body">
+                    <p style="margin:0 0 8px 0;">Each status change must be authorized. Complete the relevant box below.</p>
+                    <div class="grid-container-2-col" style="gap:12px;">
+                        <div class="approval-box">
+                            <h4>Closed</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="s5_closed_name">________________</span></div>
+                            <div><strong>Position:</strong> <span id="s5_closed_position">________________</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="s5_closed_datetime">________________</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="s5_closed_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
+                                <div id="s5_closed_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
+                                    <img id="s5_closed_sig_img" alt="Closed signature" style="max-height:58px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Suspended</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="s5_suspended_name">________________</span></div>
+                            <div><strong>Position:</strong> <span id="s5_suspended_position">________________</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="s5_suspended_datetime">________________</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="s5_suspended_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
+                                <div id="s5_suspended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
+                                    <img id="s5_suspended_sig_img" alt="Suspended signature" style="max-height:58px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Canceled</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="s5_cancelled_name">________________</span></div>
+                            <div><strong>Position:</strong> <span id="s5_cancelled_position">________________</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="s5_cancelled_datetime">________________</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="s5_cancelled_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
+                                <div id="s5_cancelled_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
+                                    <img id="s5_cancelled_sig_img" alt="Cancelled signature" style="max-height:58px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Extended</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="s5_extended_name">________________</span></div>
+                            <div><strong>Position:</strong> <span id="s5_extended_position">________________</span></div>
+                            <div><strong>New Validity (Date &amp; Time):</strong> <span id="s5_extended_new_validity">________________</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="s5_extended_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
+                                <div id="s5_extended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
+                                    <img id="s5_extended_sig_img" alt="Extended signature" style="max-height:58px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for all status updates.</p>
+                </div>
+            </section>
+    
+            </div>
+        </div>
     </div>
-    <div class="meta"><span id="metaFormCode">Form: BPM 9.1/F/013/25:1</span><br><b>PTW No:</b> <span id="metaPtwNo">-</span></div>
 
-    <!-- Section 1: Basic Information -->
-    <div class="section">
-      <div class="sec-h">Section 1 — Basic Information</div>
-      <div class="p-8">
-        <table class="tb">
-          <tr>
-            <td style="width:28%"><b>Work Area</b></td>
-            <td id="f_work_area"></td>
-            <td style="width:18%"><b>Risk Level</b></td>
-            <td id="f_risk"></td>
-          </tr>
-          <tr>
-            <td><b>Valid From</b></td>
-            <td id="f_valid_from"></td>
-            <td><b>Valid To</b></td>
-            <td id="f_valid_to"></td>
-          </tr>
-          <tr>
-            <td><b>Applicant Name</b></td>
-            <td id="f_applicant"></td>
-            <td><b>Contact</b></td>
-            <td id="f_applicant_contact"></td>
-          </tr>
-          <tr>
-            <td><b>Contractor Company</b></td>
-            <td id="f_company"></td>
-            <td><b>Supervisor</b></td>
-            <td id="f_supervisor"></td>
-          </tr>
-        </table>
-
-        <div class="mt-6"></div>
-        <div><b>Description of Work</b></div>
-        <div id="f_desc" class="p-8" style="border:1px solid #d8dde5; min-height: 24mm; font-size: 11px;"></div>
-      </div>
-    </div>
-
-    <!-- Section 2: Work Types & PPE (summary) -->
-    <div class="section">
-      <div class="sec-h">Section 2 — Work Types & PPE</div>
-      <div class="p-8">
-        <div class="mb-6"><b>Work Types:</b> <span id="f_work_types" class="small"></span></div>
-        <div><b>PPE:</b> <span id="f_ppe" class="small"></span></div>
-      </div>
-    </div>
-
-    <!-- Section 3: Workers -->
-    <div class="section">
-      <div class="sec-h">Section 3 — Workers</div>
-      <div class="p-8">
-        <table class="tb" id="tbl_workers">
-          <thead>
-            <tr><th style="width:8%">#</th><th>Name</th><th style="width:26%">Designation</th><th style="width:28%">Identification</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div class="muted mt-6">Provide additional list if space is insufficient.</div>
-      </div>
-    </div>
-
-    <!-- Section 4: Approvals summary -->
-    <div class="section page-break">
-      <div class="sec-h">Section 4 — Approvals Summary</div>
-      <div class="p-8">
-        <table class="tb">
-          <tr>
-            <td style="width:33%"><b>Supervisor</b><br><span id="appr_supervisor" class="small"></span></td>
-            <td style="width:33%"><b>SHE</b><br><span id="appr_she" class="small"></span></td>
-            <td style="width:34%"><b>Facility Manager</b><br><span id="appr_fm" class="small"></span></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="print-note" id="printNote">This is a print preview. Use your browser's Print dialog to save as PDF. This window will auto-open Print and close after printing.</div>
-
-  <script>
-    (function() {
-      function qs(name) {
-        const p = new URLSearchParams(window.location.search);
-        return p.get(name);
-      }
-      const ptwId = qs('ptwId') || qs('permitId') || qs('id');
-      if (!ptwId) {
-        document.getElementById('printNote').textContent = 'Missing PTW ID in URL (ptwId).';
-        return;
-      }
-
-      const token = sessionStorage.getItem('token');
-      const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-
-      fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
-        .then(r => r.json())
-        .then(data => {
-          const d = data && data.result ? data.result : data;
-          if (!d || !d.ptw_permit_id) { throw new Error('Invalid PTW data'); }
-
-          function text(id, val) { document.getElementById(id).textContent = val || '-'; }
-
-          const dispNo = d.ptw_permit_number || d.ptw_request_number || ('ID' + d.ptw_permit_id);
-          text('metaPtwNo', dispNo);
-          text('f_work_area', d.ptw_work_area);
-          text('f_risk', d.ptw_risk_level);
-          text('f_valid_from', d.ptw_valid_from);
-          text('f_valid_to', d.ptw_valid_to);
-          text('f_applicant', d.ptw_applicant_name);
-          text('f_applicant_contact', d.ptw_applicant_contact);
-          text('f_company', d.ptw_contractor_company);
-          text('f_supervisor', d.ptw_contractor_supervisor || d.ptw_supervisor_name);
-
-          document.getElementById('f_desc').textContent = d.ptw_permit_description || '-';
-
-          // Work types
-          try {
-            let wt = [];
-            if (d.ptw_work_types) {
-              const arr = Array.isArray(d.ptw_work_types) ? d.ptw_work_types : JSON.parse(d.ptw_work_types);
-              if (Array.isArray(arr)) wt = arr;
-            } else if (d.ptw_work_type) {
-              wt = [d.ptw_work_type];
-            }
-            document.getElementById('f_work_types').textContent = wt.length ? wt.join(', ') : '-';
-          } catch (e) { document.getElementById('f_work_types').textContent = d.ptw_work_type || '-'; }
-
-          // PPE summary from hazard checklist
-          try {
-            let ppe = [];
-            if (d.ptw_hazard_checklist) {
-              const haz = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
-              const labels = {
-                ppe_safety_helmet:'Safety Helmet', ppe_safety_shoes:'Safety Shoes', ppe_high_vis_vest:'High Visibility Vest',
-                ppe_dust_mask:'Dust Mask', ppe_respirator:'Respirator', ppe_scba:'SCBA',
-                ppe_safety_glasses:'Safety Glasses', ppe_face_shield:'Face Shield', ppe_coveralls:'Coveralls', ppe_chemical_suit:'Chemical Suit',
-                ppe_work_gloves:'Work Gloves', ppe_chemical_gloves:'Chemical Gloves', ppe_cut_resistant:'Cut Resistant Gloves',
-                ppe_ear_plugs:'Ear Plugs', ppe_ear_muffs:'Ear Muffs'
-              };
-              Object.keys(labels).forEach(k => { if (haz && haz[k]) ppe.push(labels[k]); });
-              if (haz && haz.ppe_others) ppe.push('Others: ' + haz.ppe_others);
-            }
-            document.getElementById('f_ppe').textContent = ppe.length ? ppe.join(', ') : '-';
-          } catch (e) { document.getElementById('f_ppe').textContent = '-'; }
-
-          // Workers table (if API provides workers separately, otherwise parse from ptw_workers)
-          const tbody = document.querySelector('#tbl_workers tbody');
-          let workers = [];
-          if (d.workers && Array.isArray(d.workers)) workers = d.workers;
-          else if (d.ptw_workers) {
-            try { const arr = typeof d.ptw_workers === 'string' ? JSON.parse(d.ptw_workers) : d.ptw_workers; if (Array.isArray(arr)) workers = arr; } catch(e) {}
-          }
-          if (workers.length === 0) {
-            for (let i=0;i<5;i++) {
-              const tr = document.createElement('tr');
-              tr.innerHTML = `<td>${i+1}</td><td></td><td></td><td></td>`;
-              tbody.appendChild(tr);
-            }
-          } else {
-            workers.forEach((w, i) => {
-              const tr = document.createElement('tr');
-              const name = w.name || w.worker_name || '';
-              const desig = w.designation || w.worker_designation || '';
-              const idno = w.identification || w.worker_ic_number || '';
-              tr.innerHTML = `<td>${i+1}</td><td>${escapeHtml(name)}</td><td>${escapeHtml(desig)}</td><td>${escapeHtml(idno)}</td>`;
-              tbody.appendChild(tr);
-            });
-          }
-
-          // Approvals summary
-          const sup = `Status: ${d.ptw_supervisor_approval || 'PENDING'}\nName: ${d.approved_supervisor_name || ''}\nDate: ${d.approved_supervisor_date || ''}`;
-          const she = `Status: ${d.ptw_she_approval || 'PENDING'}\nName: ${d.approved_she_name || ''}\nDate: ${d.approved_she_date || ''}`;
-          const fm  = `Status: ${d.ptw_fm_approval || 'PENDING'}\nName: ${d.approved_fm_name || ''}\nDate: ${d.approved_fm_date || ''}`;
-          document.getElementById('appr_supervisor').textContent = sup;
-          document.getElementById('appr_she').textContent = she;
-          document.getElementById('appr_fm').textContent = fm;
-
-          // Delay a tick to allow layout, then print
-          setTimeout(() => { window.print(); }, 300);
-        })
-        .catch(err => {
-          document.getElementById('printNote').textContent = 'Failed to load PTW: ' + err.message;
-        });
-
-      function escapeHtml(str){
-        if (str === undefined || str === null) return '';
-        return String(str).replace(/[&<>\"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\'':'&#039;'}[m]); });
-      }
-
-      window.onafterprint = function(){
-        try { window.close(); } catch(e) {}
-      };
-    })();
-  </script>
 </body>
 </html>
+<script>
+// Populate Section 1 from PTW details
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setVal(id, v){ const el=document.getElementById(id); if(!el) return; el.value = v || ''; }
+    function text(id, v){ const el=document.getElementById(id); if(!el) return; el.textContent = v || '-'; }
+    function escapeStr(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m])); }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId){ console.warn('Missing ptwId'); return; }
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r => r.json())
+        .then(data => {
+            const d = data && data.result ? data.result : data;
+            if(!d || !d.ptw_permit_id){ throw new Error('Invalid PTW data'); }
+            // cache globally for reuse
+            window.__PTW_DETAILS__ = d;
+
+            // Meta PTW No
+            const dispNo = d.ptw_permit_number || d.ptw_request_number || ('ID' + d.ptw_permit_id);
+            text('metaPtwNo', dispNo);
+
+            console.log(d);
+            // Section 1 fields
+            setVal('s1_applicant_name', d.ptw_applicant_name || '');
+            setVal('s1_applicant_contact', d.ptw_applicant_contact || '');
+            setVal('s1_supervisor_name', d.ptw_contractor_supervisor || d.ptw_supervisor_name || '');
+            setVal('s1_supervisor_contact', d.ptw_supervisor_contact || '');
+            setVal('s1_company_dept', d.ptw_applicant_company_dept || d.ptw_contractor_company || '');
+            setVal('s1_work_area', d.ptw_work_area || '');
+            setVal('s1_level', d.ptw_level || '');
+            setVal('s1_desc', d.ptw_permit_description || '');
+
+            // Split valid from/to
+            try{
+                const from = d.ptw_valid_from || '';
+                const to = d.ptw_valid_to || '';
+                const [fDate, fTime] = from.split(' ');
+                const [tDate, tTime] = to.split(' ');
+                setVal('s1_from_date', fDate || '');
+                setVal('s1_from_time', (fTime||'').slice(0,5));
+                setVal('s1_to_date', tDate || '');
+                setVal('s1_to_time', (tTime||'').slice(0,5));
+            }catch(e){}
+
+            // Section 1: Workers table
+            try {
+                const tbody = document.querySelector('.workers-table tbody');
+                if (tbody) {
+                    let workers = [];
+                    if (Array.isArray(d.workers)) {
+                        workers = d.workers;
+                    } else if (d.ptw_workers) {
+                        try {
+                            const arr = typeof d.ptw_workers === 'string' ? JSON.parse(d.ptw_workers) : d.ptw_workers;
+                            if (Array.isArray(arr)) workers = arr;
+                        } catch(_e) {}
+                    }
+                    tbody.innerHTML = '';
+                    if (workers.length === 0) {
+                        for (let i = 0; i < 10; i++) {
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${i+1}</td><td></td><td></td><td></td></tr>`);
+                        }
+                    } else {
+                        workers.forEach((w, i) => {
+                            console.log(w);
+                            const name = w.name || w.worker_name || '';
+                            const desig = w.worker_role || w.worker_designation || w.role || '';
+                            const idno = w.worker_identification || w.worker_ic_number || w.ic_no || w.identity_no || '';
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${i+1}</td><td>${escapeStr(name)}</td><td>${escapeStr(desig)}</td><td>${escapeStr(idno)}</td></tr>`);
+                        });
+                        for (let j = workers.length; j < 10; j++) {
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${j+1}</td><td></td><td></td><td></td></tr>`);
+                        }
+                    }
+                }
+            } catch(_e) {}
+        })
+        .catch(err => { console.error('Failed to load PTW details:', err); });
+})();
+</script>
+<script>
+// Populate Cold Work / Other Works checklist (Section 2)
+(function(){
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    // Wait for the first script to load data into window._ptwData if we choose to share; otherwise re-fetch
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            window.__PTW_DETAILS__ = d;
+            // Heuristic: parse hazard checklist JSON if available; else use discrete flags if present
+            let hazards = {};
+            try{
+                if (d.ptw_hazard_checklist) {
+                    hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
+                }
+            }catch(_e){ hazards = {}; }
+
+            // Map of expected keys to checkbox IDs
+            const map = [
+                // Electrical
+                { key:['electrical','circuit_isolation'], id:'cw_elec_circuit_isolation' },
+                { key:['electrical','lock_out_tag_out'], id:'cw_elec_loto' },
+                { key:['electrical','fire_extinguisher'], id:'cw_elec_fire_extinguisher' },
+                { key:['electrical','main_supply_cut_off'], id:'cw_elec_main_supply_cutoff' },
+                // Working at height
+                { key:['height','scaffolding'], id:'cw_height_scaffolding' },
+                { key:['height','gondola'], id:'cw_height_gondola' },
+                { key:['height','rooftop'], id:'cw_height_rooftop' },
+                // Excavation
+                { key:['excavation','depth_confined'], id:'cw_exc_depth_confined' },
+                { key:['excavation','safe_access_egress'], id:'cw_exc_access_egress' },
+                { key:['excavation','protect_falling_material'], id:'cw_exc_protect_falling' },
+                { key:['excavation','protect_engulfment'], id:'cw_exc_protect_engulfment' },
+                // High level flags
+                { key:['working_under_load'], id:'cw_under_load' },
+                { key:['lifting_work'], id:'cw_lifting_work' },
+                { key:['chemical_handling'], id:'cw_chemical_handling' },
+            ];
+
+            function getVal(obj, path){
+                try {
+                    if (!obj) return undefined;
+                    if (Array.isArray(path)) { return path.reduce((o,k)=> (o && typeof o==='object') ? o[k] : undefined, obj); }
+                    return obj[path];
+                } catch(_e){ return undefined; }
+            }
+
+            // Prefer structured hazards.specific or hazards.cold_work, fallback to top-level booleans in API
+            const sources = [
+                hazards && hazards.cold_work,
+                hazards && hazards.specific,
+                d // fallback: direct flags on response
+            ];
+
+            map.forEach(m => {
+                let val;
+                for (const src of sources){
+                    val = getVal(src, m.key);
+                    if (typeof val !== 'undefined') break;
+                }
+                setChecked(m.id, !!val);
+            });
+
+            // Special precautions text if available
+            const notes = (hazards && (hazards.cold_work_notes || hazards.special_precautions)) || d.cold_work_notes || d.ptw_special_precautions || '';
+            setVal('cw_special_precautions', notes || '');
+        })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Populate Hot Work (Section 3)
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            window.__PTW_DETAILS__ = d;
+            let hazards = {};
+            try{
+                hazards = d.ptw_hazard_checklist ? (typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist) : {};
+            }catch(_e){ hazards = {}; }
+
+            // Sources priority: hazards.hot_work, hazards.specific, fallback direct flags
+            const srcs = [hazards && hazards.hot_work, hazards && hazards.specific, d];
+            function get(path){
+                for (const src of srcs){
+                    try{
+                        if (!src) continue;
+                        if (Array.isArray(path)){
+                            let cur = src; for (const k of path){ cur = (cur && typeof cur==='object') ? cur[k] : undefined; }
+                            if (typeof cur !== 'undefined') return cur;
+                        } else if (typeof src[path] !== 'undefined') { return src[path]; }
+                    }catch(_e){}
+                }
+                return undefined;
+            }
+
+            // Types
+            setChecked('hw_type_welding', !!get(['types','welding']) || !!get('hot_work_welding'));
+            setChecked('hw_type_flame_cutting', !!get(['types','flame_cutting']) || !!get('hot_work_flame_cutting'));
+            setChecked('hw_type_open_flame', !!get(['types','open_flame']) || !!get('hot_work_open_flame'));
+            setChecked('hw_type_grinding', !!get(['types','grinding']) || !!get('hot_work_grinding'));
+            setChecked('hw_type_blasting', !!get(['types','blasting']) || !!get('hot_work_blasting'));
+            setChecked('hw_type_power_brushing', !!get(['types','power_brushing']) || !!get('hot_work_power_brushing'));
+            setChecked('hw_type_gouging', !!get(['types','gouging']) || !!get('hot_work_gouging'));
+            setChecked('hw_type_pwht', !!get(['types','post_weld_heat_treatment']) || !!get('hot_work_pwht'));
+            setChecked('hw_type_pyrophoric', !!get(['types','pyrophoric_material']) || !!get('hot_work_pyrophoric'));
+
+            // Controls
+            setChecked('hw_ctrl_gas_monitoring', !!get(['controls','gas_monitoring']) || !!get('hot_work_gas_monitoring'));
+            setChecked('hw_ctrl_firewatch', !!get(['controls','firewatch']) || !!get('hot_work_firewatch'));
+            setChecked('hw_ctrl_fire_ext', !!get(['controls','fire_extinguisher']) || !!get('hot_work_fire_extinguisher'));
+            setChecked('hw_ctrl_fire_blanket', !!get(['controls','fire_blanket']) || !!get('hot_work_fire_blanket'));
+            setChecked('hw_ctrl_retardant_screen', !!get(['controls','retardant_screen']) || !!get('hot_work_retardant_screen'));
+            setChecked('hw_ctrl_cover_sewer', !!get(['controls','cover_sewer_drain']) || !!get('hot_work_cover_sewer'));
+            setChecked('hw_ctrl_locate_spark_away', !!get(['controls','locate_spark_away']) || !!get('hot_work_locate_spark_away'));
+            setChecked('hw_ctrl_remove_flammable', !!get(['controls','remove_flammable']) || !!get('hot_work_remove_flammable'));
+
+            // Notes
+            const notes = (hazards && (hazards.hot_work_notes || hazards.special_precautions)) || d.hot_work_notes || '';
+            setVal('hw_special_precautions', notes);
+        })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Populate Confined Space, Supporting Documents, Hazardous Activities, and Contractor Declaration
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            window.__PTW_DETAILS__ = d;
+            let hazards = {};
+            try{ hazards = d.ptw_hazard_checklist ? (typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist) : {}; }catch(_e){ hazards = {}; }
+
+            // Confined Space
+            const cs = (hazards && (hazards.confined_space || hazards.specific)) || {};
+            function get(obj, path){
+                try{
+                    if(!obj) return undefined;
+                    if(Array.isArray(path)) return path.reduce((o,k)=> (o && typeof o==='object') ? o[k] : undefined, obj);
+                    return obj[path];
+                }catch(_e){ return undefined; }
+            }
+            setChecked('cs_assessed_identified', !!get(cs, 'assessed_identified') || !!d.cs_assessed_identified);
+            setChecked('cs_entry_permit_prepared', !!get(cs, 'entry_permit_prepared') || !!d.cs_entry_permit_prepared);
+            setChecked('cs_isolation_verified', !!get(cs, 'isolation_verified') || !!d.cs_isolation_verified);
+            setChecked('cs_gas_test_conducted', !!get(cs, 'gas_test_conducted') || !!d.cs_gas_test_conducted);
+            setChecked('cs_continuous_gas_monitoring', !!get(cs, 'continuous_gas_monitoring') || !!d.cs_continuous_gas_monitoring);
+            setChecked('cs_ventilation', !!get(cs, 'ventilation') || !!d.cs_ventilation);
+            setChecked('cs_standby_assigned', !!get(cs, 'standby_assigned') || !!d.cs_standby_assigned);
+            setChecked('cs_rescue_equipment', !!get(cs, 'rescue_equipment_ready') || !!d.cs_rescue_equipment);
+            setChecked('cs_communication', !!get(cs, 'communication_established') || !!d.cs_communication);
+            setChecked('cs_emergency_briefed', !!get(cs, 'emergency_briefed') || !!d.cs_emergency_briefed);
+            setChecked('cs_permit_displayed', !!get(cs, 'permit_displayed') || !!d.cs_permit_displayed);
+            setVal('cs_others', get(cs, 'others') || d.cs_others || '');
+            setVal('cs_ack_name', d.cs_ack_name || '');
+            setVal('cs_ack_position', d.cs_ack_position || '');
+            setVal('cs_ack_datetime', d.cs_ack_datetime || '');
+
+            // Supporting Documents
+            const sd = (hazards && hazards.supporting_documents) || {};
+            setChecked('sd_cidb_green_card', !!get(sd,'cidb_green_card') || !!d.sd_cidb_green_card);
+            setChecked('sd_toolbox_talk', !!get(sd,'toolbox_talk_record') || !!d.sd_toolbox_talk);
+            setVal('sd_excavation_cert_no', get(sd,'excavation_cert_no') || d.sd_excavation_cert_no || '');
+            setVal('sd_confined_space_cert_no', get(sd,'confined_space_cert_no') || d.sd_confined_space_cert_no || '');
+            setChecked('sd_aesp_card', !!get(sd,'aesp_card') || !!d.sd_aesp_card);
+            setChecked('sd_sds', !!get(sd,'safety_data_sheet') || !!d.sd_sds);
+            setChecked('sd_excavation_plan', !!get(sd,'excavation_plan') || !!d.sd_excavation_plan);
+            setVal('sd_others', get(sd,'others') || d.sd_others || '');
+            setChecked('sd_competency_person', !!get(sd,'competency_person_cert') || !!d.sd_competency_person);
+            setChecked('sd_job_method_statement', !!get(sd,'job_method_statement') || !!d.sd_job_method_statement);
+            setVal('sd_lifting_cert_no', get(sd,'lifting_cert_no') || d.sd_lifting_cert_no || '');
+            setChecked('sd_contractor_checklist', !!get(sd,'contractor_checklist') || !!d.sd_contractor_checklist);
+            setChecked('sd_job_hazard_analysis', !!get(sd,'job_hazard_analysis') || !!d.sd_job_hazard_analysis);
+            setChecked('sd_lifting_plan', !!get(sd,'lifting_plan') || !!d.sd_lifting_plan);
+            setChecked('sd_medical_check_up', !!get(sd,'medical_check_up') || !!d.sd_medical_check_up);
+            setChecked('sd_hirarc', !!get(sd,'hirarc_eaia') || !!d.sd_hirarc);
+            setChecked('sd_lifting_checklist', !!get(sd,'lifting_checklist') || !!d.sd_lifting_checklist);
+            setChecked('sd_calibration_certificate', !!get(sd,'calibration_certificate') || !!d.sd_calibration_certificate);
+            setChecked('sd_tmp', !!get(sd,'traffic_management_plan') || !!d.sd_tmp);
+            setVal('sd_physical_isolation_cert_no', get(sd,'physical_isolation_cert_no') || d.sd_physical_isolation_cert_no || '');
+            setChecked('sd_load_chart', !!get(sd,'load_chart') || !!d.sd_load_chart);
+            setChecked('sd_certificate_of_fitness', !!get(sd,'certificate_of_fitness') || !!d.sd_certificate_of_fitness);
+            setVal('sd_electrical_isolation_cert_no', get(sd,'electrical_isolation_cert_no') || d.sd_electrical_isolation_cert_no || '');
+
+            // Hazardous Activities (Page 2)
+            const ha = (hazards && hazards.hazardous_activities) || {};
+            const haMap = [
+                ['ha_slippery_floor','slippery_floor'],
+                ['ha_dropped_objects','dropped_objects'],
+                ['ha_uneven_ground','uneven_ground'],
+                ['ha_pinch_point','pinch_point'],
+                ['ha_sharp_edges','sharp_edges'],
+                ['ha_fall_from_height','fall_from_height'],
+                ['ha_extreme_weather','extreme_weather'],
+                ['ha_excessive_noise','excessive_noise'],
+                ['ha_hot_surface','hot_surface'],
+                ['ha_electrical','electrical'],
+                ['ha_flying_debris','flying_debris'],
+                ['ha_ergonomic_fatigue','ergonomic_fatigue'],
+                ['ha_moving_machinery','moving_machinery'],
+                ['ha_gas_fumes','gas_fumes'],
+                ['ha_wild_animals','wild_animals'],
+                ['ha_pressurised_equipment','pressurised_equipment'],
+                ['ha_volatile_liquid','volatile_liquid'],
+                ['ha_simultaneous_operation','simultaneous_operation'],
+                ['ha_oxygen_deficiency','oxygen_deficiency'],
+                ['ha_engulfment','engulfment'],
+                ['ha_illumination_deficiency','illumination_deficiency'],
+                ['ha_chemical','chemical'],
+                ['ha_poisonous_substance','poisonous_substance'],
+                ['ha_molds','molds'],
+                ['ha_rotating_parts','rotating_parts'],
+                ['ha_ionizing_radiation','ionizing_radiation'],
+                ['ha_infectious_substance','infectious_substance']
+            ];
+            haMap.forEach(([id,key])=> setChecked(id, !!get(ha,key) || !!d[id] || !!d[key]));
+            setVal('ha_others', get(ha,'others') || d.ha_others || '');
+
+            // Contractor Declaration (Page 2)
+            function setYesNo(prefix, key){
+                const raw = (hazards && hazards.contractor_declaration && hazards.contractor_declaration[key]) || d['cd_'+key];
+                const yes = raw === true || raw === 'yes' || raw === 'Yes' || raw === 1 || raw === '1' || raw === 'Y';
+                const no = raw === false || raw === 'no' || raw === 'No' || raw === 0 || raw === '0' || raw === 'N';
+                setChecked(prefix+'_yes', yes && !no);
+                setChecked(prefix+'_no', no && !yes);
+            }
+            setYesNo('cd_i','i');
+            setYesNo('cd_ii','ii');
+            setYesNo('cd_iii','iii');
+            setYesNo('cd_iv','iv');
+            setYesNo('cd_v','v');
+            setYesNo('cd_vi','vi');
+        })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Populate Section 5: Permit Status Authorization (Closed, Suspended, Cancelled, Extended)
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    // Helpers
+    function setText(id, v){ const el=document.getElementById(id); if(!el) return; el.textContent = v || '________________'; }
+    function renderSig(imageIdWrap, imageIdImg, lineId, href){
+        const wrap = document.getElementById(imageIdWrap);
+        const img = document.getElementById(imageIdImg);
+        const line = document.getElementById(lineId);
+        if (!wrap || !img || !line) return;
+        if (!href) { wrap.style.display='none'; line.style.display='block'; return; }
+        img.onload = function(){ line.style.display='none'; wrap.style.display='block'; };
+        img.onerror = function(){ wrap.style.display='none'; line.style.display='block'; };
+        img.src = href;
+    }
+    function formatDT(dt){ if(!dt) return ''; try{ const d=new Date(dt.replace(' ','T')); if(isNaN(d.getTime())) return dt; const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }catch(_e){ return dt; } }
+
+    function nameOf(user){ if(!user) return ''; const f=user.user_first_name||user.first_name||user.firstName||''; const l=user.user_last_name||user.last_name||user.lastName||''; return (f+' '+(l||'')).trim(); }
+
+    function resolveUserById(uid, usersCache){ if(!uid) return null; uid = parseInt(uid,10); if(usersCache && usersCache[uid]) return usersCache[uid]; return null; }
+
+    function buildUsersCache(d){
+        const cache = {};
+        // We may have some joined names. Also try workers array for identity hints (unlikely approvers).
+        // No direct user directory in details; rely on known approver ids on permit fields.
+        const ids = [d.approved_fm_by, d.completed_by, d.cancelled_by, d.suspended_by, d.approved_supervisor_by, d.approved_she_by];
+        ids.forEach(id=>{ if(id){ cache[parseInt(id,10)] = null; } });
+        return cache;
+    }
+
+    function findDocSignature(docs, types){
+        if (!Array.isArray(docs) || !docs.length) return null;
+        const upper = (s)=> (s||'').toString().toUpperCase();
+        const cand = docs.filter(doc=> types.includes(upper(doc.document_type)) );
+        if (!cand.length) return null;
+        return cand.reduce((acc,cur)=>{ const a=parseInt(acc.ptw_document_id||acc.id||0,10)||0; const b=parseInt(cur.ptw_document_id||cur.id||0,10)||0; return b>a?cur:acc; }, cand[0]);
+    }
+
+    function signatureHrefFor(doc){
+        try{
+            if(!doc) return '';
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenParam = urlParams.get('t');
+            const docId = doc.ptw_document_id || doc.id;
+            const rawPath = (doc.document_path || '').toString();
+            if (tokenParam && docId) return 'api/ptw_document_download.php?id=' + encodeURIComponent(docId) + '&t=' + encodeURIComponent(tokenParam);
+            return rawPath || '';
+        }catch(_e){ return ''; }
+    }
+
+    function bindSection5(d){
+        // Build minimal cache for names if joined names present
+        const docs = Array.isArray(d.documents) ? d.documents : [];
+
+        // Extended (FM approves extension): use approved_fm_by and ptw_valid_to
+        if (d.ptw_status === 'EXTENDED' || (d.ptw_valid_to && d.approved_fm_by)){
+            const fmName = d.approved_fm_name || d.fm_name || '';
+            setText('s5_extended_name', fmName || '');
+            setText('s5_extended_position', 'FM');
+            setText('s5_extended_new_validity', formatDT(d.ptw_valid_to||''));
+            // Signature: try a generic FM signature doc if available; else fallback to profile signature is out of scope here
+            const sigDoc = findDocSignature(docs, ['FM_SIGNATURE','SIGNATURE_FM']);
+            renderSig('s5_extended_sig_image','s5_extended_sig_img','s5_extended_sig_line', signatureHrefFor(sigDoc));
+        }
+
+        // Closed
+        if (d.completed_by || d.completed_date){
+            setText('s5_closed_name', d.completed_by_name || '');
+            setText('s5_closed_position', 'FM');
+            setText('s5_closed_datetime', formatDT(d.completed_date||''));
+            const sigDoc = findDocSignature(docs, ['CLOSE_SIGNATURE','SIGNATURE_CLOSED','FM_SIGNATURE']);
+            renderSig('s5_closed_sig_image','s5_closed_sig_img','s5_closed_sig_line', signatureHrefFor(sigDoc));
+        }
+
+        // Cancelled
+        if (d.cancelled_by || d.cancelled_date){
+            setText('s5_cancelled_name', d.cancelled_by_name || '');
+            setText('s5_cancelled_position', 'FM');
+            setText('s5_cancelled_datetime', formatDT(d.cancelled_date||''));
+            const sigDoc = findDocSignature(docs, ['CANCEL_SIGNATURE','SIGNATURE_CANCELLED','FM_SIGNATURE']);
+            renderSig('s5_cancelled_sig_image','s5_cancelled_sig_img','s5_cancelled_sig_line', signatureHrefFor(sigDoc));
+        }
+
+        // Suspended
+        if (d.suspended_by || d.suspended_date){
+            setText('s5_suspended_name', d.suspended_by_name || '');
+            setText('s5_suspended_position', 'FM');
+            setText('s5_suspended_datetime', formatDT(d.suspended_date||''));
+            const sigDoc = findDocSignature(docs, ['SUSPEND_SIGNATURE','SIGNATURE_SUSPENDED','FM_SIGNATURE']);
+            renderSig('s5_suspended_sig_image','s5_suspended_sig_img','s5_suspended_sig_line', signatureHrefFor(sigDoc));
+        }
+    }
+
+    // Use cached details if earlier fetch already done; otherwise fetch once
+    if (window.__PTW_DETAILS__) { bindSection5(window.__PTW_DETAILS__); return; }
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{ const d = data && data.result ? data.result : data; if(!d) return; window.__PTW_DETAILS__ = d; bindSection5(d); })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Render Contractor signature in Section 4 if available
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            // Fill contractor acknowledgement name if available
+            try {
+                const name = d.contractor_name || d.ptw_contractor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '';
+                const span = document.getElementById('contractor_ack_name');
+                if (span && name) span.textContent = name;
+            } catch(_e){}
+            const docs = Array.isArray(d.documents) ? d.documents : [];
+            let contractorSig = null;
+            if (docs && docs.length){
+                const sigs = docs.filter(doc => {
+                    const t = (doc.document_type || '').toString().toUpperCase();
+                    return t === 'CONTRACTOR_SIGNATURE' || t === 'SIGNATURE_CONTRACTOR';
+                });
+                if (sigs.length){
+                    contractorSig = sigs.reduce((acc, cur) => {
+                        const a = parseInt(acc.ptw_document_id || acc.id || 0, 10) || 0;
+                        const b = parseInt(cur.ptw_document_id || cur.id || 0, 10) || 0;
+                        return b > a ? cur : acc;
+                    }, sigs[0]);
+                }
+            }
+            if (!contractorSig) return;
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tokenParam = urlParams.get('t');
+                const docId = contractorSig.ptw_document_id || contractorSig.id;
+                const rawPath = (contractorSig.document_path || '').toString();
+                let sigHref = '';
+                if (tokenParam && docId) {
+                    sigHref = 'api/ptw_document_download.php?id=' + encodeURIComponent(docId) + '&t=' + encodeURIComponent(tokenParam);
+                } else if (rawPath) {
+                    sigHref = rawPath;
+                }
+                if (!sigHref) return;
+                const imgWrap = document.getElementById('contractor_signature_image');
+                const img = document.getElementById('contractor_signature_img');
+                const line = document.getElementById('contractor_signature_line');
+                if (imgWrap && img && line) {
+                    img.onload = function(){
+                        line.style.display = 'none';
+                        imgWrap.style.display = 'inline-block';
+                    };
+                    img.onerror = function(){ /* leave line shown */ };
+                    img.src = sigHref;
+                }
+            } catch(e) { /* ignore */ }
+        })
+        .catch(_e=>{});
+})();
+</script>
