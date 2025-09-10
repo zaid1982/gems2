@@ -15,9 +15,9 @@ class Constant {
     //public static $folderError = '../../../logs/gems/error/';
     public static string $folderError = 'C:\xampp\logs\gems\error\\';
     // public static $folderError = '/Applications/XAMPP/logs/gems/error/';
-    public static $url = '//localhost/gems2/api/';
+    // public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    // public static $url = '//gems.metadatasystem.my/api/';
+    public static $url = '//gems.metadatasystem.my/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
