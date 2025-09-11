@@ -458,8 +458,8 @@
                             <div class="signature-block">
                                 <div><strong>Signature:</strong></div>
                                 <div id="s5_closed_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
-                                <div id="s5_closed_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
-                                    <img id="s5_closed_sig_img" alt="Closed signature" style="max-height:58px; max-width:100%; display:block;" />
+                                <div id="s5_closed_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; width:100%; min-height:60px;">
+                                    <img id="s5_closed_sig_img" alt="Closed signature" style="max-height:58px; max-width:100%; display:block; object-fit: contain;" />
                                 </div>
                             </div>
                         </div>
@@ -471,8 +471,8 @@
                             <div class="signature-block">
                                 <div><strong>Signature:</strong></div>
                                 <div id="s5_suspended_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
-                                <div id="s5_suspended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
-                                    <img id="s5_suspended_sig_img" alt="Suspended signature" style="max-height:58px; max-width:100%; display:block;" />
+                                <div id="s5_suspended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; width:100%; min-height:60px;">
+                                    <img id="s5_suspended_sig_img" alt="Suspended signature" style="max-height:58px; max-width:100%; display:block; object-fit: contain;" />
                                 </div>
                             </div>
                         </div>
@@ -484,8 +484,8 @@
                             <div class="signature-block">
                                 <div><strong>Signature:</strong></div>
                                 <div id="s5_cancelled_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
-                                <div id="s5_cancelled_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
-                                    <img id="s5_cancelled_sig_img" alt="Cancelled signature" style="max-height:58px; max-width:100%; display:block;" />
+                                <div id="s5_cancelled_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; width:100%; min-height:60px;">
+                                    <img id="s5_cancelled_sig_img" alt="Cancelled signature" style="max-height:58px; max-width:100%; display:block; object-fit: contain;" />
                                 </div>
                             </div>
                         </div>
@@ -497,8 +497,8 @@
                             <div class="signature-block">
                                 <div><strong>Signature:</strong></div>
                                 <div id="s5_extended_sig_line" style="height:60px; border:1px solid #000; margin-top:6px;"></div>
-                                <div id="s5_extended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px;">
-                                    <img id="s5_extended_sig_img" alt="Extended signature" style="max-height:58px; max-width:100%; display:block;" />
+                                <div id="s5_extended_sig_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; width:100%; min-height:60px;">
+                                    <img id="s5_extended_sig_img" alt="Extended signature" style="max-height:58px; max-width:100%; display:block; object-fit: contain;" />
                                 </div>
                             </div>
                         </div>
@@ -885,7 +885,11 @@
         if (!wrap || !img || !line) return;
         if (!href) { wrap.style.display='none'; line.style.display='block'; return; }
         img.onload = function(){ line.style.display='none'; wrap.style.display='block'; };
-        img.onerror = function(){ wrap.style.display='none'; line.style.display='block'; };
+        img.onerror = function(){
+            console.warn('[PTW Print] Signature image failed to load ->', href);
+            wrap.style.display='none';
+            line.style.display='block';
+        };
         img.src = href;
     }
     function formatDT(dt){ if(!dt) return ''; try{ const d=new Date(dt.replace(' ','T')); if(isNaN(d.getTime())) return dt; const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }catch(_e){ return dt; } }
@@ -923,9 +927,32 @@
         }catch(_e){ return ''; }
     }
 
-    function bindSection5(d){
+    // Try loading a user's saved master signature via API.
+    // Uses Authorization when available; otherwise falls back to external route.
+    function loadUserSignatureUrl(userId){
+        return new Promise((resolve) => {
+            if (!userId){ return resolve(''); }
+            const hasAuth = !!headers.Authorization;
+            const endpoint = hasAuth ? ('user_signature/' + encodeURIComponent(userId))
+                                     : ('user_signature/external/' + encodeURIComponent(userId));
+            fetch(endpoint, hasAuth ? { headers } : undefined)
+                .then(r=>r.json())
+                .then(resp=>{
+                    const url = resp && resp.result && resp.result.file_path ? resp.result.file_path : '';
+                    if (!url){ console.info('[PTW Print] No master signature for user', userId, '| path:', endpoint); }
+                    else { console.debug('[PTW Print] Loaded master signature via', hasAuth ? 'auth route' : 'external route'); }
+                    resolve(url || '');
+                })
+                .catch((e)=> { console.warn('[PTW Print] user_signature fetch failed:', e); resolve(''); });
+        });
+    }
+
+    async function bindSection5(d){
         // Build minimal cache for names if joined names present
         const docs = Array.isArray(d.documents) ? d.documents : [];
+        if (docs && docs.length){
+            console.debug('[PTW Print] Available PTW documents:', docs.map(x=>({type:(x.document_type||'').toString(), id:x.ptw_document_id||x.id})));
+        }
 
         // Extended (FM approves extension): use approved_fm_by and ptw_valid_to
         if (d.ptw_status === 'EXTENDED' || (d.ptw_valid_to && d.approved_fm_by)){
@@ -933,9 +960,16 @@
             setText('s5_extended_name', fmName || '');
             setText('s5_extended_position', 'FM');
             setText('s5_extended_new_validity', formatDT(d.ptw_valid_to||''));
-            // Signature: try a generic FM signature doc if available; else fallback to profile signature is out of scope here
-            const sigDoc = findDocSignature(docs, ['FM_SIGNATURE','SIGNATURE_FM']);
-            renderSig('s5_extended_sig_image','s5_extended_sig_img','s5_extended_sig_line', signatureHrefFor(sigDoc));
+            // Signature: try extension-specific snapshot first, then generic FM, then user's master signature
+            const docTypes = ['EXTENDED_SIGNATURE','EXTENSION_SIGNATURE','FM_SIGNATURE','SIGNATURE_FM'];
+            const sigDoc = findDocSignature(docs, docTypes);
+            let sigHref = signatureHrefFor(sigDoc);
+            if (!sigHref && d.approved_fm_by){
+                sigHref = await loadUserSignatureUrl(d.approved_fm_by);
+                if (sigHref){ console.debug('[PTW Print] Using FM master signature for Extended:', sigHref); }
+                else { console.info('[PTW Print] No signature found for Extended (no doc snapshot and no master signature).'); }
+            }
+            renderSig('s5_extended_sig_image','s5_extended_sig_img','s5_extended_sig_line', sigHref);
         }
 
         // Closed
@@ -943,8 +977,10 @@
             setText('s5_closed_name', d.completed_by_name || '');
             setText('s5_closed_position', 'FM');
             setText('s5_closed_datetime', formatDT(d.completed_date||''));
-            const sigDoc = findDocSignature(docs, ['CLOSE_SIGNATURE','SIGNATURE_CLOSED','FM_SIGNATURE']);
-            renderSig('s5_closed_sig_image','s5_closed_sig_img','s5_closed_sig_line', signatureHrefFor(sigDoc));
+            const sigDoc = findDocSignature(docs, ['CLOSED_SIGNATURE','CLOSE_SIGNATURE','SIGNATURE_CLOSED','FM_SIGNATURE']);
+            let sigHref = signatureHrefFor(sigDoc);
+            if (!sigHref && d.completed_by){ sigHref = await loadUserSignatureUrl(d.completed_by); }
+            renderSig('s5_closed_sig_image','s5_closed_sig_img','s5_closed_sig_line', sigHref);
         }
 
         // Cancelled
@@ -952,8 +988,10 @@
             setText('s5_cancelled_name', d.cancelled_by_name || '');
             setText('s5_cancelled_position', 'FM');
             setText('s5_cancelled_datetime', formatDT(d.cancelled_date||''));
-            const sigDoc = findDocSignature(docs, ['CANCEL_SIGNATURE','SIGNATURE_CANCELLED','FM_SIGNATURE']);
-            renderSig('s5_cancelled_sig_image','s5_cancelled_sig_img','s5_cancelled_sig_line', signatureHrefFor(sigDoc));
+            const sigDoc = findDocSignature(docs, ['CANCELLED_SIGNATURE','CANCEL_SIGNATURE','SIGNATURE_CANCELLED','FM_SIGNATURE']);
+            let sigHref = signatureHrefFor(sigDoc);
+            if (!sigHref && d.cancelled_by){ sigHref = await loadUserSignatureUrl(d.cancelled_by); }
+            renderSig('s5_cancelled_sig_image','s5_cancelled_sig_img','s5_cancelled_sig_line', sigHref);
         }
 
         // Suspended
@@ -961,8 +999,10 @@
             setText('s5_suspended_name', d.suspended_by_name || '');
             setText('s5_suspended_position', 'FM');
             setText('s5_suspended_datetime', formatDT(d.suspended_date||''));
-            const sigDoc = findDocSignature(docs, ['SUSPEND_SIGNATURE','SIGNATURE_SUSPENDED','FM_SIGNATURE']);
-            renderSig('s5_suspended_sig_image','s5_suspended_sig_img','s5_suspended_sig_line', signatureHrefFor(sigDoc));
+            const sigDoc = findDocSignature(docs, ['SUSPENDED_SIGNATURE','SUSPEND_SIGNATURE','SIGNATURE_SUSPENDED','FM_SIGNATURE']);
+            let sigHref = signatureHrefFor(sigDoc);
+            if (!sigHref && d.suspended_by){ sigHref = await loadUserSignatureUrl(d.suspended_by); }
+            renderSig('s5_suspended_sig_image','s5_suspended_sig_img','s5_suspended_sig_line', sigHref);
         }
     }
 

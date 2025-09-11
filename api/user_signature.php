@@ -62,7 +62,20 @@ try {
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
-        $form_data['result'] = $fn_user_signature->getUserSignature($userId);
+        // Support fetching another user's signature when an ID is supplied in the path.
+        // Defaults to the current authenticated user if not provided.
+        $targetUserId = $userId;
+        if (isset($urlArr[1]) && $urlArr[1] !== '' && $urlArr[1] !== 'user_signature') {
+            // When route is /user_signature/{id}
+            $candidate = $urlArr[1];
+            // If using the /user_signature/external/{id} form, shift was applied above, so urlArr[1] is the id.
+            if ($candidate !== 'external') {
+                $targetUserId = $candidate;
+            } else if (isset($urlArr[2])) {
+                $targetUserId = $urlArr[2];
+            }
+        }
+        $form_data['result'] = $fn_user_signature->getUserSignature($targetUserId);
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
