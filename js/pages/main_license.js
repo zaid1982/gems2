@@ -5,8 +5,10 @@ function MainLicense(){
   let modalLicenseClass;
 
   const badge = (days)=>{
-    if(days < 0) return '<span class="badge badge-danger">Expired</span>';
-    if(days <= 30) return '<span class="badge badge-warning">Expiring</span>';
+    const n = Number(days);
+    if (!Number.isFinite(n)) return '<span class="badge badge-secondary">N/A</span>';
+    if(n < 0) return '<span class="badge badge-danger">Expired</span>';
+    if(n <= 30) return '<span class="badge badge-warning">Expiring</span>';
     return '<span class="badge badge-success">Valid</span>';
   };
   const fileLink = (row)=> {
@@ -26,8 +28,11 @@ function MainLicense(){
       fnRowCallback: function(nRow, aData, iDisplayIndex){
         const info = $(this).DataTable().page.info();
         $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-        if(aData.daysToExpire < 0) $(nRow).addClass('table-danger');
-        else if(aData.daysToExpire <= 30) $(nRow).addClass('table-warning');
+        const n = Number(aData.daysToExpire);
+        if (Number.isFinite(n)) {
+          if(n < 0) $(nRow).addClass('table-danger');
+          else if(n <= 30) $(nRow).addClass('table-warning');
+        }
       },
       dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>"+
            "<'row'<'col-sm-12'tr>>"+
@@ -46,7 +51,7 @@ function MainLicense(){
         { mData:'licenseTitle' },
         { mData:'licenseStartDate' },
         { mData:'licenseEndDate' },
-        { mData:'daysToExpire', mRender:function(d){ return d+' '+badge(d);} },
+  { mData:'daysToExpire', mRender:function(d){ const txt = Number.isFinite(Number(d)) ? d : '-'; return txt+' '+badge(d);} },
         { mData:null, mRender:function(row){ return fileLink(row); } },
         { mData:null, mRender:function(row, type, full, meta){
             return '<a><i class="fas fa-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"></i></a>&nbsp;'

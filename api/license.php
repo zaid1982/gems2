@@ -91,7 +91,7 @@ try {
         }
 
         // Normalize fileUpload same as in POST
-    if (isset($params['fileUpload']) && is_string($params['fileUpload'])) {
+        if (isset($params['fileUpload']) && is_string($params['fileUpload'])) {
             $decoded = json_decode($params['fileUpload'], true);
             if (is_array($decoded)) { $params['fileUpload'] = $decoded; }
         } else {
