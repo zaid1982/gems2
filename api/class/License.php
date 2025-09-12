@@ -6,7 +6,7 @@ class License extends General {
     public $licenseTitle = '';
 
     private static $tableName = 'lic_license';
-    private static $idName = 'licenseId';
+    private static $idName = 'license_id';
 
     // Document type ID for uploads (ensure exists in ref_document)
     private static $documentId = 29; // 'License Document'
@@ -32,13 +32,16 @@ class License extends General {
                 "SELECT 
                     l.license_id        AS licenseId,
                     l.site_id           AS siteId,
+                    l.site_id           AS site_id,
                     l.license_title     AS licenseTitle,
-                    DATE_FORMAT(l.license_start_date, '%Y-%m-%d') AS licenseStartDate,
-                    DATE_FORMAT(l.license_end_date, '%Y-%m-%d')   AS licenseEndDate,
+                    NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
+                    NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
                     l.upload_id         AS uploadId,
                     l.license_status    AS licenseStatus,
-                    DATEDIFF(l.license_end_date, CURDATE()) AS daysToExpire,
+                    CASE WHEN l.license_end_date IS NULL OR l.license_end_date = '0000-00-00' THEN NULL
+                         ELSE DATEDIFF(l.license_end_date, CURDATE()) END AS daysToExpire,
                     CASE 
+                        WHEN l.license_end_date IS NULL OR l.license_end_date = '0000-00-00' THEN NULL
                         WHEN DATEDIFF(l.license_end_date, CURDATE()) < 0 THEN 3
                         WHEN DATEDIFF(l.license_end_date, CURDATE()) <= 30 THEN 2
                         ELSE 1
@@ -62,7 +65,19 @@ class License extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($licenseId, self::$idName);
-            return DbMysql::select(self::$tableName, array(self::$idName=>$licenseId), 1);
+            $sql = /** @lang text */
+                "SELECT 
+                    l.license_id        AS licenseId,
+                    l.site_id           AS siteId,
+                    l.site_id           AS site_id,
+                    l.license_title     AS licenseTitle,
+                    NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
+                    NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
+                    l.upload_id         AS uploadId,
+                    l.license_status    AS licenseStatus
+                FROM lic_license l";
+            $where = array('l.license_id' => $licenseId);
+            return DbMysql::selectSql($sql, $where, 0, false);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -82,13 +97,20 @@ class License extends General {
             parent::checkMandatoryArray($columns, array('licenseTitle', 'licenseStartDate', 'licenseEndDate'));
             parent::checkEmptyInteger($this->userSite, 'userSite');
 
+            // Normalize and validate dates (expect YYYY-MM-DD)
+            $start = $this->normalizeDate($columns['licenseStartDate']);
+            $end = $this->normalizeDate($columns['licenseEndDate']);
+            if ($start === null || $end === null) {
+                throw new Exception('Invalid start/end date');
+            }
+
             $insertArr = array(
-                'siteId' => $this->userSite,
-                'licenseTitle' => trim($columns['licenseTitle']),
-                'licenseStartDate' => $columns['licenseStartDate'],
-                'licenseEndDate' => $columns['licenseEndDate'],
-                'licenseStatus' => 1,
-                'licenseCreatedBy' => $this->userId
+                'site_id' => $this->userSite,
+                'license_title' => trim($columns['licenseTitle']),
+                'license_start_date' => $start,
+                'license_end_date' => $end,
+                'license_status' => 1,
+                'license_created_by' => $this->userId
             );
 
             if (!empty($columns['fileUpload']) && is_array($columns['fileUpload'])) {
@@ -96,12 +118,12 @@ class License extends General {
                 if (is_array($uploadTemp) && !empty($uploadTemp)) {
                     $filename = (new DateTime())->format('YmdHis') . '_LIC_' . $this->userId;
                     $uploadId = parent::uploadSave($uploadTemp, 'license', $filename);
-                    $insertArr['uploadId'] = $uploadId;
+                    $insertArr['upload_id'] = $uploadId;
                 }
             }
 
             $this->set(DbMysql::insert(self::$tableName, $insertArr));
-            $this->licenseTitle = $insertArr['licenseTitle'];
+            $this->licenseTitle = $insertArr['license_title'];
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -121,11 +143,17 @@ class License extends General {
             parent::checkEmptyInteger($licenseId, self::$idName);
             parent::checkMandatoryArray($columns, array('licenseTitle', 'licenseStartDate', 'licenseEndDate'));
 
+            $start = $this->normalizeDate($columns['licenseStartDate']);
+            $end = $this->normalizeDate($columns['licenseEndDate']);
+            if ($start === null || $end === null) {
+                throw new Exception('Invalid start/end date');
+            }
+
             $updateArr = array(
-                'licenseTitle' => trim($columns['licenseTitle']),
-                'licenseStartDate' => $columns['licenseStartDate'],
-                'licenseEndDate' => $columns['licenseEndDate'],
-                'licenseUpdatedBy' => $this->userId
+                'license_title' => trim($columns['licenseTitle']),
+                'license_start_date' => $start,
+                'license_end_date' => $end,
+                'license_updated_by' => $this->userId
             );
 
             if (!empty($columns['fileUpload']) && is_array($columns['fileUpload'])) {
@@ -136,19 +164,21 @@ class License extends General {
                 if (is_array($uploadTemp) && !empty($uploadTemp)) {
                     $filename = (new DateTime())->format('YmdHis') . '_LIC_' . $this->userId;
                     $uploadId = parent::uploadSave($uploadTemp, 'license', $filename);
-                    $updateArr['uploadId'] = $uploadId;
+                    $updateArr['upload_id'] = $uploadId;
                 }
             }
 
             // Enforce site scoping on update
-            $siteId = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'site_id', true);
+            // selectColumn converts DB columns (snake_case) to camelCase keys internally,
+            // so the output key must be 'siteId' (not 'site_id').
+            $siteId = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'siteId', true);
             parent::checkEmptyInteger($siteId, 'site_id');
             if (!$this->isAdministrator() && $this->userSite && intval($siteId) !== intval($this->userSite)) {
                 throw new Exception('Access denied to update license from different site');
             }
             DbMysql::update(self::$tableName, $updateArr, array(self::$idName => $licenseId));
             $this->set($licenseId);
-            $this->licenseTitle = $updateArr['licenseTitle'];
+            $this->licenseTitle = $updateArr['license_title'];
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
@@ -165,8 +195,9 @@ class License extends General {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($licenseId, self::$idName);
-            DbMysql::update(self::$tableName, array('licenseStatus' => 2, 'licenseUpdatedBy'=>$this->userId), array(self::$idName => $licenseId));
+            DbMysql::update(self::$tableName, array('license_status' => 2, 'license_updated_by'=>$this->userId), array(self::$idName => $licenseId));
             $this->set($licenseId);
+            // Same mapping note applies here: 'license_title' becomes 'licenseTitle'.
             $this->licenseTitle = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'licenseTitle', true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
@@ -186,6 +217,38 @@ class License extends General {
             $this->licenseId = $licenseId;
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Normalize a date string to YYYY-MM-DD or return null if invalid/empty
+     */
+    private function normalizeDate($val): ?string
+    {
+        if (!is_string($val)) { return null; }
+        $val = trim($val);
+        if ($val === '' || $val === '0000-00-00') { return null; }
+        
+        // Accept formats: YYYY-MM-DD or DD/MM/YYYY
+        $dt = DateTime::createFromFormat('Y-m-d', $val);
+        if ($dt instanceof DateTime) { return $dt->format('Y-m-d'); }
+        
+        $dt = DateTime::createFromFormat('d/m/Y', $val);
+        if ($dt instanceof DateTime) { return $dt->format('Y-m-d'); }
+        
+        // Try parsing common English formats like "1 September, 2025"
+        $dt = DateTime::createFromFormat('j F, Y', $val);
+        if ($dt instanceof DateTime) { return $dt->format('Y-m-d'); }
+        
+        $dt = DateTime::createFromFormat('j F Y', $val);
+        if ($dt instanceof DateTime) { return $dt->format('Y-m-d'); }
+        
+        // Try generic parsing as last resort
+        try {
+            $dt = new DateTime($val);
+            return $dt->format('Y-m-d');
+        } catch (Throwable $e) {
+            return null;
         }
     }
 }

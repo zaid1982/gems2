@@ -369,9 +369,20 @@ class General {
             if (!$this->userId) {
                 return false;
             }
-            $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$this->userId), 'role_id');
+            $roles = array();
+            // Prefer legacy Class_db if available; otherwise use DbMysql
+            if (class_exists('Class_db')) {
+                $roles = Class_db::getInstance()->db_select_colm('sys_user_role', array('user_id'=>$this->userId), 'role_id');
+            } else {
+                // Fallback using DbMysql (keys will be camelCased)
+                $rows = DbMysql::selectAll('sys_user_role', array('user_id'=>$this->userId));
+                foreach ($rows as $row) {
+                    if (isset($row['roleId'])) { $roles[] = $row['roleId']; }
+                    else if (isset($row['role_id'])) { $roles[] = $row['role_id']; }
+                }
+            }
             foreach ($roles as $roleId) {
-                if (in_array($roleId, [1, 10])) { // Administrator or GFM Management
+                if (in_array(intval($roleId), [1, 10], true)) { // Administrator or GFM Management
                     return true;
                 }
             }
