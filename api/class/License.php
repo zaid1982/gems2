@@ -6,7 +6,7 @@ class License extends General {
     public $licenseTitle = '';
 
     private static $tableName = 'lic_license';
-    private static $idName = 'licenseId';
+    private static $idName = 'license_id';
 
     // Document type ID for uploads (ensure exists in ref_document)
     private static $documentId = 29; // 'License Document'
@@ -32,6 +32,7 @@ class License extends General {
                 "SELECT 
                     l.license_id        AS licenseId,
                     l.site_id           AS siteId,
+                    l.site_id           AS site_id,
                     l.license_title     AS licenseTitle,
                     NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
                     NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
@@ -68,6 +69,7 @@ class License extends General {
                 "SELECT 
                     l.license_id        AS licenseId,
                     l.site_id           AS siteId,
+                    l.site_id           AS site_id,
                     l.license_title     AS licenseTitle,
                     NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
                     NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
@@ -167,7 +169,9 @@ class License extends General {
             }
 
             // Enforce site scoping on update
-            $siteId = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'site_id', true);
+            // selectColumn converts DB columns (snake_case) to camelCase keys internally,
+            // so the output key must be 'siteId' (not 'site_id').
+            $siteId = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'siteId', true);
             parent::checkEmptyInteger($siteId, 'site_id');
             if (!$this->isAdministrator() && $this->userSite && intval($siteId) !== intval($this->userSite)) {
                 throw new Exception('Access denied to update license from different site');
@@ -193,7 +197,8 @@ class License extends General {
             parent::checkEmptyInteger($licenseId, self::$idName);
             DbMysql::update(self::$tableName, array('license_status' => 2, 'license_updated_by'=>$this->userId), array(self::$idName => $licenseId));
             $this->set($licenseId);
-            $this->licenseTitle = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'license_title', true);
+            // Same mapping note applies here: 'license_title' becomes 'licenseTitle'.
+            $this->licenseTitle = DbMysql::selectColumn(self::$tableName, array(self::$idName=>$licenseId), 'licenseTitle', true);
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }

@@ -11,10 +11,37 @@ function MainLicense(){
     if(n <= 30) return '<span class="badge badge-warning">Expiring</span>';
     return '<span class="badge badge-success">Valid</span>';
   };
+  const humanizeDays = (days)=>{
+    const n = Number(days);
+    if (!Number.isFinite(n)) return '-';
+    if (n >= 31) {
+      const months = Math.floor(n / 30);
+      const years = Math.floor(months / 12);
+      const remMonths = months % 12;
+      const parts = [];
+      if (years > 0) parts.push(years + ' year' + (years > 1 ? 's' : ''));
+      if (remMonths > 0) parts.push(remMonths + ' mth' + (remMonths > 1 ? 's' : ''));
+      return parts.join(' ');
+    }
+    const abs = Math.abs(n);
+    return abs + ' day' + (abs === 1 ? '' : 's');
+  };
   const fileLink = (row)=> {
     if(!row.uploadId) return '';
     const link = mzAjaxRequest2('document/upload_link/'+row.uploadId, 'GET');
     return `<a class="btn btn-outline-secondary btn-sm" target="_blank" href="${link}">Open</a>`;
+  };
+  const fmtDate = (d)=>{
+    if (!d) return '-';
+    try {
+      if (typeof moment === 'function') {
+        const m = moment(d, 'YYYY-MM-DD', true);
+        if (m.isValid()) return m.format('DD-MMM-YYYY');
+        const m2 = moment(d);
+        return m2.isValid() ? m2.format('DD-MMM-YYYY') : d;
+      }
+      return d;
+    } catch(e){ return d; }
   };
 
   this.init = function(){
@@ -42,16 +69,17 @@ function MainLicense(){
         { text:'<i class=\"fas fa-plus\"></i> Add', className:'btn btn-outline-primary btn-sm px-2 ml-2', titleAttr:'Add License', action: ()=> modalLicenseClass.add() }
       ],
       columnDefs:[
-        { bSortable:false, targets:[0,6] },
-        { className:'text-center', targets:[0,4,6] },
-        { className:'noVis', targets:[0,6] }
+        { bSortable:false, targets:[0,6,7] },
+        { className:'text-center', targets:[0,4,5,6,7] },
+        { className:'noVis', targets:[0,7] }
       ],
       aoColumns:[
         { mData:null },
         { mData:'licenseTitle' },
-        { mData:'licenseStartDate' },
-        { mData:'licenseEndDate' },
-  { mData:'daysToExpire', mRender:function(d){ const txt = Number.isFinite(Number(d)) ? d : '-'; return txt+' '+badge(d);} },
+  { mData:'licenseStartDate', mRender:function(d, type){ if (type==='display' || type==='filter') return fmtDate(d); return d; } },
+  { mData:'licenseEndDate',   mRender:function(d, type){ if (type==='display' || type==='filter') return fmtDate(d); return d; } },
+        { mData:'daysToExpire', mRender:function(d){ return humanizeDays(d); } },
+        { mData:'daysToExpire', mRender:function(d){ return badge(d); } },
         { mData:null, mRender:function(row){ return fileLink(row); } },
         { mData:null, mRender:function(row, type, full, meta){
             return '<a><i class="fas fa-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"></i></a>&nbsp;'
