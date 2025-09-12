@@ -35,6 +35,7 @@ RewriteRule ^p_wo_assign/?$ wo_assign.html
 RewriteRule ^p_wo_verify/?$ wo_verify.html
 RewriteRule ^p_ppm_asset/?$ ppm_asset.html
 RewriteRule ^p_ppm_asset_v2/?$ ppm_set_management.html
+RewriteRule ^p_license/?$ license.html
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php
@@ -152,3 +153,5 @@ RewriteRule ^wo_image_zip/?$ api/wo_image_zip.php
 RewriteRule ^wo_image_zip/(.+)/?$ api/wo_image_zip.php
 RewriteRule ^zone/?$ api/zone.php
 RewriteRule ^zone/(.+)/?$ api/zone.php
+RewriteRule ^license/?$ api/license.php
+RewriteRule ^license/(.+)/?$ api/license.php

@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permit To Work (Combined) - GFM</title>
+    <style>
+        /* --- Global Styles & Body --- */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            background-color: #e0e0e0; /* Light grey background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .document-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .page {
+            width: 850px;
+            background-color: #fff; /* White background for the form itself */
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Page 1: Header Section --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .header .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4a90e2; /* A blue color similar to the logo */
+        }
+        .header .title-block {
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .header .subtitle {
+            color: red;
+            font-weight: bold;
+        }
+        .header .ptw-no {
+            border: 1px solid #000;
+            padding: 5px 10px;
+        }
+
+        /* --- General Form Section Styling --- */
+        .form-section {
+            border: 2px solid #000;
+            margin-top: 15px;
+        }
+        .section-header {
+            color: #fff;
+            font-weight: bold;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-body {
+            padding: 10px;
+        }
+
+        /* --- Page 1: Section Header Colors --- */
+        .requisition .section-header    { background-color: #0070c0; } /* Blue */
+        .cold-work .section-header      { background-color: #00b050; } /* Green */
+        .hot-work .section-header       { background-color: #ff0000; } /* Red */
+        .confined-space .section-header { background-color: #ffc000; color: #000; } /* Yellow */
+        
+        /* --- Page 2: Section Header Color --- */
+        /* Any section header NOT inside a colored parent like '.requisition' will be black */
+        .page-2 .section-header {
+            background-color: #000;
+        }
+
+        /* --- Utility & Layout Classes --- */
+        .grid-container, .grid-container-2-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+        }
+        .grid-col-3, .grid-container-3-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .grid-container-4-col {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px 15px;
+        }
+        .full-width { grid-column: 1 / -1; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label { margin-bottom: 2px; }
+        .form-group input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 2px 0;
+            width: 100%;
+        }
+
+        /* --- Table Styling --- */
+        .workers-table, .declaration-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .workers-table th, .workers-table td,
+        .declaration-table th, .declaration-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+        }
+        .workers-table th, .declaration-table th {
+            background-color: #f2f2f2;
+        }
+        .declaration-table { margin-bottom: 15px; }
+        .declaration-table .status-col { width: 100px; text-align: center; }
+
+        /* --- Checkbox Styling --- */
+        .checkbox-group div { margin-bottom: 3px; }
+        .checkbox-group label { margin-left: 5px; vertical-align: middle; }
+        .checkbox-group input { vertical-align: middle; }
+
+        /* --- Page 2: Specific Layouts --- */
+        .ppe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        .ppe-category { border-left: 1px solid #ccc; padding-left: 10px; }
+        .ppe-category:first-child { border-left: none; padding-left: 0; }
+        .approval-grid .approval-box { border: 1px solid #000; padding: 10px; }
+        .approval-box h4 { text-align: center; margin: 0 0 10px 0; font-size: 12px; }
+        .approval-options { text-align: center; margin-bottom: 10px; }
+        .handback-header { border: 1px solid black; padding: 10px; margin-bottom: -1px; }
+        .handback-body { display: grid; grid-template-columns: 100px 1fr; border: 1px solid black; }
+        .handback-status { display: flex; flex-direction: column; border-right: 1px solid black; }
+        .handback-status > div { padding: 10px; border-bottom: 1px solid black; display: flex; align-items: center; }
+        .handback-status > div:last-child { border-bottom: none; }
+        .handback-details > div { padding: 10px; border-bottom: 1px solid black; }
+        .handback-details > div:last-child { border-bottom: none; }
+        .signature-block { border-top: 1px solid #ccc; padding-top: 5px; margin-top: 10px; }
+        .signature-block h5 { text-align: center; font-weight: bold; margin: 0 0 10px 0; }
+
+        /* --- Print Styling --- */
+        @media print {
+            body { background-color: #fff; }
+            .document-container { padding: 0; gap: 0; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                border: none;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+        <div class="page page-1">
+            <header class="header">
+                <div class="logo"><img src="./img/icon/gfm-logo-transparent.png" alt="GFM Logo" style="height:60px; width:auto; display:block;" /></div>
+                <div class="title-block">
+                    <h1>PERMIT TO WORK</h1>
+                    <div class="subtitle">WORK FAST, THINK SMART, STAY SAFE</div>
+                    <div>BPM 9.1/F/013/25/1</div>
+                </div>
+                <div class="ptw-no"><strong>PTW NO:</strong> <span id="metaPtwNo">-</span></div>
+            </header>
+
+            <section class="form-section requisition">
+                <div class="section-header"><span>SECTION 1 - REQUISITION (To be filled-up by Applicant)</span></div>
+                <div class="section-body">
+                    <p style="text-align: center; font-weight: bold; margin: 0 0 10px 0;">DETAILS OF JOB APPLICATION</p>
+                    <div class="grid-container">
+                        <div class="form-group"><label>Applicant Name :</label><input id="s1_applicant_name" type="text"></div>
+                        <div class="form-group"><label>Contact No :</label><input id="s1_applicant_contact" type="text"></div>
+                        <div class="form-group"><label>Contractor Supervisor In Charge :</label><input id="s1_supervisor_name" type="text"></div>
+                        <div class="form-group"><label>Contact No :</label><input id="s1_supervisor_contact" type="text"></div>
+                        <div class="form-group"><label>Company / Department :</label><input id="s1_company_dept" type="text"></div>
+                        <div class="form-group"><label>Duration of Work - From: Date: <input id="s1_from_date" type="text" style="width:100px;"> Time: <input id="s1_from_time" type="text" style="width:60px;"> To: Date: <input id="s1_to_date" type="text" style="width:100px;"> Time: <input id="s1_to_time" type="text" style="width:60px;"></label></div>
+                        <div class="form-group"><label>Work Area :</label><input id="s1_work_area" type="text"></div>
+                        <!-- <div class="form-group"><label>Level :</label><input id="s1_level" type="text"></div> -->
+                        <div class="form-group full-width"><label>Description of Work :</label><input id="s1_desc" type="text"></div>
+                    </div>
+                    <p style="text-align: center; font-weight: bold; margin: 15px 0 5px 0;">List of Workers</p>
+                    <table class="workers-table">
+                        <thead><tr><th>No.</th><th>Name</th><th>Designation</th><th>Identification No. (IC/CIDB Card/Passport)</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td></td><td></td><td></td></tr>
+                            <tr><td>2</td><td></td><td></td><td></td></tr>
+                            <tr><td>3</td><td></td><td></td><td></td></tr>
+                            <tr><td>4</td><td></td><td></td><td></td></tr>
+                            <tr><td>5</td><td></td><td></td><td></td></tr>
+                            <tr><td>6</td><td></td><td></td><td></td></tr>
+                            <tr><td>7</td><td></td><td></td><td></td></tr>
+                            <tr><td>8</td><td></td><td></td><td></td></tr>
+                            <tr><td>9</td><td></td><td></td><td></td></tr>
+                            <tr><td>10</td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 10px;">(Please provide additional list if the space is insufficient)</p>
+                </div>
+            </section>
+
+            <section class="form-section cold-work">
+                <div class="section-header"><span>COLD WORK</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
+                    <div class="grid-col-3 checkbox-group">
+                        <!-- Column 1: Electrical Work (visual group only) -->
+                        <div>
+                            <div><input id="coldElectricalWork" type="checkbox"><label for="coldElectricalWork"><strong>ELECTRICAL WORK</strong></label></div>
+                            <div style="margin-left:16px;"><input id="coldCircuitIsolation" type="checkbox" disabled><label for="coldCircuitIsolation">Circuit Isolation</label></div>
+                            <div style="margin-left:16px;"><input id="coldLockOutTagOut" type="checkbox"><label for="coldLockOutTagOut">Lock Out & Tagged Out</label></div>
+                            <div style="margin-left:16px;"><input id="coldFireExtinguisher" type="checkbox"><label for="coldFireExtinguisher">Fire Extinguisher</label></div>
+                            <div style="margin-left:16px;"><input id="coldMainSupplyCutOff" type="checkbox"><label for="coldMainSupplyCutOff">Main Supply Cut Off</label></div>
+                            <div style="margin-left:16px;"><input id="coldVisualInspection" type="checkbox"><label for="coldVisualInspection">Visual Inspection</label></div>
+                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
+                                <label for="coldElectricalOthers" style="font-weight:normal;">Others:</label>
+                                <input id="coldElectricalOthers" type="text" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Working at Height (visual group only) -->
+                        <div>
+                            <div><input id="coldWorkingAtHeight" type="checkbox"><label for="coldWorkingAtHeight"><strong>WORKING AT HEIGHT</strong></label></div>
+                            <div style="margin-left:16px;"><input id="coldHeightAbseiling" type="checkbox" disabled><label for="coldHeightAbseiling">Abseiling Work</label></div>
+                            <div style="margin-left:16px;"><input id="coldHeightScaffolding" type="checkbox" disabled><label for="coldHeightScaffolding">Scaffolding</label></div>
+                            <div style="margin-left:16px;"><input id="coldHeightGondola" type="checkbox" disabled><label for="coldHeightGondola">Gondola</label></div>
+                            <div style="margin-left:16px;"><input id="coldHeightRooftop" type="checkbox" disabled><label for="coldHeightRooftop">Working at rooftop</label></div>
+                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
+                                <label for="coldHeightUsing" style="font-weight:normal;">Using a</label>
+                                <input id="coldHeightUsing" type="text" disabled>
+                            </div>
+                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
+                                <label for="coldHeightOthers" style="font-weight:normal;">Others:</label>
+                                <input id="coldHeightOthers" type="text" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Excavation Work (visual group only) -->
+                        <div>
+                            <div><input id="coldExcavationWork" type="checkbox"><label for="coldExcavationWork"><strong>EXCAVATION WORK</strong></label></div>
+                            <div style="margin-left:16px;"><input id="coldExcDepthLt12" type="checkbox" disabled><label for="coldExcDepthLt12">Depth < 1.2 meter</label></div>
+                            <div style="margin-left:16px;"><input id="coldExcDepthGt12" type="checkbox" disabled><label for="coldExcDepthGt12">Depth > 1.2 meter (considered confined space work)</label></div>
+                            <div style="margin-left:16px;"><input id="coldExcAccessEgress" type="checkbox" disabled><label for="coldExcAccessEgress">Safe access & egress</label></div>
+                            <div style="margin-left:16px;"><input id="coldExcProtectFalling" type="checkbox" disabled><label for="coldExcProtectFalling">Protection from falling material</label></div>
+                            <div style="margin-left:16px;"><input id="coldExcProtectEngulfment" type="checkbox" disabled><label for="coldExcProtectEngulfment">Protection from engulfment</label></div>
+                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
+                                <label for="coldExcOthers" style="font-weight:normal;">Others:</label>
+                                <input id="coldExcOthers" type="text" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Additional single items (remain flat) -->
+                        <div class="full-width"><input id="coldWorkingUnderLoad" type="checkbox" disabled><label for="coldWorkingUnderLoad"><strong>WORKING UNDER LOAD</strong></label></div>
+                        <div class="full-width"><input id="coldLiftingWork" type="checkbox"><label for="coldLiftingWork"><strong>LIFTING WORK</strong></label></div>
+                        <div class="full-width"><input id="coldChemicalHandling" type="checkbox" disabled><label for="coldChemicalHandling"><strong>CHEMICAL HANDLING</strong></label></div>
+                        <div class="full-width"><input id="coldOthers" type="checkbox"><label for="coldOthers"><strong>OTHERS</strong></label></div>
+                        <div class="form-group full-width"><label for="coldOthersText"><strong>Others (please specify):</strong></label><input id="coldOthersText" type="text"></div>
+                        <div class="form-group full-width"><label for="coldSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
+                            <textarea id="coldSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                        </div>
+                    </div>
+                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
+                </div>
+            </section>
+
+            <section class="form-section hot-work">
+                <div class="section-header"><span>HOT WORK</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
+                    <div class="grid-container checkbox-group">
+                        <div>
+                            <strong>TYPE OF HOT WORK</strong>
+                            <!-- Real fields (flat, from ptw_form.html) -->
+                            <div><input id="hotWelding" type="checkbox"><label for="hotWelding">Welding</label></div>
+                            <div><input id="hotCutting" type="checkbox"><label for="hotCutting">Flame Cutting</label></div>
+                            <div><input id="hotGrinding" type="checkbox"><label for="hotGrinding">Grinding</label></div>
+                            <!-- Visual-only extras to match requirement (disabled) -->
+                            <div><input id="hotOpenFlame_visual" type="checkbox" disabled><label for="hotOpenFlame_visual">Open Flame</label></div>
+                            <div><input id="hotBlasting_visual" type="checkbox" disabled><label for="hotBlasting_visual">Blasting</label></div>
+                            <div><input id="hotPowerBrushing_visual" type="checkbox" disabled><label for="hotPowerBrushing_visual">Power Brushing</label></div>
+                            <div><input id="hotGouging_visual" type="checkbox" disabled><label for="hotGouging_visual">Gouging</label></div>
+                            <div><input id="hotPWHT_visual" type="checkbox" disabled><label for="hotPWHT_visual">Post Weld Heat Treatment</label></div>
+                            <div><input id="hotPyrophoric_visual" type="checkbox" disabled><label for="hotPyrophoric_visual">Use of pyrophoric material</label></div>
+                            <!-- Additional real fields present in the form but not in the reference -->
+                            <div><input id="hotBrazing" type="checkbox"><label for="hotBrazing">Brazing</label></div>
+                            <div><input id="hotSoldering" type="checkbox"><label for="hotSoldering">Soldering</label></div>
+                            <div><input id="hotOthers" type="checkbox"><label for="hotOthers">Others</label></div>
+                            <div class="form-group"><label for="hotOthersText">Others (please specify):</label> <input id="hotOthersText" type="text"></div>
+                        </div>
+                        <div>
+                            <strong>CONTROLS REQUIRED</strong>
+                            <!-- Real fields (flat, from ptw_form.html) -->
+                            <div><input id="hotGasMonitoring" type="checkbox"><label for="hotGasMonitoring">Gas monitoring</label></div>
+                            <div><input id="hotFirewatch" type="checkbox"><label for="hotFirewatch">Firewatch name:____________</label></div>
+                            <div><input id="hotFireExtinguisher" type="checkbox"><label for="hotFireExtinguisher">Fire Extinguisher</label></div>
+                            <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
+                            <!-- Visual-only extras to match requirement (disabled) -->
+                            <div><input id="hotContinuous_visual" type="checkbox" disabled><label for="hotContinuous_visual">Continuous</label></div>
+                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                <input id="hotEveryHours_visual" type="checkbox" disabled>
+                                <label for="hotEveryHours_visual" style="margin:0;">Every</label>
+                                <input type="text" style="width:60px; border:1px solid #000; padding:2px;" disabled>
+                                <label style="margin:0;">hours</label>
+                            </div>
+                            <div><input id="hotFireBlanket_visual" type="checkbox" disabled><label for="hotFireBlanket_visual">Fire blanket</label></div>
+                            <div><input id="hotRetardantScreen_visual" type="checkbox" disabled><label for="hotRetardantScreen_visual">Fire retardant screen</label></div>
+                            <div><input id="hotCoverSewer_visual" type="checkbox" disabled><label for="hotCoverSewer_visual">Cover potentially flammable sewer/drain/sump</label></div>
+                            <div><input id="hotLocateSparkAway_visual" type="checkbox" disabled><label for="hotLocateSparkAway_visual">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
+                            <div><input id="hotControlsOthers_visual" type="checkbox" disabled><label for="hotControlsOthers_visual">Others:____________</label></div>
+                            <!-- Additional real fields present in the form but not in the reference -->
+                            <div><input id="hotVentilation" type="checkbox"><label for="hotVentilation">Adequate ventilation</label></div>
+                            <div><input id="hotBarricades" type="checkbox"><label for="hotBarricades">Barricades in place</label></div>
+                        </div>
+                    </div>
+                    <div class="form-group full-width"><label for="hotSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
+                        <textarea id="hotSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                    </div>
+                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
+                </div>
+            </section>
+
+            <section class="form-section confined-space">
+                <div class="section-header"><span>CONFINED SPACE ENTRY</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                     <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / ENTRY SUPERVISOR</p>
+                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">I have personally checked that all control measures are in place to prevent release of hazard and complied with requirements of the certificate.</p>
+
+                    <div class="grid-col-3 checkbox-group" style="margin-top:10px;">
+                        <!-- Column 1: Entry condition + basic controls (visual group) -->
+                        <div>
+                            <div><strong>ENTRY CONDITION</strong></div>
+                            <div><input id="csRespiratoryAtmosphere" type="checkbox"><label for="csRespiratoryAtmosphere">Respirable Atmosphere</label></div>
+                            <div><input id="csNonRespiratoryAtmosphere" type="checkbox"><label for="csNonRespiratoryAtmosphere">Irrespirable Atmosphere</label></div>
+                            <div style="margin-top:8px;"><strong>CONTROLS REQUIRED</strong></div>
+                            <div><input id="csScba_visual" type="checkbox" disabled><label for="csScba_visual">First entry using SCBA or air line set</label></div>
+                            <div><input id="csCseCertified_visual" type="checkbox" disabled><label for="csCseCertified_visual">Entrants are CSE certified</label></div>
+                            <div><input id="csBriefed_visual" type="checkbox" disabled><label for="csBriefed_visual">Entrants briefed of risk by supervisor</label></div>
+                        </div>
+
+                        <!-- Column 2: Controls (mix of real + visual) -->
+                        <div>
+                            <div><strong>CONTROLS REQUIRED</strong></div>
+                            <div><input id="csStatusBoard_visual" type="checkbox" disabled><label for="csStatusBoard_visual">Entry status board/log</label></div>
+                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                <input id="csMaxPersons_visual" type="checkbox" disabled>
+                                <label for="csMaxPersons_visual" style="margin:0;">Maximum no. of persons allowed:</label>
+                                <input type="text" style="width:80px; border:1px solid #000; padding:2px;" disabled>
+                                <label style="margin:0;">Person</label>
+                            </div>
+                            <div><input id="csVentilation" type="checkbox"><label for="csVentilation">Continuous ventilation</label></div>
+                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                <input id="csEveryHours_visual" type="checkbox" disabled>
+                                <label for="csEveryHours_visual" style="margin:0;">Every</label>
+                                <input type="text" style="width:60px; border:1px solid #000; padding:2px;" disabled>
+                                <label style="margin:0;">hours</label>
+                            </div>
+                            <div><input id="csEntryAttendant" type="checkbox"><label for="csEntryAttendant">Standby person</label></div>
+                            <div class="form-group" style="margin-left:22px; display:flex; gap:6px; align-items:center;">
+                                <label style="margin:0;">Name:</label>
+                                <input type="text" style="width:180px; border:1px solid #000; padding:2px;" disabled>
+                            </div>
+                            <div><input id="csLowVoltage_visual" type="checkbox" disabled><label for="csLowVoltage_visual">Extra low voltage lighting (50V minimum)</label></div>
+                            <div><input id="csLocateMobile_visual" type="checkbox" disabled><label for="csLocateMobile_visual">Locate mobile equipment away from manhole</label></div>
+                        </div>
+
+                        <!-- Column 3: Checklist + communication (mix of real + visual) -->
+                        <div>
+                            <div><strong>CONTROLS REQUIRED</strong></div>
+                            <div><input id="csChecklistAttached_visual" type="checkbox" disabled><label for="csChecklistAttached_visual">Confined space entry checklist attached</label></div>
+                            <div><input id="csRescueEquipment" type="checkbox"><label for="csRescueEquipment">Rescue equipment</label></div>
+                            <div><input id="csCompleteCSE_visual" type="checkbox" disabled><label for="csCompleteCSE_visual">Complete CSE Checklist</label></div>
+                            <div style="margin-top:4px;"><strong>Type of communication used:</strong></div>
+                            <div style="margin-left:16px;"><input id="csRopeTugging" type="checkbox"><label for="csRopeTugging">Rope signals</label></div>
+                            <div style="margin-left:16px;"><input id="csRadio" type="checkbox"><label for="csRadio">Walkie talkie</label></div>
+                            <div style="margin-left:16px;"><input id="csWhistle_visual" type="checkbox" disabled><label for="csWhistle_visual">Whistle/horn</label></div>
+                            <div class="form-group" style="margin-top:6px;"><label for="csOthers_visual">Others:</label> <input id="csOthers_visual" type="text" disabled></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width" style="margin-top:8px;"><label for="csSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
+                        <textarea id="csSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                    </div>
+
+                    <div class="signature-block" style="border:1px solid #000; padding:10px; margin-top:12px;">
+                        <h5>ACKNOWLEDGEMENT (Confined Space)</h5>
+                        <div class="grid-container-2-col">
+                            <div>
+                                <div class="form-group"><label for="cs_ack_name"><strong>Name:</strong></label> <input id="cs_ack_name" type="text"></div>
+                                <div class="form-group"><label for="cs_ack_position"><strong>Position:</strong></label> <input id="cs_ack_position" type="text"></div>
+                                <div class="form-group"><label for="cs_ack_datetime"><strong>Date &amp; Time:</strong></label> <input id="cs_ack_datetime" type="text"></div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div><strong>Signature:</strong></div>
+                                <div style="height:50px; border:1px solid #000; margin-top:6px;"></div>
+                            </div>
+                        </div>
+                        <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for Confined Space acknowledgement.</p>
+                    </div>
+            </section>
+        </div>
+        </section>
+        <div class="page page-2">
+            <section class="form-section">
+                <div class="section-header">SECTION 2: SUPPORTING DOCUMENTS</div>
+                <div class="section-body grid-container-4-col checkbox-group">
+                    <div><input id="sd_cidb_green_card" type="checkbox"><label for="sd_cidb_green_card">CIDB Green Card</label></div>
+                    <div><input id="sd_toolbox_talk" type="checkbox"><label for="sd_toolbox_talk">Toolbox Talk Record</label></div>
+                    <div class="form-group"><label for="sd_excavation_cert_no">Excavation Cert No.:</label><input id="sd_excavation_cert_no" type="text"></div>
+                    <div class="form-group"><label for="sd_confined_space_cert_no">Confined Space Cert No.:</label><input id="sd_confined_space_cert_no" type="text"></div>
+                    <div><input id="sd_aesp_card" type="checkbox"><label for="sd_aesp_card">AESP Card</label></div>
+                    <div><input id="sd_sds" type="checkbox"><label for="sd_sds">Safety Data Sheet</label></div>
+                    <div><input id="sd_excavation_plan" type="checkbox"><label for="sd_excavation_plan">Excavation Plan</label></div>
+                    <div class="form-group"><label for="sd_others">Others (please specify):</label><input id="sd_others" type="text"></div>
+                    <div><input id="sd_competency_person" type="checkbox"><label for="sd_competency_person">Competency Person Certificate</label></div>
+                    <div><input id="sd_job_method_statement" type="checkbox"><label for="sd_job_method_statement">Job Method Statement</label></div>
+                    <div class="form-group"><label for="sd_lifting_cert_no">Lifting Cert No.:</label><input id="sd_lifting_cert_no" type="text"></div>
+                    <div></div>
+                    <div><input id="sd_contractor_checklist" type="checkbox"><label for="sd_contractor_checklist">Contractor Checklist</label></div>
+                    <div><input id="sd_job_hazard_analysis" type="checkbox"><label for="sd_job_hazard_analysis">Job Hazard Analysis</label></div>
+                    <div><input id="sd_lifting_plan" type="checkbox"><label for="sd_lifting_plan">Lifting Plan</label></div>
+                    <div></div>
+                    <div><input id="sd_medical_check_up" type="checkbox"><label for="sd_medical_check_up">Medical Check Up</label></div>
+                    <div><input id="sd_hirarc" type="checkbox"><label for="sd_hirarc">HIRARC / EAIA</label></div>
+                    <div><input id="sd_lifting_checklist" type="checkbox"><label for="sd_lifting_checklist">Lifting Checklist</label></div>
+                    <div></div>
+                    <div><input id="sd_calibration_certificate" type="checkbox"><label for="sd_calibration_certificate">Calibration Certificate</label></div>
+                    <div><input id="sd_tmp" type="checkbox"><label for="sd_tmp">Traffic Management Plan</label></div>
+                    <div class="form-group"><label for="sd_physical_isolation_cert_no">Physical Isolation Cert No.:</label><input id="sd_physical_isolation_cert_no" type="text"></div>
+                    <div></div>
+                    <div><input id="sd_load_chart" type="checkbox"><label for="sd_load_chart">Load Chart</label></div>
+                    <div><input id="sd_certificate_of_fitness" type="checkbox"><label for="sd_certificate_of_fitness">Certificate of Fitness (PMA/PMT/PMD)</label></div>
+                    <div class="form-group"><label for="sd_electrical_isolation_cert_no">Electrical Isolation Cert No.:</label><input id="sd_electrical_isolation_cert_no" type="text"></div>
+                </div>
+            </section>
+    
+            <section class="form-section">
+                <div class="section-header">SECTION 3: HAZARDOUS ACTIVITIES</div>
+                <div class="section-body grid-container-4-col checkbox-group">
+                        <div><input id="ha_slippery_floor" type="checkbox"><label for="ha_slippery_floor">Slippery floor</label></div>
+                        <div><input id="ha_dropped_objects" type="checkbox"><label for="ha_dropped_objects">Dropped objects</label></div>
+                        <div><input id="ha_uneven_ground" type="checkbox"><label for="ha_uneven_ground">Uneven ground/soil</label></div>
+                        <div><input id="ha_pinch_point" type="checkbox"><label for="ha_pinch_point">Pinch point</label></div>
+                        <div><input id="ha_sharp_edges" type="checkbox"><label for="ha_sharp_edges">Sharp object/edges</label></div>
+                        <div><input id="ha_fall_from_height" type="checkbox"><label for="ha_fall_from_height">Fall from height</label></div>
+                        <div><input id="ha_extreme_weather" type="checkbox"><label for="ha_extreme_weather">Extreme weather</label></div>
+                        <div><input id="ha_excessive_noise" type="checkbox"><label for="ha_excessive_noise">Excessive noise</label></div>
+                        <div><input id="ha_hot_surface" type="checkbox"><label for="ha_hot_surface">Hot surface</label></div>
+                        <div><input id="ha_electrical" type="checkbox"><label for="ha_electrical">Electrical</label></div>
+                        <div><input id="ha_flying_debris" type="checkbox"><label for="ha_flying_debris">Flying debris</label></div>
+                        <div><input id="ha_ergonomic_fatigue" type="checkbox"><label for="ha_ergonomic_fatigue">Ergonomic/fatigue</label></div>
+                        <div><input id="ha_moving_machinery" type="checkbox"><label for="ha_moving_machinery">Moving vehicle/machinery</label></div>
+                        <div><input id="ha_gas_fumes" type="checkbox"><label for="ha_gas_fumes">Gas/fumes</label></div>
+                        <div><input id="ha_wild_animals" type="checkbox"><label for="ha_wild_animals">Wild animals/insects</label></div>
+                        <div><input id="ha_pressurised_equipment" type="checkbox"><label for="ha_pressurised_equipment">Pressurised equipment</label></div>
+                        <div><input id="ha_volatile_liquid" type="checkbox"><label for="ha_volatile_liquid">Volatile liquid</label></div>
+                        <div><input id="ha_simultaneous_operation" type="checkbox"><label for="ha_simultaneous_operation">Simultaneous operation</label></div>
+                        <div><input id="ha_oxygen_deficiency" type="checkbox"><label for="ha_oxygen_deficiency">Oxygen deficiency</label></div>
+                        <div><input id="ha_engulfment" type="checkbox"><label for="ha_engulfment">Engulfment</label></div>
+                        <div><input id="ha_illumination_deficiency" type="checkbox"><label for="ha_illumination_deficiency">Illumination deficiency</label></div>
+                        <div><input id="ha_chemical" type="checkbox"><label for="ha_chemical">Chemical</label></div>
+                        <div><input id="ha_poisonous_substance" type="checkbox"><label for="ha_poisonous_substance">Poisonous substance</label></div>
+                        <div><input id="ha_molds" type="checkbox"><label for="ha_molds">Molds</label></div>
+                        <div><input id="ha_rotating_parts" type="checkbox"><label for="ha_rotating_parts">Rotating parts</label></div>
+                        <div><input id="ha_ionizing_radiation" type="checkbox"><label for="ha_ionizing_radiation">Ionizing Radiation</label></div>
+                        <div><input id="ha_infectious_substance" type="checkbox"><label for="ha_infectious_substance">Infectious substance</label></div>
+                        <div class="form-group"><label for="ha_others">Others:</label><input id="ha_others" type="text"></div>
+                </div>
+            </section>
+            
+            <section class="form-section">
+                <div class="section-header">SECTION 4: CONTRACTOR DECLARATION</div>
+                <div class="section-body">
+            <table class="declaration-table">
+                        <thead><tr><th>No</th><th>Description</th><th class="status-col">Status</th></tr></thead>
+                        <tbody>
+                <tr><td>i)</td><td>All assigned workers are briefed on relevant SHE Procedure...</td><td class="status-col"><input id="cd_i_yes" type="checkbox"> Yes <input id="cd_i_no" type="checkbox"> No</td></tr>
+                <tr><td>ii)</td><td>All documentation given are valid during Permit To Work validity</td><td class="status-col"><input id="cd_ii_yes" type="checkbox"> Yes <input id="cd_ii_no" type="checkbox"> No</td></tr>
+                <tr><td>iii)</td><td>Ensure all appointed staff/workers are briefed on relevant job step...</td><td class="status-col"><input id="cd_iii_yes" type="checkbox"> Yes <input id="cd_iii_no" type="checkbox"> No</td></tr>
+                <tr><td>iv)</td><td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td><td class="status-col"><input id="cd_iv_yes" type="checkbox"> Yes <input id="cd_iv_no" type="checkbox"> No</td></tr>
+                <tr><td>v)</td><td>Permit to work shall be displayed at the work site all the time</td><td class="status-col"><input id="cd_v_yes" type="checkbox"> Yes <input id="cd_v_no" type="checkbox"> No</td></tr>
+                <tr><td>vi)</td><td>All safety equipment has been checked and deem safe</td><td class="status-col"><input id="cd_vi_yes" type="checkbox"> Yes <input id="cd_vi_no" type="checkbox"> No</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>Appropriate PPE are provided/wear, please tick below:</p>
+                    <div class="ppe-grid checkbox-group">
+                        <div class="ppe-category">
+                            <div><strong>Mandatory</strong></div>
+                            <div><input id="ppe_safety_helmet" type="checkbox"><label for="ppe_safety_helmet">Safety helmet</label></div>
+                            <div><input id="ppe_safety_shoes" type="checkbox"><label for="ppe_safety_shoes">Safety shoes</label></div>
+                            <div><input id="ppe_high_vis_vest" type="checkbox"><label for="ppe_high_vis_vest">High visibility vest</label></div>
+                            <div style="margin-top:6px;"><strong>Fall protection</strong></div>
+                            <div><input id="ppe_full_body_harness_visual" type="checkbox" disabled><label for="ppe_full_body_harness_visual">Full Body Harness with lanyard</label></div>
+                        </div>
+                        <div class="ppe-category">
+                            <div><strong>Respiratory Protection</strong></div>
+                            <div><input id="ppe_respirator" type="checkbox"><label for="ppe_respirator">Half mask respirator</label></div>
+                            <div><input id="ppe_scba" type="checkbox"><label for="ppe_scba">Full face respirator (SCBA)</label></div>
+                            <div><input id="ppe_dust_mask" type="checkbox"><label for="ppe_dust_mask">Dust mask</label></div>
+                            <div><input id="ppe_air_line_set_visual" type="checkbox" disabled><label for="ppe_air_line_set_visual">Air line set</label></div>
+                            <div><input id="ppe_hood_visual" type="checkbox" disabled><label for="ppe_hood_visual">Hood</label></div>
+                        </div>
+                        <div class="ppe-category">
+                            <div><strong>Eye, Face &amp; Body Protection</strong></div>
+                            <div><input id="ppe_safety_glasses" type="checkbox"><label for="ppe_safety_glasses">Goggles</label></div>
+                            <div><input id="ppe_face_shield" type="checkbox"><label for="ppe_face_shield">Face shield</label></div>
+                            <div><input id="ppe_welding_mask_visual" type="checkbox" disabled><label for="ppe_welding_mask_visual">Welding mask</label></div>
+                            <div><input id="ppe_coveralls" type="checkbox"><label for="ppe_coveralls">Disposable suit</label></div>
+                            <div><input id="ppe_chemical_suit" type="checkbox"><label for="ppe_chemical_suit">Chemical suit</label></div>
+                            <div><input id="ppe_rubber_boots_visual" type="checkbox" disabled><label for="ppe_rubber_boots_visual">Rubber boots</label></div>
+                        </div>
+                        <div class="ppe-category">
+                            <div><strong>Hand Protection</strong></div>
+                            <div><input id="ppe_work_gloves" type="checkbox"><label for="ppe_work_gloves">Work gloves</label></div>
+                            <div><input id="ppe_chemical_gloves" type="checkbox"><label for="ppe_chemical_gloves">Chemical gloves</label></div>
+                            <div><input id="ppe_cotton_gloves_visual" type="checkbox" disabled><label for="ppe_cotton_gloves_visual">Cotton gloves</label></div>
+                            <div><input id="ppe_leather_gloves_visual" type="checkbox" disabled><label for="ppe_leather_gloves_visual">Leather gloves</label></div>
+                            <div><input id="ppe_rubber_gloves_visual" type="checkbox" disabled><label for="ppe_rubber_gloves_visual">Rubber gloves</label></div>
+                            <div><input id="ppe_cut_resistant" type="checkbox"><label for="ppe_cut_resistant">Cut resistant gloves</label></div>
+                        </div>
+                        <div class="ppe-category">
+                            <div><strong>Hearing protection</strong></div>
+                            <div><input id="ppe_ear_plugs" type="checkbox"><label for="ppe_ear_plugs">Ear plug</label></div>
+                            <div><input id="ppe_ear_muffs" type="checkbox"><label for="ppe_ear_muffs">Ear muff</label></div>
+                            <div style="margin-top:6px;"><strong>Others</strong></div>
+                            <div><input id="ppe_life_jacket_visual" type="checkbox" disabled><label for="ppe_life_jacket_visual">Life jacket/vest</label></div>
+                            <div class="form-group"><label for="ppe_others">Others (pls specify):</label> <input id="ppe_others" type="text"></div>
+                        </div>
+                    </div>
+    
+                    <div style="margin-top: 15px; border-top: 1px solid #000; padding-top: 10px;">
+                        <p style="margin: 0;">I/ We confirm that we have read and fully understood the terms and conditions...</p>
+                        <div class="grid-container-2-col" style="margin-top: 20px;">
+                            <div>
+                                <strong>ACKNOWLEDGEMENT BY SUPERVISOR / CONTRACTOR</strong><br>
+                                SUPERVISOR
+                                <div style="margin-top:8px;"><strong>Name:</strong> <span id="contractor_ack_name">-</span></div>
+                                <div style="margin-top:6px;"><strong>Designation:</strong> <span id="contractor_ack_designation">-</span></div>
+                            </div>
+                            <div id="contractorSignatureBlock" style="text-align: right;">
+                                <strong>Signature:</strong>
+                                <div id="contractor_signature_line" style="display:inline-block; min-width:220px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                                <div id="contractor_signature_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px; float:right;">
+                                    <img id="contractor_signature_img" alt="Contractor signature" style="max-height:80px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="section-header">SECTION 5: FOR GFM VERIFICATION AND APPROVAL</div>
+                <div class="section-body">
+                    <ol style="margin:0; padding-left:16px;">
+                        <li>Permit to Work application must be submitted and approved by authorised personnel before commencement of work</li>
+                        <li>Permit to Work is required for all type of works defined in SHE Induction Briefing</li>
+                        <li>Validity of this Permit To Work is maximum for <strong>7 days</strong> for Other Works and <strong>8 hours per day</strong> for Confined Space Entry from the date of issuance.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- SECTION 6: APPROVALS -->
+            <section class="form-section">
+                <div class="section-header">SECTION 6: APPROVALS</div>
+                <div class="section-body">
+                    <div class="approval-grid grid-container-3-col">
+                        <!-- Supervisor -->
+                        <div class="approval-box">
+                            <h4>Supervisor</h4>
+                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_sup_name">-</span></div>
+                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_sup_date">-</span></div>
+                            <div class="form-group" style="margin-top:8px; text-align:right;">
+                                <strong>Signature:</strong>
+                                <div id="appr_sup_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                                <div id="appr_sup_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
+                                    <img id="appr_sup_sig_img" alt="Supervisor signature" style="max-height:70px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- SHE Authorizing Person -->
+                        <div class="approval-box">
+                            <h4>SHE Authorizing Person</h4>
+                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_she_name">-</span></div>
+                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_she_date">-</span></div>
+                            <div class="form-group" style="margin-top:8px; text-align:right;">
+                                <strong>Signature:</strong>
+                                <div id="appr_she_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                                <div id="appr_she_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
+                                    <img id="appr_she_sig_img" alt="SHE signature" style="max-height:70px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Facility Engineer/Manager -->
+                        <div class="approval-box">
+                            <h4>Facility Engineer / Manager</h4>
+                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_fm_name">-</span></div>
+                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_fm_date">-</span></div>
+                            <div class="form-group" style="margin-top:8px; text-align:right;">
+                                <strong>Signature:</strong>
+                                <div id="appr_fm_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                                <div id="appr_fm_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
+                                    <img id="appr_fm_sig_img" alt="FM signature" style="max-height:70px; max-width:100%; display:block;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: HAND BACK (EXTENDED / CLOSED / CANCELLED / SUSPENDED) -->
+            <section class="form-section">
+                <div class="section-header">SECTION 5: PERMIT STATUS AUTHORIZATION</div>
+                <div class="section-body">
+                    <p style="margin:0 0 8px 0;">Each status change must be authorized. Complete the relevant box below.</p>
+                    <div class="grid-container-2-col" style="gap:12px;">
+                        <div class="approval-box">
+                            <h4>Closed</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="hb_closed_name">-</span></div>
+                            <div><strong>Position:</strong> <span id="hb_closed_position">-</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="hb_closed_datetime">-</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="hb_closed_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                    <img id="hb_closed_sig_img" alt="Closed signature" style="max-height:58px; max-width:100%; display:none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Suspended</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="hb_suspended_name">-</span></div>
+                            <div><strong>Position:</strong> <span id="hb_suspended_position">-</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="hb_suspended_datetime">-</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="hb_suspended_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                    <img id="hb_suspended_sig_img" alt="Suspended signature" style="max-height:58px; max-width:100%; display:none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Canceled</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="hb_cancelled_name">-</span></div>
+                            <div><strong>Position:</strong> <span id="hb_cancelled_position">-</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="hb_cancelled_datetime">-</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="hb_cancelled_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                    <img id="hb_cancelled_sig_img" alt="Cancelled signature" style="max-height:58px; max-width:100%; display:none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-box">
+                            <h4>Extended</h4>
+                            <div><strong>Authorized By (Name):</strong> <span id="hb_extended_name">-</span></div>
+                            <div><strong>Position:</strong> <span id="hb_extended_position">-</span></div>
+                            <div><strong>New Validity (Date &amp; Time):</strong> <span id="hb_extended_new_validity">-</span></div>
+                            <div class="signature-block">
+                                <div><strong>Signature:</strong></div>
+                                <div id="hb_extended_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                    <img id="hb_extended_sig_img" alt="Extended signature" style="max-height:58px; max-width:100%; display:none;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for all status updates.</p>
+                </div>
+            </section>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+<script>
+// Populate Section 1 from PTW details
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setVal(id, v){ const el=document.getElementById(id); if(!el) return; el.value = v || ''; }
+    function text(id, v){ const el=document.getElementById(id); if(!el) return; el.textContent = v || '-'; }
+    function escapeStr(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m])); }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId){ console.warn('Missing ptwId'); return; }
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r => r.json())
+        .then(data => {
+            const d = data && data.result ? data.result : data;
+            if(!d || !d.ptw_permit_id){ throw new Error('Invalid PTW data'); }
+            // cache globally for reuse
+            window.__PTW_DETAILS__ = d;
+
+            // Meta PTW No
+            const dispNo = d.ptw_permit_number || d.ptw_request_number || ('ID' + d.ptw_permit_id);
+            text('metaPtwNo', dispNo);
+
+            console.log(d);
+            // Section 1 fields
+            setVal('s1_applicant_name', d.ptw_applicant_name || '');
+            setVal('s1_applicant_contact', d.ptw_applicant_contact || '');
+            setVal('s1_supervisor_name', d.ptw_contractor_supervisor || d.ptw_supervisor_name || '');
+            setVal('s1_supervisor_contact', d.ptw_supervisor_contact || '');
+            setVal('s1_company_dept', d.ptw_applicant_company_dept || d.ptw_contractor_company || '');
+            setVal('s1_work_area', d.ptw_work_area || '');
+            setVal('s1_level', d.ptw_level || '');
+            setVal('s1_desc', d.ptw_permit_description || '');
+
+            // Split valid from/to
+            try{
+                const from = d.ptw_valid_from || '';
+                const to = d.ptw_valid_to || '';
+                const [fDate, fTime] = from.split(' ');
+                const [tDate, tTime] = to.split(' ');
+                setVal('s1_from_date', fDate || '');
+                setVal('s1_from_time', (fTime||'').slice(0,5));
+                setVal('s1_to_date', tDate || '');
+                setVal('s1_to_time', (tTime||'').slice(0,5));
+            }catch(e){}
+
+            // Section 1: Workers table
+            try {
+                const tbody = document.querySelector('.workers-table tbody');
+                if (tbody) {
+                    let workers = [];
+                    if (Array.isArray(d.workers)) {
+                        workers = d.workers;
+                    } else if (d.ptw_workers) {
+                        try {
+                            const arr = typeof d.ptw_workers === 'string' ? JSON.parse(d.ptw_workers) : d.ptw_workers;
+                            if (Array.isArray(arr)) workers = arr;
+                        } catch(_e) {}
+                    }
+                    tbody.innerHTML = '';
+                    if (workers.length === 0) {
+                        for (let i = 0; i < 10; i++) {
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${i+1}</td><td></td><td></td><td></td></tr>`);
+                        }
+                    } else {
+                        workers.forEach((w, i) => {
+                            console.log(w);
+                            const name = w.name || w.worker_name || '';
+                            const desig = w.worker_role || w.worker_designation || w.role || '';
+                            const idno = w.worker_identification || w.worker_ic_number || w.ic_no || w.identity_no || '';
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${i+1}</td><td>${escapeStr(name)}</td><td>${escapeStr(desig)}</td><td>${escapeStr(idno)}</td></tr>`);
+                        });
+                        for (let j = workers.length; j < 10; j++) {
+                            tbody.insertAdjacentHTML('beforeend', `<tr><td>${j+1}</td><td></td><td></td><td></td></tr>`);
+                        }
+                    }
+                }
+            } catch(_e) {}
+        })
+        .catch(err => { console.error('Failed to load PTW details:', err); });
+})();
+</script>
+<script>
+// SECTION 6: Bind Approvals (names, dates, signatures)
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v || '-'; }
+    function renderUserSignature(userId, imgId, wrapId, lineId){
+        try{
+            if(!userId) return;
+            const url = 'user_signature/external/' + encodeURIComponent(userId);
+            fetch(url, { headers })
+                .then(r=>r.json())
+                .then(js=>{
+                    const res = js && (js.result || js);
+                    const path = res && (res.file_path || res.path || res.url);
+                    const img = document.getElementById(imgId);
+                    const wrap = document.getElementById(wrapId);
+                    const line = document.getElementById(lineId);
+                    if (img && wrap && line && path){
+                        img.onload = function(){ line.style.display='none'; wrap.style.display='inline-block'; };
+                        img.onerror = function(){};
+                        img.src = path;
+                    }
+                }).catch(()=>{});
+        }catch(_e){}
+    }
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data; if(!d) return;
+            // Supervisor
+            const supName = d.approved_supervisor_name || d.supervisor_name || '';
+            const supDate = d.approved_supervisor_date || d.ptw_supervisor_approval_date || '';
+            setText('appr_sup_name', supName);
+            setText('appr_sup_date', supDate ? supDate.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(d.approved_supervisor_by, 'appr_sup_sig_img', 'appr_sup_sig_imgwrap', 'appr_sup_sig_line');
+
+            // SHE
+            const sheName = d.approved_she_name || d.she_name || '';
+            const sheDate = d.approved_she_date || '';
+            setText('appr_she_name', sheName);
+            setText('appr_she_date', sheDate ? sheDate.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(d.approved_she_by, 'appr_she_sig_img', 'appr_she_sig_imgwrap', 'appr_she_sig_line');
+
+            // FM
+            const fmName = d.approved_fm_name || d.fm_name || '';
+            const fmDate = d.approved_fm_date || '';
+            setText('appr_fm_name', fmName);
+            setText('appr_fm_date', fmDate ? fmDate.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(d.approved_fm_by, 'appr_fm_sig_img', 'appr_fm_sig_imgwrap', 'appr_fm_sig_line');
+        })
+        .catch(()=>{});
+})();
+</script>
+<script>
+// SECTION 7: Bind Hand Back (Closed/Extended/Cancelled/Suspended)
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = (v===0? '0' : (v || '-')); }
+    function renderUserSignature(userId, imgId){
+        try{
+            const img = document.getElementById(imgId);
+            if(!userId || !img) return;
+            const wrap = img.parentElement;
+            const url = 'user_signature/external/' + encodeURIComponent(userId);
+            fetch(url, { headers }).then(r=>r.json()).then(js=>{
+                const res = js && (js.result || js);
+                const path = res && (res.file_path || res.path || res.url);
+                if (path){
+                    img.onload = function(){ img.style.display='block'; if(wrap) wrap.style.border='1px solid #000'; };
+                    img.onerror = function(){};
+                    img.src = path;
+                }
+            }).catch(()=>{});
+        }catch(_e){}
+    }
+
+    function splitDT(dt){
+        if(!dt) return {date:'-', time:''};
+        const s = (''+dt).replace('T',' ');
+        const date = s.slice(0,10);
+        const time = s.slice(11,16);
+        return {date, time};
+    }
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data; if(!d) return;
+            // We may not have dedicated *_name fields; try to resolve names from sys_user lookups present in approvals, else IDs
+            function resolveName(userId, fallbackName){
+                if (fallbackName) return fallbackName;
+                // Try to coalesce with known approver names if same id
+                if (userId && d.approved_supervisor_by && String(userId)===String(d.approved_supervisor_by) && d.approved_supervisor_name) return d.approved_supervisor_name;
+                if (userId && d.approved_she_by && String(userId)===String(d.approved_she_by) && d.approved_she_name) return d.approved_she_name;
+                if (userId && d.approved_fm_by && String(userId)===String(d.approved_fm_by) && d.approved_fm_name) return d.approved_fm_name;
+                return userId ? ('User#'+userId) : '-';
+            }
+
+            // CLOSED
+            const closedBy = d.completed_by || d.closed_by || d.approved_fm_by || null;
+            const closedName = resolveName(closedBy, d.closed_by_name || d.completed_by_name || '');
+            const closedDT = d.completed_date || d.closed_date || '';
+            setText('hb_closed_name', closedName);
+            setText('hb_closed_position', '');
+            setText('hb_closed_datetime', closedDT ? closedDT.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(closedBy, 'hb_closed_sig_img');
+
+            // SUSPENDED
+            const suspendedBy = d.suspended_by || null;
+            const suspendedName = resolveName(suspendedBy, d.suspended_by_name || '');
+            setText('hb_suspended_name', suspendedName);
+            setText('hb_suspended_position', '');
+            const suspendedDT = d.suspended_date || '';
+            setText('hb_suspended_datetime', suspendedDT ? suspendedDT.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(suspendedBy, 'hb_suspended_sig_img');
+
+            // CANCELLED
+            const cancelledBy = d.cancelled_by || d.cancel_requested_by || null;
+            const cancelledName = resolveName(cancelledBy, d.cancelled_by_name || '');
+            setText('hb_cancelled_name', cancelledName);
+            setText('hb_cancelled_position', '');
+            const cancelledDT = d.cancelled_date || d.cancel_requested_at || '';
+            setText('hb_cancelled_datetime', cancelledDT ? cancelledDT.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(cancelledBy, 'hb_cancelled_sig_img');
+
+            // EXTENDED
+            // Authorized by = the approver who approved extension; we don't store explicitly, fallback to FM
+            const extendedBy = d.updated_by || d.approved_fm_by || null;
+            const extendedName = resolveName(extendedBy, d.extended_by_name || '');
+            setText('hb_extended_name', extendedName);
+            setText('hb_extended_position', '');
+            const newValidTo = d.ptw_valid_to || d.ptw_extension_requested_to || '';
+            setText('hb_extended_new_validity', newValidTo ? newValidTo.replace('T',' ').slice(0,19) : '-');
+            renderUserSignature(extendedBy, 'hb_extended_sig_img');
+        })
+        .catch(()=>{});
+})();
+</script>
+<script>
+// Populate Cold Work checklist (match ptw_form.html IDs and storage)
+(function(){
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    // Wait for the first script to load data into window._ptwData if we choose to share; otherwise re-fetch
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            window.__PTW_DETAILS__ = d;
+
+            // Primary source: ptw_checklist_cold_work (JSON string or object)
+            let cold = null;
+            try{
+                const raw = d.ptw_checklist_cold_work || d.checklist_cold_work;
+                if (raw) cold = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+            }catch(_e){ cold = null; }
+
+            if (cold && typeof cold === 'object') {
+                // Check all boolean checkbox keys
+                Object.keys(cold).forEach(k => {
+                    if (k === 'coldSpecialPrecautions' || k === 'coldOthersText') return;
+                    setChecked(k, true);
+                });
+                // Others text (also tick the Others box if any text)
+                if (typeof cold.coldOthersText === 'string' && cold.coldOthersText.trim()) {
+                    setChecked('coldOthers', true);
+                    setVal('coldOthersText', cold.coldOthersText);
+                }
+                // Special precautions
+                if (typeof cold.coldSpecialPrecautions === 'string') {
+                    setVal('coldSpecialPrecautions', cold.coldSpecialPrecautions);
+                }
+                return; // Done
+            }
+
+            // Fallback (legacy): attempt to map from older hazard JSON shapes if present
+            try{
+                let hazards = {};
+                if (d.ptw_hazard_checklist) {
+                    hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
+                }
+                const cw = hazards && (hazards.cold_work || hazards.specific || {});
+                const bool = v => v === true || v === 'true' || v === 1;
+                setChecked('coldElectricalWork', bool(cw.electrical_work || cw.electrical));
+                setChecked('coldLockOutTagOut', bool(cw.lock_out_tag_out || cw.loto));
+                setChecked('coldFireExtinguisher', bool(cw.fire_extinguisher));
+                setChecked('coldMainSupplyCutOff', bool(cw.main_supply_cut_off));
+                setChecked('coldWorkingAtHeight', bool(cw.working_at_height));
+                setChecked('coldExcavationWork', bool(cw.excavation_work));
+                setChecked('coldLiftingWork', bool(cw.lifting_work));
+                if (cw.others_text) { setChecked('coldOthers', true); setVal('coldOthersText', cw.others_text); }
+                if (cw.special_precautions || cw.cold_work_notes) setVal('coldSpecialPrecautions', cw.special_precautions || cw.cold_work_notes);
+            }catch(_e){}
+        })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Populate Hot Work (flat IDs from ptw_form.html, with legacy fallback)
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data; if(!d) return;
+
+            // 1) Primary: ptw_checklist_hot_work or checklist_hot_work (JSON string/object)
+            try{
+                const raw = d.ptw_checklist_hot_work || d.checklist_hot_work;
+                if (raw) {
+                    const hw = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (hw && typeof hw === 'object'){
+                        Object.keys(hw).forEach(k=>{
+                            if (k === 'hotSpecialPrecautions' || k === 'hotOthersText') return;
+                            setChecked(k, true);
+                        });
+                        if (typeof hw.hotOthersText === 'string' && hw.hotOthersText.trim()){
+                            setChecked('hotOthers', true);
+                            setVal('hotOthersText', hw.hotOthersText);
+                        }
+                        if (typeof hw.hotSpecialPrecautions === 'string'){
+                            setVal('hotSpecialPrecautions', hw.hotSpecialPrecautions);
+                        }
+                        return; // Done via primary source
+                    }
+                }
+            }catch(_e){ /* fall through to legacy */ }
+
+            // 2) Legacy fallback: map from ptw_hazard_checklist shapes if present
+            try{
+                let hazards = {};
+                if (d.ptw_hazard_checklist){
+                    hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
+                }
+                const hwz = hazards && (hazards.hot_work || hazards.specific || {});
+                const bool = v => v === true || v === 'true' || v === 1;
+
+                // Types mapping (best-effort)
+                setChecked('hotWelding', bool(hwz?.types?.welding) || bool(hwz?.welding));
+                setChecked('hotCutting', bool(hwz?.types?.flame_cutting) || bool(hwz?.cutting));
+                setChecked('hotGrinding', bool(hwz?.types?.grinding) || bool(hwz?.grinding));
+                setChecked('hotBrazing', bool(hwz?.types?.brazing) || bool(hwz?.brazing));
+                setChecked('hotSoldering', bool(hwz?.types?.soldering) || bool(hwz?.soldering));
+                // Others text
+                if (hwz?.others_text){ setChecked('hotOthers', true); setVal('hotOthersText', hwz.others_text); }
+
+                // Controls mapping (best-effort)
+                setChecked('hotGasMonitoring', bool(hwz?.controls?.gas_monitoring) || bool(hwz?.gas_monitoring));
+                setChecked('hotFirewatch', bool(hwz?.controls?.firewatch) || bool(hwz?.firewatch));
+                setChecked('hotRemoveFlammables', bool(hwz?.controls?.remove_flammable) || bool(hwz?.remove_flammable));
+                setChecked('hotFireExtinguisher', bool(hwz?.controls?.fire_extinguisher) || bool(hwz?.fire_extinguisher));
+                setChecked('hotVentilation', bool(hwz?.controls?.ventilation) || bool(hwz?.ventilation));
+                setChecked('hotBarricades', bool(hwz?.controls?.barricades) || bool(hwz?.barricades));
+
+                // Notes
+                const notes = hwz?.hot_work_notes || hwz?.special_precautions || d?.hot_work_notes || '';
+                if (notes) setVal('hotSpecialPrecautions', notes);
+            }catch(_e){}
+        })
+        .catch(_e=>{});
+})();
+</script>
+<script>
+// Populate Confined Space, Supporting Documents, Hazardous Activities, and Contractor Declaration
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            window.__PTW_DETAILS__ = d;
+            let hazards = {};
+            try{ hazards = d.ptw_hazard_checklist ? (typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist) : {}; }catch(_e){ hazards = {}; }
+
+            // Confined Space (primary: ptw_checklist_confined_space/checklist_confined_space)
+            function get(obj, path){
+                try{
+                    if(!obj) return undefined;
+                    if(Array.isArray(path)) return path.reduce((o,k)=> (o && typeof o==='object') ? o[k] : undefined, obj);
+                    return obj[path];
+                }catch(_e){ return undefined; }
+            }
+
+            let csFilled = false;
+            try{
+                const raw = d.ptw_checklist_confined_space || d.checklist_confined_space;
+                if (raw){
+                    const csFlat = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (csFlat && typeof csFlat === 'object'){
+                        Object.keys(csFlat).forEach(k=>{
+                            if (k === 'csSpecialPrecautions') return; // handled separately
+                            setChecked(k, true);
+                        });
+                        if (typeof csFlat.csSpecialPrecautions === 'string') {
+                            setVal('csSpecialPrecautions', csFlat.csSpecialPrecautions);
+                        }
+                        csFilled = true;
+                    }
+                }
+            }catch(_e){ /* fallback below */ }
+
+            if (!csFilled){
+                // Legacy fallback from hazards JSON
+                const cs = (hazards && (hazards.confined_space || hazards.specific)) || {};
+                setChecked('cs_assessed_identified', !!get(cs, 'assessed_identified') || !!d.cs_assessed_identified);
+                setChecked('cs_entry_permit_prepared', !!get(cs, 'entry_permit_prepared') || !!d.cs_entry_permit_prepared);
+                setChecked('cs_isolation_verified', !!get(cs, 'isolation_verified') || !!d.cs_isolation_verified);
+                setChecked('cs_gas_test_conducted', !!get(cs, 'gas_test_conducted') || !!d.cs_gas_test_conducted);
+                setChecked('cs_continuous_gas_monitoring', !!get(cs, 'continuous_gas_monitoring') || !!d.cs_continuous_gas_monitoring);
+                setChecked('cs_ventilation', !!get(cs, 'ventilation') || !!d.cs_ventilation);
+                setChecked('cs_standby_assigned', !!get(cs, 'standby_assigned') || !!d.cs_standby_assigned);
+                setChecked('cs_rescue_equipment', !!get(cs, 'rescue_equipment_ready') || !!d.cs_rescue_equipment);
+                setChecked('cs_communication', !!get(cs, 'communication_established') || !!d.cs_communication);
+                setChecked('cs_emergency_briefed', !!get(cs, 'emergency_briefed') || !!d.cs_emergency_briefed);
+                setChecked('cs_permit_displayed', !!get(cs, 'permit_displayed') || !!d.cs_permit_displayed);
+                setVal('cs_others', get(cs, 'others') || d.cs_others || '');
+                const notes = cs?.csSpecialPrecautions || cs?.special_precautions || d?.csSpecialPrecautions || '';
+                if (notes) setVal('csSpecialPrecautions', notes);
+            }
+            setVal('cs_ack_name', d.cs_ack_name || '');
+            setVal('cs_ack_position', d.cs_ack_position || '');
+            setVal('cs_ack_datetime', d.cs_ack_datetime || '');
+
+            // Supporting Documents
+            const sd = (hazards && hazards.supporting_documents) || {};
+            setChecked('sd_cidb_green_card', !!get(sd,'cidb_green_card') || !!d.sd_cidb_green_card);
+            setChecked('sd_toolbox_talk', !!get(sd,'toolbox_talk_record') || !!d.sd_toolbox_talk);
+            setVal('sd_excavation_cert_no', get(sd,'excavation_cert_no') || d.sd_excavation_cert_no || '');
+            setVal('sd_confined_space_cert_no', get(sd,'confined_space_cert_no') || d.sd_confined_space_cert_no || '');
+            setChecked('sd_aesp_card', !!get(sd,'aesp_card') || !!d.sd_aesp_card);
+            setChecked('sd_sds', !!get(sd,'safety_data_sheet') || !!d.sd_sds);
+            setChecked('sd_excavation_plan', !!get(sd,'excavation_plan') || !!d.sd_excavation_plan);
+            setVal('sd_others', get(sd,'others') || d.sd_others || '');
+            setChecked('sd_competency_person', !!get(sd,'competency_person_cert') || !!d.sd_competency_person);
+            setChecked('sd_job_method_statement', !!get(sd,'job_method_statement') || !!d.sd_job_method_statement);
+            setVal('sd_lifting_cert_no', get(sd,'lifting_cert_no') || d.sd_lifting_cert_no || '');
+            setChecked('sd_contractor_checklist', !!get(sd,'contractor_checklist') || !!d.sd_contractor_checklist);
+            setChecked('sd_job_hazard_analysis', !!get(sd,'job_hazard_analysis') || !!d.sd_job_hazard_analysis);
+            setChecked('sd_lifting_plan', !!get(sd,'lifting_plan') || !!d.sd_lifting_plan);
+            setChecked('sd_medical_check_up', !!get(sd,'medical_check_up') || !!d.sd_medical_check_up);
+            setChecked('sd_hirarc', !!get(sd,'hirarc_eaia') || !!d.sd_hirarc);
+            setChecked('sd_lifting_checklist', !!get(sd,'lifting_checklist') || !!d.sd_lifting_checklist);
+            setChecked('sd_calibration_certificate', !!get(sd,'calibration_certificate') || !!d.sd_calibration_certificate);
+            setChecked('sd_tmp', !!get(sd,'traffic_management_plan') || !!d.sd_tmp);
+            setVal('sd_physical_isolation_cert_no', get(sd,'physical_isolation_cert_no') || d.sd_physical_isolation_cert_no || '');
+            setChecked('sd_load_chart', !!get(sd,'load_chart') || !!d.sd_load_chart);
+            setChecked('sd_certificate_of_fitness', !!get(sd,'certificate_of_fitness') || !!d.sd_certificate_of_fitness);
+            setVal('sd_electrical_isolation_cert_no', get(sd,'electrical_isolation_cert_no') || d.sd_electrical_isolation_cert_no || '');
+
+            // Hazardous Activities (Page 2)
+            const ha = (hazards && hazards.hazardous_activities) || {};
+            const haMap = [
+                ['ha_slippery_floor','slippery_floor'],
+                ['ha_dropped_objects','dropped_objects'],
+                ['ha_uneven_ground','uneven_ground'],
+                ['ha_pinch_point','pinch_point'],
+                ['ha_sharp_edges','sharp_edges'],
+                ['ha_fall_from_height','fall_from_height'],
+                ['ha_extreme_weather','extreme_weather'],
+                ['ha_excessive_noise','excessive_noise'],
+                ['ha_hot_surface','hot_surface'],
+                ['ha_electrical','electrical'],
+                ['ha_flying_debris','flying_debris'],
+                ['ha_ergonomic_fatigue','ergonomic_fatigue'],
+                ['ha_moving_machinery','moving_machinery'],
+                ['ha_gas_fumes','gas_fumes'],
+                ['ha_wild_animals','wild_animals'],
+                ['ha_pressurised_equipment','pressurised_equipment'],
+                ['ha_volatile_liquid','volatile_liquid'],
+                ['ha_simultaneous_operation','simultaneous_operation'],
+                ['ha_oxygen_deficiency','oxygen_deficiency'],
+                ['ha_engulfment','engulfment'],
+                ['ha_illumination_deficiency','illumination_deficiency'],
+                ['ha_chemical','chemical'],
+                ['ha_poisonous_substance','poisonous_substance'],
+                ['ha_molds','molds'],
+                ['ha_rotating_parts','rotating_parts'],
+                ['ha_ionizing_radiation','ionizing_radiation'],
+                ['ha_infectious_substance','infectious_substance']
+            ];
+            haMap.forEach(([id,key])=> setChecked(id, !!get(ha,key) || !!d[id] || !!d[key]));
+            setVal('ha_others', get(ha,'others') || d.ha_others || '');
+
+            // Contractor Declaration (Page 2)
+            function setYesNo(prefix, key){
+                const raw = (hazards && hazards.contractor_declaration && hazards.contractor_declaration[key]) || d['cd_'+key];
+                const yes = raw === true || raw === 'yes' || raw === 'Yes' || raw === 1 || raw === '1' || raw === 'Y';
+                const no = raw === false || raw === 'no' || raw === 'No' || raw === 0 || raw === '0' || raw === 'N';
+                setChecked(prefix+'_yes', yes && !no);
+                setChecked(prefix+'_no', no && !yes);
+            }
+            setYesNo('cd_i','i');
+            setYesNo('cd_ii','ii');
+            setYesNo('cd_iii','iii');
+            setYesNo('cd_iv','iv');
+            setYesNo('cd_v','v');
+            setYesNo('cd_vi','vi');
+        })
+        .catch(_e=>{});
+})();
+</script>
+<!-- Section 5 contains static text only; no dynamic JS required. -->
+<script>
+// Render Contractor signature in Section 4 if available
+(function(){
+    function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
+    if(!ptwId) return;
+    const token = sessionStorage.getItem('token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
+        .then(r=>r.json())
+        .then(data=>{
+            const d = data && data.result ? data.result : data;
+            if(!d) return;
+            // Fill contractor acknowledgement name if available
+            try {
+                const name = d.contractor_name || d.ptw_contractor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '';
+                const span = document.getElementById('contractor_ack_name');
+                if (span && name) span.textContent = name;
+                const desig = d.contractor_designation || d.ptw_contractor_designation || d.ptw_supervisor_designation || d.ptw_contractor_position || '';
+                const dSpan = document.getElementById('contractor_ack_designation');
+                if (dSpan && desig) dSpan.textContent = desig;
+            } catch(_e){}
+            // PPE binding from hazard checklist (flat keys start with ppe_)
+            try {
+                let haz = {};
+                if (d.ptw_hazard_checklist) {
+                    haz = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
+                }
+                const ppe = haz || {};
+                const ids = [
+                    'ppe_safety_helmet','ppe_safety_shoes','ppe_high_vis_vest','ppe_dust_mask',
+                    'ppe_respirator','ppe_scba','ppe_safety_glasses','ppe_face_shield',
+                    'ppe_coveralls','ppe_chemical_suit','ppe_work_gloves','ppe_chemical_gloves',
+                    'ppe_cut_resistant','ppe_ear_plugs','ppe_ear_muffs'
+                ];
+                ids.forEach(id=>{
+                    const el = document.getElementById(id);
+                    if (el) el.checked = !!(ppe[id] || d[id]);
+                });
+                const others = ppe.ppe_others || d.ppe_others || '';
+                const othersEl = document.getElementById('ppe_others');
+                if (othersEl) othersEl.value = others;
+            } catch(_e){}
+            const docs = Array.isArray(d.documents) ? d.documents : [];
+            let contractorSig = null;
+            if (docs && docs.length){
+                const sigs = docs.filter(doc => {
+                    const t = (doc.document_type || '').toString().toUpperCase();
+                    return t === 'CONTRACTOR_SIGNATURE' || t === 'SIGNATURE_CONTRACTOR';
+                });
+                if (sigs.length){
+                    contractorSig = sigs.reduce((acc, cur) => {
+                        const a = parseInt(acc.ptw_document_id || acc.id || 0, 10) || 0;
+                        const b = parseInt(cur.ptw_document_id || cur.id || 0, 10) || 0;
+                        return b > a ? cur : acc;
+                    }, sigs[0]);
+                }
+            }
+            if (!contractorSig) return;
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tokenParam = urlParams.get('t');
+                const docId = contractorSig.ptw_document_id || contractorSig.id;
+                const rawPath = (contractorSig.document_path || '').toString();
+                let sigHref = '';
+                if (tokenParam && docId) {
+                    sigHref = 'api/ptw_document_download.php?id=' + encodeURIComponent(docId) + '&t=' + encodeURIComponent(tokenParam);
+                } else if (rawPath) {
+                    sigHref = rawPath;
+                }
+                if (!sigHref) return;
+                const imgWrap = document.getElementById('contractor_signature_image');
+                const img = document.getElementById('contractor_signature_img');
+                const line = document.getElementById('contractor_signature_line');
+                if (imgWrap && img && line) {
+                    img.onload = function(){
+                        line.style.display = 'none';
+                        imgWrap.style.display = 'inline-block';
+                    };
+                    img.onerror = function(){ /* leave line shown */ };
+                    img.src = sigHref;
+                }
+            } catch(e) { /* ignore */ }
+        })
+        .catch(_e=>{});
+})();
+</script>

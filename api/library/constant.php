@@ -8,9 +8,9 @@
 
 class Class_constant {
 
-    const URL = '//localhost/gems2/api/';
+    // const URL = '//localhost/gems2/api/';
     //const URL = '//gems.globalfm.com.my/api/';
-    // const URL = '//gems.metadatasystem.my/api/';
+    const URL = '//gems.metadatasystem.my/api/';
     //const URL_FULL = 'http://localhost/gems2/api/';
     //const URL_FULL = 'https://gems.globalfm.com.my/api/';
     const URL_FULL = 'https://gems.metadatasystem.my/gems2/api/';

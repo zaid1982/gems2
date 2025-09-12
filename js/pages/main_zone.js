@@ -58,11 +58,9 @@ function MainZone () {
                 {mData: 'zoneName'},
         {mData: null, mRender: function(row) {
             const zoneId = row.zoneId;
-            const siteId = row.siteId;
             const complaintLink = urlLinkBase + zoneId; // already full path
-            const ptwLink = baseAppPath + '/ptw_form.html?site_id=' + encodeURIComponent(siteId || '');
             return '<div class="small" style="font-family:monospace; line-height:1.2; word-break:break-all;">'
-                + complaintLink + '<br>' + ptwLink + '</div>';
+                + complaintLink + '</div>';
             }},
                 {mData: 'zoneStatus', mRender: function(data) {
                         return refStatus[data]['statusDesc'];

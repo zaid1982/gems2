@@ -537,6 +537,41 @@ class Class_pdf_ptw {
             $html = str_replace('img/icon/gfm-logo-transparent.png', $absLogo, $html);
             // Best-effort replace for other relative images if any
             $html = preg_replace('#src\s*=\s*[\"\']img/#i', 'src="' . rtrim(str_replace('\\', '/', $base), '/') . '/img/', $html);
+            // Also handle absolute-from-webroot style /img/...
+            $html = preg_replace('#src\s*=\s*[\"\']/?img/#i', 'src="' . rtrim(str_replace('\\', '/', $base), '/') . '/img/', $html);
+
+            // Inline any local CSS <link rel="stylesheet" href="..."> so TCPDF can render styles
+            // Note: Remote (http/https) stylesheets are ignored intentionally.
+            $html = preg_replace_callback(
+                '/<link[^>]+rel\s*=\s*\"stylesheet\"[^>]*href\s*=\s*\"([^\"]+)\"[^>]*>/i',
+                function ($m) use ($base, $templatePath) {
+                    $href = $m[1];
+                    // Skip remote URLs
+                    if (preg_match('#^https?://#i', $href)) {
+                        return '';
+                    }
+                    // Resolve to filesystem path
+                    if (strpos($href, '/') === 0) {
+                        // Root-relative to project base
+                        $cssPath = rtrim($base, '/') . $href;
+                    } else {
+                        // Relative to template file directory
+                        $cssPath = dirname($templatePath) . '/' . $href;
+                    }
+                    $cssPath = str_replace('..', '', $cssPath); // very basic hardening
+                    if (file_exists($cssPath)) {
+                        $css = @file_get_contents($cssPath);
+                        if ($css !== false) {
+                            return "<style>\n" . $css . "\n</style>";
+                        }
+                    }
+                    return '';
+                },
+                $html
+            );
+
+            // Remove remaining <link ...> tags (unresolved or non-stylesheet)
+            $html = preg_replace('#<link[^>]*>#i', '', $html);
 
             // Strip script tags (not supported/needed in PDF)
             $html = preg_replace('#<script[\s\S]*?</script>#i', '', $html);
@@ -545,6 +580,14 @@ class Class_pdf_ptw {
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
             $pdf->SetMargins(8, 8, 8);
+            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+            // Use a Unicode-capable font and enable subsetting for more accurate width metrics
+            if (@file_exists(K_PATH_FONTS . 'dejavusans.php') || @file_exists(K_PATH_FONTS . 'dejavusans.z')) {
+                $pdf->SetFont('dejavusans', '', 9);
+            } else {
+                $pdf->SetFont('helvetica', '', 9);
+            }
+            $pdf->setFontSubsetting(true);
             $pdf->AddPage();
 
             $pdf->writeHTML($html, true, false, true, false, '');
@@ -606,7 +649,7 @@ class Class_pdf_ptw {
 </style>
 CSS;
 
-                        // Page 1 HTML (header + sections 0-4)
+                        // Page 1 HTML (Header + Section 1 + Cold/Hot/Confined exactly as user layout)
                         $page1 = <<<HTML
 {$styles}
 <table class="hstack" cellpadding="0" cellspacing="0">
@@ -619,75 +662,70 @@ CSS;
                         <img src="{$absLogo}" height="12" />
                     </td>
                     <td style="padding-left:6px;">
-                        <div class="title">PERMIT TO WORK</div>
-                        <div class="subtitle">Work Fast • Think Smart • Stay Safe</div>
+                                        <div class="title">PERMIT TO WORK</div>
+                                        <div class="subtitle">WORK FAST, THINK SMART, STAY SAFE</div>
+                                        <div class="muted">BPM 9.1/F/013/25:1</div>
                     </td>
                 </tr>
             </table>
         </td>
         <td style="width:30%; text-align:right; font-size:9px;">
-            <b>Form Code:</b> BPM 9.1/F/013/25:1<br/>
-            <b>PTW No:</b> <span style="display:inline-block; min-width:28mm; border-bottom:0.3mm solid #d8dde5;">&nbsp;</span>
+                            <b>PTW NO :</b> <span style="display:inline-block; min-width:28mm; border-bottom:0.3mm solid #d8dde5;">&nbsp;</span>
         </td>
     </tr>
 </table>
 
-<!-- Permit Metadata -->
+                <!-- SECTION 1 : REQUISITION (To be filled-up by Applicant) -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Permit Metadata <span class="small" style="color:#5b6371;">(For admin tracking)</span></td></tr>
+                    <tr><td class="sec-h">SECTION 1 - REQUISITION <span class="small" style="color:#5b6371;">(To be filled-up by Applicant)</span></td></tr>
     <tr><td class="p-6">
-        <table class="tb">
+                        <div class="mb-2" style="font-weight:700;">DETAILS OF JOB APPLICATION</div>
+                        <table class="tb">
             <tr>
-                <td style="width:33%"><b>Building / Site</b><br/><div class="hline"></div></td>
-                <td style="width:33%"><b>Level</b><br/><div class="hline"></div></td>
-                <td style="width:34%"><b>Work Area</b><br/><div class="hline"></div></td>
+                                <td style="width:33%"><b>Applicant Name :</b><br/><div class="hline"></div></td>
+                                <td style="width:33%"><b>Contact No :</b><br/><div class="hline"></div></td>
+                                <td style="width:34%"><b>Staff No. / NRIC No :</b><br/><div class="hline"></div></td>
             </tr>
             <tr>
-                <td><b>Valid From</b><br/>Date: <span class="hline"></span> Time: <span class="hline"></span></td>
-                <td><b>Valid To</b><br/>Date: <span class="hline"></span> Time: <span class="hline"></span></td>
-                <td><b>Company / Dept.</b><br/><div class="hline"></div></td>
-            </tr>
-        </table>
-    </td></tr>
-</table>
-
-<!-- Section 1: Requisition -->
-<table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 1 — Requisition <span class="small" style="color:#5b6371;">(To be filled by applicant)</span></td></tr>
-    <tr><td class="p-6">
-        <table class="tb">
-            <tr>
-                <td><b>Applicant Name</b><br/><div class="hline"></div></td>
-                <td><b>Contact No</b><br/><div class="hline"></div></td>
-                <td><b>Staff / NRIC No</b><br/><div class="hline"></div></td>
-            </tr>
-            <tr>
-                <td><b>Contractor Supervisor</b><br/><div class="hline"></div></td>
-                <td><b>Contact No</b><br/><div class="hline"></div></td>
-                <td><b>Identification No</b><br/><div class="hline"></div></td>
+                                <td><b>Contractor Supervisor in Charge :</b><br/><div class="hline"></div></td>
+                                <td><b>Contact No :</b><br/><div class="hline"></div></td>
+                                <td><b>Identification No :</b><br/><div class="hline"></div></td>
+                            </tr>
+                            <tr>
+                                <td><b>Company / Department :</b><br/><div class="hline"></div></td>
+                                <td colspan="2"><b>Duration of Work - From: Date:</b> <span class="hline" style="min-width:22mm"></span> <b>Time:</b> <span class="hline" style="min-width:18mm"></span>
+                                    &nbsp; <b>To: Date:</b> <span class="hline" style="min-width:22mm"></span> <b>Time:</b> <span class="hline" style="min-width:18mm"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Work Area :</b><br/><div class="hline"></div></td>
+                                <td><b>Level :</b><br/><div class="hline"></div></td>
+                                <td></td>
             </tr>
         </table>
 
         <div class="mb-4"></div>
-        <b>List of Workers</b>
+                        <b>List of Workers</b>
         <table class="tb mt-3">
             <thead>
-                <tr>
-                    <th style="width:8%">#</th>
-                    <th>Identification No. (IC / CIDB / Passport)</th>
-                </tr>
+                                <tr>
+                                    <th style="width:8%">No.</th>
+                                    <th style="width:40%">Name</th>
+                                    <th style="width:22%">Designation</th>
+                                    <th>Identification No. (IC/CIDB Card/Passport)</th>
+                                </tr>
             </thead>
             <tbody>
-                <tr><td>1</td><td></td></tr>
-                <tr><td>2</td><td></td></tr>
-                <tr><td>3</td><td></td></tr>
-                <tr><td>4</td><td></td></tr>
-                <tr><td>5</td><td></td></tr>
-                <tr><td>6</td><td></td></tr>
-                <tr><td>7</td><td></td></tr>
-                <tr><td>8</td><td></td></tr>
-                <tr><td>9</td><td></td></tr>
-                <tr><td>10</td><td></td></tr>
+                                <tr><td>1</td><td></td><td></td><td></td></tr>
+                                <tr><td>2</td><td></td><td></td><td></td></tr>
+                                <tr><td>3</td><td></td><td></td><td></td></tr>
+                                <tr><td>4</td><td></td><td></td><td></td></tr>
+                                <tr><td>5</td><td></td><td></td><td></td></tr>
+                                <tr><td>6</td><td></td><td></td><td></td></tr>
+                                <tr><td>7</td><td></td><td></td><td></td></tr>
+                                <tr><td>8</td><td></td><td></td><td></td></tr>
+                                <tr><td>9</td><td></td><td></td><td></td></tr>
+                                <tr><td>10</td><td></td><td></td><td></td></tr>
             </tbody>
         </table>
         <div class="muted mt-3">Provide additional list if space is insufficient.</div>
@@ -700,9 +738,9 @@ CSS;
     </td></tr>
 </table>
 
-<!-- Section 2: Cold Work / Other Works -->
+                <!-- COLD WORK / OTHER WORKS -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 2 — Cold Work / Other Works <span class="small" style="color:#5b6371;">(Conditions to be implemented by Supervisor)</span></td></tr>
+                    <tr><td class="sec-h">COLD WORK / OTHER WORKS <span class="small" style="color:#5b6371;">(Conditions to be implemented by Supervisor / Contractor Supervisor) — Please Tick (√ or X)</span></td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <tr>
@@ -741,18 +779,19 @@ CSS;
                 <td class="pad-cell">Others: <span class="hline" style="display:inline-block; width:34mm;"></span></td>
             </tr>
         </table>
+                        <table class="tb mt-3"><tr><td><b>Special precautions (if any):</b><br/><div style="height:14mm;"></div></td></tr></table>
         <div class="muted mt-3">Approval is valid provided all listed conditions/precautions are complied with.</div>
     </td></tr>
 </table>
 
-<!-- Section 3: Hot Work -->
+                <!-- HOT WORK -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 3 — Hot Work <span class="small" style="color:#5b6371;">(Conditions to be implemented by Supervisor)</span></td></tr>
+                    <tr><td class="sec-h">HOT WORK <span class="small" style="color:#5b6371;">(Conditions to be implemented by Supervisor / Contractor Supervisor) — Please Tick (√ or X)</span></td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <tr>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Type of Hot Work</b><br/><br/>
+                                    <b>TYPE OF HOT WORK</b><br/><br/>
                     <span class="pill"><span class="checkbox">☐</span> Welding</span>
                     <span class="pill"><span class="checkbox">☐</span> Flame cutting</span>
                     <span class="pill"><span class="checkbox">☐</span> Open flame</span>
@@ -765,7 +804,7 @@ CSS;
                     <span class="pill"><span class="checkbox">☐</span> Others</span>
                 </td>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Controls Required</b><br/><br/>
+                                    <b>CONTROLS REQUIRED</b><br/><br/>
                     <table class="tb">
                         <tr><td>Gas monitoring — <span class="checkbox">☐</span> Continuous &nbsp; <span class="checkbox">☐</span> Every <span class="hline" style="display:inline-block; width:10mm;"></span> hour(s)</td></tr>
                         <tr><td>Firewatch name: <span class="hline" style="display:inline-block; width:50mm;"></span></td></tr>
@@ -780,18 +819,19 @@ CSS;
                 </td>
             </tr>
         </table>
+                        <table class="tb mt-3"><tr><td><b>Special precautions (if any):</b><br/><div style="height:14mm;"></div></td></tr></table>
         <div class="muted mt-3">Approval is valid provided all listed conditions/precautions are complied with.</div>
     </td></tr>
 </table>
 
-<!-- Section 4: Confined Space Entry -->
+                <!-- CONFINED SPACE ENTRY -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 4 — Confined Space Entry <span class="small" style="color:#5b6371;">(Conditions to be implemented by Entry Supervisor)</span></td></tr>
+                    <tr><td class="sec-h">CONFINED SPACE ENTRY <span class="small" style="color:#5b6371;">(Conditions to be implemented by Supervisor / Entry Supervisor) — Please Tick (√ or X)</span></td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <tr>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Entry Condition</b><br/><br/>
+                                    <b>ENTRY CONDITION</b><br/><br/>
                     <table class="tb">
                         <tr><td><span class="checkbox">☐</span> Respirable atmosphere</td></tr>
                         <tr><td><span class="checkbox">☐</span> Irrespirable atmosphere</td></tr>
@@ -806,7 +846,7 @@ CSS;
                     </table>
                 </td>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Controls Required</b><br/><br/>
+                                    <b>CONTROLS REQUIRED</b><br/><br/>
                     <table class="tb">
                         <tr><td>Type of communication used: <span class="hline" style="display:inline-block; width:50mm;"></span></td></tr>
                         <tr><td><span class="checkbox">☐</span> Standby person</td></tr>
@@ -820,8 +860,9 @@ CSS;
                         <tr><td><span class="checkbox">☐</span> Keep mobile equipment away from manhole</td></tr>
                         <tr><td>Others: <span class="hline" style="display:inline-block; width:50mm;"></span></td></tr>
                     </table>
-                    <div class="muted mt-3 lh">I have personally checked all control measures are in place to prevent release of hazard and meet certificate requirements.</div>
-                    <table class="tb mt-3">
+                                    <table class="tb mt-3"><tr><td><b>Special precautions (if any):</b><br/><div style="height:14mm;"></div></td></tr></table>
+                                    <div class="muted mt-3 lh">I have personally checked that all control measures are in place to prevent release of hazard and complied with requirements of the certificate.</div>
+                                    <table class="tb mt-3">
                         <tr>
                             <td><b>Name</b><br/><div class="hline"></div></td>
                             <td><b>Designation</b><br/><div class="hline"></div></td>
@@ -834,7 +875,7 @@ CSS;
 </table>
 HTML;
 
-                        // Page 2 HTML (sections 5-9)
+                    // Page 2 HTML (Sections 2–7 exactly as user layout)
                         $page2 = <<<HTML
 {$styles}
 <table class="hstack" cellpadding="0" cellspacing="0">
@@ -856,9 +897,9 @@ HTML;
     </tr>
 </table>
 
-<!-- Section 5: Supporting Documents -->
+<!-- SECTION 2: SUPPORTING DOCUMENTS -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 5 — Supporting Documents</td></tr>
+    <tr><td class="sec-h">SECTION 2 - SUPPORTING DOCUMENTS</td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <thead>
@@ -891,9 +932,9 @@ HTML;
     </td></tr>
 </table>
 
-<!-- Section 6: Hazardous Activities -->
+<!-- SECTION 3: HAZARDOUS ACTIVITIES -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 6 — Hazardous Activities</td></tr>
+    <tr><td class="sec-h">SECTION 3 - HAZARDOUS ACTIVITIES</td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <tr>
@@ -948,18 +989,23 @@ HTML;
     </td></tr>
 </table>
 
-<!-- Section 7: Contractor Declaration & PPE -->
+<!-- SECTION 4: CONTRACTOR DECLARATION & PPE -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 7 — Contractor Declaration & PPE</td></tr>
+    <tr><td class="sec-h">SECTION 4 - CONTRACTOR DECLARATION & PPE</td></tr>
     <tr><td class="p-6">
-        <ol class="lh" style="margin:0 0 6px 14px;">
-            <li>All assigned workers are briefed on relevant SHE procedures; only activities stated in JHA are permitted.</li>
-            <li>All documentation provided are valid during PTW validity.</li>
-            <li>Ensure all appointed workers are briefed on job steps and safety before start work.</li>
-            <li>GFM is not liable for incidents on site if PTW terms are violated.</li>
-            <li>PTW must be displayed at the work site at all times.</li>
-            <li>All safety equipment has been checked and deemed safe.</li>
-        </ol>
+        <table class="tb">
+            <thead>
+                <tr><th style="width:5%">No</th><th>Descriptions</th><th style="width:18%">Status</th></tr>
+            </thead>
+            <tbody class="lh">
+                <tr><td>i)</td><td>All assigned workers are briefed on relevant SHE procedure and only activities stated in JHA are permitted to carry out</td><td>☐ Yes ☐ No</td></tr>
+                <tr><td>ii)</td><td>All documentation given are valid during Permit To Work validity</td><td>☐ Yes ☐ No</td></tr>
+                <tr><td>iii)</td><td>Ensure all appointed staff/workers are briefed on relevant job step and safety procedures before start work</td><td>☐ Yes ☐ No</td></tr>
+                <tr><td>iv)</td><td>GFM is not liable for any incident occured on site due to violation of the Permit To Work</td><td>☐ Yes ☐ No</td></tr>
+                <tr><td>v)</td><td>Permit to work shall be displayed at the work site at all the time</td><td>☐ Yes ☐ No</td></tr>
+                <tr><td>vi)</td><td>All safety equipment has been checked and deemed safe</td><td>☐ Yes ☐ No</td></tr>
+            </tbody>
+        </table>
 
         <table class="tb mt-3">
             <tr>
@@ -1017,9 +1063,9 @@ HTML;
     </td></tr>
 </table>
 
-<!-- Section 8: GFM Verification & Approval -->
+<!-- SECTION 5: FOR GFM VERIFICATION AND APPROVAL -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 8 — GFM Verification & Approval</td></tr>
+    <tr><td class="sec-h">SECTION 5 - FOR GFM VERIFICATION AND APPROVAL</td></tr>
     <tr><td class="p-6">
         <ol class="lh" style="margin:0 0 4px 14px;">
             <li>PTW application must be submitted and approved by authorised personnel before work begins.</li>
@@ -1027,10 +1073,14 @@ HTML;
             <li>PTW validity: up to 7 days for Other Works; up to 8 hours/day for Confined Space Entry from issuance date.</li>
         </ol>
 
-        <table class="tb mt-3">
+        <!-- SECTION 6: APPROVAL -->
+        <div class="mb-2"></div>
+        <div class="sec-h" style="border-left:0;border-right:0;border-top:0;">SECTION 6 - APPROVAL</div>
+        <table class="tb">
             <tr>
                 <td style="width:33%; vertical-align:top;">
                     <b>Supervised By</b><br/><br/>
+                    This PTW is : ☐ Approved &nbsp; ☐ Not Approved<br/><br/>
                     Name: <span class="hline" style="display:inline-block; width:45mm;"></span><br/>
                     Designation: <span class="hline" style="display:inline-block; width:38mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:48mm;"></span><br/>
@@ -1038,15 +1088,15 @@ HTML;
                 </td>
                 <td style="width:33%; vertical-align:top;">
                     <b>SHE Authorizing Person</b><br/><br/>
-                    ☐ Approved ☐ Not Approved<br/><br/>
+                    This PTW is : ☐ Approved &nbsp; ☐ Not Approved<br/><br/>
                     Name: <span class="hline" style="display:inline-block; width:45mm;"></span><br/>
                     Designation: <span class="hline" style="display:inline-block; width:38mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:48mm;"></span><br/>
                     Date: <span class="hline" style="display:inline-block; width:28mm;"></span>
                 </td>
                 <td style="width:34%; vertical-align:top;">
-                    <b>Facility Engineer / Manager / Client</b><br/><br/>
-                    ☐ Approved ☐ Not Approved<br/><br/>
+                    <b>Facility Engineer / Facility Manager / Client</b><br/><br/>
+                    This PTW is : ☐ Approved &nbsp; ☐ Not Approved<br/><br/>
                     Name: <span class="hline" style="display:inline-block; width:45mm;"></span><br/>
                     Designation: <span class="hline" style="display:inline-block; width:38mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:48mm;"></span><br/>
@@ -1057,21 +1107,19 @@ HTML;
     </td></tr>
 </table>
 
-<!-- Section 9: Hand Back / Status -->
+<!-- SECTION 7: HAND BACK -->
 <table class="section mt-3" cellpadding="0" cellspacing="0">
-    <tr><td class="sec-h">Section 9 — Hand Back / Status</td></tr>
+    <tr><td class="sec-h">SECTION 7 - HAND BACK</td></tr>
     <tr><td class="p-6">
         <table class="tb">
             <tr>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Completion</b><br/>
-                    <div class="muted">All work completed; site cleaned and ready for normal operations.</div><br/>
+                    <b>All above work has been completed and worksite is cleaned and ready to resume normal operations.</b><br/><br/>
                     From: Date <span class="hline" style="display:inline-block; width:20mm;"></span> Time <span class="hline" style="display:inline-block; width:18mm;"></span><br/>
                     To: &nbsp;&nbsp;&nbsp;&nbsp;Date <span class="hline" style="display:inline-block; width:20mm;"></span> Time <span class="hline" style="display:inline-block; width:18mm;"></span>
                 </td>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Site Ready</b><br/>
-                    <div class="muted">All precautions removed; worksite ready to resume.</div>
+                    <b>All the precautions has been removed. The worksite is ready to resume normal operations.</b>
                 </td>
             </tr>
         </table>
@@ -1080,14 +1128,14 @@ HTML;
             <tr>
                 <td style="width:50%; vertical-align:top;">
                     <b>Suspended</b><br/>
-                    <div class="muted">Permit suspended (attach NCR/CAR if required).</div><br/>
+                    <div class="muted">I certify that this permit is suspended due to (please attached NCR/CAR if required).</div><br/>
                     Name: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>
                     Date: <span class="hline" style="display:inline-block; width:30mm;"></span>
                 </td>
                 <td style="width:50%; vertical-align:top;">
                     <b>Cancelled</b><br/>
-                    <div class="muted">Permit cancelled; work will not be carried out.</div><br/>
+                    <div class="muted">I certify that this permit is cancelled and work will not be carried out.</div><br/>
                     Name: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>
                     Date: <span class="hline" style="display:inline-block; width:30mm;"></span>
@@ -1098,7 +1146,7 @@ HTML;
         <table class="tb mt-3">
             <tr>
                 <td style="width:50%; vertical-align:top;">
-                    <b>Extension</b><br/>
+                    <b>Extended</b><br/>
                     <div class="muted">I hereby confirm the extension of this permit.</div><br/>
                     Name: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>
                     Signature: <span class="hline" style="display:inline-block; width:50mm;"></span><br/>

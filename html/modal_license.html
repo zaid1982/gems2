@@ -1,0 +1,54 @@
+<div class="modal fade" id="modal_license" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-center">
+        <h4 class="text-white mt-2 ml-2" id="lblMlcTitle"></h4>
+        <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formMlc">
+          <div class="md-form md-outline mt-0">
+            <input type="text" id="txtMlcTitle" class="form-control">
+            <label for="txtMlcTitle" id="lblMlcTitle2">License Title *</label>
+            <p class="font-small text-danger" id="txtMlcTitleErr"></p>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="md-form md-outline mt-0">
+                <input type="date" id="txtMlcStartDate" class="form-control">
+                <label for="txtMlcStartDate" id="lblMlcStartDate" class="active">Start Date *</label>
+                <p class="font-small text-danger" id="txtMlcStartDateErr"></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="md-form md-outline mt-0">
+                <input type="date" id="txtMlcEndDate" class="form-control">
+                <label for="txtMlcEndDate" id="lblMlcEndDate" class="active">End Date *</label>
+                <p class="font-small text-danger" id="txtMlcEndDateErr"></p>
+              </div>
+            </div>
+          </div>
+          <div class="md-form md-outline mt-0">
+            <input type="file" id="txfMlcFile" class="form-control" accept="application/pdf,image/*">
+            <label for="txfMlcFile" class="active">License File (PDF/Image)</label>
+            <input type="hidden" id="txfMlcFileBlob">
+            <input type="hidden" id="txfMlcFileWidth">
+            <input type="hidden" id="txfMlcFileHeight">
+            <p class="font-small text-danger" id="txfMlcFileErr"></p>
+            <div class="mt-1">
+              <small>Current: <a href="#" id="lnkMlcCurrentFile" target="_blank">N/A</a></small>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer p-2">
+        <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+        <button id="btnMlcDelete" class="btn btn-danger waves-effect"><i class="fas fa-trash-alt ml-1"></i> Delete</button>
+        <button id="btnMlcSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
+        <button id="btnMlcSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

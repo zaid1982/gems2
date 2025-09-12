@@ -320,6 +320,16 @@
             letter-spacing: 0.05em;
         }
 
+        /* Compact variant for tight spaces (used for Status column) */
+        .badge-modern.badge-compact {
+            padding: 2px 8px;
+            border-radius: 14px;
+            font-size: 0.675rem;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
         .badge-success {
             background: rgba(16, 185, 129, 0.1);
             color: var(--success-color);
@@ -341,6 +351,12 @@
         }
 
         .badge-dark {
+            background: rgba(31, 41, 55, 0.1);
+            color: #1f2937;
+        }
+
+        /* Specific style for Closed/Completed status */
+        .badge-closed {
             background: rgba(31, 41, 55, 0.1);
             color: #1f2937;
         }
@@ -612,22 +628,19 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-modern" id="dtPendingSHE">
+                    <table id="dtPendingSHE" class="table table-striped table-modern w-100" style="width:100%">
                         <thead>
                             <tr>
-                                <th>Permit No.</th>
-                                <!-- <th>Description</th> -->
-                                <th>Applicant</th>
-                                <th>Work Area</th>
-                                <th>Work Type</th>
-                                <th>Supervisor Approved</th>
-                                <!-- <th>Days Pending</th> -->
-                                <th>Actions</th>
+                                <th style="width:4%" class="text-center">No</th>
+                                <th style="width:14%">Request No</th>
+                                <th style="width:14%">Permit No</th>
+                                <th style="width:20%">Company Name</th>
+                                <th style="width:16%">Date</th>
+                                <th style="width:12%">Status</th>
+                                <th style="width:20%" class="text-nowrap">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Data will be loaded here via DataTables -->
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -796,24 +809,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeSHEDashboard() {
-    // Initialize DataTable
+    // Initialize DataTable with supervisor-style columns
     shePermitsTable = $('#dtPendingSHE').DataTable({
         responsive: true,
         lengthChange: false,
         pageLength: 10,
         autoWidth: false,
-        order: [[4, 'asc']], // Order by Supervisor Approved date ascending (oldest first)
-        columnDefs: [
-            {
-                targets: [5], // Actions column (after removing Risk Level)
-                orderable: false,
-                searchable: false
-            }
-        ],
+        order: [[4, 'asc']], // Date ascending
         language: {
             emptyTable: "No permits pending SHE approval",
             zeroRecords: "No matching permits found"
-        }
+        },
+        columns: [
+            { data: null, className: 'text-center', width: '4%', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
+            { data: 'ptw_request_number', width: '14%', render: function(d,_t,row){ return d || row.ptw_request_number || '-'; } },
+            { data: 'ptw_permit_number', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_contractor_company', width: '20%', render: function(d,row){ return d || (row && row.ptw_applicant_company_dept) || '-'; } },
+            { data: null, width: '16%', render: function(_d,type,row){ return renderUnifiedDateSHE(_d,type,row); } },
+            { data: 'ptw_status', width: '12%', render: function(_s,_t,row){ return getStatusBadge((row.ptw_status||row.status||'').toString()); } },
+            { data: null, width: '20%', className: 'text-nowrap', render: function(_d,_t,row){ return generateActionButtons(row.ptw_permit_id || row.permit_id || row.id, row.ptw_permit_number || row.ptw_request_number, row.ptw_status || row.status); } }
+        ],
+        columnDefs: [
+            { targets: [6], orderable: false, searchable: false }
+        ]
     });
 
     // Load initial data
@@ -935,48 +953,26 @@ function loadShePermits() {
 }
 
 function populateShePermitsTable(permits) {
-    shePermitsTable.clear();
-    
-    permits.forEach(function(permit) {
-        const workTypeBadge = getWorkTypeBadge(permit.ptw_work_type);
-        
-        // Calculate days pending from supervisor approval date (field names can vary)
-        const supDateStr = permit.ptw_supervisor_approval_date || permit.approved_supervisor_date;
-        let daysPendingHtml = '-';
-        if (supDateStr) {
-            const approvedDate = new Date(supDateStr);
-            const today = new Date();
-            const daysPending = Math.floor((today - approvedDate) / (1000 * 60 * 60 * 24));
-            daysPendingHtml = getDaysPendingHtml(daysPending);
-        }
-        
-        // Get supervisor name - prefer resolved name, then approved_supervisor_by, then ptw_supervisor_id
-        let supervisorName = 'N/A';
-        if (permit.approved_supervisor_name) {
-            supervisorName = permit.approved_supervisor_name;
-        } else if (permit.supervisor_name) {
-            supervisorName = permit.supervisor_name;
-        } else if (permit.approved_supervisor_by) {
-            supervisorName = `User ID: ${permit.approved_supervisor_by}`;
-        } else if (permit.ptw_supervisor_id) {
-            supervisorName = `User ID: ${permit.ptw_supervisor_id}`;
-        }
-        
-        const row = [
-            permit.ptw_permit_number || permit.ptw_request_number,
-            // permit.ptw_permit_description,
-            permit.ptw_applicant_name,
-            permit.ptw_work_area,
-            workTypeBadge,
-            renderDateCell(permit.ptw_supervisor_approval_date || permit.approved_supervisor_date),
-            // daysPendingHtml,
-            generateActionButtons(permit.ptw_permit_id, permit.ptw_permit_number, (permit.ptw_status || permit.status || ''))
-        ];
-        
-        shePermitsTable.row.add(row);
-    });
-    
-    shePermitsTable.draw();
+    try {
+        const list = Array.isArray(permits) ? permits : [];
+        shePermitsTable.clear();
+        if (list.length) shePermitsTable.rows.add(list);
+        shePermitsTable.draw();
+    } catch(e){
+        console.error('populateShePermitsTable error', e);
+    }
+}
+
+// Unified date renderer similar to supervisor logic but scoped to SHE dashboard
+function renderUnifiedDateSHE(_data, type, row){
+    const s = (row.ptw_status || row.status || '').toUpperCase();
+    let d = null;
+    if (s === 'PENDING_SHE') d = row.ptw_supervisor_approval_date || row.approved_supervisor_date || row.created_date;
+    else if (s === 'ACTIVE' || s === 'EXTENDED') d = row.ptw_valid_to || row.ptw_valid_from;
+    else if (s === 'COMPLETED' || s === 'CLOSED') d = row.completed_date || row.closed_date || row.ptw_completed_date;
+    else d = row.updated_date || row.created_date || row.ptw_valid_from;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
 }
 
 function generateActionButtons(permitId, permitNumber, status) {
@@ -1568,15 +1564,15 @@ function getWorkTypeBadge(workType) {
 }
 
 function getStatusBadge(status) {
-    if(!status) return '<span class="badge badge-modern badge-dark">-</span>';
+    if(!status) return '<span class="badge badge-modern badge-compact badge-dark">-</span>';
     const s = status.toUpperCase();
-    if (s === 'COMPLETED' || s === 'CLOSED') return '<span class="badge-modern badge-closed">Closed</span>';
-    if (s.includes('PENDING')) return '<span class="badge-modern badge-warning">' + (s === 'PENDING_SHE' ? 'Pending SHE' : s === 'PENDING_FM' ? 'Pending FM' : 'Pending') + '</span>';
-    if (s === 'ACTIVE' || s === 'EXTENDED') return '<span class="badge-modern badge-info">' + (s === 'EXTENDED' ? 'Extended' : 'Active') + '</span>';
-    if (s.includes('REJECT')) return '<span class="badge-modern badge-danger">Rejected</span>';
-    if (s.includes('CANCEL')) return '<span class="badge-modern badge-danger">Cancelled</span>';
-    if (s.includes('SUSPEND')) return '<span class="badge-modern badge-dark">Suspended</span>';
-    return '<span class="badge-modern badge-info">' + status + '</span>';
+    if (s === 'COMPLETED' || s === 'CLOSED') return '<span class="badge-modern badge-compact badge-closed">Closed</span>';
+    if (s.includes('PENDING')) return '<span class="badge-modern badge-compact badge-warning">' + (s === 'PENDING_SHE' ? 'Pending SHE' : s === 'PENDING_FM' ? 'Pending FM' : 'Pending') + '</span>';
+    if (s === 'ACTIVE' || s === 'EXTENDED') return '<span class="badge-modern badge-compact badge-info">' + (s === 'EXTENDED' ? 'Extended' : 'Active') + '</span>';
+    if (s.includes('REJECT')) return '<span class="badge-modern badge-compact badge-danger">Rejected</span>';
+    if (s.includes('CANCEL')) return '<span class="badge-modern badge-compact badge-danger">Cancelled</span>';
+    if (s.includes('SUSPEND')) return '<span class="badge-modern badge-compact badge-dark">Suspended</span>';
+    return '<span class="badge-modern badge-compact badge-info">' + status + '</span>';
 }
 
 function getDaysPendingHtml(days) {
@@ -1699,27 +1695,13 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 // ===============================
 
 function generatePTWPDF(ptwId) {
-    if (!ptwId) { showError('PTW ID not found'); return; }
-    try {
-        const result = mzAjaxRequest(`api/ptw_pdf.php?type=preview_pdf&ptwPermitId=${ptwId}`, 'GET', {});
-        if (result && result.status === 'success' && result.pdf_url) {
-            const link = document.createElement('a');
-            link.href = result.pdf_url;
-            link.download = result.filename || `PTW_${ptwId}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showSuccess('PDF generated successfully');
-        } else {
-            showError((result && (result.message || result.error)) || 'Failed to generate PDF');
-        }
-    } catch (e) {
-        console.error('PDF generation error:', e);
-        showError(e.message || 'Failed to generate PDF');
-    }
+    console.log('Print-to-PDF requested for PTW (SHE):', ptwId);
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) { window.location.href = url; }
 }
 
-// Optional helper to guard before calling API when status is known
 function generatePTWPDFWithStatus(ptwId, status) {
     const finalStatuses = ['ACTIVE','COMPLETED','CLOSED','APPROVED'];
     if (status && finalStatuses.indexOf(String(status).toUpperCase()) === -1) {

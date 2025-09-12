@@ -26,8 +26,12 @@
             --primary-dark: #3730a3;
             --secondary-color: #64748b;
             --success-color: #10b981;
+            --success-dark: #047857;
+            --success-light: #6ee7b7;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
+            --danger-dark: #991b1b;
+            --danger-light: #fecaca;
             --info-color: #3b82f6;
             --light-bg: #f8fafc;
             --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -411,6 +415,16 @@
             color: var(--success-color);
         }
 
+        .badge-success-dark {
+            background: rgba(16, 185, 129, 1);
+            color: var(--success-dark);
+        }
+
+        .badge-success-light {
+            background: rgba(16, 185, 129, 0.3);
+            color: var(--success-light);
+        }
+
         .badge-warning {
             background: rgba(245, 158, 11, 0.1);
             color: var(--warning-color);
@@ -419,6 +433,16 @@
         .badge-danger {
             background: rgba(239, 68, 68, 0.1);
             color: var(--danger-color);
+        }
+
+        .badge-danger-dark {
+            background: rgb(184, 51, 51);
+            color: var(--danger-dark);
+        }
+
+        .badge-danger-light {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger-light);
         }
 
         .badge-info {
@@ -1314,7 +1338,7 @@ function initializeDataTable() {
         autoWidth: false,
         pageLength: 10,
         lengthChange: false,
-        order: [[4, 'asc']], // Date ascending
+        order: [[4, 'desc']], // Date descending (latest first)
         language: { emptyTable: "No PTW records to display" },
         columns: [
             { data: null, title: 'No', width: '4%', className: 'text-center', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
@@ -1713,8 +1737,6 @@ function getActionButtons(request) {
 
 
 
-
-
 function getActiveActionButtons(request){
     const permitId = request.ptw_permit_id || request.permit_id || request.id || request.ptw_permit_number || request.ptw_request_number || 'unknown';
     const status = (request.ptw_status || '').toUpperCase();
@@ -1867,6 +1889,8 @@ function submitCloseRequest(){
             $('#closeModal').modal('hide');
             safeToast('success', (res.message||'Closure requested successfully'), 'Success');
             loadActivePTWForClosure();
+            // Reload entire dashboard tables instead of mutating a single row (per user request)
+            try { loadDashboardData(); } catch(e) { console.warn('Dashboard reload after closure request failed', e); }
         } else {
             safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request closure','Error');
         }
@@ -1988,7 +2012,7 @@ function quickReject(permitId) {
         const result = mzAjaxRequest('ptw.php', 'POST', {
             action: 'supervisor_reject',
             permit_id: permitId,
-            comments: reason.trim()
+            rejection_reason: reason.trim()
         });
         if (result && result.success) {
             safeToast('success', 'PTW rejected successfully.', 'Quick Reject');
@@ -2180,38 +2204,38 @@ function populateActiveClosureTable(activeList){
 
 function getStatusBadge(status){
     // Accept either raw enum or already mapped display label
-    if (!status) return '<span class="badge badge-modern badge-info">-</span>';
+    if (!status) return '<span class="badge badge-modern badge-compact badge-info">-</span>';
     const s = status.toString();
     const map = {
         // Display labels
-        'Draft': '<span class="badge badge-modern badge-secondary">Draft</span>',
-        'New Request': '<span class="badge badge-modern badge-info">New Request</span>',
-        'SHE Approval': '<span class="badge badge-modern badge-purple">SHE Approval</span>',
-        'FM Approval': '<span class="badge badge-modern badge-purple">FM Approval</span>',
-        'Approved': '<span class="badge badge-modern badge-success">Approved</span>',
-        'Extended': '<span class="badge badge-modern badge-success" title="Permit Extended">Extended</span>',
-        'Closure Requested': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
-        'Cancellation Requested': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
-        'Suspension Requested': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
-    'Extension Requested': '<span class="badge badge-modern badge-info">Extension Requested</span>',
-        'Closed': '<span class="badge badge-modern badge-closed">Closed</span>',
-        'Cancelled': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-        'Suspended': '<span class="badge badge-modern badge-warning">Suspended</span>',
-        'Rejected': '<span class="badge badge-modern badge-danger">Rejected</span>',
+        'Draft': '<span class="badge badge-modern badge-compact badge-secondary">Draft</span>',
+        'New Request': '<span class="badge badge-modern badge-compact badge-info">New Request</span>',
+        'SHE Approval': '<span class="badge badge-modern badge-compact badge-primary">SHE Approval</span>',
+        'FM Approval': '<span class="badge badge-modern badge-compact badge-primary">FM Approval</span>',
+        'Approved': '<span class="badge badge-modern badge-compact badge-success">Approved</span>',
+        'Extended': '<span class="badge badge-modern badge-compact badge-success" title="Permit Extended">Extended</span>',
+        'Closure Requested': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'Cancellation Requested': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'Suspension Requested': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'Extension Requested': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'Closed': '<span class="badge badge-modern badge-compact badge-danger-light">Closed</span>',
+        'Cancelled': '<span class="badge badge-modern badge-compact badge-danger-dark">Cancelled</span>',
+        'Suspended': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'Rejected': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
         // Raw enums fallback (legacy)
-        'ACTIVE': '<span class="badge badge-modern badge-success">Active</span>',
-        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-info">Pending Supervisor</span>',
-        'PENDING_CLOSURE': '<span class="badge badge-modern badge-warning">Closure Requested</span>',
-        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-warning">Cancellation Requested</span>',
-        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-warning">Suspension Requested</span>',
-    'PENDING_EXTENSION': '<span class="badge badge-modern badge-info">Extension Requested</span>',
-        'SUSPENDED': '<span class="badge badge-modern badge-warning">Suspended</span>',
-        'CANCELLED': '<span class="badge badge-modern badge-dark">Cancelled</span>',
-        'REJECTED': '<span class="badge badge-modern badge-danger">Rejected</span>',
-        'COMPLETED': '<span class="badge badge-modern badge-closed">Closed</span>',
-        'CLOSED': '<span class="badge badge-modern badge-closed">Closed</span>'
+        'ACTIVE': '<span class="badge badge-modern badge-compact badge-success">Active</span>',
+        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-compact badge-info">Pending Supervisor</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'PENDING_EXTENSION': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'SUSPENDED': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'CANCELLED': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
+        'REJECTED': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>'
     };
-    return map[s] || `<span class="badge badge-modern badge-info">${s}</span>`;
+    return map[s] || `<span class="badge badge-modern badge-compact badge-info">${s}</span>`;
 }
 
 // Derive display status using backend-provided ptw_display_status if available,
@@ -2437,7 +2461,7 @@ function setStatusFilter(code){
 
 function applyStatusFilter(){
     if (!pendingPTWTable) return;
-    const colIndex = 4; // Status column after removing Risk
+    const colIndex = 5; // Status column index
     if (statusFilter === 'ALL') {
         pendingPTWTable.column(colIndex).search('').draw();
         return;
@@ -2746,46 +2770,13 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 
 // PDF generation function
 function generatePTWPDF(ptwId) {
-    console.log('PDF generation requested for PTW:', ptwId);
-    
-    if (!ptwId) {
-        console.error('No PTW ID provided for PDF generation');
-        safeToast('error', 'No PTW ID provided', 'Error');
-        return;
-    }
-    
-    // Show loading toast
-    safeToast('info', 'Generating PDF...', 'Processing');
-    
-    try {
-        // Use mzAjaxRequest like other API calls in this file
-    const result = mzAjaxRequest(`ptw_pdf.php?type=html_template&ptwPermitId=${ptwId}`, 'GET', {});
-        
-        console.log('PDF generation result:', result);
-        
-        if (result && result.status === 'success') {
-            if (result.pdf_url) {
-                // Success - download the PDF
-                const link = document.createElement('a');
-                link.href = result.pdf_url;
-                link.download = result.filename || `PTW_${ptwId}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                safeToast('success', 'PDF generated successfully', 'Success');
-            } else {
-                console.error('No PDF URL in successful response:', result);
-                safeToast('error', 'PDF URL not found in response', 'Error');
-            }
-        } else {
-            console.error('PDF generation failed:', result);
-            const errorMessage = result ? (result.message || result.error || 'Unknown error') : 'No response from server';
-            safeToast('error', 'Failed to generate PDF: ' + errorMessage, 'Error');
-        }
-    } catch (error) {
-        console.error('PDF generation error:', error);
-        safeToast('error', 'Failed to generate PDF: ' + error.message, 'Error');
+    console.log('Print-to-PDF requested for PTW:', ptwId);
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) {
+        // Popup blocked; fallback
+        window.location.href = url;
     }
 }
 </script>
@@ -2930,7 +2921,3 @@ function regeneratePermitQR(){
     }
 }
 </script>
-
-</main>
-</body>
-</html>

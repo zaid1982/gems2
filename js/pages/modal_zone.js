@@ -8,14 +8,9 @@ function ModalZone () {
     let zoneId;
     let modalConfirmDeleteClass;
     let qrCodeImg;
-    let qrCodePtwImg;
 
     this.init = function () {
-        qrCodeImg = new QRCode(document.getElementById("divMznQrCodeImg"), { });
-        const ptwQrEl = document.getElementById('divMznPtwQrCodeImg');
-        if (ptwQrEl) {
-            qrCodePtwImg = new QRCode(ptwQrEl, { });
-        }
+    qrCodeImg = new QRCode(document.getElementById("divMznQrCodeImg"), { });
         
         mzOptionV2('optMznSite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
 
@@ -155,15 +150,13 @@ function ModalZone () {
                 const data = mzAjaxRequest2('zone/'+zoneId, 'GET');
                 const qrLink = classFrom.getUrlLinkBase() + zoneId; // already full
                 const basePath = (typeof classFrom.getBaseAppPath === 'function') ? classFrom.getBaseAppPath() : '';
-                const ptwLink = basePath + '/ptw_form.html?site_id=' + encodeURIComponent(data['siteId'] || '');
+                // PTW link/QR removed from Zone modal (now handled at Site level)
                 mzSetFieldValue('MznSite', data['siteId'], 'select');
                 mzSetFieldValue('MznType', data['zoneType'], 'text');
                 mzSetFieldValue('MznName', data['zoneName'], 'text');
                 mzSetFieldValue('MznCode', data['zoneCode'], 'text');
                 mzSetFieldValue('MznLink', qrLink, 'text');
-                if (document.getElementById('txtMznPtwLink')) {
-                    mzSetFieldValue('MznPtwLink', ptwLink, 'text');
-                }
+                // Removed PTW link field population
                 mzSetFieldValue('MznStatus', data['zoneStatus'], 'radio');
                 mzDisableSelect('optMznSite', true);
                 // Generate / regenerate Complaint QR
@@ -179,16 +172,7 @@ function ModalZone () {
                     qrCodeImg.makeCode(qrLink);
                 }
 
-                // Generate / regenerate PTW Form QR
-                const ptwQrContainer = document.getElementById('divMznPtwQrCodeImg');
-                if (ptwQrContainer) {
-                    if (!qrCodePtwImg) {
-                        qrCodePtwImg = new QRCode(ptwQrContainer, {});
-                    } else if (typeof qrCodePtwImg.clear === 'function') {
-                        qrCodePtwImg.clear();
-                    }
-                    qrCodePtwImg.makeCode(ptwLink);
-                }
+                // Removed PTW QR generation
                 $('#btnMznSubmit').hide();
                 $('#btnMznDelete, #btnMznSave, .divMznQr').show();
                 $('#h4MznTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit FCA Zone');
