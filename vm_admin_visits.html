@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>GEMS 2.0 - Admin Visits</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    body { background: #f6f8fa; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 2rem 0; }
+    .card, .btn, .form-control, .badge, .modal-content, .input-group-text { border-radius: 0 !important; }
+  .filters .form-control { height: 38px; }
+  /* Force native select rendering and visibility */
+  .filters select.browser-default.custom-select { display: block !important; visibility: visible !important; }
+    .table td { vertical-align: middle; }
+    .text-ellipsis { max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Detail modal label/value contrast */
+  .vd-label { display:block; font-size: 0.75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .02em; margin-bottom: .25rem; }
+  .vd-value { font-weight: 600; color: #212529; padding: .25rem 0; border-bottom: 1px dashed #e9ecef; }
+  #visitDetailModal .form-group { margin-bottom: .75rem; }
+  </style>
+</head>
+<body class="fixed-sn light-blue-skin">
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+  </header>
+  <!--Main Navigation-->
+
+  <!--Main layout-->
+  <main>
+    <div class="container-fluid page">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 class="mb-1"><i class="fas fa-clipboard-list me-2"></i> Admin: Visitor Registrations</h3>
+          <div class="text-muted">Manage and audit visitor submissions</div>
+        </div>
+        <div>
+          <a id="newBtn" class="btn btn-primary"><i class="fas fa-plus me-1"></i> New Registration</a>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-2 filters">
+            <div class="col-md-3">
+              <label class="form-label">Client</label>
+              <select id="clientId" class="browser-default custom-select">
+                <option value="" selected>All clients…</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date Start</label>
+              <input type="date" class="form-control" id="dateStart">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date End</label>
+              <input type="date" class="form-control" id="dateEnd">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Status</label>
+              <select id="status" class="browser-default custom-select">
+                <option value="ALL">All</option>
+                <option>CHECKED_IN</option>
+                <option>CHECKED_OUT</option>
+                <option>CANCELLED</option>
+                <option>ARCHIVED</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Site</label>
+              <select id="siteId" class="browser-default custom-select">
+                <option value="" selected disabled>Select site…</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Search</label>
+              <input type="text" class="form-control" id="search" placeholder="Name, contact, host...">
+            </div>
+          </div>
+          <div class="mt-3 d-flex gap-2">
+            <button id="applyBtn" class="btn btn-primary" disabled>Apply</button>
+            <button id="resetBtn" class="btn btn-outline-secondary">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="tbl" class="table table-striped table-bordered" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Ref</th>
+                  <th>Arrived At</th>
+                  <th>Site</th>
+                  <th>Name</th>
+                  <th>Contact</th>
+                  <th>Party</th>
+                  <th>Host</th>
+                  <th>Status</th>
+                  <th>Purpose</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+  </div>
+  </main>
+  <!--Main layout-->
+
+  <!-- Shared Modals / Includes -->
+  <div class="includeHtml" id="h-modal_change_password"></div>
+  <!-- Loading Modal -->
+  <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true"></div>
+  <!-- Visit Detail Modal -->
+  <div class="modal fade" id="visitDetailModal" tabindex="-1" role="dialog" aria-labelledby="visitDetailTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content z-depth-3">
+        <div class="modal-header">
+          <h5 class="modal-title" id="visitDetailTitle">Visit Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Reference</span>
+                  <div id="vd_visit_id" class="vd-value">-</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Arrived At</span>
+                  <div id="vd_arrived_at" class="vd-value">-</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Site</span>
+                  <div id="vd_site_id" class="vd-value">-</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Status</span>
+                  <div id="vd_status" class="vd-value">-</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Visitor Name</span>
+                  <div id="vd_name" class="vd-value">-</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Contact No</span>
+                  <div id="vd_contact_no" class="vd-value">-</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Party Size</span>
+                  <div id="vd_party_size" class="vd-value">-</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <span class="vd-label">Host Name</span>
+                  <div id="vd_host_name" class="vd-value">-</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <span class="vd-label">Purpose</span>
+                  <div id="vd_purpose" class="vd-value">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <script>
+    // Load shared nav/header/modals, then initialize side nav and menus
+    $(function(){
+      const $includes = $('.includeHtml');
+      let pending = $includes.length;
+      if (pending === 0) {
+        try { if (typeof initiatePages === 'function') { initiatePages(); } else { console.warn('initiatePages not ready'); } } catch(e) { console.warn('initiatePages unavailable', e); }
+        return;
+      }
+      $includes.each(function(){
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf(), function(){
+          pending--;
+          if (pending === 0) {
+            // All includes loaded, now run common initializer (retry until available)
+            let tries = 0; const maxTries = 50;
+            const tick = setInterval(function(){
+              tries++;
+              if (typeof initiatePages === 'function') {
+                try { initiatePages(); } catch(e) { console.error('initiatePages error', e); }
+                clearInterval(tick);
+              } else if (tries >= maxTries) {
+                clearInterval(tick);
+                console.warn('initiatePages not found after waiting');
+              }
+            }, 100);
+          }
+        });
+      });
+    });
+  </script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script src="js/mdb.js"></script>
+  <!-- Crypto JS -->
+  <script src="js/addons/crypto.js"></script>
+  <!-- DataTables.net -->
+  <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+  <script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+  <!-- Moment JS -->
+  <script src="js/addons/moment.min.js"></script>
+  <!-- Toastr for notifications -->
+  <script src="js/modules/toastr.js"></script>
+  <!-- Safe Toastr wrapper -->
+  <script src="js/toastr-safe.js"></script>
+  <!-- Common helpers with cache buster -->
+  <script>
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  </script>
+  <script>
+    // Brief loader flash to match PTW UX
+    document.addEventListener('DOMContentLoaded', function(){
+      try { if (typeof ShowLoader === 'function') { ShowLoader(); setTimeout(function(){ if (typeof HideLoader==='function') HideLoader(); }, 200); } } catch(e){}
+    });
+  </script>
+  <script>
+    (function(){
+      const $tbl = $('#tbl');
+      const $apply = $('#applyBtn');
+      const $reset = $('#resetBtn');
+      const $status = $('#status');
+  const $client = $('#clientId');
+  const $site = $('#siteId');
+      const $search = $('#search');
+      const $ds = $('#dateStart');
+      const $de = $('#dateEnd');
+      const $newBtn = $('#newBtn');
+      const params = new URLSearchParams(window.location.search);
+  const siteParam = params.get('site') || '';
+      const today = new Date().toISOString().slice(0,10);
+      $ds.val(today); $de.val(today);
+      function setNewHref(siteId){
+        if (siteId) { $newBtn.attr('href', 'vm_visit.html?site=' + encodeURIComponent(siteId)).removeClass('disabled'); }
+        else { $newBtn.addClass('disabled').removeAttr('href'); }
+      }
+      setNewHref(siteParam);
+
+      let CSRF = null;
+      function getCsrf(){ return fetch('api/vm_admin.php?action=csrf').then(r=>r.json()).then(j=>{ CSRF = j.result.token; }); }
+
+      function load(){
+        const siteVal = $site.val() || '';
+        if (!siteVal) {
+          alert('Please select a site');
+          return Promise.resolve();
+        }
+        const qs = new URLSearchParams({
+          action:'list',
+          site_id: siteVal,
+          status: $status.val() || 'ALL',
+          search: $search.val() || '',
+          date_start: $ds.val() || today,
+          date_end: $de.val() || $ds.val() || today,
+          page: 1,
+          size: 50
+        });
+        return fetch('api/vm_admin.php?' + qs.toString())
+          .then(r=>r.json())
+          .then(resp=>{ if (!resp.success) throw new Error(resp.error||'Failed'); return resp.result; })
+          .then(draw)
+          .catch(e=>{ console.error(e); alert(e.message||'Load failed'); });
+      }
+
+      function draw(data){
+        const rows = Array.isArray(data.rows)? data.rows : [];
+        const $tbody = $tbl.find('tbody').empty();
+        function titleize(s){
+          if(!s) return '-';
+          return String(s).toLowerCase().replace(/_/g,' ').replace(/\b\w/g, m=>m.toUpperCase());
+        }
+        function statusMeta(s){
+          const key = String(s||'').toUpperCase();
+          switch(key){
+            case 'CHECKED_IN': return { label: 'Checked In', cls: 'badge-success' };
+            case 'CHECKED_OUT': return { label: 'Checked Out', cls: 'badge-secondary' };
+            case 'CANCELLED': return { label: 'Cancelled', cls: 'badge-danger' };
+            case 'ARCHIVED': return { label: 'Archived', cls: 'badge-dark' };
+            case 'PENDING': return { label: 'Pending', cls: 'badge-warning' };
+            default: return { label: titleize(s||'Unknown'), cls: 'badge-info' };
+          }
+        }
+        rows.forEach(r=>{
+          const purpose = $('<span>').addClass('text-ellipsis').attr('title', r.purpose||'').text(r.purpose||'');
+          const st = statusMeta(r.status);
+          const statusBadge = $('<span/>').addClass('badge '+st.cls).text(st.label);
+          const $act = $('<div class="btn-group btn-group-sm">')
+            .append($('<button class="btn btn-outline-primary">View</button>').on('click', ()=>viewRow(r)))
+            .append($('<button class="btn btn-outline-secondary">Archive</button>').on('click', ()=>archiveRow(r)))
+            .append($('<button class="btn btn-outline-danger">Delete</button>').on('click', ()=>deleteRow(r)));
+          const tr = $('<tr/>')
+            .append($('<td/>').text(r.visit_id))
+            .append($('<td/>').text(r.arrived_at||''))
+            .append($('<td/>').text(r.site_id||''))
+            .append($('<td/>').text(r.name||''))
+            .append($('<td/>').text(r.contact_no||''))
+            .append($('<td/>').text(r.party_size||''))
+            .append($('<td/>').text(r.host_name||''))
+            .append($('<td/>').append(statusBadge))
+            .append($('<td/>').append(purpose))
+            .append($('<td/>').append($act));
+          $tbody.append(tr);
+        });
+        if ( $.fn.dataTable.isDataTable('#tbl') ) { $tbl.DataTable().destroy(); }
+        $tbl.DataTable({ order: [[1,'desc']], pageLength: 25 });
+      }
+
+      function viewRow(r){
+        const qs = new URLSearchParams({ action:'detail', visit_id: r.visit_id });
+        fetch('api/vm_admin.php?'+qs.toString())
+          .then(r=>r.json()).then(resp=>{
+            if(!resp.success) throw new Error(resp.error||'Failed');
+            const d = resp.result;
+            // Populate modal fields (simple fallback to '-')
+            $('#vd_visit_id').text(d.visit_id || '-');
+            $('#vd_arrived_at').text(d.arrived_at || '-');
+            $('#vd_site_id').text(d.site_id || '-');
+            // Status as badge
+            (function(){
+              const key = String(d.status||'');
+              const meta = (function(s){
+                const k = String(s||'').toUpperCase();
+                switch(k){
+                  case 'CHECKED_IN': return { label: 'Checked In', cls: 'badge-success' };
+                  case 'CHECKED_OUT': return { label: 'Checked Out', cls: 'badge-secondary' };
+                  case 'CANCELLED': return { label: 'Cancelled', cls: 'badge-danger' };
+                  case 'ARCHIVED': return { label: 'Archived', cls: 'badge-dark' };
+                  case 'PENDING': return { label: 'Pending', cls: 'badge-warning' };
+                  default: return { label: String(key).toLowerCase().replace(/_/g,' ').replace(/\b\w/g, m=>m.toUpperCase()) || '-', cls: 'badge-info' };
+                }
+              })(key);
+              $('#vd_status').empty().append($('<span/>').addClass('badge '+meta.cls).text(meta.label));
+            })();
+            $('#vd_name').text(d.name || '-');
+            $('#vd_contact_no').text(d.contact_no || '-');
+            $('#vd_party_size').text(d.party_size || '-');
+            $('#vd_host_name').text(d.host_name || '-');
+            $('#vd_purpose').text(d.purpose || '-');
+            $('#visitDetailModal').modal('show');
+          }).catch(e=>alert(e.message||'Failed'));
+      }
+
+      function archiveRow(r){
+        if(!confirm('Archive this visit?')) return;
+        fetch('api/vm_admin.php?action=archive', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': CSRF||''}, body: JSON.stringify({ visit_id: r.visit_id })})
+          .then(r=>r.json()).then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); load(); })
+          .catch(e=>alert(e.message||'Archive failed'));
+      }
+
+      function deleteRow(r){
+        if(!confirm('Delete this visit?')) return;
+        fetch('api/vm_admin.php?action=delete', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': CSRF||''}, body: JSON.stringify({ visit_id: r.visit_id })})
+          .then(r=>r.json()).then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); load(); })
+          .catch(e=>alert(e.message||'Delete failed'));
+      }
+
+      $apply.on('click', load);
+      $reset.on('click', function(){
+        $status.val('ALL');
+        $search.val('');
+        $client.val('');
+        if (siteParam) { $site.val(siteParam).trigger('change'); } else { $site.val('').trigger('change'); }
+        $ds.val(today); $de.val(today);
+      });
+
+      // Use same local reference approach as home.html
+      let versionLocal_ = null;
+      let refClient_ = [];
+      let refSite_ = [];
+
+      function loadRefs() {
+        versionLocal_ = (typeof mzGetDataVersion === 'function') ? mzGetDataVersion() : null;
+        refClient_ = (typeof mzGetLocalArray === 'function') ? mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client') : [];
+        refSite_ = (typeof mzGetLocalArray === 'function') ? mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site') : [];
+      }
+
+      function setOptionClient() {
+        $client.empty();
+        $client.append('<option value="" selected>All clients…</option>');
+        refClient_.forEach(c => {
+          const id = c.clientId || c.client_id;
+          const name = c.clientName || c.client_name || ('Client ' + id);
+          if (id) $client.append('<option value="'+id+'">'+name+'</option>');
+        });
+      }
+
+      function setOptionSite(clientId) {
+        $site.empty().append('<option value="" disabled selected>Select site…</option>');
+        let list = refSite_;
+        if (!Array.isArray(list) || list.length === 0) {
+          // Fallback to API-based population when local refs aren't ready
+          return fallbackPopulateSites().then(() => finalizeSiteOptions());
+        } else {
+          if (clientId) list = list.filter(s => String(s.clientId || s.client_id) === String(clientId));
+          list.forEach(s => {
+            const id = s.siteId || s.site_id;
+            const name = s.siteName || s.site_name || ('Site ' + id);
+            if (id) $site.append('<option value="'+id+'">'+name+'</option>');
+          });
+          return finalizeSiteOptions();
+        }
+      }
+
+      function finalizeSiteOptions() {
+        // Preselect from query param
+        if (siteParam) { $site.val(siteParam); }
+        const hasSite = !!$site.val();
+        $('#applyBtn').prop('disabled', !hasSite);
+        setNewHref($site.val());
+        if (hasSite) { return getCsrf().then(load); }
+        return Promise.resolve();
+      }
+
+      $site.on('change', function(){
+        const val = $(this).val();
+        $('#applyBtn').prop('disabled', !val);
+        setNewHref(val);
+  if (val) { getCsrf().then(load); }
+      });
+
+      $client.on('change', function(){
+        const cid = $(this).val();
+        setOptionSite(cid).then(()=>{
+          const v = $site.val();
+          $('#applyBtn').prop('disabled', !v);
+        });
+      });
+
+      // Init refs and selectors
+      loadRefs();
+      setOptionClient();
+      // If site was provided, derive and preselect its client (safe guards)
+      if (siteParam && Array.isArray(refSite_) && refSite_.length) {
+        const match = refSite_.find(s => s && String((s.siteId || s.site_id || '')) === String(siteParam));
+        if (match && (match.clientId || match.client_id)) { $client.val(match.clientId || match.client_id); }
+      }
+  setOptionSite($client.val() || '');
+
+      function fallbackPopulateSites() {
+        const token = sessionStorage.getItem('token');
+        const url = token ? 'api/site.php' : 'api/validate_import.php?action=sites';
+        return fetch(url, token ? { headers: { 'Authorization': 'Bearer ' + token } } : {})
+          .then(r=>r.json())
+          .then(resp=>{
+            const list = resp.result || resp.data || [];
+            $site.empty().append('<option value="" disabled selected>Select site…</option>');
+            list.forEach(s=>{
+              const id = s.site_id || s.siteId || s.siteid;
+              const name = s.site_name || s.siteName || s.name || ('Site ' + id);
+              if (id) $site.append('<option value="'+id+'">'+name+'</option>');
+            });
+          })
+          .catch(e=>console.error('Failed to load sites (fallback)', e));
+      }
+    })();
+  </script>
+</body>
+</html>

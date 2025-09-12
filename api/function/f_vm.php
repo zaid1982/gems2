@@ -29,14 +29,19 @@ class Class_vm {
     public function createVisit($payload, $userId=null){
         list($errors,$v)=$this->validateVisitPayload($payload);
         if(!empty($errors)) return ['success'=>false,'errors'=>$errors];
+        // Ensure site exists to avoid FK violation
+        $siteRows = Class_db::getInstance()->db_select('cli_site', ['site_id'=>$v['siteId']], null, '1');
+        if (empty($siteRows)) {
+            return ['success'=>false,'errors'=>['site_id'=>'Unknown site']];
+        }
         $insert=[
-            'site_id'=>$v['siteId'],
+            'site_id'=>(int)$v['siteId'],
             'name'=>$v['name'],
             'contact_no'=>$v['contact'],
             'ic_no'=>$v['ic'],
             'company'=>$v['company'],
             'email'=>$v['email'],
-            'party_size'=>$v['party'],
+            'party_size'=>(int)$v['party'],
             'host_name'=>$v['host'],
             'purpose'=>$v['purpose'],
             'status'=>'CHECKED_IN',

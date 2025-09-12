@@ -1,87 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Visitor Registration</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="stylesheet" href="css/mdb.min.css" />
-<style>
-body {padding:20px; background:#f6f8fa;}
-.card {max-width:760px;margin:0 auto;}
-.required:after{content:' *';color:#d00;}
-small.error{color:#d00;display:none;}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>GEMS 2.0 - Visitor Registration</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+  :root { --vm-bg:#f6f8fa; --vm-primary:#1266f1; --vm-primary-dark:#0d47a1; --vm-muted:#627d98; --vm-border:#e1e7ef; --vm-text:#102a43; }
+  body { background:var(--vm-bg); color:var(--vm-text); }
+  /* Header to match PTW public form */
+  .vm-header { padding: 1.5rem 0 .75rem; }
+  .vm-header .title { font-size: 2rem; font-weight: 800; letter-spacing: .2px; }
+  .vm-header .subtitle { color: var(--vm-muted); margin-top: .25rem; }
+  .vm-header .title i { color: #2f80ed; }
+  .vm-page { max-width: 980px; margin: 0 auto; }
+  /* Help banner */
+  .vm-help { background: #d8f3ff; border: 1px solid #c3ecff; color: #0b4c6a; border-radius: 0; padding: .75rem 1rem; }
+  .vm-help i { color: #2f80ed; }
+  /* Section tabs styling similar to PTW */
+  .vm-tabs { border-bottom: none; margin-top: 1rem; }
+  .vm-tabs .nav-link { border: 1px solid var(--vm-border); border-bottom: 3px solid transparent; margin-right: .5rem; border-radius: 0; color: var(--vm-text); font-weight: 600; background: #fff; }
+  .vm-tabs .nav-link.active { background: #2f80ed; color: #fff; border-color: #2f80ed; }
+  .vm-tabs .nav-link i { margin-right: .4rem; }
+  .vm-card { border-radius: 0; border: 1px solid var(--vm-border); overflow:hidden; }
+  .vm-card .card-body { padding: 1.5rem; }
+  @media (min-width: 768px){ .vm-card .card-body { padding: 2rem; } }
+  .page-header-title { font-weight: 700; }
+  .page-description { color: var(--vm-muted); }
+  .required:after { content:' *'; color:#d00; }
+  .form-label { font-weight:600; font-size:.95rem; }
+  .form-control, .input-group-text { border-radius:0 !important; }
+  .form-control:focus { box-shadow: 0 0 0 .2rem rgba(18,102,241,.15); border-color: var(--vm-primary); }
+  .invalid-feedback { display:none; }
+  .form-control.is-invalid ~ .invalid-feedback, .input-group.is-invalid ~ .invalid-feedback { display:block; }
+  .btn-primary { background: var(--vm-primary); border-color: var(--vm-primary); }
+  .btn-primary:hover { background: var(--vm-primary-dark); border-color: var(--vm-primary-dark); }
+  .vm-actions { gap: .75rem; }
+  /* Square off everything like PTW */
+  .btn, .modal-content, .badge, .card, .input-group .form-control, .input-group .input-group-text { border-radius: 0 !important; }
+  /* Help icon styling */
+  .help-icon { color: var(--vm-muted); cursor: help; font-size: .95rem; }
+  .help-icon:hover { color: var(--vm-primary); }
+  </style>
 </head>
-<body>
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h4 class="mb-3">Visitor Registration</h4>
-    <form id="visitForm" autocomplete="off" novalidate>
-      <div class="row g-3">
-        <div class="col-md-6"><label class="form-label required">Name</label><input class="form-control" name="name" maxlength="100" required></div>
-        <div class="col-md-6"><label class="form-label required">Contact No</label><input class="form-control" name="contact_no" placeholder="e.g. +60 12-3456789" required></div>
-        <div class="col-md-6"><label class="form-label required">IC / ID</label><input class="form-control" name="ic_no" placeholder="e.g. 880101015555" required></div>
-        <div class="col-md-6"><label class="form-label">Company</label><input class="form-control" name="company" maxlength="100"></div>
-        <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" name="email" type="email" maxlength="150"></div>
-        <div class="col-md-3"><label class="form-label required">Party Size</label><input class="form-control" name="party_size" type="number" min="1" max="999" value="1" required></div>
-        <div class="col-md-6"><label class="form-label required">Host Name</label><input class="form-control" name="host_name" maxlength="100" required></div>
-        <div class="col-12"><label class="form-label required">Purpose</label><textarea class="form-control" name="purpose" rows="3" maxlength="2000" required></textarea></div>
-        <div class="col-md-6"><label class="form-label">Date / Time</label><input class="form-control" name="display_datetime" disabled></div>
-        <input type="hidden" name="site_id" id="site_id" />
-      </div>
-      <div class="mt-4 d-flex gap-2">
-        <button class="btn btn-secondary" type="reset" id="btnReset">Reset</button>
-        <button class="btn btn-primary" type="submit" id="btnSubmit">Submit</button>
-      </div>
-    </form>
+<body class="fixed-sn light-blue-skin">
+
+<!-- Global Header with Logo -->
+<header class="global-header">
+  <div class="company-logo">
+    <img src="img/icon/gfm-logo-transparent.png" alt="GFM Logo">
   </div>
-</div>
+  <div class="container-fluid">
+    <div class="row mt-3"></div>
+  </div>
+  <div id="mdb-lightbox-ui"></div>
+</header>
+
+<main style="padding: 0px; padding-top: 3rem;">
+  <div class="container-fluid vm-page vm-header">
+    <div class="d-flex align-items-start">
+      <div>
+        <div class="title"><i class="fas fa-id-badge me-2"></i> Visitor Registration</div>
+        <div class="subtitle">Submit your visit registration - no login required</div>
+      </div>
+    </div>
+    <div class="vm-help mt-3"><i class="fas fa-info-circle me-2"></i><strong>Need help?</strong> Click the <i class="far fa-question-circle mx-1"></i> icons next to field labels for examples and guidance.</div>
+    <!-- <ul class="nav nav-tabs vm-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link active" href="#" role="tab" aria-selected="true"><i class="fas fa-file-alt"></i> Section 1: Visitor Details</a>
+      </li>
+    </ul> -->
+  </div>
+  <div class="container-fluid vm-page" style="padding-left:0; padding-right:0;">
+    <div class="card vm-card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3 page-header-title"><i class="fas fa-id-badge me-2"></i> Visitor Details</h5>
+        <p class="page-description mb-4">Your information helps us ensure a smooth and secure check-in experience.</p>
+        <form id="visitForm" autocomplete="off" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Name <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Enter your full name as per ID."></i></label>
+              <input class="form-control" name="name" maxlength="100" required placeholder="Your full name">
+              <div class="invalid-feedback">Please enter your name (1–100 chars).</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Contact No <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Mobile number with country code, e.g. +60 12-3456789."></i></label>
+              <div class="input-group" id="grpContact">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <input class="form-control" name="contact_no" placeholder="e.g. +60 12-3456789" required>
+              </div>
+              <div class="invalid-feedback">Please enter a valid contact number.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">IC / ID <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="National ID or passport number (digits only for MyKad)."></i></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <input class="form-control" name="ic_no" placeholder="e.g. 880101015555" required>
+              </div>
+              <div class="invalid-feedback">IC/ID must be digits only.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Company <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Your employer or organization (optional)."></i></label>
+              <input class="form-control" name="company" maxlength="100" placeholder="Company / Organization">
+              <div class="invalid-feedback">Max 100 characters.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="We’ll use this to send confirmation if needed."></i></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input class="form-control" name="email" type="email" maxlength="150" placeholder="name@example.com">
+              </div>
+              <div class="invalid-feedback">Please enter a valid email.</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label required">Party Size <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Total number of visitors in your group, including you."></i></label>
+              <input class="form-control" name="party_size" type="number" min="1" max="999" value="1" required>
+              <div class="invalid-feedback">Party size must be between 1 and 999.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Host Name <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Name of the person you’re meeting."></i></label>
+              <input class="form-control" name="host_name" maxlength="100" required placeholder="Who you are meeting">
+              <div class="invalid-feedback">Host name required (1–100 chars).</div>
+            </div>
+            <div class="col-12 mb-3">
+              <label class="form-label required">Purpose <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Briefly describe why you are visiting."></i></label>
+              <textarea class="form-control" name="purpose" rows="3" maxlength="2000" required placeholder="Briefly describe the purpose of your visit"></textarea>
+              <div class="invalid-feedback">Please describe your purpose (1–2000 chars).</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Date / Time <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Current date and time at the site."></i></label>
+              <input class="form-control" name="display_datetime" disabled>
+            </div>
+            <input type="hidden" name="site_id" id="site_id" />
+          </div>
+          <div class="mt-4 d-flex vm-actions">
+            <button class="btn btn-outline-secondary" type="reset" id="btnReset"><i class="fas fa-undo me-1"></i>Reset</button>
+            <button class="btn btn-primary" type="submit" id="btnSubmit">
+              <span class="btn-text"><i class="fas fa-paper-plane me-1"></i>Submit</span>
+              <span class="btn-spinner d-none"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting…</span>
+            </button>
+          </div>
+          <p class="text-muted mt-3 mb-0" style="font-size:.85rem;">Your information is handled in accordance with site security and privacy practices.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="includeHtml" id="h-modal_change_password"></div>
+  <div class="includeHtml" id="h-modal_pdf"></div>
+</main>
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="successModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Registration Successful</h5></div>
+      <div class="modal-header"><h5 class="modal-title"><i class="fas fa-check-circle text-success me-2"></i>Registration Successful</h5></div>
       <div class="modal-body">
-        <p>Your visit has been recorded. Reference ID: <span id="refId"></span></p>
+        <p class="mb-2">Your visit has been recorded. Reference ID: <strong><span id="refId"></span></strong></p>
         <p>Please proceed to the reception if required.</p>
       </div>
-      <div class="modal-footer"><button class="btn btn-primary" data-mdb-dismiss="modal">OK</button></div>
+  <div class="modal-footer"><button type="button" id="successOk" class="btn btn-primary" data-mdb-dismiss="modal" data-dismiss="modal" data-bs-dismiss="modal">OK</button></div>
     </div>
   </div>
-</div>
-<script src="js/jquery-3.6.0.min.js"></script>
-<script src="js/mdb.min.js"></script>
-<script>
-(function(){
-  const form = document.getElementById('visitForm');
-  const dtInput = form.querySelector('[name=display_datetime]');
-  const siteField = document.getElementById('site_id');
-  // Parse site id from query (?site=123) or token in future
-  const params=new URLSearchParams(window.location.search); if(params.get('site')) siteField.value=params.get('site');
-  function refreshClock(){dtInput.value=new Date().toLocaleString();}
-  refreshClock(); setInterval(refreshClock,1000);
+ </div>
 
-  form.addEventListener('reset', ()=>{ setTimeout(()=>{refreshClock();},50); });
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(form).entries());
-    data.party_size = data.party_size || '1';
-    fetch('api/vm.php', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
-      .then(r=>r.json())
-      .then(resp=>{
-        if(!resp.success){
-          const errs = resp.errors||{}; alert('Please correct form errors');
-          Object.keys(errs).forEach(k=>{ const el=form.querySelector('[name='+k+']'); if(el){el.classList.add('is-invalid'); el.title=errs[k];}});
-          return;
-        }
-        $('#refId').text(resp.result.visit_id);
-        const modal = new mdb.Modal(document.getElementById('successModal')); modal.show();
-        form.reset(); refreshClock();
-      })
-      .catch(err=>{alert('Submission failed'); console.error(err);});
+<!-- SCRIPTS (align with ptw_form.html) -->
+<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript">
+  // Load shared modals if present
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
   });
-})();
+
+  (function(){
+    const form = document.getElementById('visitForm');
+    const dtInput = form.querySelector('[name=display_datetime]');
+    const siteField = document.getElementById('site_id');
+    const submitBtn = document.getElementById('btnSubmit');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    const params=new URLSearchParams(window.location.search);
+    if(params.get('site')) siteField.value=params.get('site');
+  function refreshClock(){ const now = new Date().toLocaleString(); dtInput.value = now; }
+    refreshClock(); setInterval(refreshClock,1000);
+
+    function clearFieldErrors(){
+      form.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
+    }
+    form.addEventListener('reset', ()=>{ setTimeout(()=>{ clearFieldErrors(); refreshClock(); },50); });
+
+    function setLoading(state){
+      submitBtn.disabled = state;
+      if(state){ btnText.classList.add('d-none'); btnSpinner.classList.remove('d-none'); }
+      else { btnSpinner.classList.add('d-none'); btnText.classList.remove('d-none'); }
+    }
+
+    function markError(name, message){
+      const field = form.querySelector('[name='+CSS.escape(name)+']');
+      if(!field){ return; }
+      const group = field.closest('.input-group');
+      if(group){ group.classList.add('is-invalid'); }
+      field.classList.add('is-invalid');
+      let feedback = field.parentElement.querySelector('.invalid-feedback');
+      if(!feedback){
+        const after = group ? group.parentElement.querySelector('.invalid-feedback') : null;
+        feedback = after || document.createElement('div');
+        if(!after){ feedback.className = 'invalid-feedback'; field.parentElement.appendChild(feedback); }
+      }
+      if(message){ feedback.textContent = message; }
+    }
+    // Enable tooltips for help icons (MDB if available, else Bootstrap)
+    $(function(){
+      const $tips = $('[data-mdb-toggle="tooltip"], [data-toggle="tooltip"]');
+      if (window.mdb && mdb.Tooltip) {
+        $tips.each(function(){ new mdb.Tooltip(this); });
+      } else if ($.fn.tooltip) {
+        // normalize attribute for Bootstrap
+        $tips.filter('[data-mdb-toggle]')
+            .attr('data-toggle','tooltip')
+            .removeAttr('data-mdb-toggle');
+        $tips.tooltip({ boundary: 'window' });
+      }
+    });
+    // Fallback: ensure OK button always closes modal
+    $(document).on('click', '#successOk', function(){
+      const el = document.getElementById('successModal');
+      if (window.mdb && mdb.Modal) {
+        const inst = mdb.Modal.getInstance(el) || new mdb.Modal(el);
+        inst.hide();
+      } else if ($.fn.modal) {
+        $('#successModal').modal('hide');
+      }
+    });
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      setLoading(true);
+      clearFieldErrors();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.party_size = data.party_size || '1';
+      fetch('api/vm.php', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+        .then(r=>r.json())
+        .then(resp=>{
+          const ok = !!(resp && (resp.success === true || (resp.result && resp.result.success === true)));
+          if(!ok){
+            const errs = resp && resp.errors ? resp.errors : {};
+            if (Object.keys(errs).length > 0) {
+              toastr.error('Please correct the highlighted fields.');
+              Object.keys(errs).forEach(k=>{ markError(k, errs[k]); });
+            } else {
+              toastr.error(resp && resp.error ? resp.error : 'Submission failed');
+            }
+            return;
+          }
+          $('#refId').text(resp.result.visit_id);
+          if (window.mdb && mdb.Modal) {
+            const modal = new mdb.Modal(document.getElementById('successModal')); modal.show();
+          } else if ($.fn.modal) {
+            $('#successModal').modal('show');
+          }
+          form.reset(); refreshClock();
+        })
+        .catch(err=>{ toastr.error('Submission failed'); console.error(err); })
+        .finally(()=>{ setLoading(false); });
+    });
+  })();
 </script>
 </body>
 </html>
