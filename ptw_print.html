@@ -1110,15 +1110,42 @@
             try{
                 const raw = d.ptw_checklist_confined_space || d.checklist_confined_space;
                 if (raw){
-                    const csFlat = typeof raw === 'string' ? JSON.parse(raw) : raw;
-                    if (csFlat && typeof csFlat === 'object'){
-                        Object.keys(csFlat).forEach(k=>{
-                            if (k === 'csSpecialPrecautions') return; // handled separately
-                            setChecked(k, true);
-                        });
-                        if (typeof csFlat.csSpecialPrecautions === 'string') {
-                            setVal('csSpecialPrecautions', csFlat.csSpecialPrecautions);
+                    const cs = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (cs && typeof cs === 'object'){
+                        // Entry conditions
+                        setChecked('csRespiratoryAtmosphere', !!cs.csRespiratoryAtmosphere);
+                        setChecked('csNonRespiratoryAtmosphere', !!cs.csNonRespiratoryAtmosphere);
+                        // Controls required (map to visual IDs where needed)
+                        setChecked('csScba_visual', !!cs.csFirstEntryScba);
+                        setChecked('csCseCertified_visual', !!cs.csEntrantsCseCertified);
+                        setChecked('csBriefed_visual', !!cs.csEntrantsBriefedBySupervisor);
+                        setChecked('csStatusBoard_visual', !!cs.csEntryStatusBoard);
+                        setChecked('csMaxPersons_visual', !!cs.csMaxPersons);
+                        setChecked('csVentilation', !!cs.csVentilation);
+                        setChecked('csEveryHours_visual', !!cs.csEveryHours);
+                        setChecked('csEntryAttendant', !!cs.csEntryAttendant);
+                        setChecked('csLowVoltage_visual', !!cs.csExtraLowVoltageLighting);
+                        setChecked('csLocateMobile_visual', !!cs.csLocateMobileEquipmentAway);
+                        setChecked('csChecklistAttached_visual', !!cs.csChecklistAttached);
+                        setChecked('csRescueEquipment', !!cs.csRescueEquipment);
+                        setChecked('csCompleteCSE_visual', !!cs.csCompleteCseChecklist);
+                        // Communication mapping
+                        setChecked('csRopeTugging', !!cs.csRopeSignals);
+                        setChecked('csRadio', !!cs.csWalkieTalkie);
+                        setChecked('csWhistle_visual', !!cs.csWhistleHorn);
+                        // Fill text values
+                        if (typeof cs.csMaxPersonsValue === 'string') {
+                            const el = document.querySelector('#csMaxPersons_visual ~ input[type="text"]');
+                            if (el) el.value = cs.csMaxPersonsValue;
                         }
+                        if (typeof cs.csEveryHoursValue === 'string') {
+                            const el = document.querySelector('#csEveryHours_visual ~ input[type="text"]');
+                            if (el) el.value = cs.csEveryHoursValue;
+                        }
+                        if (typeof cs.csCommunicationOthersText === 'string') {
+                            setVal('csOthers_visual', cs.csCommunicationOthersText);
+                        }
+                        if (typeof cs.csSpecialPrecautions === 'string') setVal('csSpecialPrecautions', cs.csSpecialPrecautions);
                         csFilled = true;
                     }
                 }

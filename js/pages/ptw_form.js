@@ -767,16 +767,30 @@ class PtwForm {
                 console.log('Loading confined space checklist data:', confinedSpaceData);
                 
                 if (typeof confinedSpaceData === 'object' && confinedSpaceData !== null) {
-                    // Handle object format: {csRespiratoryAtmosphere: "Respiratory Atmosphere", ...}
-                    Object.keys(confinedSpaceData).forEach(checkboxId => {
-                        const checkbox = document.getElementById(checkboxId);
-                        if (checkbox) {
-                            checkbox.checked = true;
-                            console.log(`Restored confined space item: ${checkboxId}`);
-                        } else {
-                            console.warn(`Confined space checkbox not found: ${checkboxId}`);
+                    // Handle object format with booleans and text fields
+                    const textKeys = new Set(['csSpecialPrecautions','csMaxPersonsValue','csEveryHoursValue','csStandbyPersonName','csCommunicationOthersText']);
+                    Object.keys(confinedSpaceData).forEach(key => {
+                        const el = document.getElementById(key);
+                        if (el) {
+                            if (el.type === 'checkbox') {
+                                el.checked = !!confinedSpaceData[key];
+                                console.log(`Restored confined space checkbox: ${key}`);
+                            } else if (textKeys.has(key)) {
+                                el.value = confinedSpaceData[key] || '';
+                                console.log(`Restored confined space text: ${key} = ${el.value}`);
+                            }
                         }
                     });
+                    // Auto-check parents when text provided
+                    const cs = confinedSpaceData;
+                    if ((cs.csMaxPersonsValue||'').trim()) { const cb=document.getElementById('csMaxPersons'); if (cb) cb.checked=true; }
+                    if ((cs.csEveryHoursValue||'').trim()) {
+                        const pm=document.getElementById('csGasMonitoring'); if (pm) pm.checked=true;
+                        const cb=document.getElementById('csEveryHours'); if (cb) cb.checked=true;
+                    }
+                    if ((cs.csStandbyPersonName||'').trim()) { const cb=document.getElementById('csEntryAttendant'); if (cb) cb.checked=true; }
+                    if ((cs.csCommunicationOthersText||'').trim()) { const cb=document.getElementById('csCommunicationOthers'); if (cb) cb.checked=true; }
+                    try { if (typeof window.refreshConfinedSpaceVisibility === 'function') window.refreshConfinedSpaceVisibility(); } catch(e) { console.warn('refreshConfinedSpaceVisibility failed', e); }
                 } else if (Array.isArray(confinedSpaceData)) {
                     // Handle array format for backward compatibility
                     confinedSpaceData.forEach(itemId => {
@@ -1799,27 +1813,42 @@ class PtwForm {
             workTypeChecklists.cold_work = coldWorkItems;
         }
         
-        // Collect confined space checklist items
-        const confinedSpaceItems = {};
-        const confinedSpaceCheckboxes = document.querySelectorAll('#confinedSpaceSection input[type="checkbox"]');
-        console.log(`Found ${confinedSpaceCheckboxes.length} confined space checkboxes`);
-        confinedSpaceCheckboxes.forEach(checkbox => {
-            console.log(`Confined space checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
-            if (checkbox.checked) {
-                const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
-                confinedSpaceItems[checkbox.id] = label;
-                console.log(`Added confined space item: ${checkbox.id} = ${label}`);
-            }
-        });
-        // Collect confined space special precautions text
-        const csSpecialPrecautions = document.getElementById('csSpecialPrecautions');
-        if (csSpecialPrecautions && csSpecialPrecautions.value.trim()) {
-            confinedSpaceItems['csSpecialPrecautions'] = csSpecialPrecautions.value.trim();
-            console.log(`Added confined space special precautions: ${csSpecialPrecautions.value.trim()}`);
-        }
-        if (Object.keys(confinedSpaceItems).length > 0) {
-            workTypeChecklists.confined_space = confinedSpaceItems;
-        }
+        // Collect confined space checklist (canonical structured)
+        const gv = (id)=>{ const el=document.getElementById(id); return el ? (el.type==='checkbox'? !!el.checked : (el.value||'')) : undefined; };
+        const CS = {
+            csRespiratoryAtmosphere: gv('csRespiratoryAtmosphere'),
+            csNonRespiratoryAtmosphere: gv('csNonRespiratoryAtmosphere'),
+            csFirstEntryScba: gv('csFirstEntryScba'),
+            csEntrantsCseCertified: gv('csEntrantsCseCertified'),
+            csEntrantsBriefedBySupervisor: gv('csEntrantsBriefedBySupervisor'),
+            csEntryStatusBoard: gv('csEntryStatusBoard'),
+            csMaxPersons: gv('csMaxPersons'),
+            csMaxPersonsValue: gv('csMaxPersonsValue'),
+            csVentilation: gv('csVentilation'),
+            csGasMonitoring: gv('csGasMonitoring'),
+            csGasContinuous: gv('csGasContinuous'),
+            csEveryHours: gv('csEveryHours'),
+            csEveryHoursValue: gv('csEveryHoursValue'),
+            csEntryAttendant: gv('csEntryAttendant'),
+            csStandbyPersonName: gv('csStandbyPersonName'),
+            csExtraLowVoltageLighting: gv('csExtraLowVoltageLighting'),
+            csLocateMobileEquipmentAway: gv('csLocateMobileEquipmentAway'),
+            csChecklistAttached: gv('csChecklistAttached'),
+            csRescueEquipment: gv('csRescueEquipment'),
+            csCompleteCseChecklist: gv('csCompleteCseChecklist'),
+            csRopeSignals: gv('csRopeSignals'),
+            csWalkieTalkie: gv('csWalkieTalkie'),
+            csWhistleHorn: gv('csWhistleHorn'),
+            csCommunicationOthers: gv('csCommunicationOthers'),
+            csCommunicationOthersText: gv('csCommunicationOthersText'),
+            csSpecialPrecautions: gv('csSpecialPrecautions')
+        };
+        if ((CS.csMaxPersonsValue||'').trim()) CS.csMaxPersons = true;
+        if ((CS.csEveryHoursValue||'').trim()) { CS.csGasMonitoring = true; CS.csEveryHours = true; }
+        if ((CS.csStandbyPersonName||'').trim()) CS.csEntryAttendant = true;
+        if ((CS.csCommunicationOthersText||'').trim()) CS.csCommunicationOthers = true;
+        workTypeChecklists.confined_space = CS;
+        console.log('Added confined space structured object:', CS);
         
         console.log('Work type specific checklists collected:', workTypeChecklists);
         return workTypeChecklists;

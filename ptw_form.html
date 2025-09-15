@@ -1761,58 +1761,141 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <!-- Column 1: Entry condition + basic controls -->
+                                                <div class="col-md-4">
                                                     <h6><strong>Entry Condition</strong></h6>
                                                     <div class="checkbox-container">
-                                                        <div class="form-check checkbox-item">
+                                                        <div class="form-check">
                                                             <input type="checkbox" class="form-check-input" id="csRespiratoryAtmosphere">
-                                                            <label class="form-check-label" for="csRespiratoryAtmosphere">Respiratory Atmosphere</label>
+                                                            <label class="form-check-label" for="csRespiratoryAtmosphere">Respirable Atmosphere</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
+                                                        <div class="form-check">
                                                             <input type="checkbox" class="form-check-input" id="csNonRespiratoryAtmosphere">
-                                                            <label class="form-check-label" for="csNonRespiratoryAtmosphere">Non-Respiratory Atmosphere</label>
-                                                        </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="csGasMonitoring">
-                                                            <label class="form-check-label" for="csGasMonitoring">Gas Monitoring Required</label>
-                                                        </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="csVentilation">
-                                                            <label class="form-check-label" for="csVentilation">Mechanical Ventilation</label>
-                                                        </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="csEntryAttendant">
-                                                            <label class="form-check-label" for="csEntryAttendant">Entry Attendant Present</label>
-                                                        </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="csRescueEquipment">
-                                                            <label class="form-check-label" for="csRescueEquipment">Rescue Equipment Available</label>
+                                                            <label class="form-check-label" for="csNonRespiratoryAtmosphere">Irrespirable Atmosphere</label>
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div class="mt-3">
-                                                        <h6><strong>Communication Methods</strong></h6>
+                                                    <div class="mt-2">
+                                                        <h6><strong>Controls Required</strong></h6>
                                                         <div class="checkbox-container">
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="csRadio">
-                                                                <label class="form-check-label" for="csRadio">Radio Communication</label>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csFirstEntryScba">
+                                                                <label class="form-check-label" for="csFirstEntryScba">First entry using SCBA or air line set</label>
                                                             </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="csVisualSignals">
-                                                                <label class="form-check-label" for="csVisualSignals">Visual Signals</label>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csEntrantsCseCertified">
+                                                                <label class="form-check-label" for="csEntrantsCseCertified">Entrants are CSE certified</label>
                                                             </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="csRopeTugging">
-                                                                <label class="form-check-label" for="csRopeTugging">Rope Tugging System</label>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csEntrantsBriefedBySupervisor">
+                                                                <label class="form-check-label" for="csEntrantsBriefedBySupervisor">Entrants briefed of risk by supervisor</label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <h6><strong>Special Precautions</strong></h6>
-                                                    <textarea id="csSpecialPrecautions" class="form-control" rows="6" 
-                                                              placeholder="Describe special precautions for confined space entry..."></textarea>
+                                                <!-- Column 2: Gas, ventilation, standby, electrical, mobile equipment -->
+                                                <div class="col-md-4">
+                                                    <h6><strong>Controls Required</strong></h6>
+                                                    <div class="checkbox-container">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csEntryStatusBoard">
+                                                            <label class="form-check-label" for="csEntryStatusBoard">Entry status board/log</label>
+                                                        </div>
+                                                        <div class="form-check" style="display:flex; gap:6px; align-items:center;">
+                                                            <input type="checkbox" class="form-check-input" id="csMaxPersons" data-others-field="csMaxPersonsValue">
+                                                            <label class="form-check-label" for="csMaxPersons" style="margin:0;">Maximum no. of persons allowed:</label>
+                                                            <input type="text" id="csMaxPersonsValue" class="form-control form-control-sm" style="max-width:40px;" placeholder="0" inputmode="numeric" pattern="[0-9]*" maxlength="3">
+                                                            <label class="form-check-label" style="margin:0;">Person</label>
+                                                        </div>
+
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csVentilation">
+                                                            <label class="form-check-label" for="csVentilation">Continuous ventilation</label>
+                                                        </div>
+
+                                                        <div class="form-check" style="margin-bottom:0;">
+                                                            <input type="checkbox" class="form-check-input" id="csGasMonitoring" data-has-sub-items="true" data-section-id="cs_gas_section">
+                                                            <label class="form-check-label" for="csGasMonitoring">Gas Monitoring</label>
+                                                        </div>
+                                                        <div class="ml-4">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csGasContinuous" data-parent-section="cs_gas_section">
+                                                                <label class="form-check-label" for="csGasContinuous">Continuous</label>
+                                                            </div>
+                                                            <div class="form-check d-flex align-items-center" style="gap:6px;">
+                                                                <input type="checkbox" class="form-check-input" id="csEveryHours" data-parent-section="cs_gas_section" data-others-field="csEveryHoursValue">
+                                                                <label class="form-check-label" for="csEveryHours" style="margin:0;">Every</label>
+                                                                <input type="text" id="csEveryHoursValue" class="form-control form-control-sm" placeholder="0" style="max-width: 80px;" inputmode="numeric" pattern="[0-9]*" maxlength="3">
+                                                                <label class="form-check-label" style="margin:0;">hours</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csEntryAttendant" data-others-field="csStandbyPersonName">
+                                                            <label class="form-check-label" for="csEntryAttendant">Standby person</label>
+                                                        </div>
+                                                        <div class="ml-4 mb-2 d-flex align-items-center" style="gap:6px;">
+                                                            <label class="form-check-label" for="csStandbyPersonName" style="margin:0;">Name:</label>
+                                                            <input type="text" id="csStandbyPersonName" class="form-control form-control-sm" placeholder="Enter name" style="max-width: 240px;">
+                                                        </div>
+
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csExtraLowVoltageLighting">
+                                                            <label class="form-check-label" for="csExtraLowVoltageLighting">Extra low voltage lighting (50V minimum)</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csLocateMobileEquipmentAway">
+                                                            <label class="form-check-label" for="csLocateMobileEquipmentAway">Locate mobile equipment away from manhole</label>
+                                                        </div>
+                                                    </div>
+
+                                                    
+                                                </div>
+
+                                                <!-- Column 3: Checklist + Communication + Special precautions -->
+                                                <div class="col-md-4">
+                                                    <h6><strong>Controls Required</strong></h6>
+                                                    <div class="checkbox-container">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csChecklistAttached">
+                                                            <label class="form-check-label" for="csChecklistAttached">Confined space entry checklist attached</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csRescueEquipment">
+                                                            <label class="form-check-label" for="csRescueEquipment">Rescue equipment</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="csCompleteCseChecklist">
+                                                            <label class="form-check-label" for="csCompleteCseChecklist">Complete CSE Checklist</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <h6 class="mb-1"><strong>Type of communication used:</strong></h6>
+                                                        <div class="checkbox-container ml-3">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csRopeSignals">
+                                                                <label class="form-check-label" for="csRopeSignals">Rope signals</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csWalkieTalkie">
+                                                                <label class="form-check-label" for="csWalkieTalkie">Walkie talkie</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="csWhistleHorn">
+                                                                <label class="form-check-label" for="csWhistleHorn">Whistle/horn</label>
+                                                            </div>
+                                                            <div class="form-check d-flex align-items-center" style="gap:6px;">
+                                                                <input type="checkbox" class="form-check-input" id="csCommunicationOthers" data-others-field="csCommunicationOthersText">
+                                                                <label class="form-check-label" for="csCommunicationOthers" style="margin:0;">Others</label>
+                                                                <input type="text" id="csCommunicationOthersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 200px;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-3">
+                                                        <h6><strong>Special Precautions</strong></h6>
+                                                        <textarea id="csSpecialPrecautions" class="form-control" rows="6" placeholder="Describe special precautions for confined space entry..."></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -3622,38 +3705,33 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             }
         }
         
-        // Populate confined space checklist from ptw_checklist_confined_space
+        // Populate confined space checklist from ptw_checklist_confined_space (structured)
         if (data.ptw_checklist_confined_space) {
             try {
-                let confinedSpaceData;
+                let cs;
                 if (typeof data.ptw_checklist_confined_space === 'string') {
-                    confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
+                    cs = JSON.parse(data.ptw_checklist_confined_space);
                 } else if (typeof data.ptw_checklist_confined_space === 'object') {
-                    confinedSpaceData = data.ptw_checklist_confined_space;
+                    cs = data.ptw_checklist_confined_space;
                 }
-                
-                console.log('Populating confined space checklist:', confinedSpaceData);
-                
-                if (confinedSpaceData && typeof confinedSpaceData === 'object') {
-                    // Handle checkboxes
-                    Object.keys(confinedSpaceData).forEach(key => {
-                        if (key !== 'csSpecialPrecautions') {  // Skip textarea field
-                            const checkbox = document.getElementById(key);
-                            if (checkbox && checkbox.type === 'checkbox') {
-                                checkbox.checked = true;
-                                console.log('Set confined space checkbox:', key, 'to checked');
-                            }
-                        }
+                console.log('Populating confined space checklist:', cs);
+                if (cs && typeof cs === 'object') {
+                    const textKeys = new Set(['csSpecialPrecautions','csMaxPersonsValue','csEveryHoursValue','csStandbyPersonName','csCommunicationOthersText']);
+                    Object.keys(cs).forEach(key => {
+                        const el = document.getElementById(key);
+                        if (!el) return;
+                        if (el.type === 'checkbox') el.checked = !!cs[key];
+                        else if (textKeys.has(key)) el.value = cs[key] || '';
                     });
-                    
-                    // Handle special precautions textarea
-                    if (confinedSpaceData.csSpecialPrecautions) {
-                        const precautionsField = document.getElementById('csSpecialPrecautions');
-                        if (precautionsField) {
-                            precautionsField.value = confinedSpaceData.csSpecialPrecautions;
-                            console.log('Set confined space special precautions:', confinedSpaceData.csSpecialPrecautions);
-                        }
+                    // Auto-enable parents when text provided
+                    if ((cs.csMaxPersonsValue||'').trim()) { const cb = document.getElementById('csMaxPersons'); if (cb) cb.checked = true; }
+                    if ((cs.csEveryHoursValue||'').trim()) {
+                        const pm = document.getElementById('csGasMonitoring'); if (pm) pm.checked = true;
+                        const cb = document.getElementById('csEveryHours'); if (cb) cb.checked = true;
                     }
+                    if ((cs.csStandbyPersonName||'').trim()) { const cb = document.getElementById('csEntryAttendant'); if (cb) cb.checked = true; }
+                    if ((cs.csCommunicationOthersText||'').trim()) { const cb = document.getElementById('csCommunicationOthers'); if (cb) cb.checked = true; }
+                    try { refreshConfinedSpaceVisibility(); } catch(e){ console.warn('refreshConfinedSpaceVisibility failed', e); }
                 }
             } catch (error) {
                 console.error('Error parsing ptw_checklist_confined_space:', error, 'Raw value:', data.ptw_checklist_confined_space);
@@ -4610,30 +4688,51 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             console.log('📋 Hot Work Checklist (canonical):', HW);
         })();
         
-        // Collect Confined Space Checklist Data
-        const confinedSpaceData = {};
-        const confinedSpaceElements = [
-            'csRespiratoryAtmosphere', 'csNonRespiratoryAtmosphere', 'csGasMonitoring',
-            'csVentilation', 'csEntryAttendant', 'csRescueEquipment', 'csRadio',
-            'csVisualSignals', 'csRopeTugging'
-        ];
-        
-        confinedSpaceElements.forEach(elementId => {
-            const element = document.getElementById(elementId);
-            if (element && element.checked) {
-                confinedSpaceData[elementId] = element.nextElementSibling?.textContent?.trim() || elementId;
-            }
-        });
-        
-        // Add confined space special precautions
-        const csSpecialPrecautions = document.getElementById('csSpecialPrecautions');
-        if (csSpecialPrecautions && csSpecialPrecautions.value.trim()) {
-            confinedSpaceData.csSpecialPrecautions = csSpecialPrecautions.value.trim();
-        }
-        
-        // Use parameter names that match the form submission
-        formData.checklist_confined_space = Object.keys(confinedSpaceData).length > 0 ? JSON.stringify(confinedSpaceData) : null;
-        console.log(`📋 Confined Space Checklist Data:`, confinedSpaceData);
+        // Collect Confined Space Checklist Data (canonical structured)
+        (function collectConfinedSpace(){
+            function gv(id){ const el=document.getElementById(id); return el ? (el.type==='checkbox'? !!el.checked : (el.value||'')) : (undefined); }
+            const CS = {
+                // Entry conditions
+                csRespiratoryAtmosphere: gv('csRespiratoryAtmosphere'),
+                csNonRespiratoryAtmosphere: gv('csNonRespiratoryAtmosphere'),
+                // Controls required (simple)
+                csFirstEntryScba: gv('csFirstEntryScba'),
+                csEntrantsCseCertified: gv('csEntrantsCseCertified'),
+                csEntrantsBriefedBySupervisor: gv('csEntrantsBriefedBySupervisor'),
+                csEntryStatusBoard: gv('csEntryStatusBoard'),
+                csMaxPersons: gv('csMaxPersons'),
+                csMaxPersonsValue: gv('csMaxPersonsValue'),
+                csVentilation: gv('csVentilation'),
+                csGasMonitoring: gv('csGasMonitoring'),
+                csGasContinuous: gv('csGasContinuous'),
+                csEveryHours: gv('csEveryHours'),
+                csEveryHoursValue: gv('csEveryHoursValue'),
+                csEntryAttendant: gv('csEntryAttendant'),
+                csStandbyPersonName: gv('csStandbyPersonName'),
+                csExtraLowVoltageLighting: gv('csExtraLowVoltageLighting'),
+                csLocateMobileEquipmentAway: gv('csLocateMobileEquipmentAway'),
+                csChecklistAttached: gv('csChecklistAttached'),
+                csRescueEquipment: gv('csRescueEquipment'),
+                csCompleteCseChecklist: gv('csCompleteCseChecklist'),
+                // Communication types
+                csRopeSignals: gv('csRopeSignals'),
+                csWalkieTalkie: gv('csWalkieTalkie'),
+                csWhistleHorn: gv('csWhistleHorn'),
+                csCommunicationOthers: gv('csCommunicationOthers'),
+                csCommunicationOthersText: gv('csCommunicationOthersText'),
+                // Free text
+                csSpecialPrecautions: gv('csSpecialPrecautions')
+            };
+
+            // Auto-enable parent flags when text is provided
+            if ((CS.csMaxPersonsValue||'').trim()) CS.csMaxPersons = true;
+            if ((CS.csEveryHoursValue||'').trim()) { CS.csGasMonitoring = true; CS.csEveryHours = true; }
+            if ((CS.csStandbyPersonName||'').trim()) CS.csEntryAttendant = true;
+            if ((CS.csCommunicationOthersText||'').trim()) CS.csCommunicationOthers = true;
+
+            formData.checklist_confined_space = JSON.stringify(CS);
+            console.log('📋 Confined Space Checklist (canonical):', CS);
+        })();
         
         // Collect Supporting Documents Checklist Data
         const supportingDocsData = [];
@@ -5592,6 +5691,8 @@ I/We confirm that we have read and fully understood the terms and conditions abo
     initializeSubCheckboxDependencies();
     // Hot Work behavior (auto-check on text inputs, sanitize hours)
     try { initializeHotWorkBehavior(); } catch (e) { console.warn('initHotWorkBehavior failed', e); }
+    // Confined Space behavior (auto-check on text inputs, sanitize numbers)
+    try { initializeConfinedSpaceBehavior(); } catch (e) { console.warn('initConfinedSpaceBehavior failed', e); }
         
         console.log('Work type conditional sections initialized');
     }
@@ -5834,6 +5935,67 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         }
         // Run once to reveal any prefilled fields
         refreshHotWorkVisibility();
+    }
+
+    // CONFINED SPACE: visibility refresh for text fields and sub-options
+    function refreshConfinedSpaceVisibility(){
+        // Gas monitoring sub-options
+        const gasMain = document.getElementById('csGasMonitoring');
+        if (gasMain) toggleSubCheckboxes('cs_gas_section', !!gasMain.checked);
+        // Reveal text inputs when their parent checkbox is checked or there is a value
+        const pairs = [
+            { cb: 'csMaxPersons', tx: 'csMaxPersonsValue' },
+            { cb: 'csEveryHours', tx: 'csEveryHoursValue', also: 'csGasMonitoring' },
+            { cb: 'csEntryAttendant', tx: 'csStandbyPersonName' },
+            { cb: 'csCommunicationOthers', tx: 'csCommunicationOthersText' }
+        ];
+        pairs.forEach(({ cb, tx, also }) => {
+            const cbEl = document.getElementById(cb);
+            const txEl = document.getElementById(tx);
+            if (!txEl) return;
+            const hasVal = (txEl.value || '').trim().length > 0;
+            const active = (cbEl && cbEl.checked) || hasVal;
+            if (active) {
+                txEl.style.display = 'block';
+                txEl.disabled = false;
+                if (cbEl && hasVal) cbEl.checked = true;
+                if (also) { const alsoEl = document.getElementById(also); if (alsoEl && (cbEl?.checked || hasVal)) alsoEl.checked = true; }
+            } else {
+                // keep default hidden state otherwise
+            }
+        });
+    }
+
+    // CONFINED SPACE: auto-check on text and numeric-only sanitization
+    function initializeConfinedSpaceBehavior(){
+        const pairs = [
+            { textId: 'csMaxPersonsValue', checkboxId: 'csMaxPersons' },
+            { textId: 'csEveryHoursValue', checkboxId: 'csEveryHours', also: 'csGasMonitoring' },
+            { textId: 'csStandbyPersonName', checkboxId: 'csEntryAttendant' },
+            { textId: 'csCommunicationOthersText', checkboxId: 'csCommunicationOthers' }
+        ];
+        pairs.forEach(({ textId, checkboxId, also }) => {
+            const txt = document.getElementById(textId);
+            const cb  = document.getElementById(checkboxId);
+            const alsoCb = also ? document.getElementById(also) : null;
+            if (!txt) return;
+            txt.addEventListener('input', () => {
+                const has = (txt.value||'').trim().length > 0;
+                if (cb) cb.checked = has;
+                if (alsoCb) alsoCb.checked = has;
+                refreshConfinedSpaceVisibility();
+            });
+        });
+        // numeric-only for person count and hour interval
+        ['csMaxPersonsValue','csEveryHoursValue'].forEach(id=>{
+            const el=document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', ()=>{
+                const digits=(el.value||'').replace(/[^0-9]/g,'').slice(0,3);
+                if (el.value!==digits) el.value=digits;
+            });
+        });
+        refreshConfinedSpaceVisibility();
     }
     
     // Validate contractor declaration section
